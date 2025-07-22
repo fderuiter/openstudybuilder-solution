@@ -17,8 +17,9 @@ from clinical_mdr_api.routers import _generic_descriptions, decorators
 from clinical_mdr_api.services.concepts.medicinal_products_service import (
     MedicinalProductService,
 )
-from common import config
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.config import settings
 from common.models.error import ErrorResponse
 
 # Prefixed with "/concepts"
@@ -29,7 +30,7 @@ MedicinalProductUID = Path(description="The unique id of the medicinal product")
 
 @router.get(
     "/medicinal-products",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List all medicinal products (for a given library)",
     description=f"""
 State before:
@@ -86,15 +87,15 @@ def get_medicinal_products(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -104,7 +105,7 @@ def get_medicinal_products(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -126,7 +127,7 @@ def get_medicinal_products(
 
 @router.get(
     "/medicinal-products/versions",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List all versions of medicinal products",
     description=f"""
 State before:
@@ -182,15 +183,15 @@ def get_medicinal_products_versions(
     library_name: Annotated[str | None, Query()] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -200,7 +201,7 @@ def get_medicinal_products_versions(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -222,7 +223,7 @@ def get_medicinal_products_versions(
 
 @router.get(
     "/medicinal-products/headers",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns possible values from the database for a given header",
     description="Allowed parameters include : field name for which to get possible values, "
     "search string to provide filtering for the field name, additional filters to apply on other fields",
@@ -252,10 +253,10 @@ def get_distinct_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     medicinal_product_service = MedicinalProductService()
     return medicinal_product_service.get_distinct_values_for_header(
@@ -270,7 +271,7 @@ def get_distinct_values_for_header(
 
 @router.get(
     "/medicinal-products/{medicinal_product_uid}",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Get details on a specific medicinal product (in a specific version)",
     description="""
 Possible errors:
@@ -291,7 +292,7 @@ def get_activity(
 
 @router.get(
     "/medicinal-products/{medicinal_product_uid}/versions",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List version history for medicinal products",
     description="""
 State before:
@@ -325,7 +326,7 @@ def get_versions(
 
 @router.post(
     "/medicinal-products",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Creates new medicinal product.",
     description="""
 State before:
@@ -372,7 +373,7 @@ def create(
 
 @router.patch(
     "/medicinal-products/{medicinal_product_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Update medicinal product",
     description="""
 State before:
@@ -421,7 +422,7 @@ def edit(
 
 @router.post(
     "/medicinal-products/{medicinal_product_uid}/approvals",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Approve draft version of a medicinal product",
     description="""
 State before:
@@ -465,7 +466,7 @@ def approve(
 
 @router.post(
     "/medicinal-products/{medicinal_product_uid}/versions",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary=" Create a new version of a medicinal product",
     description="""
 State before:
@@ -507,7 +508,7 @@ def create_new_version(
 
 @router.delete(
     "/medicinal-products/{medicinal_product_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary=" Inactivate final version of a medicinal product",
     description="""
 State before:
@@ -550,7 +551,7 @@ def inactivate(
 
 @router.post(
     "/medicinal-products/{medicinal_product_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Reactivate retired version of a medicinal product",
     description="""
 State before:
@@ -593,7 +594,7 @@ def reactivate(
 
 @router.delete(
     "/medicinal-products/{medicinal_product_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Delete draft version of a medicinal product",
     description="""
 State before:

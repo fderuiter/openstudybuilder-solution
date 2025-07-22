@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Iterable, Self, Type, TypeVar
+from typing import Any, Callable, Iterable, Self, TypeVar
 
 from clinical_mdr_api.utils import normalize_string
 from common import exceptions
@@ -34,7 +34,7 @@ class StudySelectionBaseAR:
     """
 
     _study_uid: str
-    _study_objects_selection: tuple
+    _study_objects_selection: tuple[Any, ...]
     repository_closure_data: Any = field(
         init=False, compare=False, repr=True, default=None
     )
@@ -54,12 +54,12 @@ class StudySelectionBaseAR:
         return self._study_objects_selection
 
     @study_objects_selection.setter
-    def study_objects_selection(self, value: Iterable[Type[StudySelectionBaseVO]]):
+    def study_objects_selection(self, value: Iterable[type[StudySelectionBaseVO]]):
         self._study_objects_selection = tuple(value)
 
     def get_specific_object_selection(
         self, study_selection_uid: str
-    ) -> tuple[Type[StudySelectionBaseVO], int]:
+    ) -> tuple[type[StudySelectionBaseVO], int]:
         for order, selection in enumerate(self.study_objects_selection, start=1):
             if selection.study_selection_uid == study_selection_uid:
                 return selection, order
@@ -67,7 +67,7 @@ class StudySelectionBaseAR:
 
     def add_object_selection(
         self,
-        study_object_selection: Type[TStudySelectionVO],
+        study_object_selection: type[TStudySelectionVO],
         object_exist_callback: Callable[[str], bool] = (lambda _: True),
         ct_term_level_exist_callback: Callable[[str], bool] = (lambda _: True),
     ) -> None:
@@ -98,7 +98,7 @@ class StudySelectionBaseAR:
 
     def add_selection_to_closure_from_other_ar(
         self,
-        study_object_selection: Type[TStudySelectionVO],
+        study_object_selection: type[TStudySelectionVO],
     ) -> None:
         self.closure_from_other_ar = study_object_selection
 
@@ -106,7 +106,7 @@ class StudySelectionBaseAR:
     def from_repository_values(
         cls,
         study_uid: str,
-        study_objects_selection: Iterable[Type[StudySelectionBaseVO]],
+        study_objects_selection: Iterable[type[StudySelectionBaseVO]],
     ) -> Self:
         return cls(
             _study_uid=normalize_string(study_uid),
@@ -145,7 +145,7 @@ class StudySelectionBaseAR:
 
     def update_selection(
         self,
-        updated_study_object_selection: Type[TStudySelectionVO],
+        updated_study_object_selection: type[TStudySelectionVO],
         object_exist_callback: Callable[[str], bool] = (lambda _: True),
         ct_term_level_exist_callback: Callable[[str], bool] = (lambda _: True),
     ) -> None:

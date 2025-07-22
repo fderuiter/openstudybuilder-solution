@@ -12,12 +12,14 @@ This repository contains an API providing read/write access to Clinical MDR (Cli
 
 ## Setup python virtual environment
 
-* Make sure Python 3.11 is installed on your machine.
+* Make sure Python 3.13 is installed on your machine.
 * Install a recent [Pipenv](https://pipenv.pypa.io/en/latest/) version, e.g. 2023.3.20 or later.
 * Run `pipenv sync --dev` from root folder to install the required python libraries.
 
 ## Setup environment variables
 Copy `.env.example` and name it `.env` and update the variables as needed.
+
+All variables must be in `UPPER_CASE`.
 
 Notes:
 - Update the value of `UID` to your actual user id reported by `id` command.
@@ -52,9 +54,9 @@ Notes:
   ```
 
 - The application uses a tracing middleware to log useful information for each request.
-  If this is not desired, set `TRACING_DISABLED` variable to `false`:
+  If this is not desired, set `TRACING_ENABLED` variable to `false`:
   ```shell
-  TRACING_DISABLED=false
+  TRACING_ENABLED=false
   ```
 
 ## Launch API locally
@@ -100,6 +102,8 @@ All in all, you should be able to start the API by performing these steps:
 - `pipenv run testauth` - Runs all tests defined in the `clinical_mdr_api/tests/oauth` folder and generates test and coverage reports
 - `pipenv run test-telemetry` - Runs all tests defined in the `clinical_mdr_api/tests/telemetry` folder and generates test and coverage reports
 - `pipenv run test` - Runs all tests defined in the `clinical_mdr_api/tests` folder
+- `pipenv run mypy` - Performs type checking [mypy](https://mypy.readthedocs.io/)
+- `pipenv run sblint` - Performs static code analysis using [SBLint](./sblint)
 - `pipenv run lint` - Performs static code analysis using [Pylint](https://pylint.pycqa.org/en/latest/)
 - `pipenv run openapi` - Generates API specification in the [OpenAPI](https://swagger.io/specification/) format and stores it in `openapi.json` file
 - `pipenv run schemathesis` - Checks API implementation against the specification defined in `openapi.json` file using the [schemathesis](https://schemathesis.readthedocs.io/en/stable/) tool

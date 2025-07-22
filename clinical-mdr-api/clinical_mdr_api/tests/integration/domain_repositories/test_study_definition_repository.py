@@ -53,10 +53,15 @@ from clinical_mdr_api.tests.unit.domain.study_definition_aggregate.test_root imp
     make_random_study_metadata_edit,
 )
 from clinical_mdr_api.tests.unit.domain.utils import random_str
-from common import config
 from common.auth.user import user
+from common.config import settings
 
-IGNORE_ORDER_FOR = ["trial_intent_types_codes", "trial_phase_codes", "trial_type_codes"]
+IGNORE_ORDER_FOR = [
+    "trial_intent_types_codes",
+    "trial_phase_codes",
+    "trial_type_codes",
+    "dictionary_terms",
+]
 IGNORED_FIELDS = [
     "not_for_update",
     "additional_closure",
@@ -1213,7 +1218,7 @@ def _get_study_soa_preferences_audit_trail_actions(
         action
         for trail in trails
         for action in trail.actions
-        if action.field_name in config.STUDY_SOA_PREFERENCES_FIELDS
+        if action.field_name in settings.study_soa_preferences_fields
     ]
 
     return actions

@@ -12,6 +12,7 @@ Tests for /standards/dataset-scenarios endpoints
 import json
 import logging
 from functools import reduce
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -211,7 +212,7 @@ def test_get_dataset_scenario(api_client):
     assert_response_status_code(response, 200)
 
     # Check fields included in the response
-    assert set(list(res.keys())) == set(DATASET_SCENARIO_FIELDS_ALL)
+    assert set(res.keys()) == set(DATASET_SCENARIO_FIELDS_ALL)
     for key in DATASET_SCENARIO_FIELDS_NOT_NULL:
         assert res[key] is not None
 
@@ -223,7 +224,7 @@ def test_get_dataset_scenario(api_client):
 
 
 def test_get_dataset_scenarios_pagination(api_client):
-    results_paginated: dict = {}
+    results_paginated: dict[Any, Any] = {}
     sort_by = '{"uid": true}'
     for page_number in range(1, 4):
         url = f"/standards/dataset-scenarios?page_number={page_number}&page_size=10&sort_by={sort_by}"
@@ -235,14 +236,14 @@ def test_get_dataset_scenarios_pagination(api_client):
             },
         )
         res = response.json()
-        res_uids = list(map(lambda x: x["uid"], res["items"]))
+        res_uids = [item["uid"] for item in res["items"]]
         results_paginated[page_number] = res_uids
         log.info("Page %s: %s", page_number, res_uids)
 
     log.info("All pages: %s", results_paginated)
 
     results_paginated_merged = list(
-        list(reduce(lambda a, b: a + b, list(results_paginated.values())))
+        list(reduce(lambda a, b: list(a) + list(b), list(results_paginated.values())))
     )
     log.info("All rows returned by pagination: %s", results_paginated_merged)
 
@@ -253,7 +254,7 @@ def test_get_dataset_scenarios_pagination(api_client):
             "data_model_ig_version": data_model_ig.version_number,
         },
     ).json()
-    results_all_in_one_page = list(map(lambda x: x["uid"], res_all["items"]))
+    results_all_in_one_page = [item["uid"] for item in res_all["items"]]
     log.info("All rows in one page: %s", results_all_in_one_page)
     assert len(results_all_in_one_page) == len(results_paginated_merged)
     assert len(dataset_scenarios) == len(results_paginated_merged)

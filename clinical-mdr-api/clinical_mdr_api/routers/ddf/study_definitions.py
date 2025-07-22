@@ -16,6 +16,7 @@ from clinical_mdr_api.services.studies.study_design_figure import (
 )
 from clinical_mdr_api.services.studies.study_flowchart import StudyFlowchartService
 from common.auth import rbac
+from common.auth.dependencies import security
 from common.models.error import ErrorResponse
 
 router = APIRouter(prefix="/studyDefinitions")
@@ -28,7 +29,7 @@ templates = Jinja2Templates(directory=str(M11_TEMPLATES_DIR_PATH))
 
 @router.get(
     path="/{study_uid}",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     response_class=PrettyJSONResponse,
     status_code=200,
     responses={
@@ -60,7 +61,7 @@ def get_study(
 
 @router.get(
     path="/{study_uid}/m11",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     responses={
         403: _generic_descriptions.ERROR_403,
         200: {"content": {"text/html": {"schema": {"type": "string"}}}},
@@ -109,9 +110,9 @@ def get_study_m11_protocol(
         "study_flowchart_html_table": study_flowchart_html_table_str,
         "protocol_short_title": ddf_study.label,
         "protocol_acronym": study_uid,
-        "sponsor_name": ddf_study.versions[0].studyIdentifiers[0].scopeId,
+        #        "sponsor_name": ddf_study.versions[0].studyIdentifiers[0].scopeId,
         "sponsor_legal_address": "Novo Nordisk A/S Novo Allé, 2880 Bagsvaerd Denmark Tel: +45 4444 8888",
-        "protocol_number": ddf_study.versions[0].studyIdentifiers[0].id,
+        #        "protocol_number": ddf_study.versions[0].studyIdentifiers[0].id,
         "protocol_version": ddf_study.documentedBy[0].versions[0].version,
         "trial_phase": ddf_study.versions[0].studyDesigns[0].studyPhase.standardCode,
         "primary_objectives": [
@@ -155,6 +156,28 @@ def get_study_m11_protocol(
             .population.plannedAge.minValue.unit.standardCode.decode
             if ddf_study.versions[0].studyDesigns[0].population.plannedAge is not None
             else "Missing"
+        ),
+        "population_planned_enrollment_number_quantity_value": (
+            int(
+                ddf_study.versions[0]
+                .studyDesigns[0]
+                .population.plannedEnrollmentNumberQuantity.value
+            )
+            if ddf_study.versions[0]
+            .studyDesigns[0]
+            .population.plannedEnrollmentNumberQuantity
+            is not None
+            else "Missing"
+        ),
+        "trial_intervention_total_duration": (
+            ddf_study.versions[0]
+            .studyDesigns[0]
+            .scheduleTimelines[0]
+            .timings[-1]
+            .valueLabel
+            if len(ddf_study.versions[0].studyDesigns[0].scheduleTimelines[0].timings)
+            > 0
+            else None
         ),
         "number_of_arms": len(ddf_study.versions[0].studyDesigns[0].arms),
         "civ_id_sin_number": next(

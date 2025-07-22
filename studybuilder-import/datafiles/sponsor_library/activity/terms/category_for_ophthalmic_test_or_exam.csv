@@ -1,0 +1,5 @@
+CT_CD_LIST_SUBMVAL,CT_NAME,NAME_SENTENSE_CASE,CT_SUBMVAL,DEFINITION,ORDER,CT_CD,NCI_PREFERRED_NAME
+OECAT,AE Requiring Additional Data,AE requiring additional data,AE REQUIRING ADDITIONAL DATA,AE Requiring Additional Data,1,,AE Requiring Additional Data
+OECAT,Eye Examination,eye examination,EYE EXAMINATION,Eye Examination,2,,Eye Examination
+OECAT,Eye Imaging,eye imaging,EYE IMAGING,Eye Imaging,3,,Eye Imaging
+OECAT,Visual Acuity,visual acuity,VISUAL ACUITY,Visual Acuity,4,,Visual Acuity

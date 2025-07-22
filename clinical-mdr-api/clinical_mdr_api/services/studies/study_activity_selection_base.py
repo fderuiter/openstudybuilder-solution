@@ -31,7 +31,7 @@ from common import exceptions
 from common.auth.user import user
 from common.telemetry import trace_calls
 
-_AggregateRootType = TypeVar("_AggregateRootType")
+_AggregateRootType = TypeVar("_AggregateRootType", bound=StudySelectionBaseAR)
 _VOType = TypeVar("_VOType")  # pylint: disable=invalid-name
 
 
@@ -40,7 +40,7 @@ class StudyActivitySelectionBaseService(StudySelectionMixin):
     repository_interface: type
     selected_object_repository_interface: type
 
-    _vo_to_ar_filter_map = {}
+    _vo_to_ar_filter_map: dict[Any, Any] = {}
 
     def __init__(self):
         self._repos = MetaRepository()
@@ -64,7 +64,7 @@ class StudyActivitySelectionBaseService(StudySelectionMixin):
     @abc.abstractmethod
     def _transform_all_to_response_model(
         self,
-        study_selection: _AggregateRootType,
+        study_selection: StudySelectionBaseAR,
         study_value_version: str | None = None,
     ) -> list[BaseModel]:
         raise NotImplementedError
@@ -132,17 +132,17 @@ class StudyActivitySelectionBaseService(StudySelectionMixin):
 
     def get_default_sorting(
         self,
-    ) -> dict | None:
+    ) -> dict[str, bool] | None:
         return None
 
     def get_all_selections_for_all_studies(
         self,
         project_name: str | None = None,
         project_number: str | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         **kwargs,
@@ -182,10 +182,10 @@ class StudyActivitySelectionBaseService(StudySelectionMixin):
     def get_all_selection(
         self,
         study_uid: str,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         study_value_version: str | None = None,
@@ -338,7 +338,7 @@ class StudyActivitySelectionBaseService(StudySelectionMixin):
         # pylint: disable=unused-argument
         previous_selection: _VOType,
         updated_selection: _VOType,
-    ) -> bool:
+    ):
         # let the aggregate update the value object
         selection_aggregate.update_selection(
             updated_study_object_selection=updated_selection,
@@ -402,7 +402,7 @@ class StudyActivitySelectionBaseService(StudySelectionMixin):
         field_name: str,
         study_uid: str | None = None,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
         study_value_version: str | None = None,
@@ -438,7 +438,7 @@ class StudyActivitySelectionBaseService(StudySelectionMixin):
     ) -> BaseModel:
         repos = self._repos
         try:
-            selection_aggregate = self._find_ar_and_validate_new_order(
+            selection_aggregate: tuple[Any, ...] = self._find_ar_and_validate_new_order(
                 study_uid=study_uid,
                 study_selection_uid=study_selection_uid,
                 new_order=new_order,

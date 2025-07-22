@@ -16,8 +16,9 @@ from clinical_mdr_api.routers import _generic_descriptions, decorators
 from clinical_mdr_api.services.concepts.odms.odm_study_events import (
     OdmStudyEventService,
 )
-from common import config
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.config import settings
 from common.models.error import ErrorResponse
 
 # Prefixed with "/concepts/odms/templates"
@@ -29,7 +30,7 @@ OdmStudyEventUID = Path(description="The unique id of the ODM Study Event.")
 
 @router.get(
     "",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Return every variable related to the selected status and version of the ODM Study Events",
     description=_generic_descriptions.DATA_EXPORTS_HEADER,
     status_code=200,
@@ -71,15 +72,15 @@ def get_all_odm_study_events(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -89,7 +90,7 @@ def get_all_odm_study_events(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -111,7 +112,7 @@ def get_all_odm_study_events(
 
 @router.get(
     "/headers",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -141,10 +142,10 @@ def get_distinct_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     odm_study_event_service = OdmStudyEventService()
     return odm_study_event_service.get_distinct_values_for_header(
@@ -159,7 +160,7 @@ def get_distinct_values_for_header(
 
 @router.get(
     "/{odm_study_event_uid}",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Get details on a specific ODM Study Event (in a specific version)",
     status_code=200,
     responses={
@@ -176,7 +177,7 @@ def get_odm_study_event(
 
 @router.get(
     "/{odm_study_event_uid}/relationships",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Get UIDs of a specific ODM Study Event's relationships",
     status_code=200,
     responses={
@@ -186,14 +187,14 @@ def get_odm_study_event(
 )
 def get_active_relationships(
     odm_study_event_uid: Annotated[str, OdmStudyEventUID],
-) -> dict:
+) -> dict[str, list[str]]:
     odm_study_event_service = OdmStudyEventService()
     return odm_study_event_service.get_active_relationships(uid=odm_study_event_uid)
 
 
 @router.get(
     "/{odm_study_event_uid}/versions",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List version history for ODM Study Event",
     description="""
 State before:
@@ -227,7 +228,7 @@ def get_odm_study_event_versions(
 
 @router.post(
     "",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Creates a new Study Event in 'Draft' status with version 0.1",
     status_code=201,
     responses={
@@ -251,7 +252,7 @@ def create_odm_study_event(
 
 @router.patch(
     "/{odm_study_event_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Update ODM Study Event",
     status_code=200,
     responses={
@@ -282,7 +283,7 @@ def edit_odm_study_event(
 
 @router.post(
     "/{odm_study_event_uid}/versions",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary=" Create a new version of ODM Study Event",
     description="""
 State before:
@@ -324,7 +325,7 @@ def create_odm_study_event_version(
 
 @router.post(
     "/{odm_study_event_uid}/approvals",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Approve draft version of ODM Study Event",
     status_code=201,
     responses={
@@ -351,7 +352,7 @@ def approve_odm_study_event(
 
 @router.delete(
     "/{odm_study_event_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary=" Inactivate final version of ODM Study Event",
     status_code=200,
     responses={
@@ -377,7 +378,7 @@ def inactivate_odm_study_event(
 
 @router.post(
     "/{odm_study_event_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Reactivate retired version of a ODM Study Event",
     status_code=200,
     responses={
@@ -403,7 +404,7 @@ def reactivate_odm_study_event(
 
 @router.post(
     "/{odm_study_event_uid}/forms",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Adds forms to the ODM Study Event.",
     status_code=201,
     responses={
@@ -443,7 +444,7 @@ def add_forms_to_odm_study_event(
 
 @router.delete(
     "/{odm_study_event_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Delete draft version of ODM Study Event",
     status_code=204,
     responses={

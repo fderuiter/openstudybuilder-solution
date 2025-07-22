@@ -12,6 +12,7 @@ from clinical_mdr_api.services.studies.study_design_figure import (
     StudyDesignFigureService,
 )
 from common.auth import rbac
+from common.auth.dependencies import security
 
 StudyUID = Path(description="The unique id of the study.")
 
@@ -27,7 +28,7 @@ class SVGResponse(Response):
 
 @router.get(
     "/{study_uid}/design.svg",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Builds and returns a Study Design visualization image in SVG format",
     status_code=200,
     responses={

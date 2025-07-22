@@ -188,6 +188,10 @@ const route = useRoute()
 const { t } = useI18n()
 
 const props = defineProps({
+  itemData: {
+    type: Object,
+    default: () => ({}),
+  },
   activityId: {
     type: String,
     default: '',

@@ -1,3 +1,5 @@
+from typing import Any
+
 from neomodel import db
 
 from clinical_mdr_api.domain_repositories.concepts.simple_concepts.numeric_value_with_unit_repository import (
@@ -53,7 +55,7 @@ class LagTimeRepository(NumericValueWithUnitRepository):
         return base_data_changed or additional_rels_changed
 
     def _create_aggregate_root_instance_from_cypher_result(
-        self, input_dict: dict
+        self, input_dict: dict[str, Any]
     ) -> LagTimeAR:
         major, minor = input_dict.get("version").split(".")
         return self.aggregate_class.from_repository_values(

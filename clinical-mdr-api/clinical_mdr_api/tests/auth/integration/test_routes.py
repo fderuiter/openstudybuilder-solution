@@ -3,6 +3,14 @@ import starlette
 from clinical_mdr_api.tests.auth.integration.routes import ALL_ROUTES_METHODS_ROLES
 
 IGNORE_ROUTES_METHODS = {
+    ("/", "GET"),
+    ("/system/information/license.md", "GET"),
+    ("/system/information/sbom.md", "GET"),
+    ("/system/information/build-id", "GET"),
+    ("/system/information", "GET"),
+    ("/system/healthcheck", "GET"),
+    ("/feature-flags", "GET"),
+    ("/notifications/actives", "GET"),
     ("/docs", "HEAD"),
     ("/redoc", "HEAD"),
     ("/docs/oauth2-redirect", "HEAD"),
@@ -11,8 +19,10 @@ IGNORE_ROUTES_METHODS = {
     ("/redoc", "GET"),
     ("/docs/oauth2-redirect", "GET"),
     ("/openapi.json", "GET"),
-    ("/feature-flags", "GET"),
-    ("/notifications/active", "GET"),
+    (
+        "/concepts/activities/activity-sub-groups/{activity_subgroup_uid}/activities",
+        "GET",
+    ),
 }
 
 

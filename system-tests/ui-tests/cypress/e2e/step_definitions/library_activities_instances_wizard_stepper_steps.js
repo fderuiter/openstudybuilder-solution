@@ -2,10 +2,11 @@ const { Given, When, Then } = require("@badeball/cypress-cucumber-preprocessor")
 
 let topicCode, instanceName
 
+Then("Topic code is changed to the unique one", () => cy.contains('.v-stepper-window-item .v-input', 'Topic code').clear().type(Date.now()))
+
 Then("Created activity is visible in table", () => cy.searchAndCheckPresence(instanceName, true))
 
 Then("Activity instance is not visible in table", () => cy.searchAndCheckPresence(instanceName, false))
-
 
 Given("The Activity Instance Wizard Stepper {string} page is displayed", (stepperPage) => {
     cy.contains('.v-stepper-item', stepperPage).should('have.class', 'v-stepper-item--selected')

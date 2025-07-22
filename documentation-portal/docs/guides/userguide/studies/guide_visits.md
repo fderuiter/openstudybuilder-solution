@@ -172,7 +172,7 @@ Epoch | The epoch, the visit is assigned to
 Visit Type | Based on the visit type codelist in the library. Example: Screening
 SoA Milestone | Indicate the visit type is to be displayed as a SoA milestone
 Visit Class | Scheduled visit, Unscheduled visit, Non-visit, Special Visit, Manually defined visit
-Visit Subclass | Single visit, Anchor visit in visit grouo, Additional sub-visit, Repeating visit
+Visit Subclass | Single visit, Anchor visit in visit group, Additional sub-visit, Repeating visit
 Repeating frequency | For repeating visits the optional specification of the repeating frequency
 Visit name | Visit as name. Example: Visit 2. Defined manually for Manually defined visits
 Anchor visit in visit group | Indicator when visit is the anchor visit in a visit stretching across several days

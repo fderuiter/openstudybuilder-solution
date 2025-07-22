@@ -164,7 +164,6 @@ def test_get_activity_subgroup_overview(api_client):
 
     # Verifying structure and data
     assert "activity_subgroup" in res
-    assert "activities" in res
     assert "all_versions" in res
 
     subgroup_data = res["activity_subgroup"]
@@ -187,20 +186,9 @@ def test_get_activity_subgroup_overview(api_client):
     assert "start_date" in subgroup_data
     assert "activity_groups" in subgroup_data
 
-    activities = res["activities"]
-    log.info("\nActivities in Response: %d", len(activities))
-    for activity in activities:
-        log.info("  Activity: %s (UID: %s)", activity["name"], activity["uid"])
-
-    assert (
-        len(activities) == 3
-    ), f"Should have exactly 3 activities, got {len(activities)}"
-
-    activity_names = sorted(activity["name"] for activity in activities)
-    expected_names = sorted(["Albumin", "Renal Event", "Albumin/Creatinine"])
-    assert (
-        activity_names == expected_names
-    ), f"Expected activities {expected_names}, got {activity_names}"
+    activity_groups = subgroup_data["activity_groups"]
+    assert len(activity_groups) == 1
+    assert activity_groups[0]["name"] == "AE Requiring Additional Data"
 
 
 def test_get_activity_subgroup_overview_not_found(api_client):
@@ -226,14 +214,18 @@ def test_get_activity_subgroup_overview_with_version(api_client):
 
     assert_response_status_code(response, 200)
 
-    activities = res["activities"]
-    log.info("\nActivities in Version 0.1: %d", len(activities))
-    for activity in activities:
-        log.info("  Activity: %s (UID: %s)", activity["name"], activity["uid"])
+    # Verify the structure exists
+    assert "activity_subgroup" in res
+    assert "all_versions" in res
 
-    assert (
-        len(activities) == 3
-    ), f"Should have 3 activities in version 0.1, got {len(activities)}"
+    # Verify version information
+    subgroup_data = res["activity_subgroup"]
+    assert subgroup_data["version"] == "0.1"
+    assert subgroup_data["status"] == "Draft"
+
+    # Check activity groups in this version
+    activity_groups = subgroup_data["activity_groups"]
+    assert len(activity_groups) == 1
 
 
 def test_get_activity_group_overview(api_client):
@@ -326,7 +318,7 @@ def test_get_activity_group_overview(api_client):
     assert sorted_subgroups[2]["version"] == "1.0"
     assert sorted_subgroups[2]["status"] == "Final"
 
-    # Verifyin versions
+    # Verifying versions
     versions = res["all_versions"]
     assert len(versions) == 2
     assert versions == ["1.0", "0.1"]

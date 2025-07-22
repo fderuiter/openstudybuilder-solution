@@ -35,7 +35,7 @@ from clinical_mdr_api.tests.integration.utils.method_library import (
 )
 from clinical_mdr_api.tests.integration.utils.utils import TestUtils
 from clinical_mdr_api.tests.utils.checks import assert_response_status_code
-from common import config as settings
+from common.config import settings
 
 # Global variables shared between fixtures and tests
 study: Study
@@ -75,7 +75,7 @@ def test_data():
 
     catalogue_name, library_name = get_catalogue_name_library_name(use_test_utils=True)
     # Create a study selection
-    ct_term_codelist_name = settings.STUDY_EPOCH_SUBTYPE_NAME
+    ct_term_codelist_name = settings.study_epoch_subtype_name
     ct_term_name = ct_term_codelist_name + " Name For StudyStandardVersioning test"
     ct_term_start_date = datetime(2020, 3, 25, tzinfo=timezone.utc)
 

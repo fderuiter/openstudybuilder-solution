@@ -139,14 +139,13 @@ class StudyStandardVersion(BaseModel):
     study_version: Annotated[
         str | None,
         Field(
-            title="study version or date information",
             description="Study version number, if specified, otherwise None.",
             json_schema_extra={"nullable": True},
         ),
     ]
     ct_package: Annotated[
         CTPackage | None,
-        Field(description="CtPackage", json_schema_extra={"nullable": True}),
+        Field(json_schema_extra={"nullable": True}),
     ]
     description: Annotated[
         str | None,

@@ -3,6 +3,12 @@ import { getCurrStudyUid } from '../../support/helper_functions'
 
 let studyVisits_uid
 
+When('User search for visit with name {string}', (visitName) => cy.searchAndCheckPresence(visitName, true))
+
+When('Epoch {string} is selected for the visit', (epoch) => cy.selectVSelect('study-period', epoch))
+
+When('Time unit {string} is selected for the visit', (timeUnit) => cy.selectVSelect('time-unit', timeUnit))
+
 When('[API] Study vists uids are fetched for study {string}', (study_uid) => cy.getStudyVisits(study_uid).then(uids => studyVisits_uid = uids))
 
 When('[API] Study visits in study {string} are cleaned-up', (study_uid) => {
@@ -10,9 +16,28 @@ When('[API] Study visits in study {string} are cleaned-up', (study_uid) => {
     studyVisitsSorted_uid.forEach(visit_uid => cy.deleteStudyVisitByUid(study_uid, visit_uid))
 })
 
-Given('The epoch exists in selected study', () => {
-    cy.createTestEpoch(getCurrStudyUid())
+Given('[API] The epoch with type {string} and subtype {string} exists in selected study', (type, subtype) => {
+    createEpochViaAPI(type, subtype)
 })
+
+Given('[API] The static visit data is fetched', () => getVisitStaticData())
+
+Given('[API] The dynamic visit data is fetched: contact mode {string}, time reference {string}, type {string}, epoch {string}', (contactMode, timeReference, visitType, epochName) => {
+    getVisitDynamicData(contactMode, timeReference, visitType, epochName)})
+
+Given('[API] The visit with following attributes is created: isGlobalAnchor {int}, visitWeek {int}', (isGlobalAnchorVisit, visitWeek) => {
+    createVisitViaAPI(isGlobalAnchorVisit, visitWeek)
+})
+
+Given('[API] The visit with following attributes is created: isGlobalAnchor {int}, visitWeek {int}, maxVisitWindow {int}', (isGlobalAnchorVisit, visitWeek, maxVisitWindow) => {
+    createVisitViaAPI(isGlobalAnchorVisit, visitWeek, maxVisitWindow)
+})
+
+Given('[API] Visits group {string} is removed', (group) => cy.deleteVisitsGroup(getCurrStudyUid(), group))
+
+Given('[API] Visits group with format {string} is created', (groupFormat) => cy.createVisitsGroup(getCurrStudyUid(), groupFormat))
+
+Given('The study visits uid array is cleared', () => cy.cleanStudyVisitsUidArray())
 
 Given('The study with defined visit is selected', () => {
     cy.selectTestStudy('Study_000001')
@@ -30,6 +55,19 @@ Given('The study without Study Epoch has been selected', () => {
 })
 
 Given('The study with uid {string} is selected', study_uid => cy.selectTestStudy(study_uid))
+
+Then('Visits are no longer grouped in table', () => {
+    cy.checkRowByIndex(1, 'Collapsible visit group', '')
+    cy.checkRowByIndex(2, 'Collapsible visit group', '')
+    cy.checkRowByIndex(3, 'Collapsible visit group', '')
+})
+
+Then('Visits {string} have group displayed as {string} in table', (visits, group) => {
+    const visitArray = visits.split(',')
+    const visitsIndexes = []
+    visitArray.forEach(visit => visitArray.push(visit.trim().replace('V', '') - 1))
+    visitsIndexes.forEach(index => cy.checkRowByIndex(index, 'Collapsible visit group', group))
+})
 
 When('The epoch for visit is not selected in new visit form', () => {
     cy.wait(2500)
@@ -155,5 +193,26 @@ When('The user tries to update last treatment visit epoch to Screening without u
     cy.selectFirstVSelect('study-period')
     cy.clickButton('continue-button')
     cy.clickButton('save-button')
-
 })
+
+function createEpochViaAPI(epochType, epochSubType) {
+    cy.getEpochTypeAndSubType(epochType, epochSubType)
+    cy.getEpochTerm(getCurrStudyUid())
+    cy.createEpoch(getCurrStudyUid())
+}
+
+function getVisitStaticData() {
+    cy.getEpochAllocationUid()
+    cy.getDayAndWeekTimeUnitUid()
+}
+
+function getVisitDynamicData(contactMode, timeReference, visitType, epochName) {
+    cy.getContactModeTermUid(contactMode)
+    cy.getTimeReferenceUid(timeReference)
+    cy.getVisitTypeUid(visitType)
+    cy.getEpochUid(getCurrStudyUid(), epochName)
+}
+
+function createVisitViaAPI(isGlobalAnchorVisit, visitWeek, maxVisitWindowValue = 0) {
+    cy.createVisit(getCurrStudyUid(), isGlobalAnchorVisit, visitWeek, maxVisitWindowValue)
+}

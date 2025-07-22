@@ -914,14 +914,12 @@
       @remove="unselectItem"
     />
     <ConfirmDialog ref="confirm" :text-cols="6" :action-cols="5" />
-    <v-dialog v-model="showCollapsibleGroupForm" persistent max-width="1000px">
-      <CollapsibleVisitGroupForm
-        :open="showCollapsibleGroupForm"
-        :visits="selectedVisits"
-        @close="closeCollapsibleVisitGroupForm"
-        @created="collapsibleVisitGroupCreated"
-      />
-    </v-dialog>
+    <CollapsibleVisitDisplaySelectForm
+      :open="showCollapsibleGroupForm"
+      :visits="selectedVisits"
+      @close="closeCollapsibleVisitGroupForm"
+      @created="collapsibleVisitGroupCreated"
+    />
     <v-dialog
       v-model="showFootnoteForm"
       persistent
@@ -979,7 +977,7 @@
 import { computed, inject, ref, watch, onUpdated, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import CollapsibleVisitGroupForm from './../CollapsibleVisitGroupForm.vue'
+import CollapsibleVisitDisplaySelectForm from './../CollapsibleVisitDisplaySelectForm.vue'
 import ConfirmDialog from '@/components/tools/ConfirmDialog.vue'
 import HistoryTable from '@/components/tools/HistoryTable.vue'
 import study from '@/api/study'
@@ -1413,7 +1411,7 @@ function closeEditForm() {
   showActivityEditForm.value = false
   showDraftedActivityEditForm.value = false
   selectedStudyActivity.value = null
-  loadSoaContent()
+  loadSoaContent(true)
 }
 
 function openRemoveFootnoteForm(ele, rowUid) {
@@ -1855,7 +1853,9 @@ function toggleSubgroupActivitiesSelection(subgroupRow, value) {
       const index = studyActivitySelection.value.findIndex(
         (cell) => cell.refs?.[0]?.uid === activityCell.refs?.[0]?.uid
       )
-      studyActivitySelection.value.splice(index, 1)
+      if (index != -1) {
+        studyActivitySelection.value.splice(index, 1)
+      }
     }
   }
   // Remove duplicates in case if any activities in subgroup were already selected
@@ -1969,16 +1969,17 @@ function onResize() {
 }
 
 function groupSelectedVisits() {
-  const visitUids = selectedVisitIndexes.value.map(
-    (cell) => soaVisitRow.value[cell].refs[0].uid
-  )
+  const visitUids = selectedVisitIndexes.value
+    .sort()
+    .map((cell) => soaVisitRow.value[cell].refs[0].uid)
+  const data = {
+    visits_to_assign: visitUids,
+    validate_only: true,
+  }
   studyEpochs
-    .createCollapsibleVisitGroup(
-      studiesGeneralStore.selectedStudy.uid,
-      visitUids
-    )
+    .createCollapsibleVisitGroup(studiesGeneralStore.selectedStudy.uid, data)
     .then(() => {
-      collapsibleVisitGroupCreated()
+      showCollapsibleGroupForm.value = true
     })
     .catch((err) => {
       if (err.response.status === 400) {

@@ -18,7 +18,7 @@ class StudySelectionObjectiveVO:
     objective_uid: str | None
     objective_version: str | None
     objective_level_uid: str | None
-    objective_level_order: int | None
+    objective_level_order: int
     is_instance: bool
     # Study selection Versioning
     start_date: datetime.datetime
@@ -99,7 +99,7 @@ class StudySelectionObjectivesAR:
     """
 
     _study_uid: str
-    _study_objectives_selection: tuple
+    _study_objectives_selection: tuple[StudySelectionObjectiveVO, ...]
     repository_closure_data: Any = field(
         init=False, compare=False, repr=True, default=None
     )
@@ -259,7 +259,7 @@ class StudySelectionObjectivesAR:
             objective_exist_callback=objective_exist_callback,
             ct_term_level_exist_callback=ct_term_level_exist_callback,
         )
-        updated_selection = []
+        updated_selection: list[StudySelectionObjectiveVO] = []
         further_update = False
         for selection in self.study_objectives_selection:
             if (
@@ -282,9 +282,14 @@ class StudySelectionObjectivesAR:
             updated_selections = []
             for selection in updated_selection:
                 if (
-                    selection.objective_level_order
-                    > updated_study_objective_selection.objective_level_order
-                    and not selection_inserted
+                    selection.objective_level_order is not None
+                    and updated_study_objective_selection.objective_level_order
+                    is not None
+                    and (
+                        selection.objective_level_order
+                        > updated_study_objective_selection.objective_level_order
+                        and not selection_inserted
+                    )
                 ):
                     updated_selections.append(updated_study_objective_selection)
                     selection_inserted = True

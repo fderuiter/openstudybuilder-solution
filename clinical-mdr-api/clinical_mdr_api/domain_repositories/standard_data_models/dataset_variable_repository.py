@@ -1,3 +1,5 @@
+from typing import Any
+
 from clinical_mdr_api.domain_repositories.models.standard_data_model import (
     DatasetVariable,
     DatasetVariableInstance,
@@ -31,7 +33,7 @@ class DatasetVariableRepository(StandardDataModelRepository):
                 <-[:HAS_VERSION]-(data_model_ig_root:DataModelIGRoot)"""
 
     def union_match_clause(
-        self, filter_query_parameters: dict | None = None
+        self, filter_query_parameters: dict[Any, Any] | None = None
     ) -> str | None:
         filter_query_parameters = filter_query_parameters or {}
 
@@ -47,7 +49,7 @@ class DatasetVariableRepository(StandardDataModelRepository):
                     (standard_value:{standard_data_model_value_label})<-[:HAS_INSTANCE]-(standard_root:{standard_data_model_label})"""
         return None
 
-    def create_query_filter_statement(self, **kwargs) -> tuple[str, dict]:
+    def create_query_filter_statement(self, **kwargs) -> tuple[str, dict[Any, Any]]:
         (
             filter_statements_from_standard,
             filter_query_parameters,
@@ -99,7 +101,7 @@ class DatasetVariableRepository(StandardDataModelRepository):
             )
         return filter_statements_to_return, filter_query_parameters
 
-    def sort_by(self) -> dict | None:
+    def sort_by(self) -> dict[str, bool] | None:
         return {"dataset.ordinal": True}
 
     def specific_alias_clause(self) -> str:
@@ -124,6 +126,7 @@ class DatasetVariableRepository(StandardDataModelRepository):
             standard_value.mapping_instructions AS mapping_instructions,
             standard_value.described_value_domain AS described_value_domain,
             standard_value.value_list AS value_list,
+            standard_value.analysis_variable_set AS analysis_variable_set,
             apoc.coll.toSet([(standard_value)<-[:HAS_DATASET_VARIABLE]-
                 (:DatasetInstance)<-[:HAS_DATASET]-(data_model_ig_value:DataModelIGValue) 
                 | data_model_ig_value.name]) AS data_model_ig_names,

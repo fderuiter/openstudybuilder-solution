@@ -11,9 +11,8 @@ from cachetools import TTLCache
 from opencensus.trace import execution_context
 
 from clinical_mdr_api.models.integrations.msgraph import GraphGroup, GraphUser
-from common import config
-from common.auth import config as oauth_config
 from common.auth.dependencies import oauth
+from common.config import settings
 from common.exceptions import BusinessLogicException, ValidationException
 
 CACHE_TIMEOUT_SEC = 60 * 60  # Cache timeout in seconds
@@ -59,7 +58,7 @@ class MsGraphClientService:
         )
 
         # Dummy expired token to trigger OAuth client to do an authentication flow at first API request
-        self.token: dict = {"expires_at": 1, "access_token": None}
+        self.token: dict[str, Any] = {"expires_at": 1, "access_token": None}
 
     # pylint: disable=unused-argument
     async def set_token(
@@ -74,7 +73,7 @@ class MsGraphClientService:
         """
         self.token = token
 
-    async def request(self, method: str, url: str, **kwargs) -> dict:
+    async def request(self, method: str, url: str, **kwargs) -> dict[Any, Any]:
         """Do an API request with access token, expect a 200 response and parse JSON payload"""
 
         tracer = execution_context.get_opencensus_tracer()
@@ -99,9 +98,9 @@ class MsGraphClientService:
         return payload
 
     async def fetch_groups(self) -> list[GraphGroup]:
-        """Fetch groups matching the configured filter query MS_GRAPH_GROUPS_QUERY (or all groups if query is empty)"""
+        """Fetch groups matching the configured filter query ms_graph_groups_query (or all groups if query is empty)"""
 
-        query = config.MS_GRAPH_GROUPS_QUERY or None
+        query = settings.ms_graph_groups_query or None
 
         payload = await self.request("GET", LIST_GROUPS_URL, params=query)
 
@@ -212,23 +211,23 @@ class MsGraphClientService:
 
 # Singleton service for reusing the OIDC metadata and recycling access/refresh tokens for further requests
 service = None  # pylint: disable=invalid-name
-if not config.MS_GRAPH_INTEGRATION_ENABLED:
+if not settings.ms_graph_integration_enabled:
     log.info(
-        "MS Graph API integration is disabled. MS_GRAPH_INTEGRATION_ENABLED=%r",
-        config.MS_GRAPH_INTEGRATION_ENABLED,
+        "MS Graph API integration is disabled. ms_graph_integration_enabled=%r",
+        settings.ms_graph_integration_enabled,
     )
 elif not (
-    oauth_config.OAUTH_METADATA_URL
-    and oauth_config.OAUTH_API_APP_ID
-    and oauth_config.OAUTH_API_APP_SECRET
+    settings.oauth_metadata_url
+    and settings.oauth_api_app_id
+    and settings.oauth_api_app_secret.get_secret_value()
 ):
     log.warning(
         "MS Graph API integration is not properly configured"
-        " (check env. vars OAUTH_API_APP_ID, OAUTH_API_APP_SECRET, OAUTH_METADATA_URL and opt. MS_GRAPH_GROUPS_QUERY)"
+        " (check env. vars OAUTH_API_APP_ID, OAUTH_API_APP_SECRET, OAUTH_METADATA_URL and opt. ms_graph_groups_query)"
     )
 else:
     service = MsGraphClientService(
-        server_metadata_url=oauth_config.OAUTH_METADATA_URL,
-        client_id=oauth_config.OAUTH_API_APP_ID,
-        client_secret=oauth_config.OAUTH_API_APP_SECRET,
+        server_metadata_url=settings.oauth_metadata_url,
+        client_id=settings.oauth_api_app_id,
+        client_secret=settings.oauth_api_app_secret.get_secret_value(),
     )

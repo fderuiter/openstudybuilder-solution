@@ -1,4 +1,5 @@
 import datetime
+from typing import Any
 
 from clinical_mdr_api.domain_repositories.concepts.activities.activity_group_repository import (
     ActivityGroupRepository,
@@ -85,10 +86,12 @@ class ActivityGroupService(ConceptGenericService[ActivityGroupAR]):
         start_date = group.start_date.isoformat() if group.start_date else None
         end_date = group.end_date.isoformat() if group.end_date else None
 
-        # Get all versions for this group
-        all_versions = [
-            version.version for version in self.get_version_history(group_uid)
-        ]
+        # Get all versions for this group and deduplicate for the overview
+        version_history = self.get_version_history(group_uid)
+        all_versions = []
+        for version_item in version_history:
+            if version_item.version not in all_versions:
+                all_versions.append(version_item.version)
 
         return ActivityGroupDetail(
             name=group.name,
@@ -191,15 +194,18 @@ class ActivityGroupService(ConceptGenericService[ActivityGroupAR]):
         subgroups = subgroups_result.items
 
         # Get all versions
-        all_versions = [
-            version.version for version in self.get_version_history(group_uid)
-        ]
+        # Get all versions and deduplicate by version number for the overview
+        version_history = self.get_version_history(group_uid)
+        all_versions = []
+        for version_item in version_history:
+            if version_item.version not in all_versions:
+                all_versions.append(version_item.version)
 
         return ActivityGroupOverview(
             group=group_detail, subgroups=subgroups, all_versions=all_versions
         )
 
-    def get_cosmos_group_overview(self, group_uid: str) -> dict:
+    def get_cosmos_group_overview(self, group_uid: str) -> dict[str, Any]:
         """
         Get a COSMoS compatible representation of a specific activity group.
 

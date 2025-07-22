@@ -16,6 +16,7 @@ from clinical_mdr_api.services.controlled_terminologies.ct_package import (
     CTPackageService,
 )
 from common.auth import rbac
+from common.auth.dependencies import security
 from common.models.error import ErrorResponse
 
 # Prefixed with "/ct"
@@ -26,7 +27,7 @@ CTCodelistUid = Path(description="The unique id of the CTCodelist")
 
 @router.get(
     "/packages",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns all controlled terminology packages.",
     status_code=200,
     responses={
@@ -65,7 +66,7 @@ def get_packages(
 
 @router.get(
     "/packages/changes",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns changes between codelists and terms inside two different packages.",
     status_code=200,
     responses={
@@ -100,7 +101,7 @@ def get_packages_changes_between_codelists_and_terms(
 
 @router.get(
     "/packages/{codelist_uid}/changes",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns changes from given codelist and all associated terms inside two different packages.",
     status_code=200,
     responses={
@@ -137,7 +138,7 @@ def get_packages_changes_between_codelist_and_all_associated_terms(
 
 @router.get(
     "/packages/dates",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns all effective dates for packages in a given catalogue.",
     status_code=200,
     responses={
@@ -152,7 +153,7 @@ def get_package_dates(catalogue_name: str) -> CTPackageDates:
 
 @router.post(
     "/packages/sponsor",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Creates a sponsor CT package, in the context of a study.",
     status_code=201,
     responses={

@@ -123,6 +123,8 @@ class ActivityInstanceVO(ConceptVO):
         find_activity_instance_class_by_uid_callback: Callable[
             [str], ActivityInstanceClassAR
         ],
+        odm_form_exists_by_uid_callback: Callable[[str], bool],
+        odm_item_group_exists_by_uid_callback: Callable[[str], bool],
         odm_item_exists_by_uid_callback: Callable[[str], bool],
         get_dimension_names_by_unit_definition_uids: Callable[[list[str]], list[str]],
         activity_instance_exists_by_property_value: Callable[
@@ -226,6 +228,16 @@ class ActivityInstanceVO(ConceptVO):
                     unit_definition_exists_by_uid_callback(unit.uid),
                     msg=f"{type(self).__name__} tried to connect to non-existent or non-final Unit Definition with UID '{unit.uid}'.",
                 )
+            for odm_form in activity_item.odm_forms:
+                BusinessLogicException.raise_if_not(
+                    odm_form_exists_by_uid_callback(odm_form.uid),
+                    msg=f"{type(self).__name__} tried to connect to non-existent or non-final ODM Form with UID '{odm_form.uid}'.",
+                )
+            for odm_item_group in activity_item.odm_item_groups:
+                BusinessLogicException.raise_if_not(
+                    odm_item_group_exists_by_uid_callback(odm_item_group.uid),
+                    msg=f"{type(self).__name__} tried to connect to non-existent or non-final ODM Item Group with UID '{odm_item_group.uid}'.",
+                )
             for odm_item in activity_item.odm_items:
                 BusinessLogicException.raise_if_not(
                     odm_item_exists_by_uid_callback(odm_item.uid),
@@ -267,7 +279,7 @@ class ActivityInstanceAR(ConceptARBase):
     _concept_vo: ActivityInstanceVO
 
     @property
-    def concept_vo(self) -> _ConceptVOType:
+    def concept_vo(self) -> ActivityInstanceVO:
         return self._concept_vo
 
     @property
@@ -312,6 +324,8 @@ class ActivityInstanceAR(ConceptARBase):
         find_activity_instance_class_by_uid_callback: Callable[
             [str], ActivityInstanceClassAR
         ],
+        odm_form_exists_by_uid_callback: Callable[[str], bool] | None = None,
+        odm_item_group_exists_by_uid_callback: Callable[[str], bool] | None = None,
         odm_item_exists_by_uid_callback: Callable[[str], bool] | None = None,
         get_dimension_names_by_unit_definition_uids: (
             Callable[[list[str]], list[str]] | None
@@ -338,6 +352,8 @@ class ActivityInstanceAR(ConceptARBase):
             find_activity_item_class_by_uid_callback=find_activity_item_class_by_uid_callback,
             find_activity_instance_class_by_uid_callback=find_activity_instance_class_by_uid_callback,
             preview=preview,
+            odm_form_exists_by_uid_callback=odm_form_exists_by_uid_callback,
+            odm_item_group_exists_by_uid_callback=odm_item_group_exists_by_uid_callback,
             odm_item_exists_by_uid_callback=odm_item_exists_by_uid_callback,
             get_dimension_names_by_unit_definition_uids=get_dimension_names_by_unit_definition_uids,
             library_name=library.name,
@@ -375,6 +391,8 @@ class ActivityInstanceAR(ConceptARBase):
         find_activity_instance_class_by_uid_callback: (
             Callable[[str], ActivityInstanceClassAR] | None
         ) = None,
+        odm_form_exists_by_uid_callback: Callable[[str], bool] | None = None,
+        odm_item_group_exists_by_uid_callback: Callable[[str], bool] | None = None,
         odm_item_exists_by_uid_callback: Callable[[str], bool] | None = None,
         get_dimension_names_by_unit_definition_uids: (
             Callable[[list[str]], list[str]] | None
@@ -392,6 +410,8 @@ class ActivityInstanceAR(ConceptARBase):
             unit_definition_exists_by_uid_callback=unit_definition_exists_by_uid_callback,
             find_activity_item_class_by_uid_callback=find_activity_item_class_by_uid_callback,
             find_activity_instance_class_by_uid_callback=find_activity_instance_class_by_uid_callback,
+            odm_form_exists_by_uid_callback=odm_form_exists_by_uid_callback,
+            odm_item_group_exists_by_uid_callback=odm_item_group_exists_by_uid_callback,
             odm_item_exists_by_uid_callback=odm_item_exists_by_uid_callback,
             get_dimension_names_by_unit_definition_uids=get_dimension_names_by_unit_definition_uids,
             previous_name=self.name,

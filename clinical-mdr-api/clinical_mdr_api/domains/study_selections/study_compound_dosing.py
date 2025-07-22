@@ -97,6 +97,7 @@ class StudyCompoundDosingVO:
             medicinal_product
             and (
                 self.dose_value_uid is not None
+                and medicinal_product.concept_vo.dose_value_uids is not None
                 and self.dose_value_uid
                 not in medicinal_product.concept_vo.dose_value_uids
             ),

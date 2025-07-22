@@ -3,11 +3,12 @@ from typing import Annotated
 
 from pydantic import ConfigDict, Field
 
+from clinical_mdr_api.domains.study_selections.study_visit import VisitGroupFormat
 from clinical_mdr_api.models.controlled_terminologies.ct_term import (
     SimpleCTTermNameWithConflictFlag,
 )
 from clinical_mdr_api.models.utils import BaseModel, PatchInputModel, PostInputModel
-from common import config
+from common.config import settings
 
 
 class StudyVisitCreateInput(PostInputModel):
@@ -20,28 +21,27 @@ class StudyVisitCreateInput(PostInputModel):
         int | None,
         Field(
             json_schema_extra={"nullable": True},
-            gt=-config.MAX_INT_NEO4J,
-            lt=config.MAX_INT_NEO4J,
+            gt=-settings.max_int_neo4j,
+            lt=settings.max_int_neo4j,
         ),
     ] = None
     time_unit_uid: Annotated[str | None, Field()] = None
     visit_sublabel_reference: Annotated[str | None, Field()] = None
-    consecutive_visit_group: Annotated[str | None, Field()] = None
     show_visit: Annotated[bool, Field()]
     min_visit_window_value: Annotated[
         int | None,
         Field(
             json_schema_extra={"nullable": True},
-            gt=-config.MAX_INT_NEO4J,
-            lt=config.MAX_INT_NEO4J,
+            gt=-settings.max_int_neo4j,
+            lt=settings.max_int_neo4j,
         ),
     ] = -9999
     max_visit_window_value: Annotated[
         int | None,
         Field(
             json_schema_extra={"nullable": True},
-            gt=-config.MAX_INT_NEO4J,
-            lt=config.MAX_INT_NEO4J,
+            gt=-settings.max_int_neo4j,
+            lt=settings.max_int_neo4j,
         ),
     ] = 9999
     visit_window_unit_uid: Annotated[str | None, Field()] = None
@@ -61,8 +61,8 @@ class StudyVisitCreateInput(PostInputModel):
         int | None,
         Field(
             json_schema_extra={"nullable": True},
-            gt=-config.MAX_INT_NEO4J,
-            lt=config.MAX_INT_NEO4J,
+            gt=-settings.max_int_neo4j,
+            lt=settings.max_int_neo4j,
         ),
     ] = None
     repeating_frequency_uid: Annotated[
@@ -81,28 +81,27 @@ class StudyVisitEditInput(PatchInputModel):
         int | None,
         Field(
             json_schema_extra={"nullable": True},
-            gt=-config.MAX_INT_NEO4J,
-            lt=config.MAX_INT_NEO4J,
+            gt=-settings.max_int_neo4j,
+            lt=settings.max_int_neo4j,
         ),
     ]
     time_unit_uid: Annotated[str | None, Field()] = None
     visit_sublabel_reference: Annotated[str | None, Field()] = None
-    consecutive_visit_group: Annotated[str | None, Field()] = None
     show_visit: Annotated[bool, Field()]
     min_visit_window_value: Annotated[
         int | None,
         Field(
             json_schema_extra={"nullable": True},
-            gt=-config.MAX_INT_NEO4J,
-            lt=config.MAX_INT_NEO4J,
+            gt=-settings.max_int_neo4j,
+            lt=settings.max_int_neo4j,
         ),
     ] = -9999
     max_visit_window_value: Annotated[
         int | None,
         Field(
             json_schema_extra={"nullable": True},
-            gt=-config.MAX_INT_NEO4J,
-            lt=config.MAX_INT_NEO4J,
+            gt=-settings.max_int_neo4j,
+            lt=settings.max_int_neo4j,
         ),
     ] = 9999
     visit_window_unit_uid: Annotated[str | None, Field()] = None
@@ -122,8 +121,8 @@ class StudyVisitEditInput(PatchInputModel):
         int | None,
         Field(
             json_schema_extra={"nullable": True},
-            gt=-config.MAX_INT_NEO4J,
-            lt=config.MAX_INT_NEO4J,
+            gt=-settings.max_int_neo4j,
+            lt=settings.max_int_neo4j,
         ),
     ] = None
     repeating_frequency_uid: Annotated[
@@ -197,7 +196,6 @@ class StudyVisit(BaseModel):
     study_version: Annotated[
         str | None,
         Field(
-            title="study version or date information",
             description="Study version number, if specified, otherwise None.",
             json_schema_extra={"nullable": True},
         ),
@@ -350,6 +348,14 @@ class VisitConsecutiveGroupInput(PostInputModel):
             min_length=2,
         ),
     ]
+    format: Annotated[
+        VisitGroupFormat,
+        Field(
+            description="""The way how the Visits should be groupped. The possible values are: range or list.
+                           The range technique will name the group in the following way (V4-V6),
+                           the list technique will generate the group name in the following way (V4,V5,V6)""",
+        ),
+    ] = VisitGroupFormat.RANGE
     overwrite_visit_from_template: Annotated[
         str | None,
         Field(

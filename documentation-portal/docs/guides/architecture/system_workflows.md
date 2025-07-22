@@ -29,7 +29,7 @@ Within the "Studies" part of the OpenStudyBuilder, metadata for the studies can 
 | ------------ | -------------------------------|
 | **Create Study** <br> Creates a new study definition, or study sub part. | User must have 'Study Set-up User' access permission. <br> The related 'Clinical Programme' and 'Project' codes must be defined within the administrative module. |
 | **Select Study** <br> Select the study to be defined. | Study must exist. |
-| **List Studies** <br> List all draft, released and locked studies in one table and deleted studies on a seperate. | Studies in draft, released or locked state can be selected. <br> Core attributes for studies in draft status can be edited (same edit of core attributes as under manage study). |
+| **List Studies** <br> List all draft, released and locked studies in one table and deleted studies on a separate table. | Studies in draft, released or locked state can be selected. <br> Core attributes for studies in draft status can be edited (same edit of core attributes as under manage study). |
 
 ### Manage Study
 
@@ -43,11 +43,11 @@ The user must have 'Study Set-up User' access permission to add or edit any data
 
 | Activity     | Dependencies and prerequisites |
 | ------------ | -------------------------------|
-| **Study Titel** | Must be defined before a study can be locked. |
+| **Study Title** | Must be defined before a study can be locked. |
 | **Registry Identifiers** | At the moment only specific registry identifiers can be defined. |
 | ***Study Properties*** |
 | **Study Type** | Sponsor defined extensions to the CDISC code lists for 'Trial Type' or 'Study Phase Classification' (Trial Phase) may be needed. Other terminologies on this page is not extensible. |
-| **Study Atributes** | Sponsor defined extensions to the CDISC code lists for 'Study Intent Type' (Trial Intent Type), 'Intervention Model' or 'Study Blinding Schema' (Trial Blinding Schema) may be needed. Other terminologies on this page is not extensible. |
+| **Study Attributes** | Sponsor defined extensions to the CDISC code lists for 'Study Intent Type' (Trial Intent Type), 'Intervention Model' or 'Study Blinding Schema' (Trial Blinding Schema) may be needed. Other terminologies on this page are not extensible. |
 |  |
 | ***Study Structure*** |
 | **Study Arm** | Extensions for the sponsor code list 'Arm Type' may be needed. |
@@ -63,7 +63,7 @@ The user must have 'Study Set-up User' access permission to add or edit any data
 | **Inclusion Criteria** |  |
 | **Exclusion Criteria** |  |
 | **Run-in Criteria** |  |
-| **Randomisation Criteria** |  |
+| **Randomization Criteria** |  |
 | **Dosing Criteria** |  |
 |  |
 | ***Study Interventions*** |  |
@@ -82,7 +82,7 @@ The user must have 'Study Set-up User' access permission to add or edit any data
 | **Detailed SoA** |  |
 | **Protocol SoA** |  |
 | **SoA Footnotes** |  |
-| **Activity Instuctions** |  |
+| **Activity Instructions** |  |
 |  |
 
 
@@ -96,7 +96,7 @@ The user must have 'Study Set-up User' access permission to add or edit any data
 *To be made*
 
 
-## Down Stream Usage
+## Downstream Usage
 
 *To be made*
 

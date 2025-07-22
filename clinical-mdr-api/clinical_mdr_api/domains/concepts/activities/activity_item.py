@@ -3,6 +3,13 @@ from typing import Self
 
 from pydantic import BaseModel
 
+from clinical_mdr_api.models.concepts.activities.activity_item import (
+    CompactOdmForm,
+    CompactOdmItem,
+    CompactOdmItemGroup,
+    CompactUnitDefinition,
+)
+
 
 class LibraryItem(BaseModel):
     uid: str
@@ -19,8 +26,10 @@ class ActivityItemVO:
     activity_item_class_uid: str
     activity_item_class_name: str | None
     ct_terms: list[LibraryItem]
-    unit_definitions: list[LibraryItem]
-    odm_items: list[LibraryItem]
+    unit_definitions: list[CompactUnitDefinition]
+    odm_forms: list[CompactOdmForm]
+    odm_item_groups: list[CompactOdmItemGroup]
+    odm_items: list[CompactOdmItem]
 
     @classmethod
     def from_repository_values(
@@ -28,9 +37,11 @@ class ActivityItemVO:
         is_adam_param_specific: bool,
         activity_item_class_uid: str,
         activity_item_class_name: str | None,
-        ct_terms: list[dict[str, str]],
-        unit_definitions=list[dict[str, str]],
-        odm_items=list[dict[str, str]],
+        ct_terms: list[LibraryItem],
+        unit_definitions: list[CompactUnitDefinition],
+        odm_forms: list[CompactOdmForm],
+        odm_item_groups: list[CompactOdmItemGroup],
+        odm_items: list[CompactOdmItem],
     ) -> Self:
         activity_item_vo = cls(
             is_adam_param_specific=is_adam_param_specific,
@@ -38,6 +49,8 @@ class ActivityItemVO:
             activity_item_class_name=activity_item_class_name,
             ct_terms=ct_terms,
             unit_definitions=unit_definitions,
+            odm_forms=odm_forms,
+            odm_item_groups=odm_item_groups,
             odm_items=odm_items,
         )
 

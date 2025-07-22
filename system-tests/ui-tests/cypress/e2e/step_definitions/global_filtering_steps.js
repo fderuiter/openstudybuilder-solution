@@ -31,7 +31,7 @@ function filterByText() {
     cy.get('.v-overlay__content .v-list').filter(':visible').within(() => {
         cy.get('.v-list-item-title').first().then((element) => {
             cy.wrap(element).invoke('text').then(value => filterValue =  value.slice(0, 60))
-            cy.intercept('**/headers**').as('filterRequest')
+            cy.intercept('**filters=**').as('filterRequest')
             cy.wrap(element).click()
         })
     })

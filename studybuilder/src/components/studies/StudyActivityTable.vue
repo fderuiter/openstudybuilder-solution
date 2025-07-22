@@ -124,10 +124,21 @@
     @close="closeBatchEditForm"
     @remove="unselectItem"
   />
+  <UpdateActivityRequestForm
+    :activity="selectedStudyActivity"
+    :open="showRequestUpdateForm"
+    @close="closeUpdateForm"
+  />
+  <UpdateActivityForm
+    :activity="selectedStudyActivity"
+    :open="showUpdateForm"
+    @close="closeUpdateForm"
+  />
 </template>
 
 <script setup>
 import study from '@/api/study'
+import activities from '@/api/activities'
 import ActionsMenu from '@/components/tools/ActionsMenu.vue'
 import ConfirmDialog from '@/components/tools/ConfirmDialog.vue'
 import filteringParameters from '@/utils/filteringParameters'
@@ -137,12 +148,15 @@ import StudyActivityBatchEditForm from './StudyActivityBatchEditForm.vue'
 import StudyActivityEditForm from './StudyActivityEditForm.vue'
 import StudyDraftedActivityEditForm from './StudyDraftedActivityEditForm.vue'
 import StudyActivityForm from './StudyActivityForm.vue'
+import UpdateActivityRequestForm from './UpdateActivityRequestForm.vue'
+import UpdateActivityForm from './UpdateActivityForm.vue'
 import libConstants from '@/constants/libraries'
 import { useAccessGuard } from '@/composables/accessGuard'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { useStudyActivitiesStore } from '@/stores/studies-activities'
 import { computed, inject, ref, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { escapeHTML } from '@/utils/sanitize'
 
 const { t } = useI18n()
 const eventBusEmit = inject('eventBusEmit')
@@ -168,7 +182,7 @@ const actions = [
     icon: 'mdi-update',
     condition: (item) =>
       item.latest_activity && !item.latest_activity.is_request_rejected,
-    click: updateToLatest,
+    click: openUpdateForm,
     accessRole: roles.STUDY_WRITE,
   },
   {
@@ -214,6 +228,8 @@ const showActivityEditForm = ref(false)
 const showDraftedActivityEditForm = ref(false)
 const showActivityForm = ref(false)
 const showBatchEditForm = ref(false)
+const showRequestUpdateForm = ref(false)
+const showUpdateForm = ref(false)
 const showHistory = ref(false)
 const headers = [
   { title: '', key: 'actions', width: '1%' },
@@ -302,11 +318,11 @@ async function showRejectingInfo(item) {
     width: 600,
     agreeLabel: t('_global.accept'),
   }
-  const msg = `${t('StudyActivityTable.rejected_activity_info_part_1')}
-    <p style="color:orange;"><b>${item.latest_activity.name}</b></p> ${t('StudyActivityTable.rejected_activity_info_part_2')}
-    <p style="color:orange;"><b>${item.latest_activity.reason_for_rejecting}.</b></p>${t('StudyActivityTable.rejected_activity_info_part_3')}
-    <b style="color:orange;">${item.latest_activity.contact_person.toUpperCase()}</b>${t('StudyActivityTable.rejected_activity_info_part_4')}`
-  if (await confirm.value.open(msg, options)) {
+  const messageHtml = `${t('StudyActivityTable.rejected_activity_info_part_1')}
+    <p style="color:orange;"><b>${escapeHTML(item.latest_activity.name)}</b></p> ${t('StudyActivityTable.rejected_activity_info_part_2')}
+    <p style="color:orange;"><b>${escapeHTML(item.latest_activity.reason_for_rejecting)}.</b></p>${t('StudyActivityTable.rejected_activity_info_part_3')}
+    <b style="color:orange;">${escapeHTML(item.latest_activity.contact_person.toUpperCase())}</b>${t('StudyActivityTable.rejected_activity_info_part_4')}`
+  if (await confirm.value.openHtml(messageHtml, options)) {
     study
       .deleteStudyActivity(
         studiesGeneralStore.selectedStudy.uid,
@@ -328,32 +344,33 @@ function getActionsForItem(item) {
     result.unshift({
       label: t('StudyActivityTable.update_activity_request'),
       icon: 'mdi-bell-outline',
-      iconColor: 'red',
+      iconColor: item.keep_old_version ? 'green' : 'red',
       click: updateActivityRequest,
     })
   }
   return result
 }
 
-function updateToLatest(item) {
-  study
-    .updateToLatestActivityVersion(
-      studiesGeneralStore.selectedStudy.uid,
-      item.study_activity_uid
-    )
-    .then(() => {
-      eventBusEmit('notification', {
-        type: 'success',
-        msg: t('StudyActivityTable.update_success'),
-      })
-      table.value.filterTable()
-    })
+function openUpdateForm(item) {
+  selectedStudyActivity.value = item
+  if (item.activity.library_name === 'Sponsor') {
+    showUpdateForm.value = true
+  } else {
+    showRequestUpdateForm.value = true
+  }
+}
+
+function closeUpdateForm() {
+  selectedStudyActivity.value = null
+  showRequestUpdateForm.value = false
+  showUpdateForm.value = false
+  table.value.filterTable()
 }
 
 function actionsMenuBadge(item) {
   if (item.activity.replaced_by_activity || item.latest_activity) {
     return {
-      color: 'error',
+      color: item.keep_old_version ? 'green' : 'error',
       icon: 'mdi-exclamation',
     }
   }
@@ -405,17 +422,12 @@ function editStudyDraftedActivity(sa) {
 }
 
 function updateActivityRequest(sa) {
-  study
-    .updateToApprovedActivity(
-      studiesGeneralStore.selectedStudy.uid,
-      sa.study_activity_uid
-    )
-    .then(() => {
-      eventBusEmit('notification', {
-        type: 'success',
-        msg: t('StudyActivityTable.update_success'),
-      })
-      table.value.filterTable()
+  activities
+    .getObject('activities', sa.activity.replaced_by_activity)
+    .then((resp) => {
+      sa.latest_activity = resp.data
+      selectedStudyActivity.value = sa
+      showRequestUpdateForm.value = true
     })
 }
 

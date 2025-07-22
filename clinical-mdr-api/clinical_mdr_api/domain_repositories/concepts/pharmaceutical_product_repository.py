@@ -1,3 +1,5 @@
+from typing import Any
+
 from deepdiff import DeepDiff
 
 from clinical_mdr_api.domain_repositories.concepts.concept_generic_repository import (
@@ -204,22 +206,23 @@ class PharmaceuticalProductRepository(ConceptGenericRepository):
         ]
 
     def _create_aggregate_root_instance_from_cypher_result(
-        self, input_dict: dict
+        self, input_dict: dict[str, Any]
     ) -> PharmaceuticalProductAR:
         major, minor = input_dict.get("version").split(".")
         ar = PharmaceuticalProductAR.from_repository_values(
             uid=input_dict.get("uid"),
             concept_vo=PharmaceuticalProductVO.from_repository_values(
                 external_id=input_dict.get("external_id"),
-                dosage_form_uids=list(
-                    map(lambda x: x.get("uid"), input_dict.get("dosage_forms"))
-                ),
-                route_of_administration_uids=list(
-                    map(
-                        lambda x: x.get("uid"),
-                        input_dict.get("routes_of_administration"),
+                dosage_form_uids=[
+                    dosage_form.get("uid")
+                    for dosage_form in input_dict.get("dosage_forms")
+                ],
+                route_of_administration_uids=[
+                    routes_of_administration.get("uid")
+                    for routes_of_administration in input_dict.get(
+                        "routes_of_administration"
                     )
-                ),
+                ],
                 formulations=list(
                     map(
                         lambda x: FormulationVO.from_repository_values(

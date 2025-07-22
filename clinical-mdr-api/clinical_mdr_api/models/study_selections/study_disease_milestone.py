@@ -10,7 +10,7 @@ from clinical_mdr_api.domains.study_selections.study_disease_milestone import (
     StudyDiseaseMilestoneVO,
 )
 from clinical_mdr_api.models.utils import BaseModel, PatchInputModel, PostInputModel
-from common import config
+from common.config import settings
 
 
 class StudyDiseaseMilestoneEditInput(PatchInputModel):
@@ -30,7 +30,7 @@ class StudyDiseaseMilestoneCreateInput(PostInputModel):
         Field(
             json_schema_extra={"nullable": True},
             gt=0,
-            lt=config.MAX_INT_NEO4J,
+            lt=settings.max_int_neo4j,
             description="The ordering of the selection",
         ),
     ] = None
@@ -140,7 +140,6 @@ class StudyDiseaseMilestone(StudyDiseaseMilestoneCreateInput):
     study_version: Annotated[
         str | None,
         Field(
-            title="study version or date information",
             description="Study version number, if specified, otherwise None.",
             json_schema_extra={"nullable": True},
         ),
@@ -176,7 +175,7 @@ class StudySelectionDiseaseMilestoneNewOrder(BaseModel):
         int,
         Field(
             description="new order of the selected disease milestones",
-            gt=-config.MAX_INT_NEO4J,
-            lt=config.MAX_INT_NEO4J,
+            gt=-settings.max_int_neo4j,
+            lt=settings.max_int_neo4j,
         ),
     ]

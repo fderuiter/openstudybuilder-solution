@@ -14,13 +14,14 @@ from clinical_mdr_api.services.studies.study_interventions import (
 )
 from clinical_mdr_api.services.utils.table_f import TableWithFootnotes
 from common.auth import rbac
+from common.auth.dependencies import security
 
 StudyUID = Path(description="The unique id of the study.")
 
 
 @router.get(
     "/{study_uid}/interventions",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns Study Protocol Interventions table",
     status_code=200,
     responses={
@@ -37,7 +38,7 @@ def get_study_interventions(
 
 @router.get(
     "/{study_uid}/interventions.html",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Builds and returns an HTML document of Study Protocol Interventions table",
     responses={
         403: _generic_descriptions.ERROR_403,
@@ -54,7 +55,7 @@ def get_study_interventions_html(
 
 @router.get(
     "/{study_uid}/interventions.docx",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Builds and returns a DOCX document of Study Protocol Interventions table",
     responses={
         403: _generic_descriptions.ERROR_403,

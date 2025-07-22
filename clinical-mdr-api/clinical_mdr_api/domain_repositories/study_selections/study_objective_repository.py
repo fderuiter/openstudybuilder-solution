@@ -1,9 +1,13 @@
 import datetime
 from dataclasses import dataclass
+from typing import Any
 
 from neomodel import db
 
 from clinical_mdr_api import utils
+from clinical_mdr_api.domain_repositories._utils.helpers import (
+    acquire_write_lock_study_value,
+)
 from clinical_mdr_api.domain_repositories.generic_repository import (
     manage_previous_connected_study_selection_relationships,
 )
@@ -49,16 +53,6 @@ class SelectionHistory:
 
 
 class StudySelectionObjectiveRepository:
-    @staticmethod
-    def _acquire_write_lock_study_value(uid: str) -> None:
-        db.cypher_query(
-            """
-             MATCH (sr:StudyRoot {uid: $uid})
-             REMOVE sr.__WRITE_LOCK__
-             RETURN true
-            """,
-            {"uid": uid},
-        )
 
     def _retrieves_all_data(
         self,
@@ -178,8 +172,8 @@ class StudySelectionObjectiveRepository:
             study_uids=study_uids,
         )
         # Create a dictionary, with study_uid as key, and list of selections as value
-        selection_aggregate_dict = {}
-        selection_aggregates = []
+        selection_aggregate_dict: dict[str, Any] = {}
+        selection_aggregates: list[Any] = []
         for selection in all_selections:
             if selection.study_uid in selection_aggregate_dict:
                 selection_aggregate_dict[selection.study_uid].append(selection)
@@ -207,7 +201,7 @@ class StudySelectionObjectiveRepository:
         :return:
         """
         if for_update:
-            self._acquire_write_lock_study_value(study_uid)
+            acquire_write_lock_study_value(study_uid)
         all_selections = self._retrieves_all_data(
             study_uid, study_value_version=study_value_version
         )

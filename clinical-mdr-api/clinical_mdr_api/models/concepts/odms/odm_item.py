@@ -1,6 +1,6 @@
 from typing import Annotated, Callable, Self
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from clinical_mdr_api.descriptions.general import CHANGES_FIELD_DESC
 from clinical_mdr_api.domains.concepts.activities.activity import ActivityAR
@@ -63,7 +63,7 @@ from clinical_mdr_api.models.controlled_terminologies.ct_term import (
     SimpleTermModel,
 )
 from clinical_mdr_api.models.utils import BaseModel, InputModel, PostInputModel
-from common import config
+from common.config import settings
 
 
 class OdmItemTermRelationshipModel(BaseModel):
@@ -467,43 +467,63 @@ class OdmItemUnitDefinitionRelationshipInput(InputModel):
     order: Annotated[int | None, Field()] = 999999
 
 
+def check_length_and_significant_digits(model):
+    _datatype = (
+        model.datatype.casefold() if isinstance(model.datatype, str) else model.datatype
+    )
+
+    if model.length is not None and _datatype not in [
+        "text",
+        "string",
+        "integer",
+        "float",
+    ]:
+        raise ValueError(
+            "When datatype is not 'text', 'string', 'integer' or 'float', length must be null."
+        )
+    if model.length is None and _datatype in ["text", "string"]:
+        raise ValueError(
+            "When datatype is 'text' or 'string', length must be provided."
+        )
+
+    if _datatype == "float" and (
+        bool(model.length is not None) ^ bool(model.significant_digits is not None)
+    ):
+        raise ValueError(
+            "When datatype is 'float', both length and significant_digits must be provided together, or both must be null."
+        )
+    return model
+
+
 class OdmItemPostInput(ConceptPostInput):
     oid: Annotated[str | None, Field(min_length=1)] = None
     datatype: Annotated[str, Field(min_length=1)]
     prompt: Annotated[str | None, Field()] = None
-    length: Annotated[
-        int | None,
-        Field(json_schema_extra={"nullable": True}, ge=0, lt=config.MAX_INT_NEO4J),
-    ] = None
+    length: Annotated[int | None, Field(ge=0, lt=settings.max_int_neo4j)] = None
     significant_digits: Annotated[
-        int | None,
-        Field(json_schema_extra={"nullable": True}, ge=0, lt=config.MAX_INT_NEO4J),
+        int | None, Field(ge=0, lt=settings.max_int_neo4j)
     ] = None
     sas_field_name: Annotated[str | None, Field()] = None
     sds_var_name: Annotated[str | None, Field()] = None
     origin: Annotated[str | None, Field()] = None
     comment: Annotated[str | None, Field()] = None
-    descriptions: Annotated[list[OdmDescriptionPostInput | str], Field()]
-    alias_uids: Annotated[list[str], Field()]
+    descriptions: list[OdmDescriptionPostInput | str] = Field(default_factory=list)
+    alias_uids: list[str] = Field(default_factory=list)
     codelist_uid: Annotated[str | None, Field(min_length=1)] = None
     unit_definitions: list[OdmItemUnitDefinitionRelationshipInput] = Field(
         default_factory=list
     )
     terms: list[OdmItemTermRelationshipInput] = Field(default_factory=list)
 
+    _ = model_validator(mode="after")(check_length_and_significant_digits)
+
 
 class OdmItemPatchInput(ConceptPatchInput):
     oid: Annotated[str | None, Field(min_length=1)]
-    datatype: Annotated[str | None, Field()]
+    datatype: Annotated[str | None, Field(min_length=1)]
     prompt: Annotated[str | None, Field()]
-    length: Annotated[
-        int | None,
-        Field(json_schema_extra={"nullable": True}, ge=0, lt=config.MAX_INT_NEO4J),
-    ]
-    significant_digits: Annotated[
-        int | None,
-        Field(json_schema_extra={"nullable": True}, ge=0, lt=config.MAX_INT_NEO4J),
-    ]
+    length: Annotated[int | None, Field(ge=0, lt=settings.max_int_neo4j)]
+    significant_digits: Annotated[int | None, Field(ge=0, lt=settings.max_int_neo4j)]
     sas_field_name: Annotated[str | None, Field()]
     sds_var_name: Annotated[str | None, Field()]
     origin: Annotated[str | None, Field()]
@@ -515,6 +535,8 @@ class OdmItemPatchInput(ConceptPatchInput):
     unit_definitions: Annotated[list[OdmItemUnitDefinitionRelationshipInput], Field()]
     codelist_uid: Annotated[str | None, Field(min_length=1)]
     terms: Annotated[list[OdmItemTermRelationshipInput], Field()]
+
+    _ = model_validator(mode="after")(check_length_and_significant_digits)
 
 
 class OdmItemActivityPostInput(PostInputModel):

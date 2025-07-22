@@ -15,7 +15,6 @@ import json
 import logging
 import random
 from string import ascii_lowercase
-from typing import Sequence
 from unittest import mock
 
 import pytest
@@ -36,10 +35,6 @@ from clinical_mdr_api.models.study_selections.study import (
     StudyPatchRequestJsonModel,
 )
 from clinical_mdr_api.models.study_selections.study_selection import EndpointUnitsInput
-from clinical_mdr_api.models.study_selections.study_standard_version import (
-    StudyStandardVersion,
-    StudyStandardVersionVersion,
-)
 from clinical_mdr_api.services.studies.study import StudyService
 from clinical_mdr_api.tests.integration.utils.api import (
     inject_and_clear_db,
@@ -54,7 +49,7 @@ from clinical_mdr_api.tests.integration.utils.method_library import (
 from clinical_mdr_api.tests.integration.utils.utils import PROJECT_NUMBER, TestUtils
 from clinical_mdr_api.tests.unit.domain.utils import AUTHOR_USERNAME
 from clinical_mdr_api.tests.utils.checks import assert_response_status_code
-from common.config import STUDY_ENDPOINT_TP_NAME
+from common.config import settings
 
 log = logging.getLogger(__name__)
 
@@ -337,7 +332,7 @@ def test_get_snapshot_history(api_client):
     response = api_client.get(
         f"/studies/{study_with_history.uid}/study-standard-versions/",
     )
-    res: Sequence[StudyStandardVersion] = response.json()
+    res = response.json()
     assert_response_status_code(response, 200)
     assert res[0]["automatically_created"] is True
 
@@ -368,7 +363,7 @@ def test_get_snapshot_history(api_client):
     response = api_client.get(
         f"/studies/{study_with_history.uid}/study-standard-versions/",
     )
-    res: StudyStandardVersion = response.json()
+    res = response.json()
     assert_response_status_code(response, 200)
     assert len(res) == 0
 
@@ -376,7 +371,7 @@ def test_get_snapshot_history(api_client):
     response = api_client.get(
         f"/studies/{study_with_history.uid}/study-standard-versions/audit-trail/",
     )
-    res: Sequence[StudyStandardVersionVersion] = response.json()
+    res = response.json()
     assert_response_status_code(response, 200)
     assert res[0]["automatically_created"] is True
 
@@ -2509,7 +2504,7 @@ def test_get_pharma_cm_representation(
     timeframe = TestUtils.create_timeframe(
         timeframe_template_uid=timeframe_template.uid
     )
-    TestUtils.create_template_parameter(STUDY_ENDPOINT_TP_NAME)
+    TestUtils.create_template_parameter(settings.study_endpoint_tp_name)
 
     # Create study endpoints
     TestUtils.create_study_endpoint(
@@ -2609,7 +2604,9 @@ def test_get_pharma_cm_representation(
         }
     ]
     assert (
-        res["number_of_subjects"]
+        arm_with_type.number_of_subjects
+        and arm_without_type.number_of_subjects
+        and res["number_of_subjects"]
         == arm_with_type.number_of_subjects + arm_without_type.number_of_subjects
     )
     assert res["number_of_arms"] == 2
@@ -2848,3 +2845,61 @@ def test_study_structure_statistics(
     assert content["branch_count"] == 0
     assert content["epoch_footnote_count"] == 0
     assert content["visit_footnote_count"] == 0
+
+
+# pylint: disable=invalid-name
+def test_get_studies_list(api_client):
+    STUDY_MINIMAL_FIELDS = [
+        "uid",
+        "id",
+        "acronym",
+    ]
+    STUDY_MINIMAL_FIELDS_NOT_NULL = [
+        "uid",
+    ]
+    STUDY_SIMPLE_FIELDS = [
+        "uid",
+        "id",
+        "acronym",
+        "number",
+        "title",
+        "subpart_id",
+        "subpart_acronym",
+        "clinical_programme_name",
+        "project_number",
+        "project_name",
+        "version_author",
+        "version_status",
+        "version_start_date",
+        "version_number",
+    ]
+    STUDY_SIMPLE_FIELDS_NOT_NULL = [
+        "uid",
+        "clinical_programme_name",
+        "project_number",
+        "project_name",
+        "version_author",
+        "version_status",
+        "version_start_date",
+    ]
+
+    response = api_client.get("/studies/list")
+    assert_response_status_code(response, 200)
+    for item in response.json():
+        TestUtils.assert_response_shape_ok(
+            item, STUDY_MINIMAL_FIELDS, STUDY_MINIMAL_FIELDS_NOT_NULL
+        )
+
+    response = api_client.get("/studies/list?minimal_response=true")
+    assert_response_status_code(response, 200)
+    for item in response.json():
+        TestUtils.assert_response_shape_ok(
+            item, STUDY_MINIMAL_FIELDS, STUDY_MINIMAL_FIELDS_NOT_NULL
+        )
+
+    response = api_client.get("/studies/list?minimal_response=false")
+    assert_response_status_code(response, 200)
+    for item in response.json():
+        TestUtils.assert_response_shape_ok(
+            item, STUDY_SIMPLE_FIELDS, STUDY_SIMPLE_FIELDS_NOT_NULL
+        )

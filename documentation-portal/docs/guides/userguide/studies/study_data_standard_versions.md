@@ -15,8 +15,8 @@ Generally, a study selection of a versioned library element can be of the follow
 
 > ***So why is this then important?***
 > If e.g. similar phase III studies within a program are run almost at the same time, or an extension study is made for a main study, then it is important to apply consistent use of terminologies across these studies from protocol to submission data deliverables.
-> When different data standard versions is selected for a study specification (as it will be when a study is released or locked) then this can impact any of the related deliverables potentially including the structured protocol content. This must be acknowledged, and the system will support impact assessment of changes related to updates in related versioned library elements.
-> In future ICH M11 based digital protocol submissions related to Controlled Terminology (CT) will be part of the protocol submission and the system therefore need to be prepared for control applied CT versions.
+> When different data standard versions are selected for a study specification (as it will be when a study is released or locked) then this can impact any of the related deliverables potentially including the structured protocol content. This must be acknowledged, and the system will support impact assessment of changes related to updates in related versioned library elements.
+> In future ICH M11 based digital protocol submissions related to Controlled Terminology (CT) will be part of the protocol submission and the system therefore needs to be prepared for control applied CT versions.
 
 
 ## Controlled Terminology Selections
@@ -25,7 +25,7 @@ These can be either CDISC or sponsor defined Controlled Terminology (CT). For bo
 
 These are versioned in CT Packages by CDISC, but as we define extensions to these code lists of terms as well as our sponsor preferred names, we also version these as sponsor CT packages. Each sponsor CT package is always based on a CDISC CT package for a specific domain (like SDTM CT).
 
-The system is made so all study selections related to CT is made version independent of a CT Package version. The selection of the CT package version is then done centrally for the study enabling you can decide to apply a specific version as well as up-versioning or down-versioning the CT Package version. If the relevant CT Package is not selected the UI will show the latest sponsor value. If the selected value is not available in the currently selected CT Package for the study a notification will be displayed.
+The system is made so all study selections related to CT are made version independent of a CT Package version. The selection of the CT package version is then done centrally for the study enabling you can decide to apply a specific version as well as up-versioning or down-versioning the CT Package version. If the relevant CT Package is not selected the UI will show the latest sponsor value. If the selected value is not available in the currently selected CT Package for the study a notification will be displayed.
 
 Reports also support impact analysis of these changes and the UI support notifications if a current CT selection is not valid according to the currently selected CT Package version.
 
@@ -62,7 +62,7 @@ The selection will always be driven by selecting a Sponsor CT Package related to
 #### Follow these steps to remove a CT Package version selection
 
 1. Select the ... row action for the CT Package you will like to remove and select [Delete] action.
-1. Confirm the detetion by selcting [Continue]
+1. Confirm the deletion by selecting [Continue]
 
 
 ## Dictionary Terminology Selections
@@ -98,7 +98,7 @@ If a syntax template is available in a newer version the system will show a noti
 
 The concepts are most importantly used for activities, linked to our activity concepts, being the main biological concepts in the system ([see also section on Study Activities](userguide_activities)). But compounds, unit definitions and the CRF data collection instruments are also regarded as concepts as they correspond to a complex library element.
 
-The concepts are versioned as individual elements in the library and the study selection of a concepts is always made as a version specific selection.
+The concepts are versioned as individual elements in the library and the study selection of a concept is always made as a version specific selection.
 
 >**The central selection for study data standards for a study will therefore not cover versions of concepts.**
 >But note concepts can have relationships to CT terms, like the specimen or collection units.
@@ -134,7 +134,7 @@ The display will also be supported in two views. One view only displaying the st
 
 Internally the system must have a static reference to a Sponsor and CDISC CT Package when a study is released or locked to enable a persistent data extract of study level CT selections. This is due to the principle that CT package selections is done for the complete study with the option to up- and down-version the CT package for a study.
 
-In the early phases of the study specification process it is however not feasible to make these selections yet. The system is therefore designed so if no CT Package selection have been made the system will automatically select a CT Package from the same date. If a CT Package do not exist on the same date, one will dynamically be created.
+In the early phases of the study specification process it is however not feasible to make these selections yet. The system is therefore designed so if no CT Package selection have been made the system will automatically select a CT Package from the same date. If a CT Package does not exist on the same date, one will dynamically be created.
 
 This will make the release and lock process more smooth hiding this versioning complexity for the user and at the same time enable persistent data extract of study level CT selections. The CT Package version selection will however only be applied to the released or locked data, the subsequent draft study definition will not keep this selection.
 
@@ -142,7 +142,7 @@ If the study is re-released or re-locked at a later date without specifying a pa
 
 ### How to Release or Lock a study without a CT Package version selected
 
-When releasing or locking the study ([see section on how to manage studies](manage_studies#maintain-study-status-and-versioning)), then the system will check if a SDTM CT Sponsor CT package version is selected. If it is not selected then the system will dynamically select one from the day or create one and select it if no one exist on the day.
+When releasing or locking the study ([see section on how to manage studies](manage_studies#maintain-study-status-and-versioning)), then the system will check if a SDTM CT Sponsor CT package version is selected. If it is not selected then the system will dynamically select one from the day or create one and select it if none exists on the day.
 
 If the released or locked study definition is selected, then the automatically selected CT packages will be displayed on the study data standard versions page. But the selection will not be kept for the following draft version of the study definition.
 

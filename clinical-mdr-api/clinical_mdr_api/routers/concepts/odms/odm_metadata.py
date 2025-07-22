@@ -1,6 +1,8 @@
+import re
 from datetime import datetime
 from io import BytesIO
 from typing import Annotated
+from urllib.parse import quote
 
 from fastapi import APIRouter, File, Path, Query, Response, UploadFile
 from fastapi.responses import StreamingResponse
@@ -24,6 +26,8 @@ from clinical_mdr_api.services.concepts.odms.odm_xml_stylesheets import (
     OdmXmlStylesheetService,
 )
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.exceptions import ValidationException
 
 # Prefixed with "/concepts/odms/metadata"
 router = APIRouter()
@@ -43,7 +47,7 @@ If `parent` is empty or `*` is given then the mapping will apply to all occurren
 
 @router.post(
     "/xmls/export",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Export ODM XML",
     status_code=200,
     responses={
@@ -75,7 +79,7 @@ def get_odm_document(
     ] = None,
 ):
     if allowed_namespaces is None:
-        allowed_namespaces = {}
+        allowed_namespaces = []
     odm_xml_export_service = OdmXmlExporterService(
         target_uid,
         target_type,
@@ -100,12 +104,19 @@ def get_odm_document(
             media_type="application/pdf",
         )
 
-    return Response(content=rs, media_type="application/xml")
+    return Response(
+        content=rs,
+        media_type="application/xml",
+        headers={
+            "Content-Disposition": f'attachment; filename="odm_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xml"',
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
 
 
 @router.post(
     "/csvs/export",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Export ODM CSV",
     status_code=200,
     responses={
@@ -129,7 +140,7 @@ def get_odm_csv(target_uid: str, target_type: TargetType):
 
 @router.post(
     "/xmls/import",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Import ODM XML",
     status_code=201,
     responses={
@@ -161,7 +172,7 @@ def store_odm_xml(
 
 @router.get(
     "/xmls/stylesheets",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Listing of all available ODM XML Stylesheet names",
     status_code=200,
     responses={
@@ -175,7 +186,7 @@ def get_available_stylesheet_names() -> list[str]:
 
 @router.get(
     "/xmls/stylesheets/{stylesheet}",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Get a specific ODM XML Stylesheet",
     status_code=200,
     responses={
@@ -188,5 +199,23 @@ def get_available_stylesheet_names() -> list[str]:
 def get_specific_stylesheet(
     stylesheet: Annotated[str, Path(description="Name of the ODM XML Stylesheet.")],
 ):
+    # Validate stylesheet parameter to prevent XSS
+    if not re.match("^[a-zA-Z0-9-]+$", stylesheet):
+        raise ValidationException(
+            msg="Stylesheet name must only contain letters, numbers and hyphens."
+        )
+
     rs = OdmXmlStylesheetService.get_specific_stylesheet(stylesheet)
-    return Response(content=rs, media_type="application/xml")
+
+    # URL-encode the filename for safe inclusion in header
+    safe_filename = quote(f"{stylesheet}.xsl", safe="")
+
+    return Response(
+        content=rs,
+        media_type="application/xml",
+        headers={
+            "Content-Disposition": f'attachment; filename="{safe_filename}"',
+            "X-Content-Type-Options": "nosniff",
+            "Content-Security-Policy": "default-src 'none'",
+        },
+    )

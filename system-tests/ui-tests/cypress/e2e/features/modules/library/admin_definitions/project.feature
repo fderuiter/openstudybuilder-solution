@@ -13,33 +13,40 @@ Feature: Library - Admin Definitions - Projects
     Scenario: [Create][Postive case] User must be able to create a new project
         Given The '/library/clinical_programmes' page is opened
         Given A Clinical Programme is created
+        And Form save button is clicked
         Given The '/library/projects' page is opened
         When Click on the + button to create a new project
-        When Select an existed clinical programme
+        When Select an existing clinical programme
         And Input a project name, project number and description
-        And 'save' button is clicked on form
+        And Form save button is clicked
         Then The pop up displays 'Project added'
         And Test project is found
 
     Scenario: [Actions][Edit] User must be able to edit the none study-linked project
         Given The '/library/clinical_programmes' page is opened
         Given A Clinical Programme is created
+        And Form save button is clicked
         Given The '/library/projects' page is opened
         And Click on the + button to create a new project
-        And A test project exists and is not linked to any study
+        And Select an existing clinical programme
+        And Input a project name, project number and description
+        And Form save button is clicked
         And Test project is found
         When The 'Edit' option is clicked from the three dot menu list
         When Update the project name to a new one
-        And 'save' button is clicked on form
+        And Form save button is clicked
         Then The pop up displays 'Project updated'
         And Test project is found
 
     Scenario: [Actions][Delete] User must be able to delete the none study-linked project
         Given The '/library/clinical_programmes' page is opened
         Given A Clinical Programme is created
+        And Form save button is clicked
         Given The '/library/projects' page is opened
         And Click on the + button to create a new project
-        And A test project exists and is not linked to any study
+        And Select an existing clinical programme
+        And Input a project name, project number and description
+        And Form save button is clicked
         And Test project is found
         When The 'Delete' option is clicked from the three dot menu list
         When The continue is clicked in confirmation popup
@@ -51,12 +58,12 @@ Feature: Library - Admin Definitions - Projects
         And Test project with linked study is found
         When The 'Edit' option is clicked from the three dot menu list
         When User tries to update project name
-        And 'save' button is clicked on form
-        Then The error message displays that this project cannot be updated due to linked studies
+        And Form save button is clicked
+        Then The pop up displays 'Cannot update Project'
 
     Scenario: [Actions][Delete][Negative case]User must Not be able to delete a study-linked project
         Given The '/library/projects' page is opened
         And Test project with linked study is found
         When The 'Delete' option is clicked from the three dot menu list
         When The continue is clicked in confirmation popup
-        Then The error message shows that this project cannot be deleted due to linked studies
+        Then The pop up displays 'Cannot delete Project'

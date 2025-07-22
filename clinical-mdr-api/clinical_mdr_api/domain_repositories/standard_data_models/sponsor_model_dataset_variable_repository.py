@@ -4,6 +4,10 @@ from neomodel.sync_.match import Optional
 from clinical_mdr_api.domain_repositories.library_item_repository import (
     LibraryItemRepositoryImplBase,
 )
+from clinical_mdr_api.domain_repositories.models.controlled_terminology import (
+    CTCodelistRoot,
+    CTTermRoot,
+)
 from clinical_mdr_api.domain_repositories.models.generic import (
     Library,
     VersionRelationship,
@@ -50,6 +54,9 @@ class SponsorModelDatasetVariableRepository(
             Optional(
                 "has_sponsor_model_instance__implements_variable_class__has_variable_class__is_instance_of"
             ),
+        ).unique_variables(
+            "has_sponsor_model_instance",
+            "has_sponsor_model_instance__implements_variable_class",
         )
 
     def _has_data_changed(
@@ -65,9 +72,6 @@ class SponsorModelDatasetVariableRepository(
             or ar.sponsor_model_dataset_variable_vo.display_format
             != value.display_format
             or ar.sponsor_model_dataset_variable_vo.xml_datatype != value.xml_datatype
-            or ar.sponsor_model_dataset_variable_vo.xml_codelist != value.xml_codelist
-            or ar.sponsor_model_dataset_variable_vo.xml_codelist_multi
-            != value.xml_codelist_multi
             or ar.sponsor_model_dataset_variable_vo.core != value.core
             or ar.sponsor_model_dataset_variable_vo.origin != value.origin
             or ar.sponsor_model_dataset_variable_vo.origin_type != value.origin_type
@@ -97,8 +101,6 @@ class SponsorModelDatasetVariableRepository(
             or ar.sponsor_model_dataset_variable_vo.enrich_build_order
             != value.enrich_build_order
             or ar.sponsor_model_dataset_variable_vo.enrich_rule != value.enrich_rule
-            or ar.sponsor_model_dataset_variable_vo.xml_codelist_values
-            != value.xml_codelist_values
         )
 
     def _create(
@@ -153,8 +155,6 @@ class SponsorModelDatasetVariableRepository(
             length=ar.sponsor_model_dataset_variable_vo.length,
             display_format=ar.sponsor_model_dataset_variable_vo.display_format,
             xml_datatype=ar.sponsor_model_dataset_variable_vo.xml_datatype,
-            xml_codelist=ar.sponsor_model_dataset_variable_vo.xml_codelist,
-            xml_codelist_multi=ar.sponsor_model_dataset_variable_vo.xml_codelist_multi,
             core=ar.sponsor_model_dataset_variable_vo.core,
             origin=ar.sponsor_model_dataset_variable_vo.origin,
             origin_type=ar.sponsor_model_dataset_variable_vo.origin_type,
@@ -178,7 +178,6 @@ class SponsorModelDatasetVariableRepository(
             value_lvl_ct_codelist_id_col=ar.sponsor_model_dataset_variable_vo.value_lvl_ct_codelist_id_col,
             enrich_build_order=ar.sponsor_model_dataset_variable_vo.enrich_build_order,
             enrich_rule=ar.sponsor_model_dataset_variable_vo.enrich_rule,
-            xml_codelist_values=ar.sponsor_model_dataset_variable_vo.xml_codelist_values,
         )
         self._db_save_node(new_instance)
 
@@ -227,6 +226,21 @@ class SponsorModelDatasetVariableRepository(
                 )
                 self._db_save_node(new_instance)
 
+        # Connect with Codelists & Terms
+        for codelist_uid in ar.sponsor_model_dataset_variable_vo.references_codelists:
+            codelist_node = CTCodelistRoot.nodes.get_or_none(uid=codelist_uid)
+            BusinessLogicException.raise_if_not(
+                codelist_node,
+                msg=f"Could not find codelist with uid '{codelist_uid}'.",
+            )
+            new_instance.references_codelist.connect(codelist_node)
+        for term_uid in ar.sponsor_model_dataset_variable_vo.references_terms:
+            term_node = CTTermRoot.nodes.get_or_none(uid=term_uid)
+            BusinessLogicException.raise_if_not(
+                term_node,
+                msg=f"Could not find term with uid '{term_uid}'.",
+            )
+            new_instance.references_term.connect(term_node)
         return new_instance
 
     def _create_aggregate_root_instance_from_version_root_relationship_and_value(
@@ -276,8 +290,8 @@ class SponsorModelDatasetVariableRepository(
                 length=value.length,
                 display_format=value.display_format,
                 xml_datatype=value.xml_datatype,
-                xml_codelist=value.xml_codelist,
-                xml_codelist_multi=value.xml_codelist_multi,
+                references_codelists=value.references_codelist,
+                references_terms=value.references_terms,
                 core=value.core,
                 origin=value.origin,
                 origin_type=value.origin_type,
@@ -301,7 +315,6 @@ class SponsorModelDatasetVariableRepository(
                 value_lvl_ct_codelist_id_col=value.value_lvl_ct_codelist_id_col,
                 enrich_build_order=value.enrich_build_order,
                 enrich_rule=value.enrich_rule,
-                xml_codelist_values=value.xml_codelist_values,
             ),
             library=LibraryVO.from_input_values_2(
                 library_name=library.name,

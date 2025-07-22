@@ -1,0 +1,6 @@
+CT_CD_LIST_SUBMVAL,CT_NAME,NAME_SENTENSE_CASE,CT_SUBMVAL,DEFINITION,ORDER,CT_CD,NCI_PREFERRED_NAME
+MHCAT,Eye Disorders,eye disorders,EYE DISORDERS,Eye Disorders,1,,Eye Disorders
+MHCAT,Cardiovascular Disease,cardiovascular disease,CARDIOVASCULAR DISEASE,Cardiovascular Disease,2,,Cardiovascular Disease
+MHCAT,Gastrointestinal Disorders,gastrointestinal disorders,GASTROINTESTINAL DISORDERS,Gastrointestinal Disorders,3,,Gastrointestinal Disorders
+MHCAT,Psychiatric Disorder,psychiatric disorder,PSYCHIATRIC DISORDER,Psychiatric Disorder,4,,Psychiatric Disorder
+MHCAT,Breast Neoplasms,breast neoplasms,BREAST NEOPLASMS,Breast Neoplasms,5,,Breast Neoplasms

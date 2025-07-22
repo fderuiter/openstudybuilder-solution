@@ -33,7 +33,7 @@ Study activities can be added to a study from the library standards, from other 
 
 In the library definition of an activity, the activity can exist within a possible set of activity groups and activity subgroups, and the display of these groupings can be controlled for the protocol SoA. Unfortunately, the groupings can only be selected when you add an activity to a study, it is currently not possible to change the grouping (this we will change in a coming release).
 
-Beside the activity grouping each study activity will also need to be related to an overall SoA group. This releate to the specific context of the activity in the study and is related to a general code list for SoA groups (i.e. this grouping is not limited fo the specific activities.). Values can be like Subject related information, Safety, Efficacy, etc. The selection of SoA group can be changed by editing a study activity.
+Beside the activity grouping each study activity will also need to be related to an overall SoA group. This relates to the specific context of the activity in the study and is related to a general code list for SoA groups (i.e. this grouping is not limited to the specific activities.). Values can be like Subject related information, Safety, Efficacy, etc. The selection of SoA group can be changed by editing a study activity.
 
 [![Add Study Activities](~@source/images/user_guides/guide_activities_05.png)](../../../images/user_guides/guide_activities_05.png)
 
@@ -41,7 +41,7 @@ So for adding study activities you follow steps as below:
 1. Click the (+) icon on the top right part of the page to open the Add study activities form.
 1. Select if the study activity is to be added from another study, library standards or to create a placeholder for a new activity request.
   - See [Activity Placeholder Requests](#Activity%20Placeholder%20Requests)
-1. When selection from other studies, first select the study to copy from (in this case the SoA group will be the same as in this study, but this SoA group selection can be changed in a following edit if needed).
+1. When selecting from other studies, first select the study to copy from (in this case the SoA group will be the same as in this study, but this SoA group selection can be changed in a following edit if needed).
 1. When selecting from library standards then:
   1. First select the SoA group
   1. Then search for the activity to be added from the list of activities in library. You can use free text filtering or column specific filtering.
@@ -71,7 +71,7 @@ To create an activity placeholder, follow these steps:
 1. Select the most meaningful grouping for the activity placeholder.
 1. Enter a name for your activity placeholder in the "Activity Name" field. You can use any name that helps you identify the activity, but avoid using names that are too vague. You cannot submit an Activity placeholder Request for an activity that already exists.
 1. Enter a rationale for your activity placeholder in the "Rationale for Activity Request" field. You can explain why you need this activity, what it measures, and how it relates to your study objectives.
-1. Click on the "Save" button. Your activity placeholder will be added to your study activities and schedule of assessments and will be highlighted in orange or yellow, depending if the request has been submited or not.
+1. Click on the "Save" button. Your activity placeholder will be added to your study activities and schedule of assessments and will be highlighted in orange or yellow, depending if the request has been submitted or not.
 
 **How to edit or delete an activity placeholder not yet submitted?**
 
@@ -105,7 +105,7 @@ To finalize an activity placeholder, follow these steps:
 **How to see if an Activity placeholder Request has been rejected?**
 1. Go to the "Study Activities" tab in your study.
 1. Find the activity placeholder highlighted in yellow that you want to check. You can use the filter or search function to locate it.
-1. If the activity request has been handled (approved or rejected, then a red exclamation mark will be visible to the left of the row.
+1. If the activity request has been handled (approved or rejected), then a red exclamation mark will be visible to the left of the row.
 1. Click on the three dots. If the activity request has been rejected, then the first row will state ‘Remove not-approved activity and get further information’. Click on the text and a popup box appears with the activity name, the reason for rejection and whom to contact for further information.
 
 [![Study activities](~@source/images/user_guides/guide_activities_02.png)](../../../images/user_guides/guide_activities_02.png)
@@ -120,22 +120,22 @@ On the Detailed SoA page you define the following:
 - Select the scheduling of activities by visits. Simply mark the circle controls in the intersection cells for the activity rows and the visit columns.
 - Control the level of details to be displayed in the protocol SoA overview table by simply enabling or disabling the eye icon control for each activity row.
 - Add footnotes to activities, epochs, visits and collection schedules (the X’s).
- 1. At the bottom of the page you can see the currently defined footnotes by exspanding the SoA footnote box.
+ 1. At the bottom of the page you can see the currently defined footnotes by expanding the SoA footnote box.
  1. Simply click on the add footnote action icon, and the display will change to the adding footnote mode. In this mode, each SoA item that can refer to a footnote will have a small (+) icon - select these for the locations to which the footnote should be attached. Another option for adding a footnote is by placing the cursor in SoA on the 'X' that links a specific activity with a visit. Then, a small (+) icon will appear next to 'X', which when clicked, will initiate the footnote mode.
  1. In the same view you can also remove footnotes.
  1. The footnotes will automatically be assigned a letter from a-z depending on the order in the SoA table from top left to bottom right.
- 1. Complete the footnote asingment by clicking the save icon in the floating 'Select SoA items linked to footnote' window.
+ 1. Complete the footnote assignment by clicking the save icon in the floating 'Select SoA items linked to footnote' window.
 
 [![Detailed SoA](~@source/images/user_guides/guide_activities_detailed_soa.png)](../../../images/user_guides/guide_activities_detailed_soa.png)
 
-You also have the option to expand and collapse the view to support navigation, either by using the Expand table control to expand the full SoA table, or by using the '>' controls to exspand individual section.     
+You also have the option to expand and collapse the view to support navigation, either by using the Expand table control to expand the full SoA table, or by using the '>' controls to expand individual section.     
 
-The page also support selectiong multiple activities using the selection checkboxes.
+The page also supports selecting multiple activities using the selection checkboxes.
 1. Select multiple activity items using selection checkboxes
 1. Select to display/hide all selected activities by selecting the eye action buttons in the top left row.
-1. Select scheduling for all selected activities by selecting the batch edit action button in the top left row. On the pop-up for you then select the visits the schedules should be for. Note this process will overwrite the current selections. 
+1. Select scheduling for all selected activities by selecting the batch edit action button in the top left row. On the pop-up you then select the visits the schedules should be for. Note this process will overwrite the current selections. 
 
-This page also support downloads of the SoA data in various file formats. 
+This page also supports downloads of the SoA data in various file formats. 
 
 
 ## SoA Footnotes
@@ -169,6 +169,6 @@ On the Protocol SoA page you can preview the SoA at multiple levels, the high-le
 
 > The time unit used for the SoA header row is specified on the [Settings](#Settings) form on the top of the Study Activities page.
 
-This page also support downloads of the SoA data in various file formats.
+This page also supports downloads of the SoA data in various file formats.
 
 

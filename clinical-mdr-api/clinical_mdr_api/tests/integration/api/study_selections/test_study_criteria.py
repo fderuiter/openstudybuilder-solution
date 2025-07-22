@@ -11,6 +11,7 @@ import copy
 import json
 import logging
 from datetime import datetime, timezone
+from typing import Any
 from unittest import mock
 
 import pytest
@@ -47,19 +48,19 @@ excl_criteria_template_1: CriteriaTemplate
 excl_criteria_template_2: CriteriaTemplate
 excl_criteria_template_with_param: CriteriaTemplate
 expected_criteria_with_param_name: str
-inclusion_type_output: dict
-exclusion_type_output: dict
-incl_criteria_template_1_output: dict
-incl_criteria_template_2_output: dict
-excl_criteria_template_1_output: dict
-excl_criteria_template_2_output: dict
-excl_criteria_template_with_param_output: dict
-default_study_criteria_input: dict
-default_study_criteria_output: dict
+inclusion_type_output: dict[Any, Any]
+exclusion_type_output: dict[Any, Any]
+incl_criteria_template_1_output: dict[Any, Any]
+incl_criteria_template_2_output: dict[Any, Any]
+excl_criteria_template_1_output: dict[Any, Any]
+excl_criteria_template_2_output: dict[Any, Any]
+excl_criteria_template_with_param_output: dict[Any, Any]
+default_study_criteria_input: dict[Any, Any]
+default_study_criteria_output: dict[Any, Any]
 change_description_approve: str
 initial_ct_term_study_standard_test: CTTerm
 incl_criteria_template_for_study_standard_test: CriteriaTemplate
-study_criteria_for_study_standard_input: dict
+study_criteria_for_study_standard_input: dict[Any, Any]
 
 
 @pytest.fixture(scope="module")

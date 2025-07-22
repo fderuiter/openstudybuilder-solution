@@ -37,7 +37,7 @@ class Version:
     def get_scenarios(self) -> Sequence[DataModelScenario]:
         return list(self.__scenarios)
 
-    def __add_scenario(self, scenario: DataModelScenario):
+    def add_scenario(self, scenario: DataModelScenario):
         self.__scenarios.add(scenario)
 
     def set_name(self, name) -> None:
@@ -142,6 +142,28 @@ class Version:
                         [class_ordinal, dataset.get("ordinal", None)]
                     ),
                 )
+        elif (
+            catalogue == "CDASH"
+            and "fields" in class_json_data
+            and len(class_json_data.get("fields", [])) > 0
+        ):
+            parent_class = next(
+                _class
+                for _class in self.get_classes()
+                if _class.href
+                == class_json_data.get("_links", {})
+                .get("parentClass", {})
+                .get("href", None)
+            )
+            self.__parse_and_create_class(
+                catalogue=catalogue,
+                data_model_type=data_model_type,
+                class_json_data=class_json_data,
+                name="-".join([parent_class.name, class_name]),
+                implements_class=implements_class,
+                is_class_dataset=True,
+                class_ordinal=".".join([parent_class.ordinal, class_ordinal]),
+            )
         else:
             self.__parse_and_create_class(
                 catalogue=catalogue,
@@ -152,11 +174,14 @@ class Version:
                 implements_class=implements_class,
             )
 
-
-    def load_from_csv_data(self, catalogue: str, version_csv_data, data_model_type: str) -> None:
+    def load_from_csv_data(
+        self, catalogue: str, version_csv_data, data_model_type: str
+    ) -> None:
         self.__load_csv_version_data(catalogue, version_csv_data, data_model_type)
 
-    def __load_csv_version_data(self, catalogue: str, version_csv_data, data_model_type: str) -> None:
+    def __load_csv_version_data(
+        self, catalogue: str, version_csv_data, data_model_type: str
+    ) -> None:
         self.__set_attributes(
             name=version_csv_data.get("name", None),
             label=version_csv_data.get("label", None),
@@ -169,32 +194,35 @@ class Version:
             prior_version=version_csv_data.get("prior_version", None),
         )
         if data_model_type == DataModelType.IMPLEMENTATION:
-            implements_href = "/".join([
-                "/mdr",
-                catalogue.lower(),
-                self.get_version_number(),
-            ])
+            implements_href = "/".join(
+                [
+                    "/mdr",
+                    catalogue.lower(),
+                    self.get_version_number(),
+                ]
+            )
             self.set_implements_data_model(implements_href)
 
-
     def load_class_from_csv_data(
-        self, 
-        class_csv_data: OrderedDict, 
-        data_model_type: DataModelType, 
-        catalogue: str, 
+        self,
+        class_csv_data: OrderedDict,
+        data_model_type: DataModelType,
+        catalogue: str,
         variables_csv_data: Sequence[OrderedDict],
     ) -> None:
         implements_class = None
         is_class_dataset = False
         if data_model_type == DataModelType.IMPLEMENTATION:
             is_class_dataset = True
-            implements_class = "/".join([
-                "/mdr",
-                catalogue.lower()[:-2],
-                self.get_version_number(),
-                "classes",
-                class_csv_data.get("dataset_class", None),
-            ])
+            implements_class = "/".join(
+                [
+                    "/mdr",
+                    catalogue.lower()[:-2],
+                    self.get_version_number(),
+                    "classes",
+                    class_csv_data.get("dataset_class", None),
+                ]
+            )
 
         class_name = class_csv_data.get("name", None)
         class_ordinal = class_csv_data.get("order")
@@ -206,7 +234,7 @@ class Version:
             class_ordinal=class_ordinal,
             implements_class=implements_class,
             variables_csv_data=variables_csv_data,
-            is_class_dataset=is_class_dataset
+            is_class_dataset=is_class_dataset,
         )
 
     def __parse_and_create_csv_class(
@@ -287,10 +315,8 @@ class Version:
     ):
         data_model_import = self.get_data_model_import()
         _scenario: DataModelScenario = data_model_import.merge_scenario(
-            href=scenario_json_data.get("_links", None)
-            .get("self", None)
-            .get("href", None),
-            class_name=scenario_json_data.get("domainName", None),
+            self,
+            scenario_json_data=scenario_json_data,
         )
 
         _scenario.set_attributes(
@@ -311,7 +337,7 @@ class Version:
             data_model_type=data_model_type,
         )
 
-        self.__add_scenario(_scenario)
+        self.add_scenario(_scenario)
 
     def __get_data_model_type(self, version_json_data) -> str:
         data_model_type = None

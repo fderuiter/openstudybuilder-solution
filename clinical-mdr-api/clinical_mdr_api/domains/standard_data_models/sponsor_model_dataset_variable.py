@@ -32,8 +32,8 @@ class SponsorModelDatasetVariableVO:
     length: int
     display_format: str
     xml_datatype: str
-    xml_codelist: str
-    xml_codelist_multi: list[str]
+    references_codelists: list[str]
+    references_terms: list[str]
     core: str
     origin: str
     origin_type: str
@@ -57,7 +57,6 @@ class SponsorModelDatasetVariableVO:
     value_lvl_ct_codelist_id_col: str
     enrich_build_order: int
     enrich_rule: str
-    xml_codelist_values: bool
     target_data_model_catalogue: str | None = None
 
     @classmethod
@@ -76,8 +75,8 @@ class SponsorModelDatasetVariableVO:
         length: int,
         display_format: str,
         xml_datatype: str,
-        xml_codelist: str,
-        xml_codelist_multi: list[str],
+        references_codelists: list[str],
+        references_terms: list[str],
         core: str,
         origin: str,
         origin_type: str,
@@ -101,7 +100,6 @@ class SponsorModelDatasetVariableVO:
         value_lvl_ct_codelist_id_col: str,
         enrich_build_order: int,
         enrich_rule: str,
-        xml_codelist_values: bool,
         target_data_model_catalogue: str | None = None,
     ) -> Self:
         sponsor_model_dataset_variable_vo = cls(
@@ -118,8 +116,8 @@ class SponsorModelDatasetVariableVO:
             length=length,
             display_format=display_format,
             xml_datatype=xml_datatype,
-            xml_codelist=xml_codelist,
-            xml_codelist_multi=xml_codelist_multi,
+            references_codelists=references_codelists,
+            references_terms=references_terms,
             core=core,
             origin=origin,
             origin_type=origin_type,
@@ -143,7 +141,6 @@ class SponsorModelDatasetVariableVO:
             value_lvl_ct_codelist_id_col=value_lvl_ct_codelist_id_col,
             enrich_build_order=enrich_build_order,
             enrich_rule=enrich_rule,
-            xml_codelist_values=xml_codelist_values,
             target_data_model_catalogue=target_data_model_catalogue,
         )
 
@@ -181,15 +178,15 @@ class SponsorModelDatasetVariableAR(LibraryItemAggregateRootBase):
     def sponsor_model_dataset_variable_vo(self) -> SponsorModelDatasetVariableVO:
         return self._sponsor_model_dataset_variable_vo
 
-    @property
-    def name(self) -> str:
-        return self._uid
-
     @sponsor_model_dataset_variable_vo.setter
     def sponsor_model_dataset_variable_vo(
         self, sponsor_model_dataset_variable_vo: SponsorModelDatasetVariableVO
     ):
         self._sponsor_model_dataset_variable_vo = sponsor_model_dataset_variable_vo
+
+    @property
+    def name(self) -> str:
+        return self._uid
 
     @classmethod
     def from_repository_values(

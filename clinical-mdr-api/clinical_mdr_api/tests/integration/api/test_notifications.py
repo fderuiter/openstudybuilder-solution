@@ -88,7 +88,7 @@ def test_get_all_notifications(api_client):
 
 
 def test_get_all_active_notifications(api_client):
-    response = api_client.get("system/notifications")
+    response = api_client.get("notifications/actives")
     res = response.json()
 
     assert_response_status_code(response, 200)

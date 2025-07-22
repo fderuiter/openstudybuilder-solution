@@ -16,8 +16,9 @@ from clinical_mdr_api.routers import _generic_descriptions, decorators
 from clinical_mdr_api.services.concepts.unit_definitions.unit_definition import (
     UnitDefinitionService,
 )
-from common import config
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.config import settings
 from common.models.error import ErrorResponse
 
 # Prefixed with "/concepts/unit-definitions"
@@ -30,7 +31,7 @@ UnitDefinitionUID = Path(description="The unique id of unit definition.")
 
 @router.get(
     "",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns all unit definitions in their latest/newest version.",
     description=f"""
 Allowed parameters include : filter on fields, sort by field name with sort direction, pagination.
@@ -112,15 +113,15 @@ def get_all(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -130,7 +131,7 @@ def get_all(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -154,7 +155,7 @@ def get_all(
 
 @router.get(
     "/headers",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -197,10 +198,10 @@ def get_distinct_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     return service.get_distinct_values_for_header(
         library=library_name,
@@ -216,7 +217,7 @@ def get_distinct_values_for_header(
 
 @router.get(
     "/{unit_definition_uid}",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns the latest/newest version of a specific Unit definition identified by 'unit_definition_uid'.",
     description="""If multiple request query parameters are used, then they need to
     match all at the same time (they are combined with the AND operation).""",
@@ -272,7 +273,7 @@ def get_by_uid(
 
 @router.get(
     "/{unit_definition_uid}/versions",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns the version history of a specific concept identified by 'unit_definition_uid'.",
     description=f"""
 The returned versions are ordered by `start_date` descending (newest entries first)
@@ -346,7 +347,7 @@ def get_versions(
 
 @router.post(
     "",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Creates a new unit definition in 'Draft' status.",
     description="""This request is only valid if the unit definition
 * belongs to a library that allows creating (the 'is_editable' property of the library needs to be true).
@@ -386,7 +387,7 @@ def post(
 
 @router.patch(
     "/{unit_definition_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Updates the unit definition identified by 'unit_definition_uid'.",
     description="""This request is only valid if the unit definition
 * is in 'Draft' status and
@@ -429,7 +430,7 @@ def patch(
 
 @router.post(
     "/{unit_definition_uid}/versions",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Creates a new version of the unit definition identified by 'unit_definition_uid'.",
     description="""This request is only valid if the unit definition
 * is in 'Final' or 'Retired' status only (so no latest 'Draft' status exists) and
@@ -466,7 +467,7 @@ def new_version(
 
 @router.post(
     "/{unit_definition_uid}/approvals",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Approves the unit definition identified by 'unit_definition_uid'.",
     description="""This request is only valid if the unit definition
 * is in 'Draft' status and
@@ -502,7 +503,7 @@ def approve(
 
 @router.delete(
     "/{unit_definition_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Inactivates/deactivates the unit definition identified by 'unit_definition_uid'.",
     description="""This request is only valid if the unit definition
 * is in 'Final' status only (so no latest 'Draft' status exists).
@@ -536,7 +537,7 @@ def inactivate(
 
 @router.post(
     "/{unit_definition_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Reactivates the unit definition identified by 'unit_definition_uid'.",
     description="""This request is only valid if the unit definition
 * is in 'Retired' status only (so no latest 'Draft' status exists).
@@ -570,7 +571,7 @@ def reactivate(
 
 @router.delete(
     "/{unit_definition_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Deletes the unit definition identified by 'unit_definition_uid'.",
     description="""This request is only valid if \n
 * the unit definition is in 'Draft' status and

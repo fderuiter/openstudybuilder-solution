@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Mapping, Type
+from typing import Any, Mapping
 
 from cachetools import TTLCache
 from neomodel import RelationshipDefinition, RelationshipManager
@@ -13,7 +13,7 @@ from clinical_mdr_api.domain_repositories.models.study_audit_trail import StudyA
 from clinical_mdr_api.domain_repositories.models.study_field import StudyField
 from clinical_mdr_api.domain_repositories.models.study_selections import StudySelection
 from clinical_mdr_api.repositories._utils import sb_clear_cache
-from common import config
+from common.config import settings
 from common.exceptions import ValidationException
 
 
@@ -39,7 +39,7 @@ class RepositoryImpl:
     """
 
     cache_store_item_by_uid = TTLCache(
-        maxsize=config.CACHE_MAX_SIZE, ttl=config.CACHE_TTL
+        maxsize=settings.cache_max_size, ttl=settings.cache_ttl
     )
 
     value_class: type
@@ -276,15 +276,13 @@ def manage_previous_connected_study_selection_relationships(
         )
     ]
     # MAINTAIN non filtered relationships, just for those non filtered relationships nodes with StudyValue connection
-    for connected_rel_name, connected_type in relationships_to_maintain:
-        connected_nodes: list[Type[connected_type]] = (
-            get_connected_node_by_rel_name_and_study_value(
-                node=previous_item,
-                connected_rel_name=connected_rel_name,
-                study_value=study_value_node,
-                multiple_returned_nodes=True,
-                at_least_one_returned=False,
-            )
+    for connected_rel_name, _ in relationships_to_maintain:
+        connected_nodes = get_connected_node_by_rel_name_and_study_value(
+            node=previous_item,
+            connected_rel_name=connected_rel_name,
+            study_value=study_value_node,
+            multiple_returned_nodes=True,
+            at_least_one_returned=False,
         )
         # connect to those connected nodes with same study_value as new_item
         for i_connected_node in connected_nodes:

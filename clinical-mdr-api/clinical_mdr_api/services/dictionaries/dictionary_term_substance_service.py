@@ -55,7 +55,7 @@ class DictionaryTermSubstanceService(
 
     def _create_aggregate_root(
         self, term_input: DictionaryTermSubstanceCreateInput, library
-    ) -> _AggregateRootType:
+    ) -> DictionaryTermSubstanceAR:
         return DictionaryTermSubstanceAR.from_input_values(
             author_id=self.author_id,
             dictionary_term_vo=DictionaryTermSubstanceVO.from_input_values(
@@ -97,10 +97,10 @@ class DictionaryTermSubstanceService(
     def get_all_dictionary_terms(
         self,
         codelist_uid: str | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         codelist_name: str = "",

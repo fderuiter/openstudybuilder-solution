@@ -47,9 +47,9 @@ Then('The results are shown in the table', () => {
     })
 })
 
-When('The {string} option is clicked from the three dot menu list', (action) => {
-    cy.performActionOnSearchedItem(action)
-})
+When('The {string} option is clicked from the three dot menu list', (action) => cy.performActionOnSearchedItem(action))
+
+When('The {string} option is clicked for flagged item', (action) => cy.performActionOnFlaggedItem(action))
 
 When('The item actions button is clicked', () => cy.clickTableActionsButton(0))
 

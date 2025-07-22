@@ -275,6 +275,7 @@ def assert_patterns_in_document(doc: str):
         assert (
             objective.objective_level.sponsor_preferred_name in doc
         ), f'objective level "{objective.objective_level.sponsor_preferred_name}" was not found in document'
+        assert objective.objective.name_plain is not None
         assert (
             objective.objective.name_plain in doc
         ), f'objective "{objective.objective.name_plain}" was not found in document'
@@ -291,4 +292,5 @@ def assert_patterns_in_document(doc: str):
             assert (
                 endpoint.endpoint_level.sponsor_preferred_name in doc
             ), f'endpoint level "{endpoint.endpoint_level.sponsor_preferred_name}" was not found in document'
+        assert endpoint.endpoint.name_plain is not None
         assert endpoint.endpoint.name_plain in doc

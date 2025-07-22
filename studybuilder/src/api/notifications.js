@@ -7,7 +7,7 @@ export default {
     return repository.get(`${resource}`, { params })
   },
   getActive() {
-    return repository.get(`system/${resource}`)
+    return repository.get(`${resource}/actives`)
   },
   getObject(sn) {
     return repository.get(`${resource}/${sn}`)

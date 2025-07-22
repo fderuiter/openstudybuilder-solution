@@ -3,6 +3,8 @@
 # pytest fixture functions have other fixture functions as arguments,
 # which pylint interprets as unused arguments
 
+from typing import Any
+
 import pytest
 from fastapi.testclient import TestClient
 from neomodel import db
@@ -2039,7 +2041,7 @@ def test_updating_an_existing_odm_item_group_with_relations(api_client):
 
 
 def test_create_a_new_odm_form_with_relation_to_odm_item_group(api_client):
-    data = {
+    data: dict[str, str | list[Any] | None] = {
         "library_name": "Sponsor",
         "name": "name1",
         "oid": "oid1",

@@ -8,20 +8,14 @@ from clinical_mdr_api.services.neomodel_ext_generic import (
 )
 
 
-class StandardDataModelService(NeomodelExtGenericService):
-    def _create_aggregate_root(
-        self, item_input: BaseModel, library: LibraryVO
-    ) -> _AggregateRootType:
+class StandardDataModelService(NeomodelExtGenericService[object]):
+    def _create_aggregate_root(self, item_input: BaseModel, library: LibraryVO):
         pass
 
-    def _edit_aggregate(
-        self, item: _AggregateRootType, item_edit_input: BaseModel
-    ) -> _AggregateRootType:
+    def _edit_aggregate(self, item: _AggregateRootType, item_edit_input: BaseModel):
         pass
 
-    def _transform_aggregate_root_to_pydantic_model(
-        self, item_ar: _AggregateRootType
-    ) -> BaseModel:
+    def _transform_aggregate_root_to_pydantic_model(self, item_ar: _AggregateRootType):
         pass
 
     @db.transaction

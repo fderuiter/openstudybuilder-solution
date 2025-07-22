@@ -1,5 +1,11 @@
-import json, time, traceback
-from os import listdir, path, environ
+"""
+This script imports the CDISC data models & IGs into the staging database.
+"""
+
+import json
+import time
+import traceback
+from os import path, environ
 from mdr_standards_import.scripts.entities.cdisc_data_models.data_model_import import (
     DataModelImport,
     DataModelType,
@@ -14,7 +20,6 @@ from mdr_standards_import.scripts.repositories.repository import (
     create_data_model_import,
 )
 from mdr_standards_import.scripts.exceptions.version_exists import VersionExists
-from mdr_standards_import.scripts.utils import get_classes_directory_name
 
 NEO4J_MDR_DATABASE = environ.get("NEO4J_MDR_DATABASE", "neo4j")
 
@@ -34,13 +39,13 @@ def print_summary(tx, import_id, start_time):
     end_time = time.time()
     elapsed_time = end_time - start_time
 
-    print(f"==")
-    print(f"== Summary for the import into the CDISC DB:")
-    print(f"==")
+    print("==")
+    print("== Summary for the import into the CDISC DB:")
+    print("==")
     print(f"==      catalogue: {result.get('catalogue', 'n/a')}")
     print(f"==      version number: {result.get('version_number', 'n/a')}")
     print(f"==      type: {result.get('data_model_type', 'n/a')}")
-    print(f"==")
+    print("==")
     print(f"== Duration: {round(elapsed_time, 1)} seconds")
 
 
@@ -114,56 +119,60 @@ def import_data_model_json_data_into_cdisc_db(
                 dm_import.set_type(DataModelType(version.data_model_type))
                 dm_import.set_implements_data_model(version.get_implements_data_model())
                 dm_import.add_version(version)
-                classes_sub_directory = get_classes_directory_name(
-                    version.data_model_type
-                )
-                classes_sub_directory_path = path.join(
-                    data_directory, catalogue, classes_sub_directory, version_number
-                )
-                if path.exists(classes_sub_directory_path):
-                    class_files = [
-                        file_name
-                        for file_name in listdir(classes_sub_directory_path)
-                        if file_name.endswith(".json")
-                    ]
-                    print(f"===  * Found {len(class_files)} classes to process.")
-                    for file_name in class_files:
-                        with open(
-                            path.join(classes_sub_directory_path, file_name), "r"
-                        ) as class_file:
+
+                if catalogue == "SDTM":
+                    for _class in version_json_data.get("classes", []):
+                        version.load_class_from_json_data(
+                            class_json_data=_class,
+                            version_json_data=version_json_data,
+                            catalogue=catalogue,
+                        )
+                elif catalogue in ["SDTMIG", "SENDIG"]:
+                    for _class in version_json_data.get("classes", []):
+                        for _dataset in _class.get("datasets", []):
                             version.load_class_from_json_data(
-                                class_json_data=json.load(class_file),
+                                class_json_data=_dataset,
                                 version_json_data=version_json_data,
                                 catalogue=catalogue,
                             )
-
-                    # TODO If the directory contains a scenarios subfolder, import them
-                    # This creates scenarios and associated variables
-                    scenario_sub_directory_path = path.join(
-                        classes_sub_directory_path, "scenarios"
-                    )
-                    if path.exists(scenario_sub_directory_path):
-                        scenario_files = [
-                            file_name
-                            for file_name in listdir(scenario_sub_directory_path)
-                            if file_name.endswith(".json")
-                        ]
-                        print(
-                            f"===  ** Additionally found {len(scenario_files)} scenarii to process."
+                elif catalogue == "CDASH":
+                    for _class in version_json_data.get("classes", []):
+                        version.load_class_from_json_data(
+                            class_json_data=_class,
+                            version_json_data=version_json_data,
+                            catalogue=catalogue,
                         )
-                        for file_name in scenario_files:
-                            with open(
-                                path.join(scenario_sub_directory_path, file_name), "r"
-                            ) as scenario_file:
-                                version.load_scenario_from_json_data(
-                                    scenario_json_data=json.load(scenario_file),
-                                    catalogue=catalogue,
-                                    data_model_type=version.data_model_type,
-                                )
-                else:
-                    print(
-                        f"===  * No classes or datasets found for the catalogue='{catalogue}' in version='{version_number}'."
-                    )
+                    for _class in version_json_data.get("domains", []):
+                        version.load_class_from_json_data(
+                            class_json_data=_class,
+                            version_json_data=version_json_data,
+                            catalogue=catalogue,
+                        )
+                elif catalogue == "CDASHIG":
+                    for _class in version_json_data.get("classes", []):
+                        for _dataset in _class.get("domains", []):
+                            version.load_class_from_json_data(
+                                class_json_data=_dataset,
+                                version_json_data=version_json_data,
+                                catalogue=catalogue,
+                            )
+                        for _scenario in _class.get("scenarios", []):
+                            version.load_scenario_from_json_data(
+                                scenario_json_data=_scenario,
+                                catalogue=catalogue,
+                                data_model_type=version.data_model_type,
+                            )
+                elif catalogue == "ADAM":
+                    # ADAM Model & IGs are in the same directory
+                    # Because they are served by the same API endpoint
+                    # But the model itself does not have any class or variable
+                    # So we need to import the IGs only
+                    for _class in version_json_data.get("dataStructures", []):
+                        version.load_class_from_json_data(
+                            class_json_data=_class,
+                            version_json_data=version_json_data,
+                            catalogue=catalogue,
+                        )
 
             import_id = session.write_transaction(
                 create_data_model_import_node, dm_import

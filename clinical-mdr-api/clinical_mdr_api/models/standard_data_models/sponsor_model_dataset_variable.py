@@ -104,25 +104,6 @@ class SponsorModelDatasetVariable(SponsorModelBase):
             },
         ),
     ] = None
-    xml_codelist: Annotated[
-        str | None,
-        Field(
-            json_schema_extra={
-                "source": "has_sponsor_model_instance.xml_codelist",
-                "nullable": True,
-            },
-        ),
-    ] = None
-    xml_codelist_multi: Annotated[
-        list[str] | None,
-        Field(
-            json_schema_extra={
-                "source": "has_sponsor_model_instance.xml_codelist_multi",
-                "nullable": True,
-                "remove_from_wildcard": True,
-            },
-        ),
-    ] = None
     core: Annotated[
         str | None,
         Field(
@@ -334,16 +315,6 @@ class SponsorModelDatasetVariable(SponsorModelBase):
             },
         ),
     ] = None
-    xml_codelist_values: Annotated[
-        bool | None,
-        Field(
-            json_schema_extra={
-                "source": "has_sponsor_model_instance.xml_codelist_values",
-                "nullable": True,
-                "remove_from_wildcard": True,
-            },
-        ),
-    ] = None
 
     @classmethod
     def from_sponsor_model_dataset_variable_ar(
@@ -360,8 +331,8 @@ class SponsorModelDatasetVariable(SponsorModelBase):
             length=sponsor_model_dataset_variable_ar.sponsor_model_dataset_variable_vo.length,
             display_format=sponsor_model_dataset_variable_ar.sponsor_model_dataset_variable_vo.display_format,
             xml_datatype=sponsor_model_dataset_variable_ar.sponsor_model_dataset_variable_vo.xml_datatype,
-            xml_codelist=sponsor_model_dataset_variable_ar.sponsor_model_dataset_variable_vo.xml_codelist,
-            xml_codelist_multi=sponsor_model_dataset_variable_ar.sponsor_model_dataset_variable_vo.xml_codelist_multi,
+            references_codelists=sponsor_model_dataset_variable_ar.sponsor_model_dataset_variable_vo.references_codelists,
+            references_terms=sponsor_model_dataset_variable_ar.sponsor_model_dataset_variable_vo.references_terms,
             core=sponsor_model_dataset_variable_ar.sponsor_model_dataset_variable_vo.core,
             origin=sponsor_model_dataset_variable_ar.sponsor_model_dataset_variable_vo.origin,
             origin_type=sponsor_model_dataset_variable_ar.sponsor_model_dataset_variable_vo.origin_type,
@@ -385,7 +356,6 @@ class SponsorModelDatasetVariable(SponsorModelBase):
             value_lvl_ct_codelist_id_col=sponsor_model_dataset_variable_ar.sponsor_model_dataset_variable_vo.value_lvl_ct_codelist_id_col,
             enrich_build_order=sponsor_model_dataset_variable_ar.sponsor_model_dataset_variable_vo.enrich_build_order,
             enrich_rule=sponsor_model_dataset_variable_ar.sponsor_model_dataset_variable_vo.enrich_rule,
-            xml_codelist_values=sponsor_model_dataset_variable_ar.sponsor_model_dataset_variable_vo.xml_codelist_values,
             library_name=Library.from_library_vo(
                 sponsor_model_dataset_variable_ar.library
             ).name,
@@ -437,8 +407,8 @@ class SponsorModelDatasetVariableInput(InputModel):
     length: Annotated[int | None, Field()] = None
     display_format: Annotated[str | None, Field()] = None
     xml_datatype: Annotated[str | None, Field()] = None
-    xml_codelist: Annotated[str | None, Field()] = None
-    xml_codelist_multi: Annotated[list[str] | None, Field()] = None
+    references_codelists: Annotated[list[str] | None, Field()] = None
+    references_terms: Annotated[list[str] | None, Field()] = None
     core: Annotated[str | None, Field()] = None
     origin: Annotated[str | None, Field()] = None
     origin_type: Annotated[str | None, Field()] = None
@@ -462,7 +432,6 @@ class SponsorModelDatasetVariableInput(InputModel):
     value_lvl_ct_codelist_id_col: Annotated[str | None, Field()] = None
     enrich_build_order: Annotated[int | None, Field()] = None
     enrich_rule: Annotated[str | None, Field()] = None
-    xml_codelist_values: Annotated[bool | None, Field()] = None
     library_name: Annotated[
         str | None, Field(description="Defaults to CDISC", min_length=1)
     ] = "CDISC"

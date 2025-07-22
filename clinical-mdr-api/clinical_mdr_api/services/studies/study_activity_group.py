@@ -68,7 +68,7 @@ class StudyActivityGroupService(StudyActivitySelectionBaseService):
 
     def _transform_history_to_response_model(
         self, study_selection_history: list[Any], study_uid: str
-    ) -> list[BaseModel]:
+    ):
         pass
 
     def _filter_ars_from_same_parent(

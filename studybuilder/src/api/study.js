@@ -4,6 +4,9 @@ import repository from './repository'
 const resource = 'studies'
 
 export default {
+  getIds() {
+    return repository.get(`${resource}/list`)
+  },
   get(options) {
     const params = {
       ...options,
@@ -459,9 +462,10 @@ export default {
       `studies/${studyUid}/study-activities/${studyActivityUid}/activity-requests-approvals`
     )
   },
-  updateToLatestActivityVersion(studyUid, studyActivityUid) {
+  updateToLatestActivityVersion(studyUid, studyActivityUid, data) {
     return repository.post(
-      `studies/${studyUid}/study-activities/${studyActivityUid}/sync-latest-version`
+      `studies/${studyUid}/study-activities/${studyActivityUid}/sync-latest-version`,
+      data
     )
   },
   getStudyActivitySchedules(studyUid, options) {

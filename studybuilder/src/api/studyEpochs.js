@@ -131,15 +131,9 @@ export default {
   getStudyEpochsVersions(studyUid) {
     return repository.get(`${resource}/${studyUid}/study-epochs/audit-trail`)
   },
-  createCollapsibleVisitGroup(studyUid, visitUids, visitTemplateUid) {
-    const data = {
-      visits_to_assign: visitUids,
-    }
-    if (visitTemplateUid) {
-      data.overwrite_visit_from_template = visitTemplateUid
-    }
+  createCollapsibleVisitGroup(studyUid, data) {
     return repository.post(
-      `${resource}/${studyUid}/consecutive-visit-groups`,
+      `${resource}/${studyUid}/consecutive-visit-groups?validate_only=${data.validate_only}`,
       data,
       { ignoreErrors: true }
     )

@@ -53,7 +53,7 @@ class TestListStudiesForObjectiveAndEndpoint(unittest.TestCase):
         EndpointRoot.generate_node_uids_if_not_present()
 
     def test__list_objectives_studies(self):
-        objective_service = ObjectiveService()
+        objective_service: ObjectiveService = ObjectiveService()
         studies = objective_service.get_referencing_studies(
             "Objective_000001", node_type=ObjectiveValue
         )
@@ -61,7 +61,7 @@ class TestListStudiesForObjectiveAndEndpoint(unittest.TestCase):
         assert len(studies) == 1
 
     def test__list_endpoints_studies(self):
-        endpoint_service = EndpointService()
+        endpoint_service: EndpointService = EndpointService()
         studies = endpoint_service.get_referencing_studies(
             "Endpoint_000001", node_type=EndpointValue
         )

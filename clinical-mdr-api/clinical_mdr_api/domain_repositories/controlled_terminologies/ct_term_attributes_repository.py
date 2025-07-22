@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Any
 
 from neomodel import db
 
@@ -69,7 +70,7 @@ class CTTermAttributesRepository(CTTermGenericRepository[CTTermAttributesAR]):
         return len(result) > 0
 
     def _create_aggregate_root_instance_from_cypher_result(
-        self, term_dict: dict
+        self, term_dict: dict[str, Any]
     ) -> CTTermAttributesAR:
         return create_term_attributes_aggregate_instances_from_cypher_result(
             term_dict=term_dict, is_aggregated_query=False

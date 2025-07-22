@@ -14,8 +14,9 @@ from clinical_mdr_api.routers import _generic_descriptions
 from clinical_mdr_api.services.concepts.odms.odm_vendor_attributes import (
     OdmVendorAttributeService,
 )
-from common import config
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.config import settings
 from common.models.error import ErrorResponse
 
 # Prefixed with "/concepts/odms/vendor-attributes"
@@ -27,7 +28,7 @@ OdmVendorAttributeUID = Path(description="The unique id of the ODM Vendor Attrib
 
 @router.get(
     "",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Return every variable related to the selected status and version of the ODM Vendor Attributes",
     status_code=200,
     responses={
@@ -42,15 +43,15 @@ def get_all_odm_vendor_attributes(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -60,7 +61,7 @@ def get_all_odm_vendor_attributes(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -82,7 +83,7 @@ def get_all_odm_vendor_attributes(
 
 @router.get(
     "/headers",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -112,10 +113,10 @@ def get_distinct_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     odm_vendor_attribute_service = OdmVendorAttributeService()
     return odm_vendor_attribute_service.get_distinct_values_for_header(
@@ -130,7 +131,7 @@ def get_distinct_values_for_header(
 
 @router.get(
     "/{odm_vendor_attribute_uid}",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Get details on a specific ODM Vendor Attribute (in a specific version)",
     status_code=200,
     responses={
@@ -147,7 +148,7 @@ def get_odm_vendor_attribute(
 
 @router.get(
     "/{odm_vendor_attribute_uid}/relationships",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Get UIDs of a specific ODM Vendor Attribute's relationships",
     status_code=200,
     responses={
@@ -157,7 +158,7 @@ def get_odm_vendor_attribute(
 )
 def get_active_relationships(
     odm_vendor_attribute_uid: Annotated[str, OdmVendorAttributeUID],
-) -> dict:
+) -> dict[str, list[str]]:
     odm_vendor_attribute_service = OdmVendorAttributeService()
     return odm_vendor_attribute_service.get_active_relationships(
         uid=odm_vendor_attribute_uid
@@ -166,7 +167,7 @@ def get_active_relationships(
 
 @router.get(
     "/{odm_vendor_attribute_uid}/versions",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List version history for ODM Vendor Attribute",
     description="""
 State before:
@@ -202,7 +203,7 @@ def get_odm_vendor_attribute_versions(
 
 @router.post(
     "",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Creates a new Vendor Attribute in 'Draft' status with version 0.1",
     status_code=201,
     responses={
@@ -229,7 +230,7 @@ def create_odm_vendor_attribute(
 
 @router.patch(
     "/{odm_vendor_attribute_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Update ODM Vendor Attribute",
     status_code=200,
     responses={
@@ -260,7 +261,7 @@ def edit_odm_vendor_attribute(
 
 @router.post(
     "/{odm_vendor_attribute_uid}/versions",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary=" Create a new version of ODM Vendor Attribute",
     description="""
 State before:
@@ -302,7 +303,7 @@ def create_odm_vendor_attribute_version(
 
 @router.post(
     "/{odm_vendor_attribute_uid}/approvals",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Approve draft version of ODM Vendor Attribute",
     status_code=201,
     responses={
@@ -329,7 +330,7 @@ def approve_odm_vendor_attribute(
 
 @router.delete(
     "/{odm_vendor_attribute_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary=" Inactivate final version of ODM Vendor Attribute",
     status_code=200,
     responses={
@@ -355,7 +356,7 @@ def inactivate_odm_vendor_attribute(
 
 @router.post(
     "/{odm_vendor_attribute_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Reactivate retired version of a ODM Vendor Attribute",
     status_code=200,
     responses={
@@ -381,7 +382,7 @@ def reactivate_odm_vendor_attribute(
 
 @router.delete(
     "/{odm_vendor_attribute_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Delete draft version of ODM Vendor Attribute",
     status_code=204,
     responses={

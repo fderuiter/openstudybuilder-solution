@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from common import exceptions
 
 
-def db_result_to_list(result) -> list[dict]:
+def db_result_to_list(result) -> list[dict[Any, Any]]:
     """
     Converts a Cypher query result to a list of dictionaries.
 
@@ -28,7 +28,7 @@ def db_result_to_list(result) -> list[dict]:
     return data
 
 
-def unpack_list_of_lists(result: list) -> list:
+def unpack_list_of_lists(result: list[Any]) -> list[Any]:
     """
     Converts a list of embedded lists into a list containing items from internal list.
     An exemplary result parameter passed to the function looks as follows [['A'], ['B]]
@@ -155,7 +155,7 @@ def extract_parameters(name: str) -> list[str]:
     return re.findall(r"\[([\w\s\-]+)]", name)
 
 
-def factorize_dict(data: dict) -> dict:
+def factorize_dict(data: dict[Any, Any]) -> dict[Any, Any]:
     """
     Factorizes a dictionary by adding underscores to keys that do not start with an underscore.
 
@@ -176,7 +176,7 @@ def factorize_dict(data: dict) -> dict:
     return return_dict
 
 
-def defactorize_dict(data: dict) -> dict:
+def defactorize_dict(data: dict[Any, Any]) -> dict[Any, Any]:
     """
     Defactorizes a dictionary by removing underscores from keys that start with an underscore.
 

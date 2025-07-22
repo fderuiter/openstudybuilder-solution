@@ -32,7 +32,7 @@ from clinical_mdr_api.tests.integration.utils.method_library import (
 )
 from clinical_mdr_api.tests.integration.utils.utils import TestUtils
 from clinical_mdr_api.tests.utils.checks import assert_response_status_code
-from common.config import SDTM_CT_CATALOGUE_NAME
+from common.config import settings
 
 
 @pytest.fixture(scope="module")
@@ -47,7 +47,7 @@ def test_data():
     db.cypher_query(STARTUP_CT_CATALOGUE_CYPHER)
     StudyRoot.generate_node_uids_if_not_present()
     study = StudyRoot.nodes.all()[0]
-    TestUtils.create_ct_catalogue(catalogue_name=SDTM_CT_CATALOGUE_NAME)
+    TestUtils.create_ct_catalogue(catalogue_name=settings.sdtm_ct_catalogue_name)
     TestUtils.set_study_standard_version(
         study_uid=study.uid, create_codelists_and_terms_for_package=False
     )

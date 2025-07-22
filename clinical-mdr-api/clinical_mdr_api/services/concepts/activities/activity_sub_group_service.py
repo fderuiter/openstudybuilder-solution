@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from neomodel import db
 
@@ -10,6 +11,7 @@ from clinical_mdr_api.domains.concepts.activities.activity_sub_group import (
     ActivitySubGroupVO,
     SimpleActivityGroupVO,
 )
+from clinical_mdr_api.models.concepts.activities.activity import SimpleActivity
 from clinical_mdr_api.models.concepts.activities.activity_sub_group import (
     ActivityGroup,
     ActivitySubGroup,
@@ -19,6 +21,7 @@ from clinical_mdr_api.models.concepts.activities.activity_sub_group import (
     ActivitySubGroupOverview,
     ActivitySubGroupVersion,
 )
+from clinical_mdr_api.models.utils import CustomPage, GenericFilteringReturn
 from clinical_mdr_api.services.concepts.activities.activity_service import (
     ActivityService,
 )
@@ -100,50 +103,29 @@ class ActivitySubGroupService(ConceptGenericService[ActivitySubGroupAR]):
         self, subgroup_uid: str, version: str | None = None
     ) -> ActivitySubGroupOverview:
         subgroup = self.get_by_uid(subgroup_uid, version=version)
-        all_versions = [
-            version.version for version in self.get_version_history(subgroup_uid)
-        ]
+        # Get all versions and deduplicate by version number for the overview
+        version_history = self.get_version_history(subgroup_uid)
+        all_versions = []
+        for version_item in version_history:
+            if version_item.version not in all_versions:
+                all_versions.append(version_item.version)
 
-        # Get UIDs of activities directly linked to this subgroup
-        linked_activity_uids = (
-            self._repos.activity_subgroup_repository.get_linked_activity_uids(
-                subgroup_uid=subgroup_uid, version=version
-            )
-        )
-
-        # Get activity groups linked to this specific subgroup version
+        # Get UIDs and versions of activity groups linked to this subgroup at this specific version point
         linked_activity_group_data = (
             self._repos.activity_subgroup_repository.get_linked_activity_group_uids(
-                subgroup_uid=subgroup_uid, version=version
+                subgroup_uid=subgroup_uid, version=subgroup.version
             )
         )
-        logger.debug("Linked activity group data: %s", linked_activity_group_data)
+        logger.debug(
+            "Linked activity group data for subgroup %s version %s: %s",
+            subgroup_uid,
+            subgroup.version,
+            linked_activity_group_data,
+        )
 
-        # Fetch complete activity objects for these UIDs
-        activity_service = ActivityService()
-        activities = []
-        for uid in linked_activity_uids:
-            try:
-                activity = activity_service.get_by_uid(uid=uid)
-                activities.append(activity)
-            except exceptions.NotFoundException:
-                logger.debug("Activity with UID '%s' not found - skipping", uid)
-                continue
-            except exceptions.BusinessLogicException as e:
-                logger.info(
-                    "Business logic prevented access to activity '%s': %s", uid, str(e)
-                )
-                continue
-            except db.DatabaseError as e:
-                logger.warning(
-                    "Database error retrieving activity '%s': %s", uid, str(e)
-                )
-                continue
-
-        # Fetch activity groups - using dynamic import to avoid circular import
-        activity_groups = []
+        activity_groups: list[ActivityGroup] = []
         if linked_activity_group_data:
-            # Import ActivityGroupService dynamically to avoid circular import
+            # Dynamically import ActivityGroupService to avoid circular imports
             from clinical_mdr_api.services.concepts.activities.activity_group_service import (
                 ActivityGroupService,
             )
@@ -165,7 +147,9 @@ class ActivitySubGroupService(ConceptGenericService[ActivitySubGroupAR]):
                         ActivityGroup(
                             uid=activity_group.uid,
                             name=activity_group.name,
-                            version=group_data["version"],
+                            version=group_data[
+                                "version"
+                            ],  # Use the version from the relationship
                             status=activity_group.status,
                         )
                     )
@@ -214,7 +198,6 @@ class ActivitySubGroupService(ConceptGenericService[ActivitySubGroupAR]):
 
         result = ActivitySubGroupOverview(
             activity_subgroup=activity_subgroup_detail,
-            activities=activities,
             all_versions=all_versions,
         )
         logger.debug(
@@ -223,7 +206,125 @@ class ActivitySubGroupService(ConceptGenericService[ActivitySubGroupAR]):
         )
         return result
 
-    def get_cosmos_subgroup_overview(self, subgroup_uid: str) -> dict:
+    def get_activities_for_subgroup(
+        self,
+        subgroup_uid: str,
+        version: str | None = None,
+        page_number: int = 1,
+        page_size: int = 10,
+        total_count: bool = False,
+    ) -> GenericFilteringReturn[SimpleActivity]:
+        """
+        Get activities linked to a specific activity subgroup version with pagination.
+
+        Args:
+            subgroup_uid: The UID of the activity subgroup
+            version: Optional specific version, or None for latest
+            page_number: The page number for pagination (starting from 1)
+            page_size: The number of items per page
+            total_count: Whether to calculate the total count
+
+        Returns:
+            GenericFilteringReturn containing SimpleActivity objects linked to the activity subgroup
+        """
+        # Get the specific version of the subgroup to ensure it exists
+        subgroup_ar = self.get_by_uid(subgroup_uid, version=version)
+
+        linked_activity_data = (
+            self._repos.activity_subgroup_repository.get_linked_activity_uids(
+                subgroup_uid=subgroup_uid,
+                version=subgroup_ar.version,
+                page_number=page_number,
+                page_size=page_size,
+                total_count=total_count,
+            )
+        )
+        logger.debug(
+            "Linked activity data for subgroup %s version %s",
+            subgroup_uid,
+            subgroup_ar.version,
+        )
+
+        activities: list[SimpleActivity] = []
+        if linked_activity_data and "activities" in linked_activity_data:
+            activity_service = ActivityService()
+            for activity_info in linked_activity_data["activities"]:
+                try:
+                    activity = activity_service.get_by_uid(
+                        uid=activity_info["uid"], version=activity_info["version"]
+                    )
+                    activities.append(activity)
+                except exceptions.NotFoundException:
+                    logger.debug(
+                        "Activity with UID '%s' version '%s' not found - skipping",
+                        activity_info["uid"],
+                        activity_info["version"],
+                    )
+                    continue
+                except exceptions.BusinessLogicException as e:
+                    logger.info(
+                        "Business logic prevented access to activity '%s' version '%s': %s",
+                        activity_info["uid"],
+                        activity_info["version"],
+                        str(e),
+                    )
+                    continue
+                except db.DatabaseError as e:
+                    logger.warning(
+                        "Database error retrieving activity '%s' version '%s': %s",
+                        activity_info["uid"],
+                        activity_info["version"],
+                        str(e),
+                    )
+                    continue
+
+        # Get total count from repository call if requested
+        total_items = linked_activity_data.get("total", 0) if total_count else 0
+
+        # Return directly without additional pagination as it's now handled at the repository level
+        return GenericFilteringReturn(items=activities, total=total_items)
+
+    def get_activity_groups_for_subgroup_paginated(
+        self,
+        subgroup_uid: str,
+        version: str | None = None,
+        page_number: int = 1,
+        page_size: int = 10,
+        total_count: bool = False,
+    ) -> CustomPage[ActivityGroup]:
+        """
+        Get activity groups for a specific activity subgroup with pagination.
+
+        Args:
+            subgroup_uid: The UID of the activity subgroup
+            version: Optional specific version, or None for latest
+            page_number: The page number for pagination (starting from 1)
+            page_size: The number of items per page (0 for all items)
+            total_count: Whether to calculate the total count
+
+        Returns:
+            CustomPage containing paginated ActivityGroup objects
+        """
+        # Get the overview which contains all activity groups
+        overview = self.get_subgroup_overview(
+            subgroup_uid=subgroup_uid, version=version
+        )
+        activity_groups = overview.activity_subgroup.activity_groups
+
+        # Handle pagination
+        start_idx = (page_number - 1) * page_size
+        end_idx = start_idx + page_size if page_size > 0 else len(activity_groups)
+        paginated_groups = (
+            activity_groups[start_idx:end_idx] if page_size > 0 else activity_groups
+        )
+
+        total = len(activity_groups) if total_count else 0
+
+        return CustomPage.create(
+            items=paginated_groups, total=total, page=page_number, size=page_size
+        )
+
+    def get_cosmos_subgroup_overview(self, subgroup_uid: str) -> dict[str, Any]:
         """Get a COSMoS compatible representation of a specific activity subgroup.
 
         Args:

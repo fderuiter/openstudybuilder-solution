@@ -1,11 +1,11 @@
 import logging
 from datetime import datetime
 from enum import Enum
-from typing import Annotated
+from typing import Annotated, Any, Self
 
 from pydantic import BaseModel, Field
 
-from common.utils import convert_to_datetime
+from common.utils import TimeUnit, VisitClass, VisitSubclass, convert_to_datetime
 
 log = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ class Study(BaseModel):
         ] = None
 
         @classmethod
-        def from_input(cls, val: dict):
+        def from_input(cls, val: dict[str, Any]):
             log.debug("Create Study Version from input: %s", val)
 
             author_id = val.get("version_author_id", None)
@@ -96,7 +96,7 @@ class Study(BaseModel):
     versions: Annotated[list[StudyVersion], Field(description="Study versions")]
 
     @classmethod
-    def from_input(cls, val: dict):
+    def from_input(cls, val: dict[str, Any]):
         log.debug("Create Study from input: %s", val)
         return cls(
             uid=val["uid"],
@@ -120,8 +120,18 @@ class SortByStudyVisits(Enum):
 class StudyVisit(BaseModel):
     study_uid: Annotated[str, Field(description="Study UID")]
     uid: Annotated[str, Field(description="Study Visit UID")]
+
+    visit_class: Annotated[VisitClass, Field(description="Study Visit Class name")]
+    visit_subclass: Annotated[
+        VisitSubclass | None,
+        Field(
+            description="Study Visit Sub Class name",
+            json_schema_extra={"nullable": True},
+        ),
+    ] = None
+
     visit_name: Annotated[str, Field(description="Study Visit Name")]
-    visit_order: Annotated[float, Field(description="Study Visit Order")]
+    visit_order: Annotated[int, Field(description="Study Visit Order")]
     unique_visit_number: Annotated[
         int, Field(description="Study Visit Unique Visit Number")
     ]
@@ -180,6 +190,14 @@ class StudyVisit(BaseModel):
             json_schema_extra={"nullable": True},
         ),
     ] = None
+    time_unit_object: Annotated[
+        TimeUnit | None,
+        Field(
+            description="Study Visit Time Unit Name",
+            json_schema_extra={"nullable": True},
+            exclude=True,
+        ),
+    ] = None
     time_value_uid: Annotated[
         str | None,
         Field(
@@ -193,17 +211,58 @@ class StudyVisit(BaseModel):
             description="Study Visit Time Value", json_schema_extra={"nullable": True}
         ),
     ] = None
+    time_reference_name: Annotated[
+        str | None,
+        Field(
+            description="Study Visit Time Reference Name",
+            json_schema_extra={"nullable": True},
+        ),
+    ] = None
+    visit_sublabel_reference: Annotated[
+        str | None,
+        Field(
+            description="Anchor Visit UID for given StudyVisit",
+            json_schema_extra={"nullable": True},
+            exclude=True,
+        ),
+    ] = None
+    anchor_visit: Annotated[
+        Self,
+        Field(
+            description="Anchor Visit for given StudyVisit",
+            json_schema_extra={"nullable": True},
+            exclude=True,
+        ),
+    ] = None
+    special_visit_number: Annotated[
+        int | None,
+        Field(
+            json_schema_extra={"nullable": True},
+            exclude=True,
+        ),
+    ] = None
+    subvisit_number: Annotated[
+        int | None,
+        Field(
+            json_schema_extra={"nullable": True},
+            exclude=True,
+        ),
+    ] = None
 
     @classmethod
-    def from_input(cls, val: dict):
+    def from_input(cls, val: dict[str, Any]):
         log.debug("Create Study Visit from input: %s", val)
         return cls(
             study_uid=val["study_uid"],
             uid=val["uid"],
+            visit_class=VisitClass[val["visit_class"]],
+            visit_subclass=(
+                VisitSubclass[val["visit_subclass"]] if val["visit_subclass"] else None
+            ),
             visit_name=val["visit_name"],
             unique_visit_number=val["unique_visit_number"],
             visit_number=val["visit_number"],
-            visit_order=val["visit_number"],
+            visit_order=1,  # Default value, will be overridden later
             visit_short_name=str(val["visit_short_name"]),
             visit_window_min=val["visit_window_min"],
             visit_window_max=val["visit_window_max"],
@@ -216,8 +275,37 @@ class StudyVisit(BaseModel):
             study_epoch_name=val["study_epoch_name"],
             time_unit_uid=val["time_unit_uid"],
             time_unit_name=val["time_unit_name"],
+            time_unit_object=TimeUnit(
+                name=val["time_unit_name"],
+                conversion_factor_to_master=val[
+                    "time_unit_conversion_factor_to_master"
+                ],
+            ),
             time_value_uid=val["time_value_uid"],
             time_value=val["time_value_value"],
+            time_reference_name=val["time_reference_name"],
+            visit_sublabel_reference=val["anchor_visit_uid"],
+        )
+
+    def get_absolute_duration(self) -> int | None:
+        # Special visit doesn't have a timing but we want to place it
+        # after the anchor visit for the special visit hence we derive timing based on the anchor visit
+        if self.visit_class == VisitClass.SPECIAL_VISIT and self.anchor_visit:
+            return self.anchor_visit.get_absolute_duration()
+        if self.time_value is not None:
+            if self.time_value == 0:
+                return 0
+            if self.anchor_visit is not None:
+                return (
+                    self.get_unified_duration()
+                    + self.anchor_visit.get_absolute_duration()
+                )
+            return self.get_unified_duration()
+        return None
+
+    def get_unified_duration(self):
+        return self.time_unit_object.from_timedelta(
+            self.time_unit_object, self.time_value
         )
 
 
@@ -245,7 +333,7 @@ class StudyActivity(BaseModel):
     is_data_collected: Annotated[bool, Field(description="Activity Is Data Collected")]
 
     @classmethod
-    def from_input(cls, val: dict):
+    def from_input(cls, val: dict[str, Any]):
         log.debug("Create Study Visit from input: %s", val)
         return cls(
             study_uid=val["study_uid"],
@@ -287,7 +375,7 @@ class StudyDetailedSoA(BaseModel):
     is_data_collected: Annotated[bool, Field(description="Activity Is Data Collected")]
 
     @classmethod
-    def from_input(cls, val: dict):
+    def from_input(cls, val: dict[str, Any]):
         return cls(
             study_uid=val["study_uid"],
             visit_short_name=str(val["visit_short_name"]),
@@ -378,7 +466,7 @@ class StudyOperationalSoA(BaseModel):
     ]
 
     @classmethod
-    def from_input(cls, val: dict):
+    def from_input(cls, val: dict[str, Any]):
         log.debug("Create Study Operational SoA from input: %s", val)
         return cls(
             study_uid=val["study_uid"],
@@ -397,4 +485,63 @@ class StudyOperationalSoA(BaseModel):
             topic_code=val["topic_code"],
             visit_short_name=str(val["visit_short_name"]),
             visit_uid=val["visit_uid"],
+        )
+
+
+class PapillonsStudyMetaDataBase(BaseModel):
+    project: Annotated[str, Field(description="Project")]
+    study_number: Annotated[str, Field(description="Study Number")]
+    subpart: Annotated[
+        str | None,
+        Field(description="Study Subpart", json_schema_extra={"nullable": True}),
+    ]
+    study: Annotated[
+        str, Field(description="Full Study ID concatenate as: project-study")
+    ]
+    api_version: Annotated[str, Field(description="API Version")]
+    study_version: Annotated[str, Field(description="Study Version")]
+    specified_dt: Annotated[
+        str | None,
+        Field(
+            description="Specified datetime which the released version before that datetime is returned.",
+            json_schema_extra={"nullable": True},
+        ),
+    ]
+    fetch_dt: Annotated[str, Field(description="Datetime when the data is fetched.")]
+
+
+class PapillonsSoAItem(BaseModel):
+    topic_cd: Annotated[str, Field(description="Topic code")]
+    visits: Annotated[
+        list[str], Field(description="Lists of visits which the activity was assessed.")
+    ]
+
+    # TODO: The below should be added when the data points are implemented
+    # baseline_visits: Annotated[list[str], Field(description="Lists of visits which is considered baseline for the activity.")]
+    # Important: Annotated[bool, Field(description="Indication for if the activity is considered important.")]
+    @classmethod
+    def from_input(cls, val: dict[str, Any]):
+        return cls(
+            topic_cd=val["topic_cd"],
+            visits=val["visits"],
+        )
+
+
+class PapillonsSoA(PapillonsStudyMetaDataBase):
+    SoA: Annotated[
+        list[PapillonsSoAItem] | None, Field(description="Scheduled activities")
+    ]
+
+    @classmethod
+    def from_input(cls, val: dict[str, Any]):
+        return cls(
+            project=val["project"],
+            study_number=val["study_number"],
+            subpart=val["subpart"],
+            study=val["full_study_id"],
+            api_version=val["api_version"],
+            study_version=val["study_version"],
+            specified_dt=val["specified_dt"],
+            fetch_dt=val["fetch_dt"],
+            SoA=[PapillonsSoAItem.from_input(n) for n in val["SoA"]],
         )

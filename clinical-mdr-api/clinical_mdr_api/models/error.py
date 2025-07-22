@@ -4,7 +4,7 @@ from typing import Annotated
 from pydantic import Field
 
 from clinical_mdr_api.models.utils import BaseModel
-from common import config
+from common.config import settings
 
 
 class BatchErrorResponse(BaseModel):
@@ -21,5 +21,7 @@ class BatchErrorResponse(BaseModel):
 
     def __init__(self, **data) -> None:
         if "time" not in data:
-            data["time"] = datetime.now(timezone.utc).strftime(config.DATE_TIME_FORMAT)
+            data["time"] = datetime.now(timezone.utc).strftime(
+                settings.date_time_format
+            )
         super().__init__(**data)

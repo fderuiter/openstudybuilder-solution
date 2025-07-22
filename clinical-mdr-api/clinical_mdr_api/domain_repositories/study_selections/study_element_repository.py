@@ -4,6 +4,9 @@ from dataclasses import dataclass
 from neomodel import db
 
 from clinical_mdr_api import utils
+from clinical_mdr_api.domain_repositories._utils.helpers import (
+    acquire_write_lock_study_value,
+)
 from clinical_mdr_api.domain_repositories.generic_repository import (
     manage_previous_connected_study_selection_relationships,
 )
@@ -22,7 +25,7 @@ from clinical_mdr_api.domains.study_selections.study_selection_element import (
     StudySelectionElementAR,
     StudySelectionElementVO,
 )
-from common import config as settings
+from common.config import settings
 from common.exceptions import BusinessLogicException
 from common.utils import convert_to_datetime
 
@@ -53,16 +56,6 @@ class SelectionHistoryElement:
 
 
 class StudySelectionElementRepository:
-    @staticmethod
-    def _acquire_write_lock_study_value(uid: str) -> None:
-        db.cypher_query(
-            """
-             MATCH (sr:StudyRoot {uid: $uid})
-             REMOVE sr.__WRITE_LOCK__
-             RETURN true
-            """,
-            {"uid": uid},
-        )
 
     def get_allowed_configs(self):
         cypher_query = """
@@ -74,7 +67,7 @@ class StudySelectionElementRepository:
         return term_subtype_root.uid, term_subtype_name_value.name, term_type_root.uid, term_type_name_value.name
         """
         items, _ = db.cypher_query(
-            cypher_query, {"code_list_name": settings.STUDY_ELEMENT_SUBTYPE_NAME}
+            cypher_query, {"code_list_name": settings.study_element_subtype_name}
         )
         return items
 
@@ -199,7 +192,7 @@ class StudySelectionElementRepository:
         :return:
         """
         if for_update:
-            self._acquire_write_lock_study_value(study_uid)
+            acquire_write_lock_study_value(study_uid)
         # take the selections from the db
         all_selections = self._retrieves_all_data(
             study_uid, study_value_version=study_value_version

@@ -2,6 +2,7 @@ from enum import Enum
 from typing import Any
 
 from clinical_mdr_api.domains.iso_languages import LANGUAGES_INDEXED_BY
+from clinical_mdr_api.domains.libraries.parameter_term import ParameterTermEntryVO
 from common import exceptions
 
 
@@ -27,7 +28,7 @@ def get_iso_lang_data(
     key: str = "639-3",
     return_key: str | None = None,
     ignore_case: bool = True,
-) -> str | dict[Any] | list[Any]:
+) -> str | dict[str, str | list[str]] | list[Any]:
     """
     Returns ISO language data based on the provided query string and key.
 
@@ -38,7 +39,7 @@ def get_iso_lang_data(
         ignore_case (bool, optional): Whether to ignore case when searching for the query string. Defaults to True.
 
     Returns:
-        str | dict[Any] | list[Any]: The value of the found language data, or the entire language data if return_key is None.
+        str | dict[str, str, list[str]] | list[Any]: The value of the found language data, or the entire language data if return_key is None.
 
     Raises:
         TypeError: If the query string is not a string.
@@ -120,7 +121,7 @@ def is_syntax_of_template_name_correct(name: str) -> bool:
 def capitalize_first_letter_if_template_parameter(
     name: str,
     template_plain_name: str,
-    parameters: list["ParameterTermEntryVO"] | None = None,
+    parameters: list[ParameterTermEntryVO] | None = None,
 ) -> str:
     """
     Capitalizes the first letter of `name` if the letter is part of a template parameter which is not a Unit Definition.

@@ -1,15 +1,11 @@
-[[_TOC_]]
-
 # Reports and Dashboards
 
-[[_TOC_]]
-
-Beside the table listing and download option generally available in the StudyBuilder application the system also support NeoDash reports and dashboards.
+Beside the table listing and download option generally available in the StudyBuilder application the system also supports NeoDash reports and dashboards.
 
 ## Open NeoDash
 
 To open NeoDash reports:
-v
+
 1. Click on the Reports button placed on the main StudyBuilder page <br>
 ![Reports button](~@source/images/user_guides/neodash_button.png) <br>
 2. The NeoDash login page should be displayed <br>
@@ -30,11 +26,11 @@ In the lower left corner of the neodash window you will find the **Expand** ![Ex
 
 [![Side panel selection](~@source/images/user_guides/neodash_select_reportx.png)](../../../images/user_guides/neodash_select_reportx.png)
 
-In the following sections the current neodash reports are briefly described, and first tab of each report holds a short ReadMe instruction as well.
+In the following sections the current neodash reports are briefly described, and the first tab of each report holds a short ReadMe instruction as well.
 
 ## Activity Library Dashboard
 
-Additionally to the Application, a Neo4j Dashboard is available to browse and understand biomedical concepts which are the activities in the StudyBuilder.
+In addition to the Application, a Neo4j Dashboard is available to browse and understand biomedical concepts which are the activities in the StudyBuilder.
 
 Within the StudyBuilder application, you can define and see the activities in the "Library" -> "Concepts" -> "Activities" part.
 
@@ -57,19 +53,19 @@ This tab provides a quick overview of the numbers of Activities and ActivityInst
 These two tabs are designed to navigate the "Activity Lib" either via a top-down or bottom-up search.
 
 * **Activity to SDTM**
-Then there is the option to view how Activities relates to SDTM using a specific implementation guide.
+Then there is the option to view how Activities relate to SDTM using a specific implementation guide.
 
 * **Activity in COSMOS format**
 As the CDISC collaboration with the CoSMOS initiative is very important, there is also a mapping of activities in the StudyBuilder to the CDISC CoSMOS format.
 <br>
 * <b>Activities used in studies</b>
-An overview of the activity usage in studies. It shows which activities being used in a study by visit.This view is preliminary and will be expanded with more study details.
+An overview of the activity usage in studies. It shows which activities are being used in a study by visit. This view is preliminary and will be expanded with more study details.
 <br>
 * <b>Search Activity Instance</b>
 This is a page for searching directly from ActivityInstance level.
 <br>
 * <b>Basic dashboard features</b>
-In the panels there are options to expand/maximise and to refresh
+In the panels there are options to expand/maximize and to refresh
 
 [![Icons for Maximize and Refresh](~@source/images/user_guides/guide_bc_dash_16.png)](../../../images/user_guides/guide_bc_dash_16.png)
 
@@ -93,7 +89,7 @@ The description section in the top of the page provides a short guide to the sel
 
 In the selection area (A) a class is provided (fx Findings, Events, Interventions) to narrow down the list of Activities. Then the sub-class is provided (fx Numeric Finding, Categoric Finding etc), group and finally sub-group.
 
-> Note: specifying a sub-group will display all the individual activities in the histogram as individual bars. The hight of the bar indicates the number of instances for the activity.
+> Note: specifying a sub-group will display all the individual activities in the histogram as individual bars. The height of the bar indicates the number of instances for the activity.
 
 The "Number of activities" histogram (B) updates with the concrete numbers when you filter the activities.
 
@@ -107,7 +103,7 @@ Below we can see the representation of that activity as in the graph database in
 
 [![Screenshot for logical view for pulse rate](~@source/images/user_guides/guide_bc_dash_10.png)](../../../images/user_guides/guide_bc_dash_10.png)
 
-The last part displays information about concrete activities instances. There is the selection part (F) and the display as logical view part (G).
+The last part displays information about concrete activity instances. There is the selection part (F) and the display as logical view part (G).
 
 When we select for example `ALBUMIN` as activity, it could have three different instances depending on the purpose of activity collection.
 
@@ -174,7 +170,7 @@ href: https://ncithesaurus.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=
 packageDate: 2023-04-30
 ```
 
-> Note: As the report is accessing NCI terminology via API it may run for bit before the yaml structure is displayed.
+> Note: As the report is accessing NCI terminology via API it may run for a bit before the yaml structure is displayed.
 
 #### Activities used in Studies
 
@@ -199,7 +195,7 @@ This view provides a quick way to display details of one or more activity instan
 
 The Audit Trail Report can be used to browse the audit trail information from the database. The StudyBuilder system is based on a linked graph database, and the audit trail system is an integrated part of how the versioning is supported, see more in [Versioning and Audit Trail](../userguides_introduction.html#versioning-and-audit-trail)
 
-The report have beside the ReadMe tab two main sections:
+The report has beside the ReadMe tab two main sections:
 
 * **Library Audit Trail** for browsing history of changes across all library elements.
   * In the library part you can filter and search by a specific user, start date and/or end date.
@@ -207,7 +203,7 @@ The report have beside the ReadMe tab two main sections:
 * **Study Audit Trail** for browsing history of changes across all study definitions.
   * In the study part you can additionally select a study uid.
 
-The audit trail report list:
+The audit trail report lists:
 
 * initial entry and changes (value before and after change was made).
 * what was changed (field and data identifiers).
@@ -222,7 +218,7 @@ The audit trail report list:
 
 The Data Exchange Data Models report can be used to browse both CDISC defined data models, Sponsor extensions to CDISC data models as well as sponsor defined data exchange data models. This can be e.g. the CDISC SDTMIGs, sponsor extended SDTMIGs and e.g. file-based lab data exchange data MODELS.
 
-> Note: the data exchange data model dashboard is experimental and initial version, additions and improvements will come in next release.
+> Note: the data exchange data model dashboard is experimental and an initial version, additions and improvements will come in the next release.
 
 Beside the ReadMe tab the report holds the following tabs:
 
@@ -242,7 +238,7 @@ On the **Select studies** tab you can:
 
 * Select the option to only display differences, or all content of the two compares.
 * You can filter on the projects to limit the study list (multi selection is enabled here).
-* Then select the select the base study and version of the compare.
+* Then select the base study and version of the compare.
 * Next select the study and version for the compare.
 * The selected studies and version info is then displayed here as well as on the header card on each of the compare tabs.
 
@@ -266,7 +262,7 @@ you can
 2. Limit the list of studies by selecting one or more projects.
 3. Select the Base study
 4. Select the Compare study
-5. View the selection. This panel will repeated in the other tabs.
+5. View the selection. This panel will be repeated in the other tabs.
 
 ### Study fields
 
@@ -276,12 +272,12 @@ On the Study fields tab, the list of differences in various study fields are dis
 If you choose 'Differences Only' as 'No' on the Select studies tab then also similarities are displayed
 [![Difference and similarities in Study Fields](~@source/images/user_guides/neodash_study_compare_3.png)](../../../images/user_guides/neodash_study_compare_3.png)
 
-To filter on a specific study filed, you can filter on the Study Field column
+To filter on a specific study field, you can filter on the Study Field column
 [![Filter on Study Field](~@source/images/user_guides/neodash_study_compare_4.png)](../../../images/user_guides/neodash_study_compare_4.png)
 
 ### Objectives/Endpoints
 
-On the Objectivate/endpoint tab, the differences in Objectives and endpoints are listed
+On the Objectives/Endpoints tab, the differences in Objectives and endpoints are listed
 [![Difference in objectives/endpoints](~@source/images/user_guides/neodash_study_compare_5.png)](../../../images/user_guides/neodash_study_compare_5.png)
 
 To show similarities, you need to select 'Differences Only' as 'No' on the Select studies tab.
@@ -295,7 +291,7 @@ To show similarities, you need to select 'Differences Only' as 'No' on the Selec
 
 ### Planned visits
 
-On the planned visits you can se differences in visits.
+On the planned visits you can see differences in visits.
 [![Difference in Planned Visits](~@source/images/user_guides/neodash_study_compare_7.png)](../../../images/user_guides/neodash_study_compare_7.png)
 
 To allow for the timeline view to display, you need to select a date in the Planned Study Start Date.
@@ -313,7 +309,7 @@ To show similarities, you need to select 'Differences Only' as 'No' on the Selec
 On the Collections tab you can see the differences in planned collections, i.e. the 'X's in the flowchart
 [![Differences in Collections](~@source/images/user_guides/neodash_study_compare_10.png)](../../../images/user_guides/neodash_study_compare_10.png)
 
->Note This report isn't controlled by the 'Differences Only' selection on the Select studies tab. Is will show **Added**, **Deleted** and **No change**
+>Note This report isn't controlled by the 'Differences Only' selection on the Select studies tab. It will show **Added**, **Deleted** and **No change**
 
 ### Activities
 

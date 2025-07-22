@@ -4,7 +4,7 @@
 
 import logging
 import time
-from typing import Iterable, Mapping
+from typing import Any, Iterable, Mapping
 
 import authlib.jose.errors
 import pytest
@@ -139,11 +139,11 @@ class MockOauthClient:
 
 def mk_claims(
     now: int | float | None = None,
-    exp: int | float | None = 300,
+    exp: int | float = 300,
     audience: str | None = GOOD_AUDIENCE,
     issuer: str | None = ISSUER,
-    scopes: Iterable | None = SCOPES,
-) -> dict:
+    scopes: Iterable[str] = SCOPES,
+) -> dict[str, Any]:
     if now is None:
         now = time.time()
 

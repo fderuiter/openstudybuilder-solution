@@ -14,6 +14,9 @@ import logging
 import pytest
 from fastapi.testclient import TestClient
 
+from clinical_mdr_api.domain_repositories.models.controlled_terminology import (
+    CTTermRoot,
+)
 from clinical_mdr_api.domain_repositories.models.standard_data_model import (
     SponsorModelDatasetVariableInstance,
 )
@@ -30,7 +33,7 @@ from clinical_mdr_api.tests.integration.utils.api import (
     inject_and_clear_db,
     inject_base_data,
 )
-from clinical_mdr_api.tests.integration.utils.utils import TestUtils
+from clinical_mdr_api.tests.integration.utils.utils import CT_CODELIST_UIDS, TestUtils
 from clinical_mdr_api.tests.utils.checks import assert_response_status_code
 
 log = logging.getLogger(__name__)
@@ -43,6 +46,7 @@ dataset_classes: list[DatasetClass]
 variable_classes: list[VariableClass]
 datasets: list[Dataset]
 dataset_variables: list[DatasetVariable]
+term: CTTermRoot
 
 
 @pytest.fixture(scope="module")
@@ -66,6 +70,7 @@ def test_data():
     global variable_classes
     global datasets
     global dataset_variables
+    global term
 
     data_model_catalogue_name = TestUtils.create_data_model_catalogue(
         name="DataModelCatalogueA"
@@ -113,7 +118,7 @@ def test_data():
         )
         for i in range(3)
     ]
-
+    term = TestUtils.create_ct_term()
     yield
 
 
@@ -234,6 +239,8 @@ def test_post_dataset_variable(api_client):
         "implemented_parent_dataset_class": dataset_classes[0].uid,
         "is_basic_std": True,
         "order": 20,
+        "references_codelists": [CT_CODELIST_UIDS.default],
+        "references_terms": [term.term_uid],
     }
 
     # Making a POST request to create a dataset variable with the sponsor model
@@ -300,7 +307,7 @@ def test_post_dataset_variable(api_client):
     assert_response_status_code(response, 201)
     res = response.json()
 
-    # It should have bee, created, with an inconsistency flag
+    # It should have been created, with an inconsistency flag
     created_instance = SponsorModelDatasetVariableInstance.nodes.filter(
         is_instance_of__uid=params5["dataset_variable_uid"]
     ).resolve_subgraph()
@@ -341,3 +348,30 @@ def test_post_dataset_variable(api_client):
         created_instance[0].implemented_parent_dataset_class_uid
         == params6["implemented_parent_dataset_class"]
     )
+
+    # POST request to create a dataset variable with a codelist which doesn't exist in the database
+    params7 = common_params.copy()
+    params7["dataset_variable_uid"] = "DatasetVariableWithNonexistentCodelist"
+    params7["references_codelists"] = ["ThisCTCodelistDoesNotExist"]
+    response = api_client.post(
+        url,
+        json=params7,
+    )
+    assert_response_status_code(response, 400)
+    res = response.json()
+    assert (
+        res["message"]
+        == "Could not find codelist with uid 'ThisCTCodelistDoesNotExist'."
+    )
+
+    # POST request to create a dataset variable with a term which doesn't exist in the database
+    params8 = common_params.copy()
+    params8["dataset_variable_uid"] = "DatasetVariableWithNonexistentTerm"
+    params8["references_terms"] = ["ThisCTTermDoesNotExist"]
+    response = api_client.post(
+        url,
+        json=params8,
+    )
+    assert_response_status_code(response, 400)
+    res = response.json()
+    assert res["message"] == "Could not find term with uid 'ThisCTTermDoesNotExist'."

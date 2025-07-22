@@ -13,7 +13,7 @@ from clinical_mdr_api.models.concepts.concept import (
 )
 from clinical_mdr_api.models.concepts.odms.odm_form import OdmFormRefModel
 from clinical_mdr_api.models.utils import PostInputModel
-from common import config
+from common.config import settings
 
 
 class OdmStudyEvent(ConceptModel):
@@ -89,7 +89,7 @@ class OdmStudyEventPatchInput(ConceptPatchInput):
 
 class OdmStudyEventFormPostInput(PostInputModel):
     uid: Annotated[str, Field(min_length=1)]
-    order_number: Annotated[int, Field(lt=config.MAX_INT_NEO4J)]
+    order_number: Annotated[int, Field(lt=settings.max_int_neo4j)]
     mandatory: Annotated[str, Field(min_length=1)]
     locked: Annotated[str, Field(min_length=1)] = "No"
     collection_exception_condition_oid: Annotated[str | None, Field(min_length=1)] = (

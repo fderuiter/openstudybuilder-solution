@@ -15,7 +15,7 @@ from clinical_mdr_api.tests.utils.checks import (
     assert_response_status_code,
 )
 from clinical_mdr_api.tests.utils.utils import get_db_name
-from common.config import STUDY_ENDPOINT_TP_NAME
+from common.config import settings
 
 TEST_DB_NAME = get_db_name(__name__)
 log = logging.getLogger(__name__)
@@ -82,7 +82,7 @@ def test_docx_response(api_client, test_database):
     timeframe = TestUtils.create_timeframe(
         timeframe_template_uid=TestUtils.create_timeframe_template().uid
     )
-    TestUtils.create_template_parameter(STUDY_ENDPOINT_TP_NAME)
+    TestUtils.create_template_parameter(settings.study_endpoint_tp_name)
     TestUtils.create_study_endpoint(
         study.uid,
         endpoint_template_uid=TestUtils.create_endpoint_template().uid,

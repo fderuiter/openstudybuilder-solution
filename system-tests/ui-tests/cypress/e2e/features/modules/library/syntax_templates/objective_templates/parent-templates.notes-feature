@@ -196,7 +196,7 @@ Feature: Library - Objective templates
 
     # Scenario: User must be able to add a new Objective Parent Template in 'Parent Templates' tab
     #     Given The '/library/objective_templates' page is opened
-    #     When The new criteria is added in the library
+    #     When The criteria template form is filled with base data
     #     Then The Criteria is visible in the Criteria Templates Table
 
     # Scenario: User must not be able to add a new Objective Parent Template without mandatory field filled in under 'create template'

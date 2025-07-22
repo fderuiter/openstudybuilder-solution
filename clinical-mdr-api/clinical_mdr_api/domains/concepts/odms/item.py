@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, Self
+from typing import Any, Callable, Self
 
 from clinical_mdr_api.domains.concepts.concept_base import ConceptVO
 from clinical_mdr_api.domains.concepts.odms.odm_ar_base import OdmARBase
@@ -98,9 +98,10 @@ class OdmItemVO(ConceptVO):
             [str], GenericFilteringReturn[CTTermNameAR] | None
         ],
         odm_uid: str | None = None,
+        library_name: str | None = None,
     ) -> None:
         data = {
-            "description_uids": self.description_uids,
+            "library_name": library_name,
             "alias_uids": self.alias_uids,
             "unit_definition_uids": self.unit_definition_uids,
             "codelist_uid": self.codelist_uid,
@@ -240,6 +241,7 @@ class OdmItemAR(OdmARBase):
             unit_definition_exists_by_callback=unit_definition_exists_by_callback,
             find_codelist_attribute_callback=find_codelist_attribute_callback,
             find_all_terms_callback=find_all_terms_callback,
+            library_name=library.name,
         )
 
         return cls(
@@ -312,7 +314,7 @@ class OdmItemRefVO:
     role: str
     role_codelist_oid: str
     collection_exception_condition_oid: str | None
-    vendor: dict
+    vendor: dict[Any, Any]
 
     @classmethod
     def from_repository_values(
@@ -328,7 +330,7 @@ class OdmItemRefVO:
         imputation_method_oid: str,
         role: str,
         role_codelist_oid: str,
-        vendor: dict,
+        vendor: dict[Any, Any],
         collection_exception_condition_oid: str | None = None,
     ) -> Self:
         return cls(

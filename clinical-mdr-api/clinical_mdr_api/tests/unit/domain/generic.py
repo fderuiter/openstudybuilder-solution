@@ -18,7 +18,7 @@ from clinical_mdr_api.domain_repositories.models._utils import (
     convert_to_tz_aware_datetime,
 )
 from clinical_mdr_api.domains.versioned_object_aggregate import LibraryItemStatus
-from common.config import NUMBER_OF_UID_DIGITS
+from common.config import settings
 from common.exceptions import NotFoundException
 from common.utils import convert_to_datetime
 
@@ -88,7 +88,7 @@ class ClinicalMdrNodeWithUID(ClinicalMdrNode):
         WITH newValue(newValue) as uid_number
         RETURN "{LABEL}_"+apoc.text.lpad(""+(uid_number), {number_of_digits}, "0")
         """.format(
-                    LABEL=object_name, number_of_digits=NUMBER_OF_UID_DIGITS
+                    LABEL=object_name, number_of_digits=settings.number_of_uid_digits
                 )
             )[0][0][0]
         )
@@ -128,7 +128,7 @@ class ClinicalMdrNodeWithUID(ClinicalMdrNode):
         """.format(
                 LABEL=object_name,
                 NODE_LABEL=node_label,
-                number_of_digits=NUMBER_OF_UID_DIGITS,
+                number_of_digits=settings.number_of_uid_digits,
             )
         )
 
@@ -155,7 +155,11 @@ class ClinicalMdrNodeWithUID(ClinicalMdrNode):
                     LABEL=object_name
                 )
             )[0][0][0]
-            self.uid = str(object_name) + "_" + str(new_uid).zfill(NUMBER_OF_UID_DIGITS)
+            self.uid = (
+                str(object_name)
+                + "_"
+                + str(new_uid).zfill(settings.number_of_uid_digits)
+            )
         return super().save()
 
 
@@ -274,7 +278,7 @@ class VersionRoot(ClinicalMdrNodeWithUID):
         model=TemplateUsesParameterRelation,
     )
 
-    def get_final_before(self, date_before: datetime):
+    def get_final_before(self, date_before: datetime.datetime):
         # pylint: disable=no-member
         past_final_versions = self.has_version.match(
             start_date__lte=date_before,
@@ -287,7 +291,7 @@ class VersionRoot(ClinicalMdrNodeWithUID):
             return past_final_versions[0]
         return None
 
-    def get_retired_before(self, date_before: datetime):
+    def get_retired_before(self, date_before: datetime.datetime):
         # pylint: disable=no-member
         past_retired_versions = self.has_version.match(
             start_date__lte=date_before,

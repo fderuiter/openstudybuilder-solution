@@ -704,7 +704,8 @@ class StudySelectionMixin:
                 (
                     version
                     for version in active_versions
-                    if start_date >= version.start_date
+                    if version.start_date is not None
+                    and start_date >= version.start_date
                     and (not version.end_date or start_date < version.end_date)
                 ),
                 None,

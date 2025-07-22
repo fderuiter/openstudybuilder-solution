@@ -146,7 +146,7 @@ class OdmItemGroupService(OdmGenericService[OdmItemGroupAR]):
 
         item_group = self.non_transactional_create(
             concept_input=OdmItemGroupPostInput(
-                library=concept_input.library_name,
+                library_name=concept_input.library_name,
                 oid=get_input_or_new_value(concept_input.oid, "G.", concept_input.name),
                 name=concept_input.name,
                 repeating=concept_input.repeating,

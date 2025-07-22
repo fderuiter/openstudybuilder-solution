@@ -83,16 +83,16 @@ class SponsorModelAR(LibraryItemAggregateRootBase):
     def sponsor_model_vo(self) -> SponsorModelVO:
         return self._sponsor_model_vo
 
+    @sponsor_model_vo.setter
+    def sponsor_model_vo(self, sponsor_model_vo: SponsorModelVO):
+        self._sponsor_model_vo = sponsor_model_vo
+
     @property
     def name(self) -> str:
         return self._sponsor_model_vo.name
 
     def _is_edit_allowed_in_non_editable_library(self) -> bool:
         return True
-
-    @sponsor_model_vo.setter
-    def sponsor_model_vo(self, sponsor_model_vo: SponsorModelVO):
-        self._sponsor_model_vo = sponsor_model_vo
 
     @classmethod
     def from_repository_values(

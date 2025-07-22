@@ -16,8 +16,9 @@
       "neodash_activitysubgroupvalue_name_display": "",
       "neodash_activitygrouping_uid": [],
       "neodash_activitygrouping_uid_display": [],
-      "neodash_activityvalue_name": [],
-      "neodash_detail": ""
+      "neodash_detail": "",
+      "neodash_activity": "",
+      "neodash_instance": ""
     },
     "disableRowLimiting": true,
     "theme": "light",
@@ -199,16 +200,6 @@
             "ActivityInstanceClass": "name",
             "ActivityItem": "(label)",
             "ActivityItemClass": "name",
-            "HAS": "(label)",
-            "HAS_ACTIVITY": "(label)",
-            "OF_CLASS": "(label)",
-            "FOR": "(label)",
-            "HAS_ROLE": "(label)",
-            "HAS_TYPE": "(label)",
-            "HAS_GROUPING": "(label)",
-            "IN_SUBGROUP": "(label)",
-            "HAS_GROUP": "(label)",
-            "IN_GROUP": "(label)",
             "CTTerm": "name",
             "CTCodeList": "(label)"
           },
@@ -289,25 +280,26 @@
               "name_sentence_case",
               "is_default_selected_for_activity",
               "is_data_sharing",
-              "legacy_description",
               "is_required_for_activity",
+              "legacy_description",
               "is_legacy_usage"
             ],
             [
               "ActivityInstanceClass",
               "name",
               "definition",
+              "level",
               "is_domain_specific",
               "order"
             ],
             [
-              "ActivityItem"
+              "ActivityItem",
+              "is_adam_param_specific"
             ],
             [
               "ActivityItemClass",
               "name",
               "definition",
-              "mandatory",
               "nci_concept_id",
               "order"
             ],
@@ -353,33 +345,33 @@
             ],
             [
               "CTTerm",
-              "preferred_term",
-              "concept_id",
-              "name",
-              "code_submission_value",
-              "name_sentence_case",
-              "definition",
-              "name_submission_value",
-              "synonyms",
               "us_conventional_unit",
               "si_unit",
               "display_unit",
               "master_unit",
-              "comment",
-              "molecular_weight_conv_expon",
+              "name",
+              "definition",
+              "use_complex_unit_conversion",
+              "use_molecular_weight",
               "conversion_factor_to_master",
               "convertible_unit",
               "order",
-              "legacy_code"
+              "legacy_code",
+              "preferred_term",
+              "name_sentence_case",
+              "code_submission_value",
+              "name_submission_value",
+              "concept_id",
+              "synonyms"
             ],
             [
               "CTCodeList",
               "preferred_term",
-              "synonyms",
               "name",
               "definition",
               "extensible",
-              "submission_value"
+              "submission_value",
+              "synonyms"
             ]
           ]
         },
@@ -419,7 +411,8 @@
             "autorun": true,
             "wrapContent": true,
             "refreshButtonEnabled": true,
-            "allowDownload": true
+            "allowDownload": true,
+            "fullscreenEnabled": true
           },
           "id": "9b28167f-7b58-4d41-8122-5201a121613d",
           "schema": []
@@ -446,38 +439,20 @@
             "ActivityItem": "name",
             "ActivityItemClassRoot": "uid",
             "ActivityItemClassValue": "name",
-            "CTTermRoot": "uid",
-            "CTTermNameRoot": "uid",
-            "CTTermNameValue": "name",
-            "CTTermAttributesRoot": "(label)",
-            "CTTermAttributesValue": "(label)",
-            "CTCodelistRoot": "uid",
-            "CTCodelistAttributesRoot": "(label)",
-            "CTCodelistNameRoot": "(label)",
-            "CTCodelistNameValue": "name",
-            "CTCodelistAttributesValue": "name",
-            "TemplateParameterTermRoot": "uid",
-            "HAS_GROUPING": "(label)",
-            "IN_SUBGROUP": "(label)",
-            "HAS_GROUP": "(label)",
-            "IN_GROUP": "(label)",
-            "HAS_ACTIVITY": "(label)",
-            "CONTAINS_ACTIVITY_ITEM": "(label)",
-            "HAS_ACTIVITY_ITEM": "(label)",
-            "LATEST": "(label)",
-            "PARENT_CLASS": "(label)",
-            "HAS_ITEM_CLASS": "(label)",
-            "HAS_CT_TERM": "(label)",
-            "HAS_NAME_ROOT": "(label)",
-            "HAS_ATTRIBUTES_ROOT": "(label)",
-            "HAS_TERM": "(label)",
-            "HAS_ROLE": "(label)",
-            "HAS_DATA_TYPE": "(label)",
-            "ACTIVITY_INSTANCE_CLASS": "(label)",
             "ConceptRoot": "uid",
+            "TemplateParameterTermRoot": "uid",
             "UnitDefinitionRoot": "uid",
             "UnitDefinitionValue": "name",
-            "HAS_CT_DIMENSION": "(label)"
+            "CTTermRoot": "uid",
+            "CTCodelistRoot": "uid",
+            "CTCodelistAttributesRoot": "(label)",
+            "CTCodelistAttributesValue": "name",
+            "CTTermAttributesRoot": "(label)",
+            "CTTermNameRoot": "uid",
+            "CTTermNameValue": "name",
+            "CTTermAttributesValue": "(label)",
+            "CTCodelistNameRoot": "(label)",
+            "CTCodelistNameValue": "name"
           },
           "settings": {
             "hideSelections": true,
@@ -519,15 +494,15 @@
               "adam_param_code",
               "is_default_selected_for_activity",
               "is_data_sharing",
-              "legacy_description",
               "is_required_for_activity",
+              "legacy_description",
               "is_legacy_usage",
               "us_conventional_unit",
               "si_unit",
               "display_unit",
               "master_unit",
-              "comment",
-              "molecular_weight_conv_expon",
+              "use_complex_unit_conversion",
+              "use_molecular_weight",
               "conversion_factor_to_master",
               "convertible_unit",
               "order",
@@ -547,15 +522,15 @@
               "adam_param_code",
               "is_default_selected_for_activity",
               "is_data_sharing",
-              "legacy_description",
               "is_required_for_activity",
+              "legacy_description",
               "is_legacy_usage",
               "us_conventional_unit",
               "si_unit",
               "display_unit",
               "master_unit",
-              "comment",
-              "molecular_weight_conv_expon",
+              "use_complex_unit_conversion",
+              "use_molecular_weight",
               "conversion_factor_to_master",
               "convertible_unit",
               "order",
@@ -585,8 +560,8 @@
               "name_sentence_case",
               "is_default_selected_for_activity",
               "is_data_sharing",
-              "legacy_description",
               "is_required_for_activity",
+              "legacy_description",
               "is_legacy_usage"
             ],
             [
@@ -595,13 +570,15 @@
             ],
             [
               "ActivityInstanceClassValue",
+              "level",
               "is_domain_specific",
               "name",
               "definition",
               "order"
             ],
             [
-              "ActivityItem"
+              "ActivityItem",
+              "is_adam_param_specific"
             ],
             [
               "ActivityItemClassRoot",
@@ -612,13 +589,58 @@
               "nci_concept_id",
               "name",
               "definition",
-              "mandatory",
               "order"
+            ],
+            [
+              "ConceptRoot",
+              "uid"
+            ],
+            [
+              "TemplateParameterTermRoot",
+              "uid"
+            ],
+            [
+              "UnitDefinitionRoot",
+              "uid"
+            ],
+            [
+              "UnitDefinitionValue",
+              "us_conventional_unit",
+              "si_unit",
+              "display_unit",
+              "name",
+              "master_unit",
+              "definition",
+              "use_complex_unit_conversion",
+              "use_molecular_weight",
+              "conversion_factor_to_master",
+              "convertible_unit",
+              "order",
+              "legacy_code"
             ],
             [
               "CTTermRoot",
               "uid",
               "concept_id"
+            ],
+            [
+              "CTCodelistRoot",
+              "uid"
+            ],
+            [
+              "CTCodelistAttributesRoot"
+            ],
+            [
+              "CTCodelistAttributesValue",
+              "preferred_term",
+              "name",
+              "definition",
+              "extensible",
+              "submission_value",
+              "synonyms"
+            ],
+            [
+              "CTTermAttributesRoot"
             ],
             [
               "CTTermNameRoot",
@@ -630,43 +652,13 @@
               "name_sentence_case"
             ],
             [
-              "CTTermAttributesRoot"
-            ],
-            [
               "CTTermAttributesValue",
               "preferred_term",
-              "concept_id",
               "code_submission_value",
               "definition",
               "name_submission_value",
+              "concept_id",
               "synonyms"
-            ],
-            [
-              "CTCodelistRoot",
-              "uid"
-            ],
-            [
-              "CTCodelistAttributesRoot"
-            ],
-            [
-              "CTCodelistNameRoot"
-            ],
-            [
-              "CTCodelistNameValue",
-              "name"
-            ],
-            [
-              "CTCodelistAttributesValue",
-              "preferred_term",
-              "synonyms",
-              "name",
-              "definition",
-              "extensible",
-              "submission_value"
-            ],
-            [
-              "TemplateParameterTermRoot",
-              "uid"
             ],
             [
               "HAS_GROUPING",
@@ -706,29 +698,31 @@
             ],
             [
               "HAS_ITEM_CLASS",
-              "UNIQUE IMPORT ID REL"
+              "is_adam_param_specific_enabled",
+              "UNIQUE IMPORT ID REL",
+              "mandatory"
             ],
             [
-              "HAS_CT_TERM",
-              "UNIQUE IMPORT ID REL"
-            ],
-            [
-              "HAS_NAME_ROOT",
-              "UNIQUE IMPORT ID REL"
-            ],
-            [
-              "HAS_ATTRIBUTES_ROOT",
-              "UNIQUE IMPORT ID REL"
+              "HAS_CT_DIMENSION"
             ],
             [
               "HAS_TERM",
+              "author_id",
               "UNIQUE IMPORT ID REL",
               "user_initials",
               "start_date",
               "order"
             ],
             [
+              "HAS_ATTRIBUTES_ROOT",
+              "UNIQUE IMPORT ID REL"
+            ],
+            [
               "HAS_ROLE",
+              "UNIQUE IMPORT ID REL"
+            ],
+            [
+              "HAS_NAME_ROOT",
               "UNIQUE IMPORT ID REL"
             ],
             [
@@ -740,30 +734,14 @@
               "UNIQUE IMPORT ID REL"
             ],
             [
-              "ConceptRoot",
-              "uid"
+              "CTCodelistNameRoot"
             ],
             [
-              "UnitDefinitionRoot",
-              "uid"
+              "CTCodelistNameValue",
+              "name"
             ],
             [
-              "UnitDefinitionValue",
-              "us_conventional_unit",
-              "si_unit",
-              "display_unit",
-              "name",
-              "master_unit",
-              "comment",
-              "definition",
-              "molecular_weight_conv_expon",
-              "conversion_factor_to_master",
-              "convertible_unit",
-              "order",
-              "legacy_code"
-            ],
-            [
-              "HAS_CT_DIMENSION",
+              "HAS_CT_TERM",
               "UNIQUE IMPORT ID REL"
             ]
           ]
@@ -800,7 +778,9 @@
             ],
             "compact": true,
             "wrapContent": true,
-            "ignoreNonDefinedParams": false
+            "ignoreNonDefinedParams": false,
+            "fullscreenEnabled": true,
+            "allowDownload": true
           },
           "schema": []
         },
@@ -819,7 +799,7 @@
         },
         {
           "id": "2a328d78-132e-49c6-b4a5-884d1fdaa015",
-          "title": " Select Instance - $neodash_activity",
+          "title": "Select Instance - $neodash_activity",
           "query": "MATCH(act:ActivityValue)-[R1:HAS_GROUPING]->(g:ActivityGrouping)<-[R5:HAS_ACTIVITY]-(ai:ActivityInstanceValue)<-[:LATEST]-() \nwhere act.name = $neodash_activity \nreturn ai.name as Instance, ai.adam_param_code as `ADaM Param Code`",
           "width": 7,
           "height": 5,
@@ -866,7 +846,10 @@
           "selection": {},
           "settings": {
             "compact": true,
-            "wrapContent": true
+            "wrapContent": true,
+            "refreshButtonEnabled": true,
+            "fullscreenEnabled": true,
+            "allowDownload": true
           },
           "schema": []
         },
@@ -900,7 +883,8 @@
             "showPropertiesOnHover": true,
             "hideSelections": true,
             "refreshButtonEnabled": true,
-            "fullscreenEnabled": true
+            "fullscreenEnabled": true,
+            "downloadImageEnabled": true
           },
           "schema": [
             [
@@ -969,17 +953,18 @@
               "ActivityInstanceClass",
               "name",
               "definition",
+              "level",
               "is_domain_specific",
               "order"
             ],
             [
-              "ActivityItem"
+              "ActivityItem",
+              "is_adam_param_specific"
             ],
             [
               "ActivityItemClass",
               "name",
               "definition",
-              "mandatory",
               "nci_concept_id",
               "order"
             ],
@@ -1025,23 +1010,33 @@
             ],
             [
               "CTTerm",
-              "preferred_term",
-              "concept_id",
-              "synonyms",
+              "us_conventional_unit",
+              "si_unit",
+              "display_unit",
+              "master_unit",
               "name",
-              "code_submission_value",
-              "name_sentence_case",
               "definition",
-              "name_submission_value"
+              "use_complex_unit_conversion",
+              "use_molecular_weight",
+              "conversion_factor_to_master",
+              "convertible_unit",
+              "order",
+              "legacy_code",
+              "preferred_term",
+              "name_sentence_case",
+              "code_submission_value",
+              "name_submission_value",
+              "concept_id",
+              "synonyms"
             ],
             [
               "CTCodeList",
               "preferred_term",
-              "synonyms",
               "name",
               "definition",
               "extensible",
-              "submission_value"
+              "submission_value",
+              "synonyms"
             ]
           ]
         }
@@ -1086,7 +1081,7 @@
           "type": "table",
           "selection": {},
           "settings": {
-            "refreshButtonEnabled": false,
+            "refreshButtonEnabled": true,
             "actionsRules": [
               {
                 "condition": "Click",
@@ -1100,7 +1095,8 @@
             "compact": true,
             "wrapContent": true,
             "noDataMessage": "Please select one or more activities in the search activity panel.",
-            "ignoreNonDefinedParams": true
+            "ignoreNonDefinedParams": true,
+            "allowDownload": true
           },
           "schema": []
         },
@@ -1120,7 +1116,8 @@
             "compact": true,
             "wrapContent": true,
             "noDataMessage": "Please select 'SHOW DETAIL' for one of the activity instances in the panel above.",
-            "ignoreNonDefinedParams": true
+            "ignoreNonDefinedParams": true,
+            "allowDownload": true
           },
           "schema": []
         },
@@ -1198,7 +1195,7 @@
         {
           "id": "6eba64b3-890f-46b1-80a6-5d630525df46",
           "title": "Results",
-          "query": "WITH [$neodash_activityinstanceclassvalue_name,$neodash_activityinstanceclassvalue_name_subtype] AS activity_filter, $neodash_activitygroupvalue_name AS activity_group, $neodash_activitysubgroupvalue_name AS activity_subgroup\nMATCH ()-[:LATEST]->(act:ActivityValue)-[:HAS_GROUPING]->(g:ActivityGrouping)-[:IN_SUBGROUP]->(sg:ActivityValidGroup)<-[:HAS_GROUP]-(asgrp:ActivitySubGroupValue)\nWHERE (activity_subgroup = \"\" OR asgrp.name = activity_subgroup)\nMATCH (sg)-[:IN_GROUP]->(agrp:ActivityGroupValue)\nWHERE (activity_group = \"\" OR agrp.name = activity_group)\nWITH  activity_filter, g, agrp.name as ActivityGroup, asgrp.name as ActivitySubGroup, act.name as Activity \n//get the activity instances ParentInstanceClass - aiclass_parent. Also getting the immediate class of the instance(aiclass)\nMATCH (g)<-[:HAS_ACTIVITY]-(ai:ActivityInstanceValue)<-[:LATEST]-(), \n(ai)-[:ACTIVITY_INSTANCE_CLASS]->(root:ActivityInstanceClassRoot)-[:LATEST]->(aiclass:ActivityInstanceClassValue),\n(root)-[:PARENT_CLASS]->{0,1}(aicr:ActivityInstanceClassRoot)-[:LATEST]->(aiclass_parent:ActivityInstanceClassValue)\nWITH ActivityGroup, ActivitySubGroup, Activity, ai, [aiclass_parent.name,aiclass.name] as type_filter, apoc.coll.removeAll(activity_filter,['']) as activity_filter\nWITH ActivityGroup, ActivitySubGroup, Activity, ai,type_filter where  (activity_filter = [\"\"] OR apoc.coll.containsAll(type_filter,activity_filter))\nMATCH(ai)-[:ACTIVITY_INSTANCE_CLASS]->(:ActivityInstanceClassRoot)-[:PARENT_CLASS]->{0,1}(aicr:ActivityInstanceClassRoot)-[:LATEST]->(aicp:ActivityInstanceClassValue)\nMATCH (aicp)<-[:LATEST]-(aicr_mandatory:ActivityInstanceClassRoot)-[:HAS_ITEM_CLASS]->(aitmrp_mandatory:ActivityItemClassRoot)-[:LATEST]->(aitmv_mandatory:ActivityItemClassValue{mandatory: TRUE})\nwhere (not (ai)-[:CONTAINS_ACTIVITY_ITEM]->(:ActivityItem)<-[:HAS_ACTIVITY_ITEM]-(aitmrp_mandatory)) \nRETURN DISTINCT ActivityGroup as `Activity Group`, ActivitySubGroup as `Activity Subgroup`, Activity, ai.name as `Activity Instance`, type_filter as `Activity Instance Class`, aitmv_mandatory.name as `Missing Activity Item`, aicp.name as `Class of Missing Activity Item`\n",
+          "query": "WITH [$neodash_activityinstanceclassvalue_name,$neodash_activityinstanceclassvalue_name_subtype] AS activity_filter, $neodash_activitygroupvalue_name AS activity_group, $neodash_activitysubgroupvalue_name AS activity_subgroup\nMATCH ()-[:LATEST]->(act:ActivityValue)-[:HAS_GROUPING]->(g:ActivityGrouping)-[:IN_SUBGROUP]->(sg:ActivityValidGroup)<-[:HAS_GROUP]-(asgrp:ActivitySubGroupValue)\nWHERE (activity_subgroup = \"\" OR asgrp.name = activity_subgroup)\nMATCH (sg)-[:IN_GROUP]->(agrp:ActivityGroupValue)\nWHERE (activity_group = \"\" OR agrp.name = activity_group)\nWITH  activity_filter, g, agrp.name as ActivityGroup, asgrp.name as ActivitySubGroup, act.name as Activity \n//get the activity instances ParentInstanceClass - aiclass_parent. Also getting the immediate class of the instance(aiclass)\nMATCH (g)<-[:HAS_ACTIVITY]-(ai:ActivityInstanceValue)<-[:LATEST]-(), \n(ai)-[:ACTIVITY_INSTANCE_CLASS]->(root:ActivityInstanceClassRoot)-[:LATEST]->(aiclass:ActivityInstanceClassValue),\n(root)-[:PARENT_CLASS]->{0,1}(aicr:ActivityInstanceClassRoot)-[:LATEST]->(aiclass_parent:ActivityInstanceClassValue)\nWITH ActivityGroup, ActivitySubGroup, Activity, ai, [aiclass_parent.name,aiclass.name] as type_filter, apoc.coll.removeAll(activity_filter,['']) as activity_filter\nWITH ActivityGroup, ActivitySubGroup, Activity, ai,type_filter where  (activity_filter = [\"\"] OR apoc.coll.containsAll(type_filter,activity_filter))\nMATCH(ai)-[:ACTIVITY_INSTANCE_CLASS]->(:ActivityInstanceClassRoot)-[:PARENT_CLASS]->{0,1}(aicr:ActivityInstanceClassRoot)-[:LATEST]->(aicp:ActivityInstanceClassValue)\nMATCH (aicp)<-[:LATEST]-(aicr_mandatory:ActivityInstanceClassRoot)-[:HAS_ITEM_CLASS{mandatory: TRUE}]->(aitmrp_mandatory:ActivityItemClassRoot)-[:LATEST]->(aitmv_mandatory:ActivityItemClassValue)\nwhere (not (ai)-[:CONTAINS_ACTIVITY_ITEM]->(:ActivityItem)<-[:HAS_ACTIVITY_ITEM]-(aitmrp_mandatory)) \nRETURN DISTINCT ActivityGroup as `Activity Group`, ActivitySubGroup as `Activity Subgroup`, Activity, ai.name as `Activity Instance`, type_filter as `Activity Instance Class`, aitmv_mandatory.name as `Missing Activity Item`, aicp.name as `Class of Missing Activity Item`\n",
           "width": 24,
           "height": 8,
           "x": 0,
@@ -1207,6 +1204,28 @@
           "selection": {},
           "settings": {
             "wrapContent": true,
+            "allowDownload": true,
+            "refreshButtonEnabled": true,
+            "fullscreenEnabled": true,
+            "compact": true
+          }
+        },
+        {
+          "id": "77c78c45-27cf-4aa3-bc87-ea74c82cdf2a",
+          "title": "Used terms for Activity Item Class",
+          "query": "WITH [$neodash_activityinstanceclassvalue_name,$neodash_activityinstanceclassvalue_name_subtype] AS activity_filter, $neodash_activitygroupvalue_name AS activity_group, $neodash_activitysubgroupvalue_name AS activity_subgroup\nMATCH ()-[:LATEST]->(act:ActivityValue)-[:HAS_GROUPING]->(g:ActivityGrouping)-[:IN_SUBGROUP]->(sg:ActivityValidGroup)<-[:HAS_GROUP]-(asgrp:ActivitySubGroupValue)\nWHERE (activity_subgroup = \"\" OR asgrp.name = activity_subgroup)\nMATCH (sg)-[:IN_GROUP]->(agrp:ActivityGroupValue)\nWHERE (activity_group = \"\" OR agrp.name = activity_group)\nWITH  activity_filter, g, agrp.name as ActivityGroup, asgrp.name as ActivitySubGroup, act.name as Activity \n//get the activity instances ParentInstanceClass - aiclass_parent. Also getting the immediate class of the instance(aiclass)\nMATCH (g)<-[:HAS_ACTIVITY]-(ai:ActivityInstanceValue)<-[:LATEST]-(), \n(ai)-[:ACTIVITY_INSTANCE_CLASS]->(root:ActivityInstanceClassRoot)-[:LATEST]->(aiclass:ActivityInstanceClassValue),\n(root)-[:PARENT_CLASS]->{0,1}(aicr:ActivityInstanceClassRoot)-[:LATEST]->(aiclass_parent:ActivityInstanceClassValue)\nWITH ActivityGroup, ActivitySubGroup, Activity, ai, [aiclass_parent.name,aiclass.name] as type_filter, apoc.coll.removeAll(activity_filter,['']) as activity_filter\nWITH ActivityGroup, ActivitySubGroup, Activity, ai,type_filter where  (activity_filter = [\"\"] OR apoc.coll.containsAll(type_filter,activity_filter))\nMATCH(ai)-[:ACTIVITY_INSTANCE_CLASS]->(:ActivityInstanceClassRoot)-[:PARENT_CLASS]->{0,1}(aicr:ActivityInstanceClassRoot)-[:LATEST]->(aicp:ActivityInstanceClassValue)\nMATCH (aicp)<-[:LATEST]-(aicr_mandatory:ActivityInstanceClassRoot)-[:HAS_ITEM_CLASS{mandatory: TRUE}]->(aitmrp_mandatory:ActivityItemClassRoot)-[:LATEST]->(aitmv_mandatory:ActivityItemClassValue)\nwhere (not (ai)-[:CONTAINS_ACTIVITY_ITEM]->(:ActivityItem)<-[:HAS_ACTIVITY_ITEM]-(aitmrp_mandatory))\nWITH aitmv_mandatory, aitmrp_mandatory, aicp,aicr\nOPTIONAL Match(aitmrp_mandatory)-[:HAS_ACTIVITY_ITEM]->(aitm:ActivityItem)<-[:CONTAINS_ACTIVITY_ITEM]-(inst)<-[:LATEST]-(),(aitmrp_mandatory)<-[:HAS_ITEM_CLASS]-(aicr)-[:LATEST]->(aicp) \nOPTIONAL MATCH(aitm)-[:HAS_CT_TERM]->(term_root:CTTermRoot)-[:HAS_ATTRIBUTES_ROOT]-(attrib_root:CTTermAttributesRoot)-[:LATEST]->(cdisc_term:CTTermAttributesValue), (term_root)-[:HAS_NAME_ROOT]->(name_root:CTTermNameRoot)-[:LATEST]->(sponsor_term:CTTermNameValue)\nOPTIONAL MATCH (aitm)-[:HAS_UNIT_DEFINITION]->(unitdefr:UnitDefinitionRoot)-[R22:LATEST]->(unitdef:UnitDefinitionValue)\nOPTIONAL MATCH(unitdef)-[:HAS_CT_UNIT]->(cdisc_unit:CTTermRoot)\nWITH distinct aitmv_mandatory, aicp, cdisc_term, sponsor_term, unitdef,cdisc_unit\nWITH distinct aitmv_mandatory, aicp, cdisc_term,coalesce(cdisc_term.concept_id,cdisc_unit.concept_id) as term_concept_id,coalesce(cdisc_term.preferred_term,sponsor_term.name,unitdef.name) as term_label\nWITH distinct aitmv_mandatory, aicp, cdisc_term, term_label, term_concept_id\nWITH distinct aitmv_mandatory, aicp, cdisc_term, term_label, term_concept_id, \nCASE WHEN cdisc_term.code_submission_value is null and term_concept_id is not null then\napoc.text.join([term_concept_id,':','(',term_label,')'],\"\") ELSE CASE WHEN term_concept_id is not null THEN apoc.text.join([term_concept_id,':',cdisc_term.code_submission_value,'(',term_label,')'],\"\") ELSE term_label END END as terms\nWITH distinct aitmv_mandatory.name as `Missing Activity Item Type`, \naicp.name as `Class of Missing Activity Item`,terms\n WITH `Missing Activity Item Type`,`Class of Missing Activity Item`, collect(terms) as Terms\nWITH DISTINCT `Missing Activity Item Type`,`Class of Missing Activity Item`, size(Terms) as NumberOfTerms, Terms\nreturn `Missing Activity Item Type`,`Class of Missing Activity Item`, NumberOfTerms, Terms\n",
+          "width": 24,
+          "height": 7,
+          "x": 0,
+          "y": 8,
+          "type": "table",
+          "selection": {},
+          "settings": {
+            "refreshButtonEnabled": true,
+            "fullscreenEnabled": true,
+            "compact": true,
+            "wrapContent": true,
+            "columnWidths": "[0.5,0.5,0.5,2]",
             "allowDownload": true
           }
         }
@@ -1233,7 +1252,7 @@
         {
           "id": "eec86f8e-a93e-43f4-92eb-69da05b6e49a",
           "title": "Results (Mandatory)",
-          "query": "WITH [$neodash_activityinstanceclassvalue_name,$neodash_activityinstanceclassvalue_name_subtype] AS activity_filter, $neodash_activitygroupvalue_name AS activity_group, $neodash_activitysubgroupvalue_name AS activity_subgroup\nMATCH ()-[:LATEST]->(act:ActivityValue)-[:HAS_GROUPING]->(g:ActivityGrouping)-[:IN_SUBGROUP]->(sg:ActivityValidGroup)<-[:HAS_GROUP]-(asgrp:ActivitySubGroupValue)\nWHERE (activity_subgroup = \"\" OR asgrp.name = activity_subgroup)\nMATCH (sg)-[:IN_GROUP]->(agrp:ActivityGroupValue)\nWHERE (activity_group = \"\" OR agrp.name = activity_group)\nWITH  activity_filter, g, agrp.name as ActivityGroup, asgrp.name as ActivitySubGroup, act.name as Activity \n//get the activity instances ParentInstanceClass - aiclass_parent. Also getting the immediate class of the instance(aiclass)\nMATCH (g)<-[:HAS_ACTIVITY]-(ai:ActivityInstanceValue)<-[:LATEST]-(), \n(ai)-[:ACTIVITY_INSTANCE_CLASS]->(root:ActivityInstanceClassRoot)-[:LATEST]->(aiclass:ActivityInstanceClassValue),\n(root)-[:PARENT_CLASS]->{0,3}(aicr:ActivityInstanceClassRoot)-[:LATEST]->(aiclass_parent:ActivityInstanceClassValue)\nWITH ActivityGroup, ActivitySubGroup, Activity, ai, [aiclass_parent.name,aiclass.name] as type_filter, apoc.coll.removeAll(activity_filter,['']) as activity_filter\nWITH activity_filter, ActivityGroup, ActivitySubGroup, Activity, ai,type_filter where  (apoc.coll.containsAll(type_filter,activity_filter) AND size(activity_filter) = 2)\nMATCH(ai)-[:ACTIVITY_INSTANCE_CLASS]->(:ActivityInstanceClassRoot)-[:PARENT_CLASS]->{0,3}(aicr:ActivityInstanceClassRoot)-[:LATEST]->(aicp:ActivityInstanceClassValue)\nMATCH (aicp)<-[:LATEST]-(aicr_mandatory:ActivityInstanceClassRoot)-[:HAS_ITEM_CLASS]->(aitmrp_mandatory:ActivityItemClassRoot)-[:LATEST]->(aitmv_mandatory:ActivityItemClassValue{mandatory: TRUE})\nwhere (not (ai)-[:CONTAINS_ACTIVITY_ITEM]->(:ActivityItem)<-[:HAS_ACTIVITY_ITEM]-(aitmrp_mandatory)) \nRETURN DISTINCT ActivityGroup as `Activity Group`, ActivitySubGroup as `Activity Subgroup`, Activity, ai.name as `Activity Instance`, type_filter as `Activity Instance Class`, aitmv_mandatory.name as `Missing Activity Item`, aicp.name as `Class of Missing Activity Item`\n",
+          "query": "WITH [$neodash_activityinstanceclassvalue_name,$neodash_activityinstanceclassvalue_name_subtype] AS activity_filter, $neodash_activitygroupvalue_name AS activity_group, $neodash_activitysubgroupvalue_name AS activity_subgroup\nMATCH ()-[:LATEST]->(act:ActivityValue)-[:HAS_GROUPING]->(g:ActivityGrouping)-[:IN_SUBGROUP]->(sg:ActivityValidGroup)<-[:HAS_GROUP]-(asgrp:ActivitySubGroupValue)\nWHERE (activity_subgroup = \"\" OR asgrp.name = activity_subgroup)\nMATCH (sg)-[:IN_GROUP]->(agrp:ActivityGroupValue)\nWHERE (activity_group = \"\" OR agrp.name = activity_group)\nWITH  activity_filter, g, agrp.name as ActivityGroup, asgrp.name as ActivitySubGroup, act.name as Activity \n//get the activity instances ParentInstanceClass - aiclass_parent. Also getting the immediate class of the instance(aiclass)\nMATCH (g)<-[:HAS_ACTIVITY]-(ai:ActivityInstanceValue)<-[:LATEST]-(), \n(ai)-[:ACTIVITY_INSTANCE_CLASS]->(root:ActivityInstanceClassRoot)-[:LATEST]->(aiclass:ActivityInstanceClassValue),\n(root)-[:PARENT_CLASS]->{0,3}(aicr:ActivityInstanceClassRoot)-[:LATEST]->(aiclass_parent:ActivityInstanceClassValue)\nWITH ActivityGroup, ActivitySubGroup, Activity, ai, [aiclass_parent.name,aiclass.name] as type_filter, apoc.coll.removeAll(activity_filter,['']) as activity_filter\nWITH activity_filter, ActivityGroup, ActivitySubGroup, Activity, ai,type_filter where  (apoc.coll.containsAll(type_filter,activity_filter) AND size(activity_filter) = 2)\nMATCH(ai)-[:ACTIVITY_INSTANCE_CLASS]->(:ActivityInstanceClassRoot)-[:PARENT_CLASS]->{0,3}(aicr:ActivityInstanceClassRoot)-[:LATEST]->(aicp:ActivityInstanceClassValue)\nMATCH (aicp)<-[:LATEST]-(aicr_mandatory:ActivityInstanceClassRoot)-[:HAS_ITEM_CLASS{mandatory: TRUE}]->(aitmrp_mandatory:ActivityItemClassRoot)-[:LATEST]->(aitmv_mandatory:ActivityItemClassValue)\nwhere (not (ai)-[:CONTAINS_ACTIVITY_ITEM]->(:ActivityItem)<-[:HAS_ACTIVITY_ITEM]-(aitmrp_mandatory)) \nRETURN DISTINCT ActivityGroup as `Activity Group`, ActivitySubGroup as `Activity Subgroup`, Activity, ai.name as `Activity Instance`, type_filter as `Activity Instance Class`, aitmv_mandatory.name as `Missing Activity Item`, aicp.name as `Class of Missing Activity Item`\n",
           "width": 24,
           "height": 4,
           "x": 0,
@@ -1242,7 +1261,9 @@
           "selection": {},
           "settings": {
             "wrapContent": true,
-            "allowDownload": true
+            "allowDownload": true,
+            "refreshButtonEnabled": true,
+            "fullscreenEnabled": true
           }
         },
         {
@@ -1265,7 +1286,7 @@
         {
           "id": "acaf0a95-cf39-40a4-a1e3-572ca898eaf8",
           "title": "Activity Subclass",
-          "query": "MATCH (g:ActivityGrouping)<-[R5:HAS_ACTIVITY]-(ai:ActivityInstanceValue)\nMATCH (ai)-[R42:ACTIVITY_INSTANCE_CLASS]->(aicr:ActivityInstanceClassRoot)-[R43:LATEST]->(aic:ActivityInstanceClassValue)\nWHERE exists { (aicr)-[:HAS_ITEM_CLASS]->(:ActivityItemClassRoot)-[:LATEST]->(:ActivityItemClassValue {mandatory: TRUE}) }\nWITH aicr, aic\nMATCH (aicr)-[R10:PARENT_CLASS]->(aicrp:ActivityInstanceClassRoot)-[R11:LATEST]->(aicp:ActivityInstanceClassValue) \nwhere aicp.name = $neodash_activityinstanceclassvalue_name \nreturn distinct aic.`name` as value,  aic.`name` as display ORDER BY size(toString(value)) ASC ",
+          "query": "MATCH (g:ActivityGrouping)<-[R5:HAS_ACTIVITY]-(ai:ActivityInstanceValue)\nMATCH (ai)-[R42:ACTIVITY_INSTANCE_CLASS]->(aicr:ActivityInstanceClassRoot)-[R43:LATEST]->(aic:ActivityInstanceClassValue)\nWHERE exists { (aicr)-[:HAS_ITEM_CLASS{mandatory: TRUE}]->(:ActivityItemClassRoot)-[:LATEST]->(:ActivityItemClassValue) }\nWITH aicr, aic\nMATCH (aicr)-[R10:PARENT_CLASS]->(aicrp:ActivityInstanceClassRoot)-[R11:LATEST]->(aicp:ActivityInstanceClassValue) \nwhere aicp.name = $neodash_activityinstanceclassvalue_name \nreturn distinct aic.`name` as value,  aic.`name` as display ORDER BY size(toString(value)) ASC ",
           "width": 6,
           "height": 2,
           "x": 18,
@@ -1282,7 +1303,7 @@
         {
           "id": "75709134-8427-4d0e-9e2c-a457bcb069c3",
           "title": "Results (All)",
-          "query": "WITH [$neodash_activityinstanceclassvalue_name,$neodash_activityinstanceclassvalue_name_subtype] AS activity_filter, $neodash_activitygroupvalue_name AS activity_group, $neodash_activitysubgroupvalue_name AS activity_subgroup\nMATCH ()-[:LATEST]->(act:ActivityValue)-[:HAS_GROUPING]->(g:ActivityGrouping)-[:IN_SUBGROUP]->(sg:ActivityValidGroup)<-[:HAS_GROUP]-(asgrp:ActivitySubGroupValue)\nWHERE (activity_subgroup = \"\" OR asgrp.name = activity_subgroup)\nMATCH (sg)-[:IN_GROUP]->(agrp:ActivityGroupValue)\nWHERE (activity_group = \"\" OR agrp.name = activity_group)\nWITH  activity_filter, g, agrp.name as ActivityGroup, asgrp.name as ActivitySubGroup, act.name as Activity \n//get the activity instances ParentInstanceClass - aiclass_parent. Also getting the immediate class of the instance(aiclass)\nMATCH (g)<-[:HAS_ACTIVITY]-(ai:ActivityInstanceValue)<-[:LATEST]-(), \n(ai)-[:ACTIVITY_INSTANCE_CLASS]->(root:ActivityInstanceClassRoot)-[:LATEST]->(aiclass:ActivityInstanceClassValue),\n(root)-[:PARENT_CLASS]->{0,3}(aicr:ActivityInstanceClassRoot)-[:LATEST]->(aiclass_parent:ActivityInstanceClassValue)\nWITH ActivityGroup, ActivitySubGroup, Activity, ai, [aiclass_parent.name,aiclass.name] as type_filter, apoc.coll.removeAll(activity_filter,['']) as activity_filter\nWITH activity_filter, ActivityGroup, ActivitySubGroup, Activity, ai,type_filter where  (apoc.coll.containsAll(type_filter,activity_filter) AND size(activity_filter) = 2)\nMATCH(ai)-[:ACTIVITY_INSTANCE_CLASS]->(:ActivityInstanceClassRoot)-[:PARENT_CLASS]->{0,3}(aicr:ActivityInstanceClassRoot)-[:LATEST]->(aicp:ActivityInstanceClassValue)\nMATCH (aicp)<-[:LATEST]-(aicr_mandatory:ActivityInstanceClassRoot)-[:HAS_ITEM_CLASS]->(aitmrp_mandatory:ActivityItemClassRoot)-[:LATEST]->(aitmv_mandatory:ActivityItemClassValue)\nWHERE (not (ai)-[:CONTAINS_ACTIVITY_ITEM]->(:ActivityItem)<-[:HAS_ACTIVITY_ITEM]-(aitmrp_mandatory))\nRETURN DISTINCT ActivityGroup as `Activity Group`, ActivitySubGroup as `Activity Subgroup`, Activity, ai.name as `Activity Instance`, type_filter as `Activity Instance Class`, aitmv_mandatory.name as `Missing Activity Item`, aicp.name as `Class of Missing Activity Item`, aitmv_mandatory.mandatory AS Mandatory",
+          "query": "WITH [$neodash_activityinstanceclassvalue_name,$neodash_activityinstanceclassvalue_name_subtype] AS activity_filter, $neodash_activitygroupvalue_name AS activity_group, $neodash_activitysubgroupvalue_name AS activity_subgroup\nMATCH ()-[:LATEST]->(act:ActivityValue)-[:HAS_GROUPING]->(g:ActivityGrouping)-[:IN_SUBGROUP]->(sg:ActivityValidGroup)<-[:HAS_GROUP]-(asgrp:ActivitySubGroupValue)\nWHERE (activity_subgroup = \"\" OR asgrp.name = activity_subgroup)\nMATCH (sg)-[:IN_GROUP]->(agrp:ActivityGroupValue)\nWHERE (activity_group = \"\" OR agrp.name = activity_group)\nWITH  activity_filter, g, agrp.name as ActivityGroup, asgrp.name as ActivitySubGroup, act.name as Activity \n//get the activity instances ParentInstanceClass - aiclass_parent. Also getting the immediate class of the instance(aiclass)\nMATCH (g)<-[:HAS_ACTIVITY]-(ai:ActivityInstanceValue)<-[:LATEST]-(), \n(ai)-[:ACTIVITY_INSTANCE_CLASS]->(root:ActivityInstanceClassRoot)-[:LATEST]->(aiclass:ActivityInstanceClassValue),\n(root)-[:PARENT_CLASS]->{0,3}(aicr:ActivityInstanceClassRoot)-[:LATEST]->(aiclass_parent:ActivityInstanceClassValue)\nWITH ActivityGroup, ActivitySubGroup, Activity, ai, [aiclass_parent.name,aiclass.name] as type_filter, apoc.coll.removeAll(activity_filter,['']) as activity_filter\nWITH activity_filter, ActivityGroup, ActivitySubGroup, Activity, ai,type_filter where  (apoc.coll.containsAll(type_filter,activity_filter) AND size(activity_filter) = 2)\nMATCH(ai)-[:ACTIVITY_INSTANCE_CLASS]->(:ActivityInstanceClassRoot)-[:PARENT_CLASS]->{0,3}(aicr:ActivityInstanceClassRoot)-[:LATEST]->(aicp:ActivityInstanceClassValue)\nMATCH (aicp)<-[:LATEST]-(aicr_mandatory:ActivityInstanceClassRoot)-[R1:HAS_ITEM_CLASS]->(aitmrp_mandatory:ActivityItemClassRoot)-[:LATEST]->(aitmv_mandatory:ActivityItemClassValue)\nWHERE (not (ai)-[:CONTAINS_ACTIVITY_ITEM]->(:ActivityItem)<-[:HAS_ACTIVITY_ITEM]-(aitmrp_mandatory))\nRETURN DISTINCT ActivityGroup as `Activity Group`, ActivitySubGroup as `Activity Subgroup`, Activity, ai.name as `Activity Instance`, type_filter as `Activity Instance Class`, aitmv_mandatory.name as `Missing Activity Item`, aicp.name as `Class of Missing Activity Item`, R1.mandatory AS Mandatory",
           "width": 24,
           "height": 4,
           "x": 0,
@@ -1291,7 +1312,10 @@
           "selection": {},
           "settings": {
             "wrapContent": true,
-            "allowDownload": true
+            "allowDownload": true,
+            "refreshButtonEnabled": true,
+            "fullscreenEnabled": true,
+            "compact": true
           }
         }
       ]
@@ -1312,7 +1336,9 @@
           "settings": {
             "wrapContent": true,
             "columnWidths": "[2,2,1,6]",
-            "allowDownload": true
+            "allowDownload": true,
+            "refreshButtonEnabled": true,
+            "fullscreenEnabled": true
           }
         },
         {
@@ -1415,9 +1441,11 @@
           "settings": {
             "wrapContent": true,
             "columnWidths": "[2,1,5]",
-            "compact": false,
+            "compact": true,
             "allowDownload": true,
-            "noDataMessage": "No Activities with Only Outdated Activity Instances."
+            "noDataMessage": "No Activities with Only Outdated Activity Instances.",
+            "refreshButtonEnabled": true,
+            "fullscreenEnabled": true
           }
         },
         {
@@ -1434,7 +1462,9 @@
             "wrapContent": true,
             "columnWidths": "[2,1,5]",
             "allowDownload": true,
-            "noDataMessage": "No Outdated Activities."
+            "noDataMessage": "No Outdated Activities.",
+            "refreshButtonEnabled": true,
+            "fullscreenEnabled": true
           }
         }
       ]

@@ -14,7 +14,7 @@ from common import exceptions
 
 GROUP_URL_RE = re.compile("/groups/([0-9a-f-]+)/members")
 
-GROUPS = (
+GROUPS: tuple[dict[str, Any]] = (
     {
         "id": "02bd9fd6-8f93-4758-87c3-1fb73740a315",
         "createdDateTime": "2017-07-31T18:56:16Z",
@@ -195,7 +195,7 @@ class MockResponse:
         self.payload = payload
         self.request = MockRequest(url=url)
 
-    def json(self) -> any:
+    def json(self) -> Any:
         return self.payload
 
 
@@ -204,7 +204,9 @@ class MockMsGraphApiClient:
 
     @staticmethod
     # pylint: disable=unused-argument
-    async def request(method: str, url: str, token: dict, **kwargs) -> MockResponse:
+    async def request(
+        method: str, url: str, token: dict[Any, Any], **kwargs
+    ) -> MockResponse:
         if not (token and token.get("expires_at")):
             return MockResponse(
                 status_code=403,
@@ -245,7 +247,7 @@ class MockMsGraphApiClient:
                 pos=0,
             )
 
-        response.json = raise_exc
+        response.json = raise_exc  # type: ignore[method-assign]
         return response
 
     @staticmethod

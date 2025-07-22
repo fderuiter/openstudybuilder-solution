@@ -178,3 +178,19 @@ Then('The system displays the message {string}', (message) => {
 Then('The message {string} is displayed', (message) => {
     cy.contains(message).should('exist')
 })
+
+When('The study arm is created without arm type provided', () => {
+    cy.clickButton('add-study-arm')
+    cy.fillInput('arm-name', "Arm Without Type selected")
+    cy.fillInput('arm-short-name', 'armnotype')
+    cy.fillInput('arm-randomisation-group', 'randgroup')
+    cy.fillInput('arm-planned-number-of-subjects', '1')
+    cy.fillInput('arm-description', 'arm created to test lack of arm type behaviour')
+    cy.clickButton('save-button')
+    cy.waitForFormSave()
+    cy.checkSnackbarMessage('Study Arm created')
+})
+
+Then('The study arms table is displayed correctly', () => {
+    cy.tableContains('Arm Without Type selected')
+})

@@ -6,6 +6,7 @@ import json
 import logging
 from functools import reduce
 from operator import itemgetter
+from typing import Any
 
 import pytest
 import yaml
@@ -27,7 +28,9 @@ from clinical_mdr_api.models.concepts.activities.activity_item import ActivityIt
 from clinical_mdr_api.models.concepts.activities.activity_sub_group import (
     ActivitySubGroup,
 )
+from clinical_mdr_api.models.concepts.odms.odm_form import OdmForm
 from clinical_mdr_api.models.concepts.odms.odm_item import OdmItem
+from clinical_mdr_api.models.concepts.odms.odm_item_group import OdmItemGroup
 from clinical_mdr_api.models.controlled_terminologies.ct_term import CTTerm
 from clinical_mdr_api.tests.integration.utils.api import (
     inject_and_clear_db,
@@ -56,6 +59,8 @@ activity_instance_classes: list[ActivityInstanceClass]
 activity_items: list[ActivityItem]
 activity_item_classes: list[ActivityItemClass]
 ct_terms: list[CTTerm]
+odm_forms: list[OdmForm]
+odm_item_groups: list[OdmItemGroup]
 odm_items: list[OdmItem]
 role_term: CTTerm
 data_type_term: CTTerm
@@ -174,6 +179,8 @@ def test_data():
         ),
     ]
     global ct_terms
+    global odm_forms
+    global odm_item_groups
     global odm_items
 
     codelist = TestUtils.create_ct_codelist(extensible=True, approve=True)
@@ -186,6 +193,16 @@ def test_data():
             codelist_uid=codelist.codelist_uid,
             sponsor_preferred_name="Activity item term2",
         ),
+    ]
+    odm_forms = [
+        TestUtils.create_odm_form(name="ODM Item 1"),
+        TestUtils.create_odm_form(name="ODM Item 2"),
+        TestUtils.create_odm_form(name="ODM Item 3"),
+    ]
+    odm_item_groups = [
+        TestUtils.create_odm_item_group(name="ODM Item 1"),
+        TestUtils.create_odm_item_group(name="ODM Item 2"),
+        TestUtils.create_odm_item_group(name="ODM Item 3"),
     ]
     odm_items = [
         TestUtils.create_odm_item(name="ODM Item 1"),
@@ -207,6 +224,8 @@ def test_data():
                 ).uid
             ],
             "is_adam_param_specific": True,
+            "odm_form_uids": [odm_forms[0].uid],
+            "odm_item_group_uids": [odm_item_groups[0].uid],
             "odm_item_uids": [odm_items[0].uid],
         },
         {
@@ -214,6 +233,8 @@ def test_data():
             "ct_term_uids": [ct_terms[1].term_uid],
             "unit_definition_uids": [],
             "is_adam_param_specific": False,
+            "odm_form_uids": [odm_forms[1].uid],
+            "odm_item_group_uids": [odm_item_groups[1].uid],
             "odm_item_uids": [odm_items[1].uid],
         },
         {
@@ -221,6 +242,8 @@ def test_data():
             "ct_term_uids": [ct_terms[0].term_uid, ct_terms[1].term_uid],
             "unit_definition_uids": [],
             "is_adam_param_specific": False,
+            "odm_form_uids": [odm_forms[0].uid, odm_forms[2].uid],
+            "odm_item_group_uids": [odm_item_groups[0].uid, odm_item_groups[2].uid],
             "odm_item_uids": [odm_items[0].uid, odm_items[2].uid],
         },
     ]
@@ -405,7 +428,7 @@ def test_get_activity_instance(api_client):
     assert_response_status_code(response, 200)
 
     # Check fields included in the response
-    assert set(list(res.keys())) == set(ACTIVITY_INSTANCES_FIELDS_ALL)
+    assert set(res.keys()) == set(ACTIVITY_INSTANCES_FIELDS_ALL)
     for key in ACTIVITY_INSTANCES_FIELDS_NOT_NULL:
         assert res[key] is not None
 
@@ -454,11 +477,27 @@ def test_get_activity_instance(api_client):
         res["activity_items"][0]["unit_definitions"][0]["dimension_name"]
         == "Unit Dimension term"
     )
+    expected_odm_form_uids = set(
+        odm_form_uid for odm_form_uid in activity_items[0]["odm_form_uids"]
+    )
+    actual_odm_form_uids = set(
+        odm_form["uid"] for odm_form in res["activity_items"][0]["odm_forms"]
+    )
+    assert expected_odm_form_uids == actual_odm_form_uids
+    expected_odm_item_group_uids = set(
+        odm_item_group_uid
+        for odm_item_group_uid in activity_items[0]["odm_item_group_uids"]
+    )
+    actual_odm_item_group_uids = set(
+        odm_item_group["uid"]
+        for odm_item_group in res["activity_items"][0]["odm_item_groups"]
+    )
+    assert expected_odm_item_group_uids == actual_odm_item_group_uids
     expected_odm_item_uids = set(
-        unit_uid for unit_uid in activity_items[0]["odm_item_uids"]
+        odm_item_uid for odm_item_uid in activity_items[0]["odm_item_uids"]
     )
     actual_odm_item_uids = set(
-        unit["uid"] for unit in res["activity_items"][0]["odm_items"]
+        odm_item["uid"] for odm_item in res["activity_items"][0]["odm_items"]
     )
     assert expected_odm_item_uids == actual_odm_item_uids
 
@@ -470,20 +509,20 @@ def test_get_activity_instance(api_client):
 
 
 def test_get_activity_instances_pagination(api_client):
-    results_paginated: dict = {}
+    results_paginated: dict[Any, Any] = {}
     sort_by = '{"name": true}'
     for page_number in range(1, 4):
         url = f"/concepts/activities/activity-instances?page_number={page_number}&page_size=10&sort_by={sort_by}"
         response = api_client.get(url)
         res = response.json()
-        res_names = list(map(lambda x: x["name"], res["items"]))
+        res_names = [item["name"] for item in res["items"]]
         results_paginated[page_number] = res_names
         log.info("Page %s: %s", page_number, res_names)
 
     log.info("All pages: %s", results_paginated)
 
     results_paginated_merged = list(
-        list(reduce(lambda a, b: a + b, list(results_paginated.values())))
+        list(reduce(lambda a, b: list(a) + list(b), list(results_paginated.values())))
     )
     log.info("All rows returned by pagination: %s", results_paginated_merged)
 
@@ -701,7 +740,7 @@ def test_get_activity_instances_versions(api_client):
     assert_response_status_code(response, 200)
 
     # Check fields included in the response
-    assert set(list(res.keys())) == set(["items", "total", "page", "size"])
+    assert set(res.keys()) == set(["items", "total", "page", "size"])
 
     assert len(res["items"]) == len(activity_instances_all) * 2 + 1
     for item in res["items"]:
@@ -978,10 +1017,23 @@ def test_edit_activity_instance(api_client):
     )
     actual_unit_uids = set(unit["uid"] for unit in items[0]["unit_definitions"])
     assert expected_unit_uids == actual_unit_uids
+    expected_odm_form_uids = set(
+        odm_form_uid for odm_form_uid in activity_items[0]["odm_form_uids"]
+    )
+    actual_odm_form_uids = set(odm_form["uid"] for odm_form in items[0]["odm_forms"])
+    assert expected_odm_form_uids == actual_odm_form_uids
+    expected_odm_item_group_uids = set(
+        odm_item_group_uid
+        for odm_item_group_uid in activity_items[0]["odm_item_group_uids"]
+    )
+    actual_odm_item_group_uids = set(
+        odm_item_group["uid"] for odm_item_group in items[0]["odm_item_groups"]
+    )
+    assert expected_odm_item_group_uids == actual_odm_item_group_uids
     expected_odm_item_uids = set(
         odm_item_uid for odm_item_uid in activity_items[0]["odm_item_uids"]
     )
-    actual_odm_item_uids = set(unit["uid"] for unit in items[0]["odm_items"])
+    actual_odm_item_uids = set(odm_item["uid"] for odm_item in items[0]["odm_items"])
     assert expected_odm_item_uids == actual_odm_item_uids
 
     assert items[1]["activity_item_class"]["uid"] == activity_item_classes[1].uid
@@ -993,10 +1045,20 @@ def test_edit_activity_instance(api_client):
     )
     actual_unit_uids = set(unit["uid"] for unit in items[1]["unit_definitions"])
     assert expected_unit_uids == actual_unit_uids
+    expected_odm_form_uids = set(
+        odm_form_uid for odm_form_uid in activity_items[1]["odm_form_uids"]
+    )
+    actual_odm_form_uids = set(odm_form["uid"] for odm_form in items[1]["odm_forms"])
+    assert expected_odm_form_uids == actual_odm_form_uids
+    expected_odm_form_uids = set(
+        odm_form_uid for odm_form_uid in activity_items[1]["odm_form_uids"]
+    )
+    actual_odm_form_uids = set(odm_form["uid"] for odm_form in items[1]["odm_forms"])
+    assert expected_odm_form_uids == actual_odm_form_uids
     expected_odm_item_uids = set(
         odm_item_uid for odm_item_uid in activity_items[1]["odm_item_uids"]
     )
-    actual_odm_item_uids = set(unit["uid"] for unit in items[1]["odm_items"])
+    actual_odm_item_uids = set(odm_item["uid"] for odm_item in items[1]["odm_items"])
     assert expected_odm_item_uids == actual_odm_item_uids
 
     assert res["version"] == "0.3"
@@ -1142,11 +1204,26 @@ def test_post_activity_instance(api_client):
         unit["uid"] for unit in res["activity_items"][0]["unit_definitions"]
     )
     assert expected_unit_uids == actual_unit_uids
+    expected_odm_form_uids = set(
+        odm_form_uid for odm_form_uid in item_to_post["odm_form_uids"]
+    )
+    actual_odm_form_uids = set(
+        odm_form["uid"] for odm_form in res["activity_items"][0]["odm_forms"]
+    )
+    assert expected_odm_form_uids == actual_odm_form_uids
+    expected_odm_item_group_uids = set(
+        odm_item_group_uid for odm_item_group_uid in item_to_post["odm_item_group_uids"]
+    )
+    actual_odm_item_group_uids = set(
+        odm_item_group["uid"]
+        for odm_item_group in res["activity_items"][0]["odm_item_groups"]
+    )
+    assert expected_odm_item_group_uids == actual_odm_item_group_uids
     expected_odm_item_uids = set(
         odm_item_uid for odm_item_uid in item_to_post["odm_item_uids"]
     )
     actual_odm_item_uids = set(
-        unit["uid"] for unit in res["activity_items"][0]["odm_items"]
+        odm_item["uid"] for odm_item in res["activity_items"][0]["odm_items"]
     )
     assert expected_odm_item_uids == actual_odm_item_uids
 
@@ -1246,7 +1323,7 @@ def test_activity_instance_overview(api_client):
     verify_instance_overview_content(res=res)
 
 
-def verify_instance_overview_content(res: dict):
+def verify_instance_overview_content(res: dict[Any, Any]):
     print(json.dumps(res, indent=2, default=str))
 
     assert len(res["activity_groupings"]) == 1
@@ -1291,9 +1368,9 @@ def verify_instance_overview_content(res: dict):
     # activity items
     items = res["activity_items"]
     assert len(items) == 3
-    assert items[0]["is_adam_param_specific"] is False
-    assert items[1]["is_adam_param_specific"] is False
-    assert items[2]["is_adam_param_specific"] is True
+    # Note : order is not guaranteed here
+    assert len([item for item in items if item["is_adam_param_specific"] is True]) == 1
+    assert len([item for item in items if item["is_adam_param_specific"] is False]) == 2
 
     items = sorted(items, key=lambda item: item["activity_item_class"]["name"])
 
@@ -1301,6 +1378,14 @@ def verify_instance_overview_content(res: dict):
     assert items[0]["ct_terms"][0]["uid"] == ct_terms[0].term_uid
     assert items[0]["ct_terms"][0]["name"] == ct_terms[0].sponsor_preferred_name
     assert len(items[0]["unit_definitions"]) == 1
+    assert len(items[0]["odm_forms"]) == 1
+    assert items[0]["odm_forms"][0]["uid"] == odm_forms[0].uid
+    assert items[0]["odm_forms"][0]["oid"] == odm_forms[0].oid
+    assert items[0]["odm_forms"][0]["name"] == odm_forms[0].name
+    assert len(items[0]["odm_item_groups"]) == 1
+    assert items[0]["odm_item_groups"][0]["uid"] == odm_item_groups[0].uid
+    assert items[0]["odm_item_groups"][0]["oid"] == odm_item_groups[0].oid
+    assert items[0]["odm_item_groups"][0]["name"] == odm_item_groups[0].name
     assert len(items[0]["odm_items"]) == 1
     assert items[0]["odm_items"][0]["uid"] == odm_items[0].uid
     assert items[0]["odm_items"][0]["oid"] == odm_items[0].oid
@@ -1314,6 +1399,14 @@ def verify_instance_overview_content(res: dict):
     assert items[1]["ct_terms"][0]["uid"] == ct_terms[1].term_uid
     assert items[1]["ct_terms"][0]["name"] == ct_terms[1].sponsor_preferred_name
     assert len(items[1]["unit_definitions"]) == 0
+    assert len(items[0]["odm_forms"]) == 1
+    assert items[1]["odm_forms"][0]["uid"] == odm_forms[1].uid
+    assert items[1]["odm_forms"][0]["oid"] == odm_forms[1].oid
+    assert items[1]["odm_forms"][0]["name"] == odm_forms[1].name
+    assert len(items[0]["odm_item_groups"]) == 1
+    assert items[1]["odm_item_groups"][0]["uid"] == odm_item_groups[1].uid
+    assert items[1]["odm_item_groups"][0]["oid"] == odm_item_groups[1].oid
+    assert items[1]["odm_item_groups"][0]["name"] == odm_item_groups[1].name
     assert len(items[0]["odm_items"]) == 1
     assert items[1]["odm_items"][0]["uid"] == odm_items[1].uid
     assert items[1]["odm_items"][0]["oid"] == odm_items[1].oid
@@ -1331,6 +1424,20 @@ def verify_instance_overview_content(res: dict):
     assert terms[1]["uid"] == ct_terms[1].term_uid
     assert terms[1]["name"] == ct_terms[1].sponsor_preferred_name
     assert len(items[0]["unit_definitions"]) == 1
+    assert len(items[0]["odm_forms"]) == 1
+    assert items[2]["odm_forms"][0]["uid"] == odm_forms[0].uid
+    assert items[2]["odm_forms"][0]["oid"] == odm_forms[0].oid
+    assert items[2]["odm_forms"][0]["name"] == odm_forms[0].name
+    assert items[2]["odm_forms"][1]["uid"] == odm_forms[2].uid
+    assert items[2]["odm_forms"][1]["oid"] == odm_forms[2].oid
+    assert items[2]["odm_forms"][1]["name"] == odm_forms[2].name
+    assert len(items[0]["odm_item_groups"]) == 1
+    assert items[2]["odm_item_groups"][0]["uid"] == odm_item_groups[0].uid
+    assert items[2]["odm_item_groups"][0]["oid"] == odm_item_groups[0].oid
+    assert items[2]["odm_item_groups"][0]["name"] == odm_item_groups[0].name
+    assert items[2]["odm_item_groups"][1]["uid"] == odm_item_groups[2].uid
+    assert items[2]["odm_item_groups"][1]["oid"] == odm_item_groups[2].oid
+    assert items[2]["odm_item_groups"][1]["name"] == odm_item_groups[2].name
     assert len(items[0]["odm_items"]) == 1
     assert items[2]["odm_items"][0]["uid"] == odm_items[0].uid
     assert items[2]["odm_items"][0]["oid"] == odm_items[0].oid
@@ -1383,7 +1490,7 @@ def test_activity_overview(api_client):
     verify_activity_overview_content(res=res)
 
 
-def verify_activity_overview_content(res: dict):
+def verify_activity_overview_content(res: dict[Any, Any]):
     # activity
     assert res["activity"]["name"] == "Second activity"
     assert res["activity"]["name_sentence_case"] == "Second activity"
@@ -2211,6 +2318,8 @@ def test_create_activity_instance_with_molecular_weight(
                             ).term_uid,
                         ).uid
                     ],
+                    "odm_form_uids": [],
+                    "odm_item_group_uids": [],
                     "odm_item_uids": [],
                     "is_adam_param_specific": False,
                 }
@@ -2277,6 +2386,8 @@ def test_cannot_provide_is_adam_param_specific_if_is_adam_param_specific_enabled
                     "ct_term_uids": [ct_terms[1].term_uid],
                     "unit_definition_uids": [],
                     "is_adam_param_specific": True,
+                    "odm_form_uids": [],
+                    "odm_item_group_uids": [],
                     "odm_item_uids": [],
                 }
             ],

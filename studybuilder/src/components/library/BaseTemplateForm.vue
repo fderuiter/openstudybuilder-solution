@@ -1,88 +1,86 @@
 <template>
-  <div class="fullscreen-dialog">
-    <HorizontalStepperForm
-      ref="stepper"
-      :title="title"
-      :steps="steps"
-      :form-observer-getter="getObserver"
-      :editable="template !== undefined && template !== null"
-      :help-items="helpItems"
-      :extra-step-validation="extraValidation"
-      @close="close"
-      @save="submit"
-    >
-      <template #[`step.template`]>
-        <v-row>
-          <v-col cols="11">
-            <v-form ref="templateForm">
-              <NNTemplateInputField
-                v-model="form.name"
-                data-cy="template-text-field"
-                :items="parameterTypes"
-                :show-drop-down-early="true"
-                :label="$t(`${translationKey}TemplateForm.name`)"
-                :rules="[formRules.required]"
-              />
-            </v-form>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="11">
-            <p class="text-grey text-subtitle-1 font-weight-bold">
-              {{ $t('_global.plain_text_version') }}
-            </p>
-            <div class="pa-4 bg-parameterBackground">
-              {{ namePlainPreview }}
-            </div>
-          </v-col>
-        </v-row>
-        <slot name="extraFields" :form="form" />
-      </template>
-      <template #[`step.template.afterActions`]>
-        <v-btn
-          class="secondary-btn"
-          data-cy="verify-syntax-button"
-          color="white"
-          variant="outlined"
-          elevation="2"
-          rounded="xl"
-          @click="verifySyntax"
-        >
-          {{ $t('_global.verify_syntax') }}
-        </v-btn>
-      </template>
-      <template #[`step.testTemplate`]>
-        <ParameterValueSelector
-          v-model="parameters"
-          :template="form.name"
-          load-parameter-values-from-template
-          preview-text=" "
-          :edit-mode="template !== undefined && template !== null"
+  <HorizontalStepperForm
+    ref="stepper"
+    :title="title"
+    :steps="steps"
+    :form-observer-getter="getObserver"
+    :editable="template !== undefined && template !== null"
+    :help-items="helpItems"
+    :extra-step-validation="extraValidation"
+    @close="close"
+    @save="submit"
+  >
+    <template #[`step.template`]>
+      <v-row>
+        <v-col cols="11">
+          <v-form ref="templateForm">
+            <NNTemplateInputField
+              v-model="form.name"
+              data-cy="template-text-field"
+              :items="parameterTypes"
+              :show-drop-down-early="true"
+              :label="$t(`${translationKey}TemplateForm.name`)"
+              :rules="[formRules.required]"
+            />
+          </v-form>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="11">
+          <p class="text-grey text-subtitle-1 font-weight-bold">
+            {{ $t('_global.plain_text_version') }}
+          </p>
+          <div class="pa-4 bg-parameterBackground">
+            {{ namePlainPreview }}
+          </div>
+        </v-col>
+      </v-row>
+      <slot name="extraFields" :form="form" />
+    </template>
+    <template #[`step.template.afterActions`]>
+      <v-btn
+        class="secondary-btn"
+        data-cy="verify-syntax-button"
+        color="white"
+        variant="outlined"
+        elevation="2"
+        rounded="xl"
+        @click="verifySyntax"
+      >
+        {{ $t('_global.verify_syntax') }}
+      </v-btn>
+    </template>
+    <template #[`step.testTemplate`]>
+      <ParameterValueSelector
+        v-model="parameters"
+        :template="form.name"
+        load-parameter-values-from-template
+        preview-text=" "
+        :edit-mode="template !== undefined && template !== null"
+      />
+    </template>
+    <template #[`step.properties`]>
+      <v-form ref="propertiesForm">
+        <slot name="indexingTab" :form="form" />
+      </v-form>
+    </template>
+    <template #[`step.change`]>
+      <v-form ref="changeForm">
+        <v-textarea
+          v-model="form.change_description"
+          :label="$t('HistoryTable.change_description')"
+          data-cy="template-change-description"
+          :rows="1"
+          density="compact"
+          clearable
+          auto-grow
+          class="white pa-5"
+          :rules="[formRules.required]"
         />
-      </template>
-      <template #[`step.properties`]>
-        <v-form ref="propertiesForm">
-          <slot name="indexingTab" :form="form" />
-        </v-form>
-      </template>
-      <template #[`step.change`]>
-        <v-form ref="changeForm">
-          <v-textarea
-            v-model="form.change_description"
-            :label="$t('HistoryTable.change_description')"
-            data-cy="template-change-description"
-            :rows="1"
-            density="compact"
-            clearable
-            auto-grow
-            class="white pa-5"
-            :rules="[formRules.required]"
-          />
-        </v-form>
-      </template>
-    </HorizontalStepperForm>
-    <ConfirmDialog ref="confirm" :text-cols="6" :action-cols="5" />
-  </div>
+      </v-form>
+    </template>
+  </HorizontalStepperForm>
+  <ConfirmDialog ref="confirm" :text-cols="6" :action-cols="5" />
 </template>
 
 <script setup>

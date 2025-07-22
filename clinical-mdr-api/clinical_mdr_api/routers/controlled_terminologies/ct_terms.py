@@ -16,8 +16,9 @@ from clinical_mdr_api.models.utils import CustomPage
 from clinical_mdr_api.repositories._utils import FilterOperator
 from clinical_mdr_api.routers import _generic_descriptions, decorators
 from clinical_mdr_api.services.controlled_terminologies.ct_term import CTTermService
-from common import config
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.config import settings
 from common.models.error import ErrorResponse
 
 # Prefixed with "/ct"
@@ -28,7 +29,7 @@ CTTermUID = Path(description="The unique id of the ct term.")
 
 @router.post(
     "/terms",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Creates new ct term.",
     description="""The following nodes are created
 * CTTermRoot
@@ -62,7 +63,7 @@ def create(
 
 @router.get(
     "/terms",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns all terms names and attributes.",
     description=_generic_descriptions.DATA_EXPORTS_HEADER,
     response_model_exclude_unset=True,
@@ -143,15 +144,15 @@ def get_all_terms(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -161,7 +162,7 @@ def get_all_terms(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -188,7 +189,7 @@ def get_all_terms(
 
 @router.get(
     "/terms/headers",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns possibles values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -233,10 +234,10 @@ def get_distinct_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     ct_term_service = CTTermService()
     return ct_term_service.get_distinct_values_for_header(
@@ -254,7 +255,7 @@ def get_distinct_values_for_header(
 
 @router.post(
     "/terms/{term_uid}/parents",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Adds a CT Term Root node as a parent to the selected term node.",
     status_code=201,
     responses={
@@ -292,12 +293,11 @@ def add_parent(
 
 @router.delete(
     "/terms/{term_uid}/parents",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Removes a parent term from the selected term node",
-    status_code=201,
+    status_code=200,
     responses={
-        403: _generic_descriptions.ERROR_403,
-        201: {
+        200: {
             "description": "Created - The term was successfully removed as a parent to the term identified by term-uid."
         },
         400: {
@@ -305,6 +305,7 @@ def add_parent(
             "description": "Forbidden - Reasons include e.g.: \n"
             "- The term already has no defined parent with given parent-uid and relationship type.\n",
         },
+        403: _generic_descriptions.ERROR_403,
         404: {
             "model": ErrorResponse,
             "description": "Not Found - The term with the specified 'term-uid' wasn't found.",
@@ -330,7 +331,7 @@ def remove_parent(
 
 @router.patch(
     "/terms/{term_uid}/order",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Change an order of codelist-term relationship",
     description="""Reordering will create new HAS_TERM relationship.""",
     status_code=200,

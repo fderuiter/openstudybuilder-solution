@@ -399,7 +399,7 @@ def test_cannot_create_a_new_odm_item_group_with_same_properties(api_client):
     assert res["type"] == "AlreadyExistsException"
     assert (
         res["message"]
-        == "ODM Item Group already exists with UID (OdmItemGroup_000001) and data {'description_uids': ['odm_description2', 'odm_description3'], 'alias_uids': ['odm_alias1'], 'sdtm_domain_uids': ['term1'], 'name': 'name1', 'oid': 'oid1', 'repeating': False, 'is_reference_data': False, 'sas_dataset_name': 'sas_dataset_name1', 'origin': 'origin1', 'purpose': 'purpose1', 'comment': 'comment1'}"
+        == "ODM Item Group already exists with UID (OdmItemGroup_000001) and data {'library_name': 'Sponsor', 'alias_uids': ['odm_alias1'], 'sdtm_domain_uids': ['term1'], 'name': 'name1', 'oid': 'oid1', 'repeating': False, 'is_reference_data': False, 'sas_dataset_name': 'sas_dataset_name1', 'origin': 'origin1', 'purpose': 'purpose1', 'comment': 'comment1'}"
     )
 
 

@@ -99,7 +99,7 @@ ENV NEO4J_DSN="bolt://${NEO4J_MDR_AUTH_USER}:${NEO4J_MDR_AUTH_PASSWORD}@localhos
     NEO4J_DATABASE=mdrdb \
     OAUTH_ENABLED=false \
     ALLOW_ORIGIN_REGEX=".*" \
-    TRACING_DISABLED="true" \
+    TRACING_ENABLED="false" \
     LOG_LEVEL="WARN"
 
 # Set up environments for studybuilder-import

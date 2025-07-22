@@ -1,8 +1,12 @@
 import datetime
+from typing import Any
 
 from neomodel import db
 
 from clinical_mdr_api import utils
+from clinical_mdr_api.domain_repositories._utils.helpers import (
+    acquire_write_lock_study_value,
+)
 from clinical_mdr_api.domain_repositories.models.concepts import UnitDefinitionRoot
 from clinical_mdr_api.domain_repositories.models.controlled_terminology import (
     CTTermRoot,
@@ -29,22 +33,12 @@ from clinical_mdr_api.domains.study_selections.study_selection_endpoint import (
     StudySelectionEndpointsAR,
     StudySelectionEndpointVO,
 )
-from common.config import STUDY_ENDPOINT_TP_NAME
+from common.config import settings
 from common.exceptions import BusinessLogicException
 from common.utils import convert_to_datetime
 
 
 class StudySelectionEndpointRepository:
-    @staticmethod
-    def _acquire_write_lock_study_value(uid: str) -> None:
-        db.cypher_query(
-            """
-             MATCH (sr:StudyRoot {uid: $uid})
-             REMOVE sr.__WRITE_LOCK__
-             RETURN true
-            """,
-            {"uid": uid},
-        )
 
     def _retrieves_all_data(
         self,
@@ -229,7 +223,7 @@ class StudySelectionEndpointRepository:
             study_uids=study_uids,
         )
         # Create a dictionary, with study_uid as key, and list of selections as value
-        selection_aggregate_dict = {}
+        selection_aggregate_dict: dict[str, Any] = {}
         selection_aggregates = []
         for selection in all_selections:
             if selection.study_uid in selection_aggregate_dict:
@@ -258,7 +252,7 @@ class StudySelectionEndpointRepository:
         :return:
         """
         if for_update:
-            self._acquire_write_lock_study_value(study_uid)
+            acquire_write_lock_study_value(study_uid)
         all_selections = self._retrieves_all_data(
             study_uid, study_value_version=study_value_version
         )
@@ -446,7 +440,7 @@ class StudySelectionEndpointRepository:
         study_endpoint_selection_node.save()
 
         # Connect new node with StudyEndpoint template parameter
-        _ = TemplateParameter.nodes.get(name=STUDY_ENDPOINT_TP_NAME)
+        _ = TemplateParameter.nodes.get(name=settings.study_endpoint_tp_name)
         db.cypher_query(
             """
             MATCH (se:StudyEndpoint) WHERE elementId(se)=$element_id SET se:TemplateParameterTermRoot
@@ -456,7 +450,7 @@ class StudySelectionEndpointRepository:
         """,
             {
                 "element_id": study_endpoint_selection_node.element_id,
-                "tp_name": STUDY_ENDPOINT_TP_NAME,
+                "tp_name": settings.study_endpoint_tp_name,
             },
         )
 

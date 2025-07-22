@@ -11,6 +11,7 @@ from pydantic import BaseModel
 import clinical_mdr_api.models.syntax_templates.criteria_template as ct_models
 import clinical_mdr_api.services.libraries.libraries as library_service
 from clinical_mdr_api.main import app
+from clinical_mdr_api.models.study_selections.study import Study
 from clinical_mdr_api.services.syntax_templates.criteria_templates import (
     CriteriaTemplateService,
 )
@@ -35,12 +36,16 @@ def api_client(test_data):
     yield TestClient(app)
 
 
+study: Study
+
+
 @pytest.fixture(scope="module")
 def test_data():
     inject_and_clear_db("old.json.test.criteria")
     db.cypher_query(STARTUP_PARAMETERS_CYPHER)
     db.cypher_query(CREATE_BASE_TEMPLATE_PARAMETER_TREE)
-    inject_base_data()
+    global study
+    study = inject_base_data()
     db.cypher_query(STARTUP_CRITERIA)
 
     library_service.create(**library_data)
@@ -413,24 +418,26 @@ def test_get_studies(api_client):
 
     res = response.json()
 
-    assert res[0]["uid"] == "Study_000001"
+    assert res[0]["uid"] == study.uid
     assert res[0]["possible_actions"] == ["delete", "lock", "release"]
     assert res[0]["study_parent_part"] is None
     assert res[0]["study_subpart_uids"] == []
     assert (
-        res[0]["current_metadata"]["identification_metadata"]["study_number"] == "123"
+        res[0]["current_metadata"]["identification_metadata"]["study_number"]
+        == study.current_metadata.identification_metadata.study_number
     )
     assert res[0]["current_metadata"]["identification_metadata"]["subpart_id"] is None
     assert (
         res[0]["current_metadata"]["identification_metadata"]["study_acronym"]
-        == "study_root"
+        == study.current_metadata.identification_metadata.study_acronym
     )
     assert (
         res[0]["current_metadata"]["identification_metadata"]["study_subpart_acronym"]
         is None
     )
     assert (
-        res[0]["current_metadata"]["identification_metadata"]["project_number"] == "123"
+        res[0]["current_metadata"]["identification_metadata"]["project_number"]
+        == study.current_metadata.identification_metadata.project_number
     )
     assert (
         res[0]["current_metadata"]["identification_metadata"]["project_name"]
@@ -442,7 +449,8 @@ def test_get_studies(api_client):
         == "CP"
     )
     assert (
-        res[0]["current_metadata"]["identification_metadata"]["study_id"] == "123-123"
+        res[0]["current_metadata"]["identification_metadata"]["study_id"]
+        == study.current_metadata.identification_metadata.study_id
     )
     assert (
         res[0]["current_metadata"]["identification_metadata"]["registry_identifiers"][

@@ -5,12 +5,19 @@
         {{ props.title }}
       </v-card-title>
       <v-spacer />
-      <v-btn class="secondary-btn" color="white" @click="emit('close')">
+      <v-btn
+        variant="outlined"
+        rounded
+        elevation="0"
+        color="nnBaseBlue"
+        class="mr-4"
+        @click="emit('close')"
+      >
         {{ $t('_global.close') }}
       </v-btn>
     </v-card-actions>
     <v-card-text>
-      <span v-html="sanitizeHTML(licenseContent)" />
+      <span id="license" v-html="sanitizeHTML(licenseContent)" />
     </v-card-text>
   </v-card>
 </template>
@@ -37,3 +44,10 @@ const licenseContent = computed(() => {
   return marked.parse(props.rawMarkdown)
 })
 </script>
+<style>
+#license {
+  pre {
+    white-space: break-spaces;
+  }
+}
+</style>

@@ -1,3 +1,5 @@
+from typing import Any
+
 from neomodel import db
 
 from clinical_mdr_api.domain_repositories.concepts.unit_definitions.unit_definition_repository import (
@@ -118,19 +120,19 @@ class UnitDefinitionService(ConceptGenericService[UnitDefinitionAR]):
         library_name: str | None,
         dimension: str | None = None,
         subset: str | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> GenericFilteringReturn[UnitDefinitionModel]:
         # for unit-definitions we want to return the shortest unit-definitions first
         if sort_by is None:
-            sort_by = {"size(name)": "true"}
+            sort_by = {"size(name)": True}
         else:
             validate_is_dict("sort_by", sort_by)
-            sort_by["size(name)"] = "true"
+            sort_by["size(name)"] = True
 
         return self.non_transactional_get_all_concepts(
             library=library_name,

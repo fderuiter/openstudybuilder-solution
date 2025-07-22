@@ -56,7 +56,7 @@ class DictionaryTermGenericService(Generic[_AggregateRootType], ABC):
         self._repos.close()
 
     @property
-    def repository(self) -> DictionaryTermGenericRepository[_AggregateRootType]:
+    def repository(self) -> DictionaryTermGenericRepository:
         assert self._repos is not None
         return self.repository_interface()
 
@@ -105,10 +105,10 @@ class DictionaryTermGenericService(Generic[_AggregateRootType], ABC):
     def get_all_dictionary_terms(
         self,
         codelist_uid: str,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> GenericFilteringReturn[DictionaryTerm]:
@@ -135,7 +135,7 @@ class DictionaryTermGenericService(Generic[_AggregateRootType], ABC):
         codelist_uid: str,
         field_name: str,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
     ) -> list[str]:

@@ -5,6 +5,8 @@ Feature: Library - Concepts - CRFs - Items
 
     Background: User must be logged in
         Given The user is logged in
+        And The '/library' page is opened
+        And The multilingual CRFs option is toggled off in the settings menu
 
     Scenario: [Navigation] User must be able to navigate to the CRF Items page
         Given The '/library' page is opened
@@ -33,20 +35,24 @@ Feature: Library - Concepts - CRFs - Items
         Then The table contain only selected column and actions column
 
     Scenario: [Create][Positive case]User must be able to add an Item
-        Given The single language CRFs are enabled
-        And The 'library/crfs/items' page is opened
+        Given The 'library/crfs/items' page is opened
         When The 'add-crf-item' button is clicked
         And The CRF Item definition container is filled with data and saved
+        And Form continue button is clicked
+        And Form continue button is clicked
+        And Form continue button is clicked
+        And Form save button is clicked
         And Created CRF Item is found
         Then The CRF Item is visible in the table
         And The item has status 'Draft' and version '0.1'
 
     Scenario: [Actions][Edit][version 0.1] User must be able to update an existing Item
-        Given The single language CRFs are enabled
-        And The 'library/crfs/items' page is opened
+        Given The 'library/crfs/items' page is opened
         And Created CRF Item is found
         When The 'Edit' option is clicked from the three dot menu list
         And The CRF Item metadata are updated and saved
+        And User goes to Change description step
+        And Form save button is clicked
         Then The CRF Item is visible in the table
         And The item has status 'Draft' and version '0.2'
 

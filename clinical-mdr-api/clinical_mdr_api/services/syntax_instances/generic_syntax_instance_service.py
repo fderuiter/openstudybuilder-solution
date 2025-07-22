@@ -293,7 +293,7 @@ class GenericSyntaxInstanceService(GenericSyntaxService[_AggregateRootType], abc
                     continue
 
                 parameter = template.parameter_terms[idx]
-                uids = []
+                uids: list[str] = []
 
                 if len(parameter.terms) == 0:
                     # If we have an empty parameter value selection, send an empty list with default type fro the allowed parameters.

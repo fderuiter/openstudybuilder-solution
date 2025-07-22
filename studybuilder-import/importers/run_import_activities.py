@@ -5,12 +5,12 @@ import json
 
 import aiohttp
 
-from .functions.caselessdict import CaselessDict
-from .functions.parsers import map_boolean
-from .functions.utils import load_env
-from .utils.importer import BaseImporter, open_file_async
-from .utils.metrics import Metrics
-from .utils.path_join import path_join
+from importers.functions.caselessdict import CaselessDict
+from importers.functions.parsers import map_boolean
+from importers.functions.utils import load_env
+from importers.utils.importer import BaseImporter, open_file_async
+from importers.utils.metrics import Metrics
+from importers.utils.path_join import path_join
 
 # ---------------------------------------------------------------
 # Env loading
@@ -108,7 +108,7 @@ class Activities(BaseImporter):
         ]
         sdtm_subcat_lists = ["DSSCAT"]
 
-        all_codelist_uids = self._get_codelists_uid_and_submval()
+        all_codelist_uids = self.api.get_codelists_uid_and_submval()
         sdtm_cat_uids = []
         sdtm_subcat_uids = []
         for submval in sdtm_cat_lists:
@@ -143,23 +143,10 @@ class Activities(BaseImporter):
                     )
         return sdtm_cat_uids, sdtm_subcat_uids
 
-    # Get a dictionary with key = submission value and value = uid
-    def _get_codelists_uid_and_submval(self):
-        all_codelist_attributes = self.api.get_all_from_api("/ct/codelists/attributes")
-
-        all_codelist_uids = CaselessDict(
-            self.api.get_all_identifiers(
-                all_codelist_attributes,
-                identifier="submission_value",
-                value="codelist_uid",
-            )
-        )
-        return all_codelist_uids
-
     # Get all terms from a codelist identified by its submission value
     def _get_codelist_terms(self, codelist_submval):
         self.ensure_cache()
-        all_codelist_uids = self._get_codelists_uid_and_submval()
+        all_codelist_uids = self.api.get_codelists_uid_and_submval()
         cl_uid = all_codelist_uids.get(codelist_submval)
         if cl_uid is not None:
             if OLD_CT_API:
@@ -176,7 +163,7 @@ class Activities(BaseImporter):
                 ]
             return terms
 
-    # Get a dictionary mapping submission values to term uids for a codelist identified by its uid
+    # Get a dictionary mapping submission values to term uids for a codelist identified by its submission value
     def _get_submissionvalues_for_codelist(self, cl):
         terms = self._get_codelist_terms(cl)
         name_submvals = CaselessDict(
@@ -654,8 +641,6 @@ class Activities(BaseImporter):
                 and existing.get("is_domain_specific") == new_is_specific
                 and existing.get("definition") == new.get("definition")
                 and existing.get("order") == new_order
-                and [domain["uid"] for domain in existing.get("data_domains") or []]
-                == new.get("data_domain_uids", [])
             )
             return result
 
@@ -694,39 +679,6 @@ class Activities(BaseImporter):
                 self.log.info(
                     f"Identical entry '{data['body']['name']}' already exists in library '{data['body']['library_name']}'"
                 )
-
-        with open(
-            load_env(
-                "MDR_MIGRATION_ACTIVITY_INSTANCE_CLASS_TO_DATA_DOMAIN_RELATIONSHIPS"
-            ),
-            encoding="utf-8",
-        ) as file:
-            data_domain_relationships = csv.reader(file)
-
-            # Skip the header row
-            next(data_domain_relationships)
-
-            data_domains = set()
-            activity_instance_class_data_domain_relationships = defaultdict(set)
-            for (
-                table,
-                _,
-                _,
-                level_2_class,
-            ) in data_domain_relationships:
-
-                if level_2_class.strip():
-                    data_domains.add(table.strip())
-                    activity_instance_class_data_domain_relationships[
-                        level_2_class.strip()
-                    ].add(table.strip())
-
-            rs_data_domains = {
-                data_domain_term["code_submission_value"]: data_domain_term["term_uid"]
-                for data_domain_term in self.api.get_filtered_terms(
-                    {"code_submission_value": {"v": list(data_domains)}}
-                )
-            }
 
         for row in readCSV:
             # migrating Level 0 ActivityInstanceClass
@@ -770,14 +722,6 @@ class Activities(BaseImporter):
                     "level": 2,
                     "parent_uid": existing_rows.get(ac_1_level_name, {}).get("uid"),
                     "library_name": "Sponsor",
-                    "data_domain_uids": [
-                        uid
-                        for domain, uid in rs_data_domains.items()
-                        if domain
-                        in activity_instance_class_data_domain_relationships[
-                            ac_2_level_name
-                        ]
-                    ],
                 },
             }
             if ac_2_level_name not in migrated_ac_level_2:
@@ -1566,6 +1510,8 @@ class Activities(BaseImporter):
             "ct_term_uids": set(),
             "unit_definition_uids": set(),
             "is_adam_param_specific": False,
+            "odm_form_uids": [],
+            "odm_item_group_uids": [],
             "odm_item_uids": [],
         }
         if len(unit_uids) > 0 and len(term_uids) > 0:
@@ -1648,7 +1594,6 @@ class Activities(BaseImporter):
             # to make sure it does not expire while the import is running.
 
             if self._limit_import_to is None or ACTIVITIES in self._limit_import_to:
-                self.refresh_auth()
                 await self.handle_activities(mdr_migration_activity_instances, session)
             else:
                 self.log.info("Skipping activities import")
@@ -1657,7 +1602,6 @@ class Activities(BaseImporter):
                 self._limit_import_to is None
                 or ACTIVITY_INSTANCE_CLASSES in self._limit_import_to
             ):
-                self.refresh_auth()
                 await self.handle_activity_instance_classes(
                     mdr_migration_activity_instance_classes, session
                 )
@@ -1671,7 +1615,6 @@ class Activities(BaseImporter):
                 self._limit_import_to is None
                 or ACTIVITY_ITEM_CLASSES in self._limit_import_to
             ):
-                self.refresh_auth()
                 await self.handle_activity_item_classes(
                     mdr_migration_activity_item_classes, session
                 )
@@ -1682,7 +1625,6 @@ class Activities(BaseImporter):
                 self._limit_import_to is None
                 or ACTIVITY_INSTANCES in self._limit_import_to
             ):
-                self.refresh_auth()
                 await self.handle_activity_instances(
                     mdr_migration_activity_instances, session
                 )

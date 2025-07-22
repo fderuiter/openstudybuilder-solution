@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Any
 
 from neomodel import db
 
@@ -64,7 +65,7 @@ class DictionaryCodelistGenericRepository(
         return "TemplateParameter" in dictionary_value_node.labels()
 
     def _create_aggregate_root_instance_from_cypher_result(
-        self, codelist_dict: dict
+        self, codelist_dict: dict[str, Any]
     ) -> DictionaryCodelistAR:
         major, minor = codelist_dict.get("version").split(".")
 
@@ -203,8 +204,8 @@ class DictionaryCodelistGenericRepository(
     def find_all(
         self,
         library_name: DictionaryType | None = None,
-        sort_by: dict | None = None,
-        filter_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_number: int = 1,
         page_size: int = 0,
@@ -282,7 +283,7 @@ class DictionaryCodelistGenericRepository(
         library: DictionaryType,
         field_name: str,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
     ) -> list[str]:

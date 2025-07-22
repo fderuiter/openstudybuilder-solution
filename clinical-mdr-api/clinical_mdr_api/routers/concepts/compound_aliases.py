@@ -17,8 +17,9 @@ from clinical_mdr_api.routers import _generic_descriptions, decorators
 from clinical_mdr_api.services.concepts.compound_alias_service import (
     CompoundAliasService,
 )
-from common import config
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.config import settings
 from common.models.error import ErrorResponse
 
 # Prefixed with "/concepts"
@@ -29,7 +30,7 @@ CompoundAliasUID = Path(description="The unique id of the compound alias")
 
 @router.get(
     "/compound-aliases",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List all compound aliases (for a given library)",
     description=f"""
 State before:
@@ -82,15 +83,15 @@ def get_all(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -100,7 +101,7 @@ def get_all(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -122,7 +123,7 @@ def get_all(
 
 @router.get(
     "/compound-aliases/versions",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List all versions of compound aliases",
     description=f"""
 State before:
@@ -173,15 +174,15 @@ def get_compounds_versions(
     library_name: Annotated[str | None, Query()] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -191,7 +192,7 @@ def get_compounds_versions(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -213,7 +214,7 @@ def get_compounds_versions(
 
 @router.get(
     "/compound-aliases/headers",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns possible values from the database for a given header",
     description="Allowed parameters include : field name for which to get possible values, "
     "search string to provide filtering for the field name, additional filters to apply on other fields",
@@ -243,10 +244,10 @@ def get_distinct_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     service = CompoundAliasService()
     return service.get_distinct_values_for_header(
@@ -261,7 +262,7 @@ def get_distinct_values_for_header(
 
 @router.get(
     "/compound-aliases/{compound_alias_uid}",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Get details on a specific compound aliases (in a specific version)",
     description="""
 State before:
@@ -291,7 +292,7 @@ def get(compound_alias_uid: Annotated[str, CompoundAliasUID]) -> CompoundAlias:
 
 @router.get(
     "/compound-aliases/{compound_alias_uid}/versions",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List version history for compound aliases",
     description="""
 State before:
@@ -325,7 +326,7 @@ def get_versions(
 
 @router.post(
     "/compound-aliases",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Creates new compound alias.",
     description="""
 State before:
@@ -368,7 +369,7 @@ def create(
 
 @router.patch(
     "/compound-aliases/{compound_alias_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Update compound alias",
     description="""
 State before:
@@ -417,7 +418,7 @@ def edit(
 
 @router.post(
     "/compound-aliases/{compound_alias_uid}/approvals",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Approve draft version of a compound alias",
     description="""
 State before:
@@ -459,7 +460,7 @@ def approve(compound_alias_uid: Annotated[str, CompoundAliasUID]) -> CompoundAli
 
 @router.post(
     "/compound-aliases/{compound_alias_uid}/versions",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary=" Create a new version of a compound alias",
     description="""
 State before:
@@ -501,7 +502,7 @@ def create_new_version(
 
 @router.delete(
     "/compound-aliases/{compound_alias_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary=" Inactivate final version of an compound alias",
     description="""
 State before:
@@ -542,7 +543,7 @@ def inactivate(compound_alias_uid: Annotated[str, CompoundAliasUID]) -> Compound
 
 @router.post(
     "/compound-aliases/{compound_alias_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Reactivate retired version of an compound alias",
     description="""
 State before:
@@ -583,7 +584,7 @@ def reactivate(compound_alias_uid: Annotated[str, CompoundAliasUID]) -> Compound
 
 @router.delete(
     "/compound-aliases/{compound_alias_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Delete draft version of an compound alias",
     description="""
 State before:

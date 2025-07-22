@@ -132,7 +132,7 @@ class OdmFormService(OdmGenericService[OdmFormAR]):
 
         form = self.non_transactional_create(
             concept_input=OdmFormPostInput(
-                library=concept_input.library_name,
+                library_name=concept_input.library_name,
                 name=concept_input.name,
                 sdtm_version=concept_input.sdtm_version,
                 oid=get_input_or_new_value(concept_input.oid, "F.", concept_input.name),

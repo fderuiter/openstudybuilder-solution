@@ -1,5 +1,6 @@
 import datetime
 from dataclasses import dataclass
+from typing import Any
 
 from neomodel import db
 
@@ -474,7 +475,7 @@ class StudyCompoundDosingRepository:
         """Find all the selected study compound dosings for all studies."""
         all_selections = self._retrieves_all_data()
         # Create a dictionary, with study_uid as key, and list of selections as value
-        selection_aggregate_dict = {}
+        selection_aggregate_dict: dict[str, Any] = {}
         selection_aggregates = []
         for selection in all_selections:
             if selection.study_uid in selection_aggregate_dict:

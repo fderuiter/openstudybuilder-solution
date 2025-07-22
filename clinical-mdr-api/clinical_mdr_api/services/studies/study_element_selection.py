@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Callable
+from typing import Any, Callable
 
 from neomodel import db
 
@@ -125,7 +125,7 @@ class StudyElementSelectionService(
             unique_list_uids = list({x.study_selection_uid for x in selection_history})
             unique_list_uids.sort()
             # list of all study_elements
-            data = []
+            data: list[StudySelectionElementVersion] = []
             for i_unique in unique_list_uids:
                 ith_selection_history = []
                 # gather the selection history of the i_unique Uid
@@ -269,10 +269,10 @@ class StudyElementSelectionService(
     def get_all_selection(
         self,
         study_uid: str,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         study_value_version: str | None = None,
@@ -537,7 +537,7 @@ class StudyElementSelectionService(
         field_name: str,
         study_uid: str | None = None,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
         study_value_version: str | None = None,

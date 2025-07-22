@@ -56,7 +56,7 @@ from clinical_mdr_api.tests.unit.domain_repositories.test_study_definition_repos
 from clinical_mdr_api.tests.unit.services.test_study_description import (
     StudyTitleRepositoryForTestImpl,
 )
-from common.config import DEFAULT_STUDY_FIELD_CONFIG_FILE
+from common.config import settings
 
 
 class UnitDefinitionRepositoryForTestImpl:
@@ -100,7 +100,9 @@ class TestStudyService(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.patcher = patch(
             target=study_configuration.__name__ + ".from_database",
-            new=lambda: study_configuration.from_file(DEFAULT_STUDY_FIELD_CONFIG_FILE),
+            new=lambda: study_configuration.from_file(
+                settings.default_study_field_config_file
+            ),
         )
         cls.patcher.start()
 

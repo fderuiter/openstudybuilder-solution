@@ -4,7 +4,7 @@
       v-model="studyById"
       :label="$t('StudyQuickSelectForm.study_id')"
       :items="studiesWithId"
-      item-title="current_metadata.identification_metadata.study_id"
+      item-title="id"
       return-object
       :rules="[(value) => formRules.atleastone(value, studyByAcronym)]"
       variant="outlined"
@@ -19,7 +19,7 @@
       v-model="studyByAcronym"
       :label="$t('StudyQuickSelectForm.study_acronym')"
       :items="studiesWithAcronym"
-      item-title="current_metadata.identification_metadata.study_acronym"
+      item-title="acronym"
       return-object
       :rules="[(value) => formRules.atleastone(value, studyById)]"
       variant="outlined"
@@ -53,37 +53,38 @@ const studyByAcronym = ref(null)
 const loading = ref(false)
 
 const studiesWithId = computed(() => {
-  return studies.value.filter(
-    (study) => study.current_metadata.identification_metadata.study_id !== null
-  )
+  let list = studies.value.filter((study) => study.id !== null)
+
+  return list.sort((a, b) => {
+    return a.id.localeCompare(b.id)
+  })
 })
 const studiesWithAcronym = computed(() => {
-  return studies.value.filter(
-    (study) =>
-      study.current_metadata.identification_metadata.study_acronym !== null
-  )
+  let list = studies.value.filter((study) => study.acronym !== null)
+
+  return list.sort((a, b) => {
+    return a.acronym.localeCompare(b.acronym)
+  })
 })
 
 onMounted(() => {
   loading.value = true
-  const params = {
-    sort_by: { 'current_metadata.identification_metadata.study_id': true },
-    page_size: 0,
-  }
-  studyApi.get(params).then((resp) => {
-    studies.value = resp.data.items
+  studyApi.getIds().then((resp) => {
+    studies.value = resp.data
     loading.value = false
   })
 })
 
 function autoPopulateAcronym(study) {
-  if (study && study.current_metadata.identification_metadata.study_acronym) {
+  if (study && study.acronym) {
     studyByAcronym.value = study
+  } else {
+    studyByAcronym.value = null
   }
   emit('update:modelValue', study)
 }
 function autoPopulateId(study) {
-  if (study && study.current_metadata.identification_metadata.study_id) {
+  if (study && study.id) {
     studyById.value = study
   }
   emit('update:modelValue', study)

@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Any
 
 from pydantic import Field
 
@@ -29,7 +29,7 @@ class DatasetClass(BaseModel):
     data_models: Annotated[list[SimpleDataModel], Field()]
 
     @classmethod
-    def from_repository_output(cls, input_dict: dict):
+    def from_repository_output(cls, input_dict: dict[str, Any]):
         return cls(
             uid=input_dict.get("uid"),
             label=input_dict.get("standard_value").get("label"),

@@ -5,24 +5,12 @@ from typing import Mapping
 from clinical_mdr_api.domains.study_definition_aggregates.study_metadata import (
     StudyStatus,
 )
-from clinical_mdr_api.domains.study_selections.study_visit import (
-    StudyVisitVO,
-    VisitClass,
-    VisitSubclass,
-)
+from clinical_mdr_api.domains.study_selections.study_visit import StudyVisitVO
 from clinical_mdr_api.models.controlled_terminologies.ct_term import (
     SimpleCTTermNameWithConflictFlag,
 )
-from common.config import (
-    BASIC_EPOCH_NAME,
-    FIXED_WEEK_PERIOD,
-    NON_VISIT_NUMBER,
-    PREVIOUS_VISIT_NAME,
-    STUDY_VISIT_TYPE_EARLY_DISCONTINUATION_VISIT,
-    STUDY_VISIT_TYPE_INFORMATION_VISIT,
-    UNSCHEDULED_VISIT_NUMBER,
-    VISIT_0_NUMBER,
-)
+from common.config import settings
+from common.utils import BaseTimelineAR
 
 StudyEpochType: dict[str, SimpleCTTermNameWithConflictFlag] = {}
 
@@ -130,7 +118,7 @@ class StudyEpochVO:
         # if there is one visit in last epoch we want to add a fixed 7 day period to the epoch duration
         # to display it in the visit overview
         if len(self._visits) == 1:
-            return self.get_start_day() + FIXED_WEEK_PERIOD
+            return self.get_start_day() + settings.fixed_week_period
         return self.last_visit.study_day_number
 
     def get_end_week(self):
@@ -216,221 +204,13 @@ class StudyEpochVO:
         return self._is_deleted
 
 
-@dataclass
-class TimelineAR:
+class TimelineAR(BaseTimelineAR):
     """
     TimelineAR is aggregate root implementing idea of time relations between objects.
     Generally timeline consists of visits ordered by their internal relations.
     If there is a need to create ordered setup of visits and epochs you have to
     collect_visits_to_epochs
     """
-
-    study_uid: str
-    _visits: list[StudyVisitVO]
-
-    def _generate_timeline(self):
-        """
-        Function creating ordered list of visits based on _visits list
-        """
-
-        @dataclass
-        class Subvisit:
-            visit: StudyVisitVO
-            number: int
-
-        anchors = {}
-        # There can be multiple Visits with same VisitType that can work as TimeRef
-        # If Study contains multiple such Visits, the first occurence of the Visit with given VisitType
-        # that works as TimeRef will be picked to be an anchor for the other visits
-        for visit in self._visits:
-            anchors.setdefault(visit.visit_type.sponsor_preferred_name, visit)
-
-        subvisit_sets = {}
-        amount_of_subvisits_for_visit = {}
-        # early_discontinuation_visits_for_visit_anchor = {}
-        special_visits_for_visit_anchor = {}
-        special_visit_anchors = {}
-        for visit in self._visits:
-            if visit.visit_subclass == VisitSubclass.ANCHOR_VISIT_IN_GROUP_OF_SUBV:
-                if visit.uid:
-                    subvisit_sets[visit.uid] = [Subvisit(visit, 0)]
-            elif visit.visit_class == VisitClass.SPECIAL_VISIT:
-                special_visit_anchors[visit.visit_sublabel_reference] = None
-        for order, visit in enumerate(self._visits):
-            if visit.timepoint:
-                time_anchor = visit.timepoint.visit_timereference.sponsor_preferred_name
-            else:
-                time_anchor = None
-            if time_anchor == PREVIOUS_VISIT_NAME:
-                if len(self._visits) > 1:
-                    visit.set_anchor_visit(self._visits[order - 1])
-            elif time_anchor in anchors and visit.uid != anchors[time_anchor].uid:
-                visit.set_anchor_visit(anchors[time_anchor])
-            if visit.uid in special_visit_anchors:
-                special_visit_anchors[visit.uid] = visit
-            if (
-                visit.visit_subclass
-                == VisitSubclass.ADDITIONAL_SUBVISIT_IN_A_GROUP_OF_SUBV
-            ):
-                visits = subvisit_sets[visit.visit_sublabel_reference]
-                visit.set_subvisit_anchor(visits[0].visit)
-        ordered_visits = sorted(
-            self._visits,
-            key=lambda x: (
-                x.get_absolute_duration() is None,
-                x.get_absolute_duration(),
-                # SpecialVisits anchored to same StudyVisit have the same timing, in scope of the same anchor visit
-                # the early discontinuation visits should be ordered in the end of special visit set
-                x.visit_type.sponsor_preferred_name
-                == STUDY_VISIT_TYPE_EARLY_DISCONTINUATION_VISIT,
-            ),
-        )
-        last_visit_num = 1
-        order = 1
-        for idx, visit in enumerate(ordered_visits):
-            if (
-                visit.visit_type.sponsor_preferred_name
-                == STUDY_VISIT_TYPE_INFORMATION_VISIT
-                and idx == 0
-            ):
-                visit.set_order_and_number(VISIT_0_NUMBER, VISIT_0_NUMBER)
-                continue
-            if visit.visit_class == VisitClass.NON_VISIT:
-                visit.set_order_and_number(NON_VISIT_NUMBER, NON_VISIT_NUMBER)
-            elif visit.visit_class == VisitClass.UNSCHEDULED_VISIT:
-                visit.set_order_and_number(
-                    UNSCHEDULED_VISIT_NUMBER, UNSCHEDULED_VISIT_NUMBER
-                )
-            elif visit.visit_class == VisitClass.MANUALLY_DEFINED_VISIT:
-                visit.set_order_and_number(order, visit.visit_number)
-            elif visit.visit_class == VisitClass.SPECIAL_VISIT:
-                anchor_for_special_vis = special_visit_anchors[
-                    visit.visit_sublabel_reference
-                ]
-                visit.set_subvisit_anchor(anchor_for_special_vis)
-                visit.set_order_and_number(
-                    visit.subvisit_anchor.visit_order,
-                    visit.subvisit_anchor.visit_number,
-                )
-                special_visits_for_visit_anchor.setdefault(
-                    visit.visit_sublabel_reference, []
-                ).append(visit)
-
-            elif (
-                visit.visit_subclass
-                != VisitSubclass.ADDITIONAL_SUBVISIT_IN_A_GROUP_OF_SUBV
-            ):
-                visit.set_order_and_number(order, last_visit_num)
-            if (
-                visit.visit_subclass
-                == VisitSubclass.ADDITIONAL_SUBVISIT_IN_A_GROUP_OF_SUBV
-            ):
-                amount_of_subvisits_for_visit[visit.visit_sublabel_reference] = (
-                    amount_of_subvisits_for_visit.get(visit.visit_sublabel_reference, 0)
-                    + 1
-                )
-                visit.set_order_and_number(
-                    order,
-                    visit.subvisit_anchor.visit_number,
-                )
-            elif visit.visit_class not in [
-                VisitClass.MANUALLY_DEFINED_VISIT,
-                VisitClass.SPECIAL_VISIT,
-            ]:
-                last_visit_num += 1
-            order += 1
-
-        for order, visit in enumerate(ordered_visits):
-            if (
-                visit.visit_subclass
-                == VisitSubclass.ADDITIONAL_SUBVISIT_IN_A_GROUP_OF_SUBV
-            ):
-                # we have to assign subvisit numbers after we assign anchor visit numbers because some of subvisits may
-                # happen before the anchor visit in group of subvisits and that will influence numbering
-                visits = subvisit_sets[visit.visit_sublabel_reference]
-                amount_of_subvists = amount_of_subvisits_for_visit[
-                    visit.visit_sublabel_reference
-                ]
-                if amount_of_subvists < 10:
-                    increment_step = 10
-                elif 10 <= amount_of_subvists < 20:
-                    increment_step = 5
-                else:
-                    increment_step = 1
-                num = visits[-1].number + increment_step
-                # if additional visit is taking place before anchor visit in group of subvisits
-                if (
-                    visits[-1].visit.get_absolute_duration()
-                    > visit.get_absolute_duration()
-                ):
-                    last_subvisit_number = visits[-1].number
-                    # take subvisit number from the last visit
-                    visit.set_subvisit_number(last_subvisit_number)
-                    # insert subvisit before the last visit
-                    visits.insert(-1, Subvisit(visit, last_subvisit_number))
-                    # the last visit obtains the currently calculated number
-                    visits[-1].number = num
-                    visits[-1].visit.set_subvisit_number(num)
-                else:
-                    visit.set_subvisit_number(num)
-                    visits.append(Subvisit(visit, num))
-            elif visit.visit_class == VisitClass.SPECIAL_VISIT:
-                special_visits_for_same_anchor_list: list = (
-                    special_visits_for_visit_anchor[visit.visit_sublabel_reference]
-                )
-                # Subvisit number should be derived for special visits pointed to the same anchor visit
-                # no matter what type of special visit it is (early_discontinuation or other special visit)
-                subvisit_index = special_visits_for_same_anchor_list.index(visit)
-                if (
-                    visit.visit_type.sponsor_preferred_name
-                    == STUDY_VISIT_TYPE_EARLY_DISCONTINUATION_VISIT
-                ):
-                    special_visits_of_same_type: list = [
-                        special_visit
-                        for special_visit in special_visits_for_same_anchor_list
-                        if special_visit.visit_type.sponsor_preferred_name
-                        == STUDY_VISIT_TYPE_EARLY_DISCONTINUATION_VISIT
-                    ]
-                else:
-                    special_visits_of_same_type: list = [
-                        special_visit
-                        for special_visit in special_visits_for_same_anchor_list
-                        if special_visit.visit_type.sponsor_preferred_name
-                        != STUDY_VISIT_TYPE_EARLY_DISCONTINUATION_VISIT
-                    ]
-
-                # Special visit number should be derived for special visits pointed to the same anchor visit
-                # but of the same special visit type, e.g. early discontinuation visits should get their own counter
-                # and other speciail visits should get the other counter
-                visit.special_visit_number = (
-                    special_visits_of_same_type.index(visit) + 1
-                )
-                visit.set_subvisit_number(subvisit_index + 1)
-
-            # derive timing properties in the end when all subvisits are set
-            # for the Visit that is currently being created timepoint will be filled but study_day will be empty as it's
-            # being assigned afterwards
-            if visit.timepoint and visit.study_day:
-                visit.study_day.value = visit.derive_study_day_number()
-                visit.study_duration_days.value = (
-                    visit.derive_study_duration_days_number()
-                )
-                visit.study_week.value = visit.derive_study_week_number()
-                visit.study_duration_weeks.value = (
-                    visit.derive_study_duration_weeks_number()
-                )
-                visit.week_in_study.value = visit.derive_week_in_study_number()
-
-        # sort visits that are returned in the end to capture all timing changes
-        ordered_visits = sorted(
-            self._visits,
-            key=lambda x: (
-                x.get_absolute_duration() is None,
-                x.get_absolute_duration(),
-            ),
-        )
-
-        return ordered_visits
 
     def collect_visits_to_epochs(
         self, epochs: list[StudyEpochVO]
@@ -449,7 +229,7 @@ class TimelineAR:
         epochs = [
             epoch
             for epoch in epochs
-            if epoch.subtype.sponsor_preferred_name != BASIC_EPOCH_NAME
+            if epoch.subtype.sponsor_preferred_name != settings.basic_epoch_name
         ]
         for visit in self.ordered_study_visits:
             if visit.epoch_uid in epoch_visits:

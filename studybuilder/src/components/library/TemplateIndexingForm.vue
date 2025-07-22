@@ -2,7 +2,7 @@
   <NotApplicableField
     :clean-function="
       () => {
-        ;(localForm.indications = []), emitFormUpdate('indications')
+        ;((localForm.indications = []), emitFormUpdate('indications'))
       }
     "
     :checked="

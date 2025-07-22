@@ -201,6 +201,7 @@ import activities from '@/api/activities'
 import SimpleFormDialog from '@/components/tools/SimpleFormDialog.vue'
 import SentenceCaseNameField from '@/components/tools/SentenceCaseNameField.vue'
 import constants from '@/constants/libraries.js'
+import statuses from '@/constants/statuses.js'
 import { useFormStore } from '@/stores/form'
 import { useLibraryActivitiesStore } from '@/stores/library-activities'
 import { computed, inject, onMounted, ref, watch } from 'vue'
@@ -283,6 +284,7 @@ function filteredSubGroups(index) {
   }
   return activitiesStore.activitySubGroups.filter(
     (el) =>
+      el.status !== statuses.DRAFT &&
       el.activity_groups.find(
         (o) => o.uid === form.value.activity_groupings[index].activity_group_uid
       ) !== undefined

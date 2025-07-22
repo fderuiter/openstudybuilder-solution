@@ -234,7 +234,7 @@ def test_remove_term_node_parent(api_client):
         "/ct/terms/term_root_final/parents?parent_uid=term_root_final&relationship_type=type"
     )
 
-    assert_response_status_code(response, 201)
+    assert_response_status_code(response, 200)
 
     res = response.json()
 

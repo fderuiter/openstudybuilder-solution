@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, Self
+from typing import Any, Callable, Self
 
 from clinical_mdr_api.domains.concepts.concept_base import ConceptVO
 from clinical_mdr_api.domains.concepts.odms.odm_ar_base import OdmARBase
@@ -83,9 +83,10 @@ class OdmItemGroupVO(ConceptVO):
         odm_alias_exists_by_callback: Callable[[str, str, bool], bool],
         find_term_callback: Callable[[str], CTTermAttributesAR | None],
         odm_uid: str | None = None,
+        library_name: str | None = None,
     ) -> None:
         data = {
-            "description_uids": self.description_uids,
+            "library_name": library_name,
             "alias_uids": self.alias_uids,
             "sdtm_domain_uids": self.sdtm_domain_uids,
             "name": self.name,
@@ -188,6 +189,7 @@ class OdmItemGroupAR(OdmARBase):
             get_odm_description_parent_uids_callback=get_odm_description_parent_uids_callback,
             odm_alias_exists_by_callback=odm_alias_exists_by_callback,
             find_term_callback=find_term_callback,
+            library_name=library.name,
         )
 
         return cls(
@@ -245,7 +247,7 @@ class OdmItemGroupRefVO:
     order_number: int
     mandatory: str
     collection_exception_condition_oid: str | None
-    vendor: dict
+    vendor: dict[Any, Any]
 
     @classmethod
     def from_repository_values(
@@ -256,7 +258,7 @@ class OdmItemGroupRefVO:
         form_uid: str,
         order_number: int,
         mandatory: bool,
-        vendor: dict,
+        vendor: dict[Any, Any],
         collection_exception_condition_oid: str | None = None,
     ) -> Self:
         return cls(

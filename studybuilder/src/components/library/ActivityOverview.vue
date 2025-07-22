@@ -38,6 +38,7 @@
             </div>
 
             <ActivityInstancesTable
+              :item-data="itemOverview"
               :activity-groupings="itemOverview.activity_groupings || []"
               :activity-id="$route.params.id"
               :version="$route.params.version"
@@ -246,7 +247,7 @@ onMounted(() => {
 
   appStore.addBreadcrumbsLevel(
     t('Sidebar.library.activities'),
-    { name: 'Activities' },
+    { name: 'Activities', params: { tab: 'activities' } },
     3,
     true
   )

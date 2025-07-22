@@ -16,8 +16,9 @@ from clinical_mdr_api.routers import _generic_descriptions, decorators
 from clinical_mdr_api.services.syntax_pre_instances.objective_pre_instances import (
     ObjectivePreInstanceService,
 )
-from common import config
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.config import settings
 from common.models.error import ErrorResponse
 
 ObjectivePreInstanceUID = Path(
@@ -32,7 +33,7 @@ Service = ObjectivePreInstanceService
 
 @router.get(
     "",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns all Syntax Pre-Instances in their latest/newest version.",
     description="Allowed parameters include : filter on fields, sort by field name with sort direction, pagination",
     status_code=200,
@@ -83,15 +84,15 @@ def objective_pre_instances(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -101,7 +102,7 @@ def objective_pre_instances(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -124,7 +125,7 @@ def objective_pre_instances(
 
 @router.get(
     "/headers",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -162,10 +163,10 @@ def get_distinct_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     return Service().get_distinct_values_for_header(
         status=status,
@@ -179,7 +180,7 @@ def get_distinct_values_for_header(
 
 @router.get(
     "/audit-trail",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     status_code=200,
     responses={
         403: _generic_descriptions.ERROR_403,
@@ -189,15 +190,15 @@ def get_distinct_values_for_header(
 def retrieve_audit_trail(
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -207,7 +208,7 @@ def retrieve_audit_trail(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -228,7 +229,7 @@ def retrieve_audit_trail(
 
 @router.get(
     "/{objective_pre_instance_uid}",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns the latest/newest version of a specific objective pre-instance identified by 'objective_pre_instance_uid'.",
     description="""If multiple request query parameters are used, then they need to
     match all at the same time (they are combined with the AND operation).""",
@@ -251,7 +252,7 @@ def get(
 
 @router.patch(
     "/{objective_pre_instance_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Updates the Objective Pre-Instance identified by 'objective_pre_instance_uid'.",
     description="""This request is only valid if the Objective Pre-Instance
 * is in 'Draft' status and
@@ -297,7 +298,7 @@ def edit(
 
 @router.patch(
     "/{objective_pre_instance_uid}/indexings",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Updates the indexings of the Objective Pre-Instance identified by 'objective_pre_instance_uid'.",
     description="""This request is only valid if the Pre-Instance
     * belongs to a library that allows editing (the 'is_editable' property of the library needs to be true).
@@ -332,7 +333,7 @@ def patch_indexings(
 
 @router.get(
     "/{objective_pre_instance_uid}/versions",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns the version history of a specific Objective Pre-Instance identified by 'objective_pre_instance_uid'.",
     description=f"""
 The returned versions are ordered by `start_date` descending (newest entries first).
@@ -435,7 +436,7 @@ def get_versions(
 
 @router.post(
     "/{objective_pre_instance_uid}/versions",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Creates a new version of the Objective Pre-Instance identified by 'objective_pre_instance_uid'.",
     description="""This request is only valid if the Objective Pre-Instance
 * is in 'Final' or 'Retired' status only (so no latest 'Draft' status exists) and
@@ -474,7 +475,7 @@ def create_new_version(
 
 @router.delete(
     "/{objective_pre_instance_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Inactivates/deactivates the objective pre-instance identified by 'objective_pre_instance_uid'.",
     description="""This request is only valid if the objective pre-instance
 * is in 'Final' status only (so no latest 'Draft' status exists).
@@ -507,7 +508,7 @@ def inactivate(
 
 @router.post(
     "/{objective_pre_instance_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Reactivates the objective pre-instance identified by 'objective_pre_instance_uid'.",
     description="""This request is only valid if the objective pre-instance
 * is in 'Retired' status only (so no latest 'Draft' status exists).
@@ -540,7 +541,7 @@ def reactivate(
 
 @router.delete(
     "/{objective_pre_instance_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Deletes the Objective Pre-Instance identified by 'objective_pre_instance_uid'.",
     description="""This request is only valid if \n
 * the Objective Pre-Instance is in 'Draft' status and
@@ -572,7 +573,7 @@ def delete(
 
 @router.post(
     "/{objective_pre_instance_uid}/approvals",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Approves the Objective Pre-Instance identified by 'objective_pre_instance_uid'.",
     description="""This request is only valid if the Objective Pre-Instance
 * is in 'Draft' status and

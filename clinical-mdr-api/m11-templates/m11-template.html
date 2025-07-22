@@ -143,7 +143,7 @@
       <tr>
         <th width="30%" class="suggested-text">Sponsor Confidentiality Statement: </th>
         <td width="70%" class="suggested-text">
-          {{ protocol_number }}</br><span class="metadata-reply">[Sponsor Confidentiality Statement]</span>
+          </br><span class="metadata-reply">[Sponsor Confidentiality Statement]</span>
           <div class="instructional-text">Insert the Sponsor's confidentiality statement, if applicable, otherwise delete.</div>
         </td>
       </tr>
@@ -522,12 +522,12 @@ manual. /per the options below:}</div>
     <div class="suggested-text">“Not Applicable (No blinding)” indicates an open-label trial.</div>
     </p>
 
-    <p><span class="metadata-title">Number of Participants:</span> {{ number_participants }} <div class="suggested-text">{randomly assigned to trial intervention/ enrolled}: {x} participants</div><span class="suggested-text metadata-reply">[{Target/Maximum}]</span></p>
+    <p><span class="metadata-title">Number of Participants:</span> {{ population_planned_enrollment_number_quantity_value }} participants <div class="suggested-text">{randomly assigned to trial intervention/ enrolled}: {x} participants</div><span class="suggested-text metadata-reply">[{Target/Maximum}]</span></p>
     <div class="instructional-text">State the expected number of participants to be assigned to trial intervention/enrolled. Indicate whether the number provided is the target or maximum number of individuals to be randomly assigned to trial intervention/enrolled.</div>
 
     <p><span class="suggested-text">Arms and Duration</span></p>
     <p>
-      <div>Total duration of trial intervention for each participant:</div>
+      <div>Total duration of trial intervention for each participant: {{ trial_intervention_total_duration if trial_intervention_total_duration is not none else '' }}</div>
       <span class="suggested-text metadata-reply">[Approximately] [x] Year(s)/[x] Month(s)/[x] Day(s)</span>
       <div class="instructional-text">Or</div>
       <div class="suggested-text">Duration will vary <span class="metadata-reply">[Reason duration of trial intervention will vary]</span></div>

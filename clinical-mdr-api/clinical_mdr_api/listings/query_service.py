@@ -12,7 +12,7 @@ from clinical_mdr_api.repositories._utils import (
     FilterDict,
     FilterOperator,
 )
-from common.config import CT_UID_NA_VALUE, CT_UID_POSITIVE_INFINITY
+from common.config import settings
 
 MATCH_SPECIFIC_STUDY_VERSION = """
     MATCH (sr:StudyRoot {uid: $study_uid})-[l:HAS_VERSION{status:'RELEASED', version:$study_value_version}]->(sv:StudyValue)
@@ -31,7 +31,7 @@ class QueryService:
         catalogue_name: str | None = None,
         package: str | None = None,
         after_date: str | None = None,
-    ) -> tuple[str, dict]:
+    ) -> tuple[str, dict[Any, Any]]:
         """Create filter to use in cypher query"""
         filter_parameters = []
         filter_query_parameters = {}
@@ -78,10 +78,10 @@ class QueryService:
     def get_topic_codes(
         self,
         at_specific_date: datetime | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> GenericFilteringReturn:
@@ -170,10 +170,10 @@ class QueryService:
         self,
         catalogue_name: str | None = None,
         after_date: str | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> GenericFilteringReturn:
@@ -224,10 +224,10 @@ class QueryService:
         self,
         catalogue_name: str | None = None,
         after_date: str | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> GenericFilteringReturn:
@@ -278,10 +278,10 @@ class QueryService:
         catalogue_name: str | None = None,
         package: str | None = None,
         after_date: str | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> GenericFilteringReturn:
@@ -349,10 +349,10 @@ class QueryService:
         catalogue_name: str | None = None,
         package: str | None = None,
         after_date: str | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> GenericFilteringReturn:
@@ -715,8 +715,8 @@ class QueryService:
         MATCH (sv)-->(sf:StudyField)
         OPTIONAL MATCH  (sf)-->(ctr:CTTermRoot)-->(ctar:CTTermAttributesRoot)-[:LATEST_FINAL]->(ctav:CTTermAttributesValue)<--(:CTPackageTerm)<--(:CTPackageCodelist)<--(ctp:CTPackage)
         OPTIONAL MATCH (sf)-->(dtr:DictionaryTermRoot)-->(dtv:DictionaryTermValue)
-        OPTIONAL MATCH (sf)-[:HAS_REASON_FOR_NULL_VALUE]->(ct_null:CTTermRoot{{uid:'{CT_UID_NA_VALUE}'}})
-        OPTIONAL MATCH (sf)-[:HAS_REASON_FOR_NULL_VALUE]->(ct_pinf:CTTermRoot{{uid:'{CT_UID_POSITIVE_INFINITY}'}})
+        OPTIONAL MATCH (sf)-[:HAS_REASON_FOR_NULL_VALUE]->(ct_null:CTTermRoot{{uid:'{settings.ct_uid_na_value}'}})
+        OPTIONAL MATCH (sf)-[:HAS_REASON_FOR_NULL_VALUE]->(ct_pinf:CTTermRoot{{uid:'{settings.ct_uid_positive_infinity}'}})
         WITH *,
         CASE sf.field_name
             WHEN 'disease_condition_or_indication_codes' THEN 'C112038_INDIC'

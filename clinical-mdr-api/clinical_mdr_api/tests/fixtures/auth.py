@@ -2,15 +2,15 @@ import logging
 
 import pytest
 
-from common.auth.config import OAUTH_ENABLED
 from common.auth.dependencies import dummy_access_token_claims, dummy_auth_object
+from common.config import settings
 
 __all__ = ["mock_auth_context"]
 
 log = logging.getLogger(__name__)
 
 
-@pytest.fixture(scope="session", autouse=not OAUTH_ENABLED)
+@pytest.fixture(scope="session", autouse=not settings.oauth_enabled)
 def mock_auth_context(request):
     """Mock starlette context with dummy user data"""
 

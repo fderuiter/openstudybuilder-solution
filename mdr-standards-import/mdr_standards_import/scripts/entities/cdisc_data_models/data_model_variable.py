@@ -31,6 +31,7 @@ class DataModelVariable:
         implements_variables: "list[str]",
         mapping_targets: "list[str]",
         prior_version: str,
+        analysis_variable_set: str,
     ):
         self.name: str = name
         self.title: str = title
@@ -66,3 +67,6 @@ class DataModelVariable:
 
         # CDASHIG specific
         self.mapping_targets: list[str] = mapping_targets
+
+        # ADaM specific
+        self.analysis_variable_set: str = analysis_variable_set

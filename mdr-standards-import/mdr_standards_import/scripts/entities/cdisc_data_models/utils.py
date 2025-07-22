@@ -28,28 +28,32 @@ def extract_variables_from_csv_data(
     variable_suffix = "variables"
     for variable in variables_data:
         _variable: DataModelVariable = data_model_import.merge_variable(
-            href="/".join([
-                "/mdr", 
-                catalogue.lower(),
-                data_model_import.get_version().get_version_number(),
-                class_suffix, 
-                class_csv_data['name'],
-                variable_suffix,
-                variable.get("name", None),
-            ])
+            href="/".join(
+                [
+                    "/mdr",
+                    catalogue.lower(),
+                    data_model_import.get_version().get_version_number(),
+                    class_suffix,
+                    class_csv_data["name"],
+                    variable_suffix,
+                    variable.get("name", None),
+                ]
+            )
         )
         implements_variables = []
         if data_model_type == DataModelType.IMPLEMENTATION:
             implements_variables = [
-                "/".join([
-                    "/mdr",
-                    catalogue.lower()[:-2],
-                    data_model_import.get_version().get_version_number(),
-                    "classes",
-                    class_csv_data['dataset_class'],
-                    "variables",
-                    variable['variable_class']
-                ])
+                "/".join(
+                    [
+                        "/mdr",
+                        catalogue.lower()[:-2],
+                        data_model_import.get_version().get_version_number(),
+                        "classes",
+                        class_csv_data["dataset_class"],
+                        "variables",
+                        variable["variable_class"],
+                    ]
+                )
             ]
         _variable.set_attributes(
             name=variable.get("name", None),
@@ -79,6 +83,7 @@ def extract_variables_from_csv_data(
             implements_variables=implements_variables,
             mapping_targets=None,
             prior_version=variable.get("priorVersion", None),
+            analysis_variable_set=None,
         )
         variables_output.append(_variable)
     return variables_output
@@ -133,13 +138,18 @@ def extract_variables_from_json_data(
                     ]
                 )
 
+        if catalogue == "ADAM":
+            ordinal = f"{json_data['ordinal']}.{variable.get('ordinal', None)}"
+        else:
+            ordinal = variable.get("ordinal", None)
+
         _variable.set_attributes(
             name=variable.get("name", None),
             title=variable.get("_links", {}).get("self", {}).get("title", None),
             label=variable.get("label", None),
             description=variable.get("description", None),
             definition=variable.get("definition", None),
-            ordinal=variable.get("ordinal", None),
+            ordinal=ordinal,
             role=variable.get("role", None),
             notes=variable.get("notes", None),
             variable_c_code=variable.get("variableCcode", None),
@@ -166,6 +176,9 @@ def extract_variables_from_json_data(
             prior_version=variable.get("_links", {})
             .get("priorVersion", {})
             .get("href", None),
+            analysis_variable_set=json_data.get("name", None)
+            if catalogue == "ADAM"
+            else None,
         )
         variables_output.append(_variable)
     return variables_output
@@ -187,7 +200,7 @@ def _get_variables_json_key(
     if catalogue == "ADAM":
         return "analysisVariables"
     elif catalogue == "CDASH":
-        return "cdashModelFields"
+        return "fields" if is_class_dataset else "cdashModelFields"
     elif catalogue == "CDASHIG":
         return "fields"
     elif catalogue == "SDTM":

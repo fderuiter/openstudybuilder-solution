@@ -2,7 +2,7 @@
 
 This document holds the design documentation for the StudyBuilder database architecture - named as the Clinical MDR database component.
 
-The database is implemented as a linked graph database in Neo4j, and the solution design utilise a number of capabilities uniquely supported by the label property graph model.
+The database is implemented as a linked graph database in Neo4j, and the solution design utilizes a number of capabilities uniquely supported by the label property graph model.
 
 # Modelling guidelines
 ## General guidelines
@@ -81,7 +81,7 @@ The implementation of versioning is made to also support the global audit trail 
 
 ### Versioning of Library Elements
 
-In the library module all standard elements is versioned individually as root-value node pairs. Thereby all unique versioned value nodes only is represented one in the database. All objects maintained in the library part of the system is therefore supported by a find granular versioning of data standards elements.
+In the library module all standard elements are versioned individually as root-value node pairs. Thereby all unique versioned value nodes are only represented once in the database. All objects maintained in the library part of the system are therefore supported by fine granular versioning of data standards elements.
 
 For data standard elements imported from CDISC Library a similar versioning approach is applied only representing the unique value pairs in the system applying the versioning information and dates from the source system (the CDISC Library).
 
@@ -111,9 +111,9 @@ Version independent relationships can be made to the root node of a library stan
 
 ### Versioning of Studies
 
-In the study module the versioning is applied at the study level as study root-value node pairs. A specific version of a study will thereby have outbound relationship to all detaled study definitions as study fileds and study selections.
+In the study module the versioning is applied at the study level as study root-value node pairs. A specific version of a study will thereby have outbound relationships to all detailed study definitions as study fields and study selections.
 
-All data definitions done for a study is related to a StudyAction node capturing the before and after state. This is to support the detailed audit trail capabilities for all create, update and deletes done for a study as well as the release (minor version), locking (major version), unlock (new version). 
+All data definitions done for a study are related to a StudyAction node capturing the before and after state. This is to support the detailed audit trail capabilities for all create, update and deletes done for a study as well as the release (minor version), locking (major version), unlock (new version). 
 
 [![Study Versioning](~@source/images/documentation/study-versioning-model.svg)](../../images//documentation/study-versioning-model.svg)
 

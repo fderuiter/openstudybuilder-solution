@@ -30,7 +30,7 @@ class JWKService(KeySet):
         self._http_client = AsyncClient()
         self.jwks_uri = None
         self.leeway = leeway_seconds
-        self.claims_options = {}
+        self.claims_options: dict[str, Any] = {}
         super().__init__({})
 
     async def init(self) -> None:

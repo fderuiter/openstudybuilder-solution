@@ -11,7 +11,7 @@ Feature: Studies - Study List - Study List - Copy Study
         Given The 'add-study' button is clicked
         And The user selects the "Create a study from an existing study" option
         And The user populates new study project, number and acronym
-        And 'Continue' button is clicked on form
+        And Form continue button is clicked
         Then The user is presented study selection dropdown
 
     Scenario: [Copy][Preview] User must be able to preview structure of copied study
@@ -23,7 +23,7 @@ Feature: Studies - Study List - Study List - Copy Study
         Given The 'add-study' button is clicked
         And The user selects the "Create a study from an existing study" option
         And The user populates new study project, number and acronym
-        And 'Continue' button is clicked on form        
+        And Form continue button is clicked        
         When The user selects study to use for copy
         When The user selects 'Arms' category to be copied
         Then The 'Branches' category with 'branch_count' derived from source study is presented for selection
@@ -32,7 +32,7 @@ Feature: Studies - Study List - Study List - Copy Study
         Given The 'add-study' button is clicked
         And The user selects the "Create a study from an existing study" option
         And The user populates new study project, number and acronym
-        And 'Continue' button is clicked on form        
+        And Form continue button is clicked      
         When The user selects study to use for copy
         When The user selects 'Arms' category to be copied
         When The user selects 'Branches' category to be copied
@@ -42,7 +42,7 @@ Feature: Studies - Study List - Study List - Copy Study
         Given The 'add-study' button is clicked
         And The user selects the "Create a study from an existing study" option
         And The user populates new study project, number and acronym
-        And 'Continue' button is clicked on form        
+        And Form continue button is clicked     
         When The user selects study to use for copy
         When The user selects 'Arms' category to be copied
         When The user selects 'Branches' category to be copied
@@ -53,7 +53,7 @@ Feature: Studies - Study List - Study List - Copy Study
         Given The 'add-study' button is clicked
         And The user selects the "Create a study from an existing study" option
         And The user populates new study project, number and acronym
-        And 'Continue' button is clicked on form        
+        And Form continue button is clicked
         When The user selects study to use for copy
         When The user selects 'Arms' category to be copied
         When The user selects 'Branches' category to be copied
@@ -66,7 +66,7 @@ Feature: Studies - Study List - Study List - Copy Study
         Given The 'add-study' button is clicked
         And The user selects the "Create a study from an existing study" option
         And The user populates new study project, number and acronym
-        And 'Continue' button is clicked on form        
+        And Form continue button is clicked     
         When The user selects study to use for copy
         When The user selects 'Arms' category to be copied
         When The user selects 'Branches' category to be copied
@@ -80,7 +80,7 @@ Feature: Studies - Study List - Study List - Copy Study
         Given The 'add-study' button is clicked
         And The user selects the "Create a study from an existing study" option
         And The user populates new study project, number and acronym
-        And 'Continue' button is clicked on form        
+        And Form continue button is clicked   
         When The user selects study to use for copy
         When The user selects 'Arms' category to be copied
         When The user selects 'Branches' category to be copied
@@ -94,7 +94,7 @@ Feature: Studies - Study List - Study List - Copy Study
         Given The 'add-study' button is clicked
         And The user selects the "Create a study from an existing study" option
         And The user populates new study project, number and acronym
-        And 'Continue' button is clicked on form        
+        And Form continue button is clicked  
         When The user selects study to use for copy
         When The user selects 'Arms' category to be copied
         When The user selects 'Branches' category to be copied
@@ -110,7 +110,7 @@ Feature: Studies - Study List - Study List - Copy Study
         Given The 'add-study' button is clicked
         And The user selects the "Create a study from an existing study" option
         And The user populates new study project, number and acronym
-        And 'Continue' button is clicked on form        
+        And Form continue button is clicked 
         When The user selects study to use for copy
         And The user did not select any category to be copied
         And The 'save-button' button is clicked
@@ -120,7 +120,7 @@ Feature: Studies - Study List - Study List - Copy Study
         Given The 'add-study' button is clicked
         And The user selects the "Create a study from an existing study" option
         And The user selects study project and uses existing study number
-        And 'Continue' button is clicked on form        
+        And Form continue button is clicked    
         When The user selects study to use for copy
         When The user selects 'Arms' category to be copied
         And The 'save-button' button is clicked

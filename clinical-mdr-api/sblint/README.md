@@ -27,8 +27,7 @@ Follow these steps to create a new SBLinter:
 
 1. **Create a New Python File in the `linters` dir** - Name the file according to the purpose of the linter (e.g. `no_relative_imports.py`).  
     ```python
-    #!/usr/bin/env python
-
+    import ast
     import sys
 
     from sblinter import SBLinter
@@ -37,7 +36,7 @@ Follow these steps to create a new SBLinter:
     # Your SBLinter must inherit sblinter.SBlinter
     class CustomLinter(SBLinter):
         @classmethod
-        def validate(cls, code: str) -> bool:
+        def validate(cls, tree: ast.Module) -> list[int]:
             # Implement validation logic for your SBLinter.
 
         @classmethod

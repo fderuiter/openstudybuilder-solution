@@ -1,3 +1,5 @@
+from typing import Any
+
 from neomodel import db
 
 from clinical_mdr_api.domain_repositories._generic_repository_interface import (
@@ -48,7 +50,7 @@ class CTCodelistNameRepository(CTCodelistGenericRepository[CTCodelistNameAR]):
         return len(result) > 0
 
     def _create_aggregate_root_instance_from_cypher_result(
-        self, codelist_dict: dict
+        self, codelist_dict: dict[str, Any]
     ) -> CTCodelistNameAR:
         rel_data = codelist_dict["rel_data"]
         major, minor = rel_data.get("version").split(".")

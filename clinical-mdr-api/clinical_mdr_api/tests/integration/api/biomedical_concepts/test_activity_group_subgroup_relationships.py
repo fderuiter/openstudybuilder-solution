@@ -195,8 +195,8 @@ def test_activity_group_versioning_preserves_subgroup_relationships(api_client):
     print(f"Found {len(subgroups)} subgroup(s) after versioning")
 
 
-def test_draft_status_subgroups_not_included(api_client):
-    """Test that Draft status subgroups are not included in linked subgroups"""
+def test_draft_status_subgroups_are_included(api_client):
+    """Test that Draft status subgroups ARE included in linked subgroups (per user requirement)"""
     # Create a new draft subgroup linked to group 1
     draft_subgroup = TestUtils.create_activity_subgroup(
         name="Draft Subgroup",
@@ -214,23 +214,23 @@ def test_draft_status_subgroups_not_included(api_client):
 
     overview_data = response.json()
 
-    # Check that the response contains the linked subgroups but not the draft one
+    # Check that the response contains the linked subgroups INCLUDING the draft one
     assert (
         "subgroups" in overview_data
     ), "Activity group overview should include subgroups field"
     subgroups = overview_data["subgroups"]
 
-    # Draft subgroup should not be included
+    # Draft subgroup SHOULD be included (changed per user requirement)
     subgroup_uids = [sg["uid"] for sg in subgroups]
     assert (
-        draft_subgroup.uid not in subgroup_uids
-    ), "Draft subgroup should not be included in linked subgroups"
+        draft_subgroup.uid in subgroup_uids
+    ), "Draft subgroup should be included in linked subgroups (per user requirement)"
 
-    # Only Final status subgroups should be included
-    for subgroup in subgroups:
-        assert (
-            subgroup["status"] == "Final"
-        ), "Only Final status subgroups should be linked"
+    # Both Draft and Final status subgroups should be included
+    statuses = [sg["status"] for sg in subgroups]
+    assert (
+        "Draft" in statuses or "Final" in statuses
+    ), "Both Draft and Final status subgroups should be included"
 
 
 def test_specific_activity_group_version_shows_correct_subgroups(api_client):

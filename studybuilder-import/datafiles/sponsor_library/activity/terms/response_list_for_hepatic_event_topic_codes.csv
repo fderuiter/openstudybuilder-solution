@@ -1,0 +1,6 @@
+CT_CD_LIST_SUBMVAL,CT_NAME,NAME_SENTENSE_CASE,CT_SUBMVAL,DEFINITION,ORDER,CT_CD,NCI_PREFERRED_NAME
+HEP_CQ,Abdominal Pain,abdominal pain,ABDOMINAL PAIN,Abdominal pain,1,,Abdominal pain
+HEP_CQ,Fever,fever,FEVER,Fever,2,,Fever
+HEP_CQ,Fatigue,fatigue,FATIGUE,Fatigue,3,,Fatigue
+HEP_CQ,Nausea,nausea,NAUSEA,Nausea,4,,Nausea
+HEP_CQ,Vomiting,vomiting,VOMITING,Vomiting,5,,Vomiting

@@ -1,5 +1,5 @@
 import abc
-from typing import Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 from neomodel import db
 from pydantic import BaseModel
@@ -134,10 +134,10 @@ class GenericSyntaxService(Generic[_AggregateRootType], abc.ABC):
         self,
         status: str | None = None,
         return_study_count: bool | None = True,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.OR,
         total_count: bool = False,
         for_audit_trail: bool = False,
@@ -167,7 +167,7 @@ class GenericSyntaxService(Generic[_AggregateRootType], abc.ABC):
         field_name: str,
         status: str | None = None,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
     ):

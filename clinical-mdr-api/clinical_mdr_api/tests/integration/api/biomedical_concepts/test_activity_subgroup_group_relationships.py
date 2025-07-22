@@ -234,8 +234,8 @@ def test_activity_subgroup_versioning_preserves_group_relationships(api_client):
     ), "Group 2 not found in linked groups after versioning"
 
 
-def test_draft_status_groups_not_included(api_client):
-    """Test that Draft status groups are not included in linked groups"""
+def test_draft_status_groups_are_included(api_client):
+    """Test that Draft status groups ARE included in linked groups (per user requirement)"""
     # Create a new draft group
     draft_group = TestUtils.create_activity_group(
         name="Draft Group", definition="Definition for draft group"
@@ -260,15 +260,15 @@ def test_draft_status_groups_not_included(api_client):
     # Check the response contains both the Draft and Final status groups
     groups = subgroup_data["activity_groups"]
 
-    # Both Draft and Final status groups may be included in response
+    # Both Draft and Final status groups should be included (per user requirement)
     group_uids = [g["uid"] for g in groups]
-    # Test is now checking that the Final group is included; we're not filtering Draft status groups
-    # in the API yet, so the test should accommodate that
+    # Both groups should be present
     assert (
         activity_group_1.uid in group_uids
     ), "Final group should be included in linked groups"
-
-    # No assertions about status since the API currently returns both Final and Draft
+    assert (
+        draft_group.uid in group_uids
+    ), "Draft group should be included in linked groups (per user requirement)"
 
 
 def test_specific_activity_subgroup_version_shows_correct_groups(api_client):

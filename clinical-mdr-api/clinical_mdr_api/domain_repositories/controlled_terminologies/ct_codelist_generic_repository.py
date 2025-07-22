@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
-from typing import Any, Iterable, cast
+from typing import Any, Generic, Iterable, cast
 
 from neomodel import db
 
@@ -50,7 +50,7 @@ from common import exceptions
 
 
 class CTCodelistGenericRepository(
-    LibraryItemRepositoryImplBase[_AggregateRootType], ABC
+    LibraryItemRepositoryImplBase, Generic[_AggregateRootType], ABC
 ):
     root_class = type
     value_class = type
@@ -59,7 +59,7 @@ class CTCodelistGenericRepository(
         DISTINCT codelist_root, codelist_ver_root, codelist_ver_value
         ORDER BY codelist_root.uid
         WITH DISTINCT codelist_root, codelist_ver_root, codelist_ver_value, 
-        head([(cat)-[:HAS_CODELIST]->(codelist_root) | cat]) AS catalogue,
+        head([(cat:CTCatalogue)-[:HAS_CODELIST]->(codelist_root) | cat]) AS catalogue,
         head([(lib)-[:CONTAINS_CODELIST]->(codelist_root) | lib]) AS library
         CALL {
                 WITH codelist_ver_root, codelist_ver_value
@@ -123,7 +123,7 @@ class CTCodelistGenericRepository(
 
     @abstractmethod
     def _create_aggregate_root_instance_from_cypher_result(
-        self, codelist_dict: dict
+        self, codelist_dict: dict[str, Any]
     ) -> _AggregateRootType:
         """
         Creates aggregate root instances from cypher query result.
@@ -141,10 +141,10 @@ class CTCodelistGenericRepository(
         catalogue_name: str | None = None,
         library_name: str | None = None,
         package: str | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         **_kwargs,
@@ -225,7 +225,7 @@ class CTCodelistGenericRepository(
         catalogue_name: str | None = None,
         library: str | None = None,
         package: str | None = None,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
     ) -> list[Any]:

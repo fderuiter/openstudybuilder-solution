@@ -1,4 +1,5 @@
 from logging import getLogger
+from typing import Any
 
 from docx.enum.style import WD_STYLE_TYPE
 from yattag.doc import Doc
@@ -86,8 +87,8 @@ class StudyObjectivesService:
         return self._build_standard_docx(tree)
 
     @staticmethod
-    def _build_tree(selection) -> dict:
-        root = {}
+    def _build_tree(selection) -> dict[Any, Any]:
+        root: dict[Any, Any] = {}
 
         for study_selection_endpoint in selection:
             node = root
@@ -116,8 +117,8 @@ class StudyObjectivesService:
         return root
 
     @staticmethod
-    def _build_condensed_tree(selection) -> dict:
-        root = {}
+    def _build_condensed_tree(selection) -> dict[Any, Any]:
+        root: dict[Any, Any] = {}
 
         for study_selection_endpoint in selection:
             node = root

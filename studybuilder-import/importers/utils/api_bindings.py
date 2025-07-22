@@ -10,8 +10,9 @@ from typing import Sequence
 import aiohttp
 import requests
 
-from .metrics import Metrics
-from .path_join import path_join
+from importers.functions.caselessdict import CaselessDict
+from importers.utils.metrics import Metrics
+from importers.utils.path_join import path_join
 
 # CDISC codelists
 CODELIST_STUDY_TYPE = "Study Type"
@@ -536,6 +537,19 @@ class ApiBinding:
             codelists_uids[res["name"]] = res["codelist_uid"]
         return codelists_uids
 
+    # Get a dictionary with key = submission value and value = uid
+    def get_codelists_uid_and_submval(self):
+        all_codelist_attributes = self.get_all_from_api("/ct/codelists/attributes")
+
+        all_codelist_uids = CaselessDict(
+            self.get_all_identifiers(
+                all_codelist_attributes,
+                identifier="submission_value",
+                value="codelist_uid",
+            )
+        )
+        return all_codelist_uids
+
     def get_all_activity_objects(self, object_type, filters=None):
         page_number = 1
         page_size = 100
@@ -743,6 +757,24 @@ class ApiBinding:
             path_join(self.api_base_url, path), json=body, headers=self.api_headers
         ) as response:
             status = response.status
+
+            if status == 405:
+                async with session.put(
+                    path_join(self.api_base_url, path),
+                    json=body,
+                    headers=self.api_headers,
+                ) as response:
+                    status = response.status
+
+                    try:
+                        result = await response.json()
+                    except aiohttp.ContentTypeError:
+                        textresult = await response.text()
+                        result = {}
+                        self.log.error(
+                            f"Failed to patch to '{path}', status: {status}, message: {textresult}"
+                        )
+                    return status, result
             try:
                 result = await response.json()
             except aiohttp.ContentTypeError:

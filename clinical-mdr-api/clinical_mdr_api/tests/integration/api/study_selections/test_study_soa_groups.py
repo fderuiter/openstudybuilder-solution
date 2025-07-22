@@ -11,6 +11,7 @@ Tests for /studies/{uid}/study-soa-groups endpoints
 
 import logging
 from datetime import datetime, timezone
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -186,8 +187,8 @@ def test_data():
 
 
 def test_post_and_get_all_study_soa_groups(api_client):
-    study_soa_group_into_study_activity_group_mapping: dict[str, list] = {}
-    study_soa_group_into_soa_group_term_group_mapping: dict[str, list] = {}
+    study_soa_group_into_study_activity_group_mapping: dict[str, list[Any]] = {}
+    study_soa_group_into_soa_group_term_group_mapping: dict[str, list[Any]] = {}
     for i in range(20):
         soa_group_term_uid = f"SoAGroup uid{i}"
         db.cypher_query(

@@ -209,6 +209,7 @@ class ItemDef:
     origin: Attribute
     datatype: Attribute
     length: Attribute
+    significant_digits: Attribute
     sas_field_name: Attribute
     sds_var_name: Attribute
     question: Question
@@ -224,6 +225,7 @@ class ItemDef:
         origin: Attribute,
         datatype: Attribute,
         length: Attribute,
+        significant_digits: Attribute,
         sas_field_name: Attribute,
         sds_var_name: Attribute,
         question: Question,
@@ -238,6 +240,7 @@ class ItemDef:
         self.origin = origin
         self.datatype = datatype
         self.length = length
+        self.significant_digits = significant_digits
         self.sas_field_name = sas_field_name
         self.sds_var_name = sds_var_name
         self.question = question

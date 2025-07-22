@@ -33,7 +33,7 @@
 import { ref, watch } from 'vue'
 import { i18n } from '@/plugins/i18n'
 import activityItemClassesApi from '@/api/activityItemClasses'
-import constants from '@/constants/activityItemClasses'
+import termsApi from '@/api/controlledTerminology/terms'
 import _debounce from 'lodash/debounce'
 
 const props = defineProps({
@@ -50,8 +50,8 @@ const props = defineProps({
     default: () => i18n.t('ActivityInstanceForm.value'),
   },
 })
-const model = defineModel()
-const search = defineModel('search')
+const model = defineModel({ type: String })
+const search = defineModel('search', { type: String })
 
 const allowedValues = ref([])
 const loading = ref(false)
@@ -59,22 +59,28 @@ const loading = ref(false)
 const fetchTerms = _debounce(function () {
   loading.value = true
   const filters = { '*': { v: [search.value] } }
-  activityItemClassesApi
-    .getTerms(props.activityItemClass.uid, {
-      filters,
-      page_size: 50,
-    })
-    .then((resp) => {
+  if (props.activityItemClass.name === 'unit_dimension') {
+    termsApi.getNamesByCodelist('unitDimensions', { filters }).then((resp) => {
       allowedValues.value = []
-      const codelists =
-        constants.codelistsPerDomain[props.dataDomain][
-          props.activityItemClass.name
-        ]
-      if (codelists) {
-        allowedValues.value = resp.data.items.filter((item) =>
-          codelists.includes(item.codelist_submission_value)
-        )
-      } else {
+      const present = resp.data.items.find(
+        (item) => item.term_uid === model.value
+      )
+      if (!present) {
+        model.value = null
+      }
+      allowedValues.value = resp.data.items.map((item) => {
+        return { term_uid: item.term_uid, name: item.sponsor_preferred_name }
+      })
+      loading.value = false
+    })
+  } else {
+    activityItemClassesApi
+      .getDatasetTerms(props.activityItemClass.uid, props.dataDomain, {
+        filters,
+        page_size: 50,
+      })
+      .then((resp) => {
+        allowedValues.value = []
         const present = resp.data.items.find(
           (item) => item.term_uid === model.value
         )
@@ -82,9 +88,9 @@ const fetchTerms = _debounce(function () {
           model.value = null
         }
         allowedValues.value = resp.data.items
-      }
-      loading.value = false
-    })
+        loading.value = false
+      })
+  }
 }, 800)
 
 const reset = () => {

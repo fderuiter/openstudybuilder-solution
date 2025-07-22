@@ -1,5 +1,5 @@
 import datetime
-from typing import Callable
+from typing import Any, Callable
 
 from neomodel import db
 
@@ -24,9 +24,9 @@ from clinical_mdr_api.services._utils import (
     calculate_diffs_history,
     fill_missing_values_in_base_model_from_reference_base_model,
 )
-from common import config as settings
 from common import exceptions
 from common.auth.user import user
+from common.config import settings
 
 
 class StudyStandardVersionService:
@@ -65,7 +65,7 @@ class StudyStandardVersionService:
         )
         study_standard_version.change_type = standard_version.change_type
         study_standard_version.end_date = (
-            standard_version.end_date.strftime(settings.DATE_TIME_FORMAT)
+            standard_version.end_date.strftime(settings.date_time_format)
             if standard_version.end_date
             else None
         )
@@ -75,10 +75,10 @@ class StudyStandardVersionService:
     def get_standard_versions_in_study(
         self,
         study_uid: str,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator = FilterOperator.AND,
         total_count: bool = False,
         study_value_version: str | None = None,
@@ -144,7 +144,7 @@ class StudyStandardVersionService:
         self,
         study_standard_version_to_edit: StudyStandardVersionVO,
         study_standard_version_edit_input: StudyStandardVersionInput,
-    ) -> StudyStandardVersionVO:
+    ):
         if (
             study_standard_version_to_edit.ct_package_uid
             != study_standard_version_edit_input.ct_package_uid

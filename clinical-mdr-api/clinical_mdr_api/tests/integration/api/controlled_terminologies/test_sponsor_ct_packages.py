@@ -156,7 +156,7 @@ def test_post_sponsor_ct_package(api_client):
     assert res["uid"]
     assert res["uid"] == expected_package_name
     assert res["name"] == res["uid"]
-    assert set(list(res.keys())) == set(SPONSOR_CT_PACKAGES_FIELDS_ALL)
+    assert set(res.keys()) == set(SPONSOR_CT_PACKAGES_FIELDS_ALL)
     for key in SPONSOR_CT_PACKAGES_FIELDS_NOT_NULL:
         assert res[key] is not None
 

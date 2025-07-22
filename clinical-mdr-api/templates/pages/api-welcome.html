@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{data.app_name}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'Montserrat', Arial, sans-serif;
+            background: #f6f8fa;
+        }
+
+        .header {
+            background: #193074;
+            color: #fff;
+            text-align: center;
+            padding: 22px 0 18px 0;
+            font-size: 1.25em;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            box-shadow: 0 2px 8px rgba(24, 49, 116, 0.08);
+        }
+
+        .main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+        }
+
+        .cards-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(260px, 1fr));
+            gap: 32px;
+            margin-top: 36px;
+            width: 100%;
+            max-width: 700px;
+            justify-items: center;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(24, 49, 116, 0.10);
+            padding: 32px 28px 28px 28px;
+            min-width: 260px;
+            max-width: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: box-shadow 0.16s, transform 0.16s, border-color 0.16s;
+            border: 2px solid #e5e7eb;
+            position: relative;
+        }
+
+        .card:hover {
+            border-color: #193074;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eaf0fa;
+            border-radius: 50%;
+        }
+
+        .card-title {
+            font-size: 1.18em;
+            font-weight: 700;
+            color: #193074;
+            margin-bottom: 8px;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        .card-desc {
+            font-size: 1em;
+            color: #4b5563;
+            margin-bottom: 22px;
+            text-align: center;
+            line-height: 1.5;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-link {
+            text-decoration: none;
+            color: #fff;
+            background: #193074;
+            padding: 10px 28px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: background 0.16s, box-shadow 0.16s;
+            box-shadow: 0 2px 8px rgba(24, 49, 116, 0.08);
+            margin-top: auto;
+        }
+
+        .card-link:hover {
+            background: #3b5998;
+        }
+
+        @media (max-width: 900px) {
+            .cards {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .cards {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .main {
+                min-height: 60vh;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        {{data.app_name}} <span style="font-weight:400;">&mdash; Version {{data.version}}</span>
+    </div>
+    <div class="main">
+        <div class="cards-section">
+            <div class="cards">
+                <div class="card">
+                    <div class="card-icon">
+                        <!-- Swagger UI Icon SVG -->
+                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                            <circle cx="14" cy="14" r="14" fill="#193074" opacity="0.12" />
+                            <circle cx="14" cy="14" r="8" stroke="#193074" stroke-width="2" fill="none" />
+                            <circle cx="14" cy="14" r="2" fill="#193074" />
+                        </svg>
+                    </div>
+                    <div class="card-title">Swagger UI</div>
+                    <div class="card-desc">Interactive API documentation</div>
+                    <a class="card-link" href="./docs">Open Swagger UI</a>
+                </div>
+                <div class="card">
+                    <div class="card-icon">
+                        <!-- ReDoc Icon SVG -->
+                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                            <circle cx="14" cy="14" r="14" fill="#193074" opacity="0.12" />
+                            <rect x="8" y="10" width="12" height="8" rx="2" stroke="#193074" stroke-width="2"
+                                fill="none" />
+                            <rect x="12" y="12" width="4" height="4" rx="1" fill="#193074" />
+                        </svg>
+                    </div>
+                    <div class="card-title">ReDoc</div>
+                    <div class="card-desc">Readable API documentation</div>
+                    <a class="card-link" href="./redoc">Open ReDoc</a>
+                </div>
+                <div class="card">
+                    <div class="card-icon">
+                        <!-- Health Check Icon SVG -->
+                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                            <circle cx="14" cy="14" r="14" fill="#193074" opacity="0.12" />
+                            <path d="M8 15h3l2-6 2 10 2-4h3" stroke="#193074" stroke-width="2" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="card-title">Health Check</div>
+                    <div class="card-desc">Check API system health and status</div>
+                    <a class="card-link" href="./system/healthcheck">View Health Check</a>
+                </div>
+                <div class="card">
+                    <div class="card-icon">
+                        <!-- System Info Icon SVG -->
+                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                            <circle cx="14" cy="14" r="14" fill="#193074" opacity="0.12" />
+                            <rect x="9" y="9" width="10" height="10" rx="2" stroke="#193074" stroke-width="2"
+                                fill="none" />
+                            <rect x="13" y="13" width="2" height="4" rx="1" fill="#193074" />
+                            <circle cx="14" cy="12" r="1" fill="#193074" />
+                        </svg>
+                    </div>
+                    <div class="card-title">System Information</div>
+                    <div class="card-desc">Get API and system information</div>
+                    <a class="card-link" href="./system/information">View Information</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

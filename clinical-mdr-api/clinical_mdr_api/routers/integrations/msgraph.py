@@ -9,6 +9,7 @@ from clinical_mdr_api.models.integrations import msgraph as msgraph_model
 from clinical_mdr_api.routers import _generic_descriptions
 from clinical_mdr_api.services.integrations import msgraph
 from common.auth import rbac
+from common.auth.dependencies import security
 
 # Prefixed with "/integrations/ms-graph"
 router = APIRouter()
@@ -16,7 +17,7 @@ router = APIRouter()
 
 @router.get(
     "/users",
-    dependencies=[rbac.ANY],
+    dependencies=[security, rbac.ANY],
     summary="List users of the relevant AD groups",
     description="Lists all users whose name, initials or email match the optional `search` parameter (regex)"
     " and who are members of relevant AD groups.",

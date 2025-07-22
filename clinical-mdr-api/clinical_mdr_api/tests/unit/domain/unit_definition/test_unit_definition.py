@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from typing import Any
 
 import pytest
 from hypothesis import HealthCheck, assume, given, settings
@@ -315,8 +316,8 @@ def unit_definitions(
 )
 def test__unit_definition_value_vo__from_repository__existing_unit_ct_id__success(
     name: str,
-    ct_units: list,
-    unit_subsets: list,
+    ct_units: list[Any],
+    unit_subsets: list[Any],
     convertible_unit: bool,
     display_unit: bool,
     master_unit: bool,
@@ -401,8 +402,8 @@ def test__unit_definition_value_vo__from_repository__existing_unit_ct_id__succes
 )
 def test__unit_definition_value_vo__from_input__existing_unit_ct_id__success(
     name: str,
-    ct_units: list,
-    unit_subsets: list,
+    ct_units: list[Any],
+    unit_subsets: list[Any],
     convertible_unit: bool,
     display_unit: bool,
     master_unit: bool,
@@ -496,8 +497,8 @@ def test__unit_definition_value_vo__from_input__existing_unit_ct_id__success(
 )
 def test__unit_definition_value_vo__from_input__non_existent_unit_ct_id__failure(
     name: str,
-    ct_units: list,
-    unit_subsets: list,
+    ct_units: list[Any],
+    unit_subsets: list[Any],
     convertible_unit: bool,
     display_unit: bool,
     master_unit: bool,

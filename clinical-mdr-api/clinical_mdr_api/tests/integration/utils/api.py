@@ -19,14 +19,12 @@ from clinical_mdr_api.tests.utils.checks import assert_response_status_code
 def inject_and_clear_db(db_name):
     os.environ["NEO4J_DATABASE"] = db_name
 
-    from common import config
-
-    config.settings = config.Settings()
-
     from neomodel import config as neoconfig
 
+    from common.config import settings
+
     # Switch to "neo4j" database for creating a new database
-    neoconfig.DATABASE_URL = urljoin(config.settings.neo4j_dsn, "/neo4j")
+    neoconfig.DATABASE_URL = urljoin(settings.neo4j_dsn, "/neo4j")
     db.set_connection(neoconfig.DATABASE_URL)
     db.cypher_query("CREATE OR REPLACE DATABASE $db", {"db": db_name})
 
@@ -37,7 +35,7 @@ def inject_and_clear_db(db_name):
             # Database creation can take a couple of seconds
             # db.set_connection will return a ClientError if the database isn't ready
             # This allows for retrying after a small pause
-            neoconfig.DATABASE_URL = urljoin(config.settings.neo4j_dsn, f"/{db_name}")
+            neoconfig.DATABASE_URL = urljoin(settings.neo4j_dsn, f"/{db_name}")
             db.set_connection(neoconfig.DATABASE_URL)
 
             # AuraDB workaround for not supporting multiple db's:
@@ -70,13 +68,11 @@ def inject_and_clear_db(db_name):
 
 
 def drop_db(db_name):
-    from common import config
-
-    config.settings = config.Settings()
-
     from neomodel import config as neoconfig
 
-    full_dsn = f"{config.settings.neo4j_dsn}"
+    from common.config import settings
+
+    full_dsn = f"{settings.neo4j_dsn}"
     neoconfig.DATABASE_URL = full_dsn
     db.set_connection(full_dsn)
     db.cypher_query("DROP DATABASE $db IF EXISTS", {"db": db_name})

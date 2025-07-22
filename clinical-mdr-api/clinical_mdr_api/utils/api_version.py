@@ -2,6 +2,7 @@
 
 import copy
 import logging
+from typing import Any
 
 from deepdiff import DeepDiff
 
@@ -57,16 +58,18 @@ def increment_version_number(version: str) -> str:
     Increments `patch` number of version in `major.minor.patch` format
     """
     # Split the version strings into their components
-    version_components = version.split(".")
+    _version_components: list[str] = version.split(".")
 
     # Convert the components to integers
-    version_components = [int(x) for x in version_components]
+    version_components: list[int] = [int(x) for x in _version_components]
     version_components[2] = version_components[2] + 1
 
     return ".".join(str(x) for x in version_components)
 
 
-def increment_api_version_if_needed(api_spec_new: dict, api_spec_old: dict) -> dict:
+def increment_api_version_if_needed(
+    api_spec_new: dict[Any, Any], api_spec_old: dict[Any, Any]
+) -> dict[Any, Any]:
     """Compares two API specifications and auto-increments version patch number if any changes are detected"""
     diff = DeepDiff(
         api_spec_old,

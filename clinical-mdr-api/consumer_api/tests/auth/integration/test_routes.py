@@ -3,6 +3,12 @@ import starlette
 from consumer_api.tests.auth.integration.routes import ALL_ROUTES_METHODS_ROLES
 
 IGNORE_ROUTES_METHODS = {
+    ("/", "GET"),
+    ("/system/information/license.md", "GET"),
+    ("/system/information/sbom.md", "GET"),
+    ("/system/information/build-id", "GET"),
+    ("/system/information", "GET"),
+    ("/system/healthcheck", "GET"),
     ("/docs", "HEAD"),
     ("/redoc", "HEAD"),
     ("/docs/oauth2-redirect", "HEAD"),

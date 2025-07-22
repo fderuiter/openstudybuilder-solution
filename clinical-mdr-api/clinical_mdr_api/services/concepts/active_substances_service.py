@@ -15,7 +15,6 @@ from clinical_mdr_api.models.concepts.active_substance import (
 )
 from clinical_mdr_api.services.concepts.concept_generic_service import (
     ConceptGenericService,
-    _AggregateRootType,
 )
 
 
@@ -35,7 +34,7 @@ class ActiveSubstanceService(ConceptGenericService[ActiveSubstanceAR]):
 
     def _create_aggregate_root(
         self, concept_input: ActiveSubstanceCreateInput, library
-    ) -> _AggregateRootType:
+    ) -> ActiveSubstanceAR:
         return ActiveSubstanceAR.from_input_values(
             author_id=self.author_id,
             concept_vo=ActiveSubstanceVO.from_repository_values(

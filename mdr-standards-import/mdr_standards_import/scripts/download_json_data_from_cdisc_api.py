@@ -1,27 +1,24 @@
+"""
+This script downloads the JSON data (CT, Data Models and IGs) from the CDISC API.
+"""
+
 import json
 from typing import Sequence
+from os import listdir, environ, path
+from pathlib import Path
 import requests
 from requests.exceptions import HTTPError
-from os import listdir
-from os import environ
-from os import mkdir
-from os import path
-from pathlib import Path
+from neo4j.exceptions import ServiceUnavailable
 from mdr_standards_import.scripts.entities.cdisc_ct.package import Package
 from mdr_standards_import.scripts.entities.cdisc_ct.ct_import import CTImport
 from mdr_standards_import.scripts.entities.cdisc_data_models.version import Version
 from mdr_standards_import.scripts.entities.cdisc_data_models.data_model_import import (
     DataModelImport,
 )
-from mdr_standards_import.scripts.entities.cdisc_data_models.data_model_type import (
-    DataModelType,
-)
 from mdr_standards_import.scripts.utils import (
     get_cdisc_neo4j_driver,
     is_newer_than,
-    get_classes_directory_name,
 )
-from neo4j.exceptions import ServiceUnavailable
 
 
 NEO4J_MDR_DATABASE = environ.get("NEO4J_MDR_DATABASE", "neo4j")
@@ -31,14 +28,15 @@ HEADERS = {"api-key": AUTH_TOKEN, "Accept": "application/json"}
 BASE_URL = environ.get("CDISC_BASE_URL")
 
 
-def download_newer_packages_than(last_effective_date: str, to_directory: str):
+def download_newer_packages_than(last_effective_date: str | None, to_directory: str):
     """
-    Downloads those packages from the CDISC REST API where the effective date is newer than the specified
-    <last_effective_date>.
+    Downloads those packages from the CDISC REST API where the effective date
+    is newer than the specified <last_effective_date>.
     Stores the data in JSON files on disc.
 
-    :param last_effective_date: string (YYYY-MM-DD, e.g. "2020-12-31"), the date of the last loaded package.
-        Only packages newer than this date will be loaded. May be None: in that case 2014-01-01 is used as default date.
+    :param last_effective_date: string (YYYY-MM-DD), date of the last loaded package.
+        Only packages newer than this date will be loaded.
+        May be None: in that case 2014-01-01 is used as default date.
     """
 
     if last_effective_date is None:
@@ -58,8 +56,6 @@ def download_newer_packages_than(last_effective_date: str, to_directory: str):
         # the package_id is the part of the href after the last slash (/)
         # e.g. "adamct-2014-09-26"
         package_id = path.basename(href)
-        # Strip off the date
-        name = package_id.rsplit("-", 3)[0]
         # the effective date is at the end of the package id
         # e.g. "2014-09-26"
         effective_date = "-".join(package_id.rsplit("-", 3)[-3:])
@@ -73,7 +69,7 @@ def download_newer_packages_than(last_effective_date: str, to_directory: str):
     if len(packages_to_load) > 0:
         download_packages_data(packages_to_load, to_directory)
     else:
-        print(f" -> No packages found for downloading.")
+        print(" -> No packages found for downloading.")
 
 
 def get_available_packages_meta_data_from_api() -> json:
@@ -98,7 +94,7 @@ def get_available_packages_meta_data_from_api() -> json:
         }
     }
     """
-    response = requests.get(BASE_URL + "/mdr/ct/packages", headers=HEADERS)
+    response = requests.get(BASE_URL + "/mdr/ct/packages", headers=HEADERS, timeout=60)
     response.raise_for_status()
     print(json.dumps(response.json(), indent=2))
     return response.json()
@@ -109,7 +105,8 @@ def download_packages_data(packages_to_download: Sequence[Package], to_directory
     Downloads the CDISC CT package data for those packages specified by <packages_to_download>.
     Stores the data in JSON files on disc.
 
-    If the corresponding JSON files are already present for one or more packages, those packages will be skipped.
+    If the corresponding JSON files are already present for one or more packages,
+    those packages will be skipped.
 
     :param packages_to_download: a list of those packages that shall be downloaded.
     """
@@ -139,7 +136,9 @@ def download_packages_data(packages_to_download: Sequence[Package], to_directory
                 f"  Step: {step}/{number_of_packages} - Downloading package '{package_id}'."
             )
             try:
-                response = requests.get(BASE_URL + package.href, headers=HEADERS)
+                response = requests.get(
+                    BASE_URL + package.href, headers=HEADERS, timeout=60
+                )
                 response.raise_for_status()
                 package_data = response.json()
             except HTTPError as http_err:
@@ -148,7 +147,9 @@ def download_packages_data(packages_to_download: Sequence[Package], to_directory
                 print(f"    Other error occurred: {err}")
             else:
                 filename = package_id.split("/")[-1].lower() + ".json"
-                with open(path.join(to_directory, filename), "w") as ctpkg_file:
+                with open(
+                    path.join(to_directory, filename), "w", encoding="utf-8"
+                ) as ctpkg_file:
                     ctpkg_file.write(json.dumps(package_data))
                     ctpkg_file.write("\n")
         step += 1
@@ -189,18 +190,22 @@ def get_available_model_versions_meta_data_from_api() -> json:
         Note : _links top level and self objects are removed before concatenating to prevent conflicts
     """
     # Get data tabulation (SDTM, SEND)
-    response = requests.get(BASE_URL + "/mdr/products/DataTabulation", headers=HEADERS)
+    response = requests.get(
+        BASE_URL + "/mdr/products/DataTabulation", headers=HEADERS, timeout=60
+    )
     response.raise_for_status()
     data_tabulation = response.json()
     if "self" in data_tabulation["_links"]:
         del data_tabulation["_links"]["self"]
 
     # Get data collection (CDASH)
-    # response = requests.get(BASE_URL + "/mdr/products/DataCollection", headers=HEADERS)
-    # response.raise_for_status()
-    # data_collection = response.json()
-    # if "self" in data_collection["_links"]:
-    #     del data_collection["_links"]["self"]
+    response = requests.get(
+        BASE_URL + "/mdr/products/DataCollection", headers=HEADERS, timeout=60
+    )
+    response.raise_for_status()
+    data_collection = response.json()
+    if "self" in data_collection["_links"]:
+        del data_collection["_links"]["self"]
 
     # Get data analysis (ADaM)
     # response = requests.get(BASE_URL + "/mdr/products/DataAnalysis", headers=HEADERS)
@@ -209,13 +214,7 @@ def get_available_model_versions_meta_data_from_api() -> json:
     # if "self" in data_analysis["_links"]:
     #     del data_analysis["_links"]["self"]
 
-    # return {
-    #     **data_tabulation["_links"],
-    #     **data_collection["_links"],
-    #     **data_analysis["_links"],
-    # }
-
-    return {**data_tabulation["_links"]}
+    return {**data_tabulation["_links"], **data_collection["_links"]}
 
 
 def download_newer_data_model_versions_than(
@@ -261,16 +260,13 @@ def download_newer_data_model_versions_than(
                 versions_to_load.append(version)
 
         if len(versions_to_load) > 0:
-            download_versions_data(
-                catalogue, data_model_type, versions_to_load, to_directory
-            )
+            download_versions_data(catalogue, versions_to_load, to_directory)
         else:
             print(f" -> No versions in catalogue {catalogue} found for downloading.")
 
 
 def download_versions_data(
     catalogue: str,
-    data_model_type: str,
     versions_to_download: Sequence[Version],
     to_directory: str,
 ):
@@ -309,7 +305,9 @@ def download_versions_data(
                 f"  Catalogue {catalogue} - Step: {step}/{number_of_versions} - Downloading version '{version_number}'."
             )
             try:
-                response = requests.get(BASE_URL + version.href, headers=HEADERS)
+                response = requests.get(
+                    BASE_URL + version.href, headers=HEADERS, timeout=60
+                )
                 response.raise_for_status()
                 version_data = response.json()
             except HTTPError as http_err:
@@ -318,104 +316,18 @@ def download_versions_data(
                 print(f"    Other error occurred: {err}")
             else:
                 filename = f"{version_number}.json"
-                with open(path.join(sub_directory, filename), "w") as version_file:
+                with open(
+                    path.join(sub_directory, filename), "w", encoding="utf-8"
+                ) as version_file:
                     version_file.write(json.dumps(version_data))
                     version_file.write("\n")
-
-                url_suffix = _map_classes_or_datasets_url_suffix(
-                    catalogue=catalogue, data_model_type=data_model_type
-                )
-                classes_datasets_sub_directory = get_classes_directory_name(
-                    data_model_type
-                )
-                download_classes_data(
-                    base_version_href=version.href,
-                    suffix=url_suffix,
-                    to_directory=path.join(
-                        to_directory,
-                        catalogue,
-                        classes_datasets_sub_directory,
-                        version_number,
-                    ),
-                )
         step += 1
 
 
-def download_classes_data(base_version_href: str, suffix: str, to_directory: str):
-    """
-    For given Data Model version, will download the children classes
-
-    :param base_version_href: base href for the version for which to download classes
-    :param suffix: url suffix for downloading classes/datasets
-    :param to_directory: directory in which to download the classes, including version_number
-    """
-    print(" * Downloading classes/datasets.")
-    try:
-        classes_url = f"{BASE_URL}{base_version_href}/{suffix.lower()}"
-        response = requests.get(classes_url, headers=HEADERS)
-        response.raise_for_status()
-        classes_data = response.json()
-    except HTTPError as http_err:
-        print(f"    HTTP error occurred: {http_err}")
-    except Exception as err:
-        print(f"    Other error occurred: {err}")
-    else:
-        if suffix in classes_data["_links"]:
-            classes = classes_data["_links"][suffix]
-            for _class in classes:
-                class_data = _download_element(
-                    to_directory=to_directory, element_ref=_class
-                )
-
-                if "scenarios" in class_data["_links"]:
-                    scenarios = class_data["_links"]["scenarios"]
-                    for _scenario in scenarios:
-                        _download_element(
-                            to_directory=path.join(to_directory, "scenarios"),
-                            element_ref=_scenario,
-                        )
-        else:
-            print(f" -- No {suffix} found for version.")
-
-
-def _download_element(to_directory: str, element_ref: dict) -> dict:
-    href = element_ref["href"]
-    response = requests.get(BASE_URL + href, headers=HEADERS)
-    response.raise_for_status()
-    download_data = response.json()
-    _file = Path(path.join(to_directory, f"{path.basename(href)}.json"))
-    _file.parent.mkdir(exist_ok=True, parents=True)
-    with open(_file, "w") as download_file:
-        download_file.write(json.dumps(download_data))
-        download_file.write("\n")
-
-    return download_data
-
-
-def _map_classes_or_datasets_url_suffix(catalogue: str, data_model_type: str) -> str:
-    """
-    Returns the suffix to use for datasets download for the given catalogue
-
-    Args:
-        catalogue (str): Name of the catalogue
-        data_model_type (str): Data model type (Foundational Model or Implementation Guide)
-
-    Returns:
-        str: Suffix to use in the GET URL to retrieve the datasets
-    """
-    if catalogue == "ADAM":
-        return "dataStructures"
-    elif data_model_type == DataModelType.FOUNDATIONAL.value:
-        return "classes"
-    elif catalogue == "CDASHIG":
-        return "domains"
-    elif catalogue == "SDTMIG":
-        return "datasets"
-    elif catalogue == "SENDIG":
-        return "datasets"
-
-
 def create_cdisc_data_dir(directory: str):
+    """
+    Create a directory for the downloaded CDISC data.
+    """
     try:
         Path(directory).mkdir(0o750, True, True)
     except OSError as error:
@@ -425,6 +337,10 @@ def create_cdisc_data_dir(directory: str):
 
 
 def get_latest_effective_date():
+    """
+    Get the latest imported package effective date from the CDISC Import database.
+    """
+
     cdisc_neo4j_driver = get_cdisc_neo4j_driver()
 
     # If using a staging database, it might not exist yet
@@ -457,6 +373,10 @@ def get_latest_effective_date():
 
 
 def get_latest_data_model_versions():
+    """
+    Get the latest imported data model versions from the CDISC Import database.
+    """
+
     cdisc_neo4j_driver = get_cdisc_neo4j_driver()
 
     # If using a staging database, it might not exist yet
@@ -488,10 +408,16 @@ def get_latest_data_model_versions():
 
 
 def download_ct_json_data_from_cdisc_api(to_directory: str):
+    """
+    Download the CT JSON data from the CDISC API.
+    """
     download_newer_packages_than(get_latest_effective_date(), to_directory)
 
 
 def download_data_model_json_data_from_cdisc_api(to_directory: str):
+    """
+    Download the data model JSON data from the CDISC API.
+    """
     download_newer_data_model_versions_than(
         get_latest_data_model_versions(), to_directory
     )

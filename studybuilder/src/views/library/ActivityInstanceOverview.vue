@@ -10,7 +10,7 @@
     <ActivityInstanceOverview
       v-if="activityInstanceOverview"
       source="activity-instances"
-      :item-uid="$route.params.id"
+      :item-uid="route.params.id"
       :item-overview="activityInstanceOverview"
       :yaml-version="activityInstanceYAML"
       :cosmos-version="activityInstanceCOSMoS"
@@ -20,88 +20,97 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import ActivityInstanceOverview from '@/components/library/ActivityInstanceOverview.vue'
 import activities from '@/api/activities'
 import HelpButtonWithPanels from '@/components/tools/HelpButtonWithPanels.vue'
 import { useAppStore } from '@/stores/app'
 
-export default {
-  components: {
-    ActivityInstanceOverview,
-    HelpButtonWithPanels,
-  },
-  setup() {
-    const appStore = useAppStore()
-    return {
-      addBreadcrumbsLevel: appStore.addBreadcrumbsLevel,
+const route = useRoute()
+const router = useRouter()
+const appStore = useAppStore()
+
+const activityInstanceOverview = ref(null)
+const activityInstanceYAML = ref(null)
+const activityInstanceCOSMoS = ref(null)
+
+const helpItems = [
+  'ActivityInstanceOverview.cosmos_yaml',
+  'ActivityInstanceOverview.class',
+  'ActivityInstanceOverview.adam_code',
+  'ActivityInstanceOverview.topic_code',
+  'ActivityInstanceOverview.activity_group',
+  'ActivityInstanceOverview.activity_subgroup',
+  'ActivityInstanceOverview.activity',
+  'ActivityInstanceOverview.activity_groupings',
+  'ActivityInstanceOverview.is_required_for_activity',
+  'ActivityInstanceOverview.is_default_selected_for_activity',
+  'ActivityInstanceOverview.is_data_sharing',
+  'ActivityInstanceOverview.is_legacy_usage',
+  'ActivityInstanceOverview.item_type',
+  'ActivityInstanceOverview.items',
+  'ActivityInstanceOverview.item_class',
+]
+const fetchOverview = async () => {
+  try {
+    // Fetch main overview data
+    const resp = await activities.getObjectOverview(
+      'activity-instances',
+      route.params.id,
+      route.params.version
+    )
+
+    activityInstanceOverview.value = resp.data
+
+    appStore.addBreadcrumbsLevel(
+      activityInstanceOverview.value.activity_instance.name,
+      { name: 'ActivityInstanceOverview', params: route.params },
+      4,
+      true
+    )
+
+    // Fetch YAML version
+    try {
+      const yamlResp = await activities.getObjectOverview(
+        'activity-instances',
+        route.params.id,
+        route.params.version,
+        'yaml'
+      )
+      activityInstanceYAML.value = yamlResp.data
+    } catch (error) {
+      console.error('Error fetching YAML version:', error)
     }
-  },
-  data() {
-    return {
-      activityInstanceOverview: null,
-      activityInstanceYAML: null,
-      activityInstanceCOSMoS: null,
-      helpItems: [
-        'ActivityInstanceOverview.cosmos_yaml',
-        'ActivityInstanceOverview.class',
-        'ActivityInstanceOverview.adam_code',
-        'ActivityInstanceOverview.topic_code',
-        'ActivityInstanceOverview.activity_group',
-        'ActivityInstanceOverview.activity_subgroup',
-        'ActivityInstanceOverview.activity',
-        'ActivityInstanceOverview.activity_groupings',
-        'ActivityInstanceOverview.is_required_for_activity',
-        'ActivityInstanceOverview.is_default_selected_for_activity',
-        'ActivityInstanceOverview.is_data_sharing',
-        'ActivityInstanceOverview.is_legacy_usage',
-        'ActivityInstanceOverview.item_type',
-        'ActivityInstanceOverview.items',
-        'ActivityInstanceOverview.item_class',
-      ],
+
+    // Fetch CoSMoS version
+    try {
+      const cosmosResp = await activities.getCOSMoSOverview(
+        'activity-instances',
+        route.params.id
+      )
+      activityInstanceCOSMoS.value = cosmosResp.data || ' '
+    } catch (error) {
+      console.error('Error fetching CoSMoS version:', error)
+      activityInstanceCOSMoS.value = ' '
     }
-  },
-  created() {
-    this.fetchOverview()
-  },
-  methods: {
-    fetchOverview() {
-      activities
-        .getObjectOverview(
-          'activity-instances',
-          this.$route.params.id,
-          this.$route.params.version
-        )
-        .then((resp) => {
-          this.activityInstanceOverview = resp.data
-          this.addBreadcrumbsLevel(
-            this.activityInstanceOverview.activity_instance.name,
-            { name: 'ActivityInstanceOverview', params: this.$route.params },
-            4
-          )
-        })
-      activities
-        .getObjectOverview(
-          'activity-instances',
-          this.$route.params.id,
-          this.$route.params.version,
-          'yaml'
-        )
-        .then((resp) => {
-          this.activityInstanceYAML = resp.data
-        })
-      activities
-        .getCOSMoSOverview('activity-instances', this.$route.params.id)
-        .then((resp) => {
-          this.activityInstanceCOSMoS = resp.data
-        })
-    },
-    closePage() {
-      this.$router.push({
-        name: 'Activities',
-        params: { tab: 'activity-instances' },
-      })
-    },
-  },
+  } catch (error) {
+    console.error('Error fetching activity instance overview:', error)
+  }
 }
+const closePage = () => {
+  router.push({
+    name: 'Activities',
+    params: { tab: 'activity-instances' },
+  })
+}
+
+watch(
+  () => route.params,
+  () => {
+    fetchOverview()
+  },
+  { immediate: true, deep: true }
+)
 </script>

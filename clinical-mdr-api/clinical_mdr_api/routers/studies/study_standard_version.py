@@ -9,6 +9,7 @@ from clinical_mdr_api.services.studies.study_standard_version_selection import (
     StudyStandardVersionService,
 )
 from common.auth import rbac
+from common.auth.dependencies import security
 from common.models.error import ErrorResponse
 
 studyUID = Path(description="The unique id of the study.")
@@ -25,7 +26,7 @@ study_standard_version_uid_description = Path(
 
 @router.get(
     "/studies/{study_uid}/study-standard-versions",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List all study standard_versions currently selected for the study.",
     description="""
 State before:
@@ -85,7 +86,7 @@ def get_all(
 
 @router.get(
     "/studies/{study_uid}/study-standard-versions/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to all study standard_versions within the specified study-uid",
     description="""
 State before:
@@ -120,7 +121,7 @@ def get_study_standard_versions_all_audit_trail(
 
 @router.get(
     "/studies/{study_uid}/study-standard-versions/{study_standard_version_uid}",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List all definitions for a specific study standard_version",
     description="""
 State before:
@@ -169,7 +170,7 @@ def get_study_standard_version(
 
 @router.get(
     "/studies/{study_uid}/study-standard-versions/{study_standard_version_uid}/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to definition of a specific study standard_version",
     description="""
 State before:
@@ -207,7 +208,7 @@ def get_study_standard_version_audit_trail(
 
 @router.post(
     "/studies/{study_uid}/study-standard-versions",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Add a study standard version to a study",
     description="""
 State before:
@@ -253,7 +254,7 @@ def post_new_standard_version_create(
 
 @router.delete(
     "/studies/{study_uid}/study-standard-versions/{study_standard_version_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Delete a study standard_version.",
     description="""
 State before:
@@ -297,7 +298,7 @@ def delete_study_standard_version(
 
 @router.patch(
     "/studies/{study_uid}/study-standard-versions/{study_standard_version_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Edit a study standard_version",
     description="""
 State before:

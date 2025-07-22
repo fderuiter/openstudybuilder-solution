@@ -25,7 +25,7 @@ from clinical_mdr_api.tests.integration.utils.method_library import (
 )
 from clinical_mdr_api.tests.integration.utils.utils import TestUtils
 from common import exceptions
-from common.config import SDTM_CT_CATALOGUE_NAME
+from common.config import settings
 
 
 class TestStudyDiseaseMilestoneManagement(unittest.TestCase):
@@ -37,7 +37,7 @@ class TestStudyDiseaseMilestoneManagement(unittest.TestCase):
         # Generate UIDs
         StudyRoot.generate_node_uids_if_not_present()
         self.study = StudyRoot.nodes.all()[0]
-        TestUtils.create_ct_catalogue(catalogue_name=SDTM_CT_CATALOGUE_NAME)
+        TestUtils.create_ct_catalogue(catalogue_name=settings.sdtm_ct_catalogue_name)
         TestUtils.set_study_standard_version(
             study_uid=self.study.uid, create_codelists_and_terms_for_package=False
         )
@@ -243,7 +243,7 @@ class TestStudyDiseaseMilestoneManagement(unittest.TestCase):
         self.assertEqual(previous_disease_milestone.changes, [])
 
         # test all versions
-        disease_milestone: StudyDiseaseMilestone = create_study_disease_milestone(
+        disease_milestone = create_study_disease_milestone(
             disease_milestone_type="Disease_Milestone_Type_0003"
         )
         disease_milestone_service = StudyDiseaseMilestoneService()

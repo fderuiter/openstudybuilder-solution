@@ -24,13 +24,14 @@ from clinical_mdr_api.domains.comments.comments import (
     CommentTopicAR,
 )
 from clinical_mdr_api.repositories._utils import sb_clear_cache
-from common import config, exceptions
+from common import exceptions
+from common.config import settings
 from common.utils import convert_to_datetime, validate_max_skip_clause
 
 
 class CommentsRepository:
     cache_store_item_by_uid = TTLCache(
-        maxsize=config.CACHE_MAX_SIZE, ttl=config.CACHE_TTL
+        maxsize=settings.cache_max_size, ttl=settings.cache_ttl
     )
     lock_store_item_by_uid = Lock()
 

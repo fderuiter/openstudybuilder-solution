@@ -187,8 +187,21 @@ class ActivityItem(ClinicalMdrNode):
         cardinality=ZeroOrMore,
     )
 
-    from clinical_mdr_api.domain_repositories.models.odm import OdmItemRoot
+    from clinical_mdr_api.domain_repositories.models.odm import (
+        OdmFormRoot,
+        OdmItemGroupRoot,
+        OdmItemRoot,
+    )
 
+    has_odm_form = RelationshipTo(
+        OdmFormRoot, "HAS_ODM_FORM", model=ClinicalMdrRel, cardinality=ZeroOrMore
+    )
+    has_odm_item_group = RelationshipTo(
+        OdmItemGroupRoot,
+        "HAS_ODM_ITEM_GROUP",
+        model=ClinicalMdrRel,
+        cardinality=ZeroOrMore,
+    )
     has_odm_item = RelationshipTo(
         OdmItemRoot, "HAS_ODM_ITEM", model=ClinicalMdrRel, cardinality=ZeroOrMore
     )

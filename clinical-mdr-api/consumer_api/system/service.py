@@ -7,41 +7,34 @@ from pydantic import BaseModel, Field
 
 
 class SystemInformation(BaseModel):
-    api_version: Annotated[
-        str, Field(title="API version", description="Version of the API specification")
-    ]
+    api_version: Annotated[str, Field(description="Version of the API specification")]
     db_version: Annotated[
         str | None,
         Field(
-            title="Database version",
             description="Version information from the Neo4j database the application is using",
         ),
     ] = None
     db_name: Annotated[
         str | None,
         Field(
-            title="Database name",
             description="Name of the database the application is using",
         ),
     ] = None
     build_id: Annotated[
         str,
         Field(
-            title="Build identifier",
             description="The Build.BuildNumber identifier from the pipeline run",
         ),
     ]
     commit_id: Annotated[
         str | None,
         Field(
-            title="VCS commit identifier",
             description="The reference to the repository state: the id of the last commit to the branch at build",
         ),
     ] = None
     branch_name: Annotated[
         str | None,
         Field(
-            title="Repository branch name",
             description="Name of the VCS repository branch the app was built from",
         ),
     ] = None

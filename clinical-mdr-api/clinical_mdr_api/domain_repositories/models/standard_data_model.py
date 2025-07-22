@@ -13,6 +13,7 @@ from neomodel import (
 
 from clinical_mdr_api.domain_repositories.models.controlled_terminology import (
     CTCodelistRoot,
+    CTTermRoot,
 )
 from clinical_mdr_api.domain_repositories.models.generic import (
     ClinicalMdrNode,
@@ -142,6 +143,11 @@ class DatasetClassInstance(VersionValue):
     is_instance_of = RelationshipFrom(
         "DatasetClass", "HAS_INSTANCE", model=ClinicalMdrRel
     )
+    implemented_by = RelationshipFrom(
+        "DatasetInstance",
+        "IMPLEMENTS_DATASET_CLASS",
+        model=ClinicalMdrRel,
+    )
 
 
 class DatasetClass(VersionRoot):
@@ -157,6 +163,7 @@ class DatasetInstance(VersionValue):
     description = StringProperty()
     label = StringProperty()
     title = StringProperty()
+    is_instance_of = RelationshipFrom("Dataset", "HAS_INSTANCE", model=ClinicalMdrRel)
     has_dataset = RelationshipFrom(
         DataModelIGValue, "HAS_DATASET", model=HasDatasetRel, cardinality=One
     )
@@ -333,6 +340,11 @@ class DatasetVariableInstance(VersionValue):
     mapping_instructions = StringProperty()
     described_value_domain = StringProperty()
     value_list = ArrayProperty()
+    analysis_variable_set = StringProperty()
+
+    is_instance_of = RelationshipFrom(
+        "DatasetVariable", "HAS_INSTANCE", model=ClinicalMdrRel
+    )
     has_dataset_variable = RelationshipFrom(
         DatasetInstance,
         "HAS_DATASET_VARIABLE",
@@ -344,6 +356,9 @@ class DatasetVariableInstance(VersionValue):
         "IMPLEMENTS_VARIABLE",
         model=CatalogueVerRel,
         cardinality=One,
+    )
+    replaced_by = RelationshipTo(
+        "DatasetVariableInstance", "REPLACED_BY", model=ClinicalMdrRel
     )
     has_mapping_target = RelationshipTo(
         "DatasetVariableInstance",
@@ -357,6 +372,9 @@ class DatasetVariableInstance(VersionValue):
     references_codelist = RelationshipTo(
         CTCodelistRoot, "REFERENCES_CODELIST", model=ClinicalMdrRel
     )
+    references_term = RelationshipTo(
+        CTTermRoot, "REFERENCES_TERM", model=ClinicalMdrRel
+    )
 
 
 class SponsorModelDatasetVariableInstance(VersionValue):
@@ -366,8 +384,6 @@ class SponsorModelDatasetVariableInstance(VersionValue):
     length = IntegerProperty()
     display_format = StringProperty()
     xml_datatype = StringProperty()
-    xml_codelist = StringProperty()
-    xml_codelist_multi = ArrayProperty()
     core = StringProperty()
     origin = StringProperty()
     origin_type = StringProperty()
@@ -391,7 +407,6 @@ class SponsorModelDatasetVariableInstance(VersionValue):
     value_lvl_ct_codelist_id_col = StringProperty()
     enrich_build_order = IntegerProperty()
     enrich_rule = StringProperty()
-    xml_codelist_values = BooleanProperty()
 
     implemented_variable_class_inconsistency = BooleanProperty()
     implemented_variable_class_uid = StringProperty()
@@ -409,6 +424,13 @@ class SponsorModelDatasetVariableInstance(VersionValue):
 
     is_instance_of = RelationshipFrom(
         "DatasetVariable", "HAS_INSTANCE", model=ClinicalMdrRel
+    )
+
+    references_codelist = RelationshipTo(
+        CTCodelistRoot, "REFERENCES_CODELIST", model=ClinicalMdrRel
+    )
+    references_term = RelationshipTo(
+        CTTermRoot, "REFERENCES_TERM", model=ClinicalMdrRel
     )
 
 

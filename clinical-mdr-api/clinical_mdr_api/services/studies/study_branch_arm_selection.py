@@ -246,7 +246,7 @@ class StudyBranchArmSelectionService(StudySelectionMixin):
             unique_list_uids = list({x.study_selection_uid for x in selection_history})
             unique_list_uids.sort()
             # list of all study_branch_arms
-            data = []
+            data: list[StudySelectionBranchArmVersion] = []
             for i_unique in unique_list_uids:
                 ith_selection_history = []
                 # gather the selection history of the i_unique Uid

@@ -414,7 +414,8 @@ def _create_variables(tx, catalogue, version_number, variables_data):
                 variable.codelists = v.codelists,
                 variable.implements_variables = v.implements_variables,
                 variable.mapping_targets = v.mapping_targets,
-                variable.prior_version = v.prior_version
+                variable.prior_version = v.prior_version,
+                variable.analysis_variable_set = v.analysis_variable_set
         """,
         catalogue=catalogue,
         version_number=version_number,

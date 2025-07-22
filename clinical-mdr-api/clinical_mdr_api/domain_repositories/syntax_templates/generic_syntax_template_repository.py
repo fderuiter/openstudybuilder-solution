@@ -1,6 +1,6 @@
 import abc
 import re
-from typing import Any, TypeVar
+from typing import Any, Generic, TypeVar
 
 from neomodel import db
 
@@ -16,25 +16,13 @@ from clinical_mdr_api.domain_repositories.models.template_parameter import (
 from clinical_mdr_api.domains.syntax_templates.template import TemplateVO
 from clinical_mdr_api.domains.versioned_object_aggregate import LibraryVO
 from clinical_mdr_api.utils import strip_html
-from common.config import (
-    OPERATOR_PARAMETER_NAME,
-    STUDY_DAY_NAME,
-    STUDY_DURATION_DAYS_NAME,
-    STUDY_DURATION_WEEKS_NAME,
-    STUDY_ENDPOINT_TP_NAME,
-    STUDY_TIMEPOINT_NAME,
-    STUDY_VISIT_NAME,
-    STUDY_VISIT_TIMEREF_NAME,
-    STUDY_VISIT_TYPE_NAME,
-    STUDY_WEEK_NAME,
-    WEEK_IN_STUDY_NAME,
-)
+from common.config import settings
 
 _AggregateRootType = TypeVar("_AggregateRootType")
 
 
 class GenericSyntaxTemplateRepository(
-    GenericSyntaxRepository[_AggregateRootType], abc.ABC
+    GenericSyntaxRepository, Generic[_AggregateRootType], abc.ABC
 ):
     def next_available_sequence_id(
         self,
@@ -186,7 +174,7 @@ class GenericSyntaxTemplateRepository(
                     CALL{{
                             WITH pt
                             OPTIONAL MATCH (pt)<-[:HAS_PARENT_PARAMETER*0..]-(pt_parents)-[:HAS_PARAMETER_TERM]->(pr)-[:LATEST_FINAL]->(pv)
-                                WHERE pt.name <> "{OPERATOR_PARAMETER_NAME}"
+                                WHERE pt.name <> "{settings.operator_parameter_name}"
                                 // Filter out the child template parameter values if theirs parent contains the same value.
                                 // This ensures that the terms response will contain unique values.
                                 // Also filter out the values that are part of the Requested library.
@@ -212,7 +200,7 @@ class GenericSyntaxTemplateRepository(
                         union
                             WITH pt
                             OPTIONAL MATCH (pt)-[:HAS_PARAMETER_TERM]->(pr_op)-[:LATEST_FINAL]->(pv_op)
-                                WHERE pt.name = "{OPERATOR_PARAMETER_NAME}"
+                                WHERE pt.name = "{settings.operator_parameter_name}"
                             MATCH (pr_op)<-[:HAS_NAME_ROOT]-(:CTTermRoot)
                             WITH pt, pv_op.name as value, pr_op, pv_op
                             ORDER BY value ASC
@@ -228,7 +216,7 @@ class GenericSyntaxTemplateRepository(
                 terms
             """
         dataset, _ = db.cypher_query(
-            cypher_query, {"uid": template_uid, "name": STUDY_ENDPOINT_TP_NAME}
+            cypher_query, {"uid": template_uid, "name": settings.study_endpoint_tp_name}
         )
         data = [
             {
@@ -283,7 +271,7 @@ class GenericSyntaxTemplateRepository(
                 {
                     "uid": template_uid,
                     "study_uid": study_uid,
-                    "pt_name": STUDY_ENDPOINT_TP_NAME,
+                    "pt_name": settings.study_endpoint_tp_name,
                 },
             )
             data += [
@@ -330,33 +318,33 @@ class GenericSyntaxTemplateRepository(
         for parameter in data:
             query_to_subset = None
             param_name = parameter["name"]
-            if parameter["name"] == STUDY_VISIT_TYPE_NAME:
+            if parameter["name"] == settings.study_visit_type_name:
                 query_to_subset = self.ct_term_template(rel_type="HAS_VISIT_TYPE")
-            elif parameter["name"] == STUDY_VISIT_TIMEREF_NAME:
+            elif parameter["name"] == settings.study_visit_timeref_name:
                 query_to_subset = self.subset_time_point_reference()
-            elif parameter["name"] == STUDY_VISIT_NAME:
+            elif parameter["name"] == settings.study_visit_name:
                 query_to_subset = self.simple_concept_template(
                     rel_type="HAS_VISIT_NAME"
                 )
-            elif parameter["name"] == STUDY_DAY_NAME:
+            elif parameter["name"] == settings.study_day_name:
                 query_to_subset = self.simple_concept_template(rel_type="HAS_STUDY_DAY")
-            elif parameter["name"] == STUDY_DURATION_DAYS_NAME:
+            elif parameter["name"] == settings.study_duration_days_name:
                 query_to_subset = self.simple_concept_template(
                     rel_type="HAS_STUDY_DURATION_DAYS"
                 )
-            elif parameter["name"] == STUDY_WEEK_NAME:
+            elif parameter["name"] == settings.study_week_name:
                 query_to_subset = self.simple_concept_template(
                     rel_type="HAS_STUDY_WEEK"
                 )
-            elif parameter["name"] == STUDY_DURATION_WEEKS_NAME:
+            elif parameter["name"] == settings.study_duration_weeks_name:
                 query_to_subset = self.simple_concept_template(
                     rel_type="HAS_STUDY_DURATION_WEEKS"
                 )
-            elif parameter["name"] == WEEK_IN_STUDY_NAME:
+            elif parameter["name"] == settings.week_in_study_name:
                 query_to_subset = self.simple_concept_template(
                     rel_type="HAS_WEEK_IN_STUDY"
                 )
-            elif parameter["name"] == STUDY_TIMEPOINT_NAME:
+            elif parameter["name"] == settings.study_timepoint_name:
                 query_to_subset = self.simple_concept_template(rel_type="HAS_TIMEPOINT")
             if query_to_subset:
                 template_parameters_subset, _ = db.cypher_query(

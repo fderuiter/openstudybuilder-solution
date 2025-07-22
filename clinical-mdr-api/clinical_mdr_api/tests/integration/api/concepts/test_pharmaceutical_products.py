@@ -13,6 +13,7 @@ import copy
 import json
 import logging
 from functools import reduce
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -47,7 +48,7 @@ unii_codelist: DictionaryCodelist
 strength: NumericValueWithUnit
 lag_time: LagTime
 half_life: NumericValueWithUnit
-formulation_1: dict
+formulation_1: dict[Any, Any]
 
 
 @pytest.fixture(scope="module")
@@ -223,7 +224,7 @@ def test_get_pharmaceutical_product(api_client):
     assert_response_status_code(response, 200)
 
     # Check fields included in the response
-    assert set(list(res.keys())) == set(PHARMACEUTICAL_PRODUCT_FIELDS_ALL)
+    assert set(res.keys()) == set(PHARMACEUTICAL_PRODUCT_FIELDS_ALL)
     for key in PHARMACEUTICAL_PRODUCT_FIELDS_NOT_NULL:
         assert res[key] is not None
 
@@ -301,6 +302,7 @@ def test_get_pharmaceutical_products_versions_csv_xml_excel(api_client, export_f
 
 def test_update_pharmaceutical_product_property(api_client):
     # First try a dummy patch with no new property values in the payload
+    payload: dict[Any, Any]
     payload = {
         "change_description": "dummy update",
         "dosage_form_uids": [ct_term_dose_form.term_uid],
@@ -569,7 +571,7 @@ def test_get_pharmaceutical_product_versioning(api_client):
 
 
 def test_get_pharmaceutical_products_pagination(api_client):
-    results_paginated: dict = {}
+    results_paginated: dict[Any, Any] = {}
     sort_by = '{"external_id": true}'
     for page_number in range(1, 4):
         url = f"/concepts/pharmaceutical-products?page_number={page_number}&page_size=10&sort_by={sort_by}"
@@ -582,7 +584,11 @@ def test_get_pharmaceutical_products_pagination(api_client):
     log.info("All pages: %s", results_paginated)
 
     results_paginated_merged = list(
-        set(list(reduce(lambda a, b: a + b, list(results_paginated.values()))))
+        set(
+            list(
+                reduce(lambda a, b: list(a) + list(b), list(results_paginated.values()))
+            )
+        )
     )
     log.info("All unique rows returned by pagination: %s", results_paginated_merged)
 

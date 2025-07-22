@@ -11,6 +11,7 @@ Tests for /concepts/compounds endpoints
 import json
 import logging
 from functools import reduce
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -149,7 +150,7 @@ def test_get_compound(api_client):
     assert_response_status_code(response, 200)
 
     # Check fields included in the response
-    assert set(list(res.keys())) == set(COMPOUND_FIELDS_ALL)
+    assert set(res.keys()) == set(COMPOUND_FIELDS_ALL)
     for key in COMPOUND_FIELDS_NOT_NULL:
         assert res[key] is not None
 
@@ -264,20 +265,24 @@ def test_update_compound(api_client):
 
 
 def test_get_compounds_pagination(api_client):
-    results_paginated: dict = {}
+    results_paginated: dict[Any, Any] = {}
     sort_by = '{"name": true}'
     for page_number in range(1, 4):
         url = f"/concepts/compounds?page_number={page_number}&page_size=10&sort_by={sort_by}"
         response = api_client.get(url)
         res = response.json()
-        res_names = list(map(lambda x: x["name"], res["items"]))
+        res_names = [item["name"] for item in res["items"]]
         results_paginated[page_number] = res_names
         log.info("Page %s: %s", page_number, res_names)
 
     log.info("All pages: %s", results_paginated)
 
     results_paginated_merged = list(
-        set(list(reduce(lambda a, b: a + b, list(results_paginated.values()))))
+        set(
+            list(
+                reduce(lambda a, b: list(a) + list(b), list(results_paginated.values()))
+            )
+        )
     )
     log.info("All unique rows returned by pagination: %s", results_paginated_merged)
 
@@ -530,20 +535,24 @@ def test_get_compound_alias_versions(api_client):
 
 
 def test_get_compound_aliases_pagination(api_client):
-    results_paginated: dict = {}
+    results_paginated: dict[Any, Any] = {}
     sort_by = '{"name": true}'
     for page_number in range(1, 4):
         url = f"/concepts/compound-aliases?page_number={page_number}&page_size=10&sort_by={sort_by}"
         response = api_client.get(url)
         res = response.json()
-        res_names = list(map(lambda x: x["name"], res["items"]))
+        res_names = [item["name"] for item in res["items"]]
         results_paginated[page_number] = res_names
         log.info("Page %s: %s", page_number, res_names)
 
     log.info("All pages: %s", results_paginated)
 
     results_paginated_merged = list(
-        set(list(reduce(lambda a, b: a + b, list(results_paginated.values()))))
+        set(
+            list(
+                reduce(lambda a, b: list(a) + list(b), list(results_paginated.values()))
+            )
+        )
     )
     log.info("All unique rows returned by pagination: %s", results_paginated_merged)
 

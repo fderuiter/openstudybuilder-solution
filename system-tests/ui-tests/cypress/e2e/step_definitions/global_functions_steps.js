@@ -1,6 +1,8 @@
 const { Given, When, Then } = require("@badeball/cypress-cucumber-preprocessor");
 import { formatDateToMMMDDYYYY, getCurrentStudyId } from '../../support/helper_functions'
 
+When('User waits for {int} seconds', (waitTime) => cy.wait(waitTime * 1000))
+
 When('The first column is selected from Select Columns option for table with actions', () => {
     const columnVisibilityCheckbox = '[data-cy="show-columns-form"] [type="checkbox"]'
     cy.clickButton('columns-layout-button')

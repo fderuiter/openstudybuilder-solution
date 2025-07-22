@@ -1,4 +1,5 @@
 import os
+from typing import Any
 
 import hypothesis
 import hypothesis.strategies
@@ -24,7 +25,7 @@ def is_in_range(val):
     return all(0x20 <= ord(char) <= 0xFFFF for char in val)
 
 
-def is_desired_header(headers: dict) -> bool:
+def is_desired_header(headers: dict[Any, Any]) -> bool:
     """
     Returns True if all headers are within range.
 
@@ -59,6 +60,8 @@ def before_generate_case(
     def tune_case(case: schemathesis.models.Case):
         # Replace study_uid/uid path param for all paths starting with "/studies/study_uid}/" or "/studies/{uid}/"
         # with the value supplied as STUDY_UID env variable
+        if case.path_parameters is None:
+            case.path_parameters = {}
 
         for path_param in ["uid", "study_uid"]:
             if (

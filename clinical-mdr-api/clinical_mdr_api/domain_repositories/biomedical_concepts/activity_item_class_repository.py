@@ -6,6 +6,7 @@ from neomodel.sync_.match import (
     Last,
     NodeNameResolver,
     Optional,
+    Path,
     RawCypher,
     RelationNameResolver,
 )
@@ -20,7 +21,6 @@ from clinical_mdr_api.domain_repositories.models.biomedical_concepts import (
     ActivityItemClassValue,
 )
 from clinical_mdr_api.domain_repositories.models.controlled_terminology import (
-    CTCodelistRoot,
     CTTermRoot,
 )
 from clinical_mdr_api.domain_repositories.models.generic import (
@@ -61,9 +61,6 @@ class ActivityItemClassRepository(
                 Optional("has_activity_instance_class"),
                 Optional("has_activity_instance_class__has_latest_value"),
                 Optional("maps_variable_class"),
-                Optional("related_codelist"),
-                Optional("related_codelist__has_attributes_root"),
-                Optional("related_codelist__has_attributes_root__has_latest_value"),
             )
             .unique_variables("has_latest_value", "has_activity_instance_class")
             .subquery(
@@ -96,32 +93,47 @@ class ActivityItemClassRepository(
                     ),
                     distinct=True,
                 ),
-                Collect(NodeNameResolver("related_codelist"), distinct=True),
-                Collect(RelationNameResolver("related_codelist"), distinct=True),
-                Collect(
-                    NodeNameResolver("related_codelist__has_attributes_root"),
-                    distinct=True,
-                ),
-                Collect(
-                    RelationNameResolver("related_codelist__has_attributes_root"),
-                    distinct=True,
-                ),
-                Collect(
-                    NodeNameResolver(
-                        "related_codelist__has_attributes_root__has_latest_value"
-                    ),
-                    distinct=True,
-                ),
-                Collect(
-                    RelationNameResolver(
-                        "related_codelist__has_attributes_root__has_latest_value"
-                    ),
-                    distinct=True,
-                ),
                 Collect(NodeNameResolver("maps_variable_class"), distinct=True),
                 Collect(RelationNameResolver("maps_variable_class"), distinct=True),
             )
         )
+
+    def get_all_for_activity_instance_class(
+        self, activity_instance_class_uid: str
+    ) -> set[ActivityItemClassRoot]:
+        """
+        Return all Activity Item Class nodes linked to given Activity Instance Class
+        and its parents.
+        """
+        nodes = (
+            ActivityItemClassRoot.nodes.traverse(
+                Path("has_latest_value", include_rels_in_return=False)
+            )
+            .filter(has_activity_instance_class__uid=activity_instance_class_uid)
+            .resolve_subgraph()
+        )
+
+        # Then fetch parent UIDs
+        query = """MATCH (n:ActivityInstanceClassRoot)
+WHERE n.uid=$uid
+OPTIONAL MATCH (n)-[:PARENT_CLASS]->{1,3}(m:ActivityInstanceClassRoot)
+RETURN collect(DISTINCT m.uid)
+        """
+        results, _ = db.cypher_query(query, {"uid": activity_instance_class_uid})
+        parent_uids = []
+        if results and results[0][0]:
+            parent_uids += results[0][0]
+
+        # Finally, get activity item classes linked to parents
+        parent_nodes = (
+            ActivityItemClassRoot.nodes.traverse(
+                Path("has_latest_value", include_rels_in_return=False)
+            )
+            .exclude(uid__in=[node.uid for node in nodes])
+            .filter(has_activity_instance_class__uid__in=parent_uids)
+            .resolve_subgraph()
+        )
+        return set(nodes).union(set(parent_nodes))
 
     def _has_data_changed(
         self, ar: ActivityItemClassAR, value: ActivityItemClassValue
@@ -147,10 +159,6 @@ class ActivityItemClassRepository(
             key=json.dumps,
         )
 
-        codelist_uids = []
-        for codelist in root.related_codelist.all():
-            codelist_uids.append(codelist.uid)
-
         return (
             ar.activity_item_class_vo.name != value.name
             or ar.activity_item_class_vo.definition != value.definition
@@ -159,7 +167,6 @@ class ActivityItemClassRepository(
             or new_activity_instance_classes != existing_activity_instance_classes
             or ar.activity_item_class_vo.role_uid != value.has_role.get().uid
             or ar.activity_item_class_vo.data_type_uid != value.has_data_type.get().uid
-            or ar.activity_item_class_vo.codelist_uids != codelist_uids
         )
 
     def _get_or_create_value(
@@ -203,11 +210,6 @@ class ActivityItemClassRepository(
             CTTermRoot.nodes.get(uid=ar.activity_item_class_vo.role_uid)
         )
 
-        root.related_codelist.disconnect_all()
-        for codelist_uid in ar.activity_item_class_vo.codelist_uids or []:
-            codelist_uid = CTCodelistRoot.nodes.get_or_none(uid=codelist_uid)
-            root.related_codelist.connect(codelist_uid)
-
         return new_value
 
     def generate_uid(self) -> str:
@@ -222,7 +224,6 @@ class ActivityItemClassRepository(
         **_kwargs,
     ) -> ActivityItemClassAR:
         activity_instance_classes = root.has_activity_instance_class.all()
-        codelists = root.related_codelist.all()
         role_term = value.has_role.get()
         data_type_term = value.has_data_type.get()
         variable_class_uids = [node.uid for node in root.maps_variable_class.all()]
@@ -252,7 +253,6 @@ class ActivityItemClassRepository(
                 .has_latest_value.get()
                 .name,
                 variable_class_uids=variable_class_uids,
-                codelist_uids=[codelist.uid for codelist in codelists],
             ),
             library=LibraryVO.from_input_values_2(
                 library_name=library.name,
@@ -279,17 +279,30 @@ class ActivityItemClassRepository(
         pass
 
     def get_related_codelist_uid(
-        self, activity_item_class_uid: str
+        self, activity_item_class_uid: str, dataset_uid: str
     ) -> list[str] | None:
-        rs = db.cypher_query(
-            """
-MATCH (:ActivityItemClassRoot {uid: $activity_item_class_uid})-[:RELATED_CODELIST]->(codelist:CTCodelistRoot)
-RETURN DISTINCT codelist.uid
-""",
-            params={"activity_item_class_uid": activity_item_class_uid},
+
+        codelist_uids = (
+            ActivityItemClassRoot.nodes.filter(
+                uid=activity_item_class_uid,
+                maps_variable_class__has_instance__implements_variable__has_dataset_variable__is_instance_of__uid=dataset_uid,
+            )
+            .traverse(
+                "maps_variable_class__has_instance__implements_variable__references_codelist"
+            )
+            .unique_variables("maps_variable_class__has_instance__implements_variable")
+            .intermediate_transform(
+                {
+                    "rel": {
+                        "source": NodeNameResolver(
+                            "maps_variable_class__has_instance__implements_variable__references_codelist"
+                        ),
+                        "source_prop": "uid",
+                        "include_in_return": True,
+                    }
+                },
+                distinct=True,
+            )
+            .all()
         )
-
-        if rs[0]:
-            return [item[0] for item in rs[0]]
-
-        return None
+        return codelist_uids

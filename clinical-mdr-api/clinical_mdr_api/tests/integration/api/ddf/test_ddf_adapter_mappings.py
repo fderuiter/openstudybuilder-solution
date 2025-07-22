@@ -154,5 +154,5 @@ def test_study_identifier(ddf_mapper, tst_study):
         study_patch_request=study_patch_request,
     )
 
-    ddf_study_identifier = ddf_mapper._get_study_identifier(patched_study)
+    ddf_study_identifier = ddf_mapper._get_study_identifiers(patched_study)
     assert ddf_study_identifier is not None

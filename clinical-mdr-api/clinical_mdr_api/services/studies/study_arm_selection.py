@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 from neomodel import db
 
@@ -86,10 +87,10 @@ class StudyArmSelectionService(StudySelectionMixin):
         self,
         project_name: str | None = None,
         project_number: str | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> GenericFilteringReturn[StudySelectionArmWithConnectedBranchArms]:
@@ -127,7 +128,7 @@ class StudyArmSelectionService(StudySelectionMixin):
         project_name: str | None = None,
         project_number: str | None = None,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
     ):
@@ -176,10 +177,10 @@ class StudyArmSelectionService(StudySelectionMixin):
     def get_all_selection(
         self,
         study_uid: str,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         study_value_version: str | None = None,
@@ -221,8 +222,8 @@ class StudyArmSelectionService(StudySelectionMixin):
                         study_uid=study_uid, study_arm_uid=study_selection_uid
                     )
                 )
-            design_cells_on_branch_arm = []
-            design_cells_to_delete_from_branch_arm = []
+            design_cells_on_branch_arm: list[Any] = []
+            design_cells_to_delete_from_branch_arm: list[Any] = []
             if branch_arms_on_arm is not None:
                 for i_branch_arm in branch_arms_on_arm:
                     cascade_deletion_last_branch = False
@@ -406,7 +407,7 @@ class StudyArmSelectionService(StudySelectionMixin):
             unique_list_uids = list({x.study_selection_uid for x in selection_history})
             unique_list_uids.sort()
             # list of all study_arms
-            data = []
+            data: list[Any] = []
             for i_unique in unique_list_uids:
                 ith_selection_history = []
                 # gather the selection history of the i_unique Uid

@@ -230,6 +230,10 @@ const termHeaders = [
     key: 'attributes.concept_id',
   },
   {
+    title: t('CodelistTermCreationForm.submission_value'),
+    key: 'attributes.name_submission_value',
+  },
+  {
     title: t('CodelistTermCreationForm.sponsor_name'),
     key: 'name.sponsor_preferred_name',
   },

@@ -41,7 +41,7 @@ from clinical_mdr_api.tests.integration.utils.factory_controlled_terminology imp
 )
 from clinical_mdr_api.tests.integration.utils.utils import TestUtils
 from clinical_mdr_api.tests.utils.checks import assert_response_status_code
-from common import config as settings
+from common.config import settings
 
 log = logging.getLogger(__name__)
 
@@ -73,7 +73,7 @@ def test_data():
 
     catalogue_name, library_name = get_catalogue_name_library_name(use_test_utils=True)
     # Create a study selection
-    ct_term_codelist_name = settings.STUDY_OBJECTIVE_LEVEL_NAME
+    ct_term_codelist_name = settings.study_objective_level_name
     ct_term_name = ct_term_codelist_name + " Name For StudyStandardVersioning test"
     ct_term_codelist = create_codelist(
         ct_term_codelist_name, ct_term_codelist_name, catalogue_name, library_name

@@ -1,7 +1,12 @@
 import { apiActivityName } from "./library_activities_steps";
+import {getCurrentStudyId} from "./../../support/helper_functions"
 const { Given, When, Then } = require("@badeball/cypress-cucumber-preprocessor");
 
-let activity_placeholder_name, activity_library, activity_soa_group, activity_group, activity_sub_group, activity_activity
+let activity_placeholder_name, activity_library, activity_soa_group, activity_group, activity_sub_group, activity_activity, edit_placeholder_name, current_study
+
+When('Study activity add button is clicked', () => cy.clickButton('add-study-activity'))
+
+Then('The Study Activity is found', () => cy.searchAndCheckPresence(activity_activity, true))
 
 When('Activity placeholder is found', () => cy.searchAndCheckPresence(activity_placeholder_name, true))
 
@@ -9,76 +14,43 @@ Given('Study Activity is found', () => cy.searchAndCheckPresence(apiActivityName
 
 Then('The Study Activity Placeholder is no longer available', () => cy.searchAndCheckPresence(activity_placeholder_name, false))
 
+When('Activity placeholder is searched for', () => cy.searchForInPopUp(activity_placeholder_name))
+
 Given('Study activities for Study_000001 are loaded', () => {
     cy.intercept('/api/studies/Study_000001/study-activities?*').as('getData')
-    cy.wait('@getData', {timeout: 30000})
+    cy.wait('@getData', { timeout: 30000 })
 })
 
 Given('The activity exists in the library', () => {
     cy.log('Handled by import script')
 })
 
-When('The Study Activity is added from an existing study by study id', () => {
-    createActivity('id', '999-3000')
-})
-
-When('The Study Activity is added from an existing study by study acronym', () => {
-    createActivity('acronym', 'DummyStudy 0')
-})
-
-When('The Study Activity is added from the library', () => {
-    activity_soa_group = 'INFORMED CONSENT'
-    initiateActivityCreation()
-    selectActivityAndGetItsData(activity_soa_group)
-    saveActivity()
-})
-
 When('User tries to add Activity in Draft status', () => {
-    initiateActivityCreation()
     cy.searchForInPopUp(apiActivityName)
-    cy.waitForTable()    
+    cy.waitForTable()
 })
 
-When('User initiate adding Study Activity from Library', () => {
-    initiateActivityCreation()
-    addLibraryActivityByName()
-    cy.clickFormActionButton('save')
-})
+When('User search and select activity created via API', () => addLibraryActivityByName())
 
-When('User adds newly created activity with status Final', () => {
-    initiateActivityCreation()
-    addLibraryActivityByName()
-    saveActivity()
-})
+When('User selects first available activity', () => selectActivityAndGetItsData())
 
-Then('The Study Activity created from library is visible within the Study Activities table', () => {  
-    checkIfTableContainsActivity()
-})
+When('User selects first available activity and SoA group', () => selectActivityAndGetItsData('INFORMED CONSENT'))
 
-Then('The Study Activity copied from existing study is visible within the Study Activities table', () => {
-    checkIfTableContainsActivity()
-})
+When('Study with id value {string} is selected', (value) => cy.selectVSelect('select-study-for-activity-by-id', value))
+
+When('Study with acronym value {string} is selected', (value) => cy.selectVSelect('select-study-for-activity-by-acronym', value))
+
+Then('The Study Activity is visible in table', () => checkIfTableContainsActivity())
 
 Then('The Activity in Draft status is not found', () => cy.contains('.v-sheet table tbody tr', 'No data available'))
 
-Then('The new Study Activity added from Library is visible in table', () => {  
-    cy.searchAndCheckPresence(activity_activity, true)
-})
+When('Activity placeholder data is filled in', () => fillPlaceholderData())
 
-When('The Study Activity is added as a placeholder for new activity request', () => {
-    activity_placeholder_name = `Placeholder Instance Name ${Date.now()}`
-    cy.clickButton('add-study-activity', true)
-    cy.get('[data-cy="create-placeholder"]').within(() => cy.get('.v-selection-control__input').click())
-    cy.clickFormActionButton('continue')
-    cy.contains('.choice .text', 'Create a placeholder activity without submitting for approval').click()
-    cy.selectVSelect('flowchart-group', 'INFORMED CONSENT')
-    cy.get('[data-cy="activity-group"] input').type('General')
-    cy.selectFirstVSelect('activity-group')
-    cy.selectFirstVSelect('activity-subgroup')
-    cy.fillInput('instance-name', activity_placeholder_name)
-    cy.fillInput('activity-rationale', 'Placeholder Test Rationale')
-    cy.clickFormActionButton('save')
-})
+When('Selected study id is saved', () => current_study = getCurrentStudyId())
+
+When('Data collection flag is unchecked', () => cy.get('input[aria-label="Data collection"]').uncheck())
+
+When('Data collection flag is checked', () => cy.get('input[aria-label="Data collection"]').check())
 
 Then('The Study Activity placeholder is visible within the Study Activities table', () => {
     cy.tableContains('Requested')
@@ -87,44 +59,29 @@ Then('The Study Activity placeholder is visible within the Study Activities tabl
     cy.tableContains(activity_placeholder_name)
 })
 
-Then('The edited Study Activity data is reflected within the Study Activity table', () => {
-    cy.tableContains('EFFICACY')
-})
+Then('The edited Study Activity data is reflected within the Study Activity table', () => cy.tableContains('EFFICACY'))
 
-When('The Study Activity select from study form is opened on second step', () => {
-    cy.clickButton('add-study-activity', true)
-    cy.get('[data-cy="select-from-studies"]').within(() => {
-        cy.get('.v-selection-control__input').click()
-    })    
-    cy.clickFormActionButton('continue')
-})
+When('Activity from studies is selected', () => cy.get('[data-cy="select-from-studies"] input').check())
 
-When('The user tries to go to Activity Selection without study chosen', () => {
-    cy.clickFormActionButton('continue')
-})
+When('Activity from library is selected', () => cy.get('[data-cy="select-from-library"] input').check({force: true}))
+
+When('Activity from placeholder is selected', () => cy.get('[data-cy="create-placeholder"] input').check())
+
+When('Study by id is selected', () => cy.selectVSelect('select-study-for-activity-by-id', current_study))
 
 Then('The validation appears and Create Activity form stays on Study Selection', () => {
     cy.elementContain('select-study-for-activity-by-acronym', 'This field is required')
     cy.elementContain('select-study-for-activity-by-id', 'This field is required')
 })
 
-When('The Study Activity select from library form is opened on second step', () => {
-    cy.clickButton('add-study-activity')
-    cy.get('[data-cy="select-from-library"]').within(() => {
-        cy.get('.v-selection-control__input').click()
-    })    
-    cy.clickFormActionButton('continue')
-})
-
 When('The user tries to go further without SoA group chosen', () => {
     cy.get('.v-data-table__td--select-row input').not('[aria-disabled="true"]').eq(0).check()
-    cy.clickFormActionButton('save')
 })
 
 When('The user tries to go further in activity placeholder creation without SoA group chosen', () => {
+    cy.contains('.choice .text', 'Create a placeholder activity without submitting for approval').click()
     cy.fillInput('instance-name', `Placeholder Instance Name ${Date.now()}`)
     cy.fillInput('activity-rationale', 'Placeholder Test Rationale')
-    cy.clickFormActionButton('save')
 })
 
 Then('The validation appears and Create Activity form stays on SoA group selection', () => {
@@ -136,21 +93,42 @@ Then('The validation appears under empty SoA group selection', () => {
     cy.get('[data-cy="flowchart-group"]').find('.v-messages').should('contain', 'This field is required')
 })
 
-When('The Study Activity create placeholder form is opened on second step', () => {
-    cy.clickButton('add-study-activity', true)
-    cy.get('[data-cy="create-placeholder"]').within(() => cy.get('.v-selection-control__input').click())
-    cy.clickFormActionButton('continue')
-    cy.contains('.choice .text', 'Create a placeholder activity without submitting for approval').click()
-})
-
 Then('The SoA group can be changed', () => {
     cy.wait(1000)
     cy.selectAutoComplete('flowchart-group', 'EFFICACY')
-    cy.get('.v-card-actions button').contains('Save').click( {force: true} )
+})
+
+Then('The study activity table is displaying updated value for data collection', () => {
+    cy.getCellValue(0, 'Data collection').then(value => cy.wrap(value).should('equal', 'Yes'))
 })
 
 Then('Warning that {string} {string} can not be added to the study is displayed', (status, item) => {
     cy.get('.v-snackbar__content').should('contain', `has status ${status}. Only Final ${item} can be added to a study.`)
+})
+
+When('The existing activity request is selected', () => cy.get('[data-cy="select-activity"] input').check())
+
+When('The study activity request is edited', () => {
+    edit_placeholder_name = `Edit name ${Date.now()}`
+    cy.fillInput('instance-name', edit_placeholder_name)
+})
+
+When('The user is presented with the changes to request', () => {
+    cy.get('[data-cy="form-body"]').should('contain', edit_placeholder_name)
+})
+
+Then('The activity request changes are applied', () => {
+    cy.searchAndCheckPresence(edit_placeholder_name, true)
+    cy.searchAndCheckPresence(activity_placeholder_name, false)
+})
+
+Then('The activity request changes not applied', () => {
+    cy.searchAndCheckPresence(activity_placeholder_name, true)
+})
+
+Then('The activity request is removed from the study', () => {
+    cy.searchAndCheckPresence(edit_placeholder_name, false)
+    cy.searchAndCheckPresence(activity_placeholder_name, false)
 })
 
 function getActivityData(rowIndex, getSoAGroupValue) {
@@ -170,12 +148,6 @@ function checkIfTableContainsActivity() {
     cy.tableContains(activity_activity)
 }
 
-function createActivity(activityBy, value) {
-    initiateActivityCreation(activityBy, value)
-    selectActivityAndGetItsData()
-    saveActivity()
-}
-
 function addLibraryActivityByName() {
     activity_activity = apiActivityName
     cy.searchForInPopUp(activity_activity)
@@ -184,22 +156,14 @@ function addLibraryActivityByName() {
     cy.selectVSelect('flowchart-group', 'INFORMED CONSENT')
 }
 
-function initiateActivityCreation(activityBy = null, activityValue = null) {
-    let radioButtonLocator = activityBy ? 'studies' : 'library'
-    cy.waitForTable()
-    cy.clickButton('add-study-activity')
-    cy.get(`[data-cy="select-from-${radioButtonLocator}"] input`).check( {force: true} )
-    if (activityBy) cy.selectVSelect(`select-study-for-activity-by-${activityBy}`, activityValue)
-    cy.clickFormActionButton('continue')
-}
-
 function selectActivityAndGetItsData(activity_soa_group = null) {
+    if (activity_soa_group) activity_soa_group = 'INFORMED CONSENT'
     cy.get('.v-data-table__td--select-row input').each((el, index) => {
         if (el.is(':enabled')) {
             cy.wrap(el).check()
             if (activity_soa_group) {
                 cy.get('[data-cy="flowchart-group"]').eq(index).click()
-                cy.contains('.v-overlay .v-list-item-title', activity_soa_group).click({force: true})
+                cy.contains('.v-overlay .v-list-item-title', activity_soa_group).click({ force: true })
             }
             getActivityData(index, !activity_soa_group)
             return false
@@ -207,8 +171,13 @@ function selectActivityAndGetItsData(activity_soa_group = null) {
     })
 }
 
-function saveActivity() {
-    cy.clickFormActionButton('save')
-    cy.get('.v-snackbar__content').should('contain', 'Study activity added')
-    cy.waitForTable()
+function fillPlaceholderData() {
+    activity_placeholder_name = `Placeholder Instance Name ${Date.now()}`
+    cy.contains('.choice .text', 'Create a placeholder activity without submitting for approval').click()
+    cy.selectVSelect('flowchart-group', 'INFORMED CONSENT')
+    cy.get('[data-cy="activity-group"] input').type('General')
+    cy.selectFirstVSelect('activity-group')
+    cy.selectFirstVSelect('activity-subgroup')
+    cy.fillInput('instance-name', activity_placeholder_name)
+    cy.fillInput('activity-rationale', 'Placeholder Test Rationale')
 }

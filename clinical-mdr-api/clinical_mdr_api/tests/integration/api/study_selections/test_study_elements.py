@@ -35,7 +35,7 @@ from clinical_mdr_api.tests.integration.utils.factory_controlled_terminology imp
 )
 from clinical_mdr_api.tests.integration.utils.utils import TestUtils
 from clinical_mdr_api.tests.utils.checks import assert_response_status_code
-from common import config as settings
+from common.config import settings
 
 log = logging.getLogger(__name__)
 
@@ -70,15 +70,15 @@ def test_data():
         study_uid=study.uid,
     )
     element_subtype_codelist = TestUtils.create_ct_codelist(
-        name=settings.STUDY_ELEMENT_SUBTYPE_NAME,
-        sponsor_preferred_name=settings.STUDY_ELEMENT_SUBTYPE_NAME,
+        name=settings.study_element_subtype_name,
+        sponsor_preferred_name=settings.study_element_subtype_name,
         extensible=True,
         approve=True,
     )
     element_subtype = TestUtils.create_ct_term(
         codelist_uid=element_subtype_codelist.codelist_uid,
-        name_submission_value=settings.STUDY_ELEMENT_SUBTYPE_NAME,
-        sponsor_preferred_name=settings.STUDY_ELEMENT_SUBTYPE_NAME,
+        name_submission_value=settings.study_element_subtype_name,
+        sponsor_preferred_name=settings.study_element_subtype_name,
     )
     global element_type
     element_type = TestUtils.create_ct_term()
@@ -86,7 +86,7 @@ def test_data():
 
     catalogue_name, library_name = get_catalogue_name_library_name(use_test_utils=True)
     # Create a study selection
-    ct_term_codelist_name = settings.STUDY_ELEMENT_SUBTYPE_NAME
+    ct_term_codelist_name = settings.study_element_subtype_name
     ct_term_name = ct_term_codelist_name + " Name"
     ct_term_codelist = create_codelist(
         ct_term_codelist_name, "CTCodelist_Name", catalogue_name, library_name

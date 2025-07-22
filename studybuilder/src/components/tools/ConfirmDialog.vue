@@ -92,9 +92,17 @@ const btnClasses = computed(() => {
   }
 })
 
-const open = (message_plain, extraOptions) => {
+const open = (messagePlain, extraOptions) => {
   dialog.value = true
-  savedMessage.value = escapeHTML(message_plain).replace(/\n+/g, '<br />')
+  savedMessage.value = escapeHTML(messagePlain).replace(/\n+/g, '<br />')
+  options.value = Object.assign(options.value, extraOptions)
+  return new Promise((resolve) => {
+    savedResolve = resolve
+  })
+}
+const openHtml = (messageHtml, extraOptions) => {
+  dialog.value = true
+  savedMessage.value = messageHtml
   options.value = Object.assign(options.value, extraOptions)
   return new Promise((resolve) => {
     savedResolve = resolve
@@ -115,6 +123,7 @@ const cancel = () => {
 
 defineExpose({
   open,
+  openHtml,
   cancel,
 })
 </script>

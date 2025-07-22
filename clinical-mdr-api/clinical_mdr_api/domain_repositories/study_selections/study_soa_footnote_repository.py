@@ -1,4 +1,5 @@
 import datetime
+from typing import Any
 
 from neomodel import db
 
@@ -149,7 +150,7 @@ class StudySoAFootnoteRepository:
     def order_by_date(self):
         return "ORDER BY modified_date DESC"
 
-    def get_referenced_items_from_selection(self, selection: dict):
+    def get_referenced_items_from_selection(self, selection: dict[Any, Any]):
         referenced_items = []
 
         for activity in selection.get("referenced_study_activities", []):
@@ -231,7 +232,7 @@ class StudySoAFootnoteRepository:
         referenced_items.sort(key=lambda ref_item: ref_item.item_name)
         return referenced_items
 
-    def create_vo_from_db_output(self, selection: dict) -> StudySoAFootnoteVO:
+    def create_vo_from_db_output(self, selection: dict[str, Any]) -> StudySoAFootnoteVO:
         referenced_items = self.get_referenced_items_from_selection(selection=selection)
 
         selection_vo = StudySoAFootnoteVO.from_repository_values(
@@ -252,7 +253,7 @@ class StudySoAFootnoteRepository:
         return selection_vo
 
     def create_vo_history_from_db_output(
-        self, selection: dict
+        self, selection: dict[str, Any]
     ) -> StudySoAFootnoteVOHistory:
         referenced_items = self.get_referenced_items_from_selection(selection=selection)
         change_type = None

@@ -7,9 +7,12 @@ const api = baseCollection(resource)
 export default {
   ...api,
 
-  getTerms(activityItemClassUid, params) {
-    return repository.get(`${resource}/${activityItemClassUid}/terms`, {
-      params,
-    })
+  getDatasetTerms(activityItemClassUid, datasetUid, params) {
+    return repository.get(
+      `${resource}/${activityItemClassUid}/datasets/${datasetUid}/terms`,
+      {
+        params,
+      }
+    )
   },
 }

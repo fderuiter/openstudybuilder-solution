@@ -1,3 +1,5 @@
+from typing import Any
+
 from neomodel import db
 
 from clinical_mdr_api.domain_repositories.study_selections.study_criteria_repository import (
@@ -225,7 +227,7 @@ class StudyCriteriaSelectionService(StudySelectionMixin):
         self, criteria_data: CriteriaCreateInput, criteria_type_uid: str
     ) -> CriteriaAR:
         # check if name exists
-        criteria_service = CriteriaService()
+        criteria_service: CriteriaService = CriteriaService()
         criteria_ar = criteria_service.create_ar_from_input_values(criteria_data)
 
         # create criteria
@@ -497,7 +499,7 @@ class StudyCriteriaSelectionService(StudySelectionMixin):
         repos = self._repos
         try:
             with db.transaction:
-                criteria_service = CriteriaService()
+                criteria_service: CriteriaService = CriteriaService()
 
                 # get criteria type uid from the criteria template
                 criteria_type_uid = repos.criteria_template_repository.get_template_type_uid(
@@ -574,10 +576,10 @@ class StudyCriteriaSelectionService(StudySelectionMixin):
         no_brackets: bool,
         project_name: str | None = None,
         project_number: str | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> GenericFilteringReturn[StudySelectionCriteria]:
@@ -626,7 +628,7 @@ class StudyCriteriaSelectionService(StudySelectionMixin):
         project_name: str | None = None,
         project_number: str | None = None,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
         study_value_version: str | None = None,
@@ -702,10 +704,10 @@ class StudyCriteriaSelectionService(StudySelectionMixin):
         self,
         study_uid: str,
         no_brackets: bool,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         study_value_version: str | None = None,

@@ -12,6 +12,7 @@ from common.exceptions import AlreadyExistsException, BusinessLogicException
 @dataclass(frozen=True)
 class SimpleActivityGroupVO:
     activity_group_uid: str
+    activity_group_name: str | None = None
     activity_group_version: str | None = None
 
 

@@ -69,6 +69,60 @@ class CompactUnitDefinition(BaseModel):
     ] = None
 
 
+class CompactOdmForm(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    uid: Annotated[
+        str | None,
+        Field(json_schema_extra={"source": "has_odm_form.uid", "nullable": True}),
+    ] = None
+    oid: Annotated[
+        str | None,
+        Field(
+            json_schema_extra={
+                "source": "has_odm_form.has_latest_value.oid",
+                "nullable": True,
+            },
+        ),
+    ] = None
+    name: Annotated[
+        str | None,
+        Field(
+            json_schema_extra={
+                "source": "has_odm_form.has_latest_value.name",
+                "nullable": True,
+            },
+        ),
+    ] = None
+
+
+class CompactOdmItemGroup(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    uid: Annotated[
+        str | None,
+        Field(json_schema_extra={"source": "has_odm_item_group.uid", "nullable": True}),
+    ] = None
+    oid: Annotated[
+        str | None,
+        Field(
+            json_schema_extra={
+                "source": "has_odm_item_group.has_latest_value.oid",
+                "nullable": True,
+            },
+        ),
+    ] = None
+    name: Annotated[
+        str | None,
+        Field(
+            json_schema_extra={
+                "source": "has_odm_item_group.has_latest_value.name",
+                "nullable": True,
+            },
+        ),
+    ] = None
+
+
 class CompactOdmItem(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -103,6 +157,8 @@ class ActivityItem(BaseModel):
     ct_terms: list[CompactCTTerm] = Field(default_factory=list)
     unit_definitions: list[CompactUnitDefinition] = Field(default_factory=list)
     is_adam_param_specific: Annotated[bool, Field()]
+    odm_forms: list[CompactOdmForm] = Field(default_factory=list)
+    odm_item_groups: list[CompactOdmItemGroup] = Field(default_factory=list)
     odm_items: list[CompactOdmItem] = Field(default_factory=list)
 
 
@@ -111,4 +167,6 @@ class ActivityItemCreateInput(PostInputModel):
     ct_term_uids: Annotated[list[str], Field()]
     unit_definition_uids: Annotated[list[str], Field()]
     is_adam_param_specific: Annotated[bool, Field()]
-    odm_item_uids: Annotated[list[str], Field()]
+    odm_form_uids: list[str] = Field(default_factory=list)
+    odm_item_group_uids: list[str] = Field(default_factory=list)
+    odm_item_uids: list[str] = Field(default_factory=list)

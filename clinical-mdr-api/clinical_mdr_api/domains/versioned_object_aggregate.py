@@ -254,6 +254,8 @@ class VersioningActionMixin:
     _RETIRED_VERSION_LABEL = "Inactivated version"
     _REACTIVATED_VERSION_LABEL = "Reactivated version"
 
+    _item_metadata: LibraryItemMetadataVO
+
     # implementations of basic versioning actions
     def approve(
         self, author_id: str, change_description: str = _FINAL_VERSION_LABEL

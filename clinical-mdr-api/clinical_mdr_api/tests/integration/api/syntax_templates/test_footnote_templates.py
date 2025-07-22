@@ -12,6 +12,7 @@ Tests for footnote-templates endpoints
 import json
 import logging
 from functools import reduce
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -265,7 +266,7 @@ def test_get_footnote_template(api_client):
     # Check fields included in the response
     fields_all_set = set(FOOTNOTE_TEMPLATE_FIELDS_ALL)
     fields_all_set.add("counts")
-    assert set(list(res.keys())) == fields_all_set
+    assert set(res.keys()) == fields_all_set
     for key in FOOTNOTE_TEMPLATE_FIELDS_NOT_NULL:
         assert res[key] is not None
 
@@ -313,28 +314,28 @@ def test_get_footnote_template(api_client):
 
 
 def test_get_footnote_templates_pagination(api_client):
-    results_paginated: dict = {}
+    results_paginated: dict[Any, Any] = {}
     sort_by = '{"uid": true}'
     for page_number in range(1, 4):
         response = api_client.get(
             f"{URL}?page_number={page_number}&page_size=10&sort_by={sort_by}"
         )
         res = response.json()
-        res_uids = list(map(lambda x: x["uid"], res["items"]))
+        res_uids = [item["uid"] for item in res["items"]]
         results_paginated[page_number] = res_uids
         log.info("Page %s: %s", page_number, res_uids)
 
     log.info("All pages: %s", results_paginated)
 
     results_paginated_merged = list(
-        list(reduce(lambda a, b: a + b, list(results_paginated.values())))
+        reduce(lambda a, b: list(a) + list(b), list(results_paginated.values()))
     )
     log.info("All rows returned by pagination: %s", results_paginated_merged)
 
     res_all = api_client.get(
         f"{URL}?page_number=1&page_size=100&sort_by={sort_by}"
     ).json()
-    results_all_in_one_page = list(map(lambda x: x["uid"], res_all["items"]))
+    results_all_in_one_page = [item["uid"] for item in res_all["items"]]
     log.info("All rows in one page: %s", results_all_in_one_page)
     assert len(results_all_in_one_page) == len(results_paginated_merged)
     assert len(footnote_templates) == len(results_paginated_merged)
@@ -633,10 +634,8 @@ def test_headers(api_client, field_name):
 def test_pre_validate_footnote_template_name(api_client):
     data = {"name": "test [TextValue]"}
     response = api_client.post(f"{URL}/pre-validate", json=data)
-    res = response.json()
-    log.info("Pre Validated Footnote Template name: %s", res)
-
-    assert_response_status_code(response, 202)
+    log.info("Pre Validated Footnote Template name: %s", data)
+    assert_response_status_code(response, 204)
 
 
 def test_create_footnote_template(api_client):
@@ -695,7 +694,7 @@ def test_create_footnote_template(api_client):
     )
     assert res["version"] == "0.1"
     assert res["status"] == "Draft"
-    assert set(list(res.keys())) == set(FOOTNOTE_TEMPLATE_FIELDS_ALL)
+    assert set(res.keys()) == set(FOOTNOTE_TEMPLATE_FIELDS_ALL)
     for key in FOOTNOTE_TEMPLATE_FIELDS_NOT_NULL:
         assert res[key] is not None
 
@@ -749,7 +748,7 @@ def test_create_new_version_of_footnote_template(api_client):
     )
     assert res["version"] == "1.1"
     assert res["status"] == "Draft"
-    assert set(list(res.keys())) == set(FOOTNOTE_TEMPLATE_FIELDS_ALL)
+    assert set(res.keys()) == set(FOOTNOTE_TEMPLATE_FIELDS_ALL)
     for key in FOOTNOTE_TEMPLATE_FIELDS_NOT_NULL:
         assert res[key] is not None
 
@@ -886,13 +885,13 @@ def test_change_footnote_template_indexings(api_client):
     )
     assert res["version"] == "1.0"
     assert res["status"] == "Final"
-    assert set(list(res.keys())) == set(FOOTNOTE_TEMPLATE_FIELDS_ALL)
+    assert set(res.keys()) == set(FOOTNOTE_TEMPLATE_FIELDS_ALL)
     for key in FOOTNOTE_TEMPLATE_FIELDS_NOT_NULL:
         assert res[key] is not None
 
 
 def test_remove_footnote_template_indexings(api_client):
-    data = {
+    data: dict[str, list[str]] = {
         "indication_uids": [],
         "activity_uids": [],
         "activity_group_uids": [],
@@ -932,7 +931,7 @@ def test_remove_footnote_template_indexings(api_client):
     assert not res["activity_subgroups"]
     assert res["version"] == "1.0"
     assert res["status"] == "Final"
-    assert set(list(res.keys())) == set(FOOTNOTE_TEMPLATE_FIELDS_ALL)
+    assert set(res.keys()) == set(FOOTNOTE_TEMPLATE_FIELDS_ALL)
     for key in FOOTNOTE_TEMPLATE_FIELDS_NOT_NULL:
         assert res[key] is not None
 
@@ -1337,7 +1336,7 @@ def test_footnote_template_sequence_id_generation(api_client):
     )
     assert res["version"] == "0.1"
     assert res["status"] == "Draft"
-    assert set(list(res.keys())) == set(FOOTNOTE_TEMPLATE_FIELDS_ALL)
+    assert set(res.keys()) == set(FOOTNOTE_TEMPLATE_FIELDS_ALL)
     for key in FOOTNOTE_TEMPLATE_FIELDS_NOT_NULL:
         assert res[key] is not None
 
@@ -1424,7 +1423,7 @@ def test_pre_validate_invalid_footnote_template_name(api_client):
     data = {"name": "Missing opening bracket ]"}
     response = api_client.post(f"{URL}/pre-validate", json=data)
     res = response.json()
-    log.info("Pre Validated Footnote Temaplate name: %s", res)
+    log.info("Pre Validated Footnote Template name: %s", res)
 
     assert_response_status_code(response, 422)
     assert res["message"] == f"Template string syntax incorrect: {data['name']}"

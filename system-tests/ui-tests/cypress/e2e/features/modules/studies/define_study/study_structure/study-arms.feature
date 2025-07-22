@@ -147,6 +147,12 @@ Feature: Studies - Define Study - Study Structure - Study Arms
         Given The '/studies/Study_000001/study_structure/arms' page is opened
         And The user exports the data in 'EXCEL' format
         Then The study specific 'StudyArms' file is downloaded in 'xlsx' format
+        
+    @BUG_ID:2844762
+    Scenario: Table  must not disappear when creating a study arm without arm type provided
+        Given The '/studies/Study_000001/study_structure/arms' page is opened
+        When The study arm is created without arm type provided
+        Then The study arms table is displayed correctly
 
     @manual_test
     Scenario: User must be presented with the warning message when deleting Study Arm

@@ -13,7 +13,6 @@ from clinical_mdr_api.models.concepts.compound_alias import (
 )
 from clinical_mdr_api.services.concepts.concept_generic_service import (
     ConceptGenericService,
-    _AggregateRootType,
 )
 
 
@@ -32,7 +31,7 @@ class CompoundAliasService(ConceptGenericService[CompoundAliasAR]):
 
     def _create_aggregate_root(
         self, concept_input: CompoundAliasCreateInput, library
-    ) -> _AggregateRootType:
+    ) -> CompoundAliasAR:
         return CompoundAliasAR.from_input_values(
             author_id=self.author_id,
             concept_vo=CompoundAliasVO.from_repository_values(

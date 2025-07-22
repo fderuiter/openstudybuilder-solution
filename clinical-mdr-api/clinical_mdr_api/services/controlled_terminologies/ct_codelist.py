@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from neomodel import db
 
@@ -186,13 +186,13 @@ class CTCodelistService:
         library: str | None = None,
         package: str | None = None,
         is_sponsor: bool = False,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
-        term_filter: dict | None = None,
+        term_filter: dict[str, str | list[Any]] | None = None,
     ) -> GenericFilteringReturn[CTCodelistNameAndAttributes]:
         self.enforce_catalogue_library_package(catalogue_name, library, package)
 
@@ -228,10 +228,10 @@ class CTCodelistService:
         catalogue_name: str | None = None,
         library: str | None = None,
         package: str | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> GenericFilteringReturn[CTCodelistNameAndAttributes]:
@@ -288,7 +288,7 @@ class CTCodelistService:
         field_name: str,
         is_sponsor: bool = False,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
     ):

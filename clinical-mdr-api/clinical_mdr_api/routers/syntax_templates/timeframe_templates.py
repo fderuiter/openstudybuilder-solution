@@ -23,8 +23,9 @@ from clinical_mdr_api.routers import _generic_descriptions, decorators
 from clinical_mdr_api.services.syntax_templates.timeframe_templates import (
     TimeframeTemplateService,
 )
-from common import config
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.config import settings
 from common.models.error import ErrorResponse
 
 # Prefixed with "/timeframe-templates"
@@ -54,7 +55,7 @@ name='MORE TESTING of the superiority in the efficacy of [Intervention] with [Ac
 
 @router.get(
     "",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns all timeframe templates in their latest/newest version.",
     description=_generic_descriptions.DATA_EXPORTS_HEADER,
     status_code=200,
@@ -120,15 +121,15 @@ def get_timeframe_templates(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -138,7 +139,7 @@ def get_timeframe_templates(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -160,7 +161,7 @@ def get_timeframe_templates(
 
 @router.get(
     "/headers",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -200,10 +201,10 @@ def get_distinct_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     return Service().get_distinct_values_for_header(
         status=status,
@@ -217,7 +218,7 @@ def get_distinct_values_for_header(
 
 @router.get(
     "/audit-trail",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     status_code=200,
     responses={
         403: _generic_descriptions.ERROR_403,
@@ -227,15 +228,15 @@ def get_distinct_values_for_header(
 def retrieve_audit_trail(
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -245,7 +246,7 @@ def retrieve_audit_trail(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -266,7 +267,7 @@ def retrieve_audit_trail(
 
 @router.get(
     "/{timeframe_template_uid}",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns the latest/newest version of a specific timeframe template identified by 'timeframe_template_uid'.",
     description="""If multiple request query parameters are used, then they need to
     match all at the same time (they are combined with the AND operation).""",
@@ -287,7 +288,7 @@ def get_timeframe_template(
 
 @router.get(
     "/{timeframe_template_uid}/versions",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns the version history of a specific timeframe template identified by 'timeframe_template_uid'.",
     description=f"""
 The returned versions are ordered by `start_date` descending (newest entries first).
@@ -349,7 +350,7 @@ def get_timeframe_template_versions(
 
 @router.get(
     "/{timeframe_template_uid}/versions/{version}",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns a specific version of a specific timeframe template identified by 'timeframe_template_uid' and 'version'.",
     description="**Multiple versions**:\n\n"
     "Technically, there can be multiple versions of the timeframe template with the same version number. "
@@ -381,7 +382,7 @@ def get_timeframe_template_version(
 
 @router.post(
     "",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Creates a new timeframe template in 'Draft' status or returns the timeframe template if it already exists.",
     description="""This request is only valid if the timeframe template
 * belongs to a library that allows creating (the 'is_editable' property of the library needs to be true).
@@ -423,7 +424,7 @@ def create_timeframe_template(
 
 @router.patch(
     "/{timeframe_template_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Updates the timeframe template identified by 'timeframe_template_uid'.",
     description="""This request is only valid if the timeframe template
 * is in 'Draft' status and
@@ -470,7 +471,7 @@ def edit(
 
 @router.post(
     "/{timeframe_template_uid}/versions",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Creates a new version of the timeframe template identified by 'timeframe_template_uid'.",
     description="""This request is only valid if the timeframe template
 * is in 'Final' or 'Retired' status only (so no latest 'Draft' status exists) and
@@ -515,7 +516,7 @@ def create_new_version(
 
 @router.post(
     "/{timeframe_template_uid}/approvals",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Approves the timeframe template identified by 'timeframe_template_uid'.",
     description="""This request is only valid if the timeframe template
 * is in 'Draft' status and
@@ -562,7 +563,7 @@ def approve(
 
 @router.delete(
     "/{timeframe_template_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Inactivates/deactivates the timeframe template identified by 'timeframe_template_uid'.",
     description="""This request is only valid if the timeframe template
 * is in 'Final' status only (so no latest 'Draft' status exists).
@@ -595,7 +596,7 @@ def inactivate(
 
 @router.post(
     "/{timeframe_template_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Reactivates the timeframe template identified by 'timeframe_template_uid'.",
     description="""This request is only valid if the timeframe template
 * is in 'Retired' status only (so no latest 'Draft' status exists).
@@ -628,7 +629,7 @@ def reactivate(
 
 @router.delete(
     "/{timeframe_template_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Deletes the timeframe template identified by 'timeframe_template_uid'.",
     description="""This request is only valid if \n
 * the timeframe template is in 'Draft' status and
@@ -664,7 +665,7 @@ def delete_timeframe_template(
 #       however: check if that is ok with regard to the data volume we expect in the future. is paging needed?
 @router.get(
     "/{timeframe_template_uid}/parameters",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns all parameters used in the timeframe template identified by 'timeframe_template_uid'. Includes the available values per parameter.",
     description="""The returned parameters are ordered
 0. as they occur in the timeframe template
@@ -695,7 +696,7 @@ def get_parameters(
 
 @router.post(
     "/pre-validate",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Validates the content of an timeframe template without actually processing it.",
     description="""Be aware that - even if this request is accepted - there is no guarantee that
 a following request to e.g. *[POST] /timeframe-templates* or *[PATCH] /timeframe-templates/{timeframe_template_uid}*
@@ -703,10 +704,9 @@ with the same content will succeed.
 
 """
     + PARAMETERS_NOTE,
-    status_code=202,
+    status_code=204,
     responses={
-        403: _generic_descriptions.ERROR_403,
-        202: {
+        204: {
             "description": "Accepted. The content is valid and may be submitted in another request."
         },
         400: {
@@ -715,6 +715,8 @@ with the same content will succeed.
             "- The syntax of the 'name' is not valid.\n"
             "- One of the parameters wasn't found.",
         },
+        403: _generic_descriptions.ERROR_403,
+        422: _generic_descriptions.ERROR_422,
     },
 )
 def pre_validate(

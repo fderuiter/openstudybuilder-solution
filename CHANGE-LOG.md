@@ -1,5 +1,149 @@
 # OpenStudyBuilder (OSB) Commits changelog
 
+## V 0.18
+
+New Features and Enhancements
+============
+
+### Fixes and enhancements
+
+- The Activity Instances overview page in the Library module has gotten an visual overhaul as well as new functionality to make it easier for standards developers to view and manage the existing content of activities.
+- Documentation Portal updates - typos are fixed.
+- Added a faster endpoint for fetching a list of studies (used in the 'Select Study' dialog). 
+- Improved speed of endpoints for fetching detailed/operational/protocol SoA.
+
+### End-to-End Automated test enhancements
+ 
+- Various code improvements to ensure easier maintenance and overall tests stability.
+- Library > Concepts > Activity > Overview Pages: Added Gherkins specification for table Filtering.
+- Library > Concepts > Activity > Activity Instance > Overview Page: Enabled tests verifing linked items.
+
+Solved Bugs
+============
+
+### API
+
+- Transaction related errors
+
+### Library
+
+ **Concepts -> Activities -> Activities** 
+
+- Version number replicated in the UI for each deactivation and activation
+
+ **Concepts -> Activities -> Activities Instances** 
+
+- Fix activity instance class parent relationship
+
+ **Concepts -> Activities -> Activity Groups** 
+
+- Activity Group Overview not displaying Drafts subgroups
+- Activity group overview page shows the wrong status for linked retired subgroups.
+- Filters on the Overview page shows more data than included in the data table
+
+ **Concepts -> Activities -> Activity Instances** 
+
+- Creating new activity instances for the activity that exist
+- Lack of Alphabetic sorting in the data domain dropdown list when adding activity instance in Step 2
+- Not able to remove molecular weight for Numeric Findings activity instances in StudyBuilder UI
+
+ **Concepts -> CRFs ->CRF View** 
+
+- File extension is missing for downloaded CRFs
+
+ **Syntax Templates -> Objective Templates -> Parent** 
+
+- Scroll bar missing in add or edit parent template stepper
+
+### Reports
+
+ **Neodash** 
+
+- The Landing page is not shown when starting the NeoDash Report module
+
+### Studies
+
+ **Define Study -> Study Activities** 
+
+- The search field in the column filter dropdowns is not working
+- Unchanged 'Activity groups' and 'Activity Subgroups' has to reselect it again
+
+ **Define Study -> Study Activities -> Schedule of Activities -> Operational SoA** 
+
+- Do not collapse visits
+
+ **Define Study -> Study Structure** 
+
+- Broken Study Structure - Study epochs copying is not possible
+
+
+## V 0.17
+
+New Features and Enhancements
+============
+
+### Fixes and enhancements
+
+- The Activity Subgroups overview page in the Library module has gotten an visual overhaul as well as new functionality to make it easier for standards developers to view and manage the existing content of activities.
+
+### New Features
+
+- For Schedule of Activities, requested placeholders can now be shared between studies.  The studies sharing the same request will be informed about the updated information in a small pop-up when clicking on the red (!)-mark. Furthermore, the pop-up functionality is implemented for updates to activities in general to improve the user experience when activities are up-versioned.
+- We will now be able to display collapsed/merged visits as a range or a list depending on requirements. This means that when collapsing 3 or more visits, timing of all visits will remain visible in protocol SoA.
+- The consumer API has been expanded with a first version of a new SoA endpoint tailored for Papillons (Internal SoA consumption tool)
+
+### Performance Improvements
+
+- Improved performance of endpoints for fetching library activities and activity instances.
+
+### End-to-End Automated test enhancements
+ 
+- Various code improvements to ensure easier maintenance and overall tests stability
+- Studies > Define Study > Study Activities > Schedule of Activities: Implemented tests for Handling Collapsed Visits
+- Studies > Define Study > Study Activities > Study Activities: Implemented tests for Study Activities Placeholders
+- Library > Concepts > Activity > Overview Pages: Extended tests scope for Activity, Activity Instance, Activity Group and Activity Subgroup
+- Library > Syntax Templates: Extended tests scope & major refactorization to improve code maintenance
+
+Solved Bugs
+============
+
+### API
+
+ **Miscellaneous** 
+
+- Operational/Detailed SoA issues with Xs and groupings
+
+### Consumer API
+
+ **Miscellaneous** 
+
+- Filtering of Studies is not possible in Consumer API
+
+### Library
+
+ **Concepts -> Activities -> Activity Instances** 
+
+- Creating new activity instances error, odm mandatory when they should not.
+- Creating new activity instances for the activity that exist
+
+### Studies
+
+ **Define Study -> Study Activities -> Schedule of Activities -> Detailed** 
+
+- Operational SoA discrepancy in sorting order
+
+ **Define Study -> Study Structure -> Study Visits** 
+
+- Study visits duplication is possible when created at the same time instead it should not allow it
+
+ **Select Study** 
+
+- Error in study acronym when changing between trials in production
+
+ **View Specifications -> ICH M11** 
+
+- ICH M11 page throwing error as 'list index out of range' with no further response
+
 ## V 0.16.1
 
 ### Fixes and Enhancements

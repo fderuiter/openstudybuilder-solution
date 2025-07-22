@@ -1,6 +1,7 @@
 # pylint: disable=redefined-outer-name,unused-argument
 
 import itertools
+from typing import Any
 
 import pytest
 
@@ -81,7 +82,7 @@ API_PATHS = [
     ("POST", 201, "/objective-templates", "guidance_text", {"name": "test"}),
     (
         "POST",
-        202,
+        204,
         "/objective-templates/pre-validate",
         "guidance_text",
         {"name": "test"},
@@ -121,10 +122,10 @@ API_PATHS = [
         "guidance_text",
         {"name": "Default name with [TextValue]", "change_description": "testing"},
     ),
-    ("POST", 202, "/criteria-templates/pre-validate", "name", {}),
+    ("POST", 204, "/criteria-templates/pre-validate", "name", {}),
     (
         "POST",
-        202,
+        204,
         "/criteria-templates/pre-validate",
         "guidance_text",
         {"name": "name"},
@@ -163,7 +164,7 @@ def test_input_sanitization(
     expected_status_code: int,
     path: str,
     property_name: str,
-    data: dict,
+    data: dict[Any, Any],
     input_string: str,
     expected_string: str,
 ):
@@ -171,6 +172,6 @@ def test_input_sanitization(
     path = path.format_map(test_data)
     resp = api_client.request(method, path, json=input_data)
     assert_response_status_code(resp, expected_status_code)
-    if expected_status_code not in {202}:
+    if expected_status_code not in {204}:
         payload = resp.json()
         assert payload[property_name] == expected_string

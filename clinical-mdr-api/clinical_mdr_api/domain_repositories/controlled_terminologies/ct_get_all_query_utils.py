@@ -2,6 +2,8 @@
 Utility module to store the common parts of terms get all and specific term get all requests.
 """
 
+from typing import Any
+
 from clinical_mdr_api.domains.controlled_terminologies.ct_codelist_attributes import (
     CTCodelistAttributesAR,
     CTCodelistAttributesVO,
@@ -61,7 +63,7 @@ def create_term_filter_statement(
     library_name: str | None = None,
     package: str | None = None,
     is_sponsor: bool = False,
-) -> tuple[str, dict]:
+) -> tuple[str, dict[Any, Any]]:
     """
     Method creates filter string from demanded filter option.
     Note that it expects pre-defined Cypher variables named codelist_root and term_root.
@@ -117,7 +119,7 @@ def create_term_filter_statement(
 
 
 def create_simple_term_instances_from_cypher_result(
-    term_dict: dict,
+    term_dict: dict[str, Any],
 ) -> TermWithCodelistMetadata:
     """
     Method CTTermNameAR instance from the cypher query output.
@@ -141,7 +143,7 @@ def create_simple_term_instances_from_cypher_result(
 
 
 def create_term_name_aggregate_instances_from_cypher_result(
-    term_dict: dict,
+    term_dict: dict[str, Any],
     is_aggregated_query: bool = False,
     ctterm_simple_model: bool = False,
 ) -> CTTermNameAR | CTTermNameSimple:
@@ -215,7 +217,7 @@ def create_term_name_aggregate_instances_from_cypher_result(
 
 
 def create_term_attributes_aggregate_instances_from_cypher_result(
-    term_dict: dict, is_aggregated_query: bool = False
+    term_dict: dict[str, Any], is_aggregated_query: bool = False
 ) -> CTTermAttributesAR:
     """
     Method CTTermAttributesAR instance from the cypher query output.
@@ -389,7 +391,7 @@ def create_codelist_filter_statement(
     library_name: str | None = None,
     package: str | None = None,
     is_sponsor: bool = False,
-) -> tuple[str, dict]:
+) -> tuple[str, dict[Any, Any]]:
     """
     Method creates filter string from demanded filter option.
 
@@ -424,7 +426,7 @@ def create_codelist_filter_statement(
 
 
 def create_codelist_name_aggregate_instances_from_cypher_result(
-    codelist_dict: dict, is_aggregated_query: bool = False
+    codelist_dict: dict[str, Any], is_aggregated_query: bool = False
 ) -> CTCodelistNameAR:
     """
     Method CTCodelistNameAR instance from the cypher query output.
@@ -473,7 +475,7 @@ def create_codelist_name_aggregate_instances_from_cypher_result(
 
 
 def create_codelist_attributes_aggregate_instances_from_cypher_result(
-    codelist_dict: dict, is_aggregated_query: bool = False
+    codelist_dict: dict[str, Any], is_aggregated_query: bool = False
 ) -> CTCodelistAttributesAR:
     """
     Method CTCodelistAttributesAR instance from the cypher query output.

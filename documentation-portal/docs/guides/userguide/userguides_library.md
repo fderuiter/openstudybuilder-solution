@@ -11,9 +11,9 @@ The system offers access to the following directories:
 | Section | Description       |
 |:------:|:----------------|
 | Dashboard| The most important metrics at a glance |
-| Codelists  | Access to Controlled Terminology Catalogue, which is sored in the neo4j database. From here it is possible to create and edit code lists and add new terms. |
+| Codelists  | Access to Controlled Terminology Catalogue, which is stored in the neo4j database. From here it is possible to create and edit code lists and add new terms. |
 | Dictionaries | Manage standards such as MEDDRA, SNOMED, MED-RT and UNII |
-| Concepts | Overview of reusable study-wide elements, such as measurements units, activities and assessments |
+| Concepts | Overview of reusable study-wide elements, such as measurement units, activities and assessments |
 | Syntax Templates | Templates for  Objectives, Estimand, Endpoints, Assessments, Time frame and Criteria |
 | Template Instantiations | Manage usage of each template |
 | Template Collections | Library with templates on Project, Shared and Supporting Level |
@@ -30,7 +30,7 @@ The management of each element follows the same pattern. Each action is traceabl
 | ![Add](~@source/images/bt_add_blue.png) | Click on the **'Add'** button. This will open a popup with a template form |
 
 Adding a new template will automatically set it with a status of "Draft" and Version 0.1. The record in the audit trail would state "Initial Version".
-After filling out the required fields, make sure to verify the syntax and avid any typos or mistakes.
+After filling out the required fields, make sure to verify the syntax and avoid any typos or mistakes.
 When adding a new objective template, please first choose the Library, e.g. Sponsor Library.
 Then describe the template in the "template" field and add any parameters in square brackets "[]".
 Example:  'To document the safety profile of [StudyIntervention].'
@@ -44,7 +44,7 @@ The Parameter will then allow to choose from a list of elements which belong to 
 
 | Button | Behaviour       |
 |:------:|:----------------|
-| ![Search](~@source/images/bt_modify_blue.png) | Click on the **'Modify'** button at the end of the row that you want to update. This will open a dedicated popup with the template in modification mode like below |
+| ![Modify](~@source/images/bt_modify_blue.png) | Click on the **'Modify'** button at the end of the row that you want to update. This will open a dedicated popup with the template in modification mode like below |
 Clicking the button described above will allow you to view the template details and describe the change in simple text.
 Editing the template would open the same pop-up window with an additional field called "Change description", in which also [] can be used to specify a parameter.
 
@@ -57,15 +57,15 @@ Editing the template would open the same pop-up window with an additional field 
 | ![Set Status to Final](~@source/images/bt_validate_blue.png) | Click on the **'Set the status of this template to Final'** button at the end of the row that you want to validate. |
 This action is only available for templates with status "Draft". Validating the template will update the status to Final and the version number will be increased by 1.
 
-### Inactivate / Reactive
+### Inactivate / Reactivate
 
 | Button | Behaviour       |
 |:------:|:----------------|
 | ![Inactivate](~@source/images/bt_inactivate_blue.png) | Click on the **'Inactivate this Template'** button at the end of the row that you want to deactivate. |
-| ![Reactivate](~@source/images/bt_reactivate_blue.png) | Click on the **'Reactivate this Template'** button at the end of the row that you want to re-ctivate. |
+| ![Reactivate](~@source/images/bt_reactivate_blue.png) | Click on the **'Reactivate this Template'** button at the end of the row that you want to reactivate. |
 
 Deactivating an element will change its status to "Retired", the version number will remain the same. 
-Re-activating an element will change its status to "Final", the version number will remain the same. 
+Reactivating an element will change its status to "Final", the version number will remain the same. 
 
 ### New version
 
@@ -91,7 +91,7 @@ Deletion is available only for elements with status "Draft". Already approved el
 
 | Button | Behaviour       |
 |:------:|:----------------|
-| ![History](~@source/images/bt_history_blue.png) | Click on the **'History'** button.This will open a new modal page like bellow:<br/>Please note that the history is sorted in  |
+| ![History](~@source/images/bt_history_blue.png) | Click on the **'History'** button. This will open a new modal page like below:<br/>Please note that the history is sorted in versioning order |
 
 The audit trail looks different, depending on the library section. The general columns are described in the Introduction section.
 

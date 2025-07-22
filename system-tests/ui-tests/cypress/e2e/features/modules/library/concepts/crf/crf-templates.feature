@@ -5,6 +5,8 @@ Feature: Library - Concepts - CRFs - CRF Templates
 
     Background: User must be logged in
         Given The user is logged in
+        And The '/library' page is opened
+        And The multilingual CRFs option is toggled off in the settings menu
 
     Scenario: [Navigation] User must be able to navigate to CRF Templates page
         Given The '/library' page is opened
@@ -29,8 +31,7 @@ Feature: Library - Concepts - CRFs - CRF Templates
         Then The table contain only selected column and actions column
 
     Scenario: [Create][Positive case] User must be able to add a new CRF Template
-        Given The single language CRFs are enabled
-        And The 'library/crfs/templates' page is opened
+        Given The 'library/crfs/templates' page is opened
         When The 'add-crf-template' button is clicked
         And The CRF Template definition container is filled with data and saved
         And Created CRF Template is found
@@ -38,16 +39,13 @@ Feature: Library - Concepts - CRFs - CRF Templates
         And The item has status 'Draft' and version '0.1'
 
     Scenario: [Create][Mandatory fields] User must not be able to create CRF Template without Name provided
-        Given The single language CRFs are enabled
-        And The 'library/crfs/templates' page is opened
+        Given The 'library/crfs/templates' page is opened
         When The 'add-crf-template' button is clicked
-        And The CRF Template definition container is filled without name provided
-        And The 'save-button' button is clicked
+        And Form save button is clicked
         Then The validation appears for the CRF Template Name field
 
     Scenario: [Actions][Edit][version 0.1] User must be able to update CRF Template in draft status
-        Given The single language CRFs are enabled
-        And The 'library/crfs/templates' page is opened
+        Given The 'library/crfs/templates' page is opened
         And Created CRF Template is found
         When The 'Edit' option is clicked from the three dot menu list
         And The CRF Template metadata are updated and saved

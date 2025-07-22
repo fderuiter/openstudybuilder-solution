@@ -5,24 +5,24 @@
 
 [![System Integrations](~@source/images/documentation/Clinical-MDR-Highlevel.png)](../../images/documentation/Clinical-MDR-Highlevel.png)
 
-The deployment is based on Azure Wep App Containers. Only the Python API container will have write access to the Neo4j database.
+The deployment is based on Azure Web App Containers. Only the Python API container will have write access to the Neo4j database.
 -->
-### Highlevel Azure Solution Design
+### High-level Azure Solution Design
 
 [![System Integrations](~@source/images/documentation/Clinical-MDR-Azure-Highlevel.png)](../../images/documentation/Clinical-MDR-Azure-Highlevel.png)
 
-All communication is facilitated via azure private links, which ensures private and secure connection internally in the virtual private network in which the system is hosted.
+All communication is facilitated via Azure private links, which ensures private and secure connection internally in the virtual private network in which the system is hosted.
 
-Code is published through Azure DevOps git repositories to the hosted cloud environment by utilising a self-hosted ubuntu agent. Code will be pushed in the form of docker images that will be stored in an azure container registry. Ahead of deployment, the images will automatically be scanned using Prisma CloudScan.
+Code is published through Azure DevOps git repositories to the hosted cloud environment by utilizing a self-hosted ubuntu agent. Code will be pushed in the form of docker images that will be stored in an Azure container registry. Ahead of deployment, the images will automatically be scanned using Prisma CloudScan.
 
-As the images are added to Azure Container Registry, they will be scanned utilising Azure Defender.
-The Azure Container Registry will push new images to Azure App Services, where these will be hosted as individual docker containers. End users will access the system components through a single source, the Azure Application Gateway, which will pass incoming and eligible requests to the correct individual component for further processing and request fulfilment based on url paths.
+As the images are added to Azure Container Registry, they will be scanned utilizing Azure Defender.
+The Azure Container Registry will push new images to Azure App Services, where these will be hosted as individual docker containers. End users will access the system components through a single source, the Azure Application Gateway, which will pass incoming and eligible requests to the correct individual component for further processing and request fulfillment based on URL paths.
 
 As the system is hosted in a private virtual network, all incoming communication must come from NN CORP connected machines.
 
 Monitoring and logging has been established using Azure Log Analytics Workspace and Application Insights. Authentication is facilitated through Azure Enterprise Applications, Azure App Registrations and groups.
 
-A total of four virtual machines are created to enable a neo4j DB cluster of three VMs plus a single VM to monitor the functionality of the cluster VMs and the health of the cluster. The cluster VMs are created in separate availability zones, so they are located in different physical locations.
+A total of four virtual machines are created to enable a Neo4j DB cluster of three VMs plus a single VM to monitor the functionality of the cluster VMs and the health of the cluster. The cluster VMs are created in separate availability zones, so they are located in different physical locations.
 
 
 ### Azure Resources Design

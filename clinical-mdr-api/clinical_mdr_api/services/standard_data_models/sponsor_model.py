@@ -13,7 +13,7 @@ from clinical_mdr_api.models.standard_data_models.sponsor_model import (
 from clinical_mdr_api.services.neomodel_ext_generic import NeomodelExtGenericService
 
 
-class SponsorModelService(NeomodelExtGenericService):
+class SponsorModelService(NeomodelExtGenericService[SponsorModelAR]):
     repository_interface = SponsorModelRepository
     api_model_class = SponsorModel
 

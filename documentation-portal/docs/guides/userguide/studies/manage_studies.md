@@ -1,10 +1,10 @@
 # Manage Studies
 
-This user guide explain how to manage study definitions in the StudyBuilder application. This is done on the **Studies** menu selecting **Manage Studies**.
+This user guide explains how to manage study definitions in the StudyBuilder application. This is done on the **Studies** menu selecting **Manage Studies**.
 
 [![Conceptual architecture for the clinical-MDR and the StudyBuilder](~@source/images/user_guides/manage_studies_menu.png)](../../../images/user_guides/manage_studies_menu.png)
  - On the **Study List** sub menu you can search and select studies as well as add new study definitions.
- - On the **Study** sub menu you can maintain the core attributes for a study, study status and versioning, maintain relationship to sub-parts for (for protocols holding multiple sub-studies) and maintain relationship between study versions and protocol document versions.
+ - On the **Study** sub menu you can maintain the core attributes for a study, study status and versioning, maintain relationship to sub-parts (for protocols holding multiple sub-studies) and maintain relationship between study versions and protocol document versions.
 
 
 ## Search and Select Study
@@ -14,9 +14,9 @@ You can select a study from the **SELECT STUDY** button in the top banner or the
 
 ## Delete Study
 
-You can delete a Study from the menu **Manage Studies** --> **Study**. A prerequsite is that the study have not previously been Locked.
+You can delete a Study from the menu **Manage Studies** --> **Study**. A prerequisite is that the study has not previously been Locked.
 
-This is a 'soft' deletion, when the study is deleted it will no longer be part of the study list and identifiers will no longer be part of constarint chekcs. The deleted studies will then be available on the menu **Manage Studies** --> **Study List** on the tab **Deleted Studies**.
+This is a 'soft' deletion, when the study is deleted it will no longer be part of the study list and identifiers will no longer be part of constraint checks. The deleted studies will then be available on the menu **Manage Studies** --> **Study List** on the tab **Deleted Studies**.
 
 
 ## Maintain Core Study Attributes
@@ -97,7 +97,7 @@ Add titles and registry identifiers as applicable
 
 [![Study subparts figure 2](~@source/images/user_guides/study_subparts_2.png)](../../../images/user_guides/study_subparts_2.png)
 
-*<p style="text-align: center;">Figure 2 Registry identifiers added ti 'main' study for output to protocol</p>*
+*<p style="text-align: center;">Figure 2 Registry identifiers added to 'main' study for output to protocol</p>*
 
 
 ### Create/add subpart
@@ -106,7 +106,7 @@ Once the initial part is created, the subparts can be created. This is done in M
 
 [![Study subparts figure 3](~@source/images/user_guides/study_subparts_3.png)](../../../images/user_guides/study_subparts_3.png)
 
-*<p style="text-align: center;">Figure 3 Study subpart are added from Studies/Manage study/Study/study Subparts</p>*
+*<p style="text-align: center;">Figure 3 Study subparts are added from Studies/Manage study/Study/study Subparts</p>*
 
 In the study Subparts tab, click the + button (add button) where 2 actions become available:
 
@@ -193,7 +193,7 @@ Then go to Manage study/Study/Study Subparts to get the overview – see Figure 
 
 ### Releasing and locking study subparts
 
-A study subpart cannot be released or locked individually - a subpart can only be released or locked together with the parent study. This ensure a multiple parts study always is versioned as a bundle of a parent study and its subparts.
+A study subpart cannot be released or locked individually - a subpart can only be released or locked together with the parent study. This ensures a multiple parts study always is versioned as a bundle of a parent study and its subparts.
 
-Se more on [study versioning](#maintain-study-status-and-versioning).
+See more on [study versioning](#maintain-study-status-and-versioning).
 

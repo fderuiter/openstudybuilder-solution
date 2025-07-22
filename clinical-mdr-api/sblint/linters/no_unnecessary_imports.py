@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import ast
 import sys
 
@@ -17,10 +15,11 @@ class NoUnnecessaryImports(SBLinter):
         ("typing", "Set", "set"),
         ("typing", "Dict", "dict"),
         ("typing", "Tuple", "tuple"),
+        ("typing", "Type", "type"),
     ]
 
     @classmethod
-    def validate(cls, code: str) -> bool:
+    def validate(cls, code_tree: ast.Module) -> list[int]:
         """
         Validates the given Python code by checking if it contains any
         imports that are deemed unnecessary based on the `cls.UNNECESSARY_IMPORTS`
@@ -28,17 +27,17 @@ class NoUnnecessaryImports(SBLinter):
         where each tuple contains, in order, a module name, an import name and an alternative.
 
         Args:
-            code (str): The Python code to be validated.
+            code_tree (ast.Module): The tree of the Python code to be validated.
 
         Returns:
-            bool: `True` if the code doesn't contain unnecessary imports, otherwise `False`.
+            list[int]: A list of line numbers where unnecessary imports are found.
         """
         MODULES = {x[0] for x in cls.UNNECESSARY_IMPORTS}
         IMPORTS = {x[1] for x in cls.UNNECESSARY_IMPORTS}
 
-        tree = ast.parse(code)
+        lines = []
 
-        for node in ast.walk(tree):
+        for node in ast.walk(code_tree):
             if (
                 isinstance(node, ast.ImportFrom)
                 and node.module in MODULES
@@ -47,8 +46,8 @@ class NoUnnecessaryImports(SBLinter):
                 isinstance(node, ast.Import)
                 and any(alias.name in IMPORTS for alias in node.names)
             ):
-                return False
-        return True
+                lines.append(node.lineno)
+        return sorted(lines)
 
     @classmethod
     def expose_validation(cls, invalid_files: list[str]) -> None:
@@ -62,8 +61,10 @@ class NoUnnecessaryImports(SBLinter):
         """
         if invalid_files:
             print(
-                "The following files contain unnecessary imports. Remove them and use their alternatives:"
+                "Awesome! You've transformed your code into a museum of outdated unnecessary imports. A masterpiece of inefficiency that future developers will study as a cautionary tale.\n"
             )
+
+            print("Fix: Remove unnecessary imports and use their alternatives:")
 
             table = Table()
 

@@ -192,7 +192,7 @@ def test_delete_remove_term_that_is_assigned_to_given_codelist(api_client):
     response = api_client.delete(
         "dictionaries/codelists/codelist_root1_uid/terms/term_root3_uid"
     )
-    assert_response_status_code(response, 201)
+    assert_response_status_code(response, 200)
 
     res = response.json()
 

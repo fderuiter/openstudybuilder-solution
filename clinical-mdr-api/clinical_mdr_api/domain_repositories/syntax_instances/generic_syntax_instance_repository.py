@@ -1,7 +1,7 @@
 import abc
 import re
 from datetime import datetime
-from typing import Iterable, TypeVar
+from typing import Generic, Iterable, TypeVar
 
 from neomodel import db
 
@@ -33,7 +33,7 @@ _AggregateRootType = TypeVar("_AggregateRootType")
 
 
 class GenericSyntaxInstanceRepository(
-    GenericSyntaxRepository[_AggregateRootType], abc.ABC
+    GenericSyntaxRepository, Generic[_AggregateRootType], abc.ABC
 ):
     template_class: type
 
@@ -340,22 +340,20 @@ class GenericSyntaxInstanceRepository(
     ) -> ParametrizedTemplateVO:
         parameter_terms = self._get_template_parameters(root, value)
 
+        template_object: VersionRoot
         if self.is_pre_instance(root):
-            template_object: VersionRoot = root.created_from.get()
+            template_object = root.created_from.get()
         else:
-            template_object: VersionRoot = root.has_template.get()
+            template_object = root.has_template.get()
 
+        template_value_object: VersionValue
         if date_before:
-            template_value_object: VersionValue = template_object.get_final_before(
-                date_before
-            )
+            template_value_object = template_object.get_final_before(date_before)
             if template_value_object is None:
-                template_value_object: VersionValue = (
-                    template_object.get_retired_before(date_before)
-                )
+                template_value_object = template_object.get_retired_before(date_before)
 
         if template_value_object is None:
-            template_value_object: VersionValue = template_object.latest_final.get()
+            template_value_object = template_object.latest_final.get()
 
         template = ParametrizedTemplateVO(
             template_name=template_value_object.name,

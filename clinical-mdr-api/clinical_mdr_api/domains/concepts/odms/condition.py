@@ -54,9 +54,10 @@ class OdmConditionVO(ConceptVO):
         odm_alias_exists_by_callback: Callable[[str, str, bool], bool],
         previous_formal_expression_uids: list[str] | None = None,
         odm_uid: str | None = None,
+        library_name: str | None = None,
     ) -> None:
         data = {
-            "description_uids": self.description_uids,
+            "library_name": library_name,
             "alias_uids": self.alias_uids,
             "formal_expression_uids": self.formal_expression_uids,
             "name": self.name,
@@ -193,6 +194,7 @@ class OdmConditionAR(OdmARBase):
             find_odm_description_callback=find_odm_description_callback,
             get_odm_description_parent_uids_callback=get_odm_description_parent_uids_callback,
             odm_alias_exists_by_callback=odm_alias_exists_by_callback,
+            library_name=library.name,
         )
 
         return cls(

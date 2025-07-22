@@ -102,9 +102,9 @@ class TestStudyEndpointUpversion(unittest.TestCase):
         self.ttr = TimeframeTemplateRepository()
         self.etr = EndpointTemplateRepository()
         self.otr = ObjectiveTemplateRepository()
-        self.objective_service = ObjectiveService()
-        self.endpoint_service = EndpointService()
-        self.timeframe_service = TimeframeService()
+        self.objective_service: ObjectiveService = ObjectiveService()
+        self.endpoint_service: EndpointService = EndpointService()
+        self.timeframe_service: TimeframeService = TimeframeService()
         self.objective_template_service = ObjectiveTemplateService()
         self.timeframe_template_service = TimeframeTemplateService()
         self.endpoint_template_service = EndpointTemplateService()
@@ -126,23 +126,17 @@ class TestStudyEndpointUpversion(unittest.TestCase):
         )
         self.otr.save(self.ot_ar)
 
-        self.ot_ar: ObjectiveTemplateAR = self.otr.find_by_uid(
-            self.ot_ar.uid, for_update=True
-        )
+        self.ot_ar = self.otr.find_by_uid(self.ot_ar.uid, for_update=True)
         self.ot_ar.approve(author_id="TEST")
         self.otr.save(self.ot_ar)
 
-        self.ot_ar: ObjectiveTemplateAR = self.otr.find_by_uid(
-            self.ot_ar.uid, for_update=True
-        )
+        self.ot_ar = self.otr.find_by_uid(self.ot_ar.uid, for_update=True)
         self.ot_ar.create_new_version(
             author_id="TEST", change_description="Change", template=self.template_vo
         )
         self.otr.save(self.ot_ar)
 
-        self.ot_ar: ObjectiveTemplateAR = self.otr.find_by_uid(
-            self.ot_ar.uid, for_update=True
-        )
+        self.ot_ar = self.otr.find_by_uid(self.ot_ar.uid, for_update=True)
         self.ntv = TemplateVO(
             name=self.changed_template_name,
             name_plain=self.changed_template_name_plain,
@@ -162,15 +156,11 @@ class TestStudyEndpointUpversion(unittest.TestCase):
         )
         self.etr.save(self.et_ar)
 
-        self.et_ar: EndpointTemplateAR = self.etr.find_by_uid(
-            self.et_ar.uid, for_update=True
-        )
+        self.et_ar = self.etr.find_by_uid(self.et_ar.uid, for_update=True)
         self.et_ar.approve(author_id="TEST")
         self.etr.save(self.et_ar)
 
-        self.et_ar: EndpointTemplateAR = self.etr.find_by_uid(
-            self.et_ar.uid, for_update=True
-        )
+        self.et_ar = self.etr.find_by_uid(self.et_ar.uid, for_update=True)
         self.et_ar.create_new_version(
             author_id="TEST", change_description="Change", template=self.template_vo
         )
@@ -186,15 +176,11 @@ class TestStudyEndpointUpversion(unittest.TestCase):
         )
         self.ttr.save(self.tt_ar)
 
-        self.tt_ar: TimeframeTemplateAR = self.ttr.find_by_uid(
-            self.tt_ar.uid, for_update=True
-        )
+        self.tt_ar = self.ttr.find_by_uid(self.tt_ar.uid, for_update=True)
         self.tt_ar.approve(author_id="TEST")
         self.ttr.save(self.tt_ar)
 
-        self.tt_ar: TimeframeTemplateAR = self.ttr.find_by_uid(
-            self.tt_ar.uid, for_update=True
-        )
+        self.tt_ar = self.ttr.find_by_uid(self.tt_ar.uid, for_update=True)
         self.tt_ar.create_new_version(
             author_id="TEST", change_description="Change", template=self.template_vo
         )
@@ -216,18 +202,14 @@ class TestStudyEndpointUpversion(unittest.TestCase):
         )
 
     def modify_endpoint_template(self):
-        self.et_ar: EndpointTemplateAR = self.etr.find_by_uid(
-            self.et_ar.uid, for_update=True
-        )
+        self.et_ar = self.etr.find_by_uid(self.et_ar.uid, for_update=True)
         self.et_ar.create_new_version(
             author_id="TEST", change_description="Change", template=self.ntv
         )
         self.etr.save(self.et_ar)
 
     def modify_timeframe_template(self):
-        self.tt_ar: TimeframeTemplateAR = self.ttr.find_by_uid(
-            self.tt_ar.uid, for_update=True
-        )
+        self.tt_ar = self.ttr.find_by_uid(self.tt_ar.uid, for_update=True)
         self.tt_ar.create_new_version(
             author_id="TEST", change_description="Change", template=self.ntv
         )
@@ -379,7 +361,7 @@ class TestStudyEndpointUpversion(unittest.TestCase):
 
         self.assertIsNone(response.latest_endpoint)
         # then
-        selection: StudySelectionEndpoint = endpoint_service.get_specific_selection(
+        selection = endpoint_service.get_specific_selection(
             study_uid="study_root", study_selection_uid=selection.study_endpoint_uid
         )
         self.assertIsNone(selection.latest_endpoint)
@@ -423,7 +405,7 @@ class TestStudyEndpointUpversion(unittest.TestCase):
 
         self.assertIsNone(response.latest_timeframe)
         # then
-        selection: StudySelectionEndpoint = endpoint_service.get_specific_selection(
+        selection = endpoint_service.get_specific_selection(
             study_uid="study_root", study_selection_uid=selection.study_endpoint_uid
         )
         self.assertIsNone(selection.latest_timeframe)
@@ -472,7 +454,7 @@ class TestStudyEndpointUpversion(unittest.TestCase):
 
         self.assertIsNone(response.latest_timeframe)
         # then
-        selection: StudySelectionEndpoint = endpoint_service.get_specific_selection(
+        selection = endpoint_service.get_specific_selection(
             study_uid="study_root", study_selection_uid=selection.study_endpoint_uid
         )
         self.assertIsNone(selection.latest_timeframe)

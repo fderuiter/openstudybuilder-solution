@@ -2,96 +2,66 @@
   <div class="activity-summary-container">
     <table class="activity-summary-table">
       <tbody>
-        <tr>
-          <td>
-            <div class="summary-label">
-              {{ $t('_global.sentence_case_name') }}
-            </div>
+        <!-- Dynamically create rows based on organized fields -->
+        <tr v-for="(row, rowIndex) in organizedRows" :key="rowIndex">
+          <td v-for="(field, cellIndex) in row" :key="cellIndex">
+            <div class="summary-label">{{ field.label }}</div>
             <div class="summary-value">
-              {{ activity.name_sentence_case || activity.name || '-' }}
+              <!-- Special handling for specific field types -->
+              <template v-if="field.key === 'status'">
+                <StatusChip
+                  v-if="field.value && field.value !== '-'"
+                  :status="field.value"
+                />
+                <span v-else>-</span>
+              </template>
+              <template v-else-if="field.key === 'version'">
+                <v-select
+                  v-if="allVersions && allVersions.length"
+                  :items="allVersions"
+                  :model-value="field.value"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  class="version-select"
+                  @update:model-value="$emit('version-change', $event)"
+                ></v-select>
+                <span v-else>{{ field.value }}</span>
+              </template>
+              <template v-else-if="field.key === 'nci_concept_id'">
+                <NCIConceptLink
+                  v-if="field.value && field.value !== '-'"
+                  :concept-id="field.value"
+                />
+                <span v-else>-</span>
+              </template>
+              <template
+                v-else-if="field.key === 'activity_name' && activityInfo"
+              >
+                <router-link
+                  :to="{
+                    name: 'ActivityOverview',
+                    params: {
+                      id: activityInfo.uid,
+                      version: activityInfo.version,
+                    },
+                  }"
+                  class="activity-link"
+                >
+                  {{ field.value }}
+                </router-link>
+              </template>
+              <template v-else>
+                {{ field.value }}
+              </template>
             </div>
           </td>
-          <td>
-            <div class="summary-label">{{ $t('_global.start_date') }}</div>
-            <div class="summary-value">
-              {{
-                activity.start_date
-                  ? $filters.date(activity.start_date)
-                  : 'None'
-              }}
-            </div>
-          </td>
-          <td>
-            <div class="summary-label">{{ $t('_global.end_date') }}</div>
-            <div class="summary-value">
-              {{
-                activity.end_date ? $filters.date(activity.end_date) : 'None'
-              }}
-            </div>
-          </td>
-          <td>
-            <div class="summary-label">{{ $t('_global.status') }}</div>
-            <div class="summary-value">
-              <StatusChip v-if="activity.status" :status="activity.status" />
-              <span v-else>-</span>
-            </div>
-          </td>
-          <td>
-            <div class="summary-label">{{ $t('_global.version') }}</div>
-            <div class="summary-value">
-              <v-select
-                v-if="allVersions && allVersions.length"
-                :items="allVersions"
-                :model-value="activity.version"
-                variant="outlined"
-                density="compact"
-                hide-details
-                class="version-select"
-                @update:model-value="$emit('version-change', $event)"
-              ></v-select>
-              <span v-else>{{ activity.version || '-' }}</span>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div class="summary-label">{{ $t('_global.definition') }}</div>
-            <div class="summary-value">{{ activity.definition || '-' }}</div>
-          </td>
-          <td v-if="showAbbreviation">
-            <div class="summary-label">{{ $t('_global.abbreviation') }}</div>
-            <div class="summary-value">{{ activity.abbreviation || '-' }}</div>
-          </td>
-          <td v-if="showLibrary">
-            <div class="summary-label">{{ $t('_global.library') }}</div>
-            <div class="summary-value">{{ activity.library_name || '-' }}</div>
-          </td>
-          <td v-if="showNciConceptId">
-            <div class="summary-label">
-              {{ $t('ActivityForms.nci_concept_id') || 'NCI Concept ID' }}
-            </div>
-            <div class="summary-value">
-              <NCIConceptLink
-                v-if="activity.nci_concept_id"
-                :concept-id="activity.nci_concept_id"
-              />
-              <span v-else>-</span>
-            </div>
-          </td>
-          <td v-if="showDataCollection">
-            <div class="summary-label">
-              {{ $t('activitySummary.dataCollection') }}
-            </div>
-            <div class="summary-value">
-              {{ $filters.yesno(activity.is_data_collected) }}
-            </div>
-          </td>
-          <td v-if="showAuthor">
-            <div class="summary-label">{{ $t('_global.author') }}</div>
-            <div class="summary-value">
-              {{ activity.author_username || '-' }}
-            </div>
-          </td>
+          <!-- Add empty cells if row has less than 5 items -->
+          <td
+            v-for="n in 5 - row.length"
+            :key="`empty-${n}`"
+            class="empty-cell"
+          ></td>
         </tr>
       </tbody>
     </table>
@@ -100,13 +70,17 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n'
+import { computed, getCurrentInstance } from 'vue'
 import StatusChip from '@/components/tools/StatusChip.vue'
 import NCIConceptLink from '@/components/tools/NCIConceptLink.vue'
 
-useI18n() // Use i18n without assigning to a variable
+const { t } = useI18n()
+const instance = getCurrentInstance()
+const $filters = instance.appContext.config.globalProperties.$filters
+
 defineEmits(['version-change'])
 
-defineProps({
+const props = defineProps({
   activity: {
     type: Object,
     default: () => ({}),
@@ -135,6 +109,195 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  activityGroupings: {
+    type: Array,
+    default: () => [],
+  },
+})
+
+// Extract activity information from activity groupings
+const activityInfo = computed(() => {
+  if (!props.activityGroupings || props.activityGroupings.length === 0) {
+    return null
+  }
+
+  const firstGrouping = props.activityGroupings[0]
+  if (!firstGrouping.activity) {
+    return null
+  }
+
+  return {
+    uid: firstGrouping.activity.uid,
+    name: firstGrouping.activity.name,
+    version: firstGrouping.activity.version || '1.0',
+  }
+})
+
+// Organize fields into rows dynamically
+const organizedRows = computed(() => {
+  const fields = []
+
+  // Always include these core fields
+  fields.push({
+    key: 'name',
+    label: t('_global.sentence_case_name'),
+    value: props.activity.name_sentence_case || props.activity.name || '-',
+  })
+
+  fields.push({
+    key: 'start_date',
+    label: t('_global.start_date'),
+    value: props.activity.start_date
+      ? $filters.date(props.activity.start_date)
+      : 'None',
+  })
+
+  fields.push({
+    key: 'end_date',
+    label: t('_global.end_date'),
+    value: props.activity.end_date
+      ? $filters.date(props.activity.end_date)
+      : 'None',
+  })
+
+  fields.push({
+    key: 'status',
+    label: t('_global.status'),
+    value: props.activity.status || '-',
+  })
+
+  fields.push({
+    key: 'version',
+    label: t('_global.version'),
+    value: props.activity.version || '-',
+  })
+
+  // Definition is always shown
+  fields.push({
+    key: 'definition',
+    label: t('_global.definition'),
+    value: props.activity.definition || '-',
+  })
+
+  // Conditionally add other fields
+  if (props.showAbbreviation) {
+    fields.push({
+      key: 'abbreviation',
+      label: t('_global.abbreviation'),
+      value: props.activity.abbreviation || '-',
+    })
+  }
+
+  if (props.showLibrary) {
+    fields.push({
+      key: 'library',
+      label: t('_global.library'),
+      value: props.activity.library_name || '-',
+    })
+  }
+
+  if (props.showNciConceptId) {
+    fields.push({
+      key: 'nci_concept_id',
+      label: t('ActivityForms.nci_concept_id') || 'NCI Concept ID',
+      value: props.activity.nci_concept_id || '-',
+    })
+  }
+
+  if (props.showDataCollection) {
+    fields.push({
+      key: 'data_collection',
+      label: t('activitySummary.dataCollection') || 'Data collection',
+      value: $filters.yesno(props.activity.is_data_collected),
+    })
+  }
+
+  // Activity instance specific fields
+  if (props.activity.is_legacy_usage !== undefined) {
+    fields.push({
+      key: 'legacy_usage',
+      label: t('ActivityInstanceOverview.is_legacy_usage') || 'Legacy usage',
+      value: $filters.yesno(props.activity.is_legacy_usage),
+    })
+  }
+
+  if (props.activity.adam_param_code !== undefined) {
+    fields.push({
+      key: 'adam_param_code',
+      label: t('ActivityInstanceOverview.adam_code') || 'ADoM parameter code',
+      value: props.activity.adam_param_code || '-',
+    })
+  }
+
+  if (props.activity.activity_instance_class !== undefined) {
+    fields.push({
+      key: 'activity_instance_class',
+      label:
+        t('ActivityInstanceOverview.activity_instance_class') ||
+        'Activity instance class',
+      value: props.activity.activity_instance_class || '-',
+    })
+  }
+
+  if (props.activity.is_required_for_activity !== undefined) {
+    fields.push({
+      key: 'required_for_activity',
+      label:
+        t('ActivityInstanceOverview.is_required_for_activity') ||
+        'Required for activity',
+      value: $filters.yesno(props.activity.is_required_for_activity),
+    })
+  }
+
+  if (props.activity.is_default_selected_for_activity !== undefined) {
+    fields.push({
+      key: 'default_selected_for_activity',
+      label:
+        t('ActivityInstanceOverview.is_default_selected_for_activity') ||
+        'Default selected for activity',
+      value: $filters.yesno(props.activity.is_default_selected_for_activity),
+    })
+  }
+
+  if (props.activity.topic_code !== undefined) {
+    fields.push({
+      key: 'topic_code',
+      label: t('ActivityInstanceOverview.topic_code') || 'Topic code',
+      value: props.activity.topic_code || '-',
+    })
+  }
+
+  if (props.activity.is_data_sharing !== undefined) {
+    fields.push({
+      key: 'data_sharing',
+      label: t('ActivityInstanceOverview.is_data_sharing') || 'Data sharing',
+      value: $filters.yesno(props.activity.is_data_sharing),
+    })
+  }
+
+  if (props.activity.activity_name !== undefined) {
+    fields.push({
+      key: 'activity_name',
+      label: t('ActivityInstanceOverview.activity_name') || 'Activity',
+      value: props.activity.activity_name || '-',
+    })
+  }
+
+  if (props.showAuthor) {
+    fields.push({
+      key: 'author',
+      label: t('_global.author'),
+      value: props.activity.author_username || '-',
+    })
+  }
+
+  // Organize fields into rows of 5
+  const rows = []
+  for (let i = 0; i < fields.length; i += 5) {
+    rows.push(fields.slice(i, i + 5))
+  }
+
+  return rows
 })
 </script>
 
@@ -159,6 +322,11 @@ defineProps({
   vertical-align: top;
   width: 20%;
   position: relative;
+}
+
+.activity-summary-table td.empty-cell {
+  padding: 0;
+  background: transparent;
 }
 
 .summary-label {
@@ -189,6 +357,21 @@ defineProps({
   line-height: 24px;
   letter-spacing: -0.02em;
   color: var(--semantic-system-brand, #001965);
+}
+
+.activity-link {
+  color: var(--semantic-system-brand, #001965);
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: -0.02em;
+}
+
+.activity-link:hover {
+  text-decoration: none;
+  opacity: 0.8;
 }
 
 @media (max-width: 1200px) {

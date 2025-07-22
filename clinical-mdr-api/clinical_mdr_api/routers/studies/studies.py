@@ -19,10 +19,12 @@ from clinical_mdr_api.models.study_selections.study import (
     StudyCloneInput,
     StudyCreateInput,
     StudyFieldAuditTrailEntry,
+    StudyMinimal,
     StudyPatchRequestJsonModel,
     StudyPreferredTimeUnit,
     StudyPreferredTimeUnitInput,
     StudyProtocolTitle,
+    StudySimple,
     StudySoaPreferences,
     StudySoaPreferencesInput,
     StudyStructureOverview,
@@ -41,8 +43,9 @@ from clinical_mdr_api.routers._generic_descriptions import (
 )
 from clinical_mdr_api.services.studies.study import StudyService
 from clinical_mdr_api.services.studies.study_pharma_cm import StudyPharmaCMService
-from common import config
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.config import settings
 from common.exceptions import ValidationException
 from common.models.error import ErrorResponse
 
@@ -54,7 +57,7 @@ StudyUID = Path(description="The unique id of the study.")
 
 @router.get(
     "",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns all studies in their latest/newest version.",
     description=f"""
 Allowed parameters include : filter on fields, sort by field name with sort direction, pagination
@@ -164,15 +167,15 @@ def get_all(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -182,7 +185,7 @@ def get_all(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -218,8 +221,34 @@ def get_all(
 
 
 @router.get(
+    "/list",
+    dependencies=[security, rbac.STUDY_READ],
+    summary="Returns a list of studies with their ids and acronyms.",
+    response_model_exclude_unset=True,
+    status_code=200,
+    responses={
+        403: _generic_descriptions.ERROR_403,
+        404: _generic_descriptions.ERROR_404,
+    },
+)
+def get_studies_list(
+    minimal_response: Annotated[
+        bool,
+        Query(
+            description="Indicates whether to return minimal response with only `uid`, `id` and `acronym`."
+        ),
+    ] = True
+) -> list[StudySimple | StudyMinimal]:
+    """
+    Returns a list of studies
+    """
+    study_service = StudyService()
+    return study_service.get_studies_list(minimal_response=minimal_response)
+
+
+@router.get(
     "/structure-overview",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns an overview of study structure of all studies.",
     description=f"""
 Allowed parameters include : filter on fields, sort by field name with sort direction, pagination
@@ -261,15 +290,15 @@ def get_study_structure_overview(
     sort_by: Annotated[Json, Query(description=_generic_descriptions.SORT_BY)] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -279,7 +308,7 @@ def get_study_structure_overview(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -301,7 +330,7 @@ def get_study_structure_overview(
 
 @router.get(
     "/structure-overview/headers",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns possibles values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -330,10 +359,10 @@ def get_study_structure_overview_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     study_service = StudyService()
     return study_service.get_study_structure_overview_header(
@@ -347,7 +376,7 @@ def get_study_structure_overview_header(
 
 @router.get(
     "/headers",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns possibles values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -376,10 +405,10 @@ def get_distinct_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     study_service = StudyService()
     return study_service.get_distinct_values_for_header(
@@ -393,7 +422,7 @@ def get_distinct_values_for_header(
 
 @router.post(
     "/{study_uid}/locks",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Locks a Study with specified uid",
     description="The Study is locked, which means that the LATEST_LOCKED relationship in the database is created."
     "The first locked version obtains number '1' and each next locked version "
@@ -427,7 +456,7 @@ def lock(
 
 @router.delete(
     "/{study_uid}/locks",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Unlocks a Study with specified uid",
     description="The Study is unlocked, which means that the new DRAFT version of a Study is created"
     " and the Study exists in the DRAFT state.",
@@ -453,7 +482,7 @@ def unlock(
 
 @router.post(
     "/{study_uid}/release",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Releases a Study with specified uid",
     description="The Study is released, which means that 'snapshot' of the Study is created in the database"
     "and the LATEST_RELEASED relationship is created that points to the created snapshot."
@@ -486,7 +515,7 @@ def release(
 
 @router.delete(
     "/{study_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Deletes a Study",
     description="""
 State before:
@@ -523,7 +552,7 @@ def delete_activity(study_uid: Annotated[str, StudyUID]):
 
 @router.get(
     "/{study_uid}",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns the current state of a specific study definition identified by 'study_uid'.",
     description="If multiple request query parameters are used, then they need to match all at the same time"
     " (they are combined with the AND operation).",
@@ -573,7 +602,7 @@ def get(
 
 @router.get(
     "/{study_uid}/structure-statistics",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns various statistics about the structure of the study identified by 'study_uid'.",
     response_model_exclude_unset=True,
     status_code=200,
@@ -594,7 +623,7 @@ def get_structure_statistics(
 
 @router.get(
     "/{study_uid}/pharma-cm",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns the pharma-cm represention of study identified by 'study_uid'.",
     response_model_exclude_unset=True,
     status_code=200,
@@ -626,7 +655,7 @@ def get_pharma_cm_representation(
 
 @router.get(
     "/{study_uid}/pharma-cm.xml",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns the pharma-cm represention of study identified by 'study_uid' in the xml format.",
     response_model_exclude_unset=True,
     status_code=200,
@@ -669,7 +698,7 @@ def get_pharma_cm_xml_representation(
 
 @router.patch(
     "/{study_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Request to change some aspects (parts) of a specific study definition identified by 'study_uid'.",
     description="The request to change (some aspect) of the state of current aggregate. "
     "There are some special cases and considerations:\n"
@@ -726,7 +755,7 @@ def patch(
 
 @router.get(
     "/{study_uid}/snapshot-history",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns the history of study snapshot definitions",
     description="It returns the history of changes made to the specified Study Definition Snapshot."
     "The returned history should reflect HAS_VERSION relationships in the database between StudyRoot and StudyValue nodes",
@@ -748,15 +777,15 @@ def get_snapshot_history(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -766,7 +795,7 @@ def get_snapshot_history(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -791,7 +820,7 @@ def get_snapshot_history(
 
 @router.get(
     "/{study_uid}/fields-audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns the audit trail for the fields of a specific study definition identified by 'study_uid'.",
     description="Actions on the study are grouped by date of edit."
     "Optionally select which subset of fields should be reflected in the audit trail.",
@@ -827,7 +856,7 @@ def get_fields_audit_trail(
 
 @router.get(
     "/{study_uid}/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns the audit trail for the subparts of a specific study definition identified by 'study_uid'.",
     description="Actions on the study are grouped by date of edit. Optionally select which subset of fields should be reflected in the audit trail.",
     status_code=200,
@@ -855,7 +884,7 @@ def get_study_subpart_audit_trail(
 
 @router.post(
     "",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Creates a new Study Definition.",
     description="""
 If the request succeeds new DRAFT Study Definition will be with initial identification data as provided in 
@@ -885,7 +914,7 @@ def create(
 
 @router.post(
     "/{study_uid}/clone",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Creates a cloned Study Definition with selective copying.",
     description="""
 Creates a new DRAFT Study Definition by cloning an existing study. 
@@ -916,7 +945,7 @@ def clone_study(
 
 @router.get(
     "/{study_uid}/protocol-title",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Retrieve all information related to Protocol Title",
     description="""
 State before:
@@ -953,7 +982,7 @@ def get_protocol_title(
 
 @router.get(
     "/{study_uid}/copy-component",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Creates a project of a specific component copy from another study",
     description="""
 State before:
@@ -1005,7 +1034,7 @@ def copy_simple_form_from_another_study(
 
 @router.get(
     "/{study_uid}/time-units",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Gets a study preferred time unit",
     status_code=200,
     responses={
@@ -1039,7 +1068,7 @@ def get_preferred_time_unit(
 
 @router.patch(
     "/{study_uid}/time-units",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Edits a study preferred time unit",
     status_code=200,
     responses={
@@ -1074,7 +1103,7 @@ def patch_preferred_time_unit(
 
 @router.patch(
     "/{study_uid}/order",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Reorder Study Subparts within a Study Parent Part",
     status_code=200,
     responses={
@@ -1105,7 +1134,7 @@ def reorder_study_subparts(
 
 @router.get(
     "/{study_uid}/soa-preferences",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Get study SoA preferences",
     response_model_by_alias=False,
     status_code=200,
@@ -1132,7 +1161,7 @@ def get_soa_preferences(
 
 @router.patch(
     "/{study_uid}/soa-preferences",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Update study SoA preferences",
     response_model_by_alias=False,
     status_code=200,

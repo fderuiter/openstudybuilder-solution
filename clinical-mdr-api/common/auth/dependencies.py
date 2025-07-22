@@ -4,17 +4,17 @@ from typing import Annotated
 from authlib.integrations.starlette_client import OAuth
 from authlib.jose.errors import JoseError
 from authlib.jose.rfc7519.claims import JWTClaims
-from fastapi import Depends
+from fastapi import Depends, Security
 from fastapi.security import OAuth2AuthorizationCodeBearer
 from opencensus.trace import execution_context
 from opencensus.trace.tracer import Tracer
 from pydantic import ValidationError
 from starlette_context import context
 
-from common.auth import config
 from common.auth.jwk_service import JWKService
 from common.auth.models import AccessTokenClaims, Auth, User
 from common.auth.user import persist_user, user
+from common.config import settings
 from common.exceptions import NotAuthenticatedException
 
 log = logging.getLogger(__name__)
@@ -22,19 +22,17 @@ log = logging.getLogger(__name__)
 oauth = OAuth()
 oidc_client = oauth.register(
     "default",
-    server_metadata_url=config.OAUTH_METADATA_URL,
+    server_metadata_url=settings.oauth_metadata_url,
 )
 
 jwks_service = JWKService(
     oidc_client,
-    audience=config.OAUTH_API_APP_ID,
-    leeway_seconds=config.JWT_LEEWAY_SECONDS,
+    audience=settings.oauth_api_app_id,
+    leeway_seconds=settings.jwt_leeway_seconds,
 )
 
 oauth_scheme = OAuth2AuthorizationCodeBearer(
-    authorizationUrl=config.OAUTH_AUTHORIZATION_URL,
-    tokenUrl=config.OAUTH_TOKEN_URL,
-    scopes=config.OUR_SCOPES,
+    authorizationUrl="", tokenUrl="", scopes=settings.our_scopes
 )
 
 
@@ -102,7 +100,7 @@ def dummy_user_auth():
     persist_user(user_info=user())
 
 
-if config.OAUTH_RBAC_ENABLED:
+if settings.oauth_rbac_enabled:
 
     class RequiresAnyRole:
         """
@@ -125,7 +123,7 @@ else:
     )
 
     # pylint: disable=unused-argument
-    class RequiresAnyRole:
+    class RequiresAnyRole:  # type: ignore[no-redef]
         def __init__(self, roles):
             # An empty method to keep instantiation compatible with disabled functionality
             pass
@@ -203,4 +201,14 @@ def dummy_auth_object(access_token_claims: AccessTokenClaims) -> Auth:
             {},
         ),
         access_token_claims=access_token_claims,
+    )
+
+
+if settings.oauth_enabled:
+    security = Security(validate_token)
+else:
+    security = Security(dummy_user_auth)
+    log.warning(
+        "WARNING: Authentication is disabled. "
+        "See OAUTH_ENABLED and OAUTH_RBAC_ENABLED environment variables."
     )

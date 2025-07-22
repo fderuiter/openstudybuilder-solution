@@ -211,7 +211,7 @@
         height="50"
       />
     </div>
-    <v-dialog v-model="showAboutDialog" max-width="1200">
+    <v-dialog v-model="showAboutDialog" fullscreen>
       <AboutPage @close="showAboutDialog = false" />
     </v-dialog>
     <v-dialog

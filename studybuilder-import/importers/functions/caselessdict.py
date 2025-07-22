@@ -1,5 +1,8 @@
 class CaselessDict(dict):
-    def __init__(self, initval={}):
+    def __init__(self, initval: dict | None = None):
+        if initval is None:
+            initval = {}
+
         if isinstance(initval, dict):
             for key, value in initval.items():
                 self.__setitem__(key, value)

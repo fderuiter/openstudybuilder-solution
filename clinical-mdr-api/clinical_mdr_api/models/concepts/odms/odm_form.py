@@ -49,7 +49,7 @@ from clinical_mdr_api.models.controlled_terminologies.ct_term import (
     SimpleCTTermAttributes,
 )
 from clinical_mdr_api.models.utils import BaseModel, PostInputModel
-from common import config
+from common.config import settings
 from common.utils import booltostr
 
 
@@ -268,7 +268,7 @@ class OdmFormPatchInput(ConceptPatchInput):
 
 class OdmFormItemGroupPostInput(PostInputModel):
     uid: Annotated[str, Field(min_length=1)]
-    order_number: Annotated[int, Field(lt=config.MAX_INT_NEO4J)]
+    order_number: Annotated[int, Field(lt=settings.max_int_neo4j)]
     mandatory: Annotated[str, Field(min_length=1)]
     collection_exception_condition_oid: Annotated[str | None, Field()] = None
     vendor: Annotated[OdmRefVendorPostInput, Field()]

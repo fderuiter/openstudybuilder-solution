@@ -10,7 +10,6 @@ from clinical_mdr_api.models.concepts.compound import (
 )
 from clinical_mdr_api.services.concepts.concept_generic_service import (
     ConceptGenericService,
-    _AggregateRootType,
 )
 
 
@@ -28,7 +27,7 @@ class CompoundSimpleService(ConceptGenericService[CompoundAR]):
 
     def _create_aggregate_root(
         self, concept_input: CompoundCreateInput, library
-    ) -> _AggregateRootType:
+    ) -> None:
         return None
 
     def _edit_aggregate(

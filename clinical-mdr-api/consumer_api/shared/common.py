@@ -6,8 +6,7 @@ from typing import Any
 
 from neomodel.sync_.core import db
 
-APP_ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
-
+from common.utils import get_db_result_as_dict
 
 log = logging.getLogger(__name__)
 
@@ -19,7 +18,7 @@ class SortByType(Enum):
 
 def query(
     cypher_query,
-    params: dict = None,
+    params: dict[Any, Any] = None,
     handle_unique: bool = True,
     retry_on_session_expire: bool = False,
     resolve_objects: bool = False,
@@ -54,13 +53,6 @@ def urlencode_link(link: str) -> str:
 
     url = url._replace(query=urllib.parse.urlencode(query_params, True))
     return urllib.parse.urlunparse(url)
-
-
-def get_db_result_as_dict(row: list[Any], columns: list[str]) -> dict:
-    item = {}
-    for key, value in zip(columns, row):
-        item[key] = value
-    return item
 
 
 def db_pagination_clause(page_size: int, page_number: int) -> str:

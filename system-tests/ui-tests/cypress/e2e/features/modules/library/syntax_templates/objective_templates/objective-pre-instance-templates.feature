@@ -20,6 +20,7 @@ Feature: Library - Syntax Templates - Objectives - Pre-instance
 
     Scenario: [Create][Positive case] User must be able to create Objective Template Pre-instantiation in Parent Template tab
         Given The '/library/objective_templates/parent' page is opened
+        And The Add template button is clicked
         When The new objective to be used as pre-instantiation is added in the library
         And Objective template for pre-instantiation is found
         When The 'Approve' option is clicked from the three dot menu list

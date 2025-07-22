@@ -160,16 +160,12 @@ class OdmItemService(OdmGenericService[OdmItemAR]):
 
         item = self.non_transactional_create(
             concept_input=OdmItemPostInput(
-                library=concept_input.library_name,
+                library_name=concept_input.library_name,
                 oid=get_input_or_new_value(concept_input.oid, "I.", concept_input.name),
                 name=concept_input.name,
                 prompt=concept_input.prompt,
                 datatype=concept_input.datatype,
-                length=self.calculate_item_length_value(
-                    concept_input.length,
-                    concept_input.codelist_uid,
-                    concept_input.terms,
-                ),
+                length=concept_input.length,
                 significant_digits=concept_input.significant_digits,
                 sas_field_name=concept_input.sas_field_name,
                 sds_var_name=concept_input.sds_var_name,
@@ -221,11 +217,7 @@ class OdmItemService(OdmGenericService[OdmItemAR]):
                 oid=concept_edit_input.oid,
                 prompt=concept_edit_input.prompt,
                 datatype=concept_edit_input.datatype,
-                length=self.calculate_item_length_value(
-                    concept_edit_input.length,
-                    concept_edit_input.codelist_uid,
-                    concept_edit_input.terms,
-                ),
+                length=concept_edit_input.length,
                 significant_digits=concept_edit_input.significant_digits,
                 sas_field_name=concept_edit_input.sas_field_name,
                 sds_var_name=concept_edit_input.sds_var_name,
@@ -313,42 +305,6 @@ class OdmItemService(OdmGenericService[OdmItemAR]):
                     "order": unit_definition.order,
                 },
             )
-
-    def calculate_item_length_value(
-        self,
-        length: int | None,
-        codelist_uid: str | None,
-        input_terms: list[OdmItemTermRelationshipInput],
-    ):
-        if length:
-            return length
-
-        if not codelist_uid or not input_terms:
-            return None
-
-        (
-            items,
-            prop_names,
-        ) = self._repos.ct_term_attributes_repository.get_term_name_and_attributes_by_codelist_uids(
-            [codelist_uid]
-        )
-
-        terms = sorted(
-            [dict(zip(prop_names, item)) for item in items],
-            key=lambda elm: len(elm["code_submission_value"]),
-            reverse=True,
-        )
-
-        input_term_uids = [input_term.uid for input_term in input_terms]
-
-        return next(
-            (
-                len(term["code_submission_value"])
-                for term in terms
-                if term["term_uid"] in input_term_uids
-            ),
-            None,
-        )
 
     @db.transaction
     def add_activity(

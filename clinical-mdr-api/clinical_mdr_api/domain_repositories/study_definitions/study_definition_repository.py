@@ -25,6 +25,7 @@ from clinical_mdr_api.models.study_selections.study import (
 from clinical_mdr_api.models.utils import GenericFilteringReturn
 from clinical_mdr_api.repositories._utils import FilterOperator
 from common import exceptions
+from common.utils import convert_to_datetime
 
 
 class StudyDefinitionRepository(ABC):
@@ -251,9 +252,10 @@ RETURN
         self,
         study_src_uid: str,
         study_target_uid: str,
-        list_of_items_to_copy: list[bool],
+        list_of_items_to_copy: list[str],
         author_id: str,
     ) -> dict[str, int] | None:
+        parameters: dict[str, str | list[str] | datetime.datetime] = {}
         exclusions = """
             NOT EXISTS((selection_src)--(:StudyActivity))
             AND NOT EXISTS((selection_src)--(:StudyActivitySubGroup))
@@ -357,8 +359,8 @@ WITH $study_src_uid as study_src, $study_target_uid as study_target, $to_copy_la
 // GO ONE BY ONE LABEL TO COPY
 unwind to_copy_labels as to_copy_labels_unw
 
-MATCH (sr_target:StudyRoot)-[:LATEST]->(sv_target:StudyValue)--(selection_target:StudySelection)
-    where sr_target.uid = study_target
+MATCH (sr_target:StudyRoot)-[:LATEST]->(sv_target:StudyValue)-[relationship]-(selection_target:StudySelection)
+    where sr_target.uid = study_target AND type(relationship) <> "HAS_PROTOCOL_SOA_CELL" AND type(relationship) <> "HAS_PROTOCOL_SOA_FOOTNOTE"
 
 // Update the counter value and generate new UID and 
 CALL {
@@ -554,6 +556,63 @@ return *
             not_for_update=True, repository=self, additional_closure=None
         )
 
+    def get_studies_list(self) -> list[dict[str, Any]]:
+        """
+        Public method to retrieve a list of all studies in the repository.
+        Returns a list of dictionaries.
+        """
+        self._check_not_closed()
+        query = """
+            MATCH (sr:StudyRoot)-[:LATEST]->(sv:StudyValue)-[:HAS_PROJECT]-(:StudyProjectField)<-[:HAS_FIELD]-(p:Project)<-[:HOLDS_PROJECT]-(cp:ClinicalProgramme)
+            WITH sr,sv,p,cp
+            OPTIONAL MATCH (sv)-[:HAS_TEXT_FIELD]->(stf:StudyTextField {field_name: 'study_title'})
+            WITH sr, sv, p, cp, stf, COLLECT {
+                    MATCH (sr)-[ver:HAS_VERSION|LATEST_DRAFT|LATEST_LOCKED|LATEST_RELEASED]->(sv)
+                    RETURN ver
+                    order by ver.start_date desc
+                    limit 1
+                } as versions
+            WITH sr, sv, p, cp, stf, head(versions) as current_version
+            OPTIONAL MATCH (author:User {user_id: current_version.author_id})
+            RETURN  sr.uid AS uid,
+                    sv.study_acronym,
+                    sv.study_id_prefix + '-' + sv.study_number + COALESCE(nullif('-' + sv.subpart_id, '-'), '') as id,
+                    sv.study_number,
+                    sv.subpart_id,
+                    sv.study_subpart_acronym,
+                    stf.value as study_title,
+                    cp.name as clinical_progamme,
+                    p.project_number as project_number,
+                    p.name as project_name,
+                    current_version.author_id as version_author_id,
+                    current_version.status as version_status,
+                    current_version.start_date as version_start_date,
+                    current_version.version as version_number,
+                    COALESCE(author.username, current_version.author_id) as author  
+            ORDER BY uid
+        """
+        rs = db.cypher_query(query)
+        return [
+            {
+                "uid": row[0],
+                "acronym": row[1],
+                "id": row[2],
+                "study_number": row[3],
+                "subpart_id": row[4],
+                "subpart_acronym": row[5],
+                "title": row[6],
+                "clinical_programme_name": row[7],
+                "project_number": row[8],
+                "project_name": row[9],
+                "version_author_id": row[10],
+                "version_status": row[11],
+                "version_start_date": convert_to_datetime(row[12]),
+                "version_number": row[13],
+                "version_author": row[14],
+            }
+            for row in rs[0]
+        ]
+
     def find_all(
         self,
         has_study_footnote: bool | None = None,
@@ -562,10 +621,10 @@ return *
         has_study_criteria: bool | None = None,
         has_study_activity: bool | None = None,
         has_study_activity_instruction: bool | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         deleted: bool = False,
@@ -640,10 +699,10 @@ return *
     def find_study_snapshot_history(
         self,
         study_uid: str,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> GenericFilteringReturn[StudyDefinitionAR]:
@@ -667,10 +726,10 @@ return *
     def _retrieve_study_snapshot_history(
         self,
         study_uid: str,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> GenericFilteringReturn[StudyDefinitionSnapshot]:
@@ -700,10 +759,10 @@ return *
         self,
         uid: str,
         library_item_type: NodeMeta,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 50,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
     ) -> GenericFilteringReturn[StudyDefinitionAR]:
         """
@@ -838,10 +897,10 @@ return *
         has_study_criteria: bool | None = None,
         has_study_activity: bool | None = None,
         has_study_activity_instruction: bool | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         study_selection_object_node_id: int | None = None,
@@ -904,7 +963,7 @@ return *
 
     def get_subpart_audit_trail_by_uid(
         self, uid: str, is_subpart: bool = False, study_value_version: str | None = None
-    ) -> list:
+    ) -> list[Any]:
         """
         Public method which is to retrieve the audit trail for a given study identified by UID.
         :return: A list of retrieved data in a form StudyAuditTrailAR instances.

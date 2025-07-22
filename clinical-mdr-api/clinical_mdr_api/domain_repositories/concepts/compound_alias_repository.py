@@ -1,3 +1,5 @@
+from typing import Any
+
 from neomodel import db
 
 from clinical_mdr_api.domain_repositories.concepts.concept_generic_repository import (
@@ -59,7 +61,7 @@ class CompoundAliasRepository(ConceptGenericRepository):
         return was_parent_data_modified or are_props_changed or are_rels_changed
 
     def _create_aggregate_root_instance_from_cypher_result(
-        self, input_dict: dict
+        self, input_dict: dict[str, Any]
     ) -> CompoundAliasAR:
         major, minor = input_dict.get("version").split(".")
         return CompoundAliasAR.from_repository_values(
@@ -156,5 +158,5 @@ class CompoundAliasRepository(ConceptGenericRepository):
             """
         result, _ = db.cypher_query(query, {"compound_uid": compound_uid})
         if len(result):
-            return list(map(lambda x: x[0], result))
+            return [item[0] for item in result]
         return []

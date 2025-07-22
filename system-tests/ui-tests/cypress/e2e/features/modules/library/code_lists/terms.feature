@@ -1,5 +1,6 @@
-@REQ_ID:xxx
-Feature: Library - Code Lists - Terms
+@REQ_ID:1070679
+Feature: Library - Code Lists - Sponsor - Show Terms
+    AAs a user, I want to verify that the Terms page can be displayed correctly and filter functionality works as expected.
 
     Background: User must be logged in
         Given The user is logged in
@@ -9,67 +10,37 @@ Feature: Library - Code Lists - Terms
         Given The '/library' page is opened
         When The 'Terms' submenu is clicked in the 'Code Lists' section
         Then The current URL is 'library/terms'
-
 @pending_development
-    Scenario: [Table][Columns][Names] User must be able to see the columns list of Terms 
+    Scenario: [Table][Options] User must be able to see table with correct options
         Given The '/library/terms' page is opened
         Then A table is visible with following options
             | options                                                         |
             | Columns                                                         |
             | Export                                                          |
-            | Add select boxes to table to allow selection of rows for export | * to be checked
-
-        And A table is visible with following headers (to be added)
-            | headers                |
-            | Library                |
-            | Sponsor preferred name |
-            | Template parameter     |
-            | Code list status       |
-            | Name modified          |
-            | Concept ID             |
-
+            | Filters                                                         |
+            | Add select boxes to table to allow selection of rows for export |
+            | search-field                                                    |
+@pending_development
+    Scenario: [Table][Columns][Names] User must be able to see the columns list on the main page as below
+        Given The '/library/terms' page is opened
+        And A table is visible with following headers
+            | headers                     |
+            | Library                     |
+            | Sponsor name                |
+            | Name status                 |
+            | Name date                   |
+            | Concept ID                  |
+            | Code list names             |
+            | Code list submission values |
+            | Submission values           |
+            | NCI Preferred name          |
+            | Definition                  |
+            | Attributes status           |
+            | Attributes date             |
+            
 @pending_development
     Scenario: [Table][Pagination] User must be able to use table pagination
         Given The '/library/terms' page is opened
         When The user switches pages of the table
         Then The table page presents correct data
-
-@pending_development
-    Scenario: User must be able to add none-code list to the terms table
-        Given The '/library/terms' page is opened
-        When The user filter the none-code list from the table
-        And The user clicks on the 'Edit' button from the three dot menu list
-        Then The 'Edit' page is opened
-        When The user clicks on the 'Add' button
-        And The user fills in all the neccesary fields
-        And The user clicks on the 'Save' button
-        Then The 'Edit' page is closed
-        And The table contains the added none-code list
-
-@pending_development
-     Scenario: User must be able to add new term to the terms table
-        Given The '/library/terms' page is opened
-        When The user clicks on the 'Edit' button from the three dot menu list
-        Then The 'Edit' page is opened
-        When The user clicks on the 'Add' button
-        And The user fills in all the neccesary fields
-        And The user clicks on the 'Save' button
-        Then The 'Edit' page is closed
-        And The table contains the added 
-
-@pending_development     
-    Scenario: User must be able to verify the history page of the term
-        Given The '/library/terms' page is opened
-        When The user clicks on the 'view history' button from the three dot menu list
-        Then The 'History' page is opened
-        And The history page contains the following data (to be checked)
-            | name               | value                                                                                                                                |
-            | Library            | CDISC                                                                                                                               |
-            | Sponsor preferred  | AUC All Normalized by Body Mass Index                                                                                               |
-            | Template parameter  | AUC All Norm by BMI                                                                                                                 |
-            | Code list status    | AUCALLB                                                                                                                             |
-            | Name modified      | The area under the curve (AUC) from the time of dosing to th                                                                        |
-
-    
-
-    
+                                                          

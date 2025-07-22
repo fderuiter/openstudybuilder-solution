@@ -15,9 +15,7 @@ from clinical_mdr_api.models.utils import (
 
 
 class DurationJsonModel(BaseModel):
-    model_config = ConfigDict(
-        title="Duration", description="Duration model to store ISO8601 duration."
-    )
+    model_config = ConfigDict(title="Duration model to store ISO8601 duration")
 
     duration_value: Annotated[int | None, Field()] = None
     duration_unit_code: Annotated[UnitDefinitionSimpleModel | None, Field()] = None

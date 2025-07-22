@@ -40,7 +40,7 @@ from clinical_mdr_api.domains.versioned_object_aggregate import (
 from clinical_mdr_api.models.controlled_terminologies.configuration import CTConfigOGM
 
 
-class CTConfigRepository(LibraryItemRepositoryImplBase[CTConfigAR]):
+class CTConfigRepository(LibraryItemRepositoryImplBase):
     value_class = CTConfigValue
     root_class = CTConfigRoot
     user: str

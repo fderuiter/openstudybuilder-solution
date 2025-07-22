@@ -57,44 +57,56 @@ Feature: Library - Concepts - Activities - Activity Instances
     Scenario: [Create][Positive case] User must be able to add a new Activity Instance
         Given The '/library/activities/activity-instances' page is opened
         When The Add Activity Instance button is clicked
-        And The activity instance data is filled in and saved
+        And All activity instance data is filled in
+        And Form save button is clicked
+        And User waits for activity instance to be 'created'
+        And Activity Instance is found
         And The newly added Activity Instance item is added in the table by default
         And The item has status 'Draft' and version '0.1'
 
     Scenario: [Create][Mandatory fields] User must not be able to continue Step 1 of new activity instance without mandatory fields of 'Activity' selection
         Given The '/library/activities/activity-instances' page is opened
         When The Add Activity Instance button is clicked
-        And Activity selection is not made
+        And Form continue button is clicked
         Then The user is not able to continue
         And The validation message appears for Activity field
-        When Activity selected but Activity group does not select
+        When The Activity instance activity is selected
+        And Form continue button is clicked
         Then The user is not able to continue
         And The pop up displays 'You need to choose at least one Activity Grouping'
 
     Scenario: [Create][Mandatory fields] User must not be able to continue Step 2 of new activity Instance without mandatory fields of 'Activity instance class'
         Given The '/library/activities/activity-instances' page is opened
         When The Add Activity Instance button is clicked
-        And The Activity instance class does not select any data
+        And The Activity instance group data is filled in
+        And Form continue button is clicked
         Then The user is not able to continue
         And The validation message appears for class field
 
     Scenario: [Create][Mandatory fields] User must not be able to save the fom of new activity instance without mandatory fields of 'Activity instance name', 'Sentence case name', 'Definition' and 'Topic code'
         Given The '/library/activities/activity-instances' page is opened
         When The Add Activity Instance button is clicked
-        And The Activity instance name, Sentence case name, Definition and Topic code fields are not filled with data
+        And The Activity instance group data is filled in
+        And The Activity instance class data is filled in
+        And Form save button is clicked
         Then The message of "This field is required" displayed in all the above mandatory fields
         And The form is not closed
 
     Scenario: [Create][Sentence case name validation] System must default value for 'Sentence case name' to lower case value of 'Activity instance name'
         Given The '/library/activities/activity-instances' page is opened
-        When The user fills group and class instance data
+        When The Add Activity Instance button is clicked
+        And The Activity instance group data is filled in
+        And The Activity instance class data is filled in
         And The user enters a value for Activity instance name
         Then The field for Sentence case name will be defaulted to the lower case value of the Activity instance name
 
     Scenario: [Create][Sentence case name validation] System must ensure value of 'Sentence case name' independent of case is identical to the value of 'Activity instance name'
         Given The '/library/activities/activity-instances' page is opened
-        When The user fills group and class instance data
+        When The Add Activity Instance button is clicked
+        And The Activity instance group data is filled in
+        And The Activity instance class data is filled in
         And The user define a value for Sentence case name and it is not identical to the value of Activity instance name
+        And Form save button is clicked
         Then The user is not able to save
         And The validation message appears for sentance case name that it is not identical to name
 
@@ -128,7 +140,9 @@ Feature: Library - Concepts - Activities - Activity Instances
         And [API] Activity Instance in status Draft exists
         And Activity Instance is found
         When The 'Edit' option is clicked from the three dot menu list
-        Then The activity instance is edited
+        Then The activity instance edition form is filled with data
+        And Form save button is clicked
+        And User waits for activity instance to be 'updated'
         And The item has status 'Draft' and version '0.2'
 
     Scenario: [Actions][Edit][version 1.1] User must be able to edit and approve new version of Activity Instance
@@ -139,7 +153,9 @@ Feature: Library - Concepts - Activities - Activity Instances
         When The 'New version' option is clicked from the three dot menu list
         Then The item has status 'Draft' and version '1.1'
         When The 'Edit' option is clicked from the three dot menu list
-        And The activity instance is edited
+        And The activity instance edition form is filled with data
+        And Form save button is clicked
+        And User waits for activity instance to be 'updated'
         Then The item has status 'Draft' and version '1.2'
         When The 'Approve' option is clicked from the three dot menu list
         Then The item has status 'Final' and version '2.0'
@@ -156,7 +172,7 @@ Feature: Library - Concepts - Activities - Activity Instances
         And [API] Activity Instance in status Draft exists
         And Activity Instance is found
         When The 'Delete' option is clicked from the three dot menu list
-        Then The activity instance is no longer available
+        Then The activity instance is not found
 
     Scenario: [Create][Negative case][Draft activity] User must not be able to create activity instance linked to Draft activity until it is approved
         Given The '/library/activities/activity-instances' page is opened
@@ -164,11 +180,16 @@ Feature: Library - Concepts - Activities - Activity Instances
         And Activity name created through API is found
         And The Add Activity Instance button is clicked
         And The Activity created through API is selected
-        And The validation error for activity in not allowed state is displayed
+        And Form continue button is clicked
+        And The validation error for 'Draft' activity in not allowed state is displayed
         When Fullscreen wizard is closed by clicking cancel button
         And Action is confirmed by clicking continue
         And [API] Activity is approved
-        Then The activity instance data with custom activity is filled in and saved
+        When The Add Activity Instance button is clicked
+        Then The activity instance mandatory data is filled in and custom activity is selected
+        And Form save button is clicked
+        And User waits for activity instance to be 'created'
+        And Activity Instance is found
         And The item has status 'Draft' and version '0.1'
 
     Scenario: [Create][Negative case][Retired activity] User must not be able to create activity instance linked to Retired activity until it is approved
@@ -179,20 +200,26 @@ Feature: Library - Concepts - Activities - Activity Instances
         And Activity name created through API is found
         And The Add Activity Instance button is clicked
         And The Activity created through API is selected
-        And The validation error for activity in not allowed state is displayed
+        And Form continue button is clicked
+        And The validation error for 'Retired' activity in not allowed state is displayed
         When Fullscreen wizard is closed by clicking cancel button
         And Action is confirmed by clicking continue
         And [API] Activity is reactivated
-        Then The activity instance data with custom activity is filled in and saved
+        When The Add Activity Instance button is clicked
+        Then The activity instance mandatory data is filled in and custom activity is selected
+        And Form save button is clicked
+        And User waits for activity instance to be 'created'
+        And Activity Instance is found
         And The item has status 'Draft' and version '0.1'
 
     Scenario: [Cancel][Creation] User must be able to Cancel creation of the activity instance
         Given The '/library/activities/activity-instances' page is opened
-        And The activity instance form is filled with data
+        And The Add Activity Instance button is clicked
+        And The activity instance mandatory data is filled in
         When Fullscreen wizard is closed by clicking cancel button
         And Action is confirmed by clicking continue
         Then The form is no longer available
-        And The activity instance is not created
+        And The activity instance is not found
 
     Scenario: [Cancel][Edition] User must be able to Cancel edition of the activity instance
         Given The '/library/activities/activity-instances' page is opened
@@ -203,7 +230,7 @@ Feature: Library - Concepts - Activities - Activity Instances
         And Fullscreen wizard is closed by clicking cancel button
         And Action is confirmed by clicking continue
         Then The form is no longer available
-        And The activity instance is not edited
+        And The activity instance is not found
 
     Scenario: [Actions][Availability][Draft item] User must only have access to aprove, edit, delete, history actions for Drafted version of the activity instance
         Given The '/library/activities/activity-instances' page is opened
@@ -232,14 +259,25 @@ Feature: Library - Concepts - Activities - Activity Instances
     Scenario: [Create][Uniqueness check][Topic code] User must not be able to create two activities instances with the same topic codes
         Given The '/library/activities/activity-instances' page is opened
         And [API] Activity Instance in status Draft exists
+        When The Add Activity Instance button is clicked
         And Second activity instance data is created with the same topic code
+        And Form save button is clicked
         Then Activity instance cannot be saved
+    
+    @BUG_ID:2770472
+    Scenario: User must not be able to edit activity instance when linked activity is in DRAFT state
+        Given [API] Activity Instance in status Draft exists
+        And [API] Activity new version is created
+        And The '/library/activities/activity-instances' page is opened
+        And Activity Instance is found
+        When The 'Edit' option is clicked from the three dot menu list 
+        Then The edit form displays text 'Selected activity is in DRAFT state. Please move the activity to FINAL state before editing the Activity Instance.'
 
     Scenario: [Table][Search][Postive case] User must be able to search created activity instance
         Given The '/library/activities/activity-instances' page is opened
         When [API] First activity instance for search test is created
         And [API] Second activity instance for search test is created
-        Then One activity instance is found after performing full name search
+        Then Activity Instance is found
         And The existing item is searched for by partial name
         Then More than one result is found
 

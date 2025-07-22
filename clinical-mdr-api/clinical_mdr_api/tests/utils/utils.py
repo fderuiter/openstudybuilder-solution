@@ -1,3 +1,4 @@
+from typing import Any
 from xml.etree.ElementTree import Element
 
 
@@ -39,7 +40,7 @@ def xml_diff(expected: Element, actual: Element, path: str = "Root"):
 
 
 def assert_with_key_exclusion(
-    dict1: dict, dict2: dict, exclude_keys: list | None = None
+    dict1: dict[Any, Any], dict2: dict[Any, Any], exclude_keys: list[Any] | None = None
 ):
     def remove_keys(d, keys):
         if not isinstance(d, dict):

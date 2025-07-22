@@ -123,7 +123,9 @@ Then('The activities are removed from the study', () => {
 })
 
 When('The user enables the Reorder Activities function for acitivities in the same {string} flowchart subgroup and {string} group', (subgroup, group) => {
-    cy.get('input[aria-label="Expand table"]').check()
+    cy.contains('tr.flowchart', group).find('.mdi-chevron-right').click()
+    cy.get('.group .mdi-chevron-right').click()
+    cy.get('.subgroup .mdi-chevron-right').click()
     cy.contains('tr[class="bg-white"]', subgroup).within(() => cy.clickButton('table-item-action-button'))
     cy.clickButton('Reorder')
 })
@@ -145,10 +147,8 @@ When('The user updates the order of activities', () => {
 })
 
 Then('The new order of activites is visible', () => {
-    cy.get('input[aria-label="Expand table"]').check()
-    cy.contains('tr[class="bg-white"]', 'Acute Kidney Injury').within(() => cy.clickButton('table-item-action-button'))
-    cy.clickButton('Reorder')
-    cy.get('.mdi-sort').first().parentsUntil('td').should('contain', first_in_order)
+    cy.wait(2000)
+    cy.get('tr.bg-white').first().should('contain', first_in_order)
 })
 
 Then('Text about no added visits and activities is displayed', () => cy.get('.v-empty-state__title').should('have.text', 'No activities & visits added yet'))
@@ -174,6 +174,35 @@ When('User search search activity by subgroup', () => cy.contains('.v-input__con
 When('User search search activity by group', () => cy.contains('.v-input__control', 'Search Activities').type('API_Group'))
 
 When('User expand table', () => cy.contains('.v-selection-control', 'Expand table').click())
+
+When('User selects visits {string}', (visitList) => {
+    const visitListArray = visitList.split(',')
+    visitListArray.forEach(visit => cy.contains('table thead th', visit.trim()).find('input').check())
+})
+
+When('Button for collapsing visits is clicked', () => cy.get('button[title="Group selected visits together"]').click())
+
+When('Button for collapsing visits is not available', () => cy.get('button[title="Group selected visits together"]').should('not.be.visible'))
+
+When('Option for collapsing in {string} is selected', (value) => cy.get(`input[value="${value}"]`).check({force: true}))
+
+Then('Visits are no longer collapsed in detailed SoA view', () => {
+    cy.get('table thead tr').should('not.contain', 'V2-V4')
+    cy.get('table thead tr').should('not.contain', 'V2,V3,V4')
+})
+
+Then('Visits study weeks are no longer collapsed in detailed SoA view', () => {
+    cy.get('table thead tr').should('not.contain', '1-4')
+    cy.get('table thead tr').should('not.contain', '1,2,4')
+})
+
+Then('Visits are collapsed as {string} in detailed SoA view', (visitsGroup) => cy.contains('table thead tr', visitsGroup))
+
+Then('Visits study weeks are collapsed as {string} in detailed SoA view', (weeksGroup) => cy.contains('table thead tr', weeksGroup))
+
+Then('Visit group delete button is clicked', () => cy.get('button[title="Delete this group"]').click())
+
+Then('Error message is displayed for collapsing visits with different epochs', () => cy.checkSnackbarMessage("Given Visits can't be collapsed as they exist in different Epochs"))
 
 function bulkAction(action) {
     cy.request('api/studies/Study_000001/study-activities?total_count=true').then((req) => {

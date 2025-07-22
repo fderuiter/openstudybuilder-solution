@@ -11,6 +11,7 @@ from clinical_mdr_api.models.notification import (
 from clinical_mdr_api.routers import _generic_descriptions, decorators
 from clinical_mdr_api.services.notifications import NotificationService
 from common.auth import rbac
+from common.auth.dependencies import security
 
 # Prefixed with "/notifications"
 router = APIRouter()
@@ -22,7 +23,7 @@ service = NotificationService()
 
 @router.get(
     "",
-    dependencies=[rbac.ADMIN_READ],
+    dependencies=[security, rbac.ADMIN_READ],
     summary="Returns all notifications.",
     status_code=200,
     responses={
@@ -35,8 +36,20 @@ def get_all_notifications() -> list[Notification]:
 
 
 @router.get(
+    "/actives",
+    summary="Returns all notifications that are currently published and active.",
+    status_code=200,
+    responses={
+        404: _generic_descriptions.ERROR_404,
+    },
+)
+def get_all_active_notifications() -> list[Notification]:
+    return service.get_all_active_notifications()
+
+
+@router.get(
     "/{serial_number}",
-    dependencies=[rbac.ADMIN_READ],
+    dependencies=[security, rbac.ADMIN_READ],
     summary="Returns the notification identified by the provided Serial Number.",
     status_code=200,
     responses={
@@ -51,7 +64,7 @@ def get_notification(serial_number: Annotated[int, SN]) -> Notification:
 
 @router.post(
     "",
-    dependencies=[rbac.ADMIN_WRITE],
+    dependencies=[security, rbac.ADMIN_WRITE],
     summary="Creates a notification.",
     status_code=201,
     responses={
@@ -67,7 +80,7 @@ def create_notification(
 
 @router.patch(
     "/{serial_number}",
-    dependencies=[rbac.ADMIN_WRITE],
+    dependencies=[security, rbac.ADMIN_WRITE],
     summary="Updates the notification identified by the provided Serial Number.",
     status_code=200,
     responses={
@@ -85,7 +98,7 @@ def update_notification(
 
 @router.delete(
     "/{serial_number}",
-    dependencies=[rbac.ADMIN_WRITE],
+    dependencies=[security, rbac.ADMIN_WRITE],
     summary="Deletes the notification identified by the provided Serial Number.",
     status_code=204,
     responses={

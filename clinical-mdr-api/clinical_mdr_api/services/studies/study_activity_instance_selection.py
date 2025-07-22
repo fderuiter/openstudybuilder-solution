@@ -67,7 +67,7 @@ class StudyActivityInstanceSelectionService(StudyActivitySelectionBaseService):
         study_uid: str,
         study_selection_uid: str,
         new_order: int,
-    ) -> tuple[StudySelectionActivityInstanceAR, StudySelectionActivityInstanceVO]:
+    ):
         pass
 
     def _filter_ars_from_same_parent(
@@ -207,7 +207,7 @@ class StudyActivityInstanceSelectionService(StudyActivitySelectionBaseService):
             activity_instance_uid, for_update=True
         )
         exceptions.NotFoundException.raise_if_not(
-            activity_instance_uid, "Activity Instance", activity_instance_uid
+            activity_instance_ar, "Activity Instance", activity_instance_uid
         )
 
         exceptions.NotFoundException.raise_if(

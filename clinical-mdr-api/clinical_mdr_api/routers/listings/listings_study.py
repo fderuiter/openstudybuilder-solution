@@ -9,6 +9,7 @@ from clinical_mdr_api.services.listings.listings_study import (
     StudyMetadataListingService,
 )
 from common.auth import rbac
+from common.auth.dependencies import security
 from common.models.error import ErrorResponse
 
 # Prefixed with "/listings"
@@ -17,7 +18,7 @@ router = APIRouter()
 
 @router.get(
     "/studies/study-metadata",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Retrieve study metadata of a specific study",
     response_class=PrettyJSONResponse,
     status_code=200,

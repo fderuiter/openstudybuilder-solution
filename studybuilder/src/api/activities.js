@@ -164,4 +164,41 @@ export default {
       { params }
     )
   },
+
+  getSubgroupActivities(activity_subgroup_uid, options = {}) {
+    const params = {
+      ...options,
+    }
+    return repository.get(
+      `${resource}/activity-sub-groups/${activity_subgroup_uid}/activities`,
+      { params }
+    )
+  },
+
+  // New endpoints for Activity Instance overview page
+  getActivityInstanceGroupings(activity_instance_uid, version, params = {}) {
+    const queryParams = {
+      ...params,
+    }
+    if (version) {
+      queryParams.version = version
+    }
+    return repository.get(
+      `${resource}/activity-instances/${activity_instance_uid}/activity-groupings`,
+      { params: queryParams }
+    )
+  },
+
+  getActivityInstanceItems(activity_instance_uid, version, params = {}) {
+    const queryParams = {
+      ...params,
+    }
+    if (version) {
+      queryParams.version = version
+    }
+    return repository.get(
+      `${resource}/activity-instances/${activity_instance_uid}/activity-items`,
+      { params: queryParams }
+    )
+  },
 }

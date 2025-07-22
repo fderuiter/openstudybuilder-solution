@@ -304,6 +304,8 @@ class StudyDefinitionAR:
         if latest_locked_metadata:
             if (
                 self.draft_metadata
+                and self._draft_metadata.ver_metadata.version_timestamp is not None
+                and latest_locked_metadata.ver_metadata.version_timestamp is not None
                 and self._draft_metadata.ver_metadata.version_timestamp
                 > latest_locked_metadata.ver_metadata.version_timestamp
             ):
@@ -871,8 +873,12 @@ class StudyDefinitionAR:
             ]
             if self.latest_locked_metadata:
                 if (
-                    locked_metadata_versions[-1].version_timestamp
-                    > draft_metadata.version_timestamp
+                    locked_metadata_versions[-1].version_timestamp is not None
+                    and draft_metadata.version_timestamp is not None
+                    and (
+                        locked_metadata_versions[-1].version_timestamp
+                        > draft_metadata.version_timestamp
+                    )
                 ):
                     current_metadata = locked_metadata_versions[-1]
                 else:
@@ -907,7 +913,7 @@ class StudyDefinitionAR:
             study_metadata_snapshot: StudyDefinitionSnapshot.StudyMetadataSnapshot,
             study_state: StudyStatus,
         ) -> StudyMetadataVO:
-            study_metadata_dict = {}
+            study_metadata_dict: dict[Any, Any] = {}
             meta_classes = {}
             for config_item in FieldConfiguration.default_field_config():
                 if config_item.study_field_grouping not in study_metadata_dict:
@@ -1042,8 +1048,9 @@ class StudyDefinitionAR:
             _specific_metadata=specific_metadata,
         )
 
-    @staticmethod
+    @classmethod
     def from_initial_values(
+        cls,
         *,
         generate_uid_callback: Callable[[], str],
         initial_id_metadata: StudyIdentificationMetadataVO,

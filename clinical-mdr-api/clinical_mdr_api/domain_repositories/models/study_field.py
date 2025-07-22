@@ -1,3 +1,5 @@
+from typing import Any
+
 from neomodel import (
     ArrayProperty,
     BooleanProperty,
@@ -38,7 +40,7 @@ class StudyField(ClinicalMdrNode, AuditTrailMixin):
     def get_specific_field_currently_used_in_study(
         cls,
         field_name: str,
-        value: any,
+        value: Any,
         study_uid: str,
         null_value_code: str | None = None,
     ):

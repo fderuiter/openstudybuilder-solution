@@ -54,16 +54,6 @@ class StudyDesignCellHistory:
 
 
 class StudyDesignCellRepository:
-    @staticmethod
-    def _acquire_write_lock_study_value(uid: str) -> None:
-        db.cypher_query(
-            """
-                MATCH (sr:StudyRoot {uid: $uid})
-                REMOVE sr.__WRITE_LOCK__
-                RETURN true
-            """,
-            {"uid": uid},
-        )
 
     def find_by_uid(self, study_uid: str, uid: str) -> StudyDesignCellVO:
         unique_design_cells = ListDistinct(

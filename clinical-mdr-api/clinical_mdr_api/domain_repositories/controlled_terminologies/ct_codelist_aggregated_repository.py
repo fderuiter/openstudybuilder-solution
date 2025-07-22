@@ -115,7 +115,7 @@ class CTCodelistAggregatedRepository:
     """
 
     def _create_codelist_aggregate_instances_from_cypher_result(
-        self, codelist_dict: dict
+        self, codelist_dict: dict[str, Any]
     ) -> tuple[CTCodelistNameAR, CTCodelistAttributesAR]:
         """
         Method creates a tuple of CTCodelistNameAR and CTCodelistAttributesAR objects for one CTCodelistRoot node.
@@ -140,13 +140,13 @@ class CTCodelistAggregatedRepository:
         library: str | None = None,
         package: str | None = None,
         is_sponsor: bool = False,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
-        term_filter: dict | None = None,
+        term_filter: dict[str, str | list[Any]] | None = None,
     ) -> GenericFilteringReturn[tuple[CTCodelistNameAR, CTCodelistAttributesAR]]:
         """
         Method runs a cypher query to fetch all data related to the CTCodelistName* and CTCodelistAttributes*.
@@ -235,7 +235,7 @@ class CTCodelistAggregatedRepository:
         package: str | None = None,
         is_sponsor: bool = False,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
     ) -> list[Any]:
@@ -307,7 +307,7 @@ class CTCodelistAggregatedRepository:
         library_name: str | None = None,
         package: str | None = None,
         is_sponsor: bool = False,
-        term_filter: dict | None = None,
+        term_filter: dict[str, str | list[Any]] | None = None,
     ):
         match_clause = ""
 

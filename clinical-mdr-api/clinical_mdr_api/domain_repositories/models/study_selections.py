@@ -329,6 +329,7 @@ class StudyActivityGroup(StudySelection):
 
 
 class StudyActivity(StudySelection):
+    keep_old_version = BooleanProperty(default=False)
     show_activity_in_protocol_flowchart = BooleanProperty(default=False)
     has_study_activity = RelationshipFrom(
         STUDY_VALUE_CLASS_NAME,

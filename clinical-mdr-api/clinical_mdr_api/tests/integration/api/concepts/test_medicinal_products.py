@@ -13,6 +13,7 @@ import copy
 import json
 import logging
 from functools import reduce
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -42,7 +43,7 @@ BASE_URL = "/concepts/medicinal-products"
 
 # Global variables shared between fixtures and tests
 rand: str
-CREATE_MEDICINAL_PRODUCT_PAYLOAD_OK: dict
+CREATE_MEDICINAL_PRODUCT_PAYLOAD_OK: dict[Any, Any]
 medicinal_products_all: list[MedicinalProduct]
 pharmaceutical_products_all: list[PharmaceuticalProduct]
 compound: Compound
@@ -54,7 +55,7 @@ unii_codelist: DictionaryCodelist
 strength: NumericValueWithUnit
 lag_time: LagTime
 half_life: NumericValueWithUnit
-formulation_1: dict
+formulation_1: dict[Any, Any]
 dose_value: NumericValueWithUnit
 ct_term_delivery_device: CTTerm
 ct_term_dose_frequency: CTTerm
@@ -353,7 +354,7 @@ def test_get_medicinal_product(api_client):
     assert_response_status_code(response, 200)
 
     # Check fields included in the response
-    assert set(list(res.keys())) == set(MEDICINAL_PRODUCT_FIELDS_ALL)
+    assert set(res.keys()) == set(MEDICINAL_PRODUCT_FIELDS_ALL)
     for key in MEDICINAL_PRODUCT_FIELDS_NOT_NULL:
         assert res[key] is not None
 
@@ -440,6 +441,7 @@ def test_get_medicinal_products_versions_csv_xml_excel(api_client, export_format
 
 def test_update_medicinal_product_property(api_client):
     # First try a dummy patch with no new property values in the payload
+    payload: dict[Any, Any]
     payload = {
         "change_description": "dummy update",
         "dose_frequency_uid": ct_term_dose_frequency.term_uid,
@@ -570,6 +572,7 @@ def test_update_medicinal_product_delivery_device(api_client):
         sponsor_preferred_name="delivery_device_2"
     )
 
+    payload: dict[Any, Any]
     # Change delivery device
     payload = {
         "delivery_device_uid": ct_term_delivery_device_new.term_uid,
@@ -716,7 +719,7 @@ def test_get_medicinal_product_versioning(api_client):
 
 
 def test_get_medicinal_products_pagination(api_client):
-    results_paginated: dict = {}
+    results_paginated: dict[Any, Any] = {}
     sort_by = '{"external_id": true}'
     for page_number in range(1, 4):
         url = f"{BASE_URL}?page_number={page_number}&page_size=10&sort_by={sort_by}"
@@ -729,7 +732,11 @@ def test_get_medicinal_products_pagination(api_client):
     log.info("All pages: %s", results_paginated)
 
     results_paginated_merged = list(
-        set(list(reduce(lambda a, b: a + b, list(results_paginated.values()))))
+        set(
+            list(
+                reduce(lambda a, b: list(a) + list(b), list(results_paginated.values()))
+            )
+        )
     )
     log.info("All unique rows returned by pagination: %s", results_paginated_merged)
 
