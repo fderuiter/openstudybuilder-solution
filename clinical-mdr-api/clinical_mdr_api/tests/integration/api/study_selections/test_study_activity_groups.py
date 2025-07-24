@@ -11,6 +11,7 @@ Tests for /studies/{uid}/study-activity-groups endpoints
 
 import logging
 from datetime import datetime, timezone
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -192,9 +193,9 @@ def test_data():
 
 def test_post_and_get_all_study_activity_groups(api_client):
     study_activity_group_into_study_soa_group_mapping: dict[str, str] = {}
-    study_activity_group_into_study_study_activity_subgroup_mapping: dict[str, list] = (
-        {}
-    )
+    study_activity_group_into_study_study_activity_subgroup_mapping: dict[
+        str, list[Any]
+    ] = {}
     study_activity_group_into_activity_group_mapping: dict[str, str] = {}
     for i in range(20):
         general_activity_group = TestUtils.create_activity_group(name=f"General {i}")

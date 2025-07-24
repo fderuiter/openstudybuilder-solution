@@ -29,7 +29,7 @@ def register_export_format(name: str):
     return decorator
 
 
-def _convert_headers_to_dict(headers: list[Any]) -> dict:
+def _convert_headers_to_dict(headers: list[Any]) -> dict[str, Any]:
     """
     Converts a list of headers to a dictionary.
 
@@ -37,7 +37,7 @@ def _convert_headers_to_dict(headers: list[Any]) -> dict:
         headers (list[Any]): The headers to convert.
 
     Returns:
-        dict: The converted headers as a dictionary.
+        dict[str, Any]: The converted headers as a dictionary.
     """
 
     dict_headers = collections.OrderedDict()
@@ -50,7 +50,7 @@ def _convert_headers_to_dict(headers: list[Any]) -> dict:
     return dict_headers
 
 
-def _extract_values_from_data(data: dict, headers: dict):
+def _extract_values_from_data(data: dict[Any, Any], headers: dict[Any, Any]):
     """
     Extracts required values from data and yields them.
 
@@ -86,7 +86,13 @@ def _extract_values_from_data(data: dict, headers: dict):
                                 items.append(subvalue[parts[index + 1]])
                         value = ", ".join(items)
                     elif isinstance(value, dict):
-                        value = value.get(path, "")
+                        # Check if path contains [] notation
+                        if path.endswith("[]"):
+                            # Strip [] and get the list
+                            clean_path = path[:-2]
+                            value = value.get(clean_path, "")
+                        else:
+                            value = value.get(path, "")
                     if not value:
                         break
             else:
@@ -99,7 +105,7 @@ def _extract_values_from_data(data: dict, headers: dict):
         yield result
 
 
-def _convert_data_to_rows(data: dict, headers: list[Any]):
+def _convert_data_to_rows(data: dict[Any, Any], headers: list[Any]):
     """Generate rows based on given data."""
     # First, convert received headers to a more usable representation
     dict_headers = _convert_headers_to_dict(headers)
@@ -118,7 +124,7 @@ def _convert_data_to_rows(data: dict, headers: list[Any]):
         yield rs
 
 
-def _convert_data_to_list(data: dict, headers: list[Any]) -> list[Any]:
+def _convert_data_to_list(data: dict[Any, Any], headers: list[Any]) -> list[Any]:
     """Generate a list of dictionaries based on given data."""
     # First, convert received headers to a more usable representation
     dict_headers = _convert_headers_to_dict(headers)
@@ -129,7 +135,7 @@ def _convert_data_to_list(data: dict, headers: list[Any]) -> list[Any]:
 
 
 @register_export_format("text/csv")
-def _export_to_csv(data: dict, headers: list[Any]):
+def _export_to_csv(data: dict[Any, Any], headers: list[Any]):
     """Export given data to CSV.
 
     The generated CSV content will only contain items listed in
@@ -145,7 +151,7 @@ def _export_to_csv(data: dict, headers: list[Any]):
 @register_export_format(
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 )
-def _export_to_xslx(data: dict, headers: list[Any]):
+def _export_to_xslx(data: dict[Any, Any], headers: list[Any]):
     """Export given data to XLSX.
 
     The generated content will only contain items listed in headers.
@@ -161,7 +167,7 @@ def _export_to_xslx(data: dict, headers: list[Any]):
 
 
 @register_export_format("text/xml")
-def _export_to_xml(data: dict, headers: list[Any]):
+def _export_to_xml(data: dict[Any, Any], headers: list[Any]):
     """Export given data to XML.
 
     The generated content will only contain items listed in headers.
@@ -180,7 +186,13 @@ def _export_to_yaml(data: BaseModel, headers: list[Any]):
     return yaml.dump(data.model_dump())
 
 
-def export(export_format: str, data: dict, export_definition: dict, *args, **kwargs):
+def export(
+    export_format: str,
+    data: dict[Any, Any],
+    export_definition: dict[Any, Any],
+    *args,
+    **kwargs,
+):
     """Generic export function.
 
     Use this function when you want to export data to given data. It
@@ -212,7 +224,7 @@ def export(export_format: str, data: dict, export_definition: dict, *args, **kwa
     return data
 
 
-def allow_exports(export_definition: dict):
+def allow_exports(export_definition: dict[Any, Any]):
     """Decorator used to add export functionality to list type endpoint."""
 
     def decorator(func):

@@ -1,5 +1,6 @@
 import datetime
 from dataclasses import dataclass
+from typing import Any
 
 from clinical_mdr_api.domain_repositories.generic_repository import (
     manage_previous_connected_study_selection_relationships,
@@ -53,7 +54,7 @@ class StudySelectionActivityInstanceRepository(
         return False
 
     def _create_value_object_from_repository(
-        self, selection: dict, acv: bool
+        self, selection: dict[Any, Any], acv: bool
     ) -> StudySelectionActivityInstanceVO:
         activity = selection.get("activity") or {}
         activity_instance = selection.get("activity_instance") or {}
@@ -110,7 +111,7 @@ class StudySelectionActivityInstanceRepository(
                 <-[:STUDY_ACTIVITY_HAS_STUDY_ACTIVITY_INSTANCE]-(study_activity:StudyActivity)<-[:HAS_STUDY_ACTIVITY]-(sv)
         """
 
-    def _filter_clause(self, query_parameters: dict, **kwargs) -> str:
+    def _filter_clause(self, query_parameters: dict[Any, Any], **kwargs) -> str:
         # Filter on Activity, ActivityGroup or ActivityGroupNames if provided as a specific filter
         # This improves performance vs full service level filter
         activity_names = kwargs.get("activity_names")
@@ -209,7 +210,7 @@ class StudySelectionActivityInstanceRepository(
         """
 
     def get_selection_history(
-        self, selection: dict, change_type: str, end_date: datetime
+        self, selection: dict[Any, Any], change_type: str, end_date: datetime.datetime
     ):
         study_activity = selection.get("study_activity", {})
         activity_instance = selection.get("activity_instance", {})
@@ -322,14 +323,15 @@ class StudySelectionActivityInstanceRepository(
             activity_instance_root_node: ActivityInstanceRoot = (
                 ActivityInstanceRoot.nodes.get(uid=selection.activity_instance_uid)
             )
+            latest_activity_instance_value_node: ActivityInstanceValue
             if selection.activity_instance_version:
-                latest_activity_instance_value_node: ActivityInstanceValue = (
+                latest_activity_instance_value_node = (
                     activity_instance_root_node.get_value_for_version(
                         selection.activity_instance_version
                     )
                 )
             else:
-                latest_activity_instance_value_node: ActivityInstanceValue = (
+                latest_activity_instance_value_node = (
                     activity_instance_root_node.has_latest_value.get()
                 )
             # Connect new node with Activity value

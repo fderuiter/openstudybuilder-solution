@@ -1,0 +1,3 @@
+CT_CD_LIST_SUBMVAL,CT_NAME,NAME_SENTENSE_CASE,CT_SUBMVAL,DEFINITION,ORDER,CT_CD,NCI_PREFERRED_NAME
+HOCAT,In-Patient/Prolonged Hospitalisation,in-patient/prolonged hospitalisation,IN-PATIENT/PROLONGED HOSPITALISATION,In-Patient/Prolonged Hospitalisation,1,,In-Patient/Prolonged Hospitalisation
+HOCAT,Readmission,readmission,READMISSION,Readmission,2,,Readmission

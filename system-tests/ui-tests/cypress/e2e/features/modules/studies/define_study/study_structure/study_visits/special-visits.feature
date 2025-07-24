@@ -23,3 +23,9 @@ Feature: Studies - Define Study - Study Structure - Study Visits - Special Visit
         Given The '/studies/Study_000003/study_structure/visits' page is opened
         When The discontinuation special visit is created within the same epoch
         Then The special visit is added without timing and with name defined as 'V1X'
+
+    @BUG_ID:2844670
+    Scenario: [EDIT][Special visit] User must be able to edit special visit
+        Given The '/studies/Study_000003/study_structure/visits' page is opened
+        When The user edits the special visit and saves
+        Then The special visit is updated correctly

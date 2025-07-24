@@ -51,11 +51,7 @@ const helpItems = [
 
 const fetchOverview = async () => {
   try {
-    groupOverview.value = null
-
     let groupData, allVersions
-    // Initialize subgroupsData as an empty array - component will handle fetching
-    const subgroupsData = []
 
     try {
       const detailsResp = await activities.getActivityGroupDetails(
@@ -125,7 +121,7 @@ const fetchOverview = async () => {
     groupOverview.value = {
       group: groupData,
       all_versions: allVersions || [],
-      subgroups: subgroupsData || [],
+      subgroups: null, // Let the component fetch its own subgroups
     }
 
     try {

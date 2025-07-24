@@ -1,5 +1,5 @@
 import datetime
-from typing import Sequence, TypeVar
+from typing import Any, Sequence, TypeVar
 
 from neomodel import Q
 from neomodel.sync_.match import Optional
@@ -45,10 +45,10 @@ class StudyStandardVersionRepository:
     def find_all_standard_version(
         self,
         study_uid: str | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         study_value_version: str | None = None,
@@ -88,7 +88,7 @@ class StudyStandardVersionRepository:
         self,
         study_uid: str | None = None,
         study_value_version: str | None = None,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
     ) -> tuple[dict, list[Q]]:
         q_filters = transform_filters_into_neomodel(
             filter_by=filter_by, model=StudyStandardVersionOGM

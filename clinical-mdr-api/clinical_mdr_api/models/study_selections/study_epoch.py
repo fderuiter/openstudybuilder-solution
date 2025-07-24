@@ -6,7 +6,7 @@ from clinical_mdr_api.models.controlled_terminologies.ct_term import (
     SimpleCTTermNameWithConflictFlag,
 )
 from clinical_mdr_api.models.utils import BaseModel, PatchInputModel, PostInputModel
-from common import config
+from common.config import settings
 
 
 class StudyEpochCreateInput(PostInputModel):
@@ -40,7 +40,7 @@ class StudyEpochCreateInput(PostInputModel):
             description="The ordering of the selection",
             json_schema_extra={"nullable": True},
             gt=0,
-            lt=config.MAX_INT_NEO4J,
+            lt=settings.max_int_neo4j,
         ),
     ] = None
     description: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = (
@@ -51,7 +51,7 @@ class StudyEpochCreateInput(PostInputModel):
         Field(
             description="Calculated epoch duration",
             json_schema_extra={"nullable": True},
-            lt=config.MAX_INT_NEO4J,
+            lt=settings.max_int_neo4j,
         ),
     ] = None
     color_hash: Annotated[
@@ -77,7 +77,7 @@ class StudyEpochEditInput(PatchInputModel):
     order: Annotated[
         int | None,
         Field(
-            description="The ordering of the selection", gt=0, lt=config.MAX_INT_NEO4J
+            description="The ordering of the selection", gt=0, lt=settings.max_int_neo4j
         ),
     ] = None
     description: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = (
@@ -85,7 +85,7 @@ class StudyEpochEditInput(PatchInputModel):
     )
     duration: Annotated[
         int | None,
-        Field(description="Calculated epoch duration", lt=config.MAX_INT_NEO4J),
+        Field(description="Calculated epoch duration", lt=settings.max_int_neo4j),
     ] = None
     color_hash: Annotated[str | None, Field(description="Epoch Color for display")] = (
         "#FFFFFF"
@@ -159,35 +159,39 @@ class StudyEpoch(BaseModel):
     study_version: Annotated[
         str | None,
         Field(
-            title="study version or date information",
             description="Study version number, if specified, otherwise None.",
             json_schema_extra={"nullable": True},
         ),
     ] = None
     epoch_ctterm: Annotated[
-        SimpleCTTermNameWithConflictFlag, Field(title="Study epoch Term")
+        SimpleCTTermNameWithConflictFlag, Field(description="Study epoch Term")
     ]
     epoch_subtype_ctterm: Annotated[
-        SimpleCTTermNameWithConflictFlag, Field(title="Study Epoch subtype Term")
+        SimpleCTTermNameWithConflictFlag, Field(description="Study Epoch subtype Term")
     ]
     epoch_type_ctterm: Annotated[
-        SimpleCTTermNameWithConflictFlag, Field(title="Study Epoch type CTTermName")
+        SimpleCTTermNameWithConflictFlag,
+        Field(description="Study Epoch type CTTermName"),
     ]
     start_day: Annotated[
         int | None,
-        Field(title="Study Epoch start day", json_schema_extra={"nullable": True}),
+        Field(
+            description="Study Epoch start day", json_schema_extra={"nullable": True}
+        ),
     ] = None
     end_day: Annotated[
         int | None,
-        Field(title="Study Epoch end day", json_schema_extra={"nullable": True}),
+        Field(description="Study Epoch end day", json_schema_extra={"nullable": True}),
     ] = None
     start_week: Annotated[
         int | None,
-        Field(title="Study Epoch start week", json_schema_extra={"nullable": True}),
+        Field(
+            description="Study Epoch start week", json_schema_extra={"nullable": True}
+        ),
     ] = None
     end_week: Annotated[
         int | None,
-        Field(title="Study Epoch end week", json_schema_extra={"nullable": True}),
+        Field(description="Study Epoch end week", json_schema_extra={"nullable": True}),
     ] = None
     start_date: Annotated[
         str, Field(description="Study Epoch initial modification date")

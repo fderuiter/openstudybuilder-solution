@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Any
 
 from pydantic import ConfigDict, Field
 
@@ -17,7 +17,7 @@ class SimpleDatasetClass(BaseModel):
 
 class SimpleDataModelIG(BaseModel):
     ordinal: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = None
-    data_model_ig_name: Annotated[str, Field(title="The name of the data model ig")]
+    data_model_ig_name: Annotated[str, Field()]
 
 
 class Dataset(BaseModel):
@@ -36,7 +36,7 @@ class Dataset(BaseModel):
     data_model_ig: Annotated[SimpleDataModelIG, Field()]
 
     @classmethod
-    def from_repository_output(cls, input_dict: dict):
+    def from_repository_output(cls, input_dict: dict[str, Any]):
         return cls(
             uid=input_dict.get("uid"),
             label=input_dict.get("standard_value").get("label"),

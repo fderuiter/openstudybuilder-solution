@@ -24,7 +24,9 @@ from clinical_mdr_api.domains.versioned_object_aggregate import (
     LibraryVO,
 )
 from clinical_mdr_api.models.concepts.activities.activity_item import (
+    CompactOdmForm,
     CompactOdmItem,
+    CompactOdmItemGroup,
     CompactUnitDefinition,
 )
 from clinical_mdr_api.tests.unit.domain.utils import (
@@ -81,6 +83,16 @@ def create_random_activity_instance_vo() -> ActivityInstanceVO:
                     )
                 ],
                 is_adam_param_specific=False,
+                odm_forms=[
+                    CompactOdmForm(
+                        uid=random_str(), odm=random_str(), name=random_str()
+                    )
+                ],
+                odm_item_groups=[
+                    CompactOdmItemGroup(
+                        uid=random_str(), odm=random_str(), name=random_str()
+                    )
+                ],
                 odm_items=[
                     CompactOdmItem(
                         uid=random_str(), odm=random_str(), name=random_str()
@@ -97,6 +109,16 @@ def create_random_activity_instance_vo() -> ActivityInstanceVO:
                     )
                 ],
                 is_adam_param_specific=False,
+                odm_forms=[
+                    CompactOdmForm(
+                        uid=random_str(), odm=random_str(), name=random_str()
+                    )
+                ],
+                odm_item_groups=[
+                    CompactOdmItemGroup(
+                        uid=random_str(), odm=random_str(), name=random_str()
+                    )
+                ],
                 odm_items=[
                     CompactOdmItem(
                         uid=random_str(), odm=random_str(), name=random_str()
@@ -130,6 +152,8 @@ def create_random_activity_instance_ar(
         unit_definition_exists_by_uid_callback=lambda _: True,
         find_activity_item_class_by_uid_callback=lambda _: _get_activity_item_class_mock(),
         find_activity_instance_class_by_uid_callback=lambda _: _get_activity_instance_class_mock(),
+        odm_form_exists_by_uid_callback=lambda _: True,
+        odm_item_group_exists_by_uid_callback=lambda _: True,
         odm_item_exists_by_uid_callback=lambda _: True,
         get_dimension_names_by_unit_definition_uids=lambda _: [],
     )
@@ -162,7 +186,6 @@ def _get_activity_item_class_mock():
             role_uid="xyz",
             role_name="xyz",
             variable_class_uids=[],
-            codelist_uids=[],
         ),
     )
 
@@ -182,7 +205,6 @@ def _get_activity_instance_class_mock():
             _author_username="xyz",
         ),
         _activity_instance_class_vo=ActivityInstanceClassVO(
-            parent_uid="xyz",
             name="xyz",
             order=1,
             definition="xyz",
@@ -194,7 +216,6 @@ def _get_activity_instance_class_mock():
                 #     uid="xyz", mandatory=True, is_adam_param_specific_enabled=True
                 # )
             ],
-            data_domain_uids=[],
         ),
     )
 
@@ -328,6 +349,16 @@ class TestActivityInstanceNegative(unittest.TestCase):
                                 "uid": random_str(),
                             },
                             is_adam_param_specific=False,
+                            odm_forms={
+                                "uid": random_str(),
+                                "oid": random_str(),
+                                "name": random_str(),
+                            },
+                            odm_item_groups={
+                                "uid": random_str(),
+                                "oid": random_str(),
+                                "name": random_str(),
+                            },
                             odm_items={
                                 "uid": random_str(),
                                 "oid": random_str(),
@@ -343,6 +374,16 @@ class TestActivityInstanceNegative(unittest.TestCase):
                                 "uid": random_str(),
                             },
                             is_adam_param_specific=False,
+                            odm_forms={
+                                "uid": random_str(),
+                                "oid": random_str(),
+                                "name": random_str(),
+                            },
+                            odm_item_groups={
+                                "uid": random_str(),
+                                "oid": random_str(),
+                                "name": random_str(),
+                            },
                             odm_items={
                                 "uid": random_str(),
                                 "oid": random_str(),

@@ -5,6 +5,8 @@ Feature: Library - Concepts - CRFs - Item Groups
 
     Background: User is logged in the system
         Given The user is logged in
+        And The '/library' page is opened
+        And The multilingual CRFs option is toggled off in the settings menu
 
     Scenario: [Navigation] User must be able to navigate to the Items Group page
         Given The '/library' page is opened
@@ -31,10 +33,12 @@ Feature: Library - Concepts - CRFs - Item Groups
         Then The table contain only selected column and actions column
 
     Scenario: [Create][Positive case] User must be able to add an Item Group
-        Given The single language CRFs are enabled
-        And The 'library/crfs/item-groups' page is opened
+        Given The 'library/crfs/item-groups' page is opened
         When The 'add-crf-item-group' button is clicked
-        And The CRF Item Group definition container is filled with data and saved
+        And The CRF Item Group definition container is filled with data
+        And Form continue button is clicked
+        And Form continue button is clicked
+        And Form save button is clicked
         Then The pop up displays 'Item Group created'
         And Created CRF Item Group is found
 
@@ -45,12 +49,13 @@ Feature: Library - Concepts - CRFs - Item Groups
     #     Then The validation appears for the 'crf-form-name' field
 
     Scenario: [Actions][Edit][version 0.1] User must be able to update an existing a Item Group
-        Given The single language CRFs are enabled
-        And The 'library/crfs/item-groups' page is opened
+        Given The 'library/crfs/item-groups' page is opened
         And Created CRF Item Group is found
         When The 'Edit' option is clicked from the three dot menu list
-        And The CRF Item Group metadata are updated and saved
-        #Then The pop up displays 'Item Group updated'
+        And The CRF Item Group metadata are updated
+        And User goes to Change description step
+        And Form save button is clicked
+        Then The pop up displays 'Item Group updated'
         And Created CRF Item Group is found
 
     Scenario: [Actions][Approve] User must be able to approve an Item Group in draft status
@@ -84,7 +89,10 @@ Feature: Library - Concepts - CRFs - Item Groups
     Scenario: [Actions][Delete] User must be able to delete CRF Item Group in draft status
         Given The 'library/crfs/item-groups' page is opened
         When The 'add-crf-item-group' button is clicked
-        And The CRF Item Group definition container is filled with data and saved
+        And The CRF Item Group definition container is filled with data
+        And Form continue button is clicked
+        And Form continue button is clicked
+        And Form save button is clicked
         And Created CRF Item Group is found
         When The 'Delete' option is clicked from the three dot menu list
         Then The CRF Item Group is no longer available

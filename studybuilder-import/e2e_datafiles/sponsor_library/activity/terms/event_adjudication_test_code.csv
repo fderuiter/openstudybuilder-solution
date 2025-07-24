@@ -1,0 +1,6 @@
+CT_CD_LIST_SUBMVAL,CT_NAME,NAME_SENTENSE_CASE,CT_SUBMVAL,DEFINITION,ORDER,CT_CD,NCI_PREFERRED_NAME
+ZATESTCD,Adjudication Outcome,adjudication outcome,ADJOUT,Adjudication Outcome,1,,Adjudication Outcome
+ZATESTCD,Cause of Death,cause of death,CAUSEDEA,Cause of Death,2,,Cause of Death
+ZATESTCD,Classification of Myocardial Infarction,classification of myocardial infarction,CLASSMYF,Classification of Myocardial Infarction,3,,Classification of Myocardial Infarction
+ZATESTCD,Source of Adjudicated Event,source of adjudicated event,SOURADEV,Source of Adjudicated Event,4,,Source of Adjudicated Event
+ZATESTCD,Undetermined Etiology Reason,undetermined etiology reason,UNDETIRE,Undetermined Etiology Reason,5,,Undetermined Etiology Reason

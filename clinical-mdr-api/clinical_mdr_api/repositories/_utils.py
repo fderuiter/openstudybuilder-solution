@@ -3,7 +3,7 @@ import logging
 import re
 from datetime import datetime
 from enum import Enum
-from typing import Annotated, Any, Callable
+from typing import Annotated, Any, Callable, Generic
 
 from dateutil.parser import isoparse
 from neo4j.exceptions import CypherSyntaxError
@@ -185,7 +185,7 @@ def get_field_path(prop, field):
     return field_name
 
 
-def get_order_by_clause(sort_by: dict | None, model: BaseModel):
+def get_order_by_clause(sort_by: dict[str, bool] | None, model: BaseModel):
     sort_paths = []
     if sort_by:
         for key, value in sort_by.items():
@@ -222,7 +222,7 @@ def get_version_properties_sources() -> list[Any]:
     ]
 
 
-def validate_sort_by_is_dict(sort_by: dict | None):
+def validate_sort_by_is_dict(sort_by: dict[str, bool] | None):
     # Accept an empty string as an empty dictionary
     if sort_by == "":
         sort_by = {}
@@ -233,7 +233,7 @@ def validate_sort_by_is_dict(sort_by: dict | None):
     return sort_by
 
 
-def validate_filter_by_is_dict(filter_by: dict | None):
+def validate_filter_by_is_dict(filter_by: dict[str, dict[str, Any]] | None):
     # Accept an empty string as an empty dictionary
     if filter_by == "":
         filter_by = {}
@@ -245,7 +245,7 @@ def validate_filter_by_is_dict(filter_by: dict | None):
 
 
 def validate_filters_and_add_search_string(
-    search_string: str, field_name: str, filter_by: dict | None
+    search_string: str, field_name: str, filter_by: dict[str, dict[str, Any]] | None
 ):
     filter_by = validate_filter_by_is_dict(filter_by)
     if search_string != "":
@@ -258,7 +258,9 @@ def validate_filters_and_add_search_string(
     return filter_by
 
 
-def transform_filters_into_neomodel(filter_by: dict | None, model: BaseModel):
+def transform_filters_into_neomodel(
+    filter_by: dict[str, dict[str, Any]] | None, model: BaseModel
+):
     q_filters = []
     filters = FilterDict(elements=filter_by)
     for prop, filter_elem in filters.elements.items():
@@ -378,19 +380,17 @@ class FilterOperator(Enum):
         )
 
 
-class FilterDictElement(BaseModel):
+class FilterDictElement(BaseModel, Generic[T]):
     v: Annotated[
         list[T],
         Field(
-            title="search values",
-            description="list of values to use as search values. Can be of any type.",
+            description="List of values to use as search values. Can be of any type.",
         ),
     ]
     op: Annotated[
         ComparisonOperator | None,
         Field(
-            title="comparison operator to apply",
-            description="comparison operator from enum, for operations like =, >=, or <",
+            description="Comparison operator from enum, for operations like =, >=, or <"
         ),
     ] = ComparisonOperator.EQUALS
 
@@ -409,9 +409,7 @@ class FilterDict(BaseModel):
     elements: Annotated[
         dict[str, FilterDictElement],
         Field(
-            title="filters description",
-            description="""filters description, with key being the alias to filter
-        against, and value is a description object with search values and comparison operator""",
+            description="Filters description, with key being the alias to filter against, and value is a description object with search values and comparison operator"
         ),
     ]
 
@@ -482,7 +480,7 @@ class CypherQueryBuilder:
         alias_clause: str,
         page_number: int = 1,
         page_size: int = 0,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         implicit_sort_by: str | None = None,
         filter_by: FilterDict | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
@@ -511,7 +509,7 @@ class CypherQueryBuilder:
         self.filter_clause = ""
         self.sort_clause = ""
         self.pagination_clause = ""
-        self.parameters = {}
+        self.parameters: dict[Any, Any] = {}
 
         # Auto-generate internal clauses
         if filter_by is not None:

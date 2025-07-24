@@ -43,6 +43,7 @@ from clinical_mdr_api.models.study_selections.study import Study as OSBStudy
 from clinical_mdr_api.services.ddf.usdm_utils import IdManager
 
 DDF_CT_PACKAGE_EFFECTIVE_DATE = "2023-12-15"
+DDF_STUDY_ARM_DATA_ORIGIN_TYPE_GENERATED_WITHIN_STUDY = "C188866"
 DDF_STUDY_POPULATION_DURATION_UNIT_DAYS = "C25301"
 DDF_STUDY_POPULATION_DURATION_UNIT_WEEKS = "C29844"
 DDF_STUDY_POPULATION_DURATION_UNIT_MONTHS = "C29846"
@@ -53,6 +54,7 @@ DDF_STUDY_PROTOCOL_STATUS_FINAL = "C25508"
 DDF_STUDY_POPULATION_SEX_BOTH = "C49636"
 DDF_STUDY_POPULATION_SEX_FEMALE = "C16576"
 DDF_STUDY_POPULATION_SEX_MALE = "C20197"
+DDF_STUDY_OFFICIAL_TITLE = "C207616"
 DDF_TIMING_TYPE_AFTER = "C201356"
 DDF_TIMING_TYPE_BEFORE = "C201357"
 DDF_TIMING_TYPE_FIXED = "C201358"
@@ -278,14 +280,14 @@ class USDMMapper:
         ddf_study_title = USDMStudyTitle(
             id=self._id_manager.get_id(USDMStudyTitle.__name__),
             text=self._get_study_title(study),
-            type=self.get_void_usdm_code(),
+            type=self.get_ct_package_term_as_usdm_code(DDF_STUDY_OFFICIAL_TITLE),
             instanceType="StudyTitle",
         )
 
         usdm_version = USDMStudyVersion(
             id=self._id_manager.get_id(USDMStudyVersion.__name__),
             titles=[ddf_study_title],
-            studyIdentifiers=self._get_study_identifier(study),
+            studyIdentifiers=self._get_study_identifiers(study),
             versionIdentifier="",
             rationale="",
             instanceType="StudyVersion",
@@ -345,7 +347,9 @@ class USDMMapper:
                     else self.get_void_usdm_code()
                 ),
                 dataOriginDescription="",
-                dataOriginType=self.get_void_usdm_code(),
+                dataOriginType=self.get_ct_package_term_as_usdm_code(
+                    DDF_STUDY_ARM_DATA_ORIGIN_TYPE_GENERATED_WITHIN_STUDY
+                ),
             )
             for sa in osb_study_arms
         ]
@@ -542,7 +546,7 @@ class USDMMapper:
         osb_study_id = getattr(osb_identification_metadata, "study_id", "")
         return osb_study_id
 
-    def _get_study_identifier(self, study: OSBStudy):
+    def _get_study_identifiers(self, study: OSBStudy):
         osb_identification_metadata = getattr(
             getattr(study, "current_metadata", None), "identification_metadata", None
         )

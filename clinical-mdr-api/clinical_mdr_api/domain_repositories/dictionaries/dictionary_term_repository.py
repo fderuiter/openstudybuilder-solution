@@ -55,7 +55,7 @@ from common.utils import convert_to_datetime
 
 
 class DictionaryTermGenericRepository(
-    LibraryItemRepositoryImplBase[_AggregateRootType], ABC
+    LibraryItemRepositoryImplBase[DictionaryTermAR], ABC
 ):
     root_class = DictionaryTermRoot
     value_class = DictionaryTermValue
@@ -76,7 +76,7 @@ class DictionaryTermGenericRepository(
         return DictionaryTermRoot.get_next_free_uid_and_increment_counter()
 
     def _create_aggregate_root_instance_from_cypher_result(
-        self, term_dict: dict
+        self, term_dict: dict[str, Any]
     ) -> DictionaryTermAR:
         major, minor = term_dict.get("version").split(".")
         return DictionaryTermAR.from_repository_values(
@@ -206,8 +206,8 @@ class DictionaryTermGenericRepository(
     def find_all(
         self,
         codelist_uid: str | None = None,
-        sort_by: dict | None = None,
-        filter_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_number: int = 1,
         page_size: int = 0,
@@ -285,7 +285,7 @@ class DictionaryTermGenericRepository(
         codelist_uid: str,
         field_name: str,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
     ) -> list[Any]:

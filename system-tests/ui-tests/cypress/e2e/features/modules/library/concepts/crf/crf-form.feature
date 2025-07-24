@@ -5,6 +5,8 @@ Feature: Library - Concepts - CRFs - Forms
 
     Background: User must be logged in
         Given The user is logged in
+        And The '/library' page is opened
+        And The multilingual CRFs option is toggled off in the settings menu
 
     Scenario: [Navigation] User must be able to navigate to CRF Forms page
         Given The '/library' page is opened
@@ -30,18 +32,23 @@ Feature: Library - Concepts - CRFs - Forms
         Then The table contain only selected column and actions column
 
     Scenario: [Create][Positive case] User must be able to add a new CRF form
-        Given The single language CRFs are enabled
-        And The 'library/crfs/forms' page is opened
+        Given The 'library/crfs/forms' page is opened
         When The 'add-crf-form' button is clicked
-        And The Form definition container is filled with data and saved
+        And The Form definition container is filled with data
+        And Form continue button is clicked
+        And Form continue button is clicked
+        And Form save button is clicked
+        Then The pop up displays 'Form created'
         Then Created CRF form is found
 
     Scenario: [Actions][Edit][version 0.1] User must be able to update CRF form in draft status
-        Given The single language CRFs are enabled
-        And The 'library/crfs/forms' page is opened
+        Given The 'library/crfs/forms' page is opened
         And Created CRF form is found
         When The 'Edit' option is clicked from the three dot menu list
         And The Form metadata are updated and saved
+        And User goes to Change description step
+        And Form save button is clicked
+        Then The pop up displays 'Form updated'
         Then Created CRF form is found
 
     Scenario: [Actions][Approve] User must be able to approve CRF form in draft status
@@ -71,7 +78,10 @@ Feature: Library - Concepts - CRFs - Forms
     Scenario: [Actions][Delete] User must be able to delete CRF Form in draft status
         Given The 'library/crfs/forms' page is opened
         When The 'add-crf-form' button is clicked
-        And The Form definition container is filled with data and saved
+        And The Form definition container is filled with data
+        And Form continue button is clicked
+        And Form continue button is clicked
+        And Form save button is clicked
         Then Created CRF form is found
         When The 'Delete' option is clicked from the three dot menu list 
         Then The CRF Form is no longer available

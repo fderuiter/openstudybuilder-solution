@@ -1,6 +1,6 @@
 import abc
 from datetime import datetime
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from clinical_mdr_api.domain_repositories.library_item_repository import (
     LibraryItemRepositoryImplBase,
@@ -88,7 +88,7 @@ class GenericSyntaxRepository(
         value: VersionValue,
         study_count: int = 0,
         counts: InstantiationCountsVO | None = None,
-    ) -> _AggregateRootType:
+    ):
         "Use _create_ar instead"
 
     @abc.abstractmethod
@@ -130,14 +130,14 @@ class GenericSyntaxRepository(
         status: LibraryItemStatus | None = None,
         library_name: str | None = None,
         return_study_count: bool | None = False,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         for_audit_trail: bool = False,
-    ) -> tuple[list, int]:
+    ) -> tuple[list[Any], int]:
         return self.get_all_optimized(
             status=status,
             library_name=library_name,
@@ -157,7 +157,7 @@ class GenericSyntaxRepository(
         field_name: str,
         status: LibraryItemStatus | None = None,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
     ):
@@ -255,7 +255,7 @@ class GenericSyntaxRepository(
                 )
 
         # Then, start building the nested dictionary to group parameter terms in a list
-        data_dict = {}
+        data_dict: dict[Any, Any] = {}
         # Create the first two levels, like
         # set_number
         # --> position

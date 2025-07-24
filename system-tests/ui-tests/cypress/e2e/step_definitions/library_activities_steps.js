@@ -7,13 +7,9 @@ const nciconceptid = "NCIID", nciconceptname = "NCINAME", abbreviation = "ABB", 
 
 When('The Add activity button is clicked', () => cy.clickButton('add-activity'))
 
-When('The Activity group and Activity name fields are not filled with data', () => cy.clickButton('save-button'))
-
 Then('Activity can be found in table', () => cy.searchAndCheckPresence(activityName, true))
 
-When('The Activity creation form is saved', () => cy.clickButton('save-button'))
-
-Then('Activity is created and confirmation message is shown', () => saveActivity())
+Then('Activity is created and confirmation message is shown', () => waitForActivityToBeCreated())
 
 Then('The activity form is filled with only mandatory data', () => fillNewActivityData())
 
@@ -29,7 +25,6 @@ Then('The user adds another activity with already existing synonym', () => {
 })
 
 Then('The user is not able to save activity with already existing synonym and error message is displayed', () => {
-    cy.clickButton('save-button')
     cy.get('div[data-cy="form-body"]').should('be.visible');          
     cy.get('.v-snackbar__content').should('be.visible').should('contain.text', 'Following Activities already have the provided synonyms'); 
 })
@@ -61,7 +56,6 @@ Then('The validation message appears for sentance case name that it is not ident
 When('Select a value for Activity group field, but not for Activity subgroup field', () => {
     cy.clickButton('add-activity')
     cy.selectFirstVSelect('activityform-activity-group-dropdown')
-    cy.clickButton('save-button')
 })
 
 Then('The default value for Data collection must be checked', () => {      
@@ -89,8 +83,6 @@ When('The user define a value for Sentence case name and it is not identical to 
 When('The activity is edited', () => {
     activityName = apiActivityName
     editActivity()
-    cy.clickButton('save-button')
-    cy.wait(500)
 })
 
 When('The activity edition form is filled with data', () => {
@@ -150,11 +142,32 @@ When('[API] Activity is inactivated', () => cy.inactivateActivity())
 
 When('[API] Activity is reactivated', () => cy.reactivateActivity())
 
+When('[API] Activity new version is created', () => cy.activityNewVersion())
+
 Given('[API] First activity for search test is created', () => createActivityViaApiSimplified(`SearchTest${Date.now()}`))
 
 Given('[API] Second activity for search test is created', () => cy.createActivity(`SearchTest${Date.now()}`))
 
+When('The user opens version history of activity subgroup', () => {
+    cy.intercept('**versions').as('version_history_data')
+    cy.tableRowActions(0, 'History')
+})
+
+Then('The version history displays correct data for activity subgroup', () => {
+    cy.wait('@version_history_data').then((req) => {
+        let data = req.response.body[0]
+        cy.getCellValue(0, 'Activity group', data.activity_groups[0].name)
+        cy.getCellValue(0, 'Activity subgroup', data.name)
+        cy.getCellValue(0, 'Sentence case name', data.name_sentence_case)
+        cy.getCellValue(0, 'Status', data.status)
+        cy.getCellValue(0, 'Version', data.version)
+        cy.getCellValue(0, 'User', data.author_username)
+
+    })
+})
+
 function fillNewActivityData(clickAddButton = true, fillOptionalData = false, customGroup = '') {
+    cy.intercept('/api/concepts/activities/activities?page_number=1&page_size=0&total_count=true&sort_by=%7B%22name%22:true%7D&filters=%7B%7D').as('getData')
     activityName = `Activity${Date.now()}`
     if (clickAddButton) cy.clickButton('add-activity')
     if (customGroup) cy.get('[data-cy="activityform-activity-group-dropdown"] input').type(customGroup)
@@ -170,9 +183,7 @@ function fillNewActivityData(clickAddButton = true, fillOptionalData = false, cu
     }
 }
 
-function saveActivity() {
-    cy.intercept('/api/concepts/activities/activities?page_number=1&page_size=0&total_count=true&filters=%7B%7D').as('getData')
-    cy.clickButton('save-button')
+function waitForActivityToBeCreated() {
     cy.checkSnackbarMessage('Activity created')
     cy.wait('@getData', {timeout: 20000})
     cy.get('.dialog-title').should('not.exist')

@@ -564,8 +564,8 @@ def test_all_cascade_operations_for_description(api_client):
         "concepts/odms/forms",
         json={
             "library_name": "Sponsor",
-            "name": "name1",
-            "oid": "oid1",
+            "name": "name test",
+            "oid": "oid test",
             "sdtm_version": "0.1",
             "repeating": "No",
             "scope_uid": None,

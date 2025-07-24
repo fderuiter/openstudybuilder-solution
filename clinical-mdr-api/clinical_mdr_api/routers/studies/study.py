@@ -13,6 +13,7 @@ from clinical_mdr_api.models.study_selections.study_selection import (
     StudyActivityReplaceActivityInput,
     StudyActivitySubGroup,
     StudyActivitySubGroupEditInput,
+    StudyActivitySyncLatestVersionInput,
     StudyElementTypes,
     StudySelectionActivity,
     StudySelectionActivityBatchInput,
@@ -121,8 +122,9 @@ from clinical_mdr_api.services.studies.study_objective_selection import (
 )
 from clinical_mdr_api.services.studies.study_objectives import StudyObjectivesService
 from clinical_mdr_api.services.studies.study_soa_group import StudySoAGroupService
-from common import config
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.config import settings
 from common.exceptions import ValidationException
 from common.models.error import ErrorResponse
 
@@ -166,7 +168,7 @@ PROJECT_NUMBER = Query(
 
 @router.get(
     "/study-objectives",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns all study objectives currently selected",
     response_model_exclude_unset=True,
     status_code=200,
@@ -190,15 +192,15 @@ def get_all_selected_objectives_for_all_studies(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -208,7 +210,7 @@ def get_all_selected_objectives_for_all_studies(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -235,7 +237,7 @@ def get_all_selected_objectives_for_all_studies(
 
 @router.get(
     "/study-objectives/headers",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -266,10 +268,10 @@ def get_distinct_objective_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     service = StudyObjectiveSelectionService()
     return service.get_distinct_values_for_header(
@@ -285,7 +287,7 @@ def get_distinct_objective_values_for_header(
 
 @router.get(
     "/studies/{study_uid}/study-objectives",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns all study objectives currently selected for study with provided uid",
     description=_generic_descriptions.DATA_EXPORTS_HEADER,
     response_model_exclude_unset=True,
@@ -341,18 +343,18 @@ def get_all_selected_objectives(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -376,7 +378,7 @@ def get_all_selected_objectives(
 
 @router.get(
     "/studies/{study_uid}/study-objectives/headers",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -408,10 +410,10 @@ def get_distinct_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
     study_value_version: Annotated[
         str | None, _generic_descriptions.STUDY_VALUE_VERSION_QUERY
     ] = None,
@@ -432,7 +434,7 @@ def get_distinct_values_for_header(
 
 @router.get(
     "/studies/{study_uid}/study-objectives/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List full audit trail related to definition of all study objectives.",
     description="""
 The following values should be return for all study objectives.
@@ -460,7 +462,7 @@ def get_all_objectives_audit_trail(
 
 @router.get(
     "/studies/{study_uid}/study-objectives/{study_objective_uid}",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns specific study objective",
     response_model_exclude_unset=True,
     status_code=200,
@@ -489,7 +491,7 @@ def get_selected_objective(
 
 @router.get(
     "/studies/{study_uid}/study-objectives/{study_objective_uid}/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to definition of a specific study objective.",
     description="""
 The following values should be return for selected study objective:
@@ -523,7 +525,7 @@ def get_selected_objective_audit_trail(
 
 @router.post(
     "/studies/{study_uid}/study-objectives",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Creating a study objective selection based on the input data, including optionally creating a library objective",
     response_model_exclude_unset=True,
     status_code=201,
@@ -578,7 +580,7 @@ def post_new_objective_selection_create(
 
 @router.post(
     "/studies/{study_uid}/study-objectives/batch-select",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Select multiple objective templates as a batch. If the template has no parameters, will also create the instance.",
     description="""
     State before:
@@ -637,7 +639,7 @@ def post_batch_select_objective_template(
 
 @router.post(
     "/studies/{study_uid}/study-objectives/preview",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Preview creating a study objective selection based on the input data",
     response_model_exclude_unset=True,
     status_code=200,
@@ -671,7 +673,7 @@ def preview_new_objective_selection_create(
 
 @router.delete(
     "/studies/{study_uid}/study-objectives/{study_objective_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Deletes a study objective",
     status_code=204,
     responses={
@@ -696,7 +698,7 @@ def delete_selected_objective(
 
 @router.patch(
     "/studies/{study_uid}/study-objectives/{study_objective_uid}/order",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Change a order of a study objective",
     response_model_exclude_unset=True,
     status_code=200,
@@ -727,7 +729,7 @@ def patch_new_objective_selection_order(
 
 @router.patch(
     "/studies/{study_uid}/study-objectives/{study_objective_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="update the objective level of a study objective",
     response_model_exclude_unset=True,
     status_code=200,
@@ -758,7 +760,7 @@ def patch_update_objective_selection(
 
 @router.post(
     "/studies/{study_uid}/study-objectives/{study_objective_uid}/sync-latest-version",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="update to latest objective version study selection",
     response_model_exclude_unset=True,
     status_code=200,
@@ -786,7 +788,7 @@ def sync_latest_version(
 
 @router.get(
     "/study-endpoints",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns all study endpoints currently selected",
     response_model_exclude_unset=True,
     status_code=200,
@@ -810,15 +812,15 @@ def get_all_selected_endpoints_for_all_studies(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -828,7 +830,7 @@ def get_all_selected_endpoints_for_all_studies(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -855,7 +857,7 @@ def get_all_selected_endpoints_for_all_studies(
 
 @router.get(
     "/study-endpoints/headers",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -886,10 +888,10 @@ def get_distinct_endpoint_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     service = StudyEndpointSelectionService()
     return service.get_distinct_values_for_header(
@@ -905,7 +907,7 @@ def get_distinct_endpoint_values_for_header(
 
 @router.get(
     "/studies/{study_uid}/study-endpoints",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="""List all study endpoints currently selected for study with provided uid""",
     description=f"""
 State before:
@@ -979,18 +981,18 @@ def get_all_selected_endpoints(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -1014,7 +1016,7 @@ def get_all_selected_endpoints(
 
 @router.get(
     "/studies/{study_uid}/study-endpoints/headers",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -1046,10 +1048,10 @@ def get_distinct_study_endpoint_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
     study_value_version: Annotated[
         str | None, _generic_descriptions.STUDY_VALUE_VERSION_QUERY
     ] = None,
@@ -1070,7 +1072,7 @@ def get_distinct_study_endpoint_values_for_header(
 
 @router.get(
     "/studies/{study_uid}/study-endpoints/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List full audit trail related to definition of all study endpoints.",
     description="""
 Parameters:
@@ -1110,7 +1112,7 @@ def get_all_endpoints_audit_trail(
 
 @router.get(
     "/studies/{study_uid}/study-endpoints/{study_endpoint_uid}",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns specific study endpoint",
     description="""
 State before:
@@ -1156,7 +1158,7 @@ def get_selected_endpoint(
 
 @router.get(
     "/studies/{study_uid}/study-endpoints/{study_endpoint_uid}/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to definition of a specific study coendpointsmpound.",
     description="""
 Parameters:
@@ -1203,7 +1205,7 @@ def get_selected_endpoint_audit_trail(
 
 @router.post(
     "/studies/{study_uid}/study-endpoints",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Creates a study endpoint selection based on the input data, including optionally creating library endpoint",
     response_model_exclude_unset=True,
     status_code=201,
@@ -1257,7 +1259,7 @@ def post_new_endpoint_selection_create(
 
 @router.post(
     "/studies/{study_uid}/study-endpoints/batch-select",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Select multiple endpoint templates as a batch. If the template has no parameters, will also create the instance.",
     description="""
     State before:
@@ -1316,7 +1318,7 @@ def post_batch_select_endpoint_template(
 
 @router.post(
     "/studies/{study_uid}/study-endpoints/preview",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Preview creating a study endpoint selection based on the input data",
     response_model_exclude_unset=True,
     status_code=200,
@@ -1350,7 +1352,7 @@ def post_new_endpoint_selection_preview(
 
 @router.delete(
     "/studies/{study_uid}/study-endpoints/{study_endpoint_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Deletes a objective selection",
     description="""
 State before:
@@ -1389,7 +1391,7 @@ def delete_selected_endpoint(
 
 @router.patch(
     "/studies/{study_uid}/study-endpoints/{study_endpoint_uid}/order",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Change a order of a selection",
     description="""
 State before:
@@ -1437,7 +1439,7 @@ def patch_new_endpoint_selection_order(
 
 @router.patch(
     "/studies/{study_uid}/study-endpoints/{study_endpoint_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="update the study endpoint",
     description="""
 State before:
@@ -1483,7 +1485,7 @@ def patch_update_endpoint_selection(
 
 @router.get(
     "/studies/{study_uid}/study-objectives.docx",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="""Returns Study Objectives and Endpoints table in standard layout DOCX document""",
     responses={
         403: _generic_descriptions.ERROR_403,
@@ -1520,7 +1522,7 @@ def get_all_selected_objectives_and_endpoints_standard_docx(
 
 @router.get(
     "/studies/{study_uid}/study-objectives.html",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="""Returns Study Objectives and Endpoints table in standard layout HTML document""",
     responses={
         403: _generic_descriptions.ERROR_403,
@@ -1542,7 +1544,7 @@ def get_all_selected_objectives_and_endpoints_standard_html(
 
 @router.get(
     "/study-compounds",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns all study compounds currently selected",
     response_model_exclude_unset=True,
     status_code=200,
@@ -1559,15 +1561,15 @@ def get_all_selected_compounds_for_all_studies(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -1577,7 +1579,7 @@ def get_all_selected_compounds_for_all_studies(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -1603,7 +1605,7 @@ def get_all_selected_compounds_for_all_studies(
 
 @router.get(
     "/study-compounds/headers",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -1634,10 +1636,10 @@ def get_distinct_compound_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     service = StudyCompoundSelectionService()
     return service.get_distinct_values_for_header(
@@ -1653,7 +1655,7 @@ def get_distinct_compound_values_for_header(
 
 @router.get(
     "/studies/{study_uid}/study-compounds",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List all study compounds currently selected for study with provided uid",
     description=f"""
 State before:
@@ -1723,18 +1725,18 @@ def get_all_selected_compounds(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -1753,7 +1755,7 @@ def get_all_selected_compounds(
 
 @router.get(
     "/studies/{study_uid}/study-compounds/headers",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -1788,10 +1790,10 @@ def get_distinct_compounds_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     service = StudyCompoundSelectionService()
     return service.get_distinct_values_for_header(
@@ -1809,7 +1811,7 @@ def get_distinct_compounds_values_for_header(
 
 @router.get(
     "/studies/{study_uid}/study-compounds/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List full audit trail related to definition of all study compounds.",
     description="""
 Parameters:
@@ -1849,7 +1851,7 @@ def get_all_compounds_audit_trail(
 
 @router.get(
     "/studies/{study_uid}/study-compounds/{study_compound_uid}/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to definition of a specific study compound.",
     description="""
 Parameters:
@@ -1896,7 +1898,7 @@ def get_selected_compound_audit_trail(
 
 @router.get(
     "/studies/{study_uid}/study-compounds/{study_compound_uid}",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns specific study compound",
     description="""
 State before:
@@ -1936,7 +1938,7 @@ def get_selected_compound(
 
 @router.post(
     "/studies/{study_uid}/study-compounds",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Add a study compound to a study based on selection of a compound concept in library, or a 'Reason for missing'.",
     description="""
 State before:
@@ -1993,7 +1995,7 @@ def post_new_compound_selection(
 
 @router.delete(
     "/studies/{study_uid}/study-compounds/{study_compound_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Delete a study compound.",
     description="""
 State before:
@@ -2031,7 +2033,7 @@ def delete_selected_compound(
 
 @router.patch(
     "/studies/{study_uid}/study-compounds/{study_compound_uid}/order",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Change display order of study compound",
     description="""
 State before:
@@ -2075,7 +2077,7 @@ def patch_new_compound_selection_order(
 
 @router.patch(
     "/studies/{study_uid}/study-compounds/{study_compound_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Edit or replace a study compound",
     description="""
 State before:
@@ -2132,7 +2134,7 @@ def patch_update_compound_selection(
 
 @router.post(
     "/studies/{study_uid}/study-endpoints/{study_endpoint_uid}/sync-latest-endpoint-version",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="update to latest endpoint version study selection",
     description="""
 State before:
@@ -2171,7 +2173,7 @@ def sync_latest_endpoint_version(
 
 @router.post(
     "/studies/{study_uid}/study-endpoints/{study_endpoint_uid}/sync-latest-timeframe-version",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="update to latest timeframe version study selection",
     description="""
     State before:
@@ -2210,7 +2212,7 @@ def sync_latest_timeframe_version(
 
 @router.post(
     "/studies/{study_uid}/study-endpoints/{study_endpoint_uid}/accept-version",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="update to latest timeframe version study selection",
     description="""
     State before:
@@ -2249,7 +2251,7 @@ def patch_endpoint_accept_version(
 
 @router.post(
     "/studies/{study_uid}/study-objectives/{study_objective_uid}/accept-version",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="update to latest timeframe version study selection",
     description="""
     State before:
@@ -2291,7 +2293,7 @@ def patch_objective_accept_version(
 
 @router.get(
     "/study-criteria",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns all study criteria currently selected",
     response_model_exclude_unset=True,
     status_code=200,
@@ -2315,15 +2317,15 @@ def get_all_selected_criteria_for_all_studies(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -2333,7 +2335,7 @@ def get_all_selected_criteria_for_all_studies(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -2360,7 +2362,7 @@ def get_all_selected_criteria_for_all_studies(
 
 @router.get(
     "/study-criteria/headers",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -2391,10 +2393,10 @@ def get_distinct_criteria_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     service = StudyCriteriaSelectionService()
     return service.get_distinct_values_for_header(
@@ -2410,7 +2412,7 @@ def get_distinct_criteria_values_for_header(
 
 @router.get(
     "/studies/{study_uid}/study-criteria",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns all study criteria currently selected for study with provided uid",
     description=f"""
 State before:
@@ -2492,15 +2494,15 @@ def get_all_selected_criteria(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -2510,7 +2512,7 @@ def get_all_selected_criteria(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -2541,7 +2543,7 @@ def get_all_selected_criteria(
 
 @router.get(
     "/studies/{study_uid}/study-criteria/headers",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -2571,10 +2573,10 @@ def get_distinct_study_criteria_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
     study_value_version: Annotated[
         str | None, _generic_descriptions.STUDY_VALUE_VERSION_QUERY
     ] = None,
@@ -2593,7 +2595,7 @@ def get_distinct_study_criteria_values_for_header(
 
 @router.get(
     "/studies/{study_uid}/study-criteria/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List full audit trail related to definition of all study criteria.",
     description="""
     State before:
@@ -2648,7 +2650,7 @@ def get_all_criteria_audit_trail(
 
 @router.get(
     "/studies/{study_uid}/study-criteria/{study_criteria_uid}",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns specific study criteria",
     description="""
     State before:
@@ -2711,7 +2713,7 @@ def get_selected_criteria(
 
 @router.get(
     "/studies/{study_uid}/study-criteria/{study_criteria_uid}/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to definition of a specific study criteria.",
     description="""
     State before:
@@ -2764,7 +2766,7 @@ def get_selected_criteria_audit_trail(
 
 @router.post(
     "/studies/{study_uid}/study-criteria",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Creating a study criteria selection based on the input data including creating new criteria",
     description="""
     State before:
@@ -2847,7 +2849,7 @@ def post_new_criteria_selection_create(
 
 @router.post(
     "/studies/{study_uid}/study-criteria/preview",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Previews creating a study criteria selection based on the input data including creating new criteria",
     response_model_exclude_unset=True,
     status_code=200,
@@ -2881,7 +2883,7 @@ def preview_new_criteria_selection_create(
 
 @router.post(
     "/studies/{study_uid}/study-criteria/batch-select",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Select multiple criteria templates as a batch. If the template has no parameters, will also create the instance.",
     description="""
     State before:
@@ -2940,7 +2942,7 @@ def post_batch_select_criteria_template(
 
 @router.patch(
     "/studies/{study_uid}/study-criteria/{study_criteria_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Update the study criteria template selection",
     description="""
     State before:
@@ -2997,7 +2999,7 @@ def patch_update_criteria_selection(
 
 @router.delete(
     "/studies/{study_uid}/study-criteria/{study_criteria_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Deletes a study criteria",
     description="""
     State before:
@@ -3041,7 +3043,7 @@ def delete_selected_criteria(
 
 @router.patch(
     "/studies/{study_uid}/study-criteria/{study_criteria_uid}/order",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Change the order of a study criteria",
     response_model_exclude_unset=True,
     status_code=200,
@@ -3072,7 +3074,7 @@ def patch_new_criteria_selection_order(
 
 @router.patch(
     "/studies/{study_uid}/study-criteria/{study_criteria_uid}/key-criteria",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Change the key-criteria property of a study criteria",
     response_model_exclude_unset=True,
     status_code=200,
@@ -3105,7 +3107,7 @@ def patch_criteria_selection_key_criteria_property(
 
 @router.post(
     "/studies/{study_uid}/study-criteria/{study_criteria_uid}/sync-latest-version",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="update to latest criteria version study selection",
     response_model_exclude_unset=True,
     status_code=200,
@@ -3130,7 +3132,7 @@ def sync_criteria_latest_version(
 
 @router.post(
     "/studies/{study_uid}/study-criteria/{study_criteria_uid}/accept-version",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="accept current version of study criteria",
     description="""
     Business logic:
@@ -3163,7 +3165,7 @@ def patch_criteria_accept_version(
 
 @router.get(
     "/study-activity-instances",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns all study activity instances currently selected",
     response_model_exclude_unset=True,
     status_code=200,
@@ -3208,15 +3210,15 @@ def get_all_selected_activity_instances_for_all_studies(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -3226,7 +3228,7 @@ def get_all_selected_activity_instances_for_all_studies(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -3256,7 +3258,7 @@ def get_all_selected_activity_instances_for_all_studies(
 
 @router.get(
     "/studies/{study_uid}/study-activity-instances",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns all study activity instances currently selected",
     description=_generic_descriptions.DATA_EXPORTS_HEADER,
     response_model_exclude_unset=True,
@@ -3339,15 +3341,15 @@ def get_all_selected_activity_instances(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -3357,7 +3359,7 @@ def get_all_selected_activity_instances(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -3390,7 +3392,7 @@ def get_all_selected_activity_instances(
 
 @router.get(
     "/studies/{study_uid}/study-activity-instances/headers",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -3420,10 +3422,10 @@ def get_distinct_study_activity_instances_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
     study_value_version: Annotated[
         str | None, _generic_descriptions.STUDY_VALUE_VERSION_QUERY
     ] = None,
@@ -3442,7 +3444,7 @@ def get_distinct_study_activity_instances_values_for_header(
 
 @router.delete(
     "/studies/{study_uid}/study-activity-instances/{study_activity_instance_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Delete a study activity instance",
     status_code=204,
     responses={
@@ -3467,7 +3469,7 @@ def delete_study_activity_instance(
 
 @router.post(
     "/studies/{study_uid}/study-activity-instances",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Creating a study activity instance selection based on the input data",
     response_model_exclude_unset=True,
     status_code=201,
@@ -3497,7 +3499,7 @@ def post_new_activity_instance_selection(
 
 @router.patch(
     "/studies/{study_uid}/study-activity-instances/{study_activity_instance_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Edit a study activity instance",
     description="""
 State before:
@@ -3534,7 +3536,7 @@ def patch_update_study_activity_instance(
 
 @router.get(
     "/studies/{study_uid}/study-activity-instances/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List full audit trail related to all StudyActivityInstances in scope of a single Study.",
     description="""
 The following values should be returned for all study activity instances:
@@ -3562,7 +3564,7 @@ def get_all_study_activity_instance_audit_trail(
 
 @router.get(
     "/studies/{study_uid}/study-activity-instances/{study_activity_instance_uid}",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns specific study activity instance",
     response_model_exclude_unset=True,
     status_code=200,
@@ -3591,7 +3593,7 @@ def get_selected_activity_instance(
 
 @router.get(
     "/studies/{study_uid}/study-activity-instances/{study_activity_instance_uid}/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to a specific StudyActivityInstance.",
     response_model_exclude_unset=True,
     status_code=200,
@@ -3615,7 +3617,7 @@ def get_specific_study_activity_instance_audit_trail(
 
 @router.post(
     "/studies/{study_uid}/study-activity-instances/{study_activity_instance_uid}/sync-latest-version",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="update to latest activity instance version study selection",
     description="""
     State before:
@@ -3655,7 +3657,7 @@ def patch_study_activity_instance_sync_to_latest_activity_instance(
 
 @router.post(
     "/studies/{study_uid}/study-activity-instances/batch-select",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Batch select ActivityInstance to a given Study",
     status_code=201,
     responses={
@@ -3686,7 +3688,7 @@ def post_new_soa_footnotes_batch_select(
 
 @router.get(
     "/study-activities",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns all study activities currently selected",
     response_model_exclude_unset=True,
     status_code=200,
@@ -3724,15 +3726,15 @@ def get_all_selected_activities_for_all_studies(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -3742,7 +3744,7 @@ def get_all_selected_activities_for_all_studies(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -3771,7 +3773,7 @@ def get_all_selected_activities_for_all_studies(
 
 @router.get(
     "/studies/{study_uid}/study-activities",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns all study activities currently selected",
     description=_generic_descriptions.DATA_EXPORTS_HEADER,
     response_model_exclude_unset=True,
@@ -3837,15 +3839,15 @@ def get_all_selected_activities(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -3855,7 +3857,7 @@ def get_all_selected_activities(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -3887,7 +3889,7 @@ def get_all_selected_activities(
 
 @router.get(
     "/studies/{study_uid}/study-activities/headers",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -3917,10 +3919,10 @@ def get_distinct_activity_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
     study_value_version: Annotated[
         str | None, _generic_descriptions.STUDY_VALUE_VERSION_QUERY
     ] = None,
@@ -3939,7 +3941,7 @@ def get_distinct_activity_values_for_header(
 
 @router.get(
     "/studies/{study_uid}/study-activities/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List full audit trail related to definition of all study activities.",
     description="""
 The following values should be returned for all study activities:
@@ -3965,7 +3967,7 @@ def get_all_activity_audit_trail(
 
 @router.get(
     "/studies/{study_uid}/study-activities/{study_activity_uid}",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns specific study activity",
     response_model_exclude_unset=True,
     status_code=200,
@@ -3994,7 +3996,7 @@ def get_selected_activity(
 
 @router.get(
     "/studies/{study_uid}/study-activities/{study_activity_uid}/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to definition of a specific study activity.",
     response_model_exclude_unset=True,
     status_code=200,
@@ -4018,7 +4020,7 @@ def get_selected_activity_audit_trail(
 
 @router.post(
     "/studies/{study_uid}/study-activities",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Creating a study activity selection based on the input data",
     response_model_exclude_unset=True,
     status_code=201,
@@ -4052,7 +4054,7 @@ def post_new_activity_selection_create(
 
 @router.patch(
     "/studies/{study_uid}/study-activities/{study_activity_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Edit a study activity",
     description="""
 State before:
@@ -4089,7 +4091,7 @@ def patch_update_activity_selection(
 
 @router.post(
     "/studies/{study_uid}/study-activities/{study_activity_uid}/sync-latest-version",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Update to latest activity version study selection",
     description="""
     State before:
@@ -4120,16 +4122,24 @@ def patch_update_activity_selection(
 def patch_study_activity_sync_to_latest_activity(
     study_uid: Annotated[str, studyUID],
     study_activity_uid: Annotated[str, study_activity_uid_path],
+    sync_latest_version_input: Annotated[
+        StudyActivitySyncLatestVersionInput | None,
+        Body(
+            description="Parameters for the StudyActivity to sync to latest version of Library Activity"
+        ),
+    ] = None,
 ) -> StudySelectionActivity:
     service = StudyActivitySelectionService()
     return service.update_selection_to_latest_version(
-        study_uid=study_uid, study_selection_uid=study_activity_uid
+        study_uid=study_uid,
+        study_selection_uid=study_activity_uid,
+        sync_latest_version_input=sync_latest_version_input,
     )
 
 
 @router.patch(
     "/studies/{study_uid}/study-activities/{study_activity_uid}/activity-replacements",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Exchanging selected activity for given StudyActivity based on the input data",
     response_model_exclude_unset=True,
     status_code=200,
@@ -4167,7 +4177,7 @@ def replace_selected_activity_for_study_activity(
 # Study Activity SubGroups endpoints
 @router.get(
     "/studies/{study_uid}/study-activity-subgroups",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns all study activity subgroups currently selected",
     description=_generic_descriptions.DATA_EXPORTS_HEADER,
     response_model_exclude_unset=True,
@@ -4187,15 +4197,15 @@ def get_all_selected_activity_subgroups(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -4205,7 +4215,7 @@ def get_all_selected_activity_subgroups(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -4234,7 +4244,7 @@ def get_all_selected_activity_subgroups(
 
 @router.patch(
     "/studies/{study_uid}/study-activity-subgroups/{study_activity_subgroup_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Edit a study activity subgroup protocol visibility flag",
     description="""
 State before:
@@ -4271,7 +4281,7 @@ def patch_update_activity_subgroup_selection(
 
 @router.patch(
     "/studies/{study_uid}/study-activity-subgroups/{study_activity_subgroup_uid}/order",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Change the order of a study activity subgroup",
     response_model_exclude_unset=True,
     status_code=200,
@@ -4303,7 +4313,7 @@ def patch_activity_subgroup_new_order(
 # Study Activity Groups endpoints
 @router.get(
     "/studies/{study_uid}/study-activity-groups",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns all study activity groups currently selected",
     description=_generic_descriptions.DATA_EXPORTS_HEADER,
     response_model_exclude_unset=True,
@@ -4323,15 +4333,15 @@ def get_all_selected_activity_groups(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -4341,7 +4351,7 @@ def get_all_selected_activity_groups(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -4370,7 +4380,7 @@ def get_all_selected_activity_groups(
 
 @router.patch(
     "/studies/{study_uid}/study-activity-groups/{study_activity_group_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Edit a study activity group protocol visibility flag",
     description="""
 State before:
@@ -4407,7 +4417,7 @@ def patch_update_activity_group_selection(
 
 @router.patch(
     "/studies/{study_uid}/study-activity-groups/{study_activity_group_uid}/order",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Change the order of a study activity group",
     response_model_exclude_unset=True,
     status_code=200,
@@ -4439,7 +4449,7 @@ def patch_activity_group_new_order(
 # Study Activity SoAGroups endpoints
 @router.get(
     "/studies/{study_uid}/study-soa-groups",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns all study soa groups currently selected",
     description=_generic_descriptions.DATA_EXPORTS_HEADER,
     response_model_exclude_unset=True,
@@ -4459,15 +4469,15 @@ def get_all_selected_soa_groups(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -4477,7 +4487,7 @@ def get_all_selected_soa_groups(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -4506,7 +4516,7 @@ def get_all_selected_soa_groups(
 
 @router.patch(
     "/studies/{study_uid}/study-soa-groups/{study_soa_group_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Edit a study soa group protocol visibility flag",
     description="""
 State before:
@@ -4543,7 +4553,7 @@ def patch_update_soa_group_selection(
 
 @router.patch(
     "/studies/{study_uid}/study-soa-groups/{study_soa_group_uid}/order",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Change the order of a study soa group",
     response_model_exclude_unset=True,
     status_code=200,
@@ -4574,7 +4584,7 @@ def patch_soa_group_new_order(
 
 @router.patch(
     "/studies/{study_uid}/study-activity-requests/{study_activity_request_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Edit a study activity request",
     description="""
 State before:
@@ -4613,7 +4623,7 @@ def patch_update_activity_selection_request(
 
 @router.patch(
     "/studies/{study_uid}/study-activities/{study_activity_uid}/activity-requests-approvals",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Update Study Activity with the Sponsor Activity that replaced Activity Request",
     description="""
 State before:
@@ -4645,7 +4655,7 @@ def update_activity_request_with_sponsor_activity(
 
 @router.delete(
     "/studies/{study_uid}/study-activities/{study_activity_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Delete a study activity",
     status_code=204,
     responses={
@@ -4670,13 +4680,12 @@ def delete_selected_activity(
 
 @router.post(
     "/studies/{study_uid}/study-activities/batch",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Batch create and/or edit of study activities",
     status_code=207,
     responses={
         403: _generic_descriptions.ERROR_403,
         404: _generic_descriptions.ERROR_404,
-        405: _generic_descriptions.ERROR_405,
     },
 )
 @decorators.validate_if_study_is_not_locked("study_uid")
@@ -4690,7 +4699,7 @@ def activity_selection_batch_operations(
 
 @router.post(
     "/studies/{study_uid}/soa-edits/batch",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Batch create/edit/delete of study activities or study-activity-schedules",
     status_code=207,
     responses={
@@ -4709,7 +4718,7 @@ def study_activity_and_schedule_batch_operations(
 
 @router.patch(
     "/studies/{study_uid}/study-activities/{study_activity_uid}/order",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Change the order of a study activity",
     response_model_exclude_unset=True,
     status_code=200,
@@ -4743,7 +4752,7 @@ def patch_new_activity_selection_order(
 
 @router.get(
     "/studies/{study_uid}/study-arms",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="""List all study arms currently selected for study with provided uid""",
     description=f"""
 State before:
@@ -4803,15 +4812,15 @@ def get_all_selected_arms(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -4821,7 +4830,7 @@ def get_all_selected_arms(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -4851,7 +4860,7 @@ def get_all_selected_arms(
 
 @router.get(
     "/studies/{study_uid}/study-arms/headers",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -4881,10 +4890,10 @@ def get_distinct_arm_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     service = StudyArmSelectionService()
     return service.get_distinct_values_for_header(
@@ -4899,7 +4908,7 @@ def get_distinct_arm_values_for_header(
 
 @router.get(
     "/study-arms",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns all study arms currently selected",
     response_model_exclude_unset=True,
     status_code=200,
@@ -4916,15 +4925,15 @@ def get_all_selected_arms_for_all_studies(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -4934,7 +4943,7 @@ def get_all_selected_arms_for_all_studies(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -4960,7 +4969,7 @@ def get_all_selected_arms_for_all_studies(
 
 @router.patch(
     "/studies/{study_uid}/study-arms/{study_arm_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Edit a study arm",
     description="""
 State before:
@@ -4999,7 +5008,7 @@ def patch_update_arm_selection(
 
 @router.post(
     "/studies/{study_uid}/study-arms",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Creating a study arm selection based on the input data",
     response_model_exclude_unset=True,
     status_code=201,
@@ -5029,7 +5038,7 @@ def post_new_arm_selection_create(
 
 @router.get(
     "/studies/{study_uid}/study-arms/{study_arm_uid}/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to definition of a specific study arm.",
     response_model_exclude_unset=True,
     status_code=200,
@@ -5053,7 +5062,7 @@ def get_selected_arm_audit_trail(
 
 @router.get(
     "/studies/{study_uid}/study-arms/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to definition of all study arms.",
     response_model_exclude_unset=True,
     status_code=200,
@@ -5071,7 +5080,7 @@ def get_all_arm_audit_trail(
 
 @router.get(
     "/studies/{study_uid}/study-arms/{study_arm_uid}",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns specific study arm",
     response_model_exclude_unset=True,
     status_code=200,
@@ -5100,7 +5109,7 @@ def get_selected_arm(
 
 @router.patch(
     "/studies/{study_uid}/study-arms/{study_arm_uid}/order",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Change the order of a study arm",
     response_model_exclude_unset=True,
     status_code=200,
@@ -5131,7 +5140,7 @@ def patch_new_arm_selection_order(
 
 @router.delete(
     "/studies/{study_uid}/study-arms/{study_arm_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Delete a study arm",
     status_code=204,
     responses={
@@ -5157,7 +5166,7 @@ def delete_selected_arm(
 
 @router.post(
     "/studies/{study_uid}/study-elements",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Creating a study element selection based on the input data",
     response_model_exclude_unset=True,
     status_code=201,
@@ -5187,7 +5196,7 @@ def post_new_element_selection_create(
 
 @router.get(
     "/studies/{study_uid}/study-elements",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="""List all study elements currently selected for study with provided uid""",
     description=f"""
 State before:
@@ -5241,15 +5250,15 @@ def get_all_selected_elements(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -5259,7 +5268,7 @@ def get_all_selected_elements(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -5289,7 +5298,7 @@ def get_all_selected_elements(
 
 @router.get(
     "/studies/{study_uid}/study-elements/headers",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -5319,10 +5328,10 @@ def get_distinct_element_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
     study_value_version: Annotated[
         str | None, _generic_descriptions.STUDY_VALUE_VERSION_QUERY
     ] = None,
@@ -5341,7 +5350,7 @@ def get_distinct_element_values_for_header(
 
 @router.get(
     "/studies/{study_uid}/study-elements/{study_element_uid}",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns specific study element",
     response_model_exclude_unset=True,
     status_code=200,
@@ -5370,7 +5379,7 @@ def get_selected_element(
 
 @router.patch(
     "/studies/{study_uid}/study-elements/{study_element_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Edit a study element",
     description="""
         State before:
@@ -5407,7 +5416,7 @@ def patch_update_element_selection(
 
 @router.get(
     "/studies/{study_uid}/study-elements/{study_element_uid}/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to definition of a specific study element.",
     response_model_exclude_unset=True,
     status_code=200,
@@ -5431,7 +5440,7 @@ def get_selected_element_audit_trail(
 
 @router.get(
     "/studies/{study_uid}/study-element/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to definition of all study element.",
     response_model_exclude_unset=True,
     status_code=200,
@@ -5449,7 +5458,7 @@ def get_all_element_audit_trail(
 
 @router.delete(
     "/studies/{study_uid}/study-elements/{study_element_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Delete a study element",
     status_code=204,
     responses={
@@ -5472,7 +5481,7 @@ def delete_selected_element(
 
 @router.get(
     "/study-elements/allowed-element-configs",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns all allowed config sets for element type and subtype",
     response_model_exclude_unset=True,
     status_code=200,
@@ -5488,7 +5497,7 @@ def get_all_configs() -> list[StudyElementTypes]:
 
 @router.patch(
     "/studies/{study_uid}/study-elements/{study_element_uid}/order",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Change the order of a study element",
     response_model_exclude_unset=True,
     status_code=200,
@@ -5522,7 +5531,7 @@ def patch_new_element_selection_order(
 
 @router.post(
     "/studies/{study_uid}/study-branch-arms",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Creating a study branch arm selection based on the input data",
     response_model_exclude_unset=True,
     status_code=201,
@@ -5552,7 +5561,7 @@ def post_new_branch_arm_selection_create(
 
 @router.get(
     "/studies/{study_uid}/study-branch-arms",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="""List all study branch arms currently selected for study with provided uid""",
     description=f"""
 State before:
@@ -5620,7 +5629,7 @@ def get_all_selected_branch_arms(
 
 @router.get(
     "/studies/{study_uid}/study-branch-arms/{study_branch_arm_uid}",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns specific study branch arm",
     response_model_exclude_unset=True,
     status_code=200,
@@ -5649,7 +5658,7 @@ def get_selected_branch_arm(
 
 @router.patch(
     "/studies/{study_uid}/study-branch-arms/{study_branch_arm_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Edit a study branch arm",
     description="""
             State before:
@@ -5686,7 +5695,7 @@ def patch_update_branch_arm_selection(
 
 @router.get(
     "/studies/{study_uid}/study-branch-arms/{study_branch_arm_uid}/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to definition of a specific study branch-arm.",
     response_model_exclude_unset=True,
     status_code=200,
@@ -5710,7 +5719,7 @@ def get_selected_branch_arm_audit_trail(
 
 @router.get(
     "/studies/{study_uid}/study-branch-arm/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to definition of all study branch-arm.",
     response_model_exclude_unset=True,
     status_code=200,
@@ -5728,7 +5737,7 @@ def get_all_branch_arm_audit_trail(
 
 @router.delete(
     "/studies/{study_uid}/study-branch-arms/{study_branch_arm_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Delete a study branch arm",
     status_code=204,
     responses={
@@ -5753,7 +5762,7 @@ def delete_selected_branch_arm(
 
 @router.patch(
     "/studies/{study_uid}/study-branch-arms/{study_branch_arm_uid}/order",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Change the order of a study branch arm",
     response_model_exclude_unset=True,
     status_code=200,
@@ -5784,7 +5793,7 @@ def patch_new_branch_arm_selection_order(
 
 @router.get(
     "/studies/{study_uid}/study-branch-arms/arm/{arm_uid}",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="""List all study branch arms currently selected for study with provided uid""",
     description="""
     State before:
@@ -5830,7 +5839,7 @@ def get_all_selected_branch_arms_within_arm(
 
 @router.post(
     "/studies/{study_uid}/study-cohorts",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Creating a study cohort selection based on the input data",
     response_model_exclude_unset=True,
     status_code=201,
@@ -5860,7 +5869,7 @@ def post_new_cohort_selection_create(
 
 @router.get(
     "/studies/{study_uid}/study-cohorts",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="""List all study cohorts currently selected for study with provided uid""",
     description=f"""
 State before:
@@ -5922,15 +5931,15 @@ def get_all_selected_cohorts(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -5940,7 +5949,7 @@ def get_all_selected_cohorts(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -5977,7 +5986,7 @@ def get_all_selected_cohorts(
 
 @router.get(
     "/studies/{study_uid}/study-cohorts/{study_cohort_uid}",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns specific study cohort",
     response_model_exclude_unset=True,
     status_code=200,
@@ -6006,7 +6015,7 @@ def get_selected_cohort(
 
 @router.patch(
     "/studies/{study_uid}/study-cohorts/{study_cohort_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Edit a study cohort",
     description="""
             State before:
@@ -6043,7 +6052,7 @@ def patch_update_cohort_selection(
 
 @router.get(
     "/studies/{study_uid}/study-cohorts/{study_cohort_uid}/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to definition of a specific study study-cohorts.",
     response_model_exclude_unset=True,
     status_code=200,
@@ -6067,7 +6076,7 @@ def get_selected_cohort_audit_trail(
 
 @router.get(
     "/studies/{study_uid}/study-cohort/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to definition of all study study-cohort.",
     response_model_exclude_unset=True,
     status_code=200,
@@ -6085,7 +6094,7 @@ def get_all_cohort_audit_trail(
 
 @router.delete(
     "/studies/{study_uid}/study-cohorts/{study_cohort_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Delete a study cohort",
     status_code=204,
     responses={
@@ -6108,7 +6117,7 @@ def delete_selected_cohort(
 
 @router.patch(
     "/studies/{study_uid}/study-cohorts/{study_cohort_uid}/order",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Change the order of a study cohort",
     response_model_exclude_unset=True,
     status_code=200,

@@ -1,6 +1,9 @@
+"""
+This script imports the CDISC data models & IGs into the MDR database.
+"""
+
 import time
 import os
-from typing import List
 import csv
 from mdr_standards_import.scripts.entities.cdisc_data_models.data_model_type import (
     DataModelType,
@@ -94,11 +97,6 @@ def import_from_cdisc_db_into_mdr(
         return
 
     with cdisc_neo4j_driver.session(database=cdisc_db_name) as session:
-        # TODO : Uncomment when inconsistencies are implemented
-        # with session.begin_transaction() as tx:
-        #     print_ignored_stats(tx, catalogue, version_number)
-        #     tx.commit()
-
         # read from the CDISC DB
         version_data = session.read_transaction(get_version, catalogue, version_number)
         classes_data = session.read_transaction(get_classes, catalogue, version_number)
@@ -187,7 +185,6 @@ def get_version(tx, catalogue: str, prefixed_version_number: str):
     version_data = tx.run(
         """
         MATCH (import:DataModelImport{catalogue: $catalogue, version_number: $prefixed_version_number})-[:INCLUDES]->(version)
-        WHERE NOT (:Inconsistency)-[:AFFECTS_VERSION]->(version)
         RETURN
             version{uid: version.name, catalogue: $catalogue, library: import.library, data_model_type: import.data_model_type, implements_data_model: import.implements_data_model, .*} AS version
         """,
@@ -205,8 +202,6 @@ def get_classes(tx, catalogue: str, prefixed_version_number: str):
         """
         MATCH (import:DataModelImport{catalogue: $catalogue, version_number: $prefixed_version_number})
             -[:INCLUDES]->(version)-[:CONTAINS]->(class)
-        WHERE NOT (:Inconsistency)-[:AFFECTS_VERSION]->(version)
-            AND NOT (:Inconsistency)-[:AFFECTS_CLASS]->(class)
         RETURN class
         """,
         catalogue=catalogue,
@@ -223,9 +218,6 @@ def get_scenarios(tx, catalogue: str, prefixed_version_number: str):
         """
         MATCH (import:DataModelImport{catalogue: $catalogue, version_number: $prefixed_version_number})
             -[:INCLUDES]->(version)-[:CONTAINS]->(class:DataModelClass)-[:CONTAINS]->(scenario:DataModelScenario)
-        WHERE NOT (:Inconsistency)-[:AFFECTS_VERSION]->(version)
-            AND NOT (:Inconsistency)-[:AFFECTS_CLASS]->(class)
-            AND NOT (:Inconsistency)-[:AFFECTS_SCENARIO]->(scenario)
         RETURN scenario, class.href AS dataset_href
         """,
         catalogue=catalogue,
@@ -244,17 +236,10 @@ def get_variables(tx, catalogue: str, prefixed_version_number: str):
         """
         MATCH (import:DataModelImport{catalogue: $catalogue, version_number: $prefixed_version_number})
             -[:INCLUDES]->(version)-[:CONTAINS]->(class:DataModelClass)-[:CONTAINS]->(variable:DataModelVariable)
-        WHERE NOT (:Inconsistency)-[:AFFECTS_VERSION]->(version)
-            AND NOT (:Inconsistency)-[:AFFECTS_CLASS]->(class)
-            AND NOT (:Inconsistency)-[:AFFECTS_VARIABLE]->(variable)
         RETURN variable, class.href AS parent_href, "class" AS parent_type
         UNION
         MATCH (import:DataModelImport{catalogue: $catalogue, version_number: $prefixed_version_number})
             -[:INCLUDES]->(version)-[:CONTAINS]->(class:DataModelClass)-[:CONTAINS]->(scenario:DataModelScenario)-[:CONTAINS]->(variable:DataModelVariable)
-        WHERE NOT (:Inconsistency)-[:AFFECTS_VERSION]->(version)
-            AND NOT (:Inconsistency)-[:AFFECTS_CLASS]->(class)
-            AND NOT (:Inconsistency)-[:AFFECTS_SCENARIO]->(scenario)
-            AND NOT (:Inconsistency)-[:AFFECTS_VARIABLE]->(variable)
         RETURN variable, scenario.href AS parent_href, "scenario" AS parent_type
         """,
         catalogue=catalogue,
@@ -537,13 +522,16 @@ def _get_variable_instances(tx, catalogue, data_model_type, parent_type, uid):
             RETURN DISTINCT instance
         """
     elif parent_type == "scenario":
+        # Merges properties from the DatasetVariableInstance and its ScenarioVariableImplementation nodes
+        # For scenarii in the given catalogue and dataset
+        # Includes the node id of the variable and scenario variable implementation nodes
         query = f"""
             MATCH (:{variable_root_label}{{uid: $uid}})-[:HAS_INSTANCE]->(instance)
                 <-[:{scenario_to_variable_rel_type}]-(scenario:{scenario_value_label})<-[:{class_to_scenario_rel_type}]-(:{class_value_label})
                 <--(:{model_value_label})<--(:{model_root_label})<--(catalogue:DataModelCatalogue {{name: $catalogue}})
             MATCH (scenario)<-[:{scenario_variable_to_scenario_rel_type}]-(impl:{scenario_variable_value_label})
                 <-[:{variable_to_scenario_variable_rel_type}]-(instance)
-            RETURN DISTINCT apoc.map.mergeList([{{id: id(instance)}}, instance{{.*}}, impl{{.*}}]) AS instance
+            RETURN DISTINCT apoc.map.mergeList([{{id: id(instance)}}, {{id_impl: id(impl)}}, instance{{.*}}, impl{{.*}}]) AS instance
         """
     result = tx.run(
         query,
@@ -672,12 +660,15 @@ def merge_scenarios(tx, version_data, scenarios_data):
     return nbr_new, nbr_updated, nbr_unchanged
 
 
-def _get_reusable_variable(existing_variables, target_variable):
+def _get_reusable_variable_ids(existing_variables, target_variable):
     for _variable in existing_variables:
         value = _variable["instance"]
         reusable_version_id = (
             value.id if hasattr(value, "id") else value.get("id", None)
         )
+        # For scenarii, it will reuse a variable if a combination of variable and scenario variable implementation
+        # Properties already matches that new one
+        reusable_scenario_impl_id = value.get("id_impl", None)
         if (
             value.get("title", None) != target_variable.get("title", None)
             or value.get("label", None) != target_variable.get("label", None)
@@ -697,8 +688,7 @@ def _get_reusable_variable(existing_variables, target_variable):
             != target_variable.get("role_description", None)
             or value.get("simple_datatype", None)
             != target_variable.get("simple_datatype", None)
-            or value.get("length", None)
-            != target_variable.get("length", None)
+            or value.get("length", None) != target_variable.get("length", None)
             or value.get("implementation_notes", None)
             != target_variable.get("implementation_notes", None)
             or value.get("mapping_instructions", None)
@@ -709,11 +699,13 @@ def _get_reusable_variable(existing_variables, target_variable):
             or value.get("completion_instructions", None)
             != target_variable.get("completion_instructions", None)
             or value.get("core", None) != target_variable.get("core", None)
+            or value.get("analysis_variable_set", None)
+            != target_variable.get("analysis_variable_set", None)
         ):
             continue
         else:
-            return reusable_version_id
-    return None
+            return reusable_version_id, reusable_scenario_impl_id
+    return None, None
 
 
 def merge_variables(tx, version_data, variables_data):
@@ -740,7 +732,10 @@ def merge_variables(tx, version_data, variables_data):
             uid=variable["uid"],
         )
         if records:
-            reusable_instance_id = _get_reusable_variable(records, variable)
+            (
+                reusable_instance_id,
+                reusable_scenario_impl_id,
+            ) = _get_reusable_variable_ids(records, variable)
             if reusable_instance_id is None:
                 create_new_variable_instance(
                     tx,
@@ -758,6 +753,7 @@ def merge_variables(tx, version_data, variables_data):
                     variable=variable,
                     parent_href=parent_href,
                     instance_node_id=reusable_instance_id,
+                    scenario_impl_node_id=reusable_scenario_impl_id,
                     parent_type=parent_type,
                 )
                 nbr_unchanged += 1
@@ -1168,7 +1164,8 @@ def build_variable_instance_query(
 
     prior_version = f"""
         MATCH ()-[rel]->(prior_instance_node)<-[:{VARIABLE_VERSION_REL_TYPE}]-(prior_root_node)
-        WHERE rel.href=$variable_data.prior_version AND (rel:{VERSION_TO_VARIABLE_CLASS_REL_TYPE} OR rel:{VERSION_TO_DATASET_VARIABLE_REL_TYPE})
+        WHERE rel.href=$variable_data.prior_version AND 
+            (rel:{VERSION_TO_VARIABLE_CLASS_REL_TYPE} OR rel:{VERSION_TO_DATASET_VARIABLE_REL_TYPE})
         CALL apoc.do.when($uid<>prior_root_node.uid,
             'WITH ${instance_node_variable_name} AS {instance_node_variable_name}, $prior_instance_node AS prior_instance_node MERGE ({instance_node_variable_name})<-[rep:REPLACED_BY]-(prior_instance_node) SET rep.catalogue=$catalogue, rep.version_number=$prefixed_version_number RETURN rep',
             '',
@@ -1194,7 +1191,8 @@ def build_variable_instance_query(
                 {instance_node_variable_name}.prompt = $variable_data.prompt,
                 {instance_node_variable_name}.question_text = $variable_data.question_text,
                 {instance_node_variable_name}.completion_instructions = $variable_data.completion_instructions,
-                {instance_node_variable_name}.core = $variable_data.core
+                {instance_node_variable_name}.core = $variable_data.core,
+                {instance_node_variable_name}.analysis_variable_set = $variable_data.analysis_variable_set
         """
 
         variable_parents = f"""
@@ -1213,6 +1211,8 @@ def build_variable_instance_query(
 
     elif parent_type == "scenario":
         scenario_value_variable_name = "scenario_variable_value"
+
+        # Note: This clause will only be used if we are creating a new version
         create += f"""
             CREATE ({scenario_value_variable_name}:{scenario_variable_value_label})
             SET
@@ -1231,11 +1231,16 @@ def build_variable_instance_query(
                 {scenario_value_variable_name}.question_text = $variable_data.question_text,
                 {scenario_value_variable_name}.completion_instructions = $variable_data.completion_instructions,
                 {scenario_value_variable_name}.core = $variable_data.core
-            CREATE ({instance_node_variable_name})-[var_sc_rel:{variable_value_to_scenario_variable_value_rel_type}]->({scenario_value_variable_name})
-            SET var_sc_rel.version_number = $prefixed_version_number
         """
 
-        variable_parents = f"""
+        variable_parents = ""
+        # If we are not creating a new version, we need to match the ScenarioVariableImplementation node
+        if create_version is False:
+            variable_parents = f"MATCH ({scenario_value_variable_name}) WHERE id({scenario_value_variable_name})=$scenario_impl_node_id"
+
+        # Regardless of whether we are creating a new version
+        # We need to create the various relationships for the new catalogue version
+        variable_parents += f"""
             MATCH (dmv:DataModelVersion {{href: $version_href}})-[rel:{version_to_scenario_rel_type}]->(scenario_value:{scenario_value_label})
                 WHERE rel.href=$parent_href
             MERGE (dmv)-[:{version_to_variable_rel_type} {{href: $variable_data.href}}]->({instance_node_variable_name})
@@ -1245,6 +1250,7 @@ def build_variable_instance_query(
             }}]->({instance_node_variable_name})
             MERGE (dmv)-[contains_scenario_variable:{version_to_scenario_variable_rel_type}]->({scenario_value_variable_name})
             MERGE ({scenario_value_variable_name})-[:{scenario_variable_to_scenario_rel_type}]->(scenario_value)
+            MERGE ({instance_node_variable_name})-[var_sc_rel:{variable_value_to_scenario_variable_value_rel_type}{{version_number: $prefixed_version_number}}]->({scenario_value_variable_name})
         """
 
         codelists += f"""
@@ -1347,7 +1353,13 @@ def create_new_variable_instance(
 
 
 def use_existing_variable_instance(
-    tx, version_data, variable, parent_href, instance_node_id, parent_type
+    tx,
+    version_data,
+    variable,
+    parent_href,
+    instance_node_id,
+    parent_type,
+    scenario_impl_node_id=None,
 ):
     prefixed_version_number = _prettify_version_number(version_data["version_number"])
 
@@ -1367,6 +1379,7 @@ def use_existing_variable_instance(
         full_query,
         uid=variable["uid"],
         instance_node_id=instance_node_id,
+        scenario_impl_node_id=scenario_impl_node_id,
         effective_date=version_data["effective_date"],
         prefixed_version_number=prefixed_version_number,
         variable_data=variable,
@@ -1676,6 +1689,19 @@ def create_qualify_variable_relationships(tx, source_variable, prefixed_version_
 
 
 def _prettify_version_number(version_number: str, number_only=False):
+    """
+    Format a version number string to a standardized format.
+
+    Args:
+        version_number (str): The version number to format
+        number_only (bool, optional): If True, extracts only the numeric parts of the version.
+            For major.minor format, returns the last 2 parts.
+            For major.minor.patch format, returns the last 3 parts.
+            Defaults to False.
+
+    Returns:
+        str: The formatted version number string
+    """
     version = version_number.replace("-", ".")
     if number_only:
         parts = version.split(".")

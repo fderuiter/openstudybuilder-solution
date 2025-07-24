@@ -71,9 +71,10 @@ class OdmFormVO(ConceptVO):
         get_odm_description_parent_uids_callback: Callable[[list[str]], dict],
         odm_alias_exists_by_callback: Callable[[str, str, bool], bool],
         odm_uid: str | None = None,
+        library_name: str | None = None,
     ) -> None:
         data = {
-            "description_uids": self.description_uids,
+            "library_name": library_name,
             "alias_uids": self.alias_uids,
             "scope_uid": self.scope_uid,
             "name": self.name,
@@ -171,6 +172,7 @@ class OdmFormAR(OdmARBase):
             odm_description_exists_by_callback=odm_description_exists_by_callback,
             get_odm_description_parent_uids_callback=get_odm_description_parent_uids_callback,
             odm_alias_exists_by_callback=odm_alias_exists_by_callback,
+            library_name=library.name,
         )
 
         return cls(

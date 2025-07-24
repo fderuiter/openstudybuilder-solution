@@ -10,7 +10,7 @@ from fastapi.testclient import TestClient
 from clinical_mdr_api.main import app
 from clinical_mdr_api.tests.utils.checks import assert_response_status_code
 from clinical_mdr_api.tests.utils.utils import xml_diff
-from common.config import XML_STYLESHEET_DIR_PATH
+from common.config import settings
 
 
 @pytest.fixture(scope="module")
@@ -29,7 +29,7 @@ def test_get_specific_stylesheet(api_client):
     response = api_client.get("concepts/odms/metadata/xmls/stylesheets/blank")
 
     with open(
-        XML_STYLESHEET_DIR_PATH + "blank.xsl", mode="r", encoding="utf-8"
+        settings.xml_stylesheet_dir_path + "blank.xsl", mode="r", encoding="utf-8"
     ) as file:
         expected_xml = file.read()
 

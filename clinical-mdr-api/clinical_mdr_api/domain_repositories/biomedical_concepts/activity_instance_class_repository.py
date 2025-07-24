@@ -1,9 +1,9 @@
-from neomodel import NodeSet
+from neomodel import NodeSet, db
 from neomodel.sync_.match import (
     Collect,
     Last,
     NodeNameResolver,
-    Optional,
+    Path,
     RawCypher,
     RelationNameResolver,
 )
@@ -15,9 +15,6 @@ from clinical_mdr_api.domain_repositories.library_item_repository import (
 from clinical_mdr_api.domain_repositories.models.biomedical_concepts import (
     ActivityInstanceClassRoot,
     ActivityInstanceClassValue,
-)
-from clinical_mdr_api.domain_repositories.models.controlled_terminology import (
-    CTTermRoot,
 )
 from clinical_mdr_api.domain_repositories.models.generic import (
     Library,
@@ -35,6 +32,7 @@ from clinical_mdr_api.domains.biomedical_concepts.activity_instance_class import
 from clinical_mdr_api.domains.versioned_object_aggregate import LibraryVO
 from clinical_mdr_api.models.biomedical_concepts.activity_instance_class import (
     ActivityInstanceClass,
+    ActivityInstanceClassWithDataset,
 )
 
 
@@ -47,32 +45,25 @@ class ActivityInstanceClassRepository(
 
     def get_neomodel_extension_query(self) -> NodeSet:
         return (
-            ActivityInstanceClassRoot.nodes.fetch_relations(
+            ActivityInstanceClassRoot.nodes.traverse(
                 "has_latest_value",
                 "has_library",
-                Optional("parent_class"),
-                Optional("parent_class__has_latest_value"),
-                Optional("maps_dataset_class__has_instance"),
-                Optional("has_activity_item_class__has_latest_value"),
-                Optional("parent_class__has_activity_item_class__has_latest_value"),
-                Optional("has_data_domain"),
-                Optional("has_data_domain__has_name_root__has_latest_value"),
-                Optional("has_data_domain__has_attributes_root__has_latest_value"),
-                Optional("parent_class__has_data_domain"),
-                Optional(
-                    "parent_class__has_data_domain__has_name_root__has_latest_value"
+                Path(
+                    value="parent_class",
+                    optional=True,
+                    include_rels_in_return=False,
                 ),
-                Optional(
-                    "parent_class__has_data_domain__has_attributes_root__has_latest_value"
+                Path(
+                    value="parent_class__has_latest_value",
+                    optional=True,
+                    include_rels_in_return=False,
                 ),
             )
             .unique_variables(
-                "parent_class", "has_data_domain", "parent_class__has_data_domain"
+                "parent_class",
             )
             .subquery(
-                ActivityInstanceClassRoot.nodes.traverse_relations(
-                    latest_version="has_version"
-                )
+                ActivityInstanceClassRoot.nodes.traverse(latest_version="has_version")
                 .intermediate_transform(
                     {"rel": {"source": RelationNameResolver("has_version")}},
                     ordering=[
@@ -86,146 +77,13 @@ class ActivityInstanceClassRepository(
                 ["latest_version"],
                 initial_context=[NodeNameResolver("self")],
             )
-            .annotate(
-                Collect(NodeNameResolver("has_activity_item_class"), distinct=True),
-                Collect(RelationNameResolver("has_activity_item_class"), distinct=True),
-                Collect(
-                    NodeNameResolver("has_activity_item_class__has_latest_value"),
-                    distinct=True,
-                ),
-                Collect(
-                    RelationNameResolver("has_activity_item_class__has_latest_value"),
-                    distinct=True,
-                ),
-                Collect(
-                    NodeNameResolver("parent_class__has_activity_item_class"),
-                    distinct=True,
-                ),
-                Collect(
-                    RelationNameResolver("parent_class__has_activity_item_class"),
-                    distinct=True,
-                ),
-                Collect(
-                    NodeNameResolver(
-                        "parent_class__has_activity_item_class__has_latest_value"
-                    ),
-                    distinct=True,
-                ),
-                Collect(
-                    RelationNameResolver(
-                        "parent_class__has_activity_item_class__has_latest_value"
-                    ),
-                    distinct=True,
-                ),
-                Collect(NodeNameResolver("has_data_domain"), distinct=True),
-                Collect(RelationNameResolver("has_data_domain"), distinct=True),
-                Collect(
-                    NodeNameResolver("has_data_domain__has_name_root"), distinct=True
-                ),
-                Collect(
-                    RelationNameResolver("has_data_domain__has_name_root"),
-                    distinct=True,
-                ),
-                Collect(
-                    NodeNameResolver(
-                        "has_data_domain__has_name_root__has_latest_value"
-                    ),
-                    distinct=True,
-                ),
-                Collect(
-                    RelationNameResolver(
-                        "has_data_domain__has_name_root__has_latest_value"
-                    ),
-                    distinct=True,
-                ),
-                Collect(
-                    NodeNameResolver("has_data_domain__has_attributes_root"),
-                    distinct=True,
-                ),
-                Collect(
-                    RelationNameResolver("has_data_domain__has_attributes_root"),
-                    distinct=True,
-                ),
-                Collect(
-                    NodeNameResolver(
-                        "has_data_domain__has_attributes_root__has_latest_value"
-                    ),
-                    distinct=True,
-                ),
-                Collect(
-                    RelationNameResolver(
-                        "has_data_domain__has_attributes_root__has_latest_value"
-                    ),
-                    distinct=True,
-                ),
-                Collect(
-                    NodeNameResolver("parent_class__has_data_domain"),
-                    distinct=True,
-                ),
-                Collect(
-                    RelationNameResolver("parent_class__has_data_domain"),
-                    distinct=True,
-                ),
-                Collect(
-                    NodeNameResolver("parent_class__has_data_domain__has_name_root"),
-                    distinct=True,
-                ),
-                Collect(
-                    RelationNameResolver(
-                        "parent_class__has_data_domain__has_name_root"
-                    ),
-                    distinct=True,
-                ),
-                Collect(
-                    NodeNameResolver(
-                        "parent_class__has_data_domain__has_name_root__has_latest_value"
-                    ),
-                    distinct=True,
-                ),
-                Collect(
-                    RelationNameResolver(
-                        "parent_class__has_data_domain__has_name_root__has_latest_value"
-                    ),
-                    distinct=True,
-                ),
-                Collect(
-                    NodeNameResolver(
-                        "parent_class__has_data_domain__has_attributes_root"
-                    ),
-                    distinct=True,
-                ),
-                Collect(
-                    RelationNameResolver(
-                        "parent_class__has_data_domain__has_attributes_root"
-                    ),
-                    distinct=True,
-                ),
-                Collect(
-                    NodeNameResolver(
-                        "parent_class__has_data_domain__has_attributes_root__has_latest_value"
-                    ),
-                    distinct=True,
-                ),
-                Collect(
-                    RelationNameResolver(
-                        "parent_class__has_data_domain__has_attributes_root__has_latest_value"
-                    ),
-                    distinct=True,
-                ),
-            )
         )
 
     def _has_data_changed(
         self, ar: ActivityInstanceClassAR, value: ActivityInstanceClassValue
     ) -> bool:
-        if parent := value.has_latest_value.get_or_none():
-            parent = parent.parent_class.get_or_none()
         if dataset_class := value.has_latest_value.get_or_none():
             dataset_class = dataset_class.maps_dataset_class.get_or_none()
-        if data_domains := value.has_latest_value.get_or_none():
-            data_domains = data_domains.has_data_domain.all()
-        else:
-            data_domains = []
 
         return (
             ar.activity_instance_class_vo.name != value.name
@@ -234,15 +92,6 @@ class ActivityInstanceClassRepository(
             or ar.activity_instance_class_vo.is_domain_specific
             != value.is_domain_specific
             or ar.activity_instance_class_vo.level != value.level
-            or (
-                ar.activity_instance_class_vo.data_domain_uids
-                != [data_domain.uid for data_domain in data_domains]
-            )
-            or (
-                ar.activity_instance_class_vo.parent_uid != parent.uid
-                if parent
-                else None
-            )
             or (
                 ar.activity_instance_class_vo.dataset_class_uid != dataset_class.uid
                 if dataset_class
@@ -275,19 +124,11 @@ class ActivityInstanceClassRepository(
 
         self._db_save_node(new_value)
 
-        if ar.activity_instance_class_vo.parent_uid:
-            parent = ActivityInstanceClassRoot.nodes.get_or_none(
-                uid=ar.activity_instance_class_vo.parent_uid
-            )
-            root.parent_class.connect(parent)
         if ar.activity_instance_class_vo.dataset_class_uid:
             dataset = DatasetClass.nodes.get_or_none(
                 uid=ar.activity_instance_class_vo.dataset_class_uid
             )
             root.maps_dataset_class.connect(dataset)
-        for data_domain_uid in ar.activity_instance_class_vo.data_domain_uids or []:
-            data_domain = CTTermRoot.nodes.get_or_none(uid=data_domain_uid)
-            root.has_data_domain.connect(data_domain)
 
         return new_value
 
@@ -302,10 +143,8 @@ class ActivityInstanceClassRepository(
         value: ActivityInstanceClassValue,
         **_kwargs,
     ) -> ActivityInstanceClassAR:
-        parent_class = root.parent_class.get_or_none()
         dataset_class = root.maps_dataset_class.get_or_none()
         activity_item_classes = root.has_activity_item_class.all()
-        data_domains = root.has_data_domain.all()
 
         return ActivityInstanceClassAR.from_repository_values(
             uid=root.uid,
@@ -315,7 +154,6 @@ class ActivityInstanceClassRepository(
                 definition=value.definition,
                 is_domain_specific=value.is_domain_specific,
                 level=value.level,
-                parent_uid=parent_class.uid if parent_class else None,
                 dataset_class_uid=dataset_class.uid if dataset_class else None,
                 activity_item_classes=[
                     ActivityInstanceClassActivityItemClassRelVO(
@@ -329,7 +167,6 @@ class ActivityInstanceClassRepository(
                     )
                     for activity_item_class in activity_item_classes
                 ],
-                data_domain_uids=[data_domain.uid for data_domain in data_domains],
             ),
             library=LibraryVO.from_input_values_2(
                 library_name=library.name,
@@ -337,6 +174,49 @@ class ActivityInstanceClassRepository(
             ),
             item_metadata=self._library_item_metadata_vo_from_relation(relationship),
         )
+
+    def patch_mappings(self, uid: str, dataset_class_uid: str) -> None:
+        root = ActivityInstanceClassRoot.nodes.get(uid=uid)
+        root.maps_dataset_class.disconnect_all()
+        dataset_class = DatasetClass.nodes.get(uid=dataset_class_uid)
+        root.maps_dataset_class.connect(dataset_class)
+
+    def get_mapped_datasets(
+        self,
+        activity_instance_class_uid: str | None = None,
+        include_sponsor: bool = True,
+    ) -> list[ActivityInstanceClassWithDataset]:
+        dataset_label = (
+            "DatasetInstance|SponsorModelDatasetInstance"
+            if include_sponsor
+            else "DatasetInstance"
+        )
+        query = "MATCH (aicv:ActivityInstanceClassValue)<-[:LATEST]-(aicr:ActivityInstanceClassRoot) "
+        if activity_instance_class_uid:
+            query += "WHERE aicr.uid=$activity_instance_class_uid"
+        query += f"""
+            OPTIONAL MATCH (aicr)-[:MAPS_DATASET_CLASS]->(:DatasetClass)-[:HAS_INSTANCE]->(:DatasetClassInstance)<-[:IMPLEMENTS_DATASET_CLASS]-(:{dataset_label})<-[:HAS_INSTANCE]-(d:Dataset)
+            OPTIONAL MATCH (aicr)-[:PARENT_CLASS]->{{1,3}}()-[:MAPS_DATASET_CLASS]->(:DatasetClass)
+            -[:HAS_INSTANCE]->(:DatasetClassInstance)<-[:IMPLEMENTS_DATASET_CLASS]-(:{dataset_label})<-[:HAS_INSTANCE]-(parent_d:Dataset)
+            WITH DISTINCT aicr.uid AS uid, aicv.name AS name, d.uid AS dataset_uid, parent_d.uid AS parent_dataset_uid ORDER BY name, dataset_uid, parent_dataset_uid 
+            WITH uid, name, apoc.coll.sort(apoc.coll.toSet(collect(dataset_uid) + collect(parent_dataset_uid))) AS dataset_uids WHERE size(dataset_uids) > 0
+            RETURN uid, name, dataset_uids
+        """
+
+        results, meta = db.cypher_query(
+            query, params={"activity_instance_class_uid": activity_instance_class_uid}
+        )
+
+        mapped_datasets = [dict(zip(meta, row)) for row in results]
+
+        output = [
+            ActivityInstanceClassWithDataset(
+                uid=el["uid"], name=el["name"], datasets=el["dataset_uids"]
+            )
+            for el in mapped_datasets
+        ]
+
+        return output
 
     def _maintain_parameters(
         self,
@@ -347,3 +227,24 @@ class ActivityInstanceClassRepository(
         # This method from parent repo is not needed for this repo
         # So we use pass to skip implementation
         pass
+
+    def update_parent(self, parent_uid: str | None, uid: str) -> None:
+        root = ActivityInstanceClassRoot.nodes.get(uid=uid)
+        root.parent_class.disconnect_all()
+
+        if parent_uid:
+            parent = ActivityInstanceClassRoot.nodes.get_or_none(uid=parent_uid)
+            root.parent_class.connect(parent)
+
+    def get_parent_class(self, uid: str) -> tuple[str, str] | None:
+        root = ActivityInstanceClassRoot.nodes.get_or_none(uid=uid)
+        if not root:
+            return None
+
+        parent_root = root.parent_class.get_or_none()
+        if not parent_root:
+            return None
+
+        parent_value = parent_root.has_latest_value.get_or_none()
+
+        return parent_root.uid, parent_value.name

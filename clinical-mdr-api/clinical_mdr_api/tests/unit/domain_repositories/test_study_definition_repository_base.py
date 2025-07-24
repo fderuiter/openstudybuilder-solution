@@ -31,7 +31,7 @@ from clinical_mdr_api.models.utils import GenericFilteringReturn
 from clinical_mdr_api.repositories._utils import FilterOperator
 from clinical_mdr_api.services._utils import service_level_generic_filtering
 from clinical_mdr_api.tests.unit.domain.utils import random_str
-from common.config import DEFAULT_STUDY_FIELD_CONFIG_FILE
+from common.config import settings
 from common.exceptions import BusinessLogicException
 
 T = TypeVar("T")
@@ -215,10 +215,10 @@ class StudyDefinitionRepositoryFake(StudyDefinitionRepository):
         has_study_criteria: bool | None = None,
         has_study_activity: bool | None = None,
         has_study_activity_instruction: bool | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         deleted: bool = False,
@@ -287,7 +287,9 @@ class TestStudyDefinitionsRepositoryBase(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.patcher = patch(
             target=study_configuration.__name__ + ".from_database",
-            new=lambda: study_configuration.from_file(DEFAULT_STUDY_FIELD_CONFIG_FILE),
+            new=lambda: study_configuration.from_file(
+                settings.default_study_field_config_file
+            ),
         )
         cls.patcher.start()
 

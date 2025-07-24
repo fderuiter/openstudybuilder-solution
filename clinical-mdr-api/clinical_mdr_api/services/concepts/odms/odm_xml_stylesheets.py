@@ -1,7 +1,7 @@
 import re
 from os import listdir, path
 
-from common.config import XML_STYLESHEET_DIR_PATH
+from common.config import settings
 from common.exceptions import NotFoundException, ValidationException
 
 
@@ -9,12 +9,12 @@ class OdmXmlStylesheetService:
     @staticmethod
     def get_available_stylesheet_names():
         """
-        Returns a list of available XML stylesheet names based on existing files in folder `XML_STYLESHEET_DIR_PATH`.
+        Returns a list of available XML stylesheet names based on existing files in folder `settings.xml_stylesheet_dir_path`.
 
         Returns:
             list[str]: A list of available XML stylesheet names.
         """
-        dir_files = listdir(XML_STYLESHEET_DIR_PATH)
+        dir_files = listdir(settings.xml_stylesheet_dir_path)
 
         rs = []
         for file in dir_files:
@@ -43,7 +43,7 @@ class OdmXmlStylesheetService:
             msg="Stylesheet name must only contain letters, numbers and hyphens.",
         )
 
-        filename = XML_STYLESHEET_DIR_PATH + stylesheet + ".xsl"
+        filename = settings.xml_stylesheet_dir_path + stylesheet + ".xsl"
 
         NotFoundException.raise_if_not(
             path.exists(filename),

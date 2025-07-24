@@ -79,12 +79,13 @@
               <v-row>
                 <v-checkbox
                   v-model="form.is_data_collected"
-                  class="mt-2 mr-2"
+                  class="mr-2"
                   :label="$t('ActivityForms.is_data_collected')"
                 />
                 <v-switch
                   v-model="form.is_request_final"
                   :label="$t('ActivityForms.submit_request')"
+                  class="mt-n5"
                   hide-details
                   color="primary"
                 />

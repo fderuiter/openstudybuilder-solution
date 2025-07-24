@@ -14,6 +14,7 @@ from clinical_mdr_api.services.controlled_terminologies.ct_catalogue import (
     CTCatalogueService,
 )
 from common.auth import rbac
+from common.auth.dependencies import security
 
 # Prefixed with "/ct"
 router = APIRouter()
@@ -21,7 +22,7 @@ router = APIRouter()
 
 @router.get(
     "/catalogues",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns all controlled terminology catalogues.",
     status_code=200,
     responses={
@@ -44,7 +45,7 @@ def get_catalogues(
 
 @router.get(
     "/catalogues/changes",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List changes between codelists and terms in CT Catalogues.",
     status_code=200,
     responses={

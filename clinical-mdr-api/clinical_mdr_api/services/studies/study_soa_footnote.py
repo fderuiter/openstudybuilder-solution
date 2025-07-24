@@ -90,10 +90,10 @@ class StudySoAFootnoteService:
 
     def get_all(
         self,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         study_value_version: str | None = None,
@@ -131,10 +131,10 @@ class StudySoAFootnoteService:
     def get_all_by_study_uid(
         self,
         study_uid: str,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         study_value_version: str | None = None,
@@ -167,7 +167,7 @@ class StudySoAFootnoteService:
         study_uid: str | None,
         field_name: str,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
         study_value_version: str | None = None,
@@ -401,7 +401,7 @@ class StudySoAFootnoteService:
                 parameter_terms=parameter_terms,
                 library_name=footnote_input.footnote_data.library_name,
             )
-            footnote_service = FootnoteService()
+            footnote_service: FootnoteService = FootnoteService()
             footnote_ar = footnote_service.create_ar_from_input_values(
                 footnote_create_input,
                 study_uid=study_uid,
@@ -523,7 +523,7 @@ class StudySoAFootnoteService:
             msg=f"There is no Final Footnote with UID '{footnote_uid}'.",
         )
         if footnote_uid:
-            footnote_service = FootnoteService()
+            footnote_service: FootnoteService = FootnoteService()
             footnote_ar = footnote_service.repository.find_by_uid(footnote_uid)
             for soa_footnote in all_soa_footnotes:
                 AlreadyExistsException.raise_if(
@@ -689,7 +689,7 @@ class StudySoAFootnoteService:
     def preview_soa_footnote(
         self, study_uid: str, footnote_create_input: StudySoAFootnoteCreateFootnoteInput
     ) -> StudySoAFootnote:
-        footnote_service = FootnoteService()
+        footnote_service: FootnoteService = FootnoteService()
         footnote_ar = footnote_service.create_ar_from_input_values(
             footnote_create_input.footnote_data,
             generate_uid_callback=(lambda: "preview"),

@@ -328,7 +328,11 @@ function getDownloadFileName() {
 
 function downloadHtml() {
   htmlDownloadLoading.value = true
-  exportLoader.downloadFile(doc.value, 'text/html', getDownloadFileName())
+  exportLoader.downloadFile(
+    doc.value,
+    'text/html',
+    getDownloadFileName() + '.html'
+  )
   htmlDownloadLoading.value = false
 }
 
@@ -336,7 +340,11 @@ function downloadXml() {
   xmlDownloadLoading.value = true
   data.value.allowed_namespaces = getAllowedNamespaces()
   crfs.getXml(data.value).then((resp) => {
-    exportLoader.downloadFile(resp.data, 'text/xml', getDownloadFileName())
+    exportLoader.downloadFile(
+      resp.data,
+      'text/xml',
+      getDownloadFileName() + '.xml'
+    )
     xmlDownloadLoading.value = false
   })
 }

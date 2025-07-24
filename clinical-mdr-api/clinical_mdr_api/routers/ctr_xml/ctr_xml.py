@@ -9,6 +9,7 @@ from clinical_mdr_api.routers import _generic_descriptions
 from clinical_mdr_api.routers.studies.study import router
 from clinical_mdr_api.services.ctr_xml.ctr_xml_service import CTRXMLService
 from common.auth import rbac
+from common.auth.dependencies import security
 
 StudyUID = Path(description="The unique id of the study.")
 
@@ -19,7 +20,7 @@ class XMLResponse(Response):
 
 @router.get(
     "/studies/{study_uid}/ctr/odm.xml",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns study disclosure document in CTR ODM XML format",
     status_code=200,
     responses={

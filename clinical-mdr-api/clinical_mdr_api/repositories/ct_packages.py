@@ -1,3 +1,5 @@
+from typing import Any
+
 from neomodel import db
 
 CODELIST_DATA_RETRIEVAL_SPECIFIC_QUERY = """
@@ -153,7 +155,7 @@ WITH old_items_map, new_items_map, added_items, removed_items, common_items, com
 @db.transaction
 def get_ct_packages_codelist_changes(
     old_package_name: str, new_package_name: str, codelist_uid: str
-) -> dict:
+) -> dict[str, Any]:
     query_params = {
         "old_package_name": old_package_name,
         "new_package_name": new_package_name,
@@ -260,7 +262,7 @@ def are_codelists_different(left_cl, right_cl):
 def diff_dicts(left, right):
     # Compare two dicts returning the result
     # in the same format as apoc.diff.nodes()
-    diff = {
+    diff: dict[str, dict[Any, Any]] = {
         "right_only": {},
         "left_only": {},
         "in_common": {},
@@ -310,7 +312,9 @@ def codelist_diff(left_cl, right_cl):
 
 
 @db.transaction
-def get_ct_packages_changes(old_package_name: str, new_package_name: str) -> dict:
+def get_ct_packages_changes(
+    old_package_name: str, new_package_name: str
+) -> dict[str, Any]:
     output = {}
     # codelists query
     # Fetch the codelists and terms and do the comparison here.
@@ -433,7 +437,9 @@ def get_package_changes_by_year():
     return output
 
 
-def update_modified_codelists(output: dict, all_codelists_in_package: list[dict]):
+def update_modified_codelists(
+    output: dict[str, Any], all_codelists_in_package: list[dict[str, Any]]
+):
     """
     The following function adds codelists that contains some terms from the
     * new_terms

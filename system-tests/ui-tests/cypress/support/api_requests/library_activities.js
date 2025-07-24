@@ -20,6 +20,7 @@ const activateActivityUrl = (activity_uid) => `${activityUrl}/${activity_uid}/ac
 const activateActivityInstanceUrl = (activityInstance_uid) => `${activityInstanceUrl}/${activityInstance_uid}/activations`
 const activateActivityGroupUrl = (group_uid) => `${activityGroupUrl}/${group_uid}/activations`
 const activateActivitySubGroupUrl = (subgroup_uid) =>`${activitySubGroupUrl}/${subgroup_uid}/activations`
+const newVersionActivityUrl = (activity_uid) =>`${activityUrl}/${activity_uid}/versions`
 const newVersionActivityGroupUrl = (group_uid) =>`${activityGroupUrl}/${group_uid}/versions`
 const newVersionActivitySubGroupUrl = (subgroup_uid) =>`${activitySubGroupUrl}/${subgroup_uid}/versions`
 
@@ -52,6 +53,8 @@ Cypress.Commands.add('approveGroup', () => cy.sendPostRequest(approveActivityGro
 Cypress.Commands.add('approveSubGroup', () => cy.sendPostRequest(approveActivitySubGroupUrl(subgroup_uid), {}))
 
 Cypress.Commands.add('approveRequestedActivity', () => cy.sendPostRequest(approveActivityUrl(requestedActivity_uid), {}))
+
+Cypress.Commands.add('activityNewVersion', () => cy.sendPostRequest(newVersionActivityUrl(activity_uid), {}))
 
 Cypress.Commands.add('groupNewVersion', () => cy.sendPostRequest(newVersionActivityGroupUrl(group_uid), {}))
 

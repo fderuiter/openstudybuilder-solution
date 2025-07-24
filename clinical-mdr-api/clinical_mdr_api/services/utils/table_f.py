@@ -3,6 +3,7 @@ from collections import defaultdict
 from typing import Annotated, Any, Mapping
 
 import yattag
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Inches
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import NamedStyle
@@ -101,8 +102,8 @@ CHAR_WIDTHS = {
 
 
 class Ref(BaseModel):
-    type: Annotated[str | None, Field(title="Referenced item type")]
-    uid: Annotated[str, Field(title="Referenced item uid")]
+    type: Annotated[str | None, Field(description="Referenced item type")]
+    uid: Annotated[str, Field(description="Referenced item uid")]
     model_config = ConfigDict(frozen=True)
 
     def __init__(self, type_=None, uid=None, **kwargs):
@@ -114,23 +115,27 @@ class Ref(BaseModel):
 
 
 class TableCell(BaseModel):
-    text: Annotated[str, Field(title="Text contents of cell")] = ""
-    span: Annotated[int, Field(title="Horizontal spanning of cell, 1 by default")] = 1
+    text: Annotated[str, Field(description="Text contents of cell")] = ""
+    span: Annotated[
+        int, Field(description="Horizontal spanning of cell, 1 by default")
+    ] = 1
     style: Annotated[
         str | None,
-        Field(title="Associated style to cell", json_schema_extra={"nullable": True}),
+        Field(
+            description="Associated style to cell", json_schema_extra={"nullable": True}
+        ),
     ] = None
     refs: Annotated[
         list[Ref] | None,
-        Field(title="Reference to item", json_schema_extra={"nullable": True}),
+        Field(description="Reference to item", json_schema_extra={"nullable": True}),
     ] = None
     footnotes: Annotated[
         list[str] | None,
-        Field(title="Referenced footnotes", json_schema_extra={"nullable": True}),
+        Field(description="Referenced footnotes", json_schema_extra={"nullable": True}),
     ] = None
     vertical: Annotated[
         bool | None,
-        Field(title="Text text direction", json_schema_extra={"nullable": True}),
+        Field(description="Text text direction", json_schema_extra={"nullable": True}),
     ] = None
 
     def __init__(self, text=None, **kwargs):
@@ -140,15 +145,17 @@ class TableCell(BaseModel):
 
 
 class TableRow(BaseModel):
-    cells: list[TableCell] = Field(default_factory=list, title="Table cells in the row")
-    hide: Annotated[bool, Field(title="Hide row from display")] = False
+    cells: list[TableCell] = Field(
+        default_factory=list, description="Table cells in the row"
+    )
+    hide: Annotated[bool, Field(description="Hide row from display")] = False
     order: Annotated[
         int | None,
-        Field(title="Order of a given row inside its parents"),
+        Field(description="Order of a given row inside its parents"),
     ] = None
     level: Annotated[
         int | None,
-        Field(title="Integer that represents SoAItem associated with given row"),
+        Field(description="Integer that represents SoAItem associated with given row"),
     ] = None
 
     def __init__(self, cells=None, **kwargs):
@@ -158,35 +165,38 @@ class TableRow(BaseModel):
 
 
 class SimpleFootnote(BaseModel):
-    uid: Annotated[str, Field(title="StudySoAFootnote.uid")]
+    uid: Annotated[str, Field(description="StudySoAFootnote.uid")]
     text_html: Annotated[
-        str, Field(title="HTML text of footnote", json_schema_extra={"format": "html"})
+        str,
+        Field(
+            description="HTML text of footnote", json_schema_extra={"format": "html"}
+        ),
     ]
-    text_plain: Annotated[str, Field(title="Plain text of footnote")]
+    text_plain: Annotated[str, Field(description="Plain text of footnote")]
 
 
 class TableWithFootnotes(BaseModel):
-    rows: list[TableRow] = Field(default_factory=list, title="List of table rows")
+    rows: list[TableRow] = Field(default_factory=list, description="List of table rows")
     footnotes: Annotated[
         dict[str, SimpleFootnote] | None,
         Field(
-            title="Mapping of symbols and table footnotes",
+            description="Mapping of symbols and table footnotes",
             json_schema_extra={"nullable": True},
         ),
     ] = None
-    num_header_rows: Annotated[int, Field(title="Number of header rows")] = 0
-    num_header_cols: Annotated[int, Field(title="Number of header columns")] = 0
+    num_header_rows: Annotated[int, Field(description="Number of header rows")] = 0
+    num_header_cols: Annotated[int, Field(description="Number of header columns")] = 0
     title: Annotated[
         str | None,
         Field(
-            title="Table title (when rendered to HTML)",
+            description="Table title (when rendered to HTML)",
             json_schema_extra={"nullable": True},
         ),
     ] = None
     id: Annotated[
         str | None,
         Field(
-            title="Table id (when rendered to HTML)",
+            description="Table id (when rendered to HTML)",
             json_schema_extra={"nullable": True},
         ),
     ] = None
@@ -254,6 +264,10 @@ def table_to_docx(
             style_name = styles.get(t_cell.style, [None])[0] if styles else None
             if style_name:
                 x_para.style = style_name
+
+            # center non-header columns
+            if c >= table.num_header_cols:
+                x_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
             # set vertical text direction
             if t_cell.vertical:

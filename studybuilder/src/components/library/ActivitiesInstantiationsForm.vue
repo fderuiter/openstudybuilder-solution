@@ -9,8 +9,8 @@
     @close="close"
     @save="submit"
   >
-    <template #[`step.activities`]="{ step }">
-      <v-form :ref="`observer_${step}`">
+    <template #[`step.activities`]>
+      <v-form ref="activitiesForm">
         <v-row data-cy="instanceform-activity-class">
           <v-col cols="4">
             <v-autocomplete
@@ -56,8 +56,8 @@
       </v-form>
       <v-spacer />
     </template>
-    <template #[`step.type`]="{ step }">
-      <v-form :ref="`observer_${step}`">
+    <template #[`step.type`]>
+      <v-form ref="typeForm">
         <v-row data-cy="instanceform-instanceclass-class">
           <v-col cols="4">
             <v-select
@@ -76,8 +76,8 @@
         </v-row>
       </v-form>
     </template>
-    <template #[`step.basicData`]="{ step }">
-      <v-form :ref="`observer_${step}`">
+    <template #[`step.basicData`]>
+      <v-form ref="basicDataForm">
         <v-row>
           <v-col cols="8">
             <v-text-field
@@ -135,6 +135,7 @@
               :label="$t('ActivityForms.molecular_weight')"
               data-cy="instanceform-molecularweight-field"
               type="number"
+              clearable
             />
           </v-col>
         </v-row>
@@ -191,9 +192,11 @@
   <ConfirmDialog ref="confirm" :text-cols="6" :action-cols="5" />
 </template>
 
-<script>
-import activityInstanceClasses from '@/api/activityInstanceClasses'
-import activities from '@/api/activities'
+<script setup>
+import { computed, inject, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import activityInstanceClassesApi from '@/api/activityInstanceClasses'
+import activitiesApi from '@/api/activities'
 import ConfirmDialog from '@/components/tools/ConfirmDialog.vue'
 import libraries from '@/constants/libraries'
 import HorizontalStepperForm from '@/components/tools/HorizontalStepperForm.vue'
@@ -203,356 +206,326 @@ import statuses from '@/constants/statuses'
 import parameters from '@/constants/parameters'
 
 const source = 'activity-instances'
+const props = defineProps({
+  editedActivity: {
+    type: Object,
+    default: null,
+  },
+})
 
-export default {
-  components: {
-    ConfirmDialog,
-    HorizontalStepperForm,
-    SentenceCaseNameField,
+const eventBusEmit = inject('eventBusEmit')
+const formRules = inject('formRules')
+const emit = defineEmits(['close'])
+const { t } = useI18n()
+const formStore = useFormStore()
+const stepper = ref()
+const activitiesForm = ref()
+const typeForm = ref()
+const basicDataForm = ref()
+
+const form = ref({ activity_groupings: [] })
+const activities = ref([])
+const activityInstanceClasses = ref([])
+const steps = ref(getInitialSteps())
+const helpItems = [
+  'ActivityFormsInstantiations.activities',
+  'ActivityFormsInstantiations.activity_group',
+  'ActivityFormsInstantiations.select_type',
+  'ActivityFormsInstantiations.name',
+  'ActivityFormsInstantiations.definition',
+  'ActivityFormsInstantiations.nci_concept_id',
+  'ActivityFormsInstantiations.topicCode',
+  'ActivityFormsInstantiations.adamCode',
+  'ActivityFormsInstantiations.is_required_for_activity',
+  'ActivityFormsInstantiations.is_default_selected_for_activity',
+  'ActivityFormsInstantiations.is_data_sharing',
+  'ActivityFormsInstantiations.is_legacy_usage',
+]
+const headers = [
+  {
+    title: t('ActivityFormsInstantiations.activity_group'),
+    key: 'activity_group_name',
   },
-  inject: ['eventBusEmit', 'formRules'],
-  props: {
-    editedActivity: {
-      type: Object,
-      default: null,
-    },
+  {
+    title: t('ActivityFormsInstantiations.activity_subgroup'),
+    key: 'activity_subgroup_name',
   },
-  emits: ['close'],
-  setup() {
-    const formStore = useFormStore()
-    return {
-      formStore,
+]
+const selectedActivity = ref(null)
+const previouslySelectedActivity = ref(null)
+const selectedGroupings = ref([])
+
+const checkIfNumericFindings = computed(() => {
+  return (
+    activityInstanceClasses.value.find(
+      (instanceClass) =>
+        instanceClass.uid === form.value.activity_instance_class_uid
+    ).name === parameters.NUMERIC_FINDINGS
+  )
+})
+
+const title = computed(() => {
+  return props.editedActivity
+    ? t('ActivityForms.editInstance')
+    : t('ActivityForms.addInstance')
+})
+
+const draftActivityAlert = computed(() => {
+  return props.editedActivity
+    ? t('ActivityForms.draft_activity_edit_alert', {
+        state: selectedActivity.value.status.toUpperCase(),
+      })
+    : t('ActivityForms.draft_activity_create_alert', {
+        state: selectedActivity.value.status.toUpperCase(),
+      })
+})
+
+watch(activities, () => {
+  if (props.editedActivity) {
+    setActivityGroupings()
+  }
+})
+
+watch(
+  () => props.editedActivity,
+  (value) => {
+    if (value) {
+      activitiesApi.getObject(source, value.uid).then((resp) => {
+        initForm(resp.data)
+      })
+    }
+    if (props.editedActivity && activities.value.length > 0) {
+      setActivityGroupings()
     }
   },
-  data() {
-    return {
-      statuses: statuses,
-      form: { activity_groupings: [] },
-      type: '',
-      activities: [],
-      activityInstanceClasses: [],
-      steps: this.getInitialSteps(),
-      helpItems: [
-        'ActivityFormsInstantiations.activities',
-        'ActivityFormsInstantiations.activity_group',
-        'ActivityFormsInstantiations.select_type',
-        'ActivityFormsInstantiations.name',
-        'ActivityFormsInstantiations.definition',
-        'ActivityFormsInstantiations.nci_concept_id',
-        'ActivityFormsInstantiations.topicCode',
-        'ActivityFormsInstantiations.adamCode',
-        'ActivityFormsInstantiations.is_required_for_activity',
-        'ActivityFormsInstantiations.is_default_selected_for_activity',
-        'ActivityFormsInstantiations.is_data_sharing',
-        'ActivityFormsInstantiations.is_legacy_usage',
-      ],
-      headers: [
-        {
-          title: this.$t('ActivityFormsInstantiations.activity_group'),
-          key: 'activity_group_name',
-        },
-        {
-          title: this.$t('ActivityFormsInstantiations.activity_subgroup'),
-          key: 'activity_subgroup_name',
-        },
-      ],
-      selectedActivity: null,
-      previouslySelectedActivity: null,
-      selectedGroupings: [],
-    }
-  },
-  computed: {
-    checkIfNumericFindings() {
-      return (
-        this.activityInstanceClasses.find(
-          (instanceClass) =>
-            instanceClass.uid === this.form.activity_instance_class_uid
-        ).name === parameters.NUMERIC_FINDINGS
-      )
+  { immediate: true }
+)
+
+watch(selectedActivity, () => {
+  if (props.editedActivity && activities.value.length > 0) {
+    setActivityGroupings()
+  }
+})
+
+onMounted(() => {
+  if (props.editedActivity) {
+    initForm(props.editedActivity)
+  }
+  getActivities()
+  activityInstanceClassesApi.getAll({ page_size: 0 }).then((resp) => {
+    activityInstanceClasses.value = resp.data.items
+  })
+})
+
+function initForm(value) {
+  form.value = {
+    name: value.name,
+    activity_instance_class_uid: value.activity_instance_class.uid,
+    name_sentence_case: value.name_sentence_case,
+    nci_concept_id: value.nci_concept_id,
+    nci_concept_name: value.nci_concept_name,
+    molecular_weight: value.molecular_weight,
+    definition: value.definition,
+    change_description: value.change_description,
+    activity_sub_groups: value.activity_sub_groups,
+    topic_code: value.topic_code,
+    adam_param_code: value.adam_param_code,
+    is_research_lab: value.is_research_lab,
+    is_required_for_activity: value.is_required_for_activity,
+    is_default_selected_for_activity: value.is_default_selected_for_activity,
+    is_data_sharing: value.is_data_sharing,
+    is_legacy_usage: value.is_legacy_usage,
+    activity_groupings: [],
+  }
+  formStore.save(form.value)
+}
+
+function getInitialSteps() {
+  return [
+    {
+      name: 'activities',
+      title: t('ActivityForms.select_activities'),
     },
-    title() {
-      return this.editedActivity
-        ? this.$t('ActivityForms.editInstance')
-        : this.$t('ActivityForms.addInstance')
-    },
-    draftActivityAlert() {
-      return this.editedActivity
-        ? this.$t('ActivityForms.draft_activity_edit_alert')
-        : this.$t('ActivityForms.draft_activity_create_alert')
-    },
-    filteredGroups() {
-      if (
-        !this.form.activity_groupings ||
-        !this.form.activity_groupings[0].activity_uid
-      ) {
-        return []
-      }
-      const uid = this.form.activity_groupings[0].activity_uid
-      const activity = this.activities.find((o) => o.uid === uid)
-      if (!activity) {
-        return []
-      }
-      return activity.activity_groupings.map((o) => ({
-        name: o.activity_group_name,
-        uid: o.activity_group_uid,
-      }))
-    },
-    filteredSubGroups() {
-      if (
-        !this.form.activity_groupings ||
-        !this.form.activity_groupings[0].activity_group_uid
-      ) {
-        return []
-      }
-      const activityUid = this.form.activity_groupings[0].activity_uid
-      const groupUid = this.form.activity_groupings[0].activity_group_uid
-      const activity = this.activities.find((o) => o.uid === activityUid)
-      if (!activity) {
-        return []
-      }
-      return activity.activity_groupings
-        .filter((o) => o.activity_group_uid === groupUid)
-        .map((o) => ({
-          name: o.activity_subgroup_name,
-          uid: o.activity_subgroup_uid,
-        }))
-    },
-  },
-  watch: {
-    activities() {
-      if (this.editedActivity) {
-        this.setActivityGroupings()
-      }
-    },
-    editedActivity: {
-      handler(value) {
-        if (value) {
-          activities.getObject(source, value.uid).then((resp) => {
-            this.initForm(resp.data)
-          })
-        }
-        if (this.editedActivity && this.activities.length > 0) {
-          this.setActivityGroupings()
-        }
-      },
-      immediate: true,
-    },
-    selectedActivity() {
-      if (this.editedActivity && this.activities.length > 0) {
-        this.setActivityGroupings()
-      }
-    },
-  },
-  mounted() {
-    if (this.editedActivity) {
-      this.initForm(this.editedActivity)
-    }
-    this.getActivities()
-    activityInstanceClasses.getAll({ page_size: 0 }).then((resp) => {
-      this.activityInstanceClasses = resp.data.items
+    { name: 'type', title: t('ActivityForms.select_class') },
+    { name: 'basicData', title: t('ActivityForms.addBasicData') },
+  ]
+}
+
+async function extraValidation(step) {
+  if (selectedActivity.value.status !== statuses.FINAL) {
+    return false
+  }
+  if (step !== 1) {
+    return true
+  }
+  if (selectedGroupings.value.length === 0) {
+    eventBusEmit('notification', {
+      msg: t('ActivityForms.grouping_selection_info'),
+      type: 'info',
     })
-  },
-  methods: {
-    initForm(value) {
-      this.form = {
-        name: value.name,
-        activity_instance_class_uid: value.activity_instance_class.uid,
-        name_sentence_case: value.name_sentence_case,
-        nci_concept_id: value.nci_concept_id,
-        nci_concept_name: value.nci_concept_name,
-        molecular_weight: value.molecular_weight,
-        definition: value.definition,
-        change_description: value.change_description,
-        activity_sub_groups: value.activity_sub_groups,
-        topic_code: value.topic_code,
-        adam_param_code: value.adam_param_code,
-        is_research_lab: value.is_research_lab,
-        is_required_for_activity: value.is_required_for_activity,
-        is_default_selected_for_activity:
-          value.is_default_selected_for_activity,
-        is_data_sharing: value.is_data_sharing,
-        is_legacy_usage: value.is_legacy_usage,
-        activity_groupings: [],
-      }
-      this.formStore.save(this.form)
-    },
-    getInitialSteps() {
-      return [
-        {
-          name: 'activities',
-          title: this.$t('ActivityForms.select_activities'),
-        },
-        { name: 'type', title: this.$t('ActivityForms.select_class') },
-        { name: 'basicData', title: this.$t('ActivityForms.addBasicData') },
-      ]
-    },
-    async extraValidation(step) {
-      if (this.selectedActivity.status !== statuses.FINAL) {
-        return false
-      }
-      if (step !== 1) {
-        return true
-      }
-      if (this.selectedGroupings.length === 0) {
-        this.eventBusEmit('notification', {
-          msg: this.$t('ActivityForms.grouping_selection_info'),
-          type: 'info',
+    return false
+  }
+  return true
+}
+
+function close() {
+  emit('close')
+  form.value = { activity_groupings: [] }
+  selectedActivity.value = null
+  selectedGroupings.value = []
+  formStore.reset()
+  stepper.value.reset()
+  stepper.value.loading = false
+}
+
+async function submit() {
+  form.value.library_name = libraries.LIBRARY_SPONSOR
+  form.value.activities = [form.value.activities]
+  selectedGroupings.value = selectedGroupings.value.filter(function (val) {
+    return val !== undefined
+  })
+  selectedGroupings.value.forEach((grouping) => {
+    form.value.activity_groupings.push({
+      activity_uid: selectedActivity.value.uid,
+      activity_group_uid: grouping.activity_group_uid,
+      activity_subgroup_uid: grouping.activity_subgroup_uid,
+    })
+  })
+  if (form.value.molecular_weight === '') {
+    form.value.molecular_weight = null
+  }
+  if (!props.editedActivity) {
+    activitiesApi.create(form.value, source).then(
+      () => {
+        eventBusEmit('notification', {
+          msg: t('ActivityForms.activity_created'),
         })
-        return false
+        close()
+      },
+      () => {
+        stepper.value.loading = false
       }
-      return true
-    },
-    close() {
-      this.$emit('close')
-      this.form = { activity_groupings: [] }
-      this.selectedActivity = null
-      this.selectedGroupings = []
-      this.formStore.reset()
-      this.$refs.stepper.reset()
-      this.$refs.stepper.loading = false
-    },
-    async submit() {
-      this.form.library_name = libraries.LIBRARY_SPONSOR
-      this.form.activities = [this.form.activities]
-      this.selectedGroupings = this.selectedGroupings.filter(function (val) {
-        return val !== undefined
-      })
-      this.selectedGroupings.forEach((grouping) => {
-        this.form.activity_groupings.push({
-          activity_uid: this.selectedActivity.uid,
-          activity_group_uid: grouping.activity_group_uid,
-          activity_subgroup_uid: grouping.activity_subgroup_uid,
+    )
+  } else {
+    activitiesApi.update(props.editedActivity.uid, form.value, {}, source).then(
+      () => {
+        eventBusEmit('notification', {
+          msg: t('ActivityForms.activity_updated'),
         })
-      })
-      if (!this.editedActivity) {
-        activities.create(this.form, source).then(
-          () => {
-            this.eventBusEmit('notification', {
-              msg: this.$t('ActivityForms.activity_created'),
-            })
-            this.close()
-          },
-          () => {
-            this.$refs.stepper.loading = false
-          }
-        )
-      } else {
-        activities.update(this.editedActivity.uid, this.form, {}, source).then(
-          () => {
-            this.eventBusEmit('notification', {
-              msg: this.$t('ActivityForms.activity_updated'),
-            })
-            this.close()
-          },
-          () => {
-            this.$refs.stepper.loading = false
-          }
-        )
+        close()
+      },
+      () => {
+        stepper.value.loading = false
       }
+    )
+  }
+}
+
+function getObserver(step) {
+  if (step === 1) return activitiesForm.value
+  if (step === 2) return typeForm.value
+  if (step === 3) return basicDataForm.value
+}
+
+function getActivities(searchstring) {
+  // Get filtered activities for search string in autocomplete
+  const params = {
+    page_size: 20,
+    filters: {
+      library_name: { v: [libraries.LIBRARY_SPONSOR] },
     },
-    getObserver(step) {
-      return this.$refs[`observer_${step}`]
-    },
-    getActivities(searchstring) {
-      // Get filtered activities for search string in autocomplete
-      const params = {
-        page_size: 20,
-        filters: {
-          library_name: { v: [libraries.LIBRARY_SPONSOR] },
-        },
-      }
-      if (searchstring) {
-        params.filters.name = { v: [searchstring], op: 'co' }
-      }
-      activities.get(params, 'activities').then((resp) => {
-        const fetched_activities = resp.data.items
-        // Check if the selected activity is in the fetched activities, fetch it if not
-        const params = {
-          page_size: 2,
-          filters: {
-            uid: { v: [], op: 'eq' },
-          },
-        }
-        if (
-          this.editedActivity &&
-          this.editedActivity.activities.length > 0 &&
-          !fetched_activities.some(
-            (act) => act.uid === this.editedActivity.activities[0].uid
-          )
-        ) {
-          params.filters.uid.v.push(this.editedActivity.activities[0].uid)
-        }
-        if (
-          this.selectedActivity &&
-          !fetched_activities.some(
-            (act) => act.uid === this.selectedActivity.uid
-          )
-        ) {
-          params.filters.uid.v.push(this.selectedActivity.uid)
-        }
-        if (params.filters.uid.v.length > 0) {
-          // The selected activity is not in the fetched activities, fetch it
-          activities.get(params, 'activities').then((resp) => {
-            if (resp.data.items.length > 0) {
-              fetched_activities.push(resp.data.items[0])
-              this.activities = fetched_activities
-            }
-          })
-        } else {
-          this.activities = fetched_activities
+  }
+  if (searchstring) {
+    params.filters.name = { v: [searchstring], op: 'co' }
+  }
+  activitiesApi.get(params, 'activities').then((resp) => {
+    const fetched_activities = resp.data.items
+    // Check if the selected activity is in the fetched activities, fetch it if not
+    const params = {
+      page_size: 2,
+      filters: {
+        uid: { v: [], op: 'eq' },
+      },
+    }
+    if (
+      props.editedActivity &&
+      props.editedActivity.activities.length > 0 &&
+      !fetched_activities.some(
+        (act) => act.uid === props.editedActivity.activities[0].uid
+      )
+    ) {
+      params.filters.uid.v.push(props.editedActivity.activities[0].uid)
+    }
+    if (
+      selectedActivity.value &&
+      !fetched_activities.some((act) => act.uid === selectedActivity.value.uid)
+    ) {
+      params.filters.uid.v.push(selectedActivity.value.uid)
+    }
+    if (params.filters.uid.v.length > 0) {
+      // The selected activity is not in the fetched activities, fetch it
+      activitiesApi.get(params, 'activities').then((resp) => {
+        if (resp.data.items.length > 0) {
+          fetched_activities.push(resp.data.items[0])
+          activities.value = fetched_activities
         }
       })
-    },
-    setActivityGroupings() {
-      if (
-        !this.selectedActivity &&
-        this.editedActivity &&
-        this.editedActivity.activities.length > 0
-      ) {
-        // editedActivity is set, but selectedActivity is not set.
-        // This means that the form is newly opened to edit an existing instance.
-        // Set selectedActivity to the activity of the edited instance.
-        this.selectedActivity = this.activities.find(
-          (act) => act.uid === this.editedActivity.activities[0].uid
+    } else {
+      activities.value = fetched_activities
+    }
+  })
+}
+
+function setActivityGroupings() {
+  if (
+    !selectedActivity.value &&
+    props.editedActivity &&
+    props.editedActivity.activities.length > 0
+  ) {
+    // editedActivity is set, but selectedActivity is not set.
+    // This means that the form is newly opened to edit an existing instance.
+    // Set selectedActivity to the activity of the edited instance.
+    selectedActivity.value = activities.value.find(
+      (act) => act.uid === props.editedActivity.activities[0].uid
+    )
+    previouslySelectedActivity.value = selectedActivity.value
+    if (props.editedActivity.activity_groupings.length > 0) {
+      selectedGroupings.value = []
+      props.editedActivity.activity_groupings.forEach((grouping) => {
+        selectedGroupings.value.push(
+          selectedActivity.value.activity_groupings.find(
+            (group) =>
+              group.activity_group_uid === grouping.activity_group.uid &&
+              group.activity_subgroup_uid === grouping.activity_subgroup.uid
+          )
         )
-        this.previouslySelectedActivity = this.selectedActivity
-        if (this.editedActivity.activity_groupings.length > 0) {
-          this.selectedGroupings = []
-          this.editedActivity.activity_groupings.forEach((grouping) => {
-            this.selectedGroupings.push(
-              this.selectedActivity.activity_groupings.find(
-                (group) =>
-                  group.activity_group_uid === grouping.activity_group.uid &&
-                  group.activity_subgroup_uid === grouping.activity_subgroup.uid
-              )
-            )
-          })
-        }
-      } else if (!this.selectedActivity) {
-        // No activity is selected, clear groupings
-        this.selectedGroupings = []
-      }
-    },
-    clearGroupings() {
-      if (
-        this.selectedActivity &&
-        this.previouslySelectedActivity &&
-        this.selectedActivity.uid === this.previouslySelectedActivity.uid
-      ) {
-        // No change, just return
-        return
-      }
-      this.selectedGroupings = []
-      this.previouslySelectedActivity = this.selectedActivity
-    },
-    updateActivities(value) {
-      if (this.selectedActivity && value === this.selectedActivity.name) {
-        // The v-autocomplete got focus, which triggers a needless search with the current value.
-        return
-      }
-      this.getActivities(value)
-    },
-  },
+      })
+    }
+  } else if (!selectedActivity.value) {
+    // No activity is selected, clear groupings
+    selectedGroupings.value = []
+  }
+}
+
+function clearGroupings() {
+  if (
+    selectedActivity.value &&
+    previouslySelectedActivity.value &&
+    selectedActivity.value.uid === previouslySelectedActivity.value.uid
+  ) {
+    // No change, just return
+    return
+  }
+  selectedGroupings.value = []
+  previouslySelectedActivity.value = selectedActivity.value
+}
+
+function updateActivities(value) {
+  if (selectedActivity.value && value === selectedActivity.value.name) {
+    // The v-autocomplete got focus, which triggers a needless search with the current value.
+    return
+  }
+  getActivities(value)
 }
 </script>
 <style lang="scss" scoped>

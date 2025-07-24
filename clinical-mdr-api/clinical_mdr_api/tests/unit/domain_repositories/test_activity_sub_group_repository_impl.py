@@ -65,10 +65,10 @@ def test__activity_sub_group_repository__get_linked_activity_group_uids__no_resu
 
 
 @patch("neomodel.db.cypher_query")
-def test__activity_sub_group_repository__get_linked_activity_group_uids__new_version__filters_by_final_status(
+def test__activity_sub_group_repository__get_linked_activity_group_uids__new_version__includes_all_statuses(
     mock_cypher_query,
 ):
-    """Test that only 'Final' status groups are returned when linking to activity subgroups."""
+    """Test that all status groups (Draft, Final, Retired) are returned when linking to activity subgroups."""
     repository = ActivitySubGroupRepository()
     subgroup_uid = "test-subgroup-id"
     version = "2.0"
@@ -79,29 +79,37 @@ def test__activity_sub_group_repository__get_linked_activity_group_uids__new_ver
             "Test Group 1",  # name
             "1.0",  # version
             "Final",  # status
-        ]
+        ],
+        [
+            "test-group-id-2",  # uid
+            "Test Group 2",  # name
+            "0.1",  # version
+            "Draft",  # status
+        ],
     ]
     mock_cypher_query.return_value = (mock_result, None)
 
     result = repository.get_linked_activity_group_uids(subgroup_uid, version)
 
-    assert len(result) == 1
+    assert len(result) == 2
     assert result[0]["uid"] == "test-group-id-1"
     assert result[0]["status"] == "Final"
+    assert result[1]["uid"] == "test-group-id-2"
+    assert result[1]["status"] == "Draft"
 
     assert mock_cypher_query.called
-    assert any(
-        'HAS_VERSION {status: "Final"}' in str(call)
-        or 'HAS_VERSION { status: "Final" }' in str(call)
+    # Status filter should not be present
+    assert not any(
+        'ag_rel.status = "Final"' in str(call)
         for call in mock_cypher_query.call_args_list
     )
 
 
 @patch("neomodel.db.cypher_query")
-def test__activity_sub_group_repository__draft_status_groups_not_included(
+def test__activity_sub_group_repository__draft_status_groups_are_included(
     mock_cypher_query,
 ):
-    """Test that Draft status groups are not included in the results."""
+    """Test that Draft status groups ARE included in the results."""
     repository = ActivitySubGroupRepository()
     subgroup_uid = "test-subgroup-id"
     version = "1.0"
@@ -121,19 +129,20 @@ def test__activity_sub_group_repository__draft_status_groups_not_included(
         ],
     ]
 
-    mock_cypher_query.return_value = ([mock_db_result[0]], None)
+    mock_cypher_query.return_value = (mock_db_result, None)
 
     result = repository.get_linked_activity_group_uids(subgroup_uid, version)
 
-    assert len(result) == 1
+    assert len(result) == 2
     assert result[0]["uid"] == "final-group-id"
     assert result[0]["status"] == "Final"
-    assert "draft-group-id" not in str(result)
+    assert result[1]["uid"] == "draft-group-id"
+    assert result[1]["status"] == "Draft"
 
     assert mock_cypher_query.called
-    assert any(
-        'HAS_VERSION {status: "Final"}' in str(call)
-        or 'HAS_VERSION { status: "Final" }' in str(call)
+    # Status filter should not be present
+    assert not any(
+        'ag_rel.status = "Final"' in str(call)
         for call in mock_cypher_query.call_args_list
     )
 

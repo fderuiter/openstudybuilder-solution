@@ -1,7 +1,7 @@
 import logging
 import os
 from collections import OrderedDict
-from typing import Mapping, MutableMapping
+from typing import Any, Mapping, MutableMapping
 
 import yattag
 from colour import Color
@@ -27,7 +27,7 @@ from clinical_mdr_api.services.studies.study_epoch import StudyEpochService
 
 # Page and margin sizes (horizontal, vertical) in millimeters
 from clinical_mdr_api.services.studies.study_visit import StudyVisitService
-from common import config
+from common.config import settings
 from common.telemetry import trace_calls
 
 # A4 page size (width, height) in millimeters
@@ -149,7 +149,7 @@ class StudyDesignFigureService:
 
     def __init__(self, debug: bool = False):
         self.debug = debug
-        font_path = os.path.join(config.APP_ROOT_DIR, FONT_FILE_NAME)
+        font_path = os.path.join(settings.app_root_dir, FONT_FILE_NAME)
         # Although ImageFont.truetype() expects point size, it seems we need to scale it up for calculations in pixels
         self.font_size = int(round(FONT_SIZE * FONT_SIZE_POINT_TO_PIXELS_RATIO))
         self.font = ImageFont.truetype(font_path, self.font_size)
@@ -263,7 +263,7 @@ class StudyDesignFigureService:
                 study_value_version=study_value_version,
             )
             .items
-            if epoch.epoch_ctterm.sponsor_preferred_name != config.BASIC_EPOCH_NAME
+            if epoch.epoch_ctterm.sponsor_preferred_name != settings.basic_epoch_name
         ]
 
     @trace_calls
@@ -314,7 +314,7 @@ class StudyDesignFigureService:
         First row with Epochs, First Column with Study Arms, and the rest is num_epochs * num_arms cells
         with Study Elements. (top-left cell-0-0 remains empty)
         """
-        table = [
+        table: list[Any] = [
             [{} for _ in range(len(study_epochs) + 1)]
             for _ in range(len(study_arms) + 1)
         ]
@@ -388,7 +388,7 @@ class StudyDesignFigureService:
         for visit in study_visits:
             if (
                 not visit.show_visit
-                or visit.study_epoch.sponsor_preferred_name == config.BASIC_EPOCH_NAME
+                or visit.study_epoch.sponsor_preferred_name == settings.basic_epoch_name
             ):
                 continue
 
@@ -679,7 +679,8 @@ class StudyDesignFigureService:
 
         lines: list[tuple[int, int, str]] = []
         total_width, total_height = 0, 0
-        line, line_width, line_height = [], 0, 0
+        line: list[Any] = []
+        line_width, line_height = 0, 0
 
         # pylint: disable=unused-variable
         def newline():
@@ -843,10 +844,11 @@ class StudyDesignFigureService:
         else:
             visit_timing_prop = "study_week_label"
 
-        timeline = {"labels": []}
+        timeline: dict[str, list[Any]] = {"labels": []}
 
         # construct labels every visit type - may span multiple epochs
-        row, label = [], {}
+        row: list[Any] = []
+        label: dict[Any, Any] = {}
         timeline["labels"].append(row)
 
         y = doc_height - DOC_MARGIN + TIMELINE_ROW_MARGINS[0]

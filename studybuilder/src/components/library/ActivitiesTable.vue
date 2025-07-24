@@ -20,6 +20,7 @@
       :disable-filtering="source === 'activities-by-grouping'"
       :hide-search-field="source === 'activities-by-grouping'"
       :history-title="$t('_global.audit_trail')"
+      :initial-sort-by="[{ key: 'name', order: 'asc' }]"
       :history-data-fetcher="
         source !== 'activities-by-grouping' ? fetchGlobalAuditTrail : null
       "

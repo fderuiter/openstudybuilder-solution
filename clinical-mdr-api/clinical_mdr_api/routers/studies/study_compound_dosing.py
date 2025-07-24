@@ -16,14 +16,15 @@ from clinical_mdr_api.services.studies.study import StudyService
 from clinical_mdr_api.services.studies.study_compound_dosing_selection import (
     StudyCompoundDosingSelectionService,
 )
-from common import config
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.config import settings
 from common.models.error import ErrorResponse
 
 
 @router.get(
     "/studies/{study_uid}/study-compound-dosings",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List all study compound dosings currently defined for the study",
     description=_generic_descriptions.DATA_EXPORTS_HEADER,
     response_model_exclude_unset=True,
@@ -74,18 +75,18 @@ def get_all_selected_compound_dosings(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -111,7 +112,7 @@ def get_all_selected_compound_dosings(
 
 @router.get(
     "/studies/{study_uid}/study-compound-dosings/headers",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -141,10 +142,10 @@ def get_distinct_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     service = StudyCompoundDosingSelectionService()
     return service.get_distinct_values_for_header(
@@ -159,7 +160,7 @@ def get_distinct_values_for_header(
 
 @router.get(
     "/study-compound-dosings/headers",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -188,10 +189,10 @@ def get_distinct_compound_dosings_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     service = StudyCompoundDosingSelectionService()
     return service.get_distinct_values_for_header(
@@ -205,7 +206,7 @@ def get_distinct_compound_dosings_values_for_header(
 
 @router.get(
     "/studies/{study_uid}/study-compound-dosings/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List full audit trail related to definition of all study compound dosings.",
     description="""
 Parameters:
@@ -245,7 +246,7 @@ def get_all_compound_dosings_audit_trail(
 
 @router.get(
     "/studies/{study_uid}/study-compound-dosings/{study_compound_dosing_uid}/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to definition of a specific study compound dosing.",
     description="""
 Parameters:
@@ -292,7 +293,7 @@ def get_compound_dosing_audit_trail(
 
 @router.post(
     "/studies/{study_uid}/study-compound-dosings",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Add a study compound dosing to a study",
     response_model_exclude_unset=True,
     status_code=201,
@@ -324,7 +325,7 @@ def create_study_compound_dosing(
 
 @router.delete(
     "/studies/{study_uid}/study-compound-dosings/{study_compound_dosing_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Delete a study compound dosing",
     status_code=204,
     responses={
@@ -350,7 +351,7 @@ def delete_compound_dosing(
 
 @router.patch(
     "/studies/{study_uid}/study-compound-dosings/{study_compound_dosing_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Edit or replace a study compound dosing",
     description="""
 State before:

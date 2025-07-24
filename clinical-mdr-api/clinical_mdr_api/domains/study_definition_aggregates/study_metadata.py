@@ -574,8 +574,9 @@ class HighLevelStudyDesignVO:
             ),
         )
 
-    @staticmethod
+    @classmethod
     def from_input_values(
+        cls,
         *,
         study_type_code: str | None,
         study_type_null_value_code: str | None,
@@ -658,8 +659,9 @@ class StudyPopulationVO:
     number_of_expected_subjects: int | None = None
     number_of_expected_subjects_null_value_code: str | None = None
 
-    @staticmethod
+    @classmethod
     def from_input_values(
+        cls,
         *,
         therapeutic_area_codes: Iterable[str],
         therapeutic_area_null_value_code: str | None,
@@ -1102,8 +1104,9 @@ class StudyInterventionVO:
     planned_study_length: str | None = None
     planned_study_length_null_value_code: str | None = None
 
-    @staticmethod
+    @classmethod
     def from_input_values(
+        cls,
         *,
         intervention_type_code: str | None,
         intervention_type_null_value_code: str | None,
@@ -1384,9 +1387,9 @@ class StudyDescriptionVO:
     study_title: str | None = None
     study_short_title: str | None = None
 
-    @staticmethod
+    @classmethod
     def from_input_values(
-        study_title: str | None, study_short_title: str | None
+        cls, study_title: str | None, study_short_title: str | None
     ) -> Self:
         return StudyDescriptionVO(
             study_title=normalize_string(study_title),
@@ -1460,8 +1463,9 @@ class StudyFieldAuditTrailActionVO:
     after_value: str | None
     action: str
 
-    @staticmethod
+    @classmethod
     def from_input_values(
+        cls,
         field_name: str | None,
         section: str | None,
         before_value: str | None,
@@ -1490,8 +1494,9 @@ class StudyFieldAuditTrailEntryAR:
     date: str
     actions: list[StudyFieldAuditTrailActionVO]
 
-    @staticmethod
+    @classmethod
     def from_input_values(
+        cls,
         study_uid: str | None,
         author_id: str | None,
         author_username: str | None,

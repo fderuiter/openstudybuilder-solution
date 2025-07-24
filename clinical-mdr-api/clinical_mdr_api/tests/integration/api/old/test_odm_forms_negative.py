@@ -295,7 +295,7 @@ def test_cannot_create_a_new_odm_form_with_same_properties(api_client):
     assert res["type"] == "AlreadyExistsException"
     assert (
         res["message"]
-        == "ODM Form already exists with UID (OdmForm_000001) and data {'description_uids': ['odm_description2', 'odm_description3'], 'alias_uids': ['odm_alias1'], 'scope_uid': 'term1', 'name': 'name1', 'oid': 'oid1', 'sdtm_version': '0.1', 'repeating': False}"
+        == "ODM Form already exists with UID (OdmForm_000001) and data {'library_name': 'Sponsor', 'alias_uids': ['odm_alias1'], 'scope_uid': 'term1', 'name': 'name1', 'oid': 'oid1', 'sdtm_version': '0.1', 'repeating': False}"
     )
 
 

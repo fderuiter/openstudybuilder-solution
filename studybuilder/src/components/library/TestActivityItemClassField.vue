@@ -81,6 +81,6 @@ const props = defineProps({
 
 const formRules = inject('formRules')
 
-const model = defineModel()
+const model = defineModel({ type: String })
 const search = ref('')
 </script>

@@ -83,39 +83,44 @@ Feature: Studies - Define Study - Study Structure - Study Visits
         And The 'Cancel' button is visible
 
     Scenario: [Create][Mandatory fields] User must not be able to create an visit without epoch selected
-        Given A test study is selected
-        And The epoch exists in selected study
+        Given The study with uid 'Study_000001' is selected
+        And [API] The epoch with type 'Pre Treatment' and subtype 'Screening' exists in selected study
         And The '/studies/Study_000001/study_structure/visits' page is opened
         When The epoch for visit is not selected in new visit form
         Then The validation appears under study period field
 
     Scenario: [Create][Mandatory fields] User must not be able to create an visit without type, contact mode, time reference and timing defined
-        Given A test study is selected
-        And The epoch exists in selected study
+        Given The study with uid 'Study_000001' is selected
+        And [API] The epoch with type 'Pre Treatment' and subtype 'Screening' exists in selected study
         And The '/studies/Study_000001/study_structure/visits' page is opened
         When The type, contact mode, time reference and timing is not selected in new visit form
         Then The validation appears under given study details fields
     
     Scenario: [Create][Fields check] User must not be able to select time referece for an anchor visit
+        Given The study with uid 'Study_000003' is selected
         Given [API] Study vists uids are fetched for study 'Study_000003'
+        And [API] Visits group 'V2-V4' is removed
+        And [API] Visits group 'V2,V3,V4' is removed
+        And [API] Visits group 'V1,V2' is removed
+        And [API] Visits group 'V2,V3' is removed
         And [API] Study visits in study 'Study_000003' are cleaned-up
         And The study with uid 'Study_000003' is selected
-        And The epoch exists in selected study
+        And [API] The epoch with type 'Pre Treatment' and subtype 'Screening' exists in selected study
         And The '/studies/Study_000003/study_structure/visits' page is opened
         When The new Anchor Visit creation is initiated
         Then It is not possible to edit Time Reference for anchor visit
 
     Scenario: [Create][Anchor visit][Positive case] User must be able to create an anchor visit
         Given The study with uid 'Study_000003' is selected
-        And The epoch exists in selected study
+        And [API] The epoch with type 'Pre Treatment' and subtype 'Screening' exists in selected study
         And The '/studies/Study_000003/study_structure/visits' page is opened
         When The new Anchor Visit is added
         Then The new Anchor Visit is visible within the Study Visits table
 
     @manual_test
     Scenario: User must be able to create an information visit with visit 0
-        Given A test study is selected
-        And The epoch exists in selected study
+        Given The study with uid 'Study_000001' is selected
+        And [API] The epoch with type 'Pre Treatment' and subtype 'Screening' exists in selected study
         When The '/studies/Study_000001/study_structure/visits' page is opened
         And The first scheduled visit is created with the visit type as an Information visit
         And The visit timing is set to the lowest timing of all existing visit when compared to the Global Anchor time reference
@@ -166,7 +171,6 @@ Feature: Studies - Define Study - Study Structure - Study Visits
         And There are at least 3 visits created for the study
         When The user tries to update last treatment visit epoch to Screening without updating the timing
         Then The system displays the message "The following visit can't be created as the next Epoch Name 'Treatment' starts at the '1' Study Day"
-
 
     @manual_test
     Scenario: User must be able to edit the study information visit with visit 0 to other visit type

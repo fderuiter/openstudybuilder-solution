@@ -15,7 +15,9 @@ from mdr_standards_import.scripts.entities.cdisc_data_models.data_model_variable
 
 
 class DataModelImport:
-    def __init__(self, library:str, catalogue: str, version_number: str, author_id: str):
+    def __init__(
+        self, library: str, catalogue: str, version_number: str, author_id: str
+    ):
         self.import_date_time: str = datetime.datetime.now().astimezone().isoformat()
         self.library: str = library
         self.catalogue: str = catalogue
@@ -77,17 +79,47 @@ class DataModelImport:
     def get_scenarios(self):
         return self.__scenarios.values()
 
-    def merge_scenario(self, href: str, class_name: str) -> DataModelScenario:
+    def merge_scenario(
+        self, version: Version, scenario_json_data: dict
+    ) -> DataModelScenario:
+        href = (
+            scenario_json_data.get("_links", None).get("self", None).get("href", None)
+        )
+        class_name = scenario_json_data.get("domainName", None)
+
         _scenario: DataModelScenario = self.__scenarios.get(
             href, DataModelScenario(href)
         )
         self.__scenarios[href] = _scenario
         # If a class (dataset) already exists with the scenario's parent class name
-        # Drop its variables. This is because when a class has a single scenario,
-        # CDISC creates a duplicate variable by leaving it in the class file, with a different href.
+        # And it has variables
+        # Create a new default scenario with the same name as the class
+        # For example : '/mdr/cdashig/2-3/scenarios/DA'
+        # And move the variables to it
+
         parent_class = self.get_classes_as_dict()[class_name]
         parent_class_variables = [v.href for v in parent_class.get_variables()]
-        all_variables = self.get_variables_as_dict()
-        [all_variables.pop(key) for key in parent_class_variables]
-        parent_class.drop_variables()
+        if len(parent_class_variables) > 0:
+            root_href = href.rsplit("/", 1)[0] + "/" + class_name
+            _root_scenario: DataModelScenario = DataModelScenario(href=root_href)
+            self.__scenarios[root_href] = _root_scenario
+
+            _root_scenario.set_attributes(
+                title=class_name,
+                label=f"{class_name} - Default",
+                ordinal="0",
+                dataset_href=scenario_json_data.get("_links", None)
+                .get("parentDomain", None)
+                .get("href", None),
+            )
+
+            # Add variables to root scenario
+            all_variables: list[DataModelVariable] = self.get_variables_as_dict()
+            root_variables = [all_variables[key] for key in parent_class_variables]
+            _root_scenario.add_variables(root_variables)
+            version.add_scenario(_root_scenario)
+
+            # Remove variables from parent class
+            parent_class.drop_variables()
+
         return _scenario

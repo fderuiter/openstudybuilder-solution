@@ -12,8 +12,9 @@ from clinical_mdr_api.routers import _generic_descriptions
 from clinical_mdr_api.services.concepts.simple_concepts.time_point import (
     TimePointService,
 )
-from common import config
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.config import settings
 from common.models.error import ErrorResponse
 
 # Prefixed with "/concepts/time-points"
@@ -24,7 +25,7 @@ TimePointUID = Path(description="The unique id of the time point")
 
 @router.get(
     "",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List all time points (for a given library)",
     description="""
 State before:
@@ -51,15 +52,15 @@ def get_time_points(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -69,7 +70,7 @@ def get_time_points(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -91,7 +92,7 @@ def get_time_points(
 
 @router.get(
     "/headers",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns possible values from the database for a given header",
     description="Allowed parameters include : field name for which to get possible values, "
     "search string to provide filtering for the field name, additional filters to apply on other fields",
@@ -121,10 +122,10 @@ def get_distinct_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     time_point_service = TimePointService()
     return time_point_service.get_distinct_values_for_header(
@@ -139,7 +140,7 @@ def get_distinct_values_for_header(
 
 @router.get(
     "/{time_point_uid}",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Get details on a specific time point",
     description="""
 State before:
@@ -164,7 +165,7 @@ def get_time_point(time_point_uid: Annotated[str, TimePointUID]) -> TimePoint:
 
 @router.post(
     "",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Creates new time point.",
     description="""
 State before:

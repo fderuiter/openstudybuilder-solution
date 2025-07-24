@@ -2,8 +2,10 @@
 
 from collections import defaultdict
 from copy import deepcopy
+from typing import Any
 
 import pytest
+from docx.table import Table
 from pydantic import BaseModel
 
 from clinical_mdr_api.domain_repositories.study_selections.study_soa_repository import (
@@ -31,7 +33,7 @@ from clinical_mdr_api.tests.unit.services.soa_test_data import (
     STUDY_ACTIVITY_SCHEDULES,
     STUDY_VISITS,
 )
-from common import config
+from common.config import settings
 
 
 class MockStudyEpoch(BaseModel):
@@ -47,13 +49,13 @@ class MockStudyFlowchartService(StudyFlowchartService):
     def _get_study_visits(self, *_args, **_kwargs):
         return STUDY_VISITS
 
-    def _get_study_activities(self, *_args, **_kwargs):
+    def _fetch_study_activities(self, *_args, **_kwargs):
         return STUDY_ACTIVITIES
 
     def _get_study_activity_schedules(self, *_args, **_kwargs):
         return STUDY_ACTIVITY_SCHEDULES
 
-    def _get_study_activity_instances(self, *_args, **_kwargs):
+    def _fetch_study_activity_instances(self, *_args, **_kwargs):
         return []
 
     def _get_study_footnotes(self, *_args, **_kwargs):
@@ -104,6 +106,7 @@ def check_flowchart_table_first_rows(
 ):
     """tests epoch and milestones header rows of study SoA table"""
 
+    collapse_visit_groups = layout != SoALayout.OPERATIONAL
     row = table.rows[0]
 
     # THEN epochs header is visible according to SoA preferences
@@ -120,12 +123,12 @@ def check_flowchart_table_first_rows(
         assert row.cells[1].text == _gettext("topic_code")
         assert row.cells[2].text == _gettext("adam_param_code")
 
-    num_visits_per_epoch = defaultdict(int)
+    num_visits_per_epoch: dict[str, int] = defaultdict(int)
     # only one visit per group is considered
     visit: StudyVisit
     for _, e in {
         (
-            visit.consecutive_visit_group or visit.visit_name,
+            collapse_visit_groups and visit.consecutive_visit_group or visit.uid,
             visit.study_epoch.sponsor_preferred_name,
         )
         for visit in study_visits
@@ -168,7 +171,10 @@ def check_flowchart_table_first_rows(
         first_visit_of_each_group: dict[str, StudyVisit] = {}
         for visit in study_visits:
             first_visit_of_each_group.setdefault(
-                visit.consecutive_visit_group or visit.visit_name, visit
+                collapse_visit_groups
+                and visit.consecutive_visit_group
+                or visit.visit_name,
+                visit,
             )
 
         if not table.rows[0].hide:
@@ -208,10 +214,12 @@ def check_flowchart_table_first_rows(
                 break
 
 
-def check_flowchart_table_footnotes(table: dict, soa_footnotes: list[StudySoAFootnote]):
+def check_flowchart_table_footnotes(
+    table: Table, soa_footnotes: list[StudySoAFootnote]
+):
     """check footnotes and their references in flowchart table"""
 
-    symbol_ref_uid_map: dict[str, set] = defaultdict(set)
+    symbol_ref_uid_map: dict[str, set[Any]] = defaultdict(set)
     soa_ref_uids = set()
 
     for r_idx, row in enumerate(table.rows):
@@ -250,20 +258,20 @@ def check_flowchart_table_footnotes(table: dict, soa_footnotes: list[StudySoAFoo
         fn.uid: sym for sym, fn in table.footnotes.items()
     }
 
-    for footnote in soa_footnotes:
+    for soa_footnote in soa_footnotes:
         assert (
-            footnote.uid in footnote_uid_symbol_map
-        ), f"No symbol found for footnote {footnote.uid}"
-        symbol = footnote_uid_symbol_map[footnote.uid]
+            soa_footnote.uid in footnote_uid_symbol_map
+        ), f"No symbol found for footnote {soa_footnote.uid}"
+        symbol = footnote_uid_symbol_map[soa_footnote.uid]
 
         # THEN verify footnote text matches footnote template text
-        assert table.footnotes[symbol].text_plain == footnote.template.name_plain
-        assert table.footnotes[symbol].text_html == footnote.template.name
+        assert table.footnotes[symbol].text_plain == soa_footnote.footnote.name_plain
+        assert table.footnotes[symbol].text_html == soa_footnote.footnote.name
 
         # Must filter out uids not giving any SoA row unless Activities can share StudyActivityGroup and SubGroup nodes
         footnote_referenced_uids = {
             ref.item_uid
-            for ref in footnote.referenced_items
+            for ref in soa_footnote.referenced_items
             if ref.item_uid in soa_ref_uids
         }
         referenced_uids_in_soa = set(symbol_ref_uid_map[symbol])
@@ -313,7 +321,7 @@ def check_flowchart_table_visit_rows(
     for i in range(1, 4):
         # THEN Rows label style
         if not soa_preferences.show_milestones or operational:
-            assert table.rows[i].cells[0].style == f"header{i+1}"
+            assert table.rows[i].cells[0].style == f"header{i + 1}"
         else:
             assert table.rows[i].cells[0].style == f"header{i}"
 
@@ -323,7 +331,9 @@ def check_flowchart_table_visit_rows(
     visit_groups: dict[str, StudyVisit] = {}
     visit_idx_by_uid: dict[str, int] = {}
     for visit in study_visits:
-        group_name = visit.consecutive_visit_group or visit.visit_name
+        group_name = (
+            not operational and visit.consecutive_visit_group
+        ) or visit.visit_name
         visit_groups.setdefault(group_name, []).append(visit)
         visit_idx_by_uid[visit.uid] = len(visit_groups) + (2 if operational else 0)
 
@@ -334,7 +344,8 @@ def check_flowchart_table_visit_rows(
 
         # THEN visits name in second row
         assert (
-            table.rows[row_idx].cells[i].text == visit.consecutive_visit_group
+            table.rows[row_idx].cells[i].text
+            == (not operational and visit.consecutive_visit_group)
             or visit.visit_name
         )
 
@@ -531,9 +542,14 @@ def test_get_flowchart_item_uid_coordinates(mock_study_flowchart_service):
     assert coordinates == COORDINATES
 
 
-def test_group_visits(mock_study_flowchart_service):
+@pytest.mark.parametrize("collapse_visit_groups", [True, False])
+def test_group_visits(
+    mock_study_flowchart_service: MockStudyFlowchartService, collapse_visit_groups: bool
+):
     visits = mock_study_flowchart_service._get_study_visits()
-    grouped_visits = mock_study_flowchart_service._group_visits(visits)
+    grouped_visits = mock_study_flowchart_service._group_visits(
+        visits, collapse_visit_groups=collapse_visit_groups
+    )
 
     count_visits = 0
     for study_epoch_uid, epoch_grouping in grouped_visits.items():
@@ -543,6 +559,8 @@ def test_group_visits(mock_study_flowchart_service):
         for visit_group_id, visit_group in epoch_grouping.items():
             assert isinstance(visit_group_id, str)
             assert isinstance(visit_group, list)
+            if not collapse_visit_groups:
+                assert len(visit_group) == 1
 
             for visit in visit_group:
                 count_visits += 1
@@ -588,15 +606,24 @@ def test_mk_simple_footnotes(mock_study_flowchart_service):
     )
 
 
-@pytest.mark.parametrize("time_unit", ["day", "week"])
-def test_get_header_rows(mock_study_flowchart_service, time_unit):
+@pytest.mark.parametrize(
+    ("time_unit", "collapse_visit_groups"),
+    [("day", True), ("week", True), ("day", False), ("week", False)],
+)
+def test_get_header_rows(
+    mock_study_flowchart_service: StudyFlowchartService,
+    time_unit: str,
+    collapse_visit_groups: bool,
+):
     visits = [
         visit
         for visit in mock_study_flowchart_service._get_study_visits()
         if visit.show_visit
-        and visit.study_epoch.sponsor_preferred_name != config.BASIC_EPOCH_NAME
+        and visit.study_epoch.sponsor_preferred_name != settings.basic_epoch_name
     ]
-    grouped_visits = mock_study_flowchart_service._group_visits(visits)
+    grouped_visits = mock_study_flowchart_service._group_visits(
+        visits, collapse_visit_groups=collapse_visit_groups
+    )
 
     header_rows = mock_study_flowchart_service._get_header_rows(
         grouped_visits,
@@ -747,7 +774,7 @@ def test_get_header_rows_with_soa_preferences(
             )
             for visit in STUDY_VISITS
             if visit.show_visit
-            and visit.study_epoch.sponsor_preferred_name != config.BASIC_EPOCH_NAME
+            and visit.study_epoch.sponsor_preferred_name != settings.basic_epoch_name
         }.values()
     )
 
@@ -755,9 +782,11 @@ def test_get_header_rows_with_soa_preferences(
         visit
         for visit in STUDY_VISITS
         if visit.show_visit
-        and visit.study_epoch.sponsor_preferred_name != config.BASIC_EPOCH_NAME
+        and visit.study_epoch.sponsor_preferred_name != settings.basic_epoch_name
     ]
-    grouped_visits = StudyFlowchartService._group_visits(visits)
+    grouped_visits = StudyFlowchartService._group_visits(
+        visits, collapse_visit_groups=(layout != SoALayout.OPERATIONAL)
+    )
 
     soa_preferences = StudySoaPreferencesInput(
         show_epochs=show_epochs,

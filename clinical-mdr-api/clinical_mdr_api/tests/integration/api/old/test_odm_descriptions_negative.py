@@ -132,7 +132,7 @@ def test_cannot_create_an_odm_form_while_attaching_it_to_a_used_odm_description(
     assert res["type"] == "AlreadyExistsException"
     assert (
         res["message"]
-        == "ODM Form already exists with UID (OdmForm_000001) and data {'description_uids': ['OdmDescription_000001'], 'alias_uids': [], 'scope_uid': None, 'name': 'name1', 'oid': 'oid1', 'sdtm_version': '0.1', 'repeating': False}"
+        == "ODM Form already exists with UID (OdmForm_000001) and data {'library_name': 'Sponsor', 'alias_uids': [], 'scope_uid': None, 'name': 'name1', 'oid': 'oid1', 'sdtm_version': '0.1', 'repeating': False}"
     )
 
 

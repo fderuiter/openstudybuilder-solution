@@ -91,7 +91,7 @@ def test_get_activity_group(api_client):
     assert_response_status_code(response, 200)
 
     # Check fields included in the response
-    assert set(list(res.keys())) == set(ACTIVITY_GROUP_FIELDS_ALL)
+    assert set(res.keys()) == set(ACTIVITY_GROUP_FIELDS_ALL)
     for key in ACTIVITY_GROUP_FIELDS_NOT_NULL:
         assert res[key] is not None
 
@@ -156,7 +156,7 @@ def test_get_activity_groups_versions(api_client):
     assert_response_status_code(response, 200)
 
     # Check fields included in the response
-    assert set(list(res.keys())) == set(["items", "total", "page", "size"])
+    assert set(res.keys()) == set(["items", "total", "page", "size"])
 
     assert len(res["items"]) == len(activity_groups_all) * 2 + 1
     for item in res["items"]:

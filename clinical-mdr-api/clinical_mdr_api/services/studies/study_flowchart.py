@@ -1,7 +1,7 @@
 import logging
 from collections import defaultdict
 from datetime import datetime
-from typing import Iterable, Mapping, Sequence
+from typing import Any, Iterable, Mapping, Sequence
 
 from docx.enum.style import WD_STYLE_TYPE
 from neomodel import db
@@ -15,7 +15,6 @@ from clinical_mdr_api.domains.study_definition_aggregates.study_metadata import 
     StudyStatus,
 )
 from clinical_mdr_api.domains.study_selections.study_selection_base import SoAItemType
-from clinical_mdr_api.domains.study_selections.study_visit import VisitClass
 from clinical_mdr_api.models.study_selections.study import (
     Study,
     StudySoaPreferences,
@@ -71,12 +70,13 @@ from clinical_mdr_api.services.utils.table_f import (
     table_to_xlsx,
 )
 from clinical_mdr_api.utils import enumerate_letters
-from common import config
 from common.auth.user import user
+from common.config import settings
 from common.exceptions import BusinessLogicException, NotFoundException
 from common.telemetry import trace_calls
+from common.utils import VisitClass
 
-NUM_OPERATIONAL_CODE_ROWS = 2
+NUM_OPERATIONAL_CODE_COLS = 2
 SOA_CHECK_MARK = "X"
 
 # Strings prepared for localization
@@ -260,21 +260,6 @@ class StudyFlowchartService:
         ).items
 
     @trace_calls
-    def _get_study_activities(
-        self, study_uid: str, study_value_version: str | None = None
-    ) -> list[StudySelectionActivity]:
-        return self._study_activity_selection_service.get_all_selection(
-            study_uid,
-            study_value_version=study_value_version,
-            sort_by={
-                "study_soa_group.order": True,
-                "study_activity_group.order": True,
-                "study_activity_subgroup.order": True,
-                "order": True,
-            },
-        ).items
-
-    @trace_calls
     def _get_study_soa_groups(
         self, study_uid: str, study_value_version: str | None = None
     ) -> list[StudySoAGroup]:
@@ -316,21 +301,203 @@ class StudyFlowchartService:
             .items
         )
 
-    @trace_calls
-    def _get_study_activity_instances(
-        self, study_uid: str, study_value_version: str | None = None
+    @staticmethod
+    @trace_calls(
+        args=[0, 1, 2], kwargs=["study_uid", "study_value_version", "get_instances"]
+    )
+    def _query_study_activities(
+        study_uid: str,
+        study_value_version: str | None = None,
+        get_instances: bool = False,
+    ):
+        params = {
+            "study_uid": study_uid,
+            "study_version": study_value_version,
+            "requested_library_name": settings.requested_library_name,
+        }
+
+        if study_value_version:
+            query = "MATCH (study_root:StudyRoot {uid: $study_uid})-[study_version:HAS_VERSION {version: $study_version}]->(study_value:StudyValue)"
+        else:
+            query = "MATCH (study_root:StudyRoot {uid: $study_uid})-[study_version:LATEST]->(study_value:StudyValue)"
+
+        query += """
+            WITH study_root, study_version, study_value
+            ORDER BY study_version.start_date DESC LIMIT 1
+        
+            MATCH (study_value)-[:HAS_STUDY_ACTIVITY]->
+                (study_activity:StudyActivity)-[:HAS_SELECTED_ACTIVITY]->
+                (activity_value:ActivityValue)<-[:HAS_VERSION]-
+                (activity_root:ActivityRoot)<-[:CONTAINS_CONCEPT]-
+                (act_library:Library)
+        """
+        if get_instances:
+            query += "WHERE act_library.name <> $requested_library_name"
+        query += """
+            MATCH (study_activity)-[:STUDY_ACTIVITY_HAS_STUDY_SOA_GROUP]->
+                (study_soa_group:StudySoAGroup)-[:HAS_FLOWCHART_GROUP]->
+                (soa_group_term_root:CTTermRoot)-[:HAS_NAME_ROOT]->
+                (:CTTermNameRoot)-[:LATEST]->(soa_group_term_name:CTTermNameValue)
+            WHERE (study_soa_group)<-[:HAS_STUDY_SOA_GROUP]-(study_value)
+        
+            OPTIONAL MATCH (study_activity)-[:STUDY_ACTIVITY_HAS_STUDY_ACTIVITY_GROUP]->
+                (study_activity_group:StudyActivityGroup)-[:HAS_SELECTED_ACTIVITY_GROUP]->
+                (activity_group_value:ActivityGroupValue)<-[:HAS_VERSION]-(activity_group_root:ActivityGroupRoot)
+            WHERE (study_activity_group)<-[:HAS_STUDY_ACTIVITY_GROUP]-(study_value)
+        
+            OPTIONAL MATCH (study_activity)-[:STUDY_ACTIVITY_HAS_STUDY_ACTIVITY_SUBGROUP]->
+                (study_activity_subgroup:StudyActivitySubGroup)-[:HAS_SELECTED_ACTIVITY_SUBGROUP]->
+                (activity_subgroup_value:ActivitySubGroupValue)<-[:HAS_VERSION]-(activity_subgroup_root:ActivitySubGroupRoot)
+            WHERE (study_activity_subgroup)<-[:HAS_STUDY_ACTIVITY_SUBGROUP]-(study_value)
+        """
+
+        if get_instances:
+            query += """
+            OPTIONAL MATCH (study_activity)-[:STUDY_ACTIVITY_HAS_STUDY_ACTIVITY_INSTANCE]->
+                (study_activity_instance:StudyActivityInstance)
+            WHERE (study_activity_instance)<-[:HAS_STUDY_ACTIVITY_INSTANCE]-(study_value)
+            // include instance placeholders
+            OPTIONAL MATCH (study_activity_instance)-[:HAS_SELECTED_ACTIVITY_INSTANCE]->
+                (activity_instance_value:ActivityInstanceValue)<-[:HAS_VERSION]-
+                (activity_instance_root:ActivityInstanceRoot)<-[:CONTAINS_CONCEPT]-
+                (act_inst_library:Library)
+            
+            OPTIONAL MATCH (activity_instance_value:ActivityInstanceValue)-[:ACTIVITY_INSTANCE_CLASS]->
+                (activity_instance_class_root:ActivityInstanceClassRoot)-[:LATEST]->
+                (activity_instance_class_latest_value:ActivityInstanceClassValue)
+            """
+
+        query += """
+            WITH DISTINCT *
+            ORDER BY COALESCE(study_soa_group.order, 0), COALESCE(study_activity_group.order, 0),
+                COALESCE(study_activity_subgroup.order, 0), COALESCE(study_activity.order, 0)
+        """
+        if get_instances:
+            query += ", study_activity_instance.uid"
+
+        query += """
+            RETURN {
+                study_activity_uid: study_activity.uid,
+                activity: {
+                    uid: activity_root.uid,
+                    name: activity_value.name,
+                    name_sentence_case: activity_value.name_sentence_case,
+                    is_data_collected: COALESCE(activity_value.is_data_collected, false),
+                    is_request_rejected: COALESCE(activity_value.is_request_rejected, false),
+                    is_request_final: COALESCE(activity_value.is_request_final, false),
+                    is_multiple_selection_allowed: COALESCE(activity_value.is_multiple_selection_allowed, true),
+                    activity_groupings: null,
+                    synonyms: COALESCE(activity_value.synonyms, []),
+                    possible_actions: null,
+                    library_name: act_library.name
+                },
+                latest_activity: null,
+                accepted_version: study_activity.accepted_version,
+                keep_old_version: COALESCE(study_activity.keep_old_version, false),
+                order: study_activity.order,
+            """
+        if get_instances:
+            query += """
+                study_activity_instance_uid: study_activity_instance.uid,
+                activity_instance: CASE WHEN activity_instance_root IS NOT NULL THEN {
+                    uid: activity_instance_root.uid,
+                    name: activity_instance_value.name,
+                    name_sentence_case: activity_instance_value.name_sentence_case,
+                    definition: activity_instance_value.definition,
+                    abbreviation: activity_instance_value.abbreviation,
+                    topic_code: activity_instance_value.topic_code,
+                    adam_param_code: activity_instance_value.adam_param_code,
+                    is_derived: COALESCE(activity_instance_value.is_derived, false),
+                    is_default_selected_for_activity: COALESCE(activity_instance_value.is_default_selected_for_activity, false),
+                    is_data_sharing: COALESCE(activity_instance_value.is_data_sharing, false),
+                    is_required_for_activity: COALESCE(activity_instance_value.is_required_for_activity, false),
+                    is_research_lab: COALESCE(activity_instance_value.is_research_lab, false),
+                    is_legacy_usage: COALESCE(activity_instance_value.is_legacy_usage, false),
+                    start_date: null,
+                    status: null,
+                    version: null,
+                    change_description: null,
+                    possible_actions: null,
+                    library_name: act_inst_library.name,
+                    activity_groupings: null,
+                    activity_items: null,
+                    activity_instance_class: {
+                        uid: activity_instance_class_root.uid,
+                        name: activity_instance_class_latest_value.name
+                    }
+                } ELSE null END,
+                latest_activity_instance: null,
+                state: CASE
+                    WHEN activity_value.is_data_collected THEN
+                        CASE
+                            WHEN activity_instance_root.uid IS NOT NULL THEN
+                                CASE
+                                    WHEN activity_instance_value.is_required_for_activity THEN 'Required'
+                                    WHEN activity_instance_value.is_default_selected_for_activity THEN 'Defaulted'
+                                    ELSE 'Suggestion'
+                                END
+                            ELSE 'Missing selection'
+                        END
+                    ELSE 'Not required'
+                END,
+                show_activity_instance_in_protocol_flowchart: COALESCE(study_activity_instance.show_activity_instance_in_protocol_flowchart, false),
+            """
+        query += """
+                show_activity_in_protocol_flowchart: study_activity.show_activity_in_protocol_flowchart,
+                show_activity_group_in_protocol_flowchart: study_activity_group.show_activity_group_in_protocol_flowchart,
+                show_activity_subgroup_in_protocol_flowchart: study_activity_subgroup.show_activity_subgroup_in_protocol_flowchart,
+                show_soa_group_in_protocol_flowchart: study_soa_group.show_soa_group_in_protocol_flowchart,
+                study_activity_subgroup: {
+                    study_activity_subgroup_uid: study_activity_subgroup.uid,
+                    activity_subgroup_uid: activity_subgroup_root.uid,
+                    activity_subgroup_name: activity_subgroup_value.name,
+                    order: study_activity_subgroup.order
+                },
+                study_activity_group: {
+                    study_activity_group_uid: study_activity_group.uid,
+                    activity_group_uid: activity_group_root.uid,
+                    activity_group_name: activity_group_value.name,
+                    order: study_activity_group.order
+                },
+                study_soa_group: {
+                    study_soa_group_uid: study_soa_group.uid,
+                    soa_group_term_uid: soa_group_term_root.uid,
+                    soa_group_term_name: soa_group_term_name.name,
+                    order: study_soa_group.order
+                },
+                author_username: null,
+                start_date: null,
+                study_uid: study_root.uid,
+                study_version: study_version.version
+            } AS selection
+        """
+
+        results, headers = db.cypher_query(query, params=params)
+        return results, headers
+
+    @classmethod
+    @trace_calls(args=[0, 1], kwargs=["study_uid", "study_value_version"])
+    def _fetch_study_activities(
+        cls, study_uid: str, study_value_version: str | None = None
     ) -> list[StudySelectionActivity]:
-        return self._study_activity_instance_selection_service.get_all_selection(
-            study_uid,
+        results, _ = cls._query_study_activities(
+            study_uid=study_uid,
             study_value_version=study_value_version,
-            # filter-out activity placeholders
-            filter_by={
-                "activity.library_name": {
-                    "v": [config.REQUESTED_LIBRARY_NAME],
-                    "op": "ne",
-                }
-            },
-        ).items
+            get_instances=False,
+        )
+        return [StudySelectionActivity(**result[0]) for result in results]
+
+    @classmethod
+    @trace_calls(args=[0, 1], kwargs=["study_uid", "study_value_version"])
+    def _fetch_study_activity_instances(
+        cls, study_uid: str, study_value_version: str | None = None
+    ) -> list[StudySelectionActivityInstance]:
+        results, _ = cls._query_study_activities(
+            study_uid=study_uid,
+            study_value_version=study_value_version,
+            get_instances=True,
+        )
+        return [StudySelectionActivityInstance(**result[0]) for result in results]
 
     @staticmethod
     @trace_calls(args=[1], kwargs=["hide_soa_groups"])
@@ -340,10 +507,10 @@ class StudyFlowchartService:
     ):
         """Sort StudySelectionActivities in place, grouping by SoAGroup, ActivityGroup, ActivitySubgroup"""
 
-        soa_groups = {}
-        activity_groups = {}
-        activity_subgroups = {}
-        order_keys = {}
+        soa_groups: dict[Any, Any] = {}
+        activity_groups: dict[Any, Any] = {}
+        activity_subgroups: dict[Any, Any] = {}
+        order_keys: dict[Any, Any] = {}
 
         for activity in study_selection_activities:
             key = []
@@ -388,18 +555,19 @@ class StudyFlowchartService:
     @trace_calls
     def _group_visits(
         visits: Iterable[StudyVisit],
+        collapse_visit_groups: bool = True,
     ) -> dict[str, dict[str, list[StudyVisit]]]:
         """
         Builds a graph of visits from nested dict of
         study_epoch_uid -> [ consecutive_visit_group | visit_uid ] -> [Visits]
         """
 
-        grouped = {}
-        visits: list[StudyVisit] = sorted(visits, key=lambda v: v.order)
+        grouped: dict[Any, Any] = {}
+        visits = sorted(visits, key=lambda v: v.order)
 
         for visit in visits:
             grouped.setdefault(visit.study_epoch_uid, {}).setdefault(
-                visit.consecutive_visit_group or visit.uid, []
+                collapse_visit_groups and visit.consecutive_visit_group or visit.uid, []
             ).append(visit)
 
         return grouped
@@ -476,7 +644,7 @@ class StudyFlowchartService:
         }
 
         study_selection_activities: list[StudySelectionActivity] = (
-            self._get_study_activities(
+            self._fetch_study_activities(
                 study_uid, study_value_version=study_value_version
             )
         )
@@ -669,7 +837,9 @@ class StudyFlowchartService:
         visits = self._get_study_visits_dict_filtered(study_uid, study_value_version)
 
         # group visits in nested dict: study_epoch_uid -> [ consecutive_visit_group |  visit_uid ] -> [Visits]
-        grouped_visits = self._group_visits(visits.values())
+        grouped_visits = self._group_visits(
+            visits.values(), collapse_visit_groups=(layout != SoALayout.OPERATIONAL)
+        )
 
         # first 4 rows of protocol SoA flowchart contains epochs & visits
         header_rows = self._get_header_rows(
@@ -707,18 +877,17 @@ class StudyFlowchartService:
         study_value_version: str,
         layout: SoALayout,
     ) -> list[StudySelectionActivity | StudySelectionActivityInstance]:
+        selection_activities: (
+            list[StudySelectionActivityInstance] | list[StudySelectionActivity]
+        )
         if layout == SoALayout.OPERATIONAL:
-            selection_activities: list[StudySelectionActivityInstance] = (
-                self._get_study_activity_instances(
-                    study_uid, study_value_version=study_value_version
-                )
+            selection_activities = self._fetch_study_activity_instances(
+                study_uid, study_value_version=study_value_version
             )
 
         else:
-            selection_activities: list[StudySelectionActivity] = (
-                self._get_study_activities(
-                    study_uid, study_value_version=study_value_version
-                )
+            selection_activities = self._fetch_study_activities(
+                study_uid, study_value_version=study_value_version
             )
         if layout == SoALayout.PROTOCOL:
             self._sort_study_activities(selection_activities, hide_soa_groups=True)
@@ -738,7 +907,8 @@ class StudyFlowchartService:
             for visit in visits
             if (
                 visit.show_visit
-                and visit.study_epoch.sponsor_preferred_name != config.BASIC_EPOCH_NAME
+                and visit.study_epoch.sponsor_preferred_name
+                != settings.basic_epoch_name
             )
         }
 
@@ -819,7 +989,7 @@ class StudyFlowchartService:
                 else DOCX_STYLES
             ),
             template=(
-                config.OPERATIONAL_SOA_DOCX_TEMPLATE
+                settings.operational_soa_docx_template
                 if layout == SoALayout.OPERATIONAL
                 else None
             ),
@@ -905,8 +1075,10 @@ class StudyFlowchartService:
 
         visits = self._get_study_visits_dict_filtered(study_uid, study_value_version)
 
-        # group visits in nested dict: study_epoch_uid -> [ consecutive_visit_group |  visit_uid ] -> [Visits]
-        grouped_visits = self._group_visits(visits.values())
+        # group visits in nested dict: study_epoch_uid -> [ visit_uid ] -> [Visits]
+        grouped_visits = self._group_visits(
+            visits.values(), collapse_visit_groups=False
+        )
 
         # StudyActivitySchedules indexed by tuple of [uid, StudyVisit.uid]
         study_activity_schedules_mapping = {
@@ -950,7 +1122,8 @@ class StudyFlowchartService:
                     TableCell(span=0, style="dateTime"),
                     TableCell(f"By: {user().id()}", span=2, style="extractedBy"),
                     TableCell(span=0, style="extractedBy"),
-                    TableCell(span=2),
+                    TableCell(),
+                    TableCell(),
                     TableCell("Epochs", style="header1"),
                 ]
             ),
@@ -970,8 +1143,8 @@ class StudyFlowchartService:
 
         # add epoch and visit cells to header rows
         perv_study_epoch_uid = None
-        for study_epoch_uid, visit_groups in grouped_visits.items():
-            for group in visit_groups.values():
+        for study_epoch_uid, _visit_groups in grouped_visits.items():
+            for group in _visit_groups.values():
                 visit: StudyVisit = group[0]
 
                 # Epoch
@@ -981,7 +1154,7 @@ class StudyFlowchartService:
                     rows[-2].cells.append(
                         TableCell(
                             text=visit.study_epoch.sponsor_preferred_name,
-                            span=len(visit_groups),
+                            span=len(_visit_groups),
                             style="header2",
                         )
                     )
@@ -1188,11 +1361,12 @@ class StudyFlowchartService:
                 TableCell(text=_T("adam_param_code"), style="header2")
             )
             for row in rows[1:]:
-                for _j in range(NUM_OPERATIONAL_CODE_ROWS):
+                for _j in range(NUM_OPERATIONAL_CODE_COLS):
                     row.cells.append(TableCell())
 
         perv_study_epoch_uid = None
         prev_visit_type_uid = None
+        prev_milestone_cell: TableCell | None = None
         for study_epoch_uid, visit_groups in grouped_visits.items():
             for group in visit_groups.values():
                 visit: StudyVisit = group[0]
@@ -1252,7 +1426,15 @@ class StudyFlowchartService:
                         getattr(visit, visit_timing_prop) is None
                         or getattr(group[-1], visit_timing_prop) is None
                     ):
-                        visit_timing = f"{getattr(visit, visit_timing_prop):d}-{getattr(group[-1], visit_timing_prop):d}"
+                        # If there is a comma it means that group was made in the LIST grouping way
+                        if visit_name and "," in visit_name:
+                            visit_timings = [
+                                f"{getattr(visit, visit_timing_prop):d}"
+                                for visit in group
+                            ]
+                            visit_timing = ",".join(visit_timings)
+                        else:
+                            visit_timing = f"{getattr(visit, visit_timing_prop):d}-{getattr(group[-1], visit_timing_prop):d}"
 
                 # Single Visit
                 else:
@@ -1345,7 +1527,10 @@ class StudyFlowchartService:
             if visit.min_visit_window_value == visit.max_visit_window_value == 0:
                 # visit window is zero
                 return "0"
-            if visit.min_visit_window_value * -1 == visit.max_visit_window_value:
+            if (
+                visit.min_visit_window_value is not None
+                and visit.min_visit_window_value * -1 == visit.max_visit_window_value
+            ):
                 # plus-minus sign can be used
                 return f"±{visit.max_visit_window_value:d}"
             # plus and minus windows are different
@@ -1382,7 +1567,7 @@ class StudyFlowchartService:
 
         num_cols = len(visit_groups) + 1
         if layout == SoALayout.OPERATIONAL:
-            num_cols += NUM_OPERATIONAL_CODE_ROWS
+            num_cols += NUM_OPERATIONAL_CODE_COLS
 
         # StudyActivitySchedules indexed by tuple of [uid, StudyVisit.uid]
         study_activity_schedules_mapping = {
@@ -1396,8 +1581,8 @@ class StudyFlowchartService:
         rows = []
 
         prev_soa_group_uid = False
-        prev_activity_group_uids = set()
-        prev_activity_subgroup_uids = set()
+        prev_activity_group_uids: set[str] = set()
+        prev_activity_subgroup_uids: set[str] = set()
         prev_study_selection_id = False
 
         study_selection_activity: (
@@ -1424,9 +1609,10 @@ class StudyFlowchartService:
                     rows.append(soa_group_row)
 
             # Add Activity Group row
-            if (
-                activity_group_uid := study_selection_activity.study_activity_group.activity_group_uid
-            ) not in prev_activity_group_uids:
+            activity_group_uid = (
+                study_selection_activity.study_activity_group.activity_group_uid
+            )
+            if activity_group_uid not in prev_activity_group_uids:
                 prev_activity_group_uids.add(activity_group_uid)
                 prev_activity_group_uids.add(
                     study_selection_activity.study_activity_group.study_activity_group_uid
@@ -1466,10 +1652,7 @@ class StudyFlowchartService:
             activity_subgroup_uid = (
                 study_selection_activity.study_activity_subgroup.activity_subgroup_uid
             )
-
-            if (
-                activity_subgroup_uid := study_selection_activity.study_activity_subgroup.activity_subgroup_uid
-            ) not in prev_activity_subgroup_uids:
+            if activity_subgroup_uid not in prev_activity_subgroup_uids:
                 prev_activity_subgroup_uids.add(activity_subgroup_uid)
                 prev_activity_subgroup_uids.add(
                     study_selection_activity.study_activity_subgroup.study_activity_subgroup_uid
@@ -1559,7 +1742,7 @@ class StudyFlowchartService:
         row.cells.append(cls._get_study_activity_cell(study_selection_activity))
 
         if layout == SoALayout.OPERATIONAL:
-            for _ in range(NUM_OPERATIONAL_CODE_ROWS):
+            for _ in range(NUM_OPERATIONAL_CODE_COLS):
                 row.cells.append(TableCell())
 
         return row
@@ -1604,11 +1787,11 @@ class StudyFlowchartService:
             # filter None values returned by mapping.get()
             study_activity_schedules = filter(None, study_activity_schedules)
             # get StudyActivitySchedule.uids
-            study_activity_schedule_uids = map(
-                lambda sas: sas.study_activity_schedule_uid, study_activity_schedules
-            )
+            study_activity_schedule_uids: list[str] = [
+                sas.study_activity_schedule_uid for sas in study_activity_schedules
+            ]
             # remove duplicates preserving order
-            study_activity_schedule_uids: list[str] = list(
+            study_activity_schedule_uids = list(
                 dict.fromkeys(study_activity_schedule_uids)
             )
 
@@ -2039,7 +2222,7 @@ class StudyFlowchartService:
         study_uid: str,
         study_value_version: str | None = None,
         protocol_flowchart: bool = False,
-    ) -> list[dict]:
+    ) -> list[dict[Any, Any]]:
         if not study_value_version:
             query = "MATCH (study_root:StudyRoot{uid:$study_uid})-[has_version:LATEST]-(study_value:StudyValue)"
         else:
@@ -2134,7 +2317,7 @@ class StudyFlowchartService:
     def download_operational_soa_content(
         study_uid: str,
         study_value_version: str | None = None,
-    ) -> list[dict]:
+    ) -> list[dict[Any, Any]]:
         if not study_value_version:
             query = "MATCH (study_root:StudyRoot{uid:$study_uid})-[has_version:LATEST]-(study_value:StudyValue)"
         else:
@@ -2146,10 +2329,10 @@ class StudyFlowchartService:
             MATCH (study_activity_schedule)<-[:STUDY_ACTIVITY_HAS_SCHEDULE]-(study_activity:StudyActivity)
                 -[:STUDY_ACTIVITY_HAS_STUDY_ACTIVITY_INSTANCE]->(study_activity_instance:StudyActivityInstance)
                 <-[:HAS_STUDY_ACTIVITY_INSTANCE]-(study_value)
-            WITH has_version,study_value, study_activity_schedule, study_visit, study_epoch, study_activity_instance, study_activity,
-                head([(study_activity)-[:HAS_SELECTED_ACTIVITY]->(activity_value:ActivityValue) | activity_value]) as activity,
-                head([(study_activity_instance)-[:HAS_SELECTED_ACTIVITY_INSTANCE]->(activity_instance_value:ActivityInstanceValue) | 
-                    activity_instance_value]) as activity_instance,
+            WHERE NOT (study_activity)-[:BEFORE]-()
+            MATCH (study_activity_instance)-[:HAS_SELECTED_ACTIVITY_INSTANCE]->(activity_instance_value:ActivityInstanceValue)
+            WITH has_version,study_value, study_activity_schedule, study_visit, study_epoch, study_activity_instance, study_activity, activity_instance_value,
+            head([(study_activity)-[:HAS_SELECTED_ACTIVITY]->(activity_value:ActivityValue) | activity_value]) as activity,
             head([(study_activity)-[:STUDY_ACTIVITY_HAS_STUDY_ACTIVITY_SUBGROUP]->(study_activity_subgroup:StudyActivitySubGroup)
                 -[:HAS_SELECTED_ACTIVITY_SUBGROUP]->(activity_subgroup_value:ActivitySubGroupValue) 
                     | {
@@ -2181,9 +2364,9 @@ class StudyFlowchartService:
                 study_visit.short_visit_label AS visit,
                 epoch_name AS epoch,
                 activity.name AS activity,
-                activity_instance.name AS activity_instance,
-                activity_instance.topic_code AS topic_code,
-                activity_instance.adam_param_code AS param_code,
+                activity_instance_value.name AS activity_instance,
+                activity_instance_value.topic_code AS topic_code,
+                activity_instance_value.adam_param_code AS param_code,
                 study_activity_subgroup.activity_subgroup_value.name AS activity_subgroup,
                 study_activity_group.activity_group_value.name AS activity_group,
                 study_soa_group.term_name_value.name as soa_group,
@@ -2294,7 +2477,7 @@ class StudyFlowchartService:
             "study_activity_subgroup_uid",
         )
         study_activities_by_uid = self._map_by_uid(
-            self._get_study_activities(
+            self._fetch_study_activities(
                 study_uid=study_uid, study_value_version=study_value_version
             ),
             "study_activity_uid",
@@ -2393,7 +2576,7 @@ class StudyFlowchartService:
         )
 
         prev_visit_type_uid = None
-        prev_milestone_cell = None
+        prev_milestone_cell: TableCell | None = None
         for col_idx, refs in visit_references.items():
             visits_in_group = [
                 study_visits_by_uid[ref.referenced_item.item_uid] for ref in refs
@@ -2586,24 +2769,6 @@ class StudyFlowchartService:
         ]
         return footnote_references
 
-    def _get_study_visits_dict_filtered(self, study_uid, study_value_version):
-        # get visits
-        visits = self._get_study_visits(
-            study_uid, study_value_version=study_value_version
-        )
-
-        # filter for visible visits
-        visits = {
-            visit.uid: visit
-            for visit in visits
-            if (
-                visit.show_visit
-                and visit.study_epoch.sponsor_preferred_name != config.BASIC_EPOCH_NAME
-            )
-        }
-
-        return visits
-
     @staticmethod
     def _get_visit_refs(header_rows: Iterable[TableRow]) -> dict[int, Ref]:
         """Extracts StudyVisit references from SoA table header rows, indexed by column index"""
@@ -2639,7 +2804,7 @@ class StudyFlowchartService:
             row_idx: int,
             col_idx: int,
             cell: TableCell,
-            accepted_ref_types: Iterable[str],
+            accepted_ref_types: Iterable,
             is_propagated=False,
             order: int = 0,
         ):
@@ -2666,7 +2831,7 @@ class StudyFlowchartService:
 
         num_header_cols = table.num_header_cols
         if layout == SoALayout.OPERATIONAL:
-            num_header_cols += NUM_OPERATIONAL_CODE_ROWS
+            num_header_cols += NUM_OPERATIONAL_CODE_COLS
 
         # collect references from table header (Epochs and Visits)
         for row in table.rows[: table.num_header_rows]:

@@ -73,10 +73,10 @@ def test__activity_group_repository__get_linked_activity_subgroup_uids__no_resul
 
 
 @patch("neomodel.db.cypher_query")
-def test__activity_group_repository__get_linked_activity_subgroup_uids__new_version__filters_by_final_status(
+def test__activity_group_repository__get_linked_activity_subgroup_uids__new_version__includes_all_statuses(
     mock_cypher_query,
 ):
-    """Test that only 'Final' status subgroups are returned when linking to activity groups."""
+    """Test that all status subgroups (Draft, Final, Retired) are returned when linking to activity groups."""
     repository = ActivityGroupRepository()
     group_uid = "test-group-id"
     version = "2.0"
@@ -90,15 +90,38 @@ def test__activity_group_repository__get_linked_activity_subgroup_uids__new_vers
                 "status": "Final",
                 "definition": "Test definition 1",
             }
-        ]
+        ],
+        [
+            {
+                "uid": "test-subgroup-id-2",
+                "name": "Test Subgroup 2",
+                "version": "1.0",
+                "status": "Retired",
+                "definition": "Test definition 2",
+            }
+        ],
+        [
+            {
+                "uid": "test-subgroup-id-3",
+                "name": "Test Subgroup 3",
+                "version": "0.1",
+                "status": "Draft",
+                "definition": "Test definition 3",
+            }
+        ],
     ]
+    # Mock will return all results
     mock_cypher_query.return_value = (mock_result, None)
 
     result = repository.get_linked_activity_subgroup_uids(group_uid, version)
 
-    assert len(result["subgroups"]) == 1
+    assert len(result["subgroups"]) == 3
     assert result["subgroups"][0]["uid"] == "test-subgroup-id-1"
     assert result["subgroups"][0]["status"] == "Final"
+    assert result["subgroups"][1]["uid"] == "test-subgroup-id-2"
+    assert result["subgroups"][1]["status"] == "Retired"
+    assert result["subgroups"][2]["uid"] == "test-subgroup-id-3"
+    assert result["subgroups"][2]["status"] == "Draft"
 
     assert mock_cypher_query.called
     # Check for the exact query patterns as they appear in the repository
@@ -109,14 +132,17 @@ def test__activity_group_repository__get_linked_activity_subgroup_uids__new_vers
     assert (
         "(sgv:ActivitySubGroupValue)-[:HAS_GROUP]->(avg)" in query_string
     ), "ActivitySubGroupValue relationship pattern not found"
-    assert 'sgv_rel.status = "Final"' in query_string, "Status filter pattern not found"
+    # No status filter should be present
+    assert (
+        'sgv_rel.status IN ["Final", "Retired"]' not in query_string
+    ), "Status filter should not be present"
 
 
 @patch("neomodel.db.cypher_query")
-def test__activity_group_repository__draft_status_subgroups_not_included(
+def test__activity_group_repository__draft_status_subgroups_are_included(
     mock_cypher_query,
 ):
-    """Test that Draft status subgroups are not included in the results."""
+    """Test that Draft status subgroups ARE included in the results along with Final and Retired."""
     repository = ActivityGroupRepository()
     group_uid = "test-group-id"
     version = "1.0"
@@ -133,6 +159,15 @@ def test__activity_group_repository__draft_status_subgroups_not_included(
         ],
         [
             {
+                "uid": "retired-subgroup-id",
+                "name": "Retired Subgroup",
+                "version": "1.0",
+                "status": "Retired",
+                "definition": "Retired subgroup definition",
+            }
+        ],
+        [
+            {
                 "uid": "draft-subgroup-id",
                 "name": "Draft Subgroup",
                 "version": "0.1",
@@ -142,14 +177,18 @@ def test__activity_group_repository__draft_status_subgroups_not_included(
         ],
     ]
 
-    mock_cypher_query.return_value = ([mock_db_result[0]], None)
+    # The query should return all statuses including Draft
+    mock_cypher_query.return_value = (mock_db_result, None)
 
     result = repository.get_linked_activity_subgroup_uids(group_uid, version)
 
-    assert len(result["subgroups"]) == 1
+    assert len(result["subgroups"]) == 3
     assert result["subgroups"][0]["uid"] == "final-subgroup-id"
     assert result["subgroups"][0]["status"] == "Final"
-    assert "draft-subgroup-id" not in str(result["subgroups"])
+    assert result["subgroups"][1]["uid"] == "retired-subgroup-id"
+    assert result["subgroups"][1]["status"] == "Retired"
+    assert result["subgroups"][2]["uid"] == "draft-subgroup-id"
+    assert result["subgroups"][2]["status"] == "Draft"
 
     assert mock_cypher_query.called
     # Check for the exact query patterns as they appear in the repository
@@ -160,7 +199,10 @@ def test__activity_group_repository__draft_status_subgroups_not_included(
     assert (
         "(sgv:ActivitySubGroupValue)-[:HAS_GROUP]->(avg)" in query_string
     ), "ActivitySubGroupValue relationship pattern not found"
-    assert 'sgv_rel.status = "Final"' in query_string, "Status filter pattern not found"
+    # No status filter should be present
+    assert (
+        'sgv_rel.status IN ["Final", "Retired"]' not in query_string
+    ), "Status filter should not be present"
 
 
 @patch("neomodel.db.cypher_query")

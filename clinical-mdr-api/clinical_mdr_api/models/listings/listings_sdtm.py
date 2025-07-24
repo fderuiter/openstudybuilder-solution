@@ -6,25 +6,19 @@ from clinical_mdr_api.models.utils import BaseModel
 
 
 class StudyVisitListing(BaseModel):
-    STUDYID: Annotated[str, Field(title="Study Identifier")]
+    STUDYID: Annotated[str, Field()]
     DOMAIN: Annotated[
-        str,
-        Field(
-            title="Domain Abbreviation",
-            description="Two-character abbreviation for the domain",
-        ),
+        str, Field(description="Two-character abbreviation for the domain")
     ]
     VISITNUM: Annotated[
         int,
         Field(
-            title="Visit Number",
-            description="1. Clinical encounter number 2. Numeric version of VISIT, used for sorting.",
+            description="1. Clinical encounter number 2. Numeric version of VISIT, used for sorting."
         ),
     ]
     VISIT: Annotated[
         str | None,
         Field(
-            title="Visit Name",
             description="""1. Protocol-defined description of clinical encounter. 2. May
         be used in addition to VISITNUM and/or VISITDY as a text description of the clinical encounter.""",
             json_schema_extra={"nullable": True},
@@ -33,7 +27,6 @@ class StudyVisitListing(BaseModel):
     VISITDY: Annotated[
         int | None,
         Field(
-            title="Planned Study Day of Visit",
             description="1. Planned study day of VISIT. 2. Due to its sequential nature, used for sorting.",
             json_schema_extra={"nullable": True},
         ),
@@ -41,7 +34,6 @@ class StudyVisitListing(BaseModel):
     ARMCD: Annotated[
         str | None,
         Field(
-            title="Planned Arm Code",
             description="""
         1.ARMCD is limited to 20 characters and does not have special character restrictions. 
         The maximum length of ARMCD is longer than for other "short" variables to accommodate 
@@ -56,7 +48,6 @@ class StudyVisitListing(BaseModel):
     ARM: Annotated[
         str | None,
         Field(
-            title="Description of Planned Arm",
             description="""1. Name given to an Arm or Treatment Group. 2. If the timing
         of Visits for a trial does not depend on which Arm a subject is in, then Arm should be left blank.""",
             json_schema_extra={"nullable": True},
@@ -65,7 +56,6 @@ class StudyVisitListing(BaseModel):
     TVSTRL: Annotated[
         str | None,
         Field(
-            title="Visit Start Rule",
             description="Rule describing when the Visit starts, in relation to the sequence of Elements.",
             json_schema_extra={"nullable": True},
         ),
@@ -73,14 +63,13 @@ class StudyVisitListing(BaseModel):
     TVENRL: Annotated[
         str | None,
         Field(
-            title="Visit End Rule",
             description="Rule describing when the Visit ends, in relation to the sequence of Elements.",
             json_schema_extra={"nullable": True},
         ),
     ] = None
 
     @classmethod
-    def from_query(cls, query_result: dict) -> Self:
+    def from_query(cls, query_result: dict[Any, Any]) -> Self:
         return cls(
             STUDYID=query_result["STUDYID"],
             DOMAIN=query_result["DOMAIN"],
@@ -95,18 +84,16 @@ class StudyVisitListing(BaseModel):
 
 
 class StudyArmListing(BaseModel):
-    STUDYID: Annotated[str, Field(title="Study Identifier")]
+    STUDYID: Annotated[str, Field()]
     DOMAIN: Annotated[
         str,
         Field(
-            title="Domain Abbreviation",
             description="Two-character abbreviation for the domain",
         ),
     ]
     ARMCD: Annotated[
         str | None,
         Field(
-            title="Planned Arm Code",
             description="""
         1.ARMCD is limited to 20 characters and does not have special character restrictions. 
         The maximum length of ARMCD is longer than for other "short" variables to accommodate 
@@ -121,7 +108,6 @@ class StudyArmListing(BaseModel):
     ARM: Annotated[
         str | None,
         Field(
-            title="Description of Planned Arm",
             description="""1. Name given to an Arm or Treatment Group. 2. If the timing
         of Visits for a trial does not depend on which Arm a subject is in, then Arm should be left blank.""",
             json_schema_extra={"nullable": True},
@@ -130,7 +116,6 @@ class StudyArmListing(BaseModel):
     TAETORD: Annotated[
         str | None,
         Field(
-            title="Planned Order of Element within Arm",
             description="Number that gives the order of the Element within the Arm",
             json_schema_extra={"nullable": True},
         ),
@@ -138,7 +123,6 @@ class StudyArmListing(BaseModel):
     ETCD: Annotated[
         str | None,
         Field(
-            title="Element Code",
             description="""
         ETCD (the companion to ELEMENT) is limited to 8 characters 
         and does not have special character restrictions. These values should be
@@ -150,7 +134,6 @@ class StudyArmListing(BaseModel):
     ELEMENT: Annotated[
         str | None,
         Field(
-            title="Description of Element",
             description="The name of the Element. The same Element may occur more than once within an Arm.",
             json_schema_extra={"nullable": True},
         ),
@@ -170,7 +153,6 @@ class StudyArmListing(BaseModel):
     TATRANS: Annotated[
         str | None,
         Field(
-            title="Transition Rule",
             description=""" If the trial design allows a subject to transition
         to an Element other than the next Element in sequence, 
         then the conditions for transitioning to those other Elements, 
@@ -188,7 +170,7 @@ class StudyArmListing(BaseModel):
     ] = None
 
     @classmethod
-    def from_query(cls, query_result: dict) -> Self:
+    def from_query(cls, query_result: dict[Any, Any]) -> Self:
         return cls(
             STUDYID=query_result["STUDYID"],
             DOMAIN=query_result["DOMAIN"],
@@ -204,19 +186,17 @@ class StudyArmListing(BaseModel):
 
 
 class StudyCriterionListing(BaseModel):
-    STUDYID: Annotated[str, Field(title="Study Identifier")]
+    STUDYID: Annotated[str, Field()]
     DOMAIN: Annotated[
         str,
         Field(
-            title="Domain Abbreviation",
             description="Two-character abbreviation for the domain",
         ),
     ]
     IETESTCD: Annotated[
         str,
         Field(
-            title="Incl/Excl Criterion Short Name",
-            description="""
+            description="""Incl/Excl Criterion Short Name.
         Short name IETEST. It can be used as a column name when converting a dataset from a vertical to a horizontal format.
         The value in IETESTCD cannot be longer than 8 characters, nor can it start with a number (e.g., "1TEST"). IETESTCD
         cannot contain characters other than letters, numbers, or underscores. The prefix "IE" is used to ensure consistency
@@ -227,27 +207,20 @@ class StudyCriterionListing(BaseModel):
     IETEST: Annotated[
         str | None,
         Field(
-            title="Inclusion/Exclusion Criterion",
-            description="""
-        Full text of the inclusion or exclusion criterion. The prefix "IE" is used to ensure consistency with the IE domain.
-        """,
+            description="Full text of the inclusion or exclusion criterion. The prefix IE is used to ensure consistency with the IE domain.",
             json_schema_extra={"nullable": True},
         ),
     ] = None
     IECAT: Annotated[
         str | None,
         Field(
-            title="Inclusion/Exclusion Category",
-            description="""
-        Used for categorization of the inclusion or exclusion criteria.
-        """,
+            description="Used for categorization of the inclusion or exclusion criteria.",
             json_schema_extra={"nullable": True},
         ),
     ] = None
     IESCAT: Annotated[
         str | None,
         Field(
-            title="Inclusion/Exclusion Subcategory",
             description="""
         A further categorization of the exception criterion.
         Can be used to distinguish criteria for a sub-study or for to categorize as
@@ -259,24 +232,20 @@ class StudyCriterionListing(BaseModel):
     TIRL: Annotated[
         str | None,
         Field(
-            title="Inclusion/Exclusion Criterion Rule",
-            description="""
-        Rule that expresses the criterion in computer-executable form (see assumption 4 below).
-        """,
+            description="Inclusion/Exclusion Criterion Rule. Rule that expresses the criterion in computer-executable form (see assumption 4 below).",
             json_schema_extra={"nullable": True},
         ),
     ] = None
     TIVERS: Annotated[
         str | None,
         Field(
-            title="Protocol Criteria Versions",
-            description="The number of this version of the Inclusion/Exclusion criteria. May be omitted if there is only one version.",
+            description="Protocol Criteria Versions. The number of this version of the Inclusion/Exclusion criteria. May be omitted if there is only one version.",
             json_schema_extra={"nullable": True},
         ),
     ] = None
 
     @classmethod
-    def from_query(cls, query_result: dict) -> Self:
+    def from_query(cls, query_result: dict[Any, Any]) -> Self:
         return cls(
             STUDYID=query_result["STUDYID"],
             DOMAIN=query_result["DOMAIN"],
@@ -290,19 +259,17 @@ class StudyCriterionListing(BaseModel):
 
 
 class StudySummaryListing(BaseModel):
-    STUDYID: Annotated[str, Field(title="Study Identifier")]
+    STUDYID: Annotated[str, Field()]
     DOMAIN: Annotated[
         str,
         Field(
-            title="Domain Abbreviation",
             description="Two-character abbreviation for the domain",
         ),
     ]
     TSPARMCD: Annotated[
         str | None,
         Field(
-            title="Trial Summary Parameter Short Name",
-            description="""
+            description=""""Trial Summary Parameter Short Name".
         TSPARMCD (the companion to TSPARM) is limited to 8 characters and does not have special character restrictions.
         These values should be short for ease of use in programming, but it is not expected that TSPARMCD will need to
         serve as variable names. Examples: AGEMIN, AGEMAX
@@ -313,7 +280,6 @@ class StudySummaryListing(BaseModel):
     TSPARM: Annotated[
         str | None,
         Field(
-            title="Trial Summary Parameter",
             description="""
         Term for the Trial Summary Parameter. The value in TSPARM cannot be longer than 40 characters.
         Examples Planned Minimum Age of Subjects, Planned Maximum Age of Subjects
@@ -324,7 +290,6 @@ class StudySummaryListing(BaseModel):
     TSVAL: Annotated[
         str | list[Any] | None,
         Field(
-            title="Parameter Value",
             description="""
         Value of TSPARM. Example: "ASTHMA" when TSPARM value is "Trial Indication".
         TSVAL can only be null when TSVALNF is populated. Text over 200 characters can be added to additional columns TSVAL1-TSVALn.
@@ -335,17 +300,13 @@ class StudySummaryListing(BaseModel):
     TSVALNF: Annotated[
         str | None,
         Field(
-            title="Parameter Null Flavor",
-            description="""
-        Null flavor for the value of TSPARM, to be populated if and only if TSVAL is null.
-        """,
+            description="Null flavor for the value of TSPARM, to be populated if and only if TSVAL is null.",
             json_schema_extra={"nullable": True},
         ),
     ] = None
     TSVALCD: Annotated[
         str | None,
         Field(
-            title="Parameter Value Code",
             description="""
         This is the code of the term in TSVAL. For example; 6CW7F3G59X is the code for Gabapentin,
         C49488 is the code for Y. The length of this variable can be longer than 8 to accommodate
@@ -357,7 +318,6 @@ class StudySummaryListing(BaseModel):
     TSVCDREF: Annotated[
         str | None,
         Field(
-            title="Name of the Reference Terminology",
             description="The name of the Reference Terminology from which TSVALCD is taken. For example; CDISC, SNOMED, ISO 8601.",
             json_schema_extra={"nullable": True},
         ),
@@ -365,14 +325,13 @@ class StudySummaryListing(BaseModel):
     TSVCDVER: Annotated[
         str | None,
         Field(
-            title="Version of the Reference Terminology",
             description="The version number of the Reference Terminology, if applicable.",
             json_schema_extra={"nullable": True},
         ),
     ] = None
 
     @classmethod
-    def from_query(cls, query_result: dict) -> Self:
+    def from_query(cls, query_result: dict[Any, Any]) -> Self:
         return cls(
             STUDYID=query_result["STUDYID"],
             DOMAIN=query_result["DOMAIN"],
@@ -387,19 +346,17 @@ class StudySummaryListing(BaseModel):
 
 
 class StudyElementListing(BaseModel):
-    STUDYID: Annotated[str, Field(title="Study Identifier")]
+    STUDYID: Annotated[str, Field()]
     DOMAIN: Annotated[
         str,
         Field(
-            title="Domain Abbreviation",
             description="Two-character abbreviation for the domain",
         ),
     ]
     ETCD: Annotated[
         str | None,
         Field(
-            title="Element Code",
-            description="""
+            description="""Element Code.
             ETCD (the companion to ELEMENT) is limited to 8 characters 
             and does not have special character restrictions. These values should be
             """,
@@ -409,7 +366,6 @@ class StudyElementListing(BaseModel):
     ELEMENT: Annotated[
         str | None,
         Field(
-            title="Description of Element",
             description="The name of the Element. The same Element may occur more than once within an Arm.",
             json_schema_extra={"nullable": True},
         ),
@@ -417,7 +373,6 @@ class StudyElementListing(BaseModel):
     TESTRL: Annotated[
         str | None,
         Field(
-            title="Rule for Start of Element",
             description="Rule for Start of Element Char Rule Expresses rule for beginning Element",
             json_schema_extra={"nullable": True},
         ),
@@ -425,16 +380,13 @@ class StudyElementListing(BaseModel):
     TEENRL: Annotated[
         str | None,
         Field(
-            title="Rule for End of Element",
-            description=""" Rule for End of Element Char Rule Expresses rule for ending Element.
-        Either TEENRL or TEDUR must be present for each Element """,
+            description="Rule for End of Element Char Rule Expresses rule for ending Element. Either TEENRL or TEDUR must be present for each Element",
             json_schema_extra={"nullable": True},
         ),
     ] = None
     TEDUR: Annotated[
         str | None,
         Field(
-            title="Planned Duration of Element",
             description="""Planned Duration of Element Char ISO 8601
         Timing Planned Duration of Element in ISO 8601 format. 
         Used when the rule for ending the Element is applied after a fixed duration. 
@@ -444,7 +396,7 @@ class StudyElementListing(BaseModel):
     ] = None
 
     @classmethod
-    def from_query(cls, query_result: dict) -> Self:
+    def from_query(cls, query_result: dict[Any, Any]) -> Self:
         return cls(
             STUDYID=query_result["STUDYID"],
             DOMAIN=query_result["DOMAIN"],
@@ -457,28 +409,23 @@ class StudyElementListing(BaseModel):
 
 
 class StudyDiseaseMilestoneListing(BaseModel):
-    STUDYID: Annotated[str, Field(title="Study Identifier")]
+    STUDYID: Annotated[str, Field()]
     DOMAIN: Annotated[
         str,
         Field(
-            title="Domain Abbreviation",
             description="Two-character abbreviation for the domain",
         ),
     ]
     MIDSTYPE: Annotated[
         str | None,
         Field(
-            title="Disease Milestone Type",
-            description="""
-        The type of Disease Milestone. Example: "HYPOGLYCEMIC EVENT".
-        """,
+            description="""The type of Disease Milestone. Example: "HYPOGLYCEMIC EVENT".""",
             json_schema_extra={"nullable": True},
         ),
     ] = None
     TMDEF: Annotated[
         str | None,
         Field(
-            title="Disease Milestone Definition",
             description="Definition of the Disease Milestone.",
             json_schema_extra={"nullable": True},
         ),
@@ -486,7 +433,6 @@ class StudyDiseaseMilestoneListing(BaseModel):
     TMRPT: Annotated[
         str | None,
         Field(
-            title="Disease Milestone Repetition Indicator",
             description="""
         Indicates whether this is a Disease Milestone that can occur only once ('N') 
         or a type of Disease Milestone that can occur multiple times ('Y').
@@ -496,7 +442,7 @@ class StudyDiseaseMilestoneListing(BaseModel):
     ] = None
 
     @classmethod
-    def from_query(cls, query_result: dict) -> Self:
+    def from_query(cls, query_result: dict[Any, Any]) -> Self:
         return cls(
             STUDYID=query_result["STUDYID"],
             DOMAIN=query_result["DOMAIN"],

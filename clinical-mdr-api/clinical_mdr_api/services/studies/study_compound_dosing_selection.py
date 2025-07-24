@@ -1,4 +1,5 @@
 import datetime
+from typing import Any
 
 from neomodel import db
 
@@ -179,7 +180,7 @@ class StudyCompoundDosingSelectionService(StudySelectionMixin):
         self,
         study_uid: str,
         study_value_version: str | None = None,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_number: int = 1,
         page_size: int = 0,
@@ -213,7 +214,7 @@ class StudyCompoundDosingSelectionService(StudySelectionMixin):
         field_name: str,
         study_uid: str | None = None,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
     ):

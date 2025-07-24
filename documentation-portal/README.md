@@ -1,7 +1,7 @@
 # StudyBuilder documentation portal
 
 ## Windows prerequisites to follow the project setup below
-- Make sure nodejs and yarn have been installed with the help of a superuser (BJGI)
+- Make sure nodejs and yarn have been installed, this might require administrative privileges.
 - vue-cli-service installed globally in anaconda. Open anaconda as administrator: yarn global add @vue/cli
 
 ## Project setup

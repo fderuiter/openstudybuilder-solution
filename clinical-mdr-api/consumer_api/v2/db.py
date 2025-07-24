@@ -1,3 +1,5 @@
+from typing import Any
+
 from common.utils import validate_page_number_and_page_size
 from consumer_api.shared.common import db_pagination_clause, db_sort_clause, query
 from consumer_api.v2 import models
@@ -8,7 +10,7 @@ def get_studies(
     sort_order: models.SortOrder = models.SortOrder.ASC,
     page_size: int = 10,
     page_number: int = 1,
-) -> list[dict]:
+) -> list[dict[Any, Any]]:
     validate_page_number_and_page_size(page_number, page_size)
 
     base_query = """

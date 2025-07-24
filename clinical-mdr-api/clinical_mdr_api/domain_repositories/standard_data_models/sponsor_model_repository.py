@@ -32,7 +32,7 @@ from clinical_mdr_api.domains.versioned_object_aggregate import (
 )
 from clinical_mdr_api.models.standard_data_models.sponsor_model import SponsorModel
 from clinical_mdr_api.services.user_info import UserInfoService
-from common.config import SPONSOR_MODEL_PREFIX, SPONSOR_MODEL_VERSION_NUMBER_PREFIX
+from common.config import settings
 from common.exceptions import BusinessLogicException
 
 
@@ -67,9 +67,9 @@ class SponsorModelRepository(
         name = "_".join(
             [
                 str.lower(ig_uid),
-                SPONSOR_MODEL_PREFIX,
+                settings.sponsor_model_prefix,
                 ig_version_number,
-                f"{SPONSOR_MODEL_VERSION_NUMBER_PREFIX}{int(version_number):02}",
+                f"{settings.sponsor_model_version_number_prefix}{int(version_number):02}",
             ]
         )
         return name

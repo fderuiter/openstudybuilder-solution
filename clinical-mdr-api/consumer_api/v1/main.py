@@ -5,9 +5,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, Path, Query, Request
 
-from common import config
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.config import settings
 from common.models.error import ErrorResponse
+from common.utils import BaseTimelineAR
 from consumer_api.shared.responses import (
     PaginatedResponse,
     PaginatedResponseWithStudyVersion,
@@ -21,7 +23,7 @@ router = APIRouter()
 # GET endpoint to retrieve a list of studies
 @router.get(
     "/studies",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     status_code=200,
     responses={
         400: {
@@ -35,8 +37,8 @@ async def get_studies(
     sort_by: models.SortByStudies = models.SortByStudies.UID,
     sort_order: models.SortOrder = models.SortOrder.ASC,
     page_size: Annotated[
-        int, Query(ge=1, le=config.MAX_PAGE_SIZE)
-    ] = config.DEFAULT_PAGE_SIZE,
+        int, Query(ge=1, le=settings.max_page_size)
+    ] = settings.default_page_size,
     page_number: Annotated[int, Query(ge=1)] = 1,
     id: Annotated[
         str,
@@ -75,7 +77,7 @@ async def get_studies(
 # GET endpoint to retrieve a study's visits
 @router.get(
     "/studies/{uid}/study-visits",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     status_code=200,
     responses={
         400: {
@@ -91,11 +93,11 @@ async def get_studies(
 async def get_study_visits(
     request: Request,
     uid: Annotated[str, Path(description="Study UID")],
-    sort_by: models.SortByStudyVisits = models.SortByStudyVisits.UID,
+    sort_by: models.SortByStudyVisits = models.SortByStudyVisits.UNIQUE_VISIT_NUMBER,
     sort_order: models.SortOrder = models.SortOrder.ASC,
     page_size: Annotated[
-        int, Query(ge=1, le=config.MAX_PAGE_SIZE)
-    ] = config.PAGE_SIZE_100,
+        int, Query(ge=1, le=settings.max_page_size)
+    ] = settings.page_size_100,
     page_number: Annotated[int, Query(ge=1)] = 1,
     study_version_number: Annotated[
         str | None, Query(description="Study Version Number", example="2.1")
@@ -121,6 +123,9 @@ async def get_study_visits(
         page_number=page_number,
         study_version_number=study_version_number,
     )
+    items = [models.StudyVisit.from_input(study_visit) for study_visit in study_visits]
+    # Generate timeline to assign visit_order for all study visits
+    BaseTimelineAR(study_uid=uid, _visits=items)._generate_timeline()
 
     return PaginatedResponseWithStudyVersion.from_input(
         request=request,
@@ -129,9 +134,7 @@ async def get_study_visits(
         sort_order=sort_order.value,
         page_size=page_size,
         page_number=page_number,
-        items=[
-            models.StudyVisit.from_input(study_visit) for study_visit in study_visits
-        ],
+        items=items,
         query_param_names=["study_version_number"],
     )
 
@@ -139,7 +142,7 @@ async def get_study_visits(
 # GET endpoint to retrieve a study's activities
 @router.get(
     "/studies/{uid}/study-activities",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     status_code=200,
     responses={
         400: {
@@ -158,8 +161,8 @@ async def get_study_activities(
     sort_by: models.SortByStudyActivities = models.SortByStudyActivities.UID,
     sort_order: models.SortOrder = models.SortOrder.ASC,
     page_size: Annotated[
-        int, Query(ge=1, le=config.MAX_PAGE_SIZE)
-    ] = config.PAGE_SIZE_100,
+        int, Query(ge=1, le=settings.max_page_size)
+    ] = settings.page_size_100,
     page_number: Annotated[int, Query(ge=1)] = 1,
     study_version_number: Annotated[
         str | None, Query(description="Study Version Number", example="2.1")
@@ -204,7 +207,7 @@ async def get_study_activities(
 # GET endpoint to retrieve a study's detailed soa
 @router.get(
     "/studies/{uid}/detailed-soa",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     status_code=200,
     responses={
         400: {
@@ -223,8 +226,8 @@ async def get_study_detailed_soa(
     sort_by: models.SortByStudyDetailedSoA = models.SortByStudyDetailedSoA.ACTIVITY_NAME,
     sort_order: models.SortOrder = models.SortOrder.ASC,
     page_size: Annotated[
-        int, Query(ge=1, le=config.MAX_PAGE_SIZE)
-    ] = config.PAGE_SIZE_100,
+        int, Query(ge=1, le=settings.max_page_size)
+    ] = settings.page_size_100,
     page_number: Annotated[int, Query(ge=1)] = 1,
     study_version_number: Annotated[
         str | None, Query(description="Study Version Number", example="2.1")
@@ -270,7 +273,7 @@ async def get_study_detailed_soa(
 # GET endpoint to retrieve a study's operational soa
 @router.get(
     "/studies/{uid}/operational-soa",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     status_code=200,
     responses={
         400: {
@@ -289,8 +292,8 @@ async def get_study_operational_soa(
     sort_by: models.SortByStudyOperationalSoA = models.SortByStudyOperationalSoA.ACTIVITY_NAME,
     sort_order: models.SortOrder = models.SortOrder.ASC,
     page_size: Annotated[
-        int, Query(ge=1, le=config.MAX_PAGE_SIZE)
-    ] = config.PAGE_SIZE_100,
+        int, Query(ge=1, le=settings.max_page_size)
+    ] = settings.page_size_100,
     page_number: Annotated[int, Query(ge=1)] = 1,
     study_version_number: Annotated[
         str | None, Query(description="Study Version Number", example="2.1")
@@ -331,3 +334,50 @@ async def get_study_operational_soa(
         ],
         query_param_names=["study_version_number"],
     )
+
+
+# GET endpoint to retrieve a study's soa in papillons required structure
+@router.get(
+    "/papillons/soa",
+    dependencies=[security, rbac.STUDY_READ],
+    status_code=200,
+    responses={
+        400: {
+            "model": ErrorResponse,
+            "description": "Invalid request",
+        },
+        404: {
+            "model": ErrorResponse,
+            "description": "Item not found",
+        },
+    },
+)
+async def get_papillons_soa(
+    project: Annotated[str, Query(description="Project")],
+    study_number: Annotated[str, Query(description="Study Number")],
+    subpart: Annotated[
+        str | None,
+        Query(
+            description="Study Subpart Identifier, for example `SAD, MAD, EXT, etc..`"
+        ),
+    ] = None,
+    study_version_number: Annotated[
+        str | None, Query(description="Study Version Number, for example `2.1`")
+    ] = None,
+    datetime: Annotated[
+        str | None,
+        Query(
+            description="If specified, study data with latest released version of specified datetime is returned. "
+            "format in YYYY-MM-DDThh:mm:ssZ. ",
+        ),
+    ] = None,
+) -> models.PapillonsSoA:
+    papilons_soa_res = DB.get_papillons_soa(
+        project=project,
+        study_number=study_number,
+        subpart=subpart,
+        datetime=datetime,
+        study_version_number=study_version_number,
+    )
+
+    return models.PapillonsSoA.from_input(papilons_soa_res)

@@ -1,6 +1,6 @@
 import datetime
 from dataclasses import asdict
-from typing import Annotated, Callable, Iterable, Self
+from typing import Annotated, Any, Callable, Iterable, Self
 
 from pydantic import ConfigDict, Field, ValidationInfo, field_validator
 
@@ -97,7 +97,7 @@ class ActivityGroupingHierarchySimpleModel(BaseModel):
 
 class ActivityBase(Concept):
     possible_actions: Annotated[
-        list[str],
+        list[str] | None,
         Field(
             validate_default=True,
             description=(
@@ -128,6 +128,34 @@ class ActivityBase(Concept):
         if info.data["status"] == LibraryItemStatus.RETIRED.value:
             return [ObjectAction.REACTIVATE.value]
         return []
+
+
+class CompactActivity(BaseModel):
+    uid: Annotated[str, Field()]
+    name: Annotated[str, Field()]
+    is_data_collected: Annotated[bool, Field()]
+    is_used_by_legacy_instances: Annotated[bool, Field()]
+    activity_group_uid: Annotated[str, Field()]
+    activity_group_name: Annotated[str, Field()]
+    activity_subgroup_uid: Annotated[str, Field()]
+    activity_subgroup_name: Annotated[str, Field()]
+    status: Annotated[str, Field()]
+    library_name: Annotated[str, Field()]
+
+    @classmethod
+    def from_repository_output(cls, data: dict[str, Any]) -> Self:
+        return cls(
+            uid=data["uid"],
+            name=data["name"],
+            is_data_collected=data["is_data_collected"],
+            is_used_by_legacy_instances=data["is_used_by_legacy_instances"],
+            activity_group_uid=data["activity_group_uid"],
+            activity_group_name=data["activity_group_name"],
+            activity_subgroup_uid=data["activity_subgroup_uid"],
+            activity_subgroup_name=data["activity_subgroup_name"],
+            status=data["status"],
+            library_name=data["library_name"],
+        )
 
 
 class Activity(ActivityBase):
@@ -274,7 +302,7 @@ class Activity(ActivityBase):
             is_used_by_legacy_instances=activity_ar.concept_vo.is_used_by_legacy_instances,
         )
 
-    activity_groupings: list[ActivityGroupingHierarchySimpleModel] = Field(
+    activity_groupings: list[ActivityGroupingHierarchySimpleModel] | None = Field(
         default_factory=list
     )
     activity_instances: list[ActivityHierarchySimpleModel] = Field(default_factory=list)
@@ -345,21 +373,20 @@ class Activity(ActivityBase):
     is_finalized: Annotated[
         bool,
         Field(
-            title="Computed boolean value based on is_request_rejected and replaced_by_activity",
             description="Evaluates to false, if is_request_rejected is false and replaced_by_activity is null else true",
         ),
     ] = False
     is_used_by_legacy_instances: Annotated[
         bool,
         Field(
-            title="True if all instances linked to given Activity are legacy_used.",
+            description="True if all instances linked to given Activity are legacy_used.",
         ),
     ] = False
 
 
 class ActivityForStudyActivity(Activity):
     activity_groupings: Annotated[
-        list[ActivityGroupingHierarchySimpleModel],
+        list[ActivityGroupingHierarchySimpleModel] | None,
         Field(json_schema_extra={"remove_from_wildcard": True}),
     ]
 
@@ -445,7 +472,7 @@ class ActivityVersionDetail(BaseModel):
     activity_instances: Annotated[list[ActivityHierarchySimpleModel], Field()]
 
     @classmethod
-    def from_repository_input(cls, data: dict) -> Self:
+    def from_repository_input(cls, data: dict[Any, Any]) -> Self:
         return cls(
             activity_uid=data["activity_uid"],
             activity_version=data["activity_version"],
@@ -529,6 +556,8 @@ class SimpleActivitySubGroup(BaseModel):
     definition: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = (
         None
     )
+    version: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = None
+    status: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = None
 
 
 class SimpleActivityGroup(BaseModel):
@@ -537,6 +566,8 @@ class SimpleActivityGroup(BaseModel):
     definition: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = (
         None
     )
+    version: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = None
+    status: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = None
 
 
 class SimpleActivityGrouping(BaseModel):
@@ -598,7 +629,7 @@ class ActivityOverview(BaseModel):
     all_versions: Annotated[list[str], Field()]
 
     @classmethod
-    def from_repository_input(cls, overview: dict):
+    def from_repository_input(cls, overview: dict[str, Any]):
         return cls(
             activity=SimpleActivity(
                 uid=overview.get("activity_value").get("uid"),

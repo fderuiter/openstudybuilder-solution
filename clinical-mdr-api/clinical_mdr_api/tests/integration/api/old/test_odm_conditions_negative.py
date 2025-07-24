@@ -160,7 +160,7 @@ def test_cannot_create_a_new_odm_condition_with_same_properties(api_client):
     assert res["type"] == "AlreadyExistsException"
     assert (
         res["message"]
-        == "ODM Condition already exists with UID (OdmCondition_000001) and data {'description_uids': ['odm_description2', 'odm_description3'], 'alias_uids': ['odm_alias1'], 'formal_expression_uids': ['odm_formal_expression1'], 'name': 'name1', 'oid': 'oid1'}"
+        == "ODM Condition already exists with UID (OdmCondition_000001) and data {'library_name': 'Sponsor', 'alias_uids': ['odm_alias1'], 'formal_expression_uids': ['odm_formal_expression1'], 'name': 'name1', 'oid': 'oid1'}"
     )
 
 

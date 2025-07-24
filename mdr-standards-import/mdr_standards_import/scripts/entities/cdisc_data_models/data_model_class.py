@@ -56,15 +56,26 @@ class DataModelClass:
         data_model_type,
         is_class_dataset: bool = False,
     ) -> None:
-        variables = extract_variables_from_json_data(
-            json_data=class_json_data,
-            catalogue=catalogue,
-            data_model_import=data_model_import,
-            data_model_type=data_model_type,
-            is_class_dataset=is_class_dataset,
-        )
+        if catalogue == "ADAM":
+            for _variable_set in class_json_data.get("analysisVariableSets", []):
+                variables = extract_variables_from_json_data(
+                    json_data=_variable_set,
+                    catalogue=catalogue,
+                    data_model_import=data_model_import,
+                    data_model_type=data_model_type,
+                    is_class_dataset=is_class_dataset,
+                )
+                self.__add_variables(variables)
+        else:
+            variables = extract_variables_from_json_data(
+                json_data=class_json_data,
+                catalogue=catalogue,
+                data_model_import=data_model_import,
+                data_model_type=data_model_type,
+                is_class_dataset=is_class_dataset,
+            )
 
-        self.__add_variables(variables)
+            self.__add_variables(variables)
 
     def load_variables_from_csv_data(
         self,

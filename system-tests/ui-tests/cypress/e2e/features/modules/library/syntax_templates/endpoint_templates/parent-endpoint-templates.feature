@@ -29,10 +29,10 @@ Feature: Library - Syntax Templates - Endpoints - Parent
         Given The 'library/endpoint_templates' page is opened
         And [API] Create endpoint template
         And The endpoint template is found
-        When The latest endpoint sequence number is saved
+        When The latest sequence number is saved
         And [API] Create endpoint template
         And The endpoint template is found
-        Then Endpoint sequence number is incremented
+        Then Sequence number is incremented
 
     # If approval is for version +1.0 and any instantiations exist then a cascade update and approval is needed
     @pending_implementation
@@ -44,15 +44,25 @@ Feature: Library - Syntax Templates - Endpoints - Parent
 
     Scenario: [Create][Positive case] User must be able to create Endpoint template
         Given The 'library/endpoint_templates' page is opened
-        When The new endpoint is added in the library
+        And The Add template button is clicked
+        When The endpoint template form is filled with base data
+        And Template indexes are set for 'endpoint'
+        And Form save button is clicked
+        And The endpoint template is found
         Then The item has status 'Draft' and version '0.1'
         And The endpoint template name is displayed in the table
 
     Scenario: [Create][N/A indexes] User must be able to create Endpoint template with NA indexes
         Given The 'library/endpoint_templates' page is opened
-        When The new Endpoint is added in the library with not applicable for indexes
+        And The Add template button is clicked
+        When The endpoint template form is filled with base data
+        And Indexes are set as not applicable
+        And Form save button is clicked
+        And The pop up displays 'Endpoint template added'
+        And The endpoint template is found
         And The item has status 'Draft' and version '0.1'
         And The 'Edit' option is clicked from the three dot menu list
+        And User goes to Index template step
         Then The template has not applicable selected for all indexes
 
     Scenario: [Actions][Edit][0.1 version] User must be able to edit initial version of the Endpoint template
@@ -60,58 +70,86 @@ Feature: Library - Syntax Templates - Endpoints - Parent
         And [API] Create endpoint template
         And The endpoint template is found
         When The 'Edit' option is clicked from the three dot menu list
-        And The endpoint metadata is updated
+        And The endpoint metadata update is started
+        And Template indexes are cleared and updated for 'endpoint'
+        And Form continue button is clicked
+        And Template change description is provided
+        And Form save button is clicked
+        And The pop up displays 'Endpoint template updated'
+        And The endpoint template is found
         Then The item has status 'Draft' and version '0.2'
         And The 'Edit' option is clicked from the three dot menu list
-        And The endpoint template name is checked and user goes to indexes
-        Then The indexes in endpoint template are updated
+        And The endpoint template name is checked
+        And User goes to Index template step
+        Then Template indexes are verified
 
     Scenario: [Create][Mandatory fields] User must not be able to create Endpoint template without: Template Text
         Given The 'library/endpoint_templates' page is opened
-        When The new Endpoint template is added without template text
+        And The Add template button is clicked
+        When The Template is added without template text
         Then The validation appears for Template name
         And The form is not closed
 
     Scenario: [Create][Mandatory fields] User must not be able to create Endpoint template with not unique Template Text
         Given The 'library/endpoint_templates' page is opened
         And [API] Create endpoint template
-        And The second endpoint is added with the same template text
+        And The Add template button is clicked
+        And The endpoint template form is filled with already existing name
+        And Indexes are set as not applicable
+        And Form save button is clicked
         Then The pop up displays 'already exists'
         And The form is not closed
 
     Scenario: [Create][Mandatory fields] User must not be able to create Endpoint template without: Indication or Disorder
         Given The 'library/endpoint_templates' page is opened
-        When The new Endpoint template is added without Indication or Disorder
+        And The Add template button is clicked
+        And The endpoint template form is filled with base data
+        When Template indexes are set for 'endpoint'
+        And Indication or Disorder index is cleared
+        And Form save button is clicked
         Then The validation appears for Indication or Disorder field
         And The form is not closed
 
     Scenario: [Create][Mandatory fields] User must not be able to create Endpoint template without: Endpoint Category
         Given The 'library/endpoint_templates' page is opened
-        When The new Endpoint template is added without Endpoint Category
-        Then The validation appears for Endpoint Category field
+        And The Add template button is clicked
+        And The endpoint template form is filled with base data
+        When Template indexes are set for 'endpoint'
+        And Category index is cleared for 'endpoint' template
+        And Form save button is clicked
+        Then The validation appears for 'endpoint' template category field
         And The form is not closed
 
     Scenario: [Create][Mandatory fields] User must not be able to create Endpoint template without: Endpoint Subcategory
         Given The 'library/endpoint_templates' page is opened
-        When The new Endpoint template is added without Endpoint Subcategory
-        Then The validation appears for Endpoint Subcategory field
+        And The Add template button is clicked
+        And The endpoint template form is filled with base data
+        When Template indexes are set for 'endpoint'
+        And Subcategory index is cleared for 'endpoint' template
+        And Form save button is clicked
+        Then The validation appears for 'endpoint' template subcategory field
         And The form is not closed
 
     Scenario: [Create][Syntax validation] User must be able to verify syntax when creating Endpoint template
         Given The 'library/endpoint_templates' page is opened
+        And The Add template button is clicked
         When The new template name is prepared with a parameters
         And The syntax is verified
         Then The pop up displays "This syntax is valid"
 
     Scenario: [Create][Hide parameters] User must be able to hide parameter of the Endpoint template
         Given The 'library/endpoint_templates' page is opened
+        And The Add template button is clicked
         When The new template name is prepared with a parameters
+        And Form continue button is clicked
         And The user hides the parameter in the next step
         Then The parameter is not visible in the text representation
 
     Scenario: [Create][Select parameter] User must be able to select parameter of the Endpoint template
         Given The 'library/endpoint_templates' page is opened
+        And The Add template button is clicked
         When The new template name is prepared with a parameters
+        And Form continue button is clicked
         And The user picks the parameter from the dropdown list
         Then The parameter value is visible in the text representation
 
@@ -121,7 +159,7 @@ Feature: Library - Syntax Templates - Endpoints - Parent
         And The endpoint template is found
         When The 'Delete' option is clicked from the three dot menu list
         Then The pop up displays "Endpoint template has been deleted"
-        And The endpoint is no longer available
+        And The endpoint template is not found
 
     Scenario: [Actions][Approve] User must be able to approve the Draft Endpoint template
         Given The 'library/endpoint_templates' page is opened
@@ -137,17 +175,22 @@ Feature: Library - Syntax Templates - Endpoints - Parent
         And [API] Approve endpoint template
         And The endpoint template is found
         When The 'Edit indexing' option is clicked from the three dot menu list
-        And The indexing is updated for the Endpoint Template
+        And Template indexes are updated for 'endpoint'
+        And Form save button is clicked
+        And The pop up displays 'Indexing properties updated'
+        And The endpoint template is found
         And The 'Edit indexing' option is clicked from the three dot menu list
-        Then The indexes in endpoint template are updated
+        Then Template indexes are verified
 
     Scenario: [Actions][Edit][Mandatory fields] User must not be able to save changes to Endpoint template without: Change description
         Given The 'library/endpoint_templates' page is opened
         And [API] Create endpoint template
         And The endpoint template is found
         When The 'Edit' option is clicked from the three dot menu list
-        When The template is edited witout providing mandatory change description
-        Then The validation appears for template change description field
+        And User goes to Change description step
+        When The template change description is cleared
+        And Form save button is clicked
+        Then The validation appears for change description field
         And The form is not closed
 
     Scenario: [Actions][New version] User must be able to add a new version of the Final Endpoint template
@@ -167,7 +210,13 @@ Feature: Library - Syntax Templates - Endpoints - Parent
         When The 'New version' option is clicked from the three dot menu list
         Then The item has status 'Draft' and version '1.1'
         When The 'Edit' option is clicked from the three dot menu list
-        And The endpoint metadata is updated
+        And The endpoint metadata update is started
+        And Template indexes are cleared and updated for 'endpoint'
+        And Form continue button is clicked
+        And Template change description is provided
+        And Form save button is clicked
+        And The pop up displays 'Endpoint template updated'
+        And The endpoint template is found
         Then The item has status 'Draft' and version '1.2'
         When The 'Approve' option is clicked from the three dot menu list
         Then The item has status 'Final' and version '2.0'
@@ -229,11 +278,13 @@ Feature: Library - Syntax Templates - Endpoints - Parent
 
     Scenario: [Cancel][Creation] User must be able to Cancel creation of the Endpoint template
         Given The 'library/endpoint_templates' page is opened
-        And The endpoint template form is filled with data
+        And The Add template button is clicked
+        And The endpoint template form is filled with base data
+        And Indexes are set as not applicable
         When Fullscreen wizard is closed by clicking cancel button
         And Action is confirmed by clicking continue
         Then The form is no longer available
-        And The endpoint template is not created
+        And The endpoint template is not found
 
     Scenario: [Cancel][Edition] User must be able to Cancel edition of the Endpoint template
         Given The 'library/endpoint_templates' page is opened
@@ -244,8 +295,6 @@ Feature: Library - Syntax Templates - Endpoints - Parent
         And Fullscreen wizard is closed by clicking cancel button
         And Action is confirmed by clicking continue
         Then The form is no longer available
-        And The endpoint template is found
-        When The 'Edit' option is clicked from the three dot menu list
         And The endpoint template is not updated
 
     Scenario: [Cancel][Indexing edition] User must be able to Cancel indexes edition of the Endpoint template
@@ -254,11 +303,11 @@ Feature: Library - Syntax Templates - Endpoints - Parent
         And [API] Approve endpoint template
         And The endpoint template is found
         When The 'Edit indexing' option is clicked from the three dot menu list
-        When The endpoint indexes edition is initiated
+        When The indication indexes edition is initiated
         And Modal window form is closed by clicking cancel button
         Then The form is no longer available
         When The 'Edit indexing' option is clicked from the three dot menu list
-        And The endpoint indexes are not updated
+        And The indexes are not updated
 
     Scenario: [Actions][Availability][Draft item] User must only have access to aprove, edit, delete, history actions for Drafted version of the Endpoint template
         Given The 'library/endpoint_templates' page is opened

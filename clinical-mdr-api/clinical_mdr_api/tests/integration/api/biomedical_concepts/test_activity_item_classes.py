@@ -5,6 +5,7 @@ Tests for /activity-item-classes endpoints
 import json
 import logging
 from functools import reduce
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -17,6 +18,10 @@ from clinical_mdr_api.models.biomedical_concepts.activity_item_class import (
     ActivityItemClass,
 )
 from clinical_mdr_api.models.controlled_terminologies.ct_term import CTTerm
+from clinical_mdr_api.models.standard_data_models.dataset import Dataset
+from clinical_mdr_api.models.standard_data_models.dataset_variable import (
+    DatasetVariable,
+)
 from clinical_mdr_api.models.standard_data_models.variable_class import VariableClass
 from clinical_mdr_api.tests.integration.utils.api import (
     inject_and_clear_db,
@@ -42,6 +47,8 @@ activity_instance_class2: ActivityInstanceClass
 role_term: CTTerm
 data_type_term: CTTerm
 variable_class: VariableClass
+dataset: Dataset
+dataset_variable: DatasetVariable
 
 
 @pytest.fixture(scope="module")
@@ -63,6 +70,8 @@ def test_data():
     global data_type_term
     global role_term
     global variable_class
+    global dataset
+    global dataset_variable
 
     activity_instance_class = TestUtils.create_activity_instance_class(
         name="Activity Instance Class name1"
@@ -83,6 +92,21 @@ def test_data():
         data_model_catalogue_name=data_model_catalogue,
         data_model_name=data_model.uid,
         data_model_version=data_model.version_number,
+    )
+    data_model_ig = TestUtils.create_data_model_ig()
+    dataset = TestUtils.create_dataset(
+        data_model_ig_uid=data_model_ig.uid,
+        data_model_ig_version_number=data_model_ig.version_number,
+        implemented_dataset_class_name=dataset_class.uid,
+        data_model_catalogue_name=data_model_catalogue,
+    )
+    dataset_variable = TestUtils.create_dataset_variable(
+        dataset_uid=dataset.uid,
+        data_model_catalogue_name=data_model_catalogue,
+        data_model_ig_name=data_model_ig.uid,
+        data_model_ig_version=data_model_ig.version_number,
+        class_variable_uid=variable_class.uid,
+        references_codelist_uid=CT_CODELIST_UIDS.default,
     )
 
     # Create some activity item classes
@@ -106,7 +130,6 @@ def test_data():
             ],
             role_uid=role_term.term_uid,
             data_type_uid=data_type_term.term_uid,
-            codelist_uids=[CT_CODELIST_UIDS.default],
         ),
         TestUtils.create_activity_item_class(
             name="name-AAA",
@@ -251,7 +274,6 @@ ACTIVITY_IC_FIELDS_ALL = [
     "data_type",
     "role",
     "variable_classes",
-    "codelists",
     "library_name",
     "start_date",
     "end_date",
@@ -281,7 +303,7 @@ def test_get_activity_item_class(api_client):
     assert_response_status_code(response, 200)
 
     # Check fields included in the response
-    assert set(list(res.keys())) == set(ACTIVITY_IC_FIELDS_ALL)
+    assert set(res.keys()) == set(ACTIVITY_IC_FIELDS_ALL)
     for key in ACTIVITY_IC_FIELDS_NOT_NULL:
         assert res[key] is not None
 
@@ -298,8 +320,6 @@ def test_get_activity_item_class(api_client):
     ) == [activity_instance_class.name, activity_instance_class2.name]
     assert res["role"]["uid"] == role_term.term_uid
     assert res["data_type"]["uid"] == data_type_term.term_uid
-    assert res["codelists"][0]["uid"] == CT_CODELIST_UIDS.default
-    assert res["codelists"][0]["name"] == "C66737 NAME"
     assert res["version"] == "1.0"
     assert res["status"] == "Final"
     assert res["library_name"] == "Sponsor"
@@ -307,20 +327,20 @@ def test_get_activity_item_class(api_client):
 
 
 def test_get_activity_item_class_pagination(api_client):
-    results_paginated: dict = {}
+    results_paginated: dict[Any, Any] = {}
     sort_by = '{"name": true}'
     for page_number in range(1, 4):
         url = f"/activity-item-classes?page_number={page_number}&page_size=10&sort_by={sort_by}"
         response = api_client.get(url)
         res = response.json()
-        res_names = list(map(lambda x: x["name"], res["items"]))
+        res_names = [item["name"] for item in res["items"]]
         results_paginated[page_number] = res_names
         log.info("Page %s: %s", page_number, res_names)
 
     log.info("All pages: %s", results_paginated)
 
     results_paginated_merged = list(
-        list(reduce(lambda a, b: a + b, list(results_paginated.values())))
+        reduce(lambda a, b: list(a) + list(b), list(results_paginated.values()))
     )
     log.info("All rows returned by pagination: %s", results_paginated_merged)
 
@@ -571,7 +591,6 @@ def test_edit_activity_item_class(api_client):
     assert (
         res["activity_instance_classes"][0]["is_adam_param_specific_enabled"] is False
     )
-    assert res["codelists"] == []
     assert res["version"] == "0.2"
     assert res["status"] == "Draft"
     assert res["possible_actions"] == ["approve", "delete", "edit"]
@@ -618,7 +637,6 @@ def test_post_activity_item_class(api_client):
     assert res["activity_instance_classes"][0]["name"] == activity_instance_class.name
     assert res["activity_instance_classes"][0]["mandatory"] is True
     assert res["activity_instance_classes"][0]["is_adam_param_specific_enabled"] is True
-    assert res["codelists"] == []
     assert res["version"] == "0.1"
     assert res["status"] == "Draft"
     assert res["possible_actions"] == ["approve", "delete", "edit"]
@@ -709,8 +727,20 @@ def test_activity_item_class_versioning(api_client):
 
 
 def test_get_activity_item_class_terms(api_client):
+    # Map an ActivityItemClass to a VariableClass
+    # This VariableClass will have Variables belonging to the target Dataset
+    api_client.patch(
+        f"/activity-item-classes/{activity_item_classes_all[0].uid}/model-mappings",
+        json={
+            "variable_class_uids": [variable_class.uid],
+        },
+    )
+
+    # So fetching terms with this ActivityItemClass and Dataset
+    # Will return those Variables
+    # Which will in turn map a Codelist, whose Terms should be returned
     response = api_client.get(
-        f"/activity-item-classes/{activity_item_classes_all[0].uid}/terms"
+        f"/activity-item-classes/{activity_item_classes_all[0].uid}/datasets/{dataset.uid}/terms"
     )
     assert_response_status_code(response, 200)
     res = response.json()
@@ -796,25 +826,3 @@ def test_get_activity_item_class_terms(api_client):
             "term_uid": "C98737_HLTSUBJI",
         },
     ]
-
-
-def test_edit_activity_item_class_codelist_relationship(api_client):
-    api_client.post(
-        f"/activity-item-classes/{activity_item_classes_all[0].uid}/versions"
-    )
-    response = api_client.patch(
-        f"/activity-item-classes/{activity_item_classes_all[0].uid}",
-        json={"codelist_uids": [CT_CODELIST_UIDS.frequency]},
-    )
-    res = response.json()
-    assert_response_status_code(response, 200)
-    assert len(res["codelists"]) == 1
-    assert res["codelists"][0]["uid"] == CT_CODELIST_UIDS.frequency
-
-    response = api_client.get(
-        f"/activity-item-classes/{activity_item_classes_all[0].uid}"
-    )
-    res = response.json()
-    assert_response_status_code(response, 200)
-    assert len(res["codelists"]) == 1
-    assert res["codelists"][0]["uid"] == CT_CODELIST_UIDS.frequency

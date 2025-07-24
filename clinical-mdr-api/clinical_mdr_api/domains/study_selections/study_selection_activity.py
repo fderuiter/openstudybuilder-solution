@@ -37,6 +37,7 @@ class StudySelectionActivityVO(study_selection_base.StudySelectionBaseVO):
     show_activity_group_in_protocol_flowchart: bool
     show_activity_subgroup_in_protocol_flowchart: bool
     show_soa_group_in_protocol_flowchart: bool
+    keep_old_version: bool
     # Study selection Versioning
     start_date: datetime.datetime
     author_id: str | None
@@ -75,6 +76,7 @@ class StudySelectionActivityVO(study_selection_base.StudySelectionBaseVO):
         accepted_version: bool = False,
         activity_name: str | None = None,
         generate_uid_callback: Callable[[], str] | None = None,
+        keep_old_version: bool = False,
     ):
         if study_selection_uid is None:
             study_selection_uid = generate_uid_callback()
@@ -114,6 +116,7 @@ class StudySelectionActivityVO(study_selection_base.StudySelectionBaseVO):
                 else normalize_string(author_username)
             ),
             accepted_version=accepted_version,
+            keep_old_version=keep_old_version,
         )
 
     def validate(
@@ -133,6 +136,27 @@ class StudySelectionActivityVO(study_selection_base.StudySelectionBaseVO):
 
     def update_version(self, activity_version: str):
         return replace(self, activity_version=activity_version)
+
+    def update_keep_old_version(self, keep_old_version: bool):
+        return replace(self, keep_old_version=keep_old_version)
+
+    def update_activity_group(
+        self, activity_group_uid: str, study_activity_group_uid: str
+    ):
+        return replace(
+            self,
+            activity_group_uid=activity_group_uid,
+            study_activity_group_uid=study_activity_group_uid,
+        )
+
+    def update_activity_subgroup(
+        self, activity_subgroup_uid: str, study_activity_subgroup_uid: str
+    ):
+        return replace(
+            self,
+            activity_subgroup_uid=activity_subgroup_uid,
+            study_activity_subgroup_uid=study_activity_subgroup_uid,
+        )
 
 
 @dataclass

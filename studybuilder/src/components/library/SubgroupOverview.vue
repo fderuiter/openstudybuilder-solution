@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="subgroup-overview-container">
     <BaseActivityOverview
       ref="overview"
       :source="'activity-sub-groups'"
@@ -12,180 +12,153 @@
       v-bind="$attrs"
     >
       <template #htmlContent>
-        <v-row>
-          <v-col cols="2" class="font-weight-bold">
-            {{ $t('_global.name') }}
-          </v-col>
-          <v-col cols="10">
-            {{ props.itemOverview.activity_subgroup.name }}
-          </v-col>
-        </v-row>
+        <!-- Subgroup Details using ActivitySummary -->
+        <div class="summary-section">
+          <v-skeleton-loader
+            v-if="!props.itemOverview?.activity_subgroup"
+            type="card"
+            class="subgroup-activity-summary"
+          />
+          <ActivitySummary
+            v-else
+            :activity="props.itemOverview.activity_subgroup"
+            :all-versions="allVersions(props.itemOverview)"
+            :show-library="true"
+            :show-nci-concept-id="false"
+            :show-data-collection="false"
+            :show-abbreviation="false"
+            :show-author="true"
+            class="subgroup-activity-summary"
+            @version-change="
+              (value) =>
+                changeVersion(props.itemOverview.activity_subgroup, value)
+            "
+          />
+        </div>
 
-        <v-row>
-          <v-col cols="2" class="font-weight-bold">
-            {{ $t('_global.sentence_case_name') }}
-          </v-col>
-          <v-col cols="10">
-            <template
-              v-if="props.itemOverview.activity_subgroup.name_sentence_case"
-            >
-              {{ props.itemOverview.activity_subgroup.name_sentence_case }}
+        <!-- Activity Groups Section -->
+        <div v-if="isLoadingGroups" class="my-5">
+          <div class="section-header mb-1">
+            <h3 class="text-h6 font-weight-bold text-primary">
+              {{ $t('ActivityOverview.activity_group') }}
+            </h3>
+          </div>
+          <v-skeleton-loader type="table" />
+        </div>
+        <div v-else class="my-5">
+          <div class="section-header mb-1">
+            <h3 class="text-h6 font-weight-bold text-primary">
+              {{ $t('ActivityOverview.activity_group') }}
+            </h3>
+          </div>
+          <NNTable
+            :headers="groupsHeaders"
+            :items="groups"
+            :items-length="groupsTotal"
+            :items-per-page="tableOptions.itemsPerPage"
+            :hide-export-button="false"
+            :hide-default-switches="true"
+            :disable-filtering="true"
+            :hide-search-field="false"
+            :modifiable-table="true"
+            :no-padding="true"
+            elevation="0"
+            class="groups-table"
+            item-value="uid"
+            :initial-sort="initialSort"
+            :disable-sort="false"
+            :loading="false"
+            :export-data-url="`concepts/activities/activity-sub-groups/${props.itemUid}/activity-groups`"
+            export-object-label="Activity Groups"
+            @filter="
+              (filters, options) => handleFilter(filters, options, 'groups')
+            "
+            @update:options="updateTableOptions"
+          >
+            <template #[`item.name`]="{ item }">
+              <router-link
+                :to="{
+                  name: 'GroupOverview',
+                  params: { id: item.uid, version: item.version },
+                }"
+              >
+                {{ item.name }}
+              </router-link>
             </template>
-          </v-col>
-        </v-row>
-
-        <v-row>
-          <v-col cols="2" class="font-weight-bold">
-            {{ $t('_global.version') }}
-          </v-col>
-          <v-col cols="2">
-            <v-select
-              :items="allVersions(props.itemOverview)"
-              :model-value="props.itemOverview.activity_subgroup.version"
-              @update:model-value="
-                (value) =>
-                  changeVersion(props.itemOverview.activity_subgroup, value)
-              "
-            ></v-select>
-          </v-col>
-          <v-col cols="2" class="font-weight-bold">
-            {{ $t('_global.status') }}
-          </v-col>
-          <v-col cols="2">
-            <StatusChip :status="props.itemOverview.activity_subgroup.status" />
-          </v-col>
-        </v-row>
-
-        <v-row>
-          <v-col cols="2" class="font-weight-bold">
-            {{ $t('_global.start_date') }}
-          </v-col>
-          <v-col cols="2">
-            <template v-if="props.itemOverview.activity_subgroup.start_date">
-              {{
-                $filters.date(props.itemOverview.activity_subgroup.start_date)
-              }}
+            <template #[`item.status`]="{ item }">
+              <StatusChip :status="item.status" />
             </template>
-          </v-col>
-          <v-col cols="2" class="font-weight-bold">
-            {{ $t('_global.end_date') }}
-          </v-col>
-          <v-col cols="2">
-            <template v-if="props.itemOverview.activity_subgroup.end_date">
-              {{ $filters.date(props.itemOverview.activity_subgroup.end_date) }}
+            <template #no-data>
+              <div class="text-center py-4">
+                <span class="text-body-1 text-grey-darken-1">
+                  {{ $t('ActivityOverview.no_groups') }}
+                </span>
+              </div>
             </template>
-          </v-col>
-        </v-row>
+          </NNTable>
+        </div>
 
-        <v-row>
-          <v-col cols="2" class="font-weight-bold">
-            {{ $t('_global.library') }}
-          </v-col>
-          <v-col cols="10">
-            <template v-if="props.itemOverview.activity_subgroup.library_name">
-              {{ props.itemOverview.activity_subgroup.library_name }}
+        <!-- Activities Section -->
+        <div v-if="isLoadingActivities" class="my-5">
+          <div class="section-header mb-1">
+            <h3 class="text-h6 font-weight-bold text-primary">
+              {{ $t('ActivityOverview.activities') }}
+            </h3>
+          </div>
+          <v-skeleton-loader type="table" />
+        </div>
+        <div v-else class="my-5">
+          <div class="section-header mb-1">
+            <h3 class="text-h6 font-weight-bold text-primary">
+              {{ $t('ActivityOverview.activities') }}
+            </h3>
+          </div>
+          <NNTable
+            :headers="activitiesHeaders"
+            :items="activitiesList"
+            :items-length="activitiesTotal"
+            :items-per-page="activitiesPagination.itemsPerPage"
+            :hide-export-button="false"
+            :export-data-url="`concepts/activities/activity-sub-groups/${props.itemUid}/activities`"
+            export-object-label="Activities"
+            :hide-default-switches="true"
+            :disable-filtering="true"
+            :hide-search-field="false"
+            :modifiable-table="true"
+            :no-padding="true"
+            elevation="0"
+            class="activities-table"
+            item-value="uid"
+            :initial-sort="initialSort"
+            :disable-sort="false"
+            :loading="false"
+            @filter="
+              (filters, options) => handleFilter(filters, options, 'activities')
+            "
+            @update:options="updateActivitiesOptions"
+          >
+            <template #[`item.name`]="{ item }">
+              <router-link
+                :to="{
+                  name: 'ActivityOverview',
+                  params: { id: item.uid, version: item.version },
+                }"
+              >
+                {{ item.name }}
+              </router-link>
             </template>
-          </v-col>
-        </v-row>
-
-        <v-row>
-          <v-col cols="2" class="font-weight-bold">
-            {{ $t('_global.author') }}
-          </v-col>
-          <v-col cols="10">
-            {{ props.itemOverview.activity_subgroup.author_username }}
-          </v-col>
-        </v-row>
-
-        <v-row>
-          <v-col cols="2" class="font-weight-bold">
-            {{ $t('_global.definition') }}
-          </v-col>
-          <v-col cols="10">
-            <template v-if="props.itemOverview.activity_subgroup.definition">
-              {{ props.itemOverview.activity_subgroup.definition }}
+            <template #[`item.status`]="{ item }">
+              <StatusChip :status="item.status" />
             </template>
-          </v-col>
-        </v-row>
-
-        <!-- Activity Groups List -->
-        <v-row>
-          <v-col cols="2" class="font-weight-bold">
-            {{ $t('ActivityOverview.activity_group') }}
-          </v-col>
-          <v-col cols="10">
-            <v-table>
-              <thead>
-                <tr>
-                  <th width="70%">{{ $t('_global.name') }}</th>
-                  <th width="15%">{{ $t('_global.version') }}</th>
-                  <th width="15%">{{ $t('_global.status') }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="group in props.itemOverview.activity_subgroup
-                    .activity_groups"
-                  :key="group.uid"
-                >
-                  <td>
-                    <router-link
-                      :to="{
-                        name: 'GroupOverview',
-                        params: { id: group.uid, version: group.version },
-                      }"
-                    >
-                      {{ group.name }}
-                    </router-link>
-                  </td>
-                  <td>{{ group.version }}</td>
-                  <td>
-                    <StatusChip :status="group.status" />
-                  </td>
-                </tr>
-              </tbody>
-            </v-table>
-          </v-col>
-        </v-row>
-
-        <!-- Activities List -->
-        <v-row>
-          <v-col cols="2" class="font-weight-bold">
-            {{ $t('ActivityOverview.activities') }}
-          </v-col>
-          <v-col cols="10">
-            <v-table>
-              <thead>
-                <tr>
-                  <th width="70%">{{ $t('_global.name') }}</th>
-                  <th width="15%">{{ $t('_global.version') }}</th>
-                  <th width="15%">{{ $t('_global.status') }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="activity in props.itemOverview.activities"
-                  :key="activity.uid"
-                >
-                  <td>
-                    <router-link
-                      :to="{
-                        name: 'ActivityOverview',
-                        params: { id: activity.uid },
-                      }"
-                    >
-                      {{ activity.name }}
-                    </router-link>
-                  </td>
-                  <td>{{ activity.version }}</td>
-                  <td>
-                    <StatusChip :status="activity.status" />
-                  </td>
-                </tr>
-              </tbody>
-            </v-table>
-          </v-col>
-        </v-row>
+            <template #no-data>
+              <div class="text-center py-4">
+                <span class="text-body-1 text-grey-darken-1">
+                  {{ $t('SubgroupOverview.noItemsAvailable') }}
+                </span>
+              </div>
+            </template>
+          </NNTable>
+        </div>
       </template>
 
       <template #itemForm="{ show, item, close }">
@@ -209,13 +182,16 @@
 </template>
 
 <script setup>
-import { onMounted, ref, defineAsyncComponent } from 'vue'
+import { onMounted, ref, defineAsyncComponent, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
+import activitiesApi from '@/api/activities'
 
 import BaseActivityOverview from './BaseActivityOverview.vue'
 import StatusChip from '@/components/tools/StatusChip.vue'
+import ActivitySummary from '@/components/library/ActivitySummary.vue'
+import NNTable from '@/components/tools/NNTable.vue'
 
 const ActivitiesGroupsForm = defineAsyncComponent(
   () => import('@/components/library/ActivitiesGroupsForm.vue')
@@ -248,6 +224,31 @@ const appStore = useAppStore()
 const overview = ref()
 const groupFormRef = ref()
 
+// Table data and loading states
+const groups = ref([])
+const activitiesList = ref([])
+const originalActivitiesList = ref([]) // Store original list for restoring after search
+const groupsTotal = ref(0)
+const activitiesTotal = ref(0)
+const isLoadingGroups = ref(true)
+const isLoadingActivities = ref(true)
+const tableOptions = ref({
+  search: '',
+  sortBy: [],
+  sortDesc: [],
+  page: 1,
+  itemsPerPage: 10,
+})
+
+// Separate setting just for activities pagination
+const activitiesPagination = ref({
+  page: 1,
+  itemsPerPage: 10,
+})
+
+// Initial sort order for tables
+const initialSort = ref([{ key: 'name', order: 'asc' }])
+
 const historyHeaders = [
   { title: t('_global.library'), key: 'library_name' },
   { title: t('_global.name'), key: 'name' },
@@ -256,6 +257,30 @@ const historyHeaders = [
   { title: t('_global.start_date'), key: 'start_date' },
   { title: t('_global.end_date'), key: 'end_date' },
   { title: t('_global.status'), key: 'status' },
+]
+
+// Headers for groups table
+const groupsHeaders = [
+  { title: t('_global.name'), key: 'name', align: 'start', sortable: true },
+  {
+    title: t('_global.version'),
+    key: 'version',
+    align: 'start',
+    sortable: true,
+  },
+  { title: t('_global.status'), key: 'status', align: 'start', sortable: true },
+]
+
+// Headers for activities table
+const activitiesHeaders = [
+  { title: t('_global.name'), key: 'name', align: 'start', sortable: true },
+  {
+    title: t('_global.version'),
+    key: 'version',
+    align: 'start',
+    sortable: true,
+  },
+  { title: t('_global.status'), key: 'status', align: 'start', sortable: true },
 ]
 
 function transformItem(item) {
@@ -273,11 +298,185 @@ async function changeVersion(subgroup, version) {
   emit('refresh')
 }
 
+function itemMatchesSearch(item, searchTerm) {
+  if (!searchTerm || searchTerm === '') return true
+
+  const term = searchTerm.toLowerCase()
+
+  if (item.name?.toLowerCase().includes(term)) return true
+  if (item.description?.toLowerCase().includes(term)) return true
+  if (item.definition?.toLowerCase().includes(term)) return true
+  if (item.version && item.version.toString().toLowerCase().includes(term))
+    return true
+  if (item.status?.toLowerCase().includes(term)) return true
+  if (item.abbreviation?.toLowerCase().includes(term)) return true
+  if (item.author?.toLowerCase().includes(term)) return true
+
+  return false
+}
+
+function handleFilter(filters, options, targetTable) {
+  tableOptions.value.page = 1
+
+  const searchTerm =
+    options && options.search && typeof options.search === 'string'
+      ? options.search.toLowerCase()
+      : filters && filters.search && typeof filters.search === 'string'
+        ? filters.search.toLowerCase()
+        : ''
+
+  if (targetTable === 'groups') {
+    if (searchTerm) {
+      const filteredGroups =
+        props.itemOverview.activity_subgroup.activity_groups.filter((group) => {
+          return itemMatchesSearch(group, searchTerm)
+        })
+      groups.value = filteredGroups
+      groupsTotal.value = filteredGroups.length
+    } else {
+      groups.value = [...props.itemOverview.activity_subgroup.activity_groups]
+      groupsTotal.value =
+        props.itemOverview.activity_subgroup.activity_groups.length
+    }
+  } else if (targetTable === 'activities') {
+    if (searchTerm) {
+      const filteredActivities = originalActivitiesList.value.filter(
+        (activity) => {
+          return itemMatchesSearch(activity, searchTerm)
+        }
+      )
+      activitiesList.value = filteredActivities
+      activitiesTotal.value = filteredActivities.length
+    } else {
+      if (originalActivitiesList.value.length > 0) {
+        activitiesList.value = [...originalActivitiesList.value]
+        activitiesTotal.value = originalActivitiesList.value.length
+      } else {
+        activitiesList.value = []
+        activitiesTotal.value = 0
+      }
+    }
+  }
+}
+
+// Handles pagination for groups table
+function updateTableOptions(options) {
+  if (!options) return
+
+  // Store sort options separately to prevent losing them
+  if (options.sortBy && options.sortBy.length > 0) {
+    tableOptions.value.sortBy = [...options.sortBy]
+  }
+
+  // Update page and items per page
+  tableOptions.value.page = options.page
+  tableOptions.value.itemsPerPage = options.itemsPerPage
+}
+
+// Separate handler for activities pagination
+function updateActivitiesOptions(options) {
+  if (!options) return
+
+  // Store sort options
+  if (options.sortBy && options.sortBy.length > 0) {
+    tableOptions.value.sortBy = [...options.sortBy] // Still use main table options for sort
+  }
+
+  // Only fetch new data if page or items per page has changed
+  if (
+    options.page !== activitiesPagination.value.page ||
+    options.itemsPerPage !== activitiesPagination.value.itemsPerPage
+  ) {
+    activitiesPagination.value.page = options.page
+    activitiesPagination.value.itemsPerPage = options.itemsPerPage
+
+    // Only fetch activities if we have a valid subgroup ID
+    if (props.itemUid) {
+      fetchActivities()
+    }
+  }
+}
+
+async function fetchActivities() {
+  isLoadingActivities.value = true
+
+  try {
+    const options = {
+      version: props.itemOverview?.activity_subgroup?.version,
+      page_number: activitiesPagination.value.page,
+      page_size: activitiesPagination.value.itemsPerPage,
+      total_count: true,
+    }
+
+    const response = await activitiesApi.getSubgroupActivities(
+      props.itemUid,
+      options
+    )
+
+    if (response && response.data) {
+      // Check if response has new paginated structure
+      if (response.data.items) {
+        // New paginated structure
+        activitiesList.value = response.data.items
+        originalActivitiesList.value = [...response.data.items]
+        activitiesTotal.value = response.data.total || 0
+      } else {
+        // Handle legacy non-paginated response
+        activitiesList.value = response.data
+        originalActivitiesList.value = [...response.data]
+        activitiesTotal.value = response.data.length
+      }
+    } else {
+      activitiesList.value = []
+      originalActivitiesList.value = []
+      activitiesTotal.value = 0
+    }
+  } catch (error) {
+    console.error('Error fetching activities:', error)
+    activitiesList.value = []
+    originalActivitiesList.value = []
+    activitiesTotal.value = 0
+  } finally {
+    isLoadingActivities.value = false
+  }
+}
+
 function allVersions(item) {
   return [...item.all_versions].sort().reverse()
 }
 
+let lastFetchedVersion = null
+
+watch(
+  () => props.itemOverview?.activity_subgroup,
+  (newSubgroup) => {
+    if (newSubgroup && newSubgroup.activity_groups) {
+      isLoadingGroups.value = true
+      groups.value = [...newSubgroup.activity_groups]
+      groupsTotal.value = newSubgroup.activity_groups.length
+      isLoadingGroups.value = false
+
+      const currentVersion = newSubgroup.version
+      if (lastFetchedVersion !== currentVersion) {
+        lastFetchedVersion = currentVersion
+        fetchActivities()
+      }
+    } else {
+      groups.value = []
+      groupsTotal.value = 0
+    }
+  },
+  { immediate: true }
+)
+
+let hasInitiallyFetchedActivities = false
+
 onMounted(() => {
+  if (!hasInitiallyFetchedActivities) {
+    hasInitiallyFetchedActivities = true
+    fetchActivities()
+  }
+
   appStore.addBreadcrumbsLevel(
     t('Sidebar.library.concepts'),
     { name: 'Activities' },
@@ -294,7 +493,7 @@ onMounted(() => {
 
   appStore.addBreadcrumbsLevel(
     t('Sidebar.library.activities_subgroups'),
-    { name: 'Activities' },
+    { name: 'Activities', params: { tab: 'activity-subgroups' } },
     3,
     true
   )
@@ -313,3 +512,117 @@ onMounted(() => {
   )
 })
 </script>
+
+<style scoped>
+/* Subgroup overview container styling */
+.subgroup-overview-container {
+  width: 100%;
+  background-color: transparent;
+}
+
+/* Summary section styling */
+.summary-section {
+  margin-bottom: 24px;
+}
+
+/* Section header styling */
+.section-header {
+  margin-top: 16px;
+  margin-bottom: 8px;
+  padding-left: 0;
+}
+
+/* Tables styling */
+.groups-table,
+.activities-table {
+  margin-top: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: none;
+  background-color: transparent;
+}
+
+/* Table content styling */
+.groups-table :deep(table),
+.activities-table :deep(table) {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.groups-table :deep(th),
+.activities-table :deep(th) {
+  background-color: var(--semantic-system-brand, #001965);
+  color: white;
+  font-weight: 500;
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.groups-table :deep(td),
+.activities-table :deep(td) {
+  padding: 8px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: white !important;
+}
+
+.groups-table :deep(.v-card-text),
+.activities-table :deep(.v-card-text) {
+  width: 100% !important;
+  padding: 0 !important;
+}
+
+.groups-table :deep(.v-table__wrapper),
+.activities-table :deep(.v-table__wrapper) {
+  height: auto !important;
+}
+
+.groups-table :deep(.v-card-title),
+.activities-table :deep(.v-card-title) {
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: transparent;
+}
+
+.groups-table :deep(.v-card__title .v-input),
+.activities-table :deep(.v-card__title .v-input) {
+  max-width: 300px;
+  margin-right: auto;
+}
+
+.groups-table :deep(.v-data-table-footer),
+.activities-table :deep(.v-data-table-footer) {
+  border-top: 1px solid #e0e0e0;
+  background-color: transparent !important;
+}
+
+.subgroup-overview-container :deep(.v-table),
+.groups-table :deep(.v-table),
+.activities-table :deep(.v-table) {
+  background: transparent !important;
+}
+
+.subgroup-overview-container :deep(.v-data-table__th),
+.groups-table :deep(.v-data-table__th),
+.activities-table :deep(.v-data-table__th) {
+  background-color: rgb(var(--v-theme-nnTrueBlue)) !important;
+}
+
+.subgroup-overview-container :deep(.v-data-table__tbody tr),
+.groups-table :deep(.v-data-table__tbody tr),
+.activities-table :deep(.v-data-table__tbody tr) {
+  background-color: white !important;
+}
+
+.subgroup-overview-container :deep(.v-card),
+.subgroup-overview-container :deep(.v-sheet),
+.groups-table :deep(.v-card),
+.groups-table :deep(.v-sheet),
+.activities-table :deep(.v-card),
+.activities-table :deep(.v-sheet) {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+</style>

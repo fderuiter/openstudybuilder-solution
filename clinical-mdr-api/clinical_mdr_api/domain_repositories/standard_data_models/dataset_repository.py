@@ -1,3 +1,5 @@
+from typing import Any
+
 from clinical_mdr_api.domain_repositories.models.standard_data_model import (
     Dataset,
     DatasetInstance,
@@ -33,7 +35,7 @@ class DatasetRepository(StandardDataModelRepository):
                 OPTIONAL MATCH (dataset_class_value)<-[has_dataset_class:HAS_DATASET_CLASS]-(:DataModelValue)<-[:IMPLEMENTS]-(data_model_ig_value)
 """
 
-    def create_query_filter_statement(self, **kwargs) -> tuple[str, dict]:
+    def create_query_filter_statement(self, **kwargs) -> tuple[str, dict[Any, Any]]:
         (
             filter_statements_from_standard,
             filter_query_parameters,
@@ -73,7 +75,7 @@ class DatasetRepository(StandardDataModelRepository):
             )
         return filter_statements_to_return, filter_query_parameters
 
-    def sort_by(self) -> dict | None:
+    def sort_by(self) -> dict[str, bool] | None:
         return {"data_model_ig.ordinal": True}
 
     def specific_alias_clause(self) -> str:

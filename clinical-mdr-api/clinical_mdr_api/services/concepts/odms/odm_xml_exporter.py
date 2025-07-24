@@ -59,8 +59,8 @@ class OdmXmlExporterService:
     odm_data_extractor: OdmDataExtractor
     xml_document: Document
     odm: ODM
-    used_vendor_namespaces: dict[str, dict]
-    allowed_namespaces: list[str] | None
+    used_vendor_namespaces: dict[str, dict[str, Any]]
+    allowed_namespaces: list[str]
     pdf: bool | None
     stylesheet: str | None
 
@@ -581,6 +581,9 @@ class OdmXmlExporterService:
                     origin=Attribute("Origin", item.origin),
                     datatype=Attribute("DataType", item.datatype.lower()),
                     length=Attribute("Length", item.length),
+                    significant_digits=Attribute(
+                        "SignificantDigits", item.significant_digits
+                    ),
                     sas_field_name=Attribute("SASFieldName", item.sas_field_name),
                     sds_var_name=Attribute("SDSVarName", item.sds_var_name),
                     **self._get_vendor_attributes_or_empty_dict(

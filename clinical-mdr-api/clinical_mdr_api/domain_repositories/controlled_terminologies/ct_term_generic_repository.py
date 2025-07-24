@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any, Iterable, cast
+from typing import Any, Generic, Iterable, cast
 
 from cachetools import cached
 from cachetools.keys import hashkey
@@ -50,7 +50,9 @@ from common.exceptions import (
 )
 
 
-class CTTermGenericRepository(LibraryItemRepositoryImplBase[_AggregateRootType], ABC):
+class CTTermGenericRepository(
+    LibraryItemRepositoryImplBase, Generic[_AggregateRootType], ABC
+):
     root_class = type
     value_class = type
     relationship_from_root = type
@@ -143,7 +145,7 @@ class CTTermGenericRepository(LibraryItemRepositoryImplBase[_AggregateRootType],
 
     @abstractmethod
     def _create_aggregate_root_instance_from_cypher_result(
-        self, term_dict: dict
+        self, term_dict: dict[str, Any]
     ) -> _AggregateRootType:
         """
         Creates aggregate root instances from cypher query result.
@@ -192,10 +194,10 @@ class CTTermGenericRepository(LibraryItemRepositoryImplBase[_AggregateRootType],
         library_name: str | None = None,
         package: str | None = None,
         in_codelist: bool = False,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         **_kwargs,
@@ -279,7 +281,7 @@ class CTTermGenericRepository(LibraryItemRepositoryImplBase[_AggregateRootType],
         library: str | None = None,
         package: str | None = None,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
     ) -> list[Any]:
@@ -412,10 +414,11 @@ class CTTermGenericRepository(LibraryItemRepositoryImplBase[_AggregateRootType],
         codelist_name: str | None = None,
         include_retired_versions: bool = False,
     ) -> _AggregateRootType | None:
+        ct_term_root: CTTermRoot
         if not codelist_name:
-            ct_term_root: CTTermRoot = CTTermRoot.nodes.get_or_none(uid=term_uid)
+            ct_term_root = CTTermRoot.nodes.get_or_none(uid=term_uid)
         else:
-            ct_term_root: CTTermRoot = CTTermRoot.nodes.filter(
+            ct_term_root = CTTermRoot.nodes.filter(
                 has_term__has_name_root__has_latest_value__name=codelist_name,
             ).get_or_none(uid=term_uid)[0]
         if ct_term_root is None:
@@ -588,7 +591,7 @@ class CTTermGenericRepository(LibraryItemRepositoryImplBase[_AggregateRootType],
         library_name: str | None = None,
         package: str | None = None,
         in_codelist: bool = False,
-    ) -> tuple[str, dict]:
+    ) -> tuple[str, dict[Any, Any]]:
         if package:
             if self.is_repository_related_to_attributes():
                 match_clause = """
@@ -606,7 +609,7 @@ class CTTermGenericRepository(LibraryItemRepositoryImplBase[_AggregateRootType],
             MATCH (term_root:CTTermRoot)-[:{cast(str, self.relationship_from_root).upper()}]->(term_ver_root)-[:LATEST_FINAL]->(term_ver_value)
             """
 
-        filter_query_parameters = {}
+        filter_query_parameters: dict[Any, Any] = {}
         if library_name or package:
             # Build specific filtering for package and library
             # This is separate from generic filtering as the list of filters is predefined

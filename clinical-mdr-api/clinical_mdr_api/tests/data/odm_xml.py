@@ -33,7 +33,7 @@ export_study_event = """<?xml version="1.0" encoding="utf-8"?>
                                 <Alias Name="name1" Context="context1" osb:version="0.1" />
                                 <ItemRef ItemOID="oid1" Mandatory="Yes" OrderNumber="1" MethodOID="oid1" CollectionExceptionConditionOID="oid1" prefix:nameThree="No" />
                             </ItemGroupDef>
-                            <ItemDef OID="oid1" Name="name1" Origin="origin1" DataType="datatype1" Length="1" SASFieldName="sasfieldname1" SDSVarName="sdsvarname1" osb:version="1.0" osb:instruction="instruction1" osb:sponsorInstruction="sponsor_instruction1">
+                            <ItemDef OID="oid1" Name="name1" Origin="origin1" DataType="string" Length="1" SignificantDigits="1" SASFieldName="sasfieldname1" SDSVarName="sdsvarname1" osb:version="1.0" osb:instruction="instruction1" osb:sponsorInstruction="sponsor_instruction1">
                                 <Question>
                                     <TranslatedText xml:lang="en" osb:version="1.0">name1</TranslatedText>
                                 </Question>
@@ -105,7 +105,7 @@ export_form = """<?xml version="1.0" encoding="utf-8"?>
                 <Alias Name="name1" Context="context1" osb:version="0.1" />
                 <ItemRef ItemOID="oid1" Mandatory="Yes" OrderNumber="1" MethodOID="oid1" CollectionExceptionConditionOID="oid1" prefix:nameThree="No" />
             </ItemGroupDef>
-            <ItemDef OID="oid1" Name="name1" Origin="origin1" DataType="datatype1" Length="1" SASFieldName="sasfieldname1" SDSVarName="sdsvarname1" osb:version="1.0" osb:instruction="instruction1" osb:sponsorInstruction="sponsor_instruction1">
+            <ItemDef OID="oid1" Name="name1" Origin="origin1" DataType="string" Length="1" SignificantDigits="1" SASFieldName="sasfieldname1" SDSVarName="sdsvarname1" osb:version="1.0" osb:instruction="instruction1" osb:sponsorInstruction="sponsor_instruction1">
                 <Question>
                     <TranslatedText xml:lang="en" osb:version="1.0">name1</TranslatedText>
                 </Question>
@@ -169,7 +169,7 @@ export_item_group = """<?xml version="1.0" encoding="utf-8"?>
                 <Alias Name="name1" Context="context1" osb:version="0.1" />
                 <ItemRef ItemOID="oid1" Mandatory="Yes" OrderNumber="1" MethodOID="oid1" CollectionExceptionConditionOID="oid1" prefix:nameThree="No" />
             </ItemGroupDef>
-            <ItemDef OID="oid1" Name="name1" Origin="origin1" DataType="datatype1" Length="1" SASFieldName="sasfieldname1" SDSVarName="sdsvarname1" osb:version="1.0" osb:instruction="instruction1" osb:sponsorInstruction="sponsor_instruction1">
+            <ItemDef OID="oid1" Name="name1" Origin="origin1" DataType="string" Length="1" SignificantDigits="1" SASFieldName="sasfieldname1" SDSVarName="sdsvarname1" osb:version="1.0" osb:instruction="instruction1" osb:sponsorInstruction="sponsor_instruction1">
                 <Question>
                     <TranslatedText xml:lang="en" osb:version="1.0">name1</TranslatedText>
                 </Question>
@@ -219,7 +219,7 @@ export_item = """<?xml version="1.0" encoding="utf-8"?>
                             </MeasurementUnit>
                         </BasicDefinitions>
                         <MetaDataVersion OID="MDV.0.1" Name="MDV.0.1" Description="Draft version">
-                            <ItemDef OID="oid1" Name="name1" Origin="origin1" DataType="datatype1" Length="1" SASFieldName="sasfieldname1"
+                            <ItemDef OID="oid1" Name="name1" Origin="origin1" DataType="string" Length="1" SignificantDigits="1" SASFieldName="sasfieldname1"
                             SDSVarName="sdsvarname1" osb:version="1.0" osb:instruction="instruction1" osb:sponsorInstruction="sponsor_instruction1">
                                 <Question>
                                     <TranslatedText xml:lang="en" osb:version="1.0">name1</TranslatedText>
@@ -278,7 +278,7 @@ export_with_csv = """<?xml version="1.0" encoding="utf-8"?>
                 <Alias Name="instruction1" Context="CompletionInstructions" />
                 <Alias Name="sponsor_instruction1" Context="ImplementationNotes" />
             </ItemGroupDef>
-            <ItemDef OID="oid1" Name="name1" Origin="origin1" DataType="datatype1" Length="1" SASFieldName="sasfieldname1" SDSVarName="sdsvarname1" osb:version="1.0" CompletionInstructions="instruction1" ImplementationNotes="sponsor_instruction1">
+            <ItemDef OID="oid1" Name="name1" Origin="origin1" DataType="string" Length="1" SignificantDigits="1" SASFieldName="sasfieldname1" SDSVarName="sdsvarname1" osb:version="1.0" CompletionInstructions="instruction1" ImplementationNotes="sponsor_instruction1">
                 <Question>
                     <TranslatedText xml:lang="en" osb:version="1.0">name1</TranslatedText>
                 </Question>
@@ -350,7 +350,7 @@ export_with_namespace = """<?xml version="1.0" encoding="utf-8"?>
                 <Alias Name="name1" Context="context1" />
                 <ItemRef ItemOID="oid1" Mandatory="Yes" OrderNumber="1" MethodOID="oid1" CollectionExceptionConditionOID="oid1" prefix:nameThree="No" />
             </ItemGroupDef>
-            <ItemDef OID="oid1" Name="name1" Origin="origin1" DataType="datatype1" Length="1" SASFieldName="sasfieldname1" SDSVarName="sdsvarname1">
+            <ItemDef OID="oid1" Name="name1" Origin="origin1" DataType="string" Length="1" SignificantDigits="1" SASFieldName="sasfieldname1" SDSVarName="sdsvarname1">
                 <Question>
                     <TranslatedText xml:lang="en">name1</TranslatedText>
                 </Question>
@@ -496,7 +496,7 @@ import_input1 = """<?xml version="1.0" encoding="utf-8"?>
                         </Description>
                         <osb:Sometag osb:someAttr="a value" osb:version="1.0">inner text</osb:Sometag>
                     </ItemDef>
-                    <ItemDef OID="I.RFICDAT" Name="Date informed consent obtained" Origin="Collected Value" DataType="date" Length="10" SASFieldName="RFICDAT" SDSVarName="RFICDTC, DSSTDTC" osb:version="1.0" osb:instruction="item instruction" osb:sponsorInstruction="item sponsor instruction">
+                    <ItemDef OID="I.RFICDAT" Name="Date informed consent obtained" Origin="Collected Value" DataType="date" SASFieldName="RFICDAT" SDSVarName="RFICDTC, DSSTDTC" osb:version="1.0" osb:instruction="item instruction" osb:sponsorInstruction="item sponsor instruction">
                         <Question>
                             <TranslatedText xml:lang="en" osb:version="0.1">Date informed consent obtained</TranslatedText>
                         </Question>
@@ -504,7 +504,7 @@ import_input1 = """<?xml version="1.0" encoding="utf-8"?>
                             <TranslatedText xml:lang="en" osb:version="0.1">Informed Consent DATE</TranslatedText>
                         </Description>
                     </ItemDef>
-                    <ItemDef OID="I.RFICDATLAR2" Name="Date informed consent obtained by Parents/Legally Acceptable Representative (LAR) Only to be completed in countries where Informed Consent from both parents is required [de-activated]" Origin="Collected Value" DataType="date" Length="10" SASFieldName="RFICDAT" SDSVarName="RFICDTC, DSSTDTC" osb:version="1.0" osb:instruction="item instruction" osb:sponsorInstruction="item sponsor instruction">
+                    <ItemDef OID="I.RFICDATLAR2" Name="Date informed consent obtained by Parents/Legally Acceptable Representative (LAR) Only to be completed in countries where Informed Consent from both parents is required [de-activated]" Origin="Collected Value" DataType="date" SASFieldName="RFICDAT" SDSVarName="RFICDTC, DSSTDTC" osb:version="1.0" osb:instruction="item instruction" osb:sponsorInstruction="item sponsor instruction">
                         <Question>
                             <TranslatedText xml:lang="en" osb:version="0.1">Date informed consent obtained by Parents/Legally Acceptable Representative (LAR) Only to be completed in countries where Informed Consent from both parents is required [de-activated ]</TranslatedText>
                         </Question>
@@ -512,7 +512,7 @@ import_input1 = """<?xml version="1.0" encoding="utf-8"?>
                             <TranslatedText xml:lang="en" osb:version="0.1">Informed Consent DATE (Legal or authorised representative 2)</TranslatedText>
                         </Description>
                     </ItemDef>
-                    <ItemDef OID="I.RFICDATLAR1" Name="Date informed consent obtained by Parents/Legally Acceptable Representative (LAR) [de-activated]" Origin="Collected Value" DataType="date" Length="10" SASFieldName="RFICDAT" SDSVarName="RFICDTC, DSSTDTC" osb:version="1.0" osb:instruction="item instruction" osb:sponsorInstruction="item sponsor instruction">
+                    <ItemDef OID="I.RFICDATLAR1" Name="Date informed consent obtained by Parents/Legally Acceptable Representative (LAR) [de-activated]" Origin="Collected Value" DataType="date" SASFieldName="RFICDAT" SDSVarName="RFICDTC, DSSTDTC" osb:version="1.0" osb:instruction="item instruction" osb:sponsorInstruction="item sponsor instruction">
                         <Question>
                             <TranslatedText xml:lang="en" osb:version="0.1">Date informed consent obtained by Parents/Legally Acceptable Representative (LAR) [de-activated ]</TranslatedText>
                         </Question>
@@ -520,7 +520,7 @@ import_input1 = """<?xml version="1.0" encoding="utf-8"?>
                             <TranslatedText xml:lang="en" osb:version="0.1">Informed Consent Date (Legal or authorised representative 1)</TranslatedText>
                         </Description>
                     </ItemDef>
-                    <ItemDef OID="I.BRTHDTC" Name="Date of birth" Origin="Collected Value" DataType="date" Length="10" SASFieldName="BRTHDAT" SDSVarName="BRTHDTC" osb:version="1.0" osb:instruction="item instruction" osb:sponsorInstruction="item sponsor instruction">
+                    <ItemDef OID="I.BRTHDTC" Name="Date of birth" Origin="Collected Value" DataType="date" SASFieldName="BRTHDAT" SDSVarName="BRTHDTC" osb:version="1.0" osb:instruction="item instruction" osb:sponsorInstruction="item sponsor instruction">
                         <Question>
                             <TranslatedText xml:lang="en" osb:version="0.1">Date of birth</TranslatedText>
                         </Question>
@@ -528,7 +528,7 @@ import_input1 = """<?xml version="1.0" encoding="utf-8"?>
                             <TranslatedText xml:lang="en" osb:version="0.1">Date of birth</TranslatedText>
                         </Description>
                     </ItemDef>
-                    <ItemDef OID="I.BRTHDTCARGUS" Name="Date of birth (only for Argus interface) [hidden]" Origin="Collected Value" DataType="date" Length="10" SASFieldName="BRTHDAT" SDSVarName="BRTHDTC" osb:version="1.0" osb:instruction="item instruction" osb:sponsorInstruction="item sponsor instruction">
+                    <ItemDef OID="I.BRTHDTCARGUS" Name="Date of birth (only for Argus interface) [hidden]" Origin="Collected Value" DataType="date" SASFieldName="BRTHDAT" SDSVarName="BRTHDTC" osb:version="1.0" osb:instruction="item instruction" osb:sponsorInstruction="item sponsor instruction">
                         <Question>
                             <TranslatedText xml:lang="en" osb:version="0.1">Date of birth (only for Argus interface) [hidden ]</TranslatedText>
                         </Question>
@@ -536,7 +536,7 @@ import_input1 = """<?xml version="1.0" encoding="utf-8"?>
                             <TranslatedText xml:lang="en" osb:version="0.1">Date of birth (only for Argus interface) [hidden ]</TranslatedText>
                         </Description>
                     </ItemDef>
-                    <ItemDef OID="I.VSDAT" Name="Date of examination" Origin="Collected Value" DataType="date" Length="10" SASFieldName="VSDAT" SDSVarName="VSDTC" osb:version="1.0" osb:instruction="item instruction" osb:sponsorInstruction="item sponsor instruction">
+                    <ItemDef OID="I.VSDAT" Name="Date of examination" Origin="Collected Value" DataType="date" SASFieldName="VSDAT" SDSVarName="VSDTC" osb:version="1.0" osb:instruction="item instruction" osb:sponsorInstruction="item sponsor instruction">
                         <Question>
                             <TranslatedText xml:lang="en" osb:version="0.1">Date of examination</TranslatedText>
                         </Question>
@@ -561,7 +561,7 @@ import_input1 = """<?xml version="1.0" encoding="utf-8"?>
                             <TranslatedText xml:lang="en" osb:version="0.1">Ethinicity</TranslatedText>
                         </Description>
                     </ItemDef>
-                    <ItemDef OID="I.RFICTIMLAR1" Name="Informed Consent TIME obtained by Parents/Legally Acceptable Representative (LAR) [de-activated]" Origin="Collected Value" DataType="time" Length="5" SASFieldName="RFICTIM" SDSVarName="RFICDTC, DSSTDTC" osb:version="1.0" osb:instruction="item instruction" osb:sponsorInstruction="item sponsor instruction">
+                    <ItemDef OID="I.RFICTIMLAR1" Name="Informed Consent TIME obtained by Parents/Legally Acceptable Representative (LAR) [de-activated]" Origin="Collected Value" DataType="time" SASFieldName="RFICTIM" SDSVarName="RFICDTC, DSSTDTC" osb:version="1.0" osb:instruction="item instruction" osb:sponsorInstruction="item sponsor instruction">
                         <Question>
                             <TranslatedText xml:lang="en" osb:version="0.1">Informed Consent TIME obtained by Parents/Legally Acceptable Representative (LAR) [de-activated ]</TranslatedText>
                         </Question>
@@ -569,7 +569,7 @@ import_input1 = """<?xml version="1.0" encoding="utf-8"?>
                             <TranslatedText xml:lang="en" osb:version="0.1">Informed Consent Time (Legal or authorised representative 1)</TranslatedText>
                         </Description>
                     </ItemDef>
-                    <ItemDef OID="I.RFICTIMLAR2" Name="Informed Consent Time obtained by Parents/Legally Acceptable Representative (LAR) Only to be completed in countries where Informed Consent from both parents is required [de-activated]" Origin="Collected Value" DataType="time" Length="5" SASFieldName="RFICTIM" SDSVarName="RFICDTC, DSSTDTC" osb:version="1.0" osb:instruction="item instruction" osb:sponsorInstruction="item sponsor instruction">
+                    <ItemDef OID="I.RFICTIMLAR2" Name="Informed Consent Time obtained by Parents/Legally Acceptable Representative (LAR) Only to be completed in countries where Informed Consent from both parents is required [de-activated]" Origin="Collected Value" DataType="time" SASFieldName="RFICTIM" SDSVarName="RFICDTC, DSSTDTC" osb:version="1.0" osb:instruction="item instruction" osb:sponsorInstruction="item sponsor instruction">
                         <Question>
                             <TranslatedText xml:lang="en" osb:version="0.1">Informed Consent Time obtained by Parents/Legally Acceptable Representative (LAR) Only to be completed in countries where Informed Consent from both parents is required [de-activated ]</TranslatedText>
                         </Question>
@@ -668,7 +668,7 @@ import_input1 = """<?xml version="1.0" encoding="utf-8"?>
                         </Description>
                         <MeasurementUnitRef MeasurementUnitOID="unit_definition_root1" />
                     </ItemDef>
-                    <ItemDef OID="I.RFICTIM" Name="Time informed consent obtained" Origin="Collected Value" DataType="time" Length="5" SASFieldName="RFICTIM" SDSVarName="RFICDTC, DSSTDTC" osb:version="1.0" osb:instruction="item instruction" osb:sponsorInstruction="item sponsor instruction">
+                    <ItemDef OID="I.RFICTIM" Name="Time informed consent obtained" Origin="Collected Value" DataType="time" SASFieldName="RFICTIM" SDSVarName="RFICDTC, DSSTDTC" osb:version="1.0" osb:instruction="item instruction" osb:sponsorInstruction="item sponsor instruction">
                         <Question>
                             <TranslatedText xml:lang="en" osb:version="0.1">Time informed consent obtained</TranslatedText>
                         </Question>
@@ -2368,7 +2368,7 @@ import_output1 = {
             "oid": "I.RFICDAT",
             "prompt": "",
             "datatype": "date",
-            "length": 10,
+            "length": None,
             "significant_digits": None,
             "sas_field_name": "RFICDAT",
             "sds_var_name": "RFICDTC, DSSTDTC",
@@ -2408,7 +2408,7 @@ import_output1 = {
             "oid": "I.RFICDATLAR2",
             "prompt": "",
             "datatype": "date",
-            "length": 10,
+            "length": None,
             "significant_digits": None,
             "sas_field_name": "RFICDAT",
             "sds_var_name": "RFICDTC, DSSTDTC",
@@ -2448,7 +2448,7 @@ import_output1 = {
             "oid": "I.RFICDATLAR1",
             "prompt": "",
             "datatype": "date",
-            "length": 10,
+            "length": None,
             "significant_digits": None,
             "sas_field_name": "RFICDAT",
             "sds_var_name": "RFICDTC, DSSTDTC",
@@ -2488,7 +2488,7 @@ import_output1 = {
             "oid": "I.BRTHDTC",
             "prompt": "",
             "datatype": "date",
-            "length": 10,
+            "length": None,
             "significant_digits": None,
             "sas_field_name": "BRTHDAT",
             "sds_var_name": "BRTHDTC",
@@ -2528,7 +2528,7 @@ import_output1 = {
             "oid": "I.BRTHDTCARGUS",
             "prompt": "",
             "datatype": "date",
-            "length": 10,
+            "length": None,
             "significant_digits": None,
             "sas_field_name": "BRTHDAT",
             "sds_var_name": "BRTHDTC",
@@ -2568,7 +2568,7 @@ import_output1 = {
             "oid": "I.VSDAT",
             "prompt": "",
             "datatype": "date",
-            "length": 10,
+            "length": None,
             "significant_digits": None,
             "sas_field_name": "VSDAT",
             "sds_var_name": "VSDTC",
@@ -2701,7 +2701,7 @@ import_output1 = {
             "oid": "I.RFICTIMLAR1",
             "prompt": "",
             "datatype": "time",
-            "length": 5,
+            "length": None,
             "significant_digits": None,
             "sas_field_name": "RFICTIM",
             "sds_var_name": "RFICDTC, DSSTDTC",
@@ -2741,7 +2741,7 @@ import_output1 = {
             "oid": "I.RFICTIMLAR2",
             "prompt": "",
             "datatype": "time",
-            "length": 5,
+            "length": None,
             "significant_digits": None,
             "sas_field_name": "RFICTIM",
             "sds_var_name": "RFICDTC, DSSTDTC",
@@ -3261,7 +3261,7 @@ import_output1 = {
             "oid": "I.RFICTIM",
             "prompt": "",
             "datatype": "time",
-            "length": 5,
+            "length": None,
             "significant_digits": None,
             "sas_field_name": "RFICTIM",
             "sds_var_name": "RFICDTC, DSSTDTC",
@@ -8291,7 +8291,7 @@ clinspark_output = {
             "prompt": "",
             "datatype": "float",
             "length": 4,
-            "significant_digits": None,
+            "significant_digits": 1,
             "sas_field_name": "",
             "sds_var_name": "",
             "origin": "Protocol",
@@ -8424,7 +8424,7 @@ clinspark_output = {
             "prompt": "",
             "datatype": "float",
             "length": 4,
-            "significant_digits": None,
+            "significant_digits": 1,
             "sas_field_name": "VSTESTCD",
             "sds_var_name": "BMI",
             "origin": "Protocol",
@@ -8796,7 +8796,7 @@ clinspark_output = {
             "prompt": "",
             "datatype": "float",
             "length": 1,
-            "significant_digits": None,
+            "significant_digits": 2,
             "sas_field_name": "VSTESTCD",
             "sds_var_name": "HEIGHT",
             "origin": "CRF",
@@ -8942,7 +8942,7 @@ clinspark_output = {
             "prompt": "",
             "datatype": "float",
             "length": 3,
-            "significant_digits": None,
+            "significant_digits": 2,
             "sas_field_name": "VSTESTCD",
             "sds_var_name": "WEIGHT",
             "origin": "CRF",

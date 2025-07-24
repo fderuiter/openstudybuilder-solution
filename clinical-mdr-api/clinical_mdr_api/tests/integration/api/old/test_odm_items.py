@@ -60,7 +60,7 @@ def test_creating_a_new_odm_item(api_client):
         "name": "name1",
         "oid": "oid1",
         "prompt": "prompt1",
-        "datatype": "datatype1",
+        "datatype": "string",
         "length": 1,
         "significant_digits": 11,
         "sas_field_name": "sas_field_name1",
@@ -94,7 +94,7 @@ def test_creating_a_new_odm_item(api_client):
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 1
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -178,7 +178,7 @@ def test_getting_non_empty_list_of_odm_items(api_client):
     assert res["items"][0]["name"] == "name1"
     assert res["items"][0]["oid"] == "oid1"
     assert res["items"][0]["prompt"] == "prompt1"
-    assert res["items"][0]["datatype"] == "datatype1"
+    assert res["items"][0]["datatype"] == "string"
     assert res["items"][0]["length"] == 1
     assert res["items"][0]["significant_digits"] == 11
     assert res["items"][0]["sas_field_name"] == "sas_field_name1"
@@ -272,7 +272,7 @@ def test_getting_a_specific_odm_item(api_client):
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 1
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -356,7 +356,7 @@ def test_getting_versions_of_a_specific_odm_item(api_client):
     assert res[0]["name"] == "name1"
     assert res[0]["oid"] == "oid1"
     assert res[0]["prompt"] == "prompt1"
-    assert res[0]["datatype"] == "datatype1"
+    assert res[0]["datatype"] == "string"
     assert res[0]["length"] == 1
     assert res[0]["significant_digits"] == 11
     assert res[0]["sas_field_name"] == "sas_field_name1"
@@ -434,8 +434,8 @@ def test_updating_an_existing_odm_item(api_client):
         "name": "name1",
         "oid": "oid1",
         "prompt": "prompt1",
-        "datatype": "datatype1",
-        "length": None,
+        "datatype": "string",
+        "length": 22,
         "significant_digits": 11,
         "sas_field_name": "sas_field_name1",
         "sds_var_name": "sds_var_name1",
@@ -469,7 +469,7 @@ def test_updating_an_existing_odm_item(api_client):
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 22
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -553,7 +553,7 @@ def test_approving_an_odm_item(api_client):
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 22
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -637,7 +637,7 @@ def test_inactivating_a_specific_odm_item(api_client):
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 22
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -721,7 +721,7 @@ def test_reactivating_a_specific_odm_item(api_client):
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 22
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -808,7 +808,7 @@ def test_adding_activity_to_a_specific_odm_item(api_client):
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 22
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -895,7 +895,7 @@ def test_overriding_activity_from_a_specific_odm_item(api_client):
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 22
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -982,7 +982,7 @@ def test_adding_odm_vendor_element_to_a_specific_odm_item(api_client):
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 22
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -1071,7 +1071,7 @@ def test_overriding_odm_vendor_element_from_a_specific_odm_item(api_client):
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 22
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -1160,7 +1160,7 @@ def test_adding_odm_vendor_attribute_to_a_specific_odm_item(api_client):
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 22
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -1258,7 +1258,7 @@ def test_overriding_odm_vendor_attribute_from_a_specific_odm_item(api_client):
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 22
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -1356,7 +1356,7 @@ def test_adding_odm_vendor_element_attribute_to_a_specific_odm_item(api_client):
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 22
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -1464,7 +1464,7 @@ def test_overriding_odm_vendor_element_attribute_from_a_specific_odm_item(api_cl
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 22
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -1573,7 +1573,7 @@ def test_overriding_odm_vendor_element_attribute_from_a_specific_odm_item1(api_c
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 22
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -1677,7 +1677,7 @@ def test_creating_a_new_odm_item_version(api_client):
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 22
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -1775,7 +1775,7 @@ def test_create_a_new_odm_item_for_deleting_it(api_client):
         "name": "name1 - delete",
         "oid": "oid2",
         "prompt": "prompt1",
-        "datatype": "datatype1",
+        "datatype": "string",
         "length": 1,
         "significant_digits": 11,
         "sas_field_name": "sas_field_name1",
@@ -1809,7 +1809,7 @@ def test_create_a_new_odm_item_for_deleting_it(api_client):
     assert res["name"] == "name1 - delete"
     assert res["oid"] == "oid2"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 1
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -1902,7 +1902,7 @@ def test_creating_a_new_odm_item_with_relations(api_client):
     assert res["oid"] == "string"
     assert res["prompt"] == "string"
     assert res["datatype"] == "string"
-    assert res["length"] is None
+    assert res["length"] == 0
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "string"
     assert res["sds_var_name"] == "string"
@@ -1941,8 +1941,8 @@ def test_updating_an_existing_odm_item_with_relations(api_client):
         "name": "name1",
         "oid": "oid1",
         "prompt": "prompt1",
-        "datatype": "datatype1",
-        "length": None,
+        "datatype": "string",
+        "length": 22,
         "significant_digits": 11,
         "sas_field_name": "sas_field_name1",
         "sds_var_name": "sds_var_name1",
@@ -1977,7 +1977,7 @@ def test_updating_an_existing_odm_item_with_relations(api_client):
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 22
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"

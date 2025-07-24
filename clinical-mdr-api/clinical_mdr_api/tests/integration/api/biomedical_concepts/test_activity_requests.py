@@ -5,6 +5,7 @@ Tests for /concepts/activities/activities endpoints
 import json
 import logging
 from functools import reduce
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -28,7 +29,7 @@ from clinical_mdr_api.tests.integration.utils.factory_activity import (
 )
 from clinical_mdr_api.tests.integration.utils.utils import CT_CATALOGUE_NAME, TestUtils
 from clinical_mdr_api.tests.utils.checks import assert_response_status_code
-from common.config import REQUESTED_LIBRARY_NAME
+from common.config import settings
 
 # pylint: disable=unused-argument
 # pylint: disable=redefined-outer-name
@@ -91,29 +92,29 @@ def test_data():
             name="name A",
             request_rationale="New activity request rationale",
             approve=False,
-            library_name=REQUESTED_LIBRARY_NAME,
+            library_name=settings.requested_library_name,
         ),
         TestUtils.create_activity(
             name="name-AAA",
             approve=False,
-            library_name=REQUESTED_LIBRARY_NAME,
+            library_name=settings.requested_library_name,
         ),
         TestUtils.create_activity(
             name="name-BBB",
             approve=False,
-            library_name=REQUESTED_LIBRARY_NAME,
+            library_name=settings.requested_library_name,
         ),
         TestUtils.create_activity(
             name="name XXX",
             definition="def-XXX",
             approve=False,
-            library_name=REQUESTED_LIBRARY_NAME,
+            library_name=settings.requested_library_name,
         ),
         TestUtils.create_activity(
             name="name YYY",
             definition="def-YYY",
             approve=False,
-            library_name=REQUESTED_LIBRARY_NAME,
+            library_name=settings.requested_library_name,
         ),
     ]
 
@@ -122,14 +123,14 @@ def test_data():
             TestUtils.create_activity(
                 name=f"name-AAA-{index}",
                 approve=False,
-                library_name=REQUESTED_LIBRARY_NAME,
+                library_name=settings.requested_library_name,
             )
         )
         activity_requests_all.append(
             TestUtils.create_activity(
                 name=f"name-BBB-{index}",
                 approve=False,
-                library_name=REQUESTED_LIBRARY_NAME,
+                library_name=settings.requested_library_name,
             )
         )
         activity_requests_all.append(
@@ -137,7 +138,7 @@ def test_data():
                 name=f"name-XXX-{index}",
                 definition=f"def-XXX-{index}",
                 approve=False,
-                library_name=REQUESTED_LIBRARY_NAME,
+                library_name=settings.requested_library_name,
             )
         )
         activity_requests_all.append(
@@ -145,7 +146,7 @@ def test_data():
                 name=f"name-YYY-{index}",
                 definition=f"def-YYY-{index}",
                 approve=True,
-                library_name=REQUESTED_LIBRARY_NAME,
+                library_name=settings.requested_library_name,
             )
         )
 
@@ -199,13 +200,13 @@ def test_get_activity_request(api_client):
     assert_response_status_code(response, 200)
 
     # Check fields included in the response
-    assert set(list(res.keys())) == set(ACTIVITY_REQUEST_FIELDS_ALL)
+    assert set(res.keys()) == set(ACTIVITY_REQUEST_FIELDS_ALL)
     for key in ACTIVITY_REQUEST_FIELDS_NOT_NULL:
         assert res[key] is not None
 
     assert res["uid"] == activity_requests_all[0].uid
     assert res["name"] == "name A"
-    assert res["library_name"] == REQUESTED_LIBRARY_NAME
+    assert res["library_name"] == settings.requested_library_name
     assert res["definition"] is None
     assert res["version"] == "0.1"
     assert res["status"] == "Draft"
@@ -216,20 +217,20 @@ def test_get_activity_request(api_client):
 
 
 def test_get_activity_requests_pagination(api_client):
-    results_paginated: dict = {}
+    results_paginated: dict[Any, Any] = {}
     sort_by = '{"name": true}'
     for page_number in range(1, 4):
         url = f"/concepts/activities/activities?page_number={page_number}&page_size=10&sort_by={sort_by}"
         response = api_client.get(url)
         res = response.json()
-        res_names = list(map(lambda x: x["name"], res["items"]))
+        res_names = [item["name"] for item in res["items"]]
         results_paginated[page_number] = res_names
         log.info("Page %s: %s", page_number, res_names)
 
     log.info("All pages: %s", results_paginated)
 
     results_paginated_merged = list(
-        list(reduce(lambda a, b: a + b, list(results_paginated.values())))
+        reduce(lambda a, b: list(a) + list(b), list(results_paginated.values()))
     )
     log.info("All rows returned by pagination: %s", results_paginated_merged)
 
@@ -357,7 +358,7 @@ def test_filtering_wildcard(
         pytest.param(
             '{"library_name": {"v": ["Requested"]}}',
             "library_name",
-            REQUESTED_LIBRARY_NAME,
+            settings.requested_library_name,
         ),
     ],
 )
@@ -388,7 +389,7 @@ def test_edit_activity_request(api_client):
         name="Activity Request name",
         request_rationale="New activity request rationale",
         approve=False,
-        library_name=REQUESTED_LIBRARY_NAME,
+        library_name=settings.requested_library_name,
     )
     response = api_client.put(
         f"/concepts/activities/activities/{activity_request.uid}",
@@ -401,7 +402,7 @@ def test_edit_activity_request(api_client):
     res = response.json()
     assert_response_status_code(response, 200)
     assert res["name"] == "new name"
-    assert res["library_name"] == REQUESTED_LIBRARY_NAME
+    assert res["library_name"] == settings.requested_library_name
     assert res["definition"] is None
     assert res["version"] == "0.2"
     assert res["status"] == "Draft"
@@ -416,7 +417,7 @@ def test_post_activity_request(api_client):
         json={
             "name": "New Activity Request Name",
             "name_sentence_case": "new activity request name",
-            "library_name": REQUESTED_LIBRARY_NAME,
+            "library_name": settings.requested_library_name,
             "request_rationale": "Activity request rationale",
             "is_data_collected": True,
         },
@@ -425,7 +426,7 @@ def test_post_activity_request(api_client):
     res = response.json()
     assert res["name"] == "New Activity Request Name"
     assert res["name_sentence_case"] == "new activity request name"
-    assert res["library_name"] == REQUESTED_LIBRARY_NAME
+    assert res["library_name"] == settings.requested_library_name
     assert res["definition"] is None
     assert res["version"] == "0.1"
     assert res["status"] == "Draft"
@@ -515,7 +516,7 @@ def test_post_sponsor_activity_from_activity_request(api_client):
     assert_response_status_code(response, 200)
     res = response.json()
     assert res["name"] == "name A"
-    assert res["library_name"] == REQUESTED_LIBRARY_NAME
+    assert res["library_name"] == settings.requested_library_name
     assert res["version"] == "1.0"
     assert res["status"] == "Retired"
     assert res["possible_actions"] == ["reactivate"]
@@ -530,7 +531,7 @@ def test_update_activity_request_to_sponsor_in_study_activity(api_client):
     # Create things needed for Study Activity
     activity_request = TestUtils.create_activity(
         name="activity request for study activity purpose",
-        library_name=REQUESTED_LIBRARY_NAME,
+        library_name=settings.requested_library_name,
     )
     study_activity = create_study_activity(
         study_uid=study_uid,
@@ -632,7 +633,7 @@ def test_edit_study_activity_request(api_client):
     activity_request = TestUtils.create_activity(
         name="activity request for study activity edit",
         request_rationale="Some rationale",
-        library_name=REQUESTED_LIBRARY_NAME,
+        library_name=settings.requested_library_name,
     )
     study_activity = create_study_activity(
         study_uid=study_for_test.uid,
@@ -710,7 +711,7 @@ def test_reject_activity_request(api_client):
     activity_request = TestUtils.create_activity(
         name="activity request for rejection test",
         request_rationale="Some rationale",
-        library_name=REQUESTED_LIBRARY_NAME,
+        library_name=settings.requested_library_name,
     )
     create_study_activity(
         study_uid=study_uid,

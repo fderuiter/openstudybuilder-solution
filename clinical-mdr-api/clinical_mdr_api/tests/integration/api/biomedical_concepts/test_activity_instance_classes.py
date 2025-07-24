@@ -5,6 +5,7 @@ Tests for /activity-instance-classes endpoints
 import json
 import logging
 from functools import reduce
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -13,7 +14,7 @@ from clinical_mdr_api.main import app
 from clinical_mdr_api.models.biomedical_concepts.activity_instance_class import (
     ActivityInstanceClass,
 )
-from clinical_mdr_api.models.controlled_terminologies.ct_term import CTTerm
+from clinical_mdr_api.models.standard_data_models.data_model import DataModel
 from clinical_mdr_api.models.standard_data_models.dataset_class import DatasetClass
 from clinical_mdr_api.tests.integration.utils.api import (
     inject_and_clear_db,
@@ -33,9 +34,10 @@ from clinical_mdr_api.tests.utils.checks import assert_response_status_code
 log = logging.getLogger(__name__)
 
 # Global variables shared between fixtures and tests
+data_model: str
+data_model_catalogue: DataModel
 activity_instance_classes_all: list[ActivityInstanceClass]
 dataset_class: DatasetClass
-data_domain_terms: list[CTTerm]
 
 parent_uid: str
 
@@ -57,26 +59,15 @@ def test_data():
     global activity_instance_classes_all
     global parent_uid
     global dataset_class
-    global data_domain_terms
+    global data_model
+    global data_model_catalogue
 
     data_model = TestUtils.create_data_model()
-    data_model_catalogue = TestUtils.create_data_model_catalogue()
+    data_model_catalogue = TestUtils.create_data_model_catalogue(name="SDTMIG")
     dataset_class = TestUtils.create_dataset_class(
         data_model_uid=data_model.uid,
         data_model_catalogue_name=data_model_catalogue,
     )
-
-    codelist = TestUtils.create_ct_codelist(extensible=True, approve=True)
-    data_domain_terms = [
-        TestUtils.create_ct_term(
-            codelist_uid=codelist.codelist_uid,
-            sponsor_preferred_name="Data Domain Term1",
-        ),
-        TestUtils.create_ct_term(
-            codelist_uid=codelist.codelist_uid,
-            sponsor_preferred_name="Data Domain Term2",
-        ),
-    ]
 
     # Create some activity instance classes
     activity_instance_classes_all = [
@@ -95,7 +86,6 @@ def test_data():
                 order=(index * 4) + 1,
                 is_domain_specific=True,
                 level=index,
-                data_domain_uids=[data_domain_terms[0].term_uid],
                 parent_uid=parent_uid,
             )
         )
@@ -106,7 +96,6 @@ def test_data():
                 order=(index * 4) + 2,
                 is_domain_specific=True,
                 level=index,
-                data_domain_uids=[data_domain_terms[0].term_uid],
             )
         )
         activity_instance_classes_all.append(
@@ -116,7 +105,6 @@ def test_data():
                 order=(index * 4) + 3,
                 is_domain_specific=False,
                 level=index,
-                data_domain_uids=[data_domain_terms[0].term_uid],
             )
         )
         activity_instance_classes_all.append(
@@ -126,7 +114,6 @@ def test_data():
                 order=(index * 4) + 4,
                 is_domain_specific=False,
                 level=index,
-                data_domain_uids=[data_domain_terms[0].term_uid],
             )
         )
 
@@ -193,9 +180,6 @@ ACTIVITY_IC_FIELDS_ALL = [
     "is_domain_specific",
     "level",
     "parent_class",
-    "dataset_class",
-    "activity_item_classes",
-    "data_domains",
     "library_name",
     "start_date",
     "end_date",
@@ -221,7 +205,7 @@ def test_get_activity_instance_class(api_client):
     assert_response_status_code(response, 200)
 
     # Check fields included in the response
-    assert set(list(res.keys())) == set(ACTIVITY_IC_FIELDS_ALL)
+    assert set(res.keys()) == set(ACTIVITY_IC_FIELDS_ALL)
     for key in ACTIVITY_IC_FIELDS_NOT_NULL:
         assert res[key] is not None
 
@@ -232,8 +216,6 @@ def test_get_activity_instance_class(api_client):
     assert res["is_domain_specific"] is None
     assert res["level"] is None
     assert res["parent_class"] is None
-    assert res["dataset_class"] is None
-    assert res["activity_item_classes"] is None
     assert res["version"] == "1.0"
     assert res["status"] == "Final"
     assert res["library_name"] == "Sponsor"
@@ -241,20 +223,20 @@ def test_get_activity_instance_class(api_client):
 
 
 def test_get_activity_instance_class_pagination(api_client):
-    results_paginated: dict = {}
+    results_paginated: dict[Any, Any] = {}
     sort_by = '{"name": true}'
     for page_number in range(1, 4):
         url = f"/activity-instance-classes?page_number={page_number}&page_size=10&sort_by={sort_by}"
         response = api_client.get(url)
         res = response.json()
-        res_names = list(map(lambda x: x["name"], res["items"]))
+        res_names = [item["name"] for item in res["items"]]
         results_paginated[page_number] = res_names
         log.info("Page %s: %s", page_number, res_names)
 
     log.info("All pages: %s", results_paginated)
 
     results_paginated_merged = list(
-        list(reduce(lambda a, b: a + b, list(results_paginated.values())))
+        reduce(lambda a, b: list(a) + list(b), list(results_paginated.values()))
     )
     log.info("All rows returned by pagination: %s", results_paginated_merged)
 
@@ -455,11 +437,6 @@ def test_edit_activity_instance_class(api_client):
             "is_domain_specific": False,
             "level": 4,
             "parent_uid": "ActivityInstanceClass_000002",
-            "dataset_class_uid": "DatasetClass_000001",
-            "data_domain_uids": [
-                data_domain_terms[0].term_uid,
-                data_domain_terms[1].term_uid,
-            ],
         },
     )
     res = response.json()
@@ -471,21 +448,6 @@ def test_edit_activity_instance_class(api_client):
     assert res["level"] == 4
     assert res["parent_class"]["uid"] == "ActivityInstanceClass_000002"
     assert res["parent_class"]["name"] == "name-AAA"
-    assert res["parent_class"]["activity_item_classes"] == [
-        {
-            "uid": "ActivityItemClass_000001",
-            "name": "name A",
-            "mandatory": True,
-            "is_adam_param_specific_enabled": True,
-        }
-    ]
-    assert res["dataset_class"]["uid"] == "DatasetClass_000001"
-    assert res["dataset_class"]["title"] == "title"
-    assert res["activity_item_classes"] == []
-    assert res["data_domains"][0]["uid"] == data_domain_terms[0].term_uid
-    assert res["data_domains"][0]["name"] == data_domain_terms[0].sponsor_preferred_name
-    assert res["data_domains"][1]["uid"] == data_domain_terms[1].term_uid
-    assert res["data_domains"][1]["name"] == data_domain_terms[1].sponsor_preferred_name
     assert res["version"] == "0.2"
     assert res["status"] == "Draft"
     assert res["possible_actions"] == ["approve", "delete", "edit"]
@@ -502,25 +464,23 @@ def test_edit_activity_instance_class(api_client):
     assert res["is_domain_specific"] is False
     assert res["parent_class"]["uid"] == "ActivityInstanceClass_000002"
     assert res["parent_class"]["name"] == "name-AAA"
-    assert res["parent_class"]["activity_item_classes"] == [
-        {
-            "uid": "ActivityItemClass_000001",
-            "name": "name A",
-            "mandatory": True,
-            "is_adam_param_specific_enabled": True,
-        }
-    ]
-    assert res["dataset_class"]["uid"] == "DatasetClass_000001"
-    assert res["dataset_class"]["title"] == "title"
-    assert res["activity_item_classes"] is None
-    assert res["data_domains"][0]["uid"] == data_domain_terms[0].term_uid
-    assert res["data_domains"][0]["name"] == data_domain_terms[0].sponsor_preferred_name
-    assert res["data_domains"][1]["uid"] == data_domain_terms[1].term_uid
-    assert res["data_domains"][1]["name"] == data_domain_terms[1].sponsor_preferred_name
     assert res["version"] == "0.2"
     assert res["status"] == "Draft"
     assert res["possible_actions"] == ["approve", "delete", "edit"]
     assert res["library_name"] == "Sponsor"
+
+    dataset_class_2 = TestUtils.create_dataset_class(
+        data_model_uid=data_model.uid,
+        data_model_catalogue_name=data_model_catalogue,
+    )
+    response = api_client.patch(
+        f"/activity-instance-classes/{activity_instance_class.uid}/model-mappings",
+        json={
+            "dataset_class_uid": dataset_class_2.uid,
+        },
+    )
+    res = response.json()
+    assert_response_status_code(response, 200)
 
 
 def test_post_activity_instance_class(api_client):
@@ -543,18 +503,6 @@ def test_post_activity_instance_class(api_client):
     assert res["level"] is None
     assert res["parent_class"]["uid"] == "ActivityInstanceClass_000002"
     assert res["parent_class"]["name"] == "name-AAA"
-    assert res["parent_class"]["activity_item_classes"] == [
-        {
-            "uid": "ActivityItemClass_000001",
-            "name": "name A",
-            "mandatory": True,
-            "is_adam_param_specific_enabled": True,
-        }
-    ]
-    assert res["dataset_class"]["uid"] == "DatasetClass_000001"
-    assert res["dataset_class"]["title"] == "title"
-    assert res["activity_item_classes"] == []
-    assert res["data_domains"] == []
     assert res["version"] == "0.1"
     assert res["status"] == "Draft"
     assert res["possible_actions"] == ["approve", "delete", "edit"]
@@ -569,18 +517,6 @@ def test_post_activity_instance_class(api_client):
     assert res["is_domain_specific"] is True
     assert res["parent_class"]["uid"] == "ActivityInstanceClass_000002"
     assert res["parent_class"]["name"] == "name-AAA"
-    assert res["parent_class"]["activity_item_classes"] == [
-        {
-            "uid": "ActivityItemClass_000001",
-            "name": "name A",
-            "mandatory": True,
-            "is_adam_param_specific_enabled": True,
-        }
-    ]
-    assert res["dataset_class"]["uid"] == "DatasetClass_000001"
-    assert res["dataset_class"]["title"] == "title"
-    assert res["activity_item_classes"] is None
-    assert res["data_domains"] is None
     assert res["version"] == "0.1"
     assert res["status"] == "Draft"
     assert res["possible_actions"] == ["approve", "delete", "edit"]
@@ -650,55 +586,136 @@ def test_activity_instance_class_versioning(api_client):
     assert_response_status_code(response, 204)
 
 
-def test_filter_activity_instance_class_on_parent_activity_item_class(api_client):
+def test_get_activity_instance_class_datasets(api_client):
+    child_instance_class_uid = activity_instance_classes_all[5].uid
+    parent_instance_class_uid = parent_uid
+
+    # Create some necessary dataset classes and datasets
+    # Including a sponsor model and dataset
+    data_model_ig = TestUtils.create_data_model_ig(
+        implemented_data_model=data_model.uid
+    )
+    dataset_class_for_parent = TestUtils.create_dataset_class(
+        data_model_uid=data_model.uid,
+        data_model_catalogue_name=data_model_catalogue,
+    )
+    dataset_for_parent = TestUtils.create_dataset(
+        data_model_ig_uid=data_model_ig.uid,
+        data_model_ig_version_number=data_model_ig.version_number,
+        implemented_dataset_class_name=dataset_class_for_parent.uid,
+        data_model_catalogue_name=data_model_catalogue,
+    )
+    dataset = TestUtils.create_dataset(
+        data_model_ig_uid=data_model_ig.uid,
+        data_model_ig_version_number=data_model_ig.version_number,
+        implemented_dataset_class_name=dataset_class.uid,
+        data_model_catalogue_name=data_model_catalogue,
+    )
+    sponsor_model = TestUtils.create_sponsor_model(
+        ig_uid=data_model_ig.uid,
+        ig_version_number=data_model_ig.version_number,
+        version_number="1",
+    )
+    sponsor_dataset = TestUtils.create_sponsor_dataset(
+        dataset_uid="ZX",
+        sponsor_model_name=sponsor_model.name,
+        sponsor_model_version_number=sponsor_model.version,
+        implemented_dataset_class=dataset_class.uid,
+        is_basic_std=False,
+    )
+
+    # Map a child ActivityInstanceClass to a DatasetClass
+    api_client.patch(
+        f"/activity-instance-classes/{child_instance_class_uid}/model-mappings",
+        json={
+            "dataset_class_uid": dataset_class.uid,
+        },
+    )
+
+    # Map its parent to a different DatasetClass
+    api_client.patch(
+        f"/activity-instance-classes/{parent_instance_class_uid}/model-mappings",
+        json={
+            "dataset_class_uid": dataset_class_for_parent.uid,
+        },
+    )
+
+    # Now, listing Datasets should return both Datasets for the child
+    # And only one for the parent
+    response = api_client.get("activity-instance-classes/model-mappings/datasets")
+    assert_response_status_code(response, 200)
+    res = response.json()
+    assert len(res) > 1
+    child_class_mapping = next(
+        (d for d in res if d["uid"] == child_instance_class_uid), None
+    )
+    assert len(child_class_mapping["datasets"]) == 3
+    # Checking for list equality because the result should be ordered
+    # Dataset for parent has a lower uid in alphabetical order as it was created first
+    # So it should appear first - even though the repo query finds after the child's
+    # This ensures correct sorting
+    assert child_class_mapping["datasets"] == [
+        dataset_for_parent.uid,
+        dataset.uid,
+        sponsor_dataset.uid,
+    ]
+
+    parent_class_mapping = next(
+        (d for d in res if d["uid"] == parent_instance_class_uid), None
+    )
+    assert parent_class_mapping["datasets"] == [dataset_for_parent.uid]
+
+    # Now get the mappings for a single class
+    # For the parent class, it should only have one mapping, with a single Dataset
     response = api_client.get(
-        '/activity-instance-classes?filters={"parent_class.activity_item_classes.name": {"v":["name B"]}}'
+        f"activity-instance-classes/model-mappings/datasets?activity_instance_class_uid={parent_instance_class_uid}",
+    )
+    assert_response_status_code(response, 200)
+    res = response.json()
+    assert len(res) == 1
+    class_mapping = next(
+        (d for d in res if d["uid"] == parent_instance_class_uid), None
+    )
+    assert class_mapping["datasets"] == [dataset_for_parent.uid]
+
+    # Finally, make sure that toggling off sponsor datasets works
+    response = api_client.get(
+        f"activity-instance-classes/model-mappings/datasets?activity_instance_class_uid={child_instance_class_uid}",
+    )
+    assert_response_status_code(response, 200)
+    res = response.json()
+    assert len(res) == 1
+    class_mapping = next((d for d in res if d["uid"] == child_instance_class_uid), None)
+    assert class_mapping["datasets"] == [
+        dataset_for_parent.uid,
+        dataset.uid,
+        sponsor_dataset.uid,
+    ]
+
+
+def test_get_activity_item_classes_for_instance_class(api_client):
+    response = api_client.get(
+        f"/activity-instance-classes/{activity_instance_classes_all[0].uid}/activity-item-classes"
     )
     res = response.json()
+    assert len(res) == 0
 
-    assert len(res["items"]) == 1
+    response = api_client.get(
+        f"/activity-instance-classes/{activity_instance_classes_all[1].uid}/activity-item-classes"
+    )
+    res = response.json()
+    assert len(res) == 1
+    assert res[0]["name"] == "name A"
 
-    assert_response_status_code(response, 200)
-    assert res["items"][0]["uid"] == activity_instance_classes_all[25].uid
-    assert res["items"][0]["name"] == "name-with-parent"
-    assert res["items"][0]["definition"] == "def-with-parent"
-    assert res["items"][0]["order"] == 999
-    assert res["items"][0]["is_domain_specific"] is False
-    assert res["items"][0]["parent_class"] == {
-        "activity_item_classes": [
-            {
-                "uid": "ActivityItemClass_000002",
-                "name": "name B",
-                "mandatory": True,
-                "is_adam_param_specific_enabled": False,
-            }
-        ],
-        "name": "name-YYY-3",
-        "uid": "ActivityInstanceClass_000021",
-        "data_domains": [
-            {
-                "code_submission_value": data_domain_terms[0].code_submission_value,
-                "name": "Data Domain Term1",
-                "uid": "CTTerm_000005",
-            }
-        ],
-    }
-    assert res["items"][0]["dataset_class"] is None
-    assert res["items"][0]["activity_item_classes"] == [
-        {
-            "is_adam_param_specific_enabled": False,
-            "mandatory": True,
-            "name": "name B",
-            "uid": "ActivityItemClass_000002",
-        },
-        {
-            "uid": "ActivityItemClass_000001",
-            "name": "name A",
-            "mandatory": True,
-            "is_adam_param_specific_enabled": True,
-        },
-    ]
-    assert res["items"][0]["version"] == "1.0"
-    assert res["items"][0]["status"] == "Final"
-    assert res["items"][0]["library_name"] == "Sponsor"
-    assert res["items"][0]["possible_actions"] == ["inactivate", "new_version"]
+    response = api_client.get(
+        f"/activity-instance-classes/{activity_instance_classes_all[20].uid}/activity-item-classes"
+    )
+    res = response.json()
+    assert len(res) == 1
+    assert res[0]["name"] == "name B"
+
+    response = api_client.get(
+        f"/activity-instance-classes/{activity_instance_classes_all[25].uid}/activity-item-classes"
+    )
+    res = response.json()
+    assert len(res) == 2

@@ -6,6 +6,7 @@ import copy
 import json
 import logging
 from functools import reduce
+from typing import Any
 from unittest import mock
 
 import pytest
@@ -86,7 +87,6 @@ weight_sas: StudyActivitySchedule
 study_epoch: StudyEpoch
 first_visit: StudyVisit
 second_visit: StudyVisit
-sa_weight: StudySelectionActivity
 
 
 @pytest.fixture(scope="module")
@@ -381,7 +381,7 @@ def test_get_study_soa_footnote(api_client):
 
     # Check fields included in the response
     fields_all_set = set(STUDY_FOOTNOTE_FIELDS_ALL)
-    assert set(list(res.keys())) == fields_all_set
+    assert set(res.keys()) == fields_all_set
     for key in STUDY_FOOTNOTE_FIELDS_NOT_NULL:
         assert res[key] is not None
     assert res["uid"] == soa_footnotes[0].uid
@@ -401,28 +401,28 @@ def test_get_study_soa_footnote(api_client):
 
 def test_get_soa_footnotes_pagination(api_client):
     url = f"/studies/{study.uid}/study-soa-footnotes"
-    results_paginated: dict = {}
+    results_paginated: dict[Any, Any] = {}
     sort_by = '{"uid": true}'
     for page_number in range(1, 4):
         response = api_client.get(
             f"{url}?page_number={page_number}&page_size=10&sort_by={sort_by}"
         )
         res = response.json()
-        res_uids = list(map(lambda x: x["uid"], res["items"]))
+        res_uids = [item["uid"] for item in res["items"]]
         results_paginated[page_number] = res_uids
         log.info("Page %s: %s", page_number, res_uids)
 
     log.info("All pages: %s", results_paginated)
 
     results_paginated_merged = list(
-        list(reduce(lambda a, b: a + b, list(results_paginated.values())))
+        list(reduce(lambda a, b: list(a) + list(b), list(results_paginated.values())))
     )
     log.info("All rows returned by pagination: %s", results_paginated_merged)
 
     res_all = api_client.get(
         f"{url}?page_number=1&page_size=100&sort_by={sort_by}"
     ).json()
-    results_all_in_one_page = list(map(lambda x: x["uid"], res_all["items"]))
+    results_all_in_one_page = [item["uid"] for item in res_all["items"]]
     log.info("All rows in one page: %s", results_all_in_one_page)
     assert len(results_all_in_one_page) == len(results_paginated_merged)
 

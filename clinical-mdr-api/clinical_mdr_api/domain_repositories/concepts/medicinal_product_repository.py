@@ -1,3 +1,5 @@
+from typing import Any
+
 from clinical_mdr_api.domain_repositories.concepts.concept_generic_repository import (
     ConceptGenericRepository,
 )
@@ -104,7 +106,7 @@ class MedicinalProductRepository(ConceptGenericRepository):
         return was_parent_data_modified or are_rels_changed
 
     def _create_aggregate_root_instance_from_cypher_result(
-        self, input_dict: dict
+        self, input_dict: dict[str, Any]
     ) -> MedicinalProductAR:
         major, minor = input_dict.get("version").split(".")
         ar = MedicinalProductAR.from_repository_values(
@@ -113,9 +115,10 @@ class MedicinalProductRepository(ConceptGenericRepository):
                 external_id=input_dict.get("external_id"),
                 name=input_dict.get("name"),
                 name_sentence_case=input_dict.get("name_sentence_case"),
-                dose_value_uids=list(
-                    map(lambda x: x.get("uid"), input_dict.get("dose_values"))
-                ),
+                dose_value_uids=[
+                    dose_value.get("uid")
+                    for dose_value in input_dict.get("dose_values")
+                ],
                 dose_frequency_uid=(
                     input_dict.get("dose_frequency")._properties.get("uid")
                     if input_dict.get("dose_frequency")
@@ -131,12 +134,12 @@ class MedicinalProductRepository(ConceptGenericRepository):
                     if input_dict.get("dispenser")
                     else None
                 ),
-                pharmaceutical_product_uids=list(
-                    map(
-                        lambda x: x.get("uid"),
-                        input_dict.get("pharmaceutical_products"),
+                pharmaceutical_product_uids=[
+                    pharmaceutical_product.get("uid")
+                    for pharmaceutical_product in input_dict.get(
+                        "pharmaceutical_products"
                     )
-                ),
+                ],
                 compound_uid=input_dict.get("compound_uid"),
             ),
             library=LibraryVO.from_input_values_2(

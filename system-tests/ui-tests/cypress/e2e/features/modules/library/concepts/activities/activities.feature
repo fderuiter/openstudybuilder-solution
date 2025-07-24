@@ -52,6 +52,7 @@ Feature: Library - Concepts - Activities - Activities
         Given The '/library/activities/activities' page is opened
         When The Add activity button is clicked
         And The activity form is filled with all data
+        And Form save button is clicked
         Then Activity is created and confirmation message is shown
         And The newly added activity is added in the table
         And The item has status 'Draft' and version '0.1'
@@ -59,17 +60,19 @@ Feature: Library - Concepts - Activities - Activities
     Scenario: [Create][Mandatory fields] User must not be able to save new activity without mandatory fields of 'Activity group', 'Activity subgroup', 'Activity name'
         Given The '/library/activities/activities' page is opened
         When The Add activity button is clicked
-        And The Activity group and Activity name fields are not filled with data
+        And Form save button is clicked
         Then The user is not able to save the acitivity
         And The validation message appears for activity group
         And The validation message appears for activity name
         When Select a value for Activity group field, but not for Activity subgroup field
+        And Form save button is clicked
         Then The validation message appears for activity subgroup
 
     Scenario: [Create][Uniqueness check][Synonym] User must not be able to save new activity with already existing synonym
         Given The '/library/activities/activities' page is opened
         When [API] Activity in status Draft exists
         And The user adds another activity with already existing synonym
+        And Form save button is clicked
         Then The user is not able to save activity with already existing synonym and error message is displayed
 
     Scenario: [Create][Mandatory fields] System must ensure value of 'Sentence case name' is mandatory
@@ -114,6 +117,8 @@ Feature: Library - Concepts - Activities - Activities
         Then The item has status 'Draft' and version '1.1'
         When The 'Edit' option is clicked from the three dot menu list
         And The activity is edited
+        And Form save button is clicked
+        And Activity is found
         Then The item has status 'Draft' and version '1.2'
         When The 'Approve' option is clicked from the three dot menu list
         Then The item has status 'Final' and version '2.0'
@@ -141,6 +146,8 @@ Feature: Library - Concepts - Activities - Activities
         And Activity is found
         When The 'Edit' option is clicked from the three dot menu list
         And The activity is edited
+        And Form save button is clicked
+        And Activity is found
         Then The item has status 'Draft' and version '0.2'
 
     Scenario: [Actions][Approve] User must be able to Approve the drafted version of the activity
@@ -158,63 +165,67 @@ Feature: Library - Concepts - Activities - Activities
         Then The activity is no longer available
 
     Scenario: [Create][Negative case][Draft group] User must not be able to create activity linked to Drafted group until it is approved
-        Given The '/library/activities/activities' page is opened
         And [API] Activity group in status Draft exists
         And [API] Activity group is approved
         And [API] Activity subgroup is created
         And [API] Activity subgroup is approved
         And [API] Activity group gets new version
         And Group name created through API is found
+        And User waits for 2 seconds
+        Given The '/library/activities/activities' page is opened
         When The activity form is filled in using group and subgroup created through API
-        And The Activity creation form is saved
+        And Form save button is clicked
         Then Validation error for GroupingHierarchy is displayed
         And [API] Activity group is approved
-        And The Activity creation form is saved
+        And Form save button is clicked
         And Activity can be found in table
 
     Scenario: [Create][Negative case][Retired group] User must not be able to create activity linked to Retired group until it is approved
-        Given The '/library/activities/activities' page is opened
         And [API] Activity group in status Draft exists
         And [API] Activity group is approved
         And [API] Activity subgroup is created
         And [API] Activity subgroup is approved
         And [API] Activity group is inactivated
         And Group name created through API is found
+        And User waits for 2 seconds
+        Given The '/library/activities/activities' page is opened
         When The activity form is filled in using group and subgroup created through API
-        And The Activity creation form is saved
+        And Form save button is clicked
         Then Validation error for GroupingHierarchy is displayed
         And [API] Activity group is reactivated
-        And The Activity creation form is saved
+        And Form save button is clicked
         And Activity can be found in table
 
     Scenario: [Create][Negative case][Draft subgroup] User must not be able to create activity linked to Draft subgroup until it is approved
-        Given The '/library/activities/activities' page is opened
         And [API] Activity group in status Draft exists
         And [API] Activity group is approved
         And [API] Activity subgroup is created
         And [API] Activity subgroup is approved
         And [API] Activity subgroup gets new version
         And Group name created through API is found
+        And User waits for 2 seconds
+        Given The '/library/activities/activities' page is opened
         When The activity form is filled in using group and subgroup created through API
-        And The Activity creation form is saved
+        And Form save button is clicked
         Then Validation error for GroupingHierarchy is displayed
         And [API] Activity subgroup is approved
-        And The Activity creation form is saved
+        And Form save button is clicked
         And Activity can be found in table
 
     Scenario: [Create][Negative case][Retired subgroup] User must not be able to create activity linked to Retired subgroup until it is approved
-        Given The '/library/activities/activities' page is opened
         And [API] Activity group in status Draft exists
         And [API] Activity group is approved
         And [API] Activity subgroup is created
         And [API] Activity subgroup is approved
         And [API] Activity subgroup is inactivated
         And Group name created through API is found
+        And User waits for 2 seconds
+        Given The '/library/activities/activities' page is opened
         When The activity form is filled in using group and subgroup created through API
-        And The Activity creation form is saved
+        And Form save button is clicked
         Then Validation error for GroupingHierarchy is displayed
         And [API] Activity subgroup is reactivated
-        And The Activity creation form is saved
+        And Form save button is clicked
         And Activity can be found in table
 
     Scenario: [Cancel][Creation] User must be able to Cancel creation of the activity

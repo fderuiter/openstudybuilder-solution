@@ -1,7 +1,7 @@
 """Study Protocol Interventions service"""
 
 import logging
-from typing import Mapping
+from typing import Any, Mapping
 
 from docx.enum.style import WD_STYLE_TYPE
 
@@ -324,7 +324,7 @@ class StudyInterventionsService:
             .items
         )
 
-        mapping = {}
+        mapping: dict[str, Any] = {}
         for dosing in results:
             key = dosing.study_compound.study_compound_uid
             mapping.setdefault(key, []).append(dosing)

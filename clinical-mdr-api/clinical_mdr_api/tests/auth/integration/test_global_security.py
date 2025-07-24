@@ -7,7 +7,20 @@ from clinical_mdr_api.tests.auth.markers import if_oauth_enabled
 # Skip all tests in this module if OAuth is not enabled
 pytestmark = if_oauth_enabled
 
-SKIP_PATHS = {"/openapi.json", "/docs", "/docs/oauth2-redirect", "/redoc"}
+SKIP_PATHS = {
+    "/openapi.json",
+    "/docs",
+    "/docs/oauth2-redirect",
+    "/redoc",
+    "/",
+    "/system/information/license.md",
+    "/system/information/sbom.md",
+    "/system/information/build-id",
+    "/system/information",
+    "/system/healthcheck",
+    "/feature-flags",
+    "/notifications/actives",
+}
 EXPIRED_ACCESS_TOKEN = os.environ.get("EXPIRED_ACCESS_TOKEN")
 
 

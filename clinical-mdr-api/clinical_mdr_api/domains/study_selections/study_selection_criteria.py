@@ -99,7 +99,7 @@ class StudySelectionCriteriaAR:
     """
 
     _study_uid: str
-    _study_criteria_selection: tuple
+    _study_criteria_selection: tuple[StudySelectionCriteriaVO, ...]
     repository_closure_data: Any = field(
         init=False, compare=False, repr=True, default=None
     )
@@ -220,6 +220,9 @@ class StudySelectionCriteriaAR:
             new_order = 1
         # find the selection
         selected_value, _ = self.get_specific_criteria_selection(study_selection_uid)
+        assert (
+            selected_value.criteria_type_order is not None
+        ), "Criteria type order should not be None at this point"
         old_order = selected_value.criteria_type_order
         # We have to reset the selected value so it can be set to edit in the domain
         selected_value = StudySelectionCriteriaVO.from_input_values(

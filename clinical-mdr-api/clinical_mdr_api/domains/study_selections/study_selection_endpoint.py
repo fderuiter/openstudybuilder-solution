@@ -255,7 +255,7 @@ class StudySelectionEndpointVO:
 @dataclass
 class StudySelectionEndpointsAR:
     _study_uid: str
-    _study_endpoints_selection: tuple
+    _study_endpoints_selection: tuple[StudySelectionEndpointVO, ...]
     repository_closure_data: Any = field(
         init=False, compare=False, repr=True, default=None
     )
@@ -288,7 +288,7 @@ class StudySelectionEndpointsAR:
         )
 
     def _add_selection(self, study_endpoint_selection) -> None:
-        def _selection_sort_logic(study_endpoint_sel: tuple):
+        def _selection_sort_logic(study_endpoint_sel: StudySelectionEndpointVO):
             if study_endpoint_sel.study_objective_uid is not None:
                 # extracting integer part of uid
                 study_objective_uid = int(

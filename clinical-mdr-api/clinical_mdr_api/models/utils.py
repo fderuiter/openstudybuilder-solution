@@ -16,7 +16,7 @@ from clinical_mdr_api.domains.concepts.unit_definitions.unit_definition import (
     UnitDefinitionAR,
 )
 from clinical_mdr_api.services.user_info import UserInfoService
-from common.config import STUDY_TIME_UNIT_SUBSET
+from common.config import settings
 from common.utils import get_field_type, get_sub_fields
 
 ALLOWED_HTML_TAGS = {
@@ -38,7 +38,7 @@ ALLOWED_HTML_TAGS = {
     "ul",  # unordered list
 }
 
-ALLOWED_HTML_ATTRIBUTES = {}
+ALLOWED_HTML_ATTRIBUTES: dict[Any, Any] = {}
 
 EXCLUDE_PROPERTY_ATTRIBUTES_FROM_SCHEMA = {
     "remove_from_wildcard",
@@ -56,7 +56,9 @@ def from_duration_object_to_value_and_unit(
     # cut off the first 'P' and last unit letter
     duration_value = int(duration[1:-1])
 
-    all_study_time_units, _ = find_all_study_time_units(subset=STUDY_TIME_UNIT_SUBSET)
+    all_study_time_units, _ = find_all_study_time_units(
+        subset=settings.study_time_unit_subset
+    )
     # We are using a callback here and this function returns objects as an item list, hence we need to unwrap i
     found_unit = None
     # find unit extracted from iso duration string (duration_code) and find it in the set of all age units
@@ -81,15 +83,17 @@ def get_latest_on_datetime_str():
     return f"LATEST on {datetime.datetime.now(datetime.UTC).isoformat()}"
 
 
+def _json_schema_extra(schema: dict[str, Any], _: type) -> None:
+    """Exclude some custom internal attributes of Fields (properties) from the schema definitions"""
+    for prop in schema.get("properties", {}).values():
+        for attr in EXCLUDE_PROPERTY_ATTRIBUTES_FROM_SCHEMA:
+            prop.pop(attr, None)
+
+
 class BaseModel(PydanticBaseModel):
     model_config = ConfigDict(
         from_attributes=True,
-        # Exclude some custom internal attributes of Fields (properties) from the schema definitions
-        json_schema_extra=lambda schema, _: [
-            prop.pop(attr, None)
-            for prop in schema.get("properties", {}).values()
-            for attr in EXCLUDE_PROPERTY_ATTRIBUTES_FROM_SCHEMA
-        ],
+        json_schema_extra=_json_schema_extra,
     )
 
     @classmethod
@@ -132,10 +136,10 @@ class BaseModel(PydanticBaseModel):
 
             return value
 
-        ret = []
+        ret: list[Any] = []
         for name, field in cls.model_fields.items():
             jse = field.json_schema_extra or {}
-            source = jse.get("source")
+            source: str = jse.get("source")
             if jse.get("exclude_from_model_validate"):
                 continue
             if not source:
@@ -347,7 +351,9 @@ class GenericFilteringReturn(BaseModel, Generic[T]):
         return cls(items=items, total=total)
 
 
-EmptyGenericFilteringResult = GenericFilteringReturn.create([], 0)
+EmptyGenericFilteringResult: GenericFilteringReturn = GenericFilteringReturn.create(
+    [], 0
+)
 
 
 class PrettyJSONResponse(Response):
@@ -369,7 +375,7 @@ def strip_whitespace(value: Any) -> Any:
     if isinstance(value, str):
         return value.strip()
 
-    if isinstance(value, (list, set, tuple)):
+    if isinstance(value, list | set | tuple):
         return [strip_whitespace(elm) for elm in value]
 
     if isinstance(value, dict):

@@ -344,7 +344,7 @@ def random_valid_study_population(
             if use_number_of_expected_subjects
             else random_opt_c_code(initialize_ct_data_map["NullValueCodes"])
         )
-        result = StudyPopulationVO.from_input_values(
+        result: StudyPopulationVO = StudyPopulationVO.from_input_values(
             therapeutic_area_codes=therapeutic_area_codes,
             therapeutic_area_null_value_code=therapeutic_area_null_value_code,
             disease_condition_or_indication_codes=disease_condition_or_indication_codes,
@@ -1836,7 +1836,7 @@ def random_valid_study_intervention(
             else random_opt_c_code(initialize_ct_data_map["NullValueCodes"])
         )
 
-        result = StudyInterventionVO.from_input_values(
+        result: StudyInterventionVO = StudyInterventionVO.from_input_values(
             intervention_type_code=intervention_type_code,
             intervention_type_null_value_code=intervention_type_null_value_code,
             add_on_to_existing_treatments=add_on_to_existing_treatments,

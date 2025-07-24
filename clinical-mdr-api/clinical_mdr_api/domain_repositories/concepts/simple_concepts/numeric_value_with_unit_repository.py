@@ -1,3 +1,5 @@
+from typing import Any
+
 from neomodel import db
 
 from clinical_mdr_api.domain_repositories.concepts.simple_concepts.simple_concept_generic_repository import (
@@ -70,7 +72,7 @@ class NumericValueWithUnitRepository(
         )
 
     def _create_aggregate_root_instance_from_cypher_result(
-        self, input_dict: dict
+        self, input_dict: dict[str, Any]
     ) -> NumericValueWithUnitAR:
         major, minor = input_dict.get("version").split(".")
         return self.aggregate_class.from_repository_values(

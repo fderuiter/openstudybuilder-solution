@@ -12,6 +12,8 @@ from clinical_mdr_api.models.concepts.activities.activity_instance import (
     ActivityInstanceEditInput,
     ActivityInstanceOverview,
     ActivityInstancePreviewInput,
+    SimpleActivityInstanceGrouping,
+    SimplifiedActivityItem,
 )
 from clinical_mdr_api.models.utils import CustomPage
 from clinical_mdr_api.repositories._utils import FilterOperator
@@ -20,8 +22,9 @@ from clinical_mdr_api.routers.responses import YAMLResponse
 from clinical_mdr_api.services.concepts.activities.activity_instance_service import (
     ActivityInstanceService,
 )
-from common import config
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.config import settings
 from common.models.error import ErrorResponse
 
 # Prefixed with "/concepts/activities/activity-instances"
@@ -32,7 +35,7 @@ ActivityInstanceUID = Path(description="The unique id of the ActivityInstance")
 
 @router.get(
     "",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List all activity instances (for a given library)",
     description=f"""
 State before:
@@ -123,15 +126,15 @@ def get_activities(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -141,7 +144,7 @@ def get_activities(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -167,7 +170,7 @@ def get_activities(
 
 @router.get(
     "/versions",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List all versions of all activity instances (for a given library)",
     description=f"""
 State before:
@@ -243,15 +246,15 @@ def get_activity_instances_versions(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -261,7 +264,7 @@ def get_activity_instances_versions(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -285,7 +288,7 @@ def get_activity_instances_versions(
 
 @router.get(
     "/headers",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns possibles values from the database for a given header",
     description="Allowed parameters include : field name for which to get possible values, "
     "search string to provide filtering for the field name, additional filters to apply on other fields",
@@ -315,10 +318,10 @@ def get_distinct_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     activity_instance_service = ActivityInstanceService()
     return activity_instance_service.get_distinct_values_for_header(
@@ -333,7 +336,7 @@ def get_distinct_values_for_header(
 
 @router.get(
     "/{activity_instance_uid}",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Get details on a specific activity instance (in a specific version)",
     description="""
 State before:
@@ -365,7 +368,7 @@ def get_activity(
 
 @router.get(
     "/{activity_instance_uid}/overview",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Get detailed overview a specific activity instance",
     description="""
 Returns detailed description about activity instance, including information about:
@@ -384,6 +387,8 @@ State after:
 
 Possible errors:
  - Invalid uid.
+
+{_generic_descriptions.DATA_EXPORTS_HEADER}
  """,
     status_code=200,
     responses={
@@ -394,14 +399,28 @@ Possible errors:
 @decorators.allow_exports(
     {
         "defaults": [
-            "activity",
-            "activity_subgroups",
-            "activity_groups",
-            "activity_instance",
-            "activity_items",
+            "activity_instance_name=activity_instance.name",
+            "activity_instance_definition=activity_instance.definition",
+            "activity_instance_nci_id=activity_instance.nci_concept_id",
+            "activity_instance_nci_name=activity_instance.nci_concept_name",
+            "activity_instance_class=activity_instance.activity_instance_class.name",
+            "is_research_lab=activity_instance.is_research_lab",
+            "molecular_weight=activity_instance.molecular_weight",
+            "topic_code=activity_instance.topic_code",
+            "adam_param_code=activity_instance.adam_param_code",
+            "library_name=activity_instance.library_name",
+            "status=activity_instance.status",
+            "version=activity_instance.version",
+            "activity_groupings_count=activity_groupings",
+            "activity_items_count=activity_items",
+            "all_versions",
         ],
         "formats": [
             "application/x-yaml",
+            "text/csv",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "text/xml",
+            "application/json",
         ],
     }
 )
@@ -421,8 +440,147 @@ def get_activity_instance_overview(
 
 
 @router.get(
+    "/{activity_instance_uid}/activity-groupings",
+    dependencies=[security, rbac.LIBRARY_READ],
+    summary="Get activity groupings for a specific activity instance",
+    status_code=200,
+    description="""
+Returns activity groupings (hierarchy) for an activity instance, including:
+ - Activity information with version and library details
+ - Activity groups with name and definition
+ - Activity subgroups with name and definition
+
+State before:
+ - an activity instance with uid must exist.
+
+State after:
+ - No change
+
+Possible errors:
+ - Invalid uid.
+
+{_generic_descriptions.DATA_EXPORTS_HEADER}
+ """,
+    responses={
+        403: _generic_descriptions.ERROR_403,
+        200: {"model": list[SimpleActivityInstanceGrouping]},
+        404: _generic_descriptions.ERROR_404,
+    },
+)
+@decorators.allow_exports(
+    {
+        "defaults": [
+            "activity_group_uid=activity_group.uid",
+            "activity_group_name=activity_group.name",
+            "activity_group_definition=activity_group.definition",
+            "activity_group_version=activity_group.version",
+            "activity_group_status=activity_group.status",
+            "activity_subgroup_uid=activity_subgroup.uid",
+            "activity_subgroup_name=activity_subgroup.name",
+            "activity_subgroup_definition=activity_subgroup.definition",
+            "activity_subgroup_version=activity_subgroup.version",
+            "activity_subgroup_status=activity_subgroup.status",
+            "activity_uid=activity.uid",
+            "activity_name=activity.name",
+            "activity_definition=activity.definition",
+            "activity_nci_concept_id=activity.nci_concept_id",
+            "activity_nci_concept_name=activity.nci_concept_name",
+            "activity_is_data_collected=activity.is_data_collected",
+            "activity_library_name=activity.library_name",
+            "activity_version=activity.version",
+            "activity_status=activity.status",
+        ],
+        "formats": [
+            "text/csv",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "text/xml",
+            "application/json",
+        ],
+    }
+)
+# pylint: disable=unused-argument
+def get_activity_instance_groupings(
+    request: Request,  # request is actually required by the allow_exports decorator
+    activity_instance_uid: Annotated[str, ActivityInstanceUID],
+    version: Annotated[str | None, Query()] = None,
+):
+    activity_instance_service = ActivityInstanceService()
+    return activity_instance_service.get_activity_instance_groupings(
+        activity_instance_uid=activity_instance_uid, version=version
+    )
+
+
+@router.get(
+    "/{activity_instance_uid}/activity-items",
+    dependencies=[security, rbac.LIBRARY_READ],
+    summary="Get activity items for a specific activity instance",
+    status_code=200,
+    description="""
+Returns activity items for an activity instance, including:
+ - Activity item class information (name, role, data type)
+ - CT terms (controlled terminology terms)
+ - Unit definitions with dimension names
+ - ODM forms, item groups, and items
+ - ADaM parameter specificity flags
+
+State before:
+ - an activity instance with uid must exist.
+
+State after:
+ - No change
+
+Possible errors:
+ - Invalid uid.
+
+{_generic_descriptions.DATA_EXPORTS_HEADER}
+ """,
+    responses={
+        403: _generic_descriptions.ERROR_403,
+        200: {"model": list[SimplifiedActivityItem]},
+        404: _generic_descriptions.ERROR_404,
+    },
+)
+@decorators.allow_exports(
+    {
+        "defaults": [
+            "item_class_name=activity_item_class.name",
+            "item_class_order=activity_item_class.order",
+            "role_name=activity_item_class.role_name",
+            "data_type_name=activity_item_class.data_type_name",
+            "is_adam_param_specific",
+            "ct_terms[].uid",
+            "ct_terms[].name",
+            "ct_terms[].library_name",
+            "unit_definitions[].name",
+            "unit_definitions[].dimension_name",
+            "odm_forms[].uid",
+            "odm_forms[].name",
+            "odm_item_groups[].uid",
+            "odm_item_groups[].name",
+        ],
+        "formats": [
+            "text/csv",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "text/xml",
+            "application/json",
+        ],
+    }
+)
+# pylint: disable=unused-argument
+def get_activity_instance_items(
+    request: Request,  # request is actually required by the allow_exports decorator
+    activity_instance_uid: Annotated[str, ActivityInstanceUID],
+    version: Annotated[str | None, Query()] = None,
+):
+    activity_instance_service = ActivityInstanceService()
+    return activity_instance_service.get_activity_instance_items(
+        activity_instance_uid=activity_instance_uid, version=version
+    )
+
+
+@router.get(
     "/{activity_instance_uid}/overview.cosmos",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Get a COSMoS compatible representation of a specific activity instance",
     description="""
 Returns detailed description about activity instance, including information about:
@@ -461,7 +619,7 @@ def get_cosmos_activity_instance_overview(
 
 @router.get(
     "/{activity_instance_uid}/versions",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List version history for activity instance",
     description="""
 State before:
@@ -496,7 +654,7 @@ def get_versions(
 @router.post(
     "",
     summary="Creates new activity instance.",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     description="""
 State before:
  - The specified library allows creation of concepts (the 'is_editable' property of the library needs to be true).
@@ -543,7 +701,7 @@ def create(
 @router.post(
     "/preview",
     summary="Previews the creation of a new activity instance.",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     description="""
 State before:
  - The specified library allows creation of concepts (the 'is_editable' property of the library needs to be true).
@@ -594,7 +752,7 @@ def preview(
 
 @router.patch(
     "/{activity_instance_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Update activity instance",
     description="""
 State before:
@@ -644,7 +802,7 @@ def edit(
 
 @router.post(
     "/{activity_instance_uid}/versions",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary=" Create a new version of an activity instance",
     description="""
 State before:
@@ -686,7 +844,7 @@ def create_new_version(
 
 @router.post(
     "/{activity_instance_uid}/approvals",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Approve draft version of an activity instance",
     description="""
 State before:
@@ -730,7 +888,7 @@ def approve(
 
 @router.delete(
     "/{activity_instance_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary=" Inactivate final version of an activity instance",
     description="""
 State before:
@@ -773,7 +931,7 @@ def inactivate(
 
 @router.post(
     "/{activity_instance_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Reactivate retired version of an activity instance",
     description="""
 State before:
@@ -816,7 +974,7 @@ def reactivate(
 
 @router.delete(
     "/{activity_instance_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Delete draft version of an activity instance",
     description="""
 State before:

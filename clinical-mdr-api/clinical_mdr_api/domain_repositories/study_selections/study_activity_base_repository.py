@@ -1,10 +1,13 @@
 import abc
 import datetime
-from typing import Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 from neomodel import db
 
 from clinical_mdr_api import utils
+from clinical_mdr_api.domain_repositories._utils.helpers import (
+    acquire_write_lock_study_value,
+)
 from clinical_mdr_api.domain_repositories.models.study import StudyRoot, StudyValue
 from clinical_mdr_api.domain_repositories.models.study_audit_trail import (
     Create,
@@ -25,19 +28,10 @@ _AggregateRootType = TypeVar("_AggregateRootType")
 class StudySelectionActivityBaseRepository(Generic[_AggregateRootType], abc.ABC):
     _aggregate_root_type: StudySelectionBaseAR
 
-    @staticmethod
-    def _acquire_write_lock_study_value(uid: str) -> None:
-        db.cypher_query(
-            """
-             MATCH (sr:StudyRoot {uid: $uid})
-             REMOVE sr.__WRITE_LOCK__
-             RETURN true
-            """,
-            {"uid": uid},
-        )
-
     @abc.abstractmethod
-    def _create_value_object_from_repository(self, selection: dict, acv: bool):
+    def _create_value_object_from_repository(
+        self, selection: dict[Any, Any], acv: bool
+    ):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -47,7 +41,7 @@ class StudySelectionActivityBaseRepository(Generic[_AggregateRootType], abc.ABC)
     @abc.abstractmethod
     def _filter_clause(
         self,
-        query_parameters: dict,
+        query_parameters: dict[Any, Any],
         **kwargs,
     ):
         raise NotImplementedError
@@ -62,7 +56,7 @@ class StudySelectionActivityBaseRepository(Generic[_AggregateRootType], abc.ABC)
 
     @abc.abstractmethod
     def get_selection_history(
-        self, selection: dict, change_type: str, end_date: datetime
+        self, selection: dict[Any, Any], change_type: str, end_date: datetime.datetime
     ):
         raise NotImplementedError
 
@@ -209,7 +203,7 @@ class StudySelectionActivityBaseRepository(Generic[_AggregateRootType], abc.ABC)
         **kwargs,
     ) -> StudySelectionBaseAR | None:
         if for_update:
-            self._acquire_write_lock_study_value(study_uid)
+            acquire_write_lock_study_value(study_uid)
         all_selections = self._retrieves_all_data(
             study_uid,
             study_value_version=study_value_version,
@@ -453,7 +447,7 @@ class StudySelectionActivityBaseRepository(Generic[_AggregateRootType], abc.ABC)
 
     def get_detailed_soa_history(
         self, study_uid: str, page_number: int, page_size: int, total_count: bool
-    ) -> tuple[list[dict], int]:
+    ) -> tuple[list[dict[Any, Any]], int]:
         detailed_soa_audit_trail = """
         CALL {
         MATCH (sr:StudyRoot {uid: $study_uid})-[:AUDIT_TRAIL]->(:StudyAction)-[:BEFORE|AFTER]->(all_sa:StudyActivity)

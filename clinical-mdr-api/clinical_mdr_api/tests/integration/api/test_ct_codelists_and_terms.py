@@ -11,6 +11,7 @@ Tests for /ct/codelists and /ct/terms endpoints
 import json
 import logging
 from functools import reduce
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -99,7 +100,7 @@ def test_data():
     ],
 )
 def test_get_ct_terms_pagination(api_client, base_url, page_size, sort_by):
-    results_paginated: dict = {}
+    results_paginated: dict[Any, Any] = {}
     for page_number in range(1, 4):
         url = f"{base_url}?page_number={page_number}&page_size={page_size}&sort_by={sort_by}"
         response = api_client.get(url)
@@ -110,7 +111,7 @@ def test_get_ct_terms_pagination(api_client, base_url, page_size, sort_by):
 
     # Some CTTerm uids may be duplicated as same CTTerm exists in a few CTCodelists
     results_paginated_merged = list(
-        reduce(lambda a, b: a + b, list(results_paginated.values()))
+        reduce(lambda a, b: list(a) + list(b), list(results_paginated.values()))
     )
     log.info("All rows returned by pagination: %s", results_paginated_merged)
 
@@ -206,7 +207,7 @@ def test_retire_unused_term(api_client):
     response = api_client.delete(
         f"/ct/codelists/{codelist.codelist_uid}/terms/{term_to_remove_and_retire.term_uid}"
     )
-    assert_response_status_code(response, 201)
+    assert_response_status_code(response, 200)
 
     # fetch the removed term, ensure it's not part of any codelist
     response = api_client.get(

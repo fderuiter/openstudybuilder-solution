@@ -168,10 +168,10 @@ class CTTermService:
         package: str | None,
         is_sponsor: bool = False,
         include_removed_terms: bool = False,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> GenericFilteringReturn[CTTermNameAndAttributes]:
@@ -213,7 +213,7 @@ class CTTermService:
         package: str | None,
         field_name: str,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
     ) -> list[Any]:

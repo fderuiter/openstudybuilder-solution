@@ -23,8 +23,9 @@ from clinical_mdr_api.repositories._utils import FilterOperator
 from clinical_mdr_api.routers import _generic_descriptions, decorators
 from clinical_mdr_api.routers._generic_descriptions import study_section_description
 from clinical_mdr_api.services.syntax_instances.endpoints import EndpointService
-from common import config
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.config import settings
 from common.models.error import ErrorResponse
 
 # Prefixed with "/endpoints"
@@ -38,7 +39,7 @@ EndpointUID = Path(description="The unique id of the endpoint.")
 
 @router.get(
     "",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns all final versions of endpoints referenced by any study.",
     description=_generic_descriptions.DATA_EXPORTS_HEADER,
     status_code=200,
@@ -110,15 +111,15 @@ def get_all(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -128,7 +129,7 @@ def get_all(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -150,7 +151,7 @@ def get_all(
 
 @router.get(
     "/headers",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -190,10 +191,10 @@ def get_distinct_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     return Service().get_distinct_values_for_header(
         status=status,
@@ -207,7 +208,7 @@ def get_distinct_values_for_header(
 
 @router.get(
     "/audit-trail",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     status_code=200,
     responses={
         403: _generic_descriptions.ERROR_403,
@@ -217,15 +218,15 @@ def get_distinct_values_for_header(
 def retrieve_audit_trail(
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -235,7 +236,7 @@ def retrieve_audit_trail(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -256,7 +257,7 @@ def retrieve_audit_trail(
 
 @router.get(
     "/{endpoint_uid}",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns the latest/newest version of a specific endpoint identified by 'endpoint_uid'.",
     description="""If multiple request query parameters are used, then they need to
     match all at the same time (they are combined with the AND operation).""",
@@ -275,7 +276,7 @@ def get(endpoint_uid: Annotated[str, EndpointUID]) -> Endpoint:
 
 @router.get(
     "/{endpoint_uid}/versions",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns the version history of a specific endpoint identified by 'endpoint_uid'.",
     description=f"""
 The returned versions are ordered by `start_date` descending (newest entries first).
@@ -377,7 +378,7 @@ def get_versions(
 
 @router.get(
     "/{endpoint_uid}/studies",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     status_code=200,
     responses={
         403: _generic_descriptions.ERROR_403,
@@ -408,7 +409,7 @@ def get_studies(
 
 @router.post(
     "",
-    dependencies=[rbac.LIBRARY_WRITE_OR_STUDY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE_OR_STUDY_WRITE],
     summary="Creates a new endpoint in 'Draft' status.",
     description="""This request is only valid if
 * the specified endpoint template is in 'Final' status and
@@ -452,7 +453,7 @@ def create(
 
 @router.post(
     "/preview",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Previews the creation of a new endpoint.",
     description="""This request is only valid if
 * the specified endpoint template is in 'Final' status and
@@ -492,7 +493,7 @@ def preview(
 
 @router.patch(
     "/{endpoint_uid}",
-    dependencies=[rbac.LIBRARY_WRITE_OR_STUDY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE_OR_STUDY_WRITE],
     summary="Updates the endpoint identified by 'endpoint_uid'.",
     description="""This request is only valid if the endpoint
 * is in 'Draft' status and
@@ -536,7 +537,7 @@ def edit(
 
 @router.post(
     "/{endpoint_uid}/approvals",
-    dependencies=[rbac.LIBRARY_WRITE_OR_STUDY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE_OR_STUDY_WRITE],
     summary="Approves the endpoint identified by 'endpoint_uid'.",
     description="""This request is only valid if the endpoint
 * is in 'Draft' status and
@@ -569,7 +570,7 @@ def approve(endpoint_uid: Annotated[str, EndpointUID]) -> Endpoint:
 
 @router.delete(
     "/{endpoint_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Inactivates/deactivates the endpoint identified by 'endpoint_uid'.",
     description="""This request is only valid if the endpoint
 * is in 'Final' status only (so no latest 'Draft' status exists).
@@ -601,7 +602,7 @@ def inactivate(endpoint_uid: Annotated[str, EndpointUID]) -> Endpoint:
 # TODO check if * there is no other endpoint with the same name (it may be that one had been created after inactivating this one here)
 @router.post(
     "/{endpoint_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Reactivates the endpoint identified by 'endpoint_uid'.",
     description="""This request is only valid if the endpoint
 * is in 'Retired' status only (so no latest 'Draft' status exists).
@@ -632,7 +633,7 @@ def reactivate(endpoint_uid: Annotated[str, EndpointUID]) -> Endpoint:
 
 @router.delete(
     "/{endpoint_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Deletes the endpoint identified by 'endpoint_uid'.",
     description="""This request is only valid if \n
 * the endpoint is in 'Draft' status and
@@ -662,7 +663,7 @@ def delete(endpoint_uid: Annotated[str, EndpointUID]):
 #       however: check if that is ok with regard to the data volume we expect in the future. is paging needed?
 @router.get(
     "/{endpoint_uid}/parameters",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns all template parameters available for the endpoint identified by 'endpoint_uid'. Includes the available values per parameter.",
     description="""Returns all template parameters used in the endpoint template
 that is the basis for the endpoint identified by 'endpoint_uid'. 

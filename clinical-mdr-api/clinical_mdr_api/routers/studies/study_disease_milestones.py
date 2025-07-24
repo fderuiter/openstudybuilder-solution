@@ -11,8 +11,9 @@ from clinical_mdr_api.routers import study_router as router
 from clinical_mdr_api.services.studies.study_disease_milestone import (
     StudyDiseaseMilestoneService,
 )
-from common import config
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.config import settings
 from common.models.error import ErrorResponse
 
 studyUID = Path(description="The unique id of the study.")
@@ -29,7 +30,7 @@ study_disease_milestone_uid_description = Path(
 
 @router.get(
     "/studies/{study_uid}/study-disease-milestones",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List all study disease_milestones currently selected for the study.",
     description=f"""
 State before:
@@ -87,15 +88,15 @@ def get_all(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -105,7 +106,7 @@ def get_all(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -135,7 +136,7 @@ def get_all(
 
 @router.get(
     "/studies/{study_uid}/study-disease-milestones/headers",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -169,10 +170,10 @@ def get_distinct_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     service = StudyDiseaseMilestoneService()
     return service.get_distinct_values_for_header(
@@ -186,7 +187,7 @@ def get_distinct_values_for_header(
 
 @router.get(
     "/studies/{study_uid}/study-disease-milestones/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to all study disease_milestones within the specified study-uid",
     description="""
 State before:
@@ -221,7 +222,7 @@ def get_study_disease_milestones_all_audit_trail(
 
 @router.get(
     "/studies/{study_uid}/study-disease-milestones/{study_disease_milestone_uid}",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List all definitions for a specific study disease_milestone",
     description="""
 State before:
@@ -265,7 +266,7 @@ def get_study_disease_milestone(
 
 @router.get(
     "/studies/{study_uid}/study-disease-milestones/{study_disease_milestone_uid}/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to definition of a specific study disease_milestone",
     description="""
 State before:
@@ -305,7 +306,7 @@ def get_study_disease_milestone_audit_trail(
 
 @router.post(
     "/studies/{study_uid}/study-disease-milestones",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Add a study disease_milestone to a study",
     description="""
 State before:
@@ -350,7 +351,7 @@ def post_new_disease_milestone_create(
 
 @router.delete(
     "/studies/{study_uid}/study-disease-milestones/{study_disease_milestone_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Delete a study disease_milestone.",
     description="""
 State before:
@@ -394,7 +395,7 @@ def delete_study_disease_milestone(
 
 @router.patch(
     "/studies/{study_uid}/study-disease-milestones/{study_disease_milestone_uid}/order",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Change display order of study disease_milestone",
     description="""
 State before:
@@ -453,7 +454,7 @@ def patch_reorder(
 
 @router.patch(
     "/studies/{study_uid}/study-disease-milestones/{study_disease_milestone_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Edit a study disease_milestone",
     description="""
 State before:

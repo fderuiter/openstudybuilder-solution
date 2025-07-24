@@ -57,7 +57,7 @@ class TestStudyObjectiveUpversion(unittest.TestCase):
         self.tpr = TemplateParameter(name=self.TPR_LABEL)
         self.tpr.save()
         self.tfr = ObjectiveTemplateRepository()
-        self.objective_service = ObjectiveService()
+        self.objective_service: ObjectiveService = ObjectiveService()
         self.objective_template_service = ObjectiveTemplateService()
 
         self.library = LibraryVO(name="LibraryName", is_editable=True)
@@ -77,9 +77,7 @@ class TestStudyObjectiveUpversion(unittest.TestCase):
         )
         self.tfr.save(self.ar)
 
-        self.ar: ObjectiveTemplateAR = self.tfr.find_by_uid(
-            self.ar.uid, for_update=True
-        )
+        self.ar = self.tfr.find_by_uid(self.ar.uid, for_update=True)
         self.ar.approve(author_id="TEST")
         self.tfr.save(self.ar)
 

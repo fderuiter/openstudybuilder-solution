@@ -11,6 +11,7 @@ from clinical_mdr_api.services.controlled_terminologies.ct_codelist import (
 )
 from clinical_mdr_api.services.controlled_terminologies.ct_stats import CTStatsService
 from common.auth import rbac
+from common.auth.dependencies import security
 
 # Prefixed with "/ct"
 router = APIRouter()
@@ -18,7 +19,7 @@ router = APIRouter()
 
 @router.get(
     "/stats",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns stats about Catalogues, Packages and Terms",
     status_code=200,
     responses={

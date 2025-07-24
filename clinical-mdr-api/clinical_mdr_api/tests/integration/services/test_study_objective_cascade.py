@@ -47,7 +47,7 @@ from clinical_mdr_api.tests.integration.utils.data_library import (
     fix_study_preferred_time_unit,
 )
 from clinical_mdr_api.tests.integration.utils.utils import TestUtils
-from common.config import SDTM_CT_CATALOGUE_NAME
+from common.config import settings
 
 
 class TestStudyObjectiveUpversion(unittest.TestCase):
@@ -61,7 +61,7 @@ class TestStudyObjectiveUpversion(unittest.TestCase):
         db.cypher_query(STARTUP_PARAMETERS_CYPHER)
         db.cypher_query(STARTUP_STUDY_OBJECTIVE_CYPHER)
         StudyRoot.generate_node_uids_if_not_present()
-        TestUtils.create_ct_catalogue(catalogue_name=SDTM_CT_CATALOGUE_NAME)
+        TestUtils.create_ct_catalogue(catalogue_name=settings.sdtm_ct_catalogue_name)
         TestUtils.set_study_standard_version(
             study_uid="study_root", create_codelists_and_terms_for_package=False
         )
@@ -73,7 +73,7 @@ class TestStudyObjectiveUpversion(unittest.TestCase):
         self.tpr = TemplateParameter(name=self.TPR_LABEL)
         self.tpr.save()
         self.tfr = ObjectiveTemplateRepository()
-        self.objective_service = ObjectiveService()
+        self.objective_service: ObjectiveService = ObjectiveService()
         self.objective_template_service = ObjectiveTemplateService()
 
         self.library = LibraryVO(name="LibraryName", is_editable=True)
@@ -97,15 +97,11 @@ class TestStudyObjectiveUpversion(unittest.TestCase):
         )
         self.tfr.save(self.ar)
 
-        self.ar: ObjectiveTemplateAR = self.tfr.find_by_uid(
-            self.ar.uid, for_update=True
-        )
+        self.ar = self.tfr.find_by_uid(self.ar.uid, for_update=True)
         self.ar.approve(author_id="TEST")
         self.tfr.save(self.ar)
 
-        self.ar: ObjectiveTemplateAR = self.tfr.find_by_uid(
-            self.ar.uid, for_update=True
-        )
+        self.ar = self.tfr.find_by_uid(self.ar.uid, for_update=True)
         self.ar.create_new_version(
             author_id="TEST", change_description="Change", template=self.template_vo
         )
@@ -115,9 +111,7 @@ class TestStudyObjectiveUpversion(unittest.TestCase):
         fix_study_preferred_time_unit("study_root")
 
     def modify_objective_template(self):
-        self.ar: ObjectiveTemplateAR = self.tfr.find_by_uid(
-            self.ar.uid, for_update=True
-        )
+        self.ar = self.tfr.find_by_uid(self.ar.uid, for_update=True)
         self.ar.create_new_version(
             author_id="TEST", change_description="Change", template=self.ntv
         )
@@ -189,7 +183,7 @@ class TestStudyObjectiveUpversion(unittest.TestCase):
         self.modify_objective_template()
         self.objective_template_service.approve_cascade(self.ar.uid)
 
-        selection: StudySelectionObjective = study_service.get_specific_selection(
+        selection = study_service.get_specific_selection(
             study_uid="study_root", study_selection_uid=selection.study_objective_uid
         )
 
@@ -208,7 +202,7 @@ class TestStudyObjectiveUpversion(unittest.TestCase):
 
         self.assertIsNone(response.latest_objective)
         # then
-        selection: StudySelectionObjective = study_service.get_specific_selection(
+        selection = study_service.get_specific_selection(
             study_uid="study_root", study_selection_uid=selection.study_objective_uid
         )
         self.assertIsNone(selection.latest_objective)
@@ -236,7 +230,7 @@ class TestStudyObjectiveUpversion(unittest.TestCase):
         TestUtils.lock_and_unlock_study(study_uid="study_root")
 
         # when
-        selection: StudySelectionObjective = study_service.get_specific_selection(
+        selection = study_service.get_specific_selection(
             study_uid="study_root", study_selection_uid=selection.study_objective_uid
         )
         # then
@@ -247,7 +241,7 @@ class TestStudyObjectiveUpversion(unittest.TestCase):
 
         self.objective_service.reactivate_retired("Objective_000010")
 
-        selection: StudySelectionObjective = study_service.get_specific_selection(
+        selection = study_service.get_specific_selection(
             study_uid="study_root", study_selection_uid=selection.study_objective_uid
         )
 

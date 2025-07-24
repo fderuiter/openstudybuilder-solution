@@ -1,8 +1,9 @@
-import { apiActivityName, apiGroupName, apiSubgroupName, apiInstanceName } from "./api_library_steps";
+import { apiGroupName, apiSubgroupName } from "./api_library_steps";
 const { When, Then } = require("@badeball/cypress-cucumber-preprocessor");
 
 const clickOnLinkInTable = (name) => cy.get('table tbody tr td').contains(name).click()
 const verifyThatValuesPresent = (values) => values.forEach(value => cy.get('.v-table__wrapper').contains(value))
+let subgroup2Name
 
 When('I click on the test activity group name in the activity group page', () => {
 
@@ -40,6 +41,16 @@ Then('The linked subgroup should be displayed in the Activity subgroups table', 
       });
     });
 
+When('I make changes to the group, enter a reason for change and save it', () => {
+    cy.fillInput('groupform-activity-group-field', `Update ${apiGroupName}`)
+    cy.fillInput('groupform-change-description-field', "Test purpose")
+})
+
+Then('The page of the group with {string} status and version {string} should be opened', (status, version) => {
+    cy.get('.version-select .v-select__selection-text').should('have.text', version)
+    cy.contains('.summary-label', 'Status').siblings('.summary-value').should('have.text', status)
+})
+
 Then('The free text search field should be displayed in the Activity subgroups table', () => {
         cy.get('[data-cy="search-field"]').first().should('be.visible'); // Check if the search field for Activity groupings table is present
     })
@@ -58,20 +69,57 @@ Then('The Activity subgroups table should be empty', () => {
         });
     });
 
-function verifyOverviewPage(pageName){
-    cy.get('.d-flex.page-title').invoke('text').should('match', new RegExp(pageName));
-    cy.get('button[role="tab"][value="html"]').contains('Overview');
-}
+When('I click on new version button', () => {
+        cy.get('button[title="New version"]').click();
+    }) 
 
-function goToPageSearchAndClickLink(endpoint, searchFor, clickOn) {
-    cy.visit(`/library/activities/${endpoint}`)
-    cy.searchAndCheckPresence(searchFor, true)
-    cy.get('table tbody tr td').contains(clickOn).click()
-}
+Then('The page of the group with final status and version 2.0 should be opened', () => {
+        cy.contains('.activity-section .section-header', 'Activity instances').parentsUntil('.activity-section').within(section => {
+        cy.wrap(section).get('table tbody tr td').should('have.text', 'No subgroups available.')
+    })
+    })
+      
+When('I click on approve button', () => {
+        cy.get('button[title="Approve"]').click();
+    }) 
 
-function openLinkedItemAndGoBack(itemName) {
-    cy.get('.v-table__wrapper').contains('a', itemName).click();
-    verifyOverviewPage(itemName) 
-    cy.go(-1); // Go back to the previous page
-    cy.wait(1000)
-}
+When('I create a new subgroup2 and linked to the test group', () => { 
+    cy.clickButton('add-activity')
+    subgroup2Name = `Sg${Date.now()}`
+    cy.get('[data-cy="groupform-activity-group-dropdown"] input').type(apiGroupName)
+    cy.selectFirstVSelect('groupform-activity-group-dropdown')
+    cy.fillInput('groupform-activity-group-field', subgroup2Name)
+    cy.fillInput('groupform-abbreviation-field', 'abbsg2')
+    cy.fillInput('groupform-definition-field', 'defsg2') 
+    }) 
+
+When('I approve the subgroup2', () => {
+        cy.searchAndCheckPresence(subgroup2Name, true)
+        cy.performActionOnSearchedItem('Approve')
+    }) 
+
+Then('The linked subgroup2 should be displayed in the Activity subgroups table', () => {
+    cy.get('.group-overview-container').should('contain.text', 'Activity subgroups');
+    // Assert that the table exists using the subgroups-table class
+    cy.get('.subgroups-table').first().get('[data-cy="data-table"] tbody tr').first().within(() => {      
+        cy.get('.v-data-table__td').then(($headers) => {
+              // Extract the text of each header
+              const headerTexts = $headers.map((index, header) => Cypress.$(header).text().trim()).get();
+                cy.wrap($headers[0]).should('contain.text', subgroup2Name); // First Column Check 
+                cy.wrap($headers[2]).should('contain.text', '1.0'); // Version Check
+                cy.wrap($headers[3]).should('contain.text', 'Final'); // Status Check
+          });
+      });
+    });
+
+Then('The original test subgroup should Not be displayed in the Activity subgroups table', () => {
+    cy.get('.group-overview-container').should('contain.text', 'Activity subgroups');
+    // Assert that the table exists using the subgroups-table class
+    cy.get('.subgroups-table').first().get('[data-cy="data-table"] tbody tr').first().within(() => {      
+        cy.get('.v-data-table__td').then(($headers) => {
+              // Extract the text of each header
+              const headerTexts = $headers.map((index, header) => Cypress.$(header).text().trim()).get();
+                cy.wrap($headers[0]).should('not.contain.text', apiSubgroupName); // First Column Check 
+          });
+      });
+    });   

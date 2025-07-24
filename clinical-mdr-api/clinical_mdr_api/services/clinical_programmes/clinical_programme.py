@@ -1,3 +1,5 @@
+from typing import Any
+
 from neomodel import db  # type: ignore
 
 from clinical_mdr_api.domains.clinical_programmes.clinical_programme import (
@@ -27,10 +29,10 @@ class ClinicalProgrammeService:
 
     def get_all_clinical_programmes(
         self,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 10,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> GenericFilteringReturn[ClinicalProgramme]:
@@ -81,7 +83,7 @@ class ClinicalProgrammeService:
         self,
         field_name: str,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
     ):

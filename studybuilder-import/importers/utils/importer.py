@@ -2,6 +2,7 @@ import copy
 import json
 import logging
 import time
+import threading
 from collections.abc import Callable
 from functools import lru_cache, wraps
 from typing import Dict
@@ -36,7 +37,9 @@ API_BASE_URL = load_env("API_BASE_URL")
 class TermCache:
     def __init__(self, api):
         self.api = api
-        self.all_terms_attributes = self.api.get_all_from_api_paged("/ct/terms/attributes")
+        self.all_terms_attributes = self.api.get_all_from_api_paged(
+            "/ct/terms/attributes"
+        )
         self.all_terms_name_submission_values = CaselessDict(
             self.api.get_all_identifiers(
                 self.all_terms_attributes,
@@ -125,6 +128,20 @@ class BaseImporter:
 
         self.visit_type_codelist_name = "VisitType"
         self.element_subtype_codelist_name = "Element Sub Type"
+        self._start_auth_refresh()
+
+    def _start_auth_refresh(self, interval=25 * 60):
+        def refresh_loop():
+            while True:
+                try:
+                    time.sleep(interval)
+                    self.refresh_auth()
+                    self.log.info("Auth token refreshed")
+                except Exception as e:
+                    self.log.error("Auth refresh failed: %s", e)
+
+        t = threading.Thread(target=refresh_loop, daemon=True)
+        t.start()
 
     def refresh_auth(self):
         headers = self._authenticate(API_HEADERS)
@@ -419,7 +436,9 @@ class BaseImporter:
                 retry_delay = 2 * retry_delay
 
     @lru_cache(maxsize=10000)
-    def lookup_concept_uid(self, name, endpoint, subset=None, library=None, only_final=False):
+    def lookup_concept_uid(
+        self, name, endpoint, subset=None, library=None, only_final=False
+    ):
         self.log.info(f"Looking up concept {endpoint} with name '{name}'")
         filt = {"name": {"v": [name], "op": "eq"}}
         if library is not None:

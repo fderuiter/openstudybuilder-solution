@@ -75,7 +75,7 @@ from clinical_mdr_api.tests.integration.utils.data_library import (
     fix_study_preferred_time_unit,
 )
 from clinical_mdr_api.tests.integration.utils.utils import TestUtils
-from common.config import SDTM_CT_CATALOGUE_NAME
+from common.config import settings
 
 
 class TestStudyEndpointUpversion(unittest.TestCase):
@@ -97,7 +97,7 @@ class TestStudyEndpointUpversion(unittest.TestCase):
         ObjectiveTemplateRoot.generate_node_uids_if_not_present()
         EndpointRoot.generate_node_uids_if_not_present()
         EndpointTemplateRoot.generate_node_uids_if_not_present()
-        TestUtils.create_ct_catalogue(catalogue_name=SDTM_CT_CATALOGUE_NAME)
+        TestUtils.create_ct_catalogue(catalogue_name=settings.sdtm_ct_catalogue_name)
         TestUtils.set_study_standard_version(
             study_uid="study_root", create_codelists_and_terms_for_package=False
         )
@@ -110,9 +110,9 @@ class TestStudyEndpointUpversion(unittest.TestCase):
         self.ttr = TimeframeTemplateRepository()
         self.etr = EndpointTemplateRepository()
         self.otr = ObjectiveTemplateRepository()
-        self.objective_service = ObjectiveService()
-        self.endpoint_service = EndpointService()
-        self.timeframe_service = TimeframeService()
+        self.objective_service: ObjectiveService = ObjectiveService()
+        self.endpoint_service: EndpointService = EndpointService()
+        self.timeframe_service: TimeframeService = TimeframeService()
         self.objective_template_service = ObjectiveTemplateService()
         self.timeframe_template_service = TimeframeTemplateService()
         self.endpoint_template_service = EndpointTemplateService()
@@ -134,15 +134,11 @@ class TestStudyEndpointUpversion(unittest.TestCase):
         )
         self.otr.save(self.ot_ar)
 
-        self.ot_ar: ObjectiveTemplateAR = self.otr.find_by_uid(
-            self.ot_ar.uid, for_update=True
-        )
+        self.ot_ar = self.otr.find_by_uid(self.ot_ar.uid, for_update=True)
         self.ot_ar.approve(author_id="TEST")
         self.otr.save(self.ot_ar)
 
-        self.ot_ar: ObjectiveTemplateAR = self.otr.find_by_uid(
-            self.ot_ar.uid, for_update=True
-        )
+        self.ot_ar = self.otr.find_by_uid(self.ot_ar.uid, for_update=True)
         self.ot_ar.create_new_version(
             author_id="TEST", change_description="Change", template=self.template_vo
         )
@@ -158,15 +154,11 @@ class TestStudyEndpointUpversion(unittest.TestCase):
         )
         self.etr.save(self.et_ar)
 
-        self.et_ar: EndpointTemplateAR = self.etr.find_by_uid(
-            self.et_ar.uid, for_update=True
-        )
+        self.et_ar = self.etr.find_by_uid(self.et_ar.uid, for_update=True)
         self.et_ar.approve(author_id="TEST")
         self.etr.save(self.et_ar)
 
-        self.et_ar: EndpointTemplateAR = self.etr.find_by_uid(
-            self.et_ar.uid, for_update=True
-        )
+        self.et_ar = self.etr.find_by_uid(self.et_ar.uid, for_update=True)
         self.et_ar.create_new_version(
             author_id="TEST", change_description="Change", template=self.template_vo
         )
@@ -182,23 +174,17 @@ class TestStudyEndpointUpversion(unittest.TestCase):
         )
         self.ttr.save(self.tt_ar)
 
-        self.tt_ar: TimeframeTemplateAR = self.ttr.find_by_uid(
-            self.tt_ar.uid, for_update=True
-        )
+        self.tt_ar = self.ttr.find_by_uid(self.tt_ar.uid, for_update=True)
         self.tt_ar.approve(author_id="TEST")
         self.ttr.save(self.tt_ar)
 
-        self.tt_ar: TimeframeTemplateAR = self.ttr.find_by_uid(
-            self.tt_ar.uid, for_update=True
-        )
+        self.tt_ar = self.ttr.find_by_uid(self.tt_ar.uid, for_update=True)
         self.tt_ar.create_new_version(
             author_id="TEST", change_description="Change", template=self.template_vo
         )
         self.ttr.save(self.tt_ar)
 
-        self.tt_ar: TimeframeTemplateAR = self.ttr.find_by_uid(
-            self.tt_ar.uid, for_update=True
-        )
+        self.tt_ar = self.ttr.find_by_uid(self.tt_ar.uid, for_update=True)
         self.ntv = TemplateVO(
             name=self.changed_template_name,
             name_plain=self.changed_template_name,
@@ -222,18 +208,14 @@ class TestStudyEndpointUpversion(unittest.TestCase):
         )
 
     def modify_objective_template(self):
-        self.ot_ar: ObjectiveTemplateAR = self.otr.find_by_uid(
-            self.ot_ar.uid, for_update=True
-        )
+        self.ot_ar = self.otr.find_by_uid(self.ot_ar.uid, for_update=True)
         self.ot_ar.create_new_version(
             author_id="TEST", change_description="Change", template=self.ntv
         )
         self.otr.save(self.ot_ar)
 
     def modify_endpoint_template(self):
-        self.et_ar: EndpointTemplateAR = self.etr.find_by_uid(
-            self.et_ar.uid, for_update=True
-        )
+        self.et_ar = self.etr.find_by_uid(self.et_ar.uid, for_update=True)
         self.et_ar.create_new_version(
             author_id="TEST", change_description="Change", template=self.ntv
         )
@@ -391,7 +373,7 @@ class TestStudyEndpointUpversion(unittest.TestCase):
         self.assertIsNotNone(response.latest_endpoint)
         self.assertTrue(response.accepted_version)
         # then
-        selection: StudySelectionEndpoint = endpoint_service.get_specific_selection(
+        selection = endpoint_service.get_specific_selection(
             study_uid="study_root", study_selection_uid=selection.study_endpoint_uid
         )
         self.assertIsNotNone(selection.latest_endpoint)
@@ -413,7 +395,7 @@ class TestStudyEndpointUpversion(unittest.TestCase):
         self.modify_objective_template()
         self.objective_template_service.approve_cascade(self.ot_ar.uid)
 
-        selection: StudySelectionObjective = study_service.get_specific_selection(
+        selection = study_service.get_specific_selection(
             study_uid="study_root", study_selection_uid=selection.study_objective_uid
         )
 
@@ -433,7 +415,7 @@ class TestStudyEndpointUpversion(unittest.TestCase):
         self.assertIsNotNone(response.latest_objective)
         self.assertTrue(response.accepted_version)
         # then
-        selection: StudySelectionObjective = study_service.get_specific_selection(
+        selection = study_service.get_specific_selection(
             study_uid="study_root", study_selection_uid=selection.study_objective_uid
         )
         print("SLDATA", selection)

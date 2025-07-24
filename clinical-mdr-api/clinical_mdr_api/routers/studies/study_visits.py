@@ -22,14 +22,15 @@ from clinical_mdr_api.routers.studies.study_epochs import (
     studyUID,
 )
 from clinical_mdr_api.services.studies.study_visit import StudyVisitService
-from common import config
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.config import settings
 from common.models.error import ErrorResponse
 
 
 @router.get(
     "/studies/{study_uid}/study-visits",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List all study visits currently defined for the study",
     description=f"""
 State before:
@@ -120,15 +121,15 @@ def get_all(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -138,7 +139,7 @@ def get_all(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -166,7 +167,7 @@ def get_all(
 
 @router.get(
     "/studies/{study_uid}/study-visits/headers",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns possible values from the database for a given header",
     description="""Allowed parameters include : field name for which to get possible
     values, search string to provide filtering for the field name, additional filters to apply on other fields""",
@@ -196,10 +197,10 @@ def get_distinct_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
     study_value_version: Annotated[
         str | None, _generic_descriptions.STUDY_VALUE_VERSION_QUERY
     ] = None,
@@ -219,7 +220,7 @@ def get_distinct_values_for_header(
 
 @router.get(
     "/studies/{study_uid}/study-visits-references",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns all study visit references for study currently selected",
     response_model_exclude_unset=True,
     status_code=200,
@@ -237,7 +238,7 @@ def get_all_references(
 
 @router.post(
     "/studies/{study_uid}/study-visits",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Add a study visit to a study",
     description="""
 
@@ -320,7 +321,7 @@ def post_new_visit_create(
 
 @router.post(
     "/studies/{study_uid}/study-visits/preview",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Preview a study visit",
     response_model_exclude_unset=True,
     status_code=200,
@@ -346,7 +347,7 @@ def post_preview_visit(
 
 @router.get(
     "/studies/{study_uid}/study-visits/allowed-time-references",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Returns all allowed time references for a study visit",
     response_model_exclude_unset=True,
     status_code=200,
@@ -364,7 +365,7 @@ def get_allowed_time_references_for_given_study(
 
 @router.patch(
     "/studies/{study_uid}/study-visits/{study_visit_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Edit a study visit",
     description="""
 State before:
@@ -409,7 +410,7 @@ def patch_update_visit(
 
 @router.delete(
     "/studies/{study_uid}/study-visits/{study_visit_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Delete a study visit",
     description=""""
 State before:
@@ -449,7 +450,7 @@ def delete_study_visit(
 
 @router.get(
     "/studies/{study_uid}/study-visits/{study_visit_uid}/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to definition of a specific study visit.",
     description="""
 State before:
@@ -486,7 +487,7 @@ def get_study_visit_audit_trail(
 
 @router.get(
     "/studies/{study_uid}/study-visits/audit-trail",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to definition of all study visits within the specified study-uid.",
     description="""
 State before:
@@ -521,7 +522,7 @@ def get_study_visits_all_audit_trail(
 
 @router.get(
     "/studies/{study_uid}/study-visits/{study_visit_uid}",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List all definitions for a specific study visit",
     description="""
 State before:
@@ -570,7 +571,7 @@ def get_study_visit(
 
 @router.get(
     "/studies/{study_uid}/get-amount-of-visits-in-epoch/{study_epoch_uid}",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="Counts amount of visits in a specified study epoch",
     description="""
 State before:
@@ -607,7 +608,7 @@ def get_amount_of_visits_in_given_epoch(
 
 @router.get(
     "/studies/{study_uid}/global-anchor-visit",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List global anchor visit study visits for selected study referenced by 'study_uid' ",
     description="""
 State before:
@@ -638,7 +639,7 @@ def get_global_anchor_visit(
 
 @router.get(
     "/studies/{study_uid}/anchor-visits-in-group-of-subvisits",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List all anchor visits for group of subvisits for selected study referenced by 'study_uid' ",
     description="""
 State before:
@@ -669,7 +670,7 @@ def get_anchor_visits_in_group_of_subvisits(
 
 @router.get(
     "/studies/{study_uid}/anchor-visits-for-special-visit",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List all visits that can be anchor visits for special visit for a selected study referenced by 'study_uid' and selected study epoch referenced by 'study_epoch_uid'",
     description="""
 State before:
@@ -706,7 +707,7 @@ def get_anchor_visits_for_special_visit(
 
 @router.post(
     "/studies/{study_uid}/consecutive-visit-groups",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Assign consecutive visit groups for specific study visits for a selected study referenced by 'study_uid' ",
     description="""
 State before:
@@ -737,18 +738,26 @@ def assign_consecutive_visit_group_for_selected_study_visit(
             description="The properties needed to assign visits into consecutive visit group",
         ),
     ],
+    validate_only: Annotated[
+        bool,
+        Query(
+            description="Indicates whether only validation of consecutive visit group assignment should be performed"
+        ),
+    ] = False,
 ) -> list[StudyVisit]:
     service = StudyVisitService(study_uid=study_uid)
     return service.assign_visit_consecutive_group(
         study_uid=study_uid,
         visits_to_assign=consecutive_visit_group_input.visits_to_assign,
         overwrite_visit_from_template=consecutive_visit_group_input.overwrite_visit_from_template,
+        group_format=consecutive_visit_group_input.format,
+        validate_only=validate_only,
     )
 
 
 @router.delete(
     "/studies/{study_uid}/consecutive-visit-groups/{consecutive_visit_group_name}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Remove consecutive visit group specified by consecutive-visit-group-name for a selected study referenced by 'study_uid' ",
     description="""
 State before:

@@ -25,7 +25,7 @@ class FeatureFlags(BaseImporter):
     @open_file()
     def handle_feature_flags(self, csvfile):
         feature_flags_in_db = requests.get(
-            path_join(self.api.api_base_url, "/system/feature-flags"),
+            path_join(self.api.api_base_url, "/feature-flags"),
             headers=self.api.api_headers,
         ).json()
 

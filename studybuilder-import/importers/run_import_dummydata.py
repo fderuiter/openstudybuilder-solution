@@ -4,8 +4,10 @@
 
 import base64
 import json
+from datetime import datetime
 from functools import lru_cache
 from random import randint
+import time
 
 import requests
 
@@ -568,7 +570,11 @@ class DummyData(BaseImporter):
                     )
                     if new_version_response.ok:
                         obj_type = obj["path"].split("/")[-1]
-                        if obj_type in ["activities", "activity-groups", "activity-sub-groups"]:
+                        if obj_type in [
+                            "activities",
+                            "activity-groups",
+                            "activity-sub-groups",
+                        ]:
                             method = "PUT"
                         else:
                             method = "PATCH"
@@ -741,7 +747,11 @@ class DummyData(BaseImporter):
     def create_activity_requests(self):
         total = self.simple_get(
             "/concepts/activities/activities",
-            {"library_name": LIBRARY_NAME_REQUESTED, "page_size": 1, "total_count": True},
+            {
+                "library_name": LIBRARY_NAME_REQUESTED,
+                "page_size": 1,
+                "total_count": True,
+            },
             return_key="total",
         )
 
@@ -919,9 +929,6 @@ class DummyData(BaseImporter):
         )
 
         for n in range(self.options.studies):
-            if n in [0, 5, 10, 15]:
-                self.refresh_auth()
-
             payload = study_payload(found + n, self.project["project_number"])
             uid = self.simple_post(payload)
 
@@ -989,10 +996,12 @@ class DummyData(BaseImporter):
                         epoch_uid=epoch_uid,
                         visit_type_uid=visit_type_uids[m % len(visit_type_uids)],
                         time_unit_uid=time_unit_uids[m % len(time_unit_uids)],
-                        time_reference_uid=time_reference_uid
-                        if j != 2
-                        else self.lookup_ct_term_uid(
-                            "Time Point Reference", "Global anchor visit"
+                        time_reference_uid=(
+                            time_reference_uid
+                            if j != 2
+                            else self.lookup_ct_term_uid(
+                                "Time Point Reference", "Global anchor visit"
+                            )
                         ),
                         time_value=None if j != 2 else 0,
                         is_global_anchor_visit=j == 2,

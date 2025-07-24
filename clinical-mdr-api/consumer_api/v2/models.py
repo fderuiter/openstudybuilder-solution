@@ -1,6 +1,6 @@
 import logging
 from enum import Enum
-from typing import Annotated
+from typing import Annotated, Any
 
 from pydantic import BaseModel, Field
 
@@ -31,7 +31,7 @@ class Study(BaseModel):
     ] = None
 
     @classmethod
-    def from_input(cls, val: dict):
+    def from_input(cls, val: dict[str, Any]):
         log.debug("Create Study from input: %s", val)
         return cls(
             uid=val["uid"],

@@ -55,7 +55,7 @@ class OdmClinicalXmlImporterService(OdmXmlImporterService):
         self.ct_term_service = CTTermService()
 
         self.db_ct_codelist_attributes = []
-        self.unit_definition_uids_by = {}
+        self.unit_definition_uids_by: dict[str, str] = {}
         self.measurement_unit_names_by_oid = {}
 
         super().__init__(xml_file, mapper_file)
@@ -256,7 +256,7 @@ class OdmClinicalXmlImporterService(OdmXmlImporterService):
             item.ct_term_vo.code_submission_value for item in rs.items
         }
 
-        term_attribute_uids = set()
+        term_attribute_uids: set[str] = set()
         for codelist in self.codelists:
             try:
                 active_codelist = next(
@@ -376,12 +376,8 @@ class OdmClinicalXmlImporterService(OdmXmlImporterService):
                 ),
                 prompt=item_def.getAttribute("Prompt"),
                 datatype=item_def.getAttribute("DataType"),
-                length=(
-                    int(item_def.getAttribute("Length"))
-                    if item_def.getAttribute("Length")
-                    else None
-                ),
-                significant_digits=None,
+                length=item_def.getAttribute("Length") or None,
+                significant_digits=item_def.getAttribute("SignificantDigits") or None,
                 sas_field_name=item_def.getAttribute("SASFieldName"),
                 sds_var_name=item_def.getAttribute("SDSVarName"),
                 origin=item_def.getAttribute("Origin"),

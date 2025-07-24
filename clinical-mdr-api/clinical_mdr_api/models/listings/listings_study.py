@@ -86,7 +86,7 @@ class SimpleListingCTModel(BaseModel):
     id: Annotated[
         str | None,
         Field(
-            title="concept id: c code for CDISC CT, dictionary id for dictionary codes",
+            description="concept id: c code for CDISC CT, dictionary id for dictionary codes",
             json_schema_extra={"nullable": True},
         ),
     ] = None
@@ -94,7 +94,7 @@ class SimpleListingCTModel(BaseModel):
     name: Annotated[
         str | None,
         Field(
-            title="name: submission name for CDISC CT, name for dictionary codes",
+            description="name: submission name for CDISC CT, name for dictionary codes",
             json_schema_extra={"nullable": True},
         ),
     ] = None
@@ -125,8 +125,7 @@ def none_to_empty_str(obj):
 
 class RegistryIdentifiersListingModel(BaseModel):
     model_config = ConfigDict(
-        title="Registry identifiers model for listing",
-        description="Registry identifiers model for listing supplying SDTM generation framework.",
+        title="Registry identifiers model for listing supplying SDTM generation framework"
     )
 
     ct_gov: Annotated[str, Field()]
@@ -179,10 +178,7 @@ class RegistryIdentifiersListingModel(BaseModel):
 
 class StudyTypeListingModel(BaseModel):
     model_config = ConfigDict(
-        title="Study type model for listing",
-        description=(
-            "Study type model for listing supplying SDTM generation framework."
-        ),
+        title="Study type model for listing supplying SDTM generation framework"
     )
 
     stype: Annotated[str, Field()]
@@ -283,10 +279,7 @@ class StudyTypeListingModel(BaseModel):
 
 class StudyPopulationListingModel(BaseModel):
     model_config = ConfigDict(
-        title="Study population model for listing",
-        description=(
-            "Study population model for listing supplying SDTM generation framework."
-        ),
+        title="Study population model for listing supplying SDTM generation framework"
     )
 
     therapy_area: Annotated[list[SimpleListingCTModel], Field()]
@@ -462,10 +455,7 @@ class StudyPopulationListingModel(BaseModel):
 
 class StudyAttributesListingModel(BaseModel):
     model_config = ConfigDict(
-        title="study attributes model for listing",
-        description=(
-            "Study attributes model for listing supplying SDTM generation framework."
-        ),
+        title="Study attributes model for listing supplying SDTM generation framework"
     )
 
     intv_type: Annotated[str, Field()]
@@ -588,10 +578,7 @@ class StudySelctionListingModel(BaseModel):
 
 
 class StudyBranchArmListingModel(StudySelctionListingModel):
-    model_config = ConfigDict(
-        title="Study Branch Arm model for listing",
-        description="Study Branch Arm model for listing.",
-    )
+    model_config = ConfigDict(title="Study Branch Arm model for listing")
 
     order: Annotated[int, Field()]
     arm_uid: Annotated[str, Field()]
@@ -638,9 +625,7 @@ class StudyBranchArmListingModel(StudySelctionListingModel):
 
 
 class StudyArmListingModel(StudySelctionListingModel):
-    model_config = ConfigDict(
-        title="Study Arm model for listing", description="Study Arm model for listing."
-    )
+    model_config = ConfigDict(title="Study Arm model for listing")
 
     order: Annotated[int, Field()]
     rand_grp: Annotated[str, Field()]
@@ -689,10 +674,7 @@ class StudyArmListingModel(StudySelctionListingModel):
 
 
 class StudyCohortListingModel(StudySelctionListingModel):
-    model_config = ConfigDict(
-        title="study attributes model for listing",
-        description="Study attributes model for listing",
-    )
+    model_config = ConfigDict(title="study attributes model for listing")
 
     arm_uid: Annotated[list[str], Field()]
     branch_uid: Annotated[list[str], Field()]
@@ -1100,10 +1082,7 @@ class StudyEndpointListingModel(BaseModel):
 
 
 class StudyMetadataListingModel(BaseModel):
-    model_config = ConfigDict(
-        title="Study Metadata model for listing",
-        description="Study Metadata model for listing.",
-    )
+    model_config = ConfigDict(title="Study Metadata model for listing")
 
     api_ver: Annotated[str, Field()]
     study_id: Annotated[str, Field()]

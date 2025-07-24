@@ -7,6 +7,11 @@ from clinical_mdr_api.models.concepts.concept import VersionProperties
 
 
 def acquire_write_lock_study_value(uid: str) -> None:
+    """
+    Acquires exclusive lock on (Study) root object of given uid.
+    :param uid:
+    :return:
+    """
     db.cypher_query(
         """
         MATCH (sr:StudyRoot {uid: $uid})

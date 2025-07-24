@@ -9,6 +9,7 @@ from clinical_mdr_api.models.syntax_templates.template_parameter import (
 from clinical_mdr_api.routers import _generic_descriptions
 from clinical_mdr_api.services import template_parameters as service
 from common.auth import rbac
+from common.auth.dependencies import security
 
 # Prefixed with "/template-parameters"
 router = APIRouter()
@@ -16,7 +17,7 @@ router = APIRouter()
 
 @router.get(
     "",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns all template parameter available with samples of the available values.",
     description="The returned template parameter are ordered by\n0. name ascending",
     status_code=200,
@@ -31,7 +32,7 @@ def get_all_template_parameters() -> list[TemplateParameter]:
 
 @router.get(
     "/{name}/terms",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Return all terms available for the given template parameter.",
     status_code=200,
     responses={

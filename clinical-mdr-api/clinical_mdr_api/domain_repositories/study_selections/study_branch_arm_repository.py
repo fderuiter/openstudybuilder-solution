@@ -1,9 +1,13 @@
 import datetime
 from dataclasses import dataclass
+from typing import Any
 
 from neomodel import db
 
 from clinical_mdr_api import utils
+from clinical_mdr_api.domain_repositories._utils.helpers import (
+    acquire_write_lock_study_value,
+)
 from clinical_mdr_api.domain_repositories.generic_repository import (
     manage_previous_connected_study_selection_relationships,
 )
@@ -51,16 +55,6 @@ class SelectionHistoryBranchArm:
 
 
 class StudySelectionBranchArmRepository:
-    @staticmethod
-    def _acquire_write_lock_study_value(uid: str) -> None:
-        db.cypher_query(
-            """
-             MATCH (sr:StudyRoot {uid: $uid})
-             REMOVE sr.__WRITE_LOCK__
-             RETURN true
-            """,
-            {"uid": uid},
-        )
 
     def _retrieves_all_data(
         self,
@@ -274,7 +268,7 @@ class StudySelectionBranchArmRepository:
         :return:
         """
         if for_update:
-            self._acquire_write_lock_study_value(study_uid)
+            acquire_write_lock_study_value(study_uid)
         all_selections = self._retrieves_all_data(
             study_uid, study_value_version=study_value_version
         )
@@ -301,7 +295,7 @@ class StudySelectionBranchArmRepository:
         :return:
         """
         if for_update:
-            self._acquire_write_lock_study_value(study_uid)
+            acquire_write_lock_study_value(study_uid)
         all_selections = self._retrieves_all_data_within_arm(
             study_arm_uid, study_value_version=study_value_version
         )
@@ -479,13 +473,13 @@ class StudySelectionBranchArmRepository:
         )
 
         # group closure by parent arm
-        closure_group_by_root = {}
+        closure_group_by_root: dict[str, Any] = {}
         for selected_object in study_selection.repository_closure_data:
             if selected_object.arm_root_uid not in closure_group_by_root:
                 closure_group_by_root[selected_object.arm_root_uid] = []
             closure_group_by_root[selected_object.arm_root_uid].append(selected_object)
         # group branch arm by root
-        branch_arm_group_by_root = {}
+        branch_arm_group_by_root: dict[str, Any] = {}
         for selected_object in study_selection.study_branch_arms_selection:
             if selected_object.arm_root_uid not in branch_arm_group_by_root:
                 branch_arm_group_by_root[selected_object.arm_root_uid] = []
@@ -494,8 +488,8 @@ class StudySelectionBranchArmRepository:
             )
 
         # process new/changed/deleted elements for each parent arm
-        selections_to_remove = {}
-        selections_to_add = {}
+        selections_to_remove: dict[Any, Any] = {}
+        selections_to_add: dict[Any, Any] = {}
 
         # first, check for deleted elements
         for arm_root, branch_arm_list in closure_group_by_root.items():

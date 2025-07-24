@@ -1,6 +1,7 @@
 import pytest
 
-from common import config, exceptions
+from common import exceptions
+from common.config import settings
 from common.utils import load_env, strtobool, validate_page_number_and_page_size
 
 
@@ -26,7 +27,7 @@ def test_strtobool():
 
 @pytest.mark.parametrize(
     "page_number, page_size",
-    [[1, 10], [2, 200], [3000, 1000], [config.MAX_INT_NEO4J, 1]],
+    [[1, 10], [2, 200], [3000, 1000], [settings.max_int_neo4j, 1]],
 )
 def test_validate_page_number_and_page_size(page_number, page_size):
     validate_page_number_and_page_size(page_number, page_size)
@@ -35,10 +36,10 @@ def test_validate_page_number_and_page_size(page_number, page_size):
 @pytest.mark.parametrize(
     "page_number, page_size",
     [
-        [config.MAX_INT_NEO4J + 1, 1],
-        [config.MAX_INT_NEO4J, 10],
-        [1, config.MAX_INT_NEO4J + 1],
-        [10, config.MAX_INT_NEO4J],
+        [settings.max_int_neo4j + 1, 1],
+        [settings.max_int_neo4j, 10],
+        [1, settings.max_int_neo4j + 1],
+        [10, settings.max_int_neo4j],
     ],
 )
 def test_validate_page_number_and_page_size_negative(page_number, page_size):
@@ -46,7 +47,7 @@ def test_validate_page_number_and_page_size_negative(page_number, page_size):
         validate_page_number_and_page_size(page_number, page_size)
     assert (
         str(exc_info.value)
-        == f"(page_number * page_size) value cannot be bigger than {config.MAX_INT_NEO4J}"
+        == f"(page_number * page_size) value cannot be bigger than {settings.max_int_neo4j}"
     )
 
 

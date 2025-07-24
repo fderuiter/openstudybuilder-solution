@@ -21,7 +21,7 @@ class DataModelScenario:
     def __add_variable(self, variable: DataModelVariable):
         self.__variables.add(variable)
 
-    def __add_variables(self, variables: Sequence[DataModelVariable]):
+    def add_variables(self, variables: Sequence[DataModelVariable]):
         for variable in variables:
             self.__add_variable(variable)
 
@@ -54,4 +54,4 @@ class DataModelScenario:
             is_class_dataset=False,
         )
 
-        self.__add_variables(variables)
+        self.add_variables(variables)

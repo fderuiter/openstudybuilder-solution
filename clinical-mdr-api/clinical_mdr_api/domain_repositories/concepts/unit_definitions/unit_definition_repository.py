@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Any, cast
 
 from neomodel import db
 
@@ -73,7 +73,7 @@ class UnitDefinitionRepository(ConceptGenericRepository[UnitDefinitionAR]):
 
     def create_query_filter_statement(
         self, library: str | None = None, **kwargs
-    ) -> tuple[str, dict]:
+    ) -> tuple[str, dict[Any, Any]]:
         (
             filter_statements_from_concept,
             filter_query_parameters,
@@ -229,7 +229,7 @@ class UnitDefinitionRepository(ConceptGenericRepository[UnitDefinitionAR]):
         return result
 
     def _create_aggregate_root_instance_from_cypher_result(
-        self, input_dict: dict
+        self, input_dict: dict[str, Any]
     ) -> UnitDefinitionAR:
         major, minor = input_dict.get("version").split(".")
 

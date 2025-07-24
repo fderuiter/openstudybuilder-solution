@@ -1,5 +1,6 @@
 import logging
 from collections import defaultdict
+from typing import Any, Iterable
 
 from clinical_mdr_api.domain_repositories.models.study_selections import (
     StudyActivitySchedule,
@@ -10,6 +11,7 @@ from clinical_mdr_api.domain_repositories.study_selections.study_soa_repository 
 )
 from clinical_mdr_api.domains.controlled_terminologies.utils import TermParentType
 from clinical_mdr_api.domains.study_selections.study_selection_base import SoAItemType
+from clinical_mdr_api.domains.study_selections.study_visit import VisitGroupFormat
 from clinical_mdr_api.models.concepts.activities.activity import Activity
 from clinical_mdr_api.models.concepts.activities.activity_group import ActivityGroup
 from clinical_mdr_api.models.concepts.activities.activity_instance import (
@@ -37,6 +39,22 @@ from clinical_mdr_api.models.study_selections.study_selection import (
 from clinical_mdr_api.models.study_selections.study_visit import StudyVisit
 from clinical_mdr_api.models.syntax_instances.footnote import Footnote
 from clinical_mdr_api.models.syntax_templates.footnote_template import FootnoteTemplate
+from clinical_mdr_api.repositories._utils import FilterOperator
+from clinical_mdr_api.services.biomedical_concepts.activity_instance_class import (
+    ActivityInstanceClassService,
+)
+from clinical_mdr_api.services.concepts.activities.activity_group_service import (
+    ActivityGroupService,
+)
+from clinical_mdr_api.services.concepts.activities.activity_instance_service import (
+    ActivityInstanceService,
+)
+from clinical_mdr_api.services.concepts.activities.activity_service import (
+    ActivityService,
+)
+from clinical_mdr_api.services.concepts.activities.activity_sub_group_service import (
+    ActivitySubGroupService,
+)
 from clinical_mdr_api.services.concepts.unit_definitions.unit_definition import (
     UnitDefinitionService,
 )
@@ -48,9 +66,15 @@ from clinical_mdr_api.services.studies.study_activity_instance_selection import 
     StudyActivityInstanceSelectionService,
 )
 from clinical_mdr_api.services.studies.study_flowchart import StudyFlowchartService
+from clinical_mdr_api.services.studies.study_visit import StudyVisitService
+from clinical_mdr_api.services.syntax_instances.footnotes import FootnoteService
+from clinical_mdr_api.services.syntax_templates.footnote_templates import (
+    FootnoteTemplateService,
+)
 from clinical_mdr_api.services.utils.table_f import TableWithFootnotes
 from clinical_mdr_api.tests.integration.utils.utils import LIBRARY_NAME, TestUtils
-from common import config
+from common import exceptions
+from common.config import settings
 
 log = logging.getLogger(__name__)
 
@@ -69,10 +93,10 @@ class SoATestData:
     activities: dict[str, Activity]
     _activity_groups: dict[str, ActivityGroup]
     _activity_subgroups: dict[str, ActivitySubGroup]
-    _codelists: dict[str, CTCodelist] = {}
-    activity_instances: dict[str, ActivityInstance]
+    _codelists: dict[str, CTCodelist]
+    activity_instances: dict[str, dict[str, ActivityInstance]]
     study_activities: dict[str, StudySelectionActivity]
-    study_activity_instances: dict[str, StudySelectionActivityInstance]
+    study_activity_instances: dict[str, list[StudySelectionActivityInstance]]
     study_activity_schedules: list[StudyActivitySchedule]
     _footnote_types: dict[str, CTTerm]
     footnotes: dict[str, Footnote]
@@ -113,7 +137,7 @@ class SoATestData:
         "V4": {
             "epoch": "Follow-Up",
             "type": "Follow-Up",
-            "consecutive_visit_group": "V4-5",
+            "visit_group": "V4-5",
             "visit_contact_mode": "On Site Visit",
             "day": 28,
             "min_window": -1,
@@ -122,7 +146,7 @@ class SoATestData:
         "V5": {
             "epoch": "Follow-Up",
             "type": "Follow-Up",
-            "consecutive_visit_group": "V4-5",
+            "visit_group": "V4-5",
             "visit_contact_mode": "On Site Visit",
             "day": 35,
             "min_window": -1,
@@ -186,7 +210,7 @@ class SoATestData:
         },
         "I agree": {
             "soa_group": "Informed Consent",
-            "library_name": config.REQUESTED_LIBRARY_NAME,
+            "library_name": settings.requested_library_name,
             "is_data_collected": True,
             "visits": ["V6"],
             "show_soa_group": True,
@@ -223,7 +247,7 @@ class SoATestData:
             "soa_group": "Subject Related Information",
             "group": "Eligibility Criteria",
             "subgroup": None,
-            "library_name": config.REQUESTED_LIBRARY_NAME,
+            "library_name": settings.requested_library_name,
             "is_data_collected": False,
             "visits": [],
             "show_soa_group": False,
@@ -357,7 +381,7 @@ class SoATestData:
             "soa_group": "Subject Related Information",
             "group": "Eligibility Criteria",
             "subgroup": "Other Eligibility Criteria",
-            "library_name": config.REQUESTED_LIBRARY_NAME,
+            "library_name": settings.requested_library_name,
             "is_data_collected": False,
             "visits": [],
             "show_soa_group": False,
@@ -377,7 +401,16 @@ class SoATestData:
         },
     }
     NUM_SOA_ROWS = 43
-    NUM_OPERATIONAL_SOA_ROWS = 34
+    NUM_ACTIVITY_REQUEST_ROWS = 3 + 3 + 3  # 3 activity requests with their groupings
+    NUM_ACTIVITY_INSTANCES = 8
+    NUM_OPERATIONAL_SOA_ROWS = (
+        NUM_SOA_ROWS - NUM_ACTIVITY_REQUEST_ROWS + NUM_ACTIVITY_INSTANCES
+    )
+    NUM_OPERATIONAL_SOA_SCHEDULES = 9  # Mind that study-activities are scheduled, not study-activity-instances, there may be multiple instances per activity
+    NUM_OPERATIONAL_SOA_CHECKMARKS = (
+        15  # Visits are no longer grouped in operational SoA
+    )
+    NUM_OPERATIONAL_SOA_EXPORT_ROWS = 15  # study-activity-instances ⋈ study-visits (one row per instance per visit the activity is scheduled to)
 
     FOOTNOTES = {
         "Dilution of hyperreal in ion-exchanged water applied orally": [],
@@ -461,6 +494,7 @@ class SoATestData:
         self._activity_groups: dict[str, ActivityGroup] = {}
         self._activity_subgroups: dict[str, ActivitySubGroup] = {}
         self._codelists: dict[str, CTCodelist] = {}
+        self.activity_instances = {}
         self.study_activities: dict[str, StudySelectionActivity] = {}
         self.study_activity_schedules: list[StudyActivitySchedule] = []
 
@@ -472,7 +506,7 @@ class SoATestData:
         log.info("created study: [%s]", self.study.uid)
 
         TestUtils.set_study_standard_version(
-            study_uid=self.study.uid, catalogue=config.SDTM_CT_CATALOGUE_NAME
+            study_uid=self.study.uid, catalogue=settings.sdtm_ct_catalogue_name
         )
 
         # Study needs a title to be able to lock
@@ -488,11 +522,7 @@ class SoATestData:
         self.study_epochs = self.create_study_epochs(self.EPOCHS)
 
         self._visit_type_terms = self.create_codelist_with_terms(
-            name=config.STUDY_VISIT_TYPE_NAME,
-            sponsor_preferred_name=config.STUDY_VISIT_TYPE_NAME,
-            submission_value="TIMELB",
-            extensible=True,
-            approve=True,
+            name=settings.study_visit_type_name,
             terms={
                 "End of Treatment",
                 "End of Trial",
@@ -506,33 +536,33 @@ class SoATestData:
                 "Unscheduled",
                 "Washout",
             },
+            sponsor_preferred_name=settings.study_visit_type_name,
+            submission_value="TIMELB",
+            extensible=True,
+            approve=True,
         )
 
         self._visit_contact_terms = self.create_codelist_with_terms(
-            name=config.STUDY_VISIT_CONTACT_MODE_NAME,
-            sponsor_preferred_name=config.STUDY_VISIT_CONTACT_MODE_NAME,
+            name=settings.study_visit_contact_mode_name,
+            terms={"On Site Visit", "Phone Contact", "Virtual Visit"},
+            sponsor_preferred_name=settings.study_visit_contact_mode_name,
             submission_value="VISCNTMD",
             extensible=True,
             approve=True,
-            terms={"On Site Visit", "Phone Contact", "Virtual Visit"},
         )
 
         self._visit_timeref_terms = self.create_codelist_with_terms(
-            name=config.STUDY_VISIT_TIMEREF_NAME,
-            sponsor_preferred_name=config.STUDY_VISIT_TIMEREF_NAME,
+            name=settings.study_visit_timeref_name,
+            terms={"BASELINE", "Global anchor visit", "BASELINE2"},
+            sponsor_preferred_name=settings.study_visit_timeref_name,
             extensible=True,
             approve=True,
-            terms={"BASELINE", "Global anchor visit", "BASELINE2"},
         )
 
         self.study_visits = self.create_study_visits(self.VISITS)
 
         self._soa_group_terms = self.create_codelist_with_terms(
             name="Flowchart Group",
-            sponsor_preferred_name="Flowchart Group",
-            submission_value="FLWCRTGRP",
-            extensible=True,
-            approve=True,
             terms={
                 "Informed Consent",
                 "Eligibility And Other Criteria",
@@ -545,17 +575,44 @@ class SoATestData:
                 "Biomarkers",
                 "Hidden",
             },
+            sponsor_preferred_name="Flowchart Group",
+            submission_value="FLWCRTGRP",
+            extensible=True,
+            approve=True,
         )
 
+        self._activity_groups = {
+            item.name: item for item in ActivityGroupService().get_all_concepts().items
+        }
+
+        self._activity_subgroups = {
+            item.name: item
+            for item in ActivitySubGroupService().get_all_concepts().items
+        }
+
+        self.activities = {
+            item.name: item for item in ActivityService().get_all_concepts().items
+        }
+
         for name, act in reversed(self.ACTIVITIES.items()):
-            self.create_activity(name, **act)
+            if name not in self.activities:
+                self.create_activity(name, **act)
 
         for name, act in self.ACTIVITIES.items():
             self.create_study_activity(name, **act)
 
-        self.activity_instances = self.create_activity_instances()
+        self._activity_instance_classes = {
+            item.name: item
+            for item in ActivityInstanceClassService().get_all_items().items
+        }
 
-        self.study_activity_instances = self.get_study_activity_instances()
+        for item in ActivityInstanceService().get_all_concepts().items:
+            self.activity_instances.setdefault(item.activity_name, {})[item.name] = item
+
+        self.create_activity_instances()
+
+        self.get_study_activity_instances()
+        self.assign_study_activity_instances()
 
         self._footnote_types = self.create_footnote_types()
 
@@ -569,128 +626,206 @@ class SoATestData:
         )
 
     def create_codelist_with_terms(
-        self,
-        terms: list[str],
-        name: str,
-        **kwargs,
+        self, name: str, terms: Iterable[str], **kwargs
     ) -> dict[str, CTTerm]:
+        term_names: set[str] = set(terms)
         ct_codelist_service = CTCodelistService()
         ct_term_service = CTTermService()
 
-        self._codelists[name] = codelist = TestUtils.create_ct_codelist(
-            name=name, **kwargs
-        )
+        # fetch or create codelist
+        if codelists := ct_codelist_service.get_all_codelists(
+            filter_by={"codelist_name_value.name": {"v": [name]}}
+        ).items:
+            # codelist exists
+            self._codelists[name] = codelist = codelists[0]
 
-        log.info(
-            "created codelist: %s [%s]",
-            codelist.name,
-            codelist.codelist_uid,
-        )
+        else:
+            # create codelist
+            self._codelists[name] = codelist = TestUtils.create_ct_codelist(
+                name=name, **kwargs
+            )
+            log.info("created codelist: %s [%s]", codelist.name, codelist.codelist_uid)
 
-        codelist_terms: list[CTTerm] = []
-        for term_name in terms:
-            code_submission_value = term_name.upper()
-
-            if found_terms := ct_term_service.get_all_terms(
+        found_terms: list[CTTermNameAndAttributes]
+        found_names: set[str]
+        if term_names:
+            # find terms in the codelist
+            found_terms = ct_term_service.get_all_terms(
                 codelist_name=None,
-                codelist_uid=None,
-                library=codelist.library_name,
+                codelist_uid=codelist.codelist_uid,
+                library=None,
                 package=None,
                 filter_by={
-                    "attributes.code_submission_value": {"v": [code_submission_value]}
+                    "name.sponsor_preferred_name": {"v": list(term_names)},
+                    "attributes.code_submission_value": {
+                        "v": [t.upper() for t in term_names]
+                    },
                 },
-            ).items:
-                ctt_natt: CTTermNameAndAttributes = found_terms[0]
+                filter_operator=FilterOperator.OR,
+            ).items
+
+            # skip terms already in the codelist
+            found_names = {
+                n
+                for item in found_terms
+                for n in (
+                    item.name.sponsor_preferred_name,
+                    item.attributes.code_submission_value,
+                )
+            }
+            term_names -= found_names
+
+        if term_names:
+            # find terms in any codelist
+            found_terms = ct_term_service.get_all_terms(
+                codelist_name=None,
+                codelist_uid=None,
+                library=None,
+                package=None,
+                filter_by={
+                    "name.sponsor_preferred_name": {"v": list(term_names)},
+                    "attributes.code_submission_value": {
+                        "v": [t.upper() for t in term_names]
+                    },
+                },
+                filter_operator=FilterOperator.OR,
+            ).items
+
+            # skip creation of already existing terms
+            found_names = {
+                n
+                for item in found_terms
+                for n in (
+                    item.name.sponsor_preferred_name,
+                    item.attributes.code_submission_value,
+                )
+            }
+            term_names -= found_names
+
+            # unique list of existing terms by term_uid, because duplicate items returned for each codelist it belongs to
+            found_terms = {item.term_uid: item for item in found_terms}.values()
+
+            # add existing terms to this codelist
+            terms_added: list[CTTermNameAndAttributes] = []
+            for item in found_terms:
+                if item in terms_added:
+                    continue
+
                 ct_codelist_service.add_term(
                     codelist_uid=codelist.codelist_uid,
-                    term_uid=ctt_natt.term_uid,
+                    term_uid=item.term_uid,
                     order=1,
                 )
-                codelist_terms.append(CTTerm.from_ct_term_name_and_attributes(ctt_natt))
+                terms_added.append(item)
 
-            else:
-                codelist_terms.append(
+            if terms_added:
+                log.info(
+                    "added terms into codelist %s [%s]: %s",
+                    codelist.name,
+                    codelist.codelist_uid,
+                    {
+                        term.term_uid: term.name.sponsor_preferred_name
+                        for term in terms_added
+                    },
+                )
+
+        if term_names:
+            # create missing terms into this codelist
+            terms_created: list[CTTerm] = []
+
+            for term_name in term_names:
+                terms_created.append(
                     TestUtils.create_ct_term(
                         codelist_uid=codelist.codelist_uid,
-                        code_submission_value=code_submission_value,
+                        code_submission_value=term_name.upper(),
                         sponsor_preferred_name=term_name,
+                        library_name=codelist.library_name,
                     )
                 )
 
-        log.info(
-            "created terms: %s",
-            {term.term_uid: term.sponsor_preferred_name for term in codelist_terms},
-        )
+            if terms_created:
+                log.info(
+                    "created terms into codelist %s [%s]: %s",
+                    codelist.name,
+                    codelist.codelist_uid,
+                    {
+                        term.term_uid: term.sponsor_preferred_name
+                        for term in terms_created
+                    },
+                )
 
-        return {term.sponsor_preferred_name: term for term in codelist_terms}
+        return {
+            item.name.sponsor_preferred_name: CTTerm.from_ct_term_name_and_attributes(
+                item
+            )
+            for item in ct_term_service.get_all_terms(
+                codelist_name=None,
+                codelist_uid=codelist.codelist_uid,
+                library=None,
+                package=None,
+                filter_by={
+                    "name.sponsor_preferred_name": {"v": terms},
+                    "attributes.code_submission_value": {
+                        "v": [t.upper() for t in terms]
+                    },
+                },
+                filter_operator=FilterOperator.OR,
+            ).items
+        }
 
     def create_epoch_terms(self) -> dict[str, CTTerm]:
-        ct_codelist_service = CTCodelistService()
+        term_names = {"Screening", "Follow-Up", "Observation", "Run-in", "Treatment"}
         ct_term_service = CTTermService()
 
         terms = self.create_codelist_with_terms(
-            name=config.STUDY_EPOCH_EPOCH_NAME,
-            sponsor_preferred_name=config.STUDY_EPOCH_EPOCH_NAME,
+            name=settings.study_epoch_epoch_name,
+            terms=term_names,
+            sponsor_preferred_name=settings.study_epoch_epoch_name,
             submission_value="EPOCH",
             extensible=True,
             library_name="CDISC",
             approve=True,
-            terms={"Screening", "Follow-Up", "Observation", "Run-in", "Treatment"},
         )
 
         for term in terms.values():
-            ct_term_service.add_parent(
-                term.term_uid,
-                term.term_uid,
-                TermParentType.PARENT_TYPE.value,
-            )
-            ct_term_service.add_parent(
-                term.term_uid,
-                term.term_uid,
-                TermParentType.PARENT_SUB_TYPE.value,
-            )
+            try:
+                ct_term_service.add_parent(
+                    term.term_uid,
+                    term.term_uid,
+                    TermParentType.PARENT_TYPE.value,
+                )
+            except exceptions.AlreadyExistsException:
+                pass
+            try:
+                ct_term_service.add_parent(
+                    term.term_uid,
+                    term.term_uid,
+                    TermParentType.PARENT_SUB_TYPE.value,
+                )
+            except exceptions.AlreadyExistsException:
+                pass
 
-        codelist = TestUtils.create_ct_codelist(
-            name=config.STUDY_EPOCH_TYPE_NAME,
-            sponsor_preferred_name=config.STUDY_EPOCH_TYPE_NAME,
+        self.create_codelist_with_terms(
+            name=settings.study_epoch_type_name,
+            terms=term_names,
+            sponsor_preferred_name=settings.study_epoch_type_name,
             submission_value="EPOCHTP",
             extensible=True,
             library_name="Sponsor",
             approve=True,
         )
 
-        log.info(
-            "created codelist: %s [%s]",
-            codelist.name,
-            codelist.codelist_uid,
-        )
-
-        for term in terms.values():
-            ct_codelist_service.add_term(
-                codelist_uid=codelist.codelist_uid, term_uid=term.term_uid, order=1
-            )
-
-        codelist = TestUtils.create_ct_codelist(
-            name=config.STUDY_EPOCH_SUBTYPE_NAME,
-            sponsor_preferred_name=config.STUDY_EPOCH_SUBTYPE_NAME,
+        self.create_codelist_with_terms(
+            name=settings.study_epoch_subtype_name,
+            terms=term_names,
+            sponsor_preferred_name=settings.study_epoch_subtype_name,
             submission_value="EPOCHSTP",
             extensible=True,
             library_name="Sponsor",
             approve=True,
         )
 
-        log.info(
-            "created codelist: %s [%s]",
-            codelist.name,
-            codelist.codelist_uid,
-        )
-
-        for term in terms.values():
-            ct_codelist_service.add_term(
-                codelist_uid=codelist.codelist_uid, term_uid=term.term_uid, order=1
-            )
-
-        return {term.sponsor_preferred_name: term for term in terms.values()}
+        return terms
 
     def create_study_epochs(self, epoch_dict) -> dict[str, StudyEpoch]:
         log.debug("creating StudyEpochs")
@@ -719,10 +854,12 @@ class SoATestData:
     def create_study_visits(self, visits_dict) -> dict[str, StudyVisit]:
         log.debug("creating StudyVisits")
 
-        visits = {}
+        created_visits = {}
+        visit_grouping: dict[Any, Any] = {}
 
         for k, vis in visits_dict.items():
             epoch = self.study_epochs[vis["epoch"]]
+            visit_group = vis.get("visit_group", None)
 
             visit = TestUtils.create_study_visit(
                 study_uid=self.study.uid,
@@ -736,7 +873,6 @@ class SoATestData:
                 time_value=vis["day"],
                 time_unit_uid=self._unit_definitions["day"].uid,
                 visit_sublabel_reference=None,
-                consecutive_visit_group=vis.get("consecutive_visit_group"),
                 show_visit=True,
                 min_visit_window_value=vis.get("min_window", 0),
                 max_visit_window_value=vis.get("max_window", 0),
@@ -753,14 +889,33 @@ class SoATestData:
                 is_global_anchor_visit=vis.get("is_global_anchor_visit", False),
             )
 
-            visits[k] = visit
+            if visit_group:
+                visit_grouping.setdefault(visit_group, []).append(visit)
+
+            created_visits[k] = visit
 
         log.info(
             "StudyVisits: %s",
-            {k: visit.uid for k, visit in visits.items()},
+            {k: visit.uid for k, visit in created_visits.items()},
         )
 
-        return visits
+        visit_service = StudyVisitService(study_uid=self.study.uid)
+        for key, visits in visit_grouping.items():
+            log.info(
+                "Grouping StudyVisits: %s",
+                [visit.uid for visit in visits],
+            )
+
+            visit_service.assign_visit_consecutive_group(
+                study_uid=self.study.uid,
+                visits_to_assign=[visit.uid for visit in visits],
+                overwrite_visit_from_template=None,
+                group_format=(
+                    VisitGroupFormat.LIST if "," in key else VisitGroupFormat.RANGE
+                ),
+            )
+
+        return created_visits
 
     def create_activity(self, name: str, **kwargs) -> Activity:
         # get activity group
@@ -798,23 +953,27 @@ class SoATestData:
 
         return activity
 
-    def create_activity_instances(self) -> dict[str, list[ActivityInstance]]:
+    def create_activity_instances(self) -> list[ActivityInstance]:
         log.debug("creating ActivityInstances")
 
-        activity_instances = {}
-        activity_instance_classes = {}
+        activity_instances_created = []
 
         for name, act in self.ACTIVITIES.items():
+            activity = self.activities[name]
+            existing_instances = self.activity_instances.get(name, {})
+
             for inst in act.get("instances", []):
-                instance_class = activity_instance_classes.get(inst["class"])
-                if not instance_class:
-                    activity_instance_classes[inst["class"]] = (
+                if inst["name"] in existing_instances:
+                    continue
+
+                if not (
+                    instance_class := self._activity_instance_classes.get(inst["class"])
+                ):
+                    self._activity_instance_classes[inst["class"]] = (
                         instance_class := TestUtils.create_activity_instance_class(
                             name=inst["class"]
                         )
                     )
-
-                activity = self.activities[name]
 
                 activity_instance = TestUtils.create_activity_instance(
                     name=inst["name"],
@@ -837,18 +996,20 @@ class SoATestData:
                     activity_items=[],
                 )
 
-                activity_instances.setdefault(name, []).append(activity_instance)
+                activity_instances_created.append(activity_instance)
+                self.activity_instances.setdefault(name, {})[
+                    inst["name"]
+                ] = activity_instance
 
         log.info(
             "created ActivityInstances: %s",
             {
                 activity_instance.uid: activity_instance.name
-                for activity_instance_list in activity_instances.values()
-                for activity_instance in activity_instance_list
+                for activity_instance in activity_instances_created
             },
         )
 
-        return activity_instances
+        return activity_instances_created
 
     def create_study_activity(self, name, **kwargs) -> StudySelectionActivity:
         """creates a StudySelectionActivity with StudyActivitySchedule, also creating Activity if needed"""
@@ -925,7 +1086,7 @@ class SoATestData:
 
     def get_study_activity_instances(
         self,
-    ) -> dict[str, StudySelectionActivityInstance]:
+    ):
         log.debug("fetching StudyActivityInstances")
 
         study_activity_instances: list[StudySelectionActivityInstance] = (
@@ -941,69 +1102,78 @@ class SoATestData:
             ),
         )
 
-        study_activity_instance_map = {
-            ssa.study_activity_uid: ssa for ssa in study_activity_instances
-        }
+        self.study_activity_instances = {}
+        for ssa in study_activity_instances:
+            self.study_activity_instances.setdefault(ssa.study_activity_uid, []).append(
+                ssa
+            )
 
-        return study_activity_instance_map
+    def assign_study_activity_instances(self):
+        for name in self.ACTIVITIES:
+            if name not in self.activity_instances:
+                continue
+
+            study_activity_uid = self.study_activities[name].study_activity_uid
+
+            TestUtils.batch_select_study_activity_instances(
+                study_uid=self.study.uid,
+                study_activity_uid=study_activity_uid,
+                activity_instance_uids=[
+                    activity_instance.uid
+                    for activity_instance in self.activity_instances[name].values()
+                ],
+            )
+
+        self.get_study_activity_instances()
 
     def create_footnote_types(
         self,
     ) -> dict[str, CTTerm]:
         terms: list[CTTerm] = []
 
-        codelist = TestUtils.create_ct_codelist(
+        terms = self.create_codelist_with_terms(
             name="Footnote Type",
+            terms=["SoA Footnote"],
             sponsor_preferred_name="Footnote Type",
             submission_value="FTNTTP",
             extensible=True,
             approve=True,
         )
 
-        log.info(
-            "created codelist: %s [%s]",
-            codelist.name,
-            codelist.codelist_uid,
-        )
-
-        terms.append(
-            TestUtils.create_ct_term(
-                codelist_uid=codelist.codelist_uid,
-                sponsor_preferred_name="SoA Footnote",
-                code_submission_value="SOAFOOTNOTE",
-                name_submission_value="SOAFOOTNOTE",
-            )
-        )
-
-        log.info(
-            "visit footnote-type terms: %s",
-            {term.term_uid: term.sponsor_preferred_name for term in terms},
-        )
-
-        return {term.sponsor_preferred_name: term for term in terms}
+        return terms
 
     def create_footnotes(self, footnotes_dict) -> dict[str, Footnote]:
         log.debug("creating footnotes")
-
-        footnotes: dict[str, Footnote] = {}
+        footnote_templates = {
+            item.name_plain: item for item in FootnoteTemplateService().get_all().items
+        }
+        footnotes: dict[str, Footnote] = {
+            item.name_plain: item for item in FootnoteService().get_all().items
+        }
+        footnotes_created = []
 
         for name in footnotes_dict:
-            template: FootnoteTemplate = TestUtils.create_footnote_template(
-                name=f"<p>{name}</p>",
-                library_name=config.REQUESTED_LIBRARY_NAME,
-                type_uid=self._footnote_types["SoA Footnote"].term_uid,
-                approve=True,
-            )
-            footnotes[name] = TestUtils.create_footnote(
-                footnote_template_uid=template.uid,
-                library_name=config.REQUESTED_LIBRARY_NAME,
-                approve=True,
-            )
+            if name in footnotes:
+                continue
 
-        log.info(
-            "created Footnotes: %s",
-            {fn.uid: {"template": fn.template.uid} for fn in footnotes.values()},
-        )
+            template: FootnoteTemplate
+            if not (template := footnote_templates.get(name)):
+                template = TestUtils.create_footnote_template(
+                    name=f"<p>{name}</p>",
+                    type_uid=self._footnote_types["SoA Footnote"].term_uid,
+                    approve=True,
+                )
+            footnotes[name] = footnote = TestUtils.create_footnote(
+                footnote_template_uid=template.uid,
+                approve=True,
+            )
+            footnotes_created.append(footnote)
+
+        if footnotes_created:
+            log.info(
+                "created Footnotes: %s",
+                {fn.uid: {"template": fn.template.uid} for fn in footnotes_created},
+            )
 
         return footnotes
 
@@ -1015,24 +1185,20 @@ class SoATestData:
         study_activity_group_uids = defaultdict(set)
         study_activity_subgroup_uids = defaultdict(set)
 
-        for activities in (
-            self.study_activities.values(),
-            self.study_activity_instances.values(),
-        ):
-            for activity in activities:
-                study_soa_group_uids[activity.study_soa_group.soa_group_term_name].add(
-                    activity.study_soa_group.study_soa_group_uid
-                )
+        for activity in self.study_activities.values():
+            study_soa_group_uids[activity.study_soa_group.soa_group_term_name].add(
+                activity.study_soa_group.study_soa_group_uid
+            )
 
-                if activity.study_activity_group:
-                    study_activity_group_uids[
-                        activity.study_activity_group.activity_group_name
-                    ].add(activity.study_activity_group.study_activity_group_uid)
+            if activity.study_activity_group:
+                study_activity_group_uids[
+                    activity.study_activity_group.activity_group_name
+                ].add(activity.study_activity_group.study_activity_group_uid)
 
-                if activity.study_activity_subgroup:
-                    study_activity_subgroup_uids[
-                        activity.study_activity_subgroup.activity_subgroup_name
-                    ].add(activity.study_activity_subgroup.study_activity_subgroup_uid)
+            if activity.study_activity_subgroup:
+                study_activity_subgroup_uids[
+                    activity.study_activity_subgroup.activity_subgroup_name
+                ].add(activity.study_activity_subgroup.study_activity_subgroup_uid)
 
         # Map activity+visit uids to schedule uids
         study_activity_schedule_uids = {}
@@ -1114,7 +1280,7 @@ class SoATestData:
             soa_footnotes.append(
                 TestUtils.create_study_soa_footnote(
                     study_uid=self.study.uid,
-                    footnote_template_uid=footnote.template.uid,
+                    footnote_uid=footnote.uid,
                     referenced_items=referenced_items,
                 )
             )
@@ -1128,6 +1294,12 @@ class SoATestData:
 
 
 class SoATestDataMinimal(SoATestData):
+    """A dirty subclass of SoATestData to create the minimum test data needed for a SoA
+
+    Activities, instances, footnotes, groupings may not be shared with SoATestData,
+    as its constructor does not check for existing data and may fail.
+    """
+
     EPOCHS = {
         "Screening": {"color_hash": "#80DEEAFF"},
     }
@@ -1147,57 +1319,42 @@ class SoATestDataMinimal(SoATestData):
     # Mind if an activity is scheduled for a visit of a visit-group, then it must be scheduled for all visits of the group.
     # Testing for safeguards on this is not in the scope of the tests of the SoA feature.
     ACTIVITIES = {
-        "Randomized": {
-            "soa_group": "Subject Related Information",
-            "group": "Randomization",
-            "subgroup": "Randomisation",
+        "Acetaminophen": {
+            "soa_group": "Pharmacodynamics",
+            "group": "PK Sampling",
+            "subgroup": "PK",
             "visits": ["V1"],
-            "show_soa_group": False,
+            "show_soa_group": True,
             "show_group": True,
             "show_subgroup": True,
             "show_activity": True,
             "instances": [
                 {
-                    "class": "Randomization class",
-                    "name": "Randomized inst.",
-                    "topic_code": "RANDTC",
-                    "adam_param_code": "RADAM",
+                    "class": "Numeric finding",
+                    "name": "Sample PK",
+                    "topic_code": "PKPK",
+                    "adam_param_code": "PKSPLE",
                 }
             ],
         },
     }
-    NUM_SOA_ROWS = 4 + 3
-    NUM_OPERATIONAL_SOA_ROWS = 4 + 1 + 3
 
     FOOTNOTES = {
         "Some footnote": [
             {
                 "type": SoAItemType.STUDY_ACTIVITY_SCHEDULE.value,
                 "visit": "V1",
-                "activity": "Randomized",
+                "activity": "Acetaminophen",
             },
         ]
     }
 
 
-def test_soa_test_data(temp_database_populated):
-    """quick test on SoATestData.__init__() that created the expected number of activities, instances, footnotes"""
+def test_soa_test_data_creation(temp_database_populated):
+    """Ensures that SoATestData() create the expected test data by checking the dimensions of the SoA tables"""
 
     test_data = SoATestData(project=temp_database_populated.project)
     study_flowchart_service = StudyFlowchartService()
-
-    soa_table: TableWithFootnotes = study_flowchart_service.build_flowchart_table(
-        study_uid=test_data.study.uid,
-        study_value_version=None,
-        layout=SoALayout.OPERATIONAL,
-    )
-    assert (
-        len(soa_table.rows)
-        == test_data.NUM_OPERATIONAL_SOA_ROWS + soa_table.num_header_rows
-    ), "SoA table num rows mismatch"
-    assert (
-        len(soa_table.rows[-1].cells) == test_data.NUM_VISIT_COLS + 3
-    ), "SoA table num cols mismatch"
 
     soa_table: TableWithFootnotes = study_flowchart_service.build_flowchart_table(
         study_uid=test_data.study.uid,
@@ -1210,3 +1367,22 @@ def test_soa_test_data(temp_database_populated):
     assert len(soa_table.footnotes) == len(
         test_data.footnotes
     ), "SoA table num footnotes mismatch"
+
+    soa_table = study_flowchart_service.build_flowchart_table(
+        study_uid=test_data.study.uid,
+        study_value_version=None,
+        layout=SoALayout.OPERATIONAL,
+    )
+    assert (
+        len(soa_table.rows)
+        == test_data.NUM_OPERATIONAL_SOA_ROWS + soa_table.num_header_rows
+    ), "SoA table num rows mismatch"
+    assert (
+        len(soa_table.rows[-1].cells) == len(test_data.VISITS) + 3
+    ), "SoA table num cols mismatch"
+
+
+def test_soa_test_data_multiple(temp_database_populated):
+    # ensures that multiple SoATestDatas can be crated in the same db
+    SoATestDataMinimal(project=temp_database_populated.project)
+    SoATestDataMinimal(project=temp_database_populated.project)

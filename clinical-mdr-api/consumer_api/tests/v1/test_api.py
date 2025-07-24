@@ -4,15 +4,19 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from clinical_mdr_api.services.studies.study import StudyService
 from clinical_mdr_api.services.studies.study_flowchart import StudyFlowchartService
 from clinical_mdr_api.tests.integration.utils.api import inject_base_data
 from clinical_mdr_api.tests.integration.utils.factory_visit import (
     create_study_visit_codelists,
     generate_default_input_data_for_visit,
 )
-from clinical_mdr_api.tests.integration.utils.method_library import create_study_epoch
+from clinical_mdr_api.tests.integration.utils.method_library import (
+    create_study_epoch,
+    input_metadata_in_study,
+)
 from clinical_mdr_api.tests.integration.utils.utils import TestUtils
-from common import config
+from common.config import settings
 from consumer_api.consumer_api import app
 from consumer_api.tests.utils import assert_response_status_code, set_db
 from consumer_api.v1 import models
@@ -57,6 +61,9 @@ STUDY_VISIT_FIELDS_ALL = [
     "time_unit_name",
     "time_value_uid",
     "time_value",
+    "time_reference_name",
+    "visit_class",
+    "visit_subclass",
 ]
 
 STUDY_VISIT_FIELDS_NOT_NULL = [
@@ -71,6 +78,7 @@ STUDY_VISIT_FIELDS_NOT_NULL = [
     "visit_type_name",
     "study_epoch_uid",
     "study_epoch_name",
+    "visit_class",
 ]
 
 
@@ -148,11 +156,11 @@ studies: list[models.Study]
 total_studies: int = 25
 study_visits: list[models.StudyVisit]
 total_study_visits: int = 25
-study_activities: list
+study_activities: list[models.StudyActivity]
 total_study_activities: int = 25
-study_detailed_soas: list
+study_detailed_soas: list[models.StudyDetailedSoA]
 total_study_detailed_soa: int = 25
-study_operational_soas: list
+study_operational_soas: list[models.StudyOperationalSoA]
 total_study_operational_soa: int = 25
 
 
@@ -264,6 +272,16 @@ def test_data(api_client):
     study_operational_soas = study_flowchart_service.download_operational_soa_content(
         studies[0].uid
     )
+
+    TestUtils.create_library(name="UCUM", is_editable=True)
+    codelist = TestUtils.create_ct_codelist()
+    TestUtils.create_study_ct_data_map(codelist_uid=codelist.codelist_uid)
+    # Inject study metadata
+    input_metadata_in_study(studies[0].uid)
+    # lock study
+    study_service = StudyService()
+    study_service.lock(uid=studies[0].uid, change_description="locking it")
+    study_service.unlock(uid=studies[0].uid)
 
 
 def test_get_studies(api_client):
@@ -406,7 +424,7 @@ def test_get_studies_invalid_pagination_params(api_client):
     )
 
     response = api_client.get(
-        f"{BASE_URL}/studies?page_size={config.MAX_PAGE_SIZE + 1}"
+        f"{BASE_URL}/studies?page_size={settings.max_page_size + 1}"
     )
     assert_response_status_code(response, 422)
     assert (
@@ -415,12 +433,12 @@ def test_get_studies_invalid_pagination_params(api_client):
     )
 
     response = api_client.get(
-        f"{BASE_URL}/studies?page_number={config.MAX_INT_NEO4J + 1}&page_size=1"
+        f"{BASE_URL}/studies?page_number={settings.max_int_neo4j + 1}&page_size=1"
     )
     assert_response_status_code(response, 422)
     assert (
         response.json()["message"]
-        == f"(page_number * page_size) value cannot be bigger than {config.MAX_INT_NEO4J}"
+        == f"(page_number * page_size) value cannot be bigger than {settings.max_int_neo4j}"
     )
 
 
@@ -801,3 +819,15 @@ def test_get_all_study_operational_soa(api_client, page_size):
     TestUtils.assert_sort_order(
         all_fetched_study_operational_soas, "activity_name", False
     )
+
+
+def test_get_papillons_soa(api_client):
+
+    project = studies[0].current_metadata.identification_metadata.project_number
+    study_number = studies[0].current_metadata.identification_metadata.study_number
+    response = api_client.get(
+        f"{BASE_URL}/papillons/soa?project={project}&study_number={study_number}"
+    )
+    assert_response_status_code(response, 200)
+    res = response.json()
+    assert len(res["SoA"]) == 25

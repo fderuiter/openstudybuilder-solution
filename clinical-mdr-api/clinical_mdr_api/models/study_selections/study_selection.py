@@ -1,6 +1,6 @@
 import re
 from datetime import datetime
-from typing import Annotated, Callable, Iterable, Mapping, NamedTuple, Self
+from typing import Annotated, Any, Callable, Iterable, Mapping, NamedTuple, Self
 
 from pydantic import ConfigDict, Field, model_validator
 
@@ -146,7 +146,7 @@ from clinical_mdr_api.models.utils import (
     get_latest_on_datetime_str,
 )
 from clinical_mdr_api.services.user_info import UserInfoService
-from common import config as settings
+from common.config import settings
 from common.exceptions import BusinessLogicException
 from common.utils import version_string_to_tuple
 
@@ -159,7 +159,6 @@ STUDY_ELEMENT_UID_DESC = "the uid of the related study element"
 STUDY_BRANCH_ARM_UID_DESC = "the uid of the related study branch arm"
 ARM_UID_DESC = "uid for the study arm"
 ELEMENT_UID_DESC = "uid for the study element"
-ACCEPTED_VERSION_DESC = "Accepted Version"
 TRANSITION_RULE_DESC = "transition rule for the cell"
 ORDER_DESC = "The ordering of the selection"
 OBJECTIVE_LEVEL_DESC = "level defining the objective"
@@ -219,7 +218,6 @@ class StudySelection(BaseModel):
     study_version: Annotated[
         str | None,
         Field(
-            title="study version or date information",
             description="Study version number, if specified, otherwise None.",
             json_schema_extra={"nullable": True},
         ),
@@ -307,7 +305,6 @@ class StudySelectionObjectiveCore(StudySelection):
     author_username: Annotated[
         str | None,
         Field(
-            title="author_username",
             description=AUTHOR_FIELD_DESC,
             json_schema_extra={"nullable": True},
         ),
@@ -331,7 +328,7 @@ class StudySelectionObjectiveCore(StudySelection):
         if study_selection_history.objective_level_uid:
             objective_level = get_ct_term_objective_level(
                 study_selection_history.objective_level_uid,
-                codelist_name=settings.STUDY_OBJECTIVE_LEVEL_NAME,
+                codelist_name=settings.study_objective_level_name,
                 at_specific_date=effective_date,
             )
         else:
@@ -373,7 +370,6 @@ class StudySelectionObjective(StudySelectionObjectiveCore):
     accepted_version: Annotated[
         bool | None,
         Field(
-            title=ACCEPTED_VERSION_DESC,
             description="Denotes if user accepted obsolete objective versions",
             json_schema_extra={"nullable": True},
         ),
@@ -471,7 +467,7 @@ class StudySelectionObjective(StudySelectionObjectiveCore):
         if single_study_selection.objective_level_uid:
             objective_level = get_ct_term_by_uid(
                 single_study_selection.objective_level_uid,
-                codelist_name=settings.STUDY_OBJECTIVE_LEVEL_NAME,
+                codelist_name=settings.study_objective_level_name,
                 at_specific_date=terms_at_specific_datetime,
             )
         else:
@@ -564,8 +560,8 @@ class StudySelectionObjectiveNewOrder(PatchInputModel):
         int,
         Field(
             description="Uid of the selected objective",
-            gt=-settings.MAX_INT_NEO4J,
-            lt=settings.MAX_INT_NEO4J,
+            gt=-settings.max_int_neo4j,
+            lt=settings.max_int_neo4j,
         ),
     ]
 
@@ -674,16 +670,6 @@ class StudySelectionEndpoint(StudySelection):
     author_username: Annotated[
         str | None,
         Field(
-            title="author_username",
-            description=AUTHOR_FIELD_DESC,
-            json_schema_extra={"nullable": True},
-        ),
-    ] = None
-
-    author_username: Annotated[
-        str | None,
-        Field(
-            title="author_username",
             description=AUTHOR_FIELD_DESC,
             json_schema_extra={"nullable": True},
         ),
@@ -697,7 +683,6 @@ class StudySelectionEndpoint(StudySelection):
     accepted_version: Annotated[
         bool | None,
         Field(
-            title=ACCEPTED_VERSION_DESC,
             description="Denotes if user accepted obsolete endpoint versions",
             json_schema_extra={"nullable": True},
         ),
@@ -833,7 +818,7 @@ class StudySelectionEndpoint(StudySelection):
         if study_selection.endpoint_level_uid:
             endpoint_level = get_ct_term_by_uid(
                 study_selection.endpoint_level_uid,
-                codelist_name=settings.STUDY_ENDPOINT_LEVEL_NAME,
+                codelist_name=settings.study_endpoint_level_name,
                 at_specific_date=terms_at_specific_datetime,
             )
         else:
@@ -918,7 +903,7 @@ class StudySelectionEndpoint(StudySelection):
         if study_selection_history.endpoint_level:
             endpoint_level = get_ct_term_by_uid(
                 study_selection_history.endpoint_level,
-                codelist_name=settings.STUDY_ENDPOINT_LEVEL_NAME,
+                codelist_name=settings.study_endpoint_level_name,
                 at_specific_date=effective_date,
             )
         else:
@@ -1043,8 +1028,8 @@ class StudySelectionEndpointNewOrder(PatchInputModel):
         int,
         Field(
             description="Uid of the selected endpoint",
-            gt=-settings.MAX_INT_NEO4J,
-            lt=settings.MAX_INT_NEO4J,
+            gt=-settings.max_int_neo4j,
+            lt=settings.max_int_neo4j,
         ),
     ]
 
@@ -1205,7 +1190,6 @@ class StudySelectionCompound(StudySelection):
     author_username: Annotated[
         str | None,
         Field(
-            title="author_username",
             description=AUTHOR_FIELD_DESC,
             json_schema_extra={"nullable": True},
         ),
@@ -1350,8 +1334,8 @@ class StudySelectionCompoundNewOrder(PatchInputModel):
         int,
         Field(
             description="new order selected for the study compound",
-            gt=-settings.MAX_INT_NEO4J,
-            lt=settings.MAX_INT_NEO4J,
+            gt=-settings.max_int_neo4j,
+            lt=settings.max_int_neo4j,
         ),
     ]
 
@@ -1396,16 +1380,6 @@ class StudySelectionCriteriaCore(StudySelection):
     author_username: Annotated[
         str | None,
         Field(
-            title="author_username",
-            description=AUTHOR_FIELD_DESC,
-            json_schema_extra={"nullable": True},
-        ),
-    ] = None
-
-    author_username: Annotated[
-        str | None,
-        Field(
-            title="author_username",
             description=AUTHOR_FIELD_DESC,
             json_schema_extra={"nullable": True},
         ),
@@ -1492,7 +1466,6 @@ class StudySelectionCriteria(StudySelectionCriteriaCore):
         bool | None,
         Field(
             json_schema_extra={"nullable": True},
-            title=ACCEPTED_VERSION_DESC,
             description="Denotes if user accepted obsolete criteria versions",
         ),
     ] = None
@@ -1811,8 +1784,8 @@ class StudySelectionCriteriaNewOrder(PatchInputModel):
         int,
         Field(
             description="New value to set for the order property of the selection",
-            gt=-settings.MAX_INT_NEO4J,
-            lt=settings.MAX_INT_NEO4J,
+            gt=-settings.max_int_neo4j,
+            lt=settings.max_int_neo4j,
         ),
     ]
 
@@ -1836,7 +1809,6 @@ class DetailedSoAHistory(BaseModel):
     author_username: Annotated[
         str | None,
         Field(
-            title="author_username",
             description=AUTHOR_FIELD_DESC,
             json_schema_extra={"nullable": True},
         ),
@@ -1844,14 +1816,13 @@ class DetailedSoAHistory(BaseModel):
     start_date: Annotated[
         datetime,
         Field(
-            title="start_date",
             description=START_DATE_DESC,
         ),
     ]
     end_date: Annotated[datetime | None, END_DATE_FIELD] = None
 
     @classmethod
-    def from_history(cls, detailed_soa_history_item: dict):
+    def from_history(cls, detailed_soa_history_item: dict[Any, Any]):
         return cls(
             object_type=detailed_soa_history_item.get("object_type"),
             description=detailed_soa_history_item.get("description"),
@@ -1912,6 +1883,12 @@ class StudySelectionActivityCore(StudySelection):
     show_soa_group_in_protocol_flowchart: Annotated[
         bool, SHOW_SOA_GROUP_IN_PROTOCOL_FLOWCHART_FIELD
     ] = False
+    keep_old_version: Annotated[
+        bool,
+        Field(
+            description="Boolean indicating that someone has not updated to lates version of Activity but reviewed the changes ",
+        ),
+    ] = False
     study_activity_uid: Annotated[
         str | None,
         Field(
@@ -1939,7 +1916,6 @@ class StudySelectionActivityCore(StudySelection):
     author_username: Annotated[
         str | None,
         Field(
-            title="author_username",
             description=AUTHOR_FIELD_DESC,
             json_schema_extra={"source": AFTER_USER_QUALIFIER, "nullable": True},
         ),
@@ -2032,7 +2008,6 @@ class StudySelectionActivity(StudySelectionActivityCore):
     accepted_version: Annotated[
         bool | None,
         Field(
-            title=ACCEPTED_VERSION_DESC,
             description="Denotes if user accepted obsolete activity versions",
             json_schema_extra={"nullable": True},
         ),
@@ -2105,6 +2080,7 @@ class StudySelectionActivity(StudySelectionActivityCore):
             show_activity_subgroup_in_protocol_flowchart=study_selection.show_activity_subgroup_in_protocol_flowchart,
             show_activity_in_protocol_flowchart=study_selection.show_activity_in_protocol_flowchart,
             show_soa_group_in_protocol_flowchart=study_selection.show_soa_group_in_protocol_flowchart,
+            keep_old_version=study_selection.keep_old_version,
             accepted_version=accepted_version,
             study_uid=study_uid,
             study_version=(
@@ -2133,7 +2109,7 @@ class StudySelectionActivityInSoACreateInput(PatchInputModel):
     activity_instance_uid: Annotated[str | None, Field()] = None
     order: Annotated[
         int,
-        Field(json_schema_extra={"nullable": True}, gt=0, lt=settings.MAX_INT_NEO4J),
+        Field(json_schema_extra={"nullable": True}, gt=0, lt=settings.max_int_neo4j),
     ]
 
 
@@ -2213,24 +2189,6 @@ class StudyActivityGroup(BaseModel):
     activity_group_name: Annotated[
         str | None, Field(json_schema_extra={"nullable": True})
     ] = None
-    study_uid: Annotated[
-        str | None,
-        Field(description=STUDY_UID_DESC, json_schema_extra={"nullable": True}),
-    ]
-    study_soa_group_uid: Annotated[
-        str | None, Field(json_schema_extra={"nullable": True})
-    ] = None
-    study_activity_subgroup_uids: Annotated[
-        list[str] | None, Field(json_schema_extra={"nullable": True})
-    ] = None
-    study_activity_group_uid: Annotated[
-        str,
-        Field(json_schema_extra={"source": "uid"}),
-    ]
-    activity_group_uid: Annotated[str, Field()]
-    activity_group_name: Annotated[
-        str | None, Field(json_schema_extra={"nullable": True})
-    ] = None
     order: Annotated[int | None, Field(json_schema_extra={"nullable": True})] = None
 
     @classmethod
@@ -2268,15 +2226,6 @@ class StudySoAGroup(BaseModel):
         str | None,
         Field(description=STUDY_UID_DESC, json_schema_extra={"nullable": True}),
     ]
-    study_soa_group_uid: Annotated[str, Field(json_schema_extra={"source": "uid"})]
-    soa_group_term_uid: Annotated[str, Field()]
-    soa_group_term_name: Annotated[
-        str | None, Field(json_schema_extra={"nullable": True})
-    ] = None
-    study_uid: Annotated[
-        str | None,
-        Field(description=STUDY_UID_DESC, json_schema_extra={"nullable": True}),
-    ] = None
     study_soa_group_uid: Annotated[
         str | None, Field(json_schema_extra={"source": "uid", "nullable": True})
     ] = None
@@ -2316,6 +2265,7 @@ class StudySelectionActivityInput(PatchInputModel):
     ] = None
     activity_group_uid: Annotated[str | None, Field()] = None
     activity_subgroup_uid: Annotated[str | None, Field()] = None
+    keep_old_version: Annotated[bool, Field()] = False
 
 
 class StudyActivityReplaceActivityInput(StudySelectionActivityInput):
@@ -2346,8 +2296,8 @@ class StudySelectionActivityNewOrder(PatchInputModel):
         int,
         Field(
             description="new order selected for the study activity",
-            gt=-settings.MAX_INT_NEO4J,
-            lt=settings.MAX_INT_NEO4J,
+            gt=-settings.max_int_neo4j,
+            lt=settings.max_int_neo4j,
         ),
     ]
 
@@ -2368,8 +2318,8 @@ class StudySelectionActivityBatchDeleteInput(InputModel):
 class StudySelectionActivityBatchInput(BatchInputModel):
     method: Annotated[str, METHOD_FIELD]
     content: Annotated[
-        StudySelectionActivityCreateInput
-        | StudySelectionActivityBatchUpdateInput
+        StudySelectionActivityBatchUpdateInput
+        | StudySelectionActivityCreateInput
         | StudySelectionActivityBatchDeleteInput,
         Field(),
     ]
@@ -2378,6 +2328,11 @@ class StudySelectionActivityBatchInput(BatchInputModel):
 class StudySelectionActivityBatchOutput(BaseModel):
     response_code: Annotated[int, RESPONSE_CODE_FIELD]
     content: Annotated[StudySelectionActivity | None | BatchErrorResponse, Field()]
+
+
+class StudyActivitySyncLatestVersionInput(BaseModel):
+    activity_group_uid: Annotated[str | None, Field()] = None
+    activity_subgroup_uid: Annotated[str | None, Field()] = None
 
 
 #
@@ -2408,7 +2363,6 @@ class StudySelectionActivityInstance(BaseModel):
     study_version: Annotated[
         str | None,
         Field(
-            title="study version or date information",
             description="Study version number, if specified, otherwise None.",
             json_schema_extra={"nullable": True},
         ),
@@ -2425,7 +2379,6 @@ class StudySelectionActivityInstance(BaseModel):
     author_username: Annotated[
         str | None,
         Field(
-            title="author_username",
             description=AUTHOR_FIELD_DESC,
             json_schema_extra={"nullable": True},
         ),
@@ -2629,7 +2582,6 @@ class StudyActivitySchedule(BaseModel):
     study_version: Annotated[
         str | None,
         Field(
-            title="study version or date information",
             description="Study version number, if specified, otherwise None",
             json_schema_extra={"nullable": True},
         ),
@@ -2678,7 +2630,6 @@ class StudyActivitySchedule(BaseModel):
     author_username: Annotated[
         str | None,
         Field(
-            title="author_username",
             description=AUTHOR_FIELD_DESC,
             json_schema_extra={"source": AFTER_USER_QUALIFIER, "nullable": True},
         ),
@@ -2800,7 +2751,6 @@ class StudyDesignCell(BaseModel):
     study_version: Annotated[
         str | None,
         Field(
-            title="study version or date information",
             description="Study version number, if specified, otherwise None",
             json_schema_extra={"nullable": True},
         ),
@@ -2896,7 +2846,6 @@ class StudyDesignCell(BaseModel):
     author_username: Annotated[
         str | None,
         Field(
-            title="author_username",
             description=AUTHOR_FIELD_DESC,
             json_schema_extra={"source": AFTER_USER_QUALIFIER, "nullable": True},
         ),
@@ -3006,7 +2955,7 @@ class StudyDesignCellCreateInput(PostInputModel):
     ] = None
 
     order: Annotated[
-        int | None, Field(description=ORDER_DESC, gt=0, lt=settings.MAX_INT_NEO4J)
+        int | None, Field(description=ORDER_DESC, gt=0, lt=settings.max_int_neo4j)
     ] = None
 
 
@@ -3127,16 +3076,6 @@ class StudySelectionBranchArmWithoutStudyArm(StudySelection):
     author_username: Annotated[
         str | None,
         Field(
-            title="author_username",
-            description=AUTHOR_FIELD_DESC,
-            json_schema_extra={"nullable": True},
-        ),
-    ] = None
-
-    author_username: Annotated[
-        str | None,
-        Field(
-            title="author_username",
             description=AUTHOR_FIELD_DESC,
             json_schema_extra={"nullable": True},
         ),
@@ -3151,7 +3090,6 @@ class StudySelectionBranchArmWithoutStudyArm(StudySelection):
     accepted_version: Annotated[
         bool | None,
         Field(
-            title=ACCEPTED_VERSION_DESC,
             description="Denotes if user accepted obsolete branch arm versions",
             json_schema_extra={"nullable": True},
         ),
@@ -3253,16 +3191,6 @@ class StudySelectionArm(StudySelection):
     author_username: Annotated[
         str | None,
         Field(
-            title="author_username",
-            description=AUTHOR_FIELD_DESC,
-            json_schema_extra={"nullable": True},
-        ),
-    ] = None
-
-    author_username: Annotated[
-        str | None,
-        Field(
-            title="author_username",
             description=AUTHOR_FIELD_DESC,
             json_schema_extra={"nullable": True},
         ),
@@ -3277,7 +3205,6 @@ class StudySelectionArm(StudySelection):
     accepted_version: Annotated[
         bool | None,
         Field(
-            title=ACCEPTED_VERSION_DESC,
             description="Denotes if user accepted obsolete arm versions",
             json_schema_extra={"nullable": True},
         ),
@@ -3448,7 +3375,7 @@ class StudySelectionArmCreateInput(PostInputModel):
         Field(
             description="number of subjects for the study arm",
             ge=0,
-            lt=settings.MAX_INT_NEO4J,
+            lt=settings.max_int_neo4j,
         ),
     ] = None
 
@@ -3481,7 +3408,7 @@ class StudySelectionArmInput(PatchInputModel):
         Field(
             description="number of subjects for the study arm",
             ge=0,
-            lt=settings.MAX_INT_NEO4J,
+            lt=settings.max_int_neo4j,
         ),
     ] = None
 
@@ -3494,8 +3421,8 @@ class StudySelectionArmNewOrder(PatchInputModel):
         int,
         Field(
             description="new order of the selected arm",
-            gt=-settings.MAX_INT_NEO4J,
-            lt=settings.MAX_INT_NEO4J,
+            gt=-settings.max_int_neo4j,
+            lt=settings.max_int_neo4j,
         ),
     ]
 
@@ -3523,16 +3450,7 @@ class StudyActivityInstruction(BaseModel):
     study_version: Annotated[
         str | None,
         Field(
-            title="study version or date information",
             description="Study version number, if specified, otherwise None",
-            json_schema_extra={"nullable": True},
-        ),
-    ] = None
-    study_version: Annotated[
-        str | None,
-        Field(
-            title="study version or date information",
-            description="Study version number, if specified, otherwise None.",
             json_schema_extra={"nullable": True},
         ),
     ] = None
@@ -3573,7 +3491,6 @@ class StudyActivityInstruction(BaseModel):
     author_username: Annotated[
         str | None,
         Field(
-            title="author_username",
             description=AUTHOR_FIELD_DESC,
             json_schema_extra={"source": AFTER_USER_QUALIFIER, "nullable": True},
         ),
@@ -3759,7 +3676,6 @@ class StudySelectionElement(StudySelection):
     author_username: Annotated[
         str | None,
         Field(
-            title="author_username",
             description=AUTHOR_FIELD_DESC,
             json_schema_extra={"nullable": True},
         ),
@@ -3774,7 +3690,6 @@ class StudySelectionElement(StudySelection):
     accepted_version: Annotated[
         bool | None,
         Field(
-            title=ACCEPTED_VERSION_DESC,
             description="Denotes if user accepted obsolete element versions",
             json_schema_extra={"nullable": True},
         ),
@@ -4027,7 +3942,7 @@ class StudySelectionElementInput(PatchInputModel):
 
 
 class StudyElementTypes(BaseModel):
-    type: Annotated[str, Field(title="Type uid", description="Element type uid")]
+    type: Annotated[str, Field(description="Element type uid")]
     type_name: Annotated[str, Field(description="Element type name")]
     subtype: Annotated[str, Field(description="Element subtype uid")]
     subtype_name: Annotated[str, Field(description="Element subtype name")]
@@ -4038,8 +3953,8 @@ class StudySelectionElementNewOrder(PatchInputModel):
         int,
         Field(
             description="new order of the selected element",
-            gt=-settings.MAX_INT_NEO4J,
-            lt=settings.MAX_INT_NEO4J,
+            gt=-settings.max_int_neo4j,
+            lt=settings.max_int_neo4j,
         ),
     ]
 
@@ -4208,7 +4123,7 @@ class StudySelectionBranchArmCreateInput(PostInputModel):
         Field(
             description="number of subjects for the study Brancharm",
             ge=0,
-            lt=settings.MAX_INT_NEO4J,
+            lt=settings.max_int_neo4j,
         ),
     ] = None
 
@@ -4255,7 +4170,7 @@ class StudySelectionBranchArmEditInput(PatchInputModel):
         Field(
             description="number of subjects for the study Brancharm",
             ge=0,
-            lt=settings.MAX_INT_NEO4J,
+            lt=settings.max_int_neo4j,
         ),
     ] = None
 
@@ -4270,8 +4185,8 @@ class StudySelectionBranchArmNewOrder(PatchInputModel):
         int,
         Field(
             description="new order of the selected branch arm",
-            gt=-settings.MAX_INT_NEO4J,
-            lt=settings.MAX_INT_NEO4J,
+            gt=-settings.max_int_neo4j,
+            lt=settings.max_int_neo4j,
         ),
     ]
 
@@ -4341,7 +4256,6 @@ class StudySelectionCohortWithoutArmBranArmRoots(StudySelection):
     author_username: Annotated[
         str | None,
         Field(
-            title="author_username",
             description=AUTHOR_FIELD_DESC,
             json_schema_extra={"nullable": True},
         ),
@@ -4356,7 +4270,6 @@ class StudySelectionCohortWithoutArmBranArmRoots(StudySelection):
     accepted_version: Annotated[
         bool | None,
         Field(
-            title=ACCEPTED_VERSION_DESC,
             description="Denotes if user accepted obsolete cohort versions",
             json_schema_extra={"nullable": True},
         ),
@@ -4559,7 +4472,7 @@ class StudySelectionCohortEditInput(PatchInputModel):
         Field(
             description="number of subjects for the study Cohort",
             ge=0,
-            lt=settings.MAX_INT_NEO4J,
+            lt=settings.max_int_neo4j,
         ),
     ] = None
 
@@ -4578,8 +4491,8 @@ class StudySelectionCohortNewOrder(PatchInputModel):
         int,
         Field(
             description="new order of the selected Cohort",
-            gt=-settings.MAX_INT_NEO4J,
-            lt=settings.MAX_INT_NEO4J,
+            gt=-settings.max_int_neo4j,
+            lt=settings.max_int_neo4j,
         ),
     ]
 
@@ -4626,7 +4539,6 @@ class StudyCompoundDosing(StudySelection):
     author_username: Annotated[
         str | None,
         Field(
-            title="author_username",
             description=AUTHOR_FIELD_DESC,
             json_schema_extra={"nullable": True},
         ),

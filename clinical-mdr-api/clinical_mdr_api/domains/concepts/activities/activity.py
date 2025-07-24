@@ -1,11 +1,7 @@
 from dataclasses import dataclass
-from typing import Callable, Self
+from typing import Any, Callable, Self
 
-from clinical_mdr_api.domains.concepts.concept_base import (
-    ConceptARBase,
-    ConceptVO,
-    _ConceptVOType,
-)
+from clinical_mdr_api.domains.concepts.concept_base import ConceptARBase, ConceptVO
 from clinical_mdr_api.domains.versioned_object_aggregate import (
     LibraryItemMetadataVO,
     LibraryVO,
@@ -35,7 +31,7 @@ class ActivityVO(ConceptVO):
     nci_concept_name: str | None
     synonyms: list[str]
     activity_groupings: list[ActivityGroupingVO]
-    activity_instances: list[dict]
+    activity_instances: list[dict[Any, Any]]
 
     # ActivityRequest related
     request_rationale: str | None
@@ -64,7 +60,7 @@ class ActivityVO(ConceptVO):
         abbreviation: str | None,
         activity_groupings: list[ActivityGroupingVO],
         request_rationale: str | None,
-        activity_instances: list[dict],
+        activity_instances: list[dict[Any, Any]],
         is_request_final: bool = False,
         replaced_by_activity: str | None = None,
         requester_study_id: str | None = None,
@@ -148,7 +144,7 @@ class ActivityAR(ConceptARBase):
     _concept_vo: ActivityVO
 
     @property
-    def concept_vo(self) -> _ConceptVOType:
+    def concept_vo(self) -> ActivityVO:
         return self._concept_vo
 
     @property

@@ -67,10 +67,10 @@ class StudyDiseaseMilestoneRepository:
     def find_all_disease_milestone(
         self,
         study_uid: str | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         study_value_version: str | None = None,
@@ -114,7 +114,7 @@ class StudyDiseaseMilestoneRepository:
         self,
         study_uid: str | None = None,
         study_value_version: str | None = None,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
     ) -> tuple[dict, list[Q]]:
         q_filters = transform_filters_into_neomodel(
             filter_by=filter_by, model=StudyDiseaseMilestoneOGM
@@ -131,7 +131,7 @@ class StudyDiseaseMilestoneRepository:
 
     def find_all_disease_milestones_by_study(
         self, study_uid: str
-    ) -> _StandardsReturnType | None:
+    ) -> list[StudyDiseaseMilestoneOGM]:
         all_disease_milestones = [
             StudyDiseaseMilestoneOGM.model_validate(sas_node)
             for sas_node in ListDistinct(
@@ -336,7 +336,7 @@ class StudyDiseaseMilestoneRepository:
         self,
         field_name: str,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
     ) -> list[Any]:

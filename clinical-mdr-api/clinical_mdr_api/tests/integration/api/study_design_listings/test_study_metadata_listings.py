@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 
 from clinical_mdr_api.main import app
 from clinical_mdr_api.models import study_selections
+from clinical_mdr_api.models.study_selections.study import Study
 from clinical_mdr_api.services.studies.study import StudyService
 from clinical_mdr_api.tests.integration.utils.api import inject_and_clear_db
 from clinical_mdr_api.tests.integration.utils.data_library import inject_base_data
@@ -27,11 +28,12 @@ from clinical_mdr_api.tests.integration.utils.method_library import (
 )
 from clinical_mdr_api.tests.integration.utils.utils import TestUtils
 from clinical_mdr_api.tests.utils.checks import assert_response_status_code
-from common.config import STUDY_ENDPOINT_TP_NAME
+from common.config import settings
 
 study_uid: str
 study_number: str
 project_id: str
+study: Study
 
 
 @pytest.fixture(scope="module")
@@ -45,21 +47,17 @@ def api_client(test_data):
 def test_data():
     inject_and_clear_db("StudyListingTestAPI")
     TestUtils.create_library(name="UCUM", is_editable=True)
-    inject_base_data()
+    global study
+    study = inject_base_data()
     codelist = TestUtils.create_ct_codelist()
     TestUtils.create_study_ct_data_map(codelist_uid=codelist.codelist_uid)
-    study_service = StudyService()
-    studies = study_service.get_all()
+
     global study_uid
-    study_uid = studies.items[0].uid
+    study_uid = study.uid
     global study_number
-    study_number = studies.items[
-        0
-    ].current_metadata.identification_metadata.study_number
+    study_number = study.current_metadata.identification_metadata.study_number
     global project_id
-    project_id = studies.items[
-        0
-    ].current_metadata.identification_metadata.project_number
+    project_id = study.current_metadata.identification_metadata.project_number
     # Inject study metadata
     input_metadata_in_study(study_uid)
     # Create study epochs
@@ -267,7 +265,7 @@ def test_data():
     )
 
     # Create endpoint templates
-    TestUtils.create_template_parameter(STUDY_ENDPOINT_TP_NAME)
+    TestUtils.create_template_parameter(settings.study_endpoint_tp_name)
     endpoint_template = TestUtils.create_endpoint_template()
 
     unit_definitions = [
@@ -300,6 +298,7 @@ def test_data():
     )
 
     # lock study
+    study_service = StudyService()
     study_service.lock(uid=study_uid, change_description="locking it")
     study_service.unlock(uid=study_uid)
 
@@ -314,7 +313,7 @@ def test_study_metadata_listing_api(api_client):
 
     expected_output = {
         "api_ver": "TBA",
-        "study_id": "123-123",
+        "study_id": f"{study.current_metadata.identification_metadata.project_number}-{study.current_metadata.identification_metadata.study_number}",
         "study_ver": 1.0,
         "specified_dt": "2099-12-30",
         "request_dt": "2024-03-18T10:41:58",

@@ -22,7 +22,10 @@ from clinical_mdr_api.domain_repositories.models.concepts import (
 from clinical_mdr_api.domain_repositories.models.controlled_terminology import (
     CTTermRoot,
 )
-from clinical_mdr_api.domain_repositories.models.generic import ClinicalMdrRel
+from clinical_mdr_api.domain_repositories.models.generic import (
+    ClinicalMdrNodeWithUID,
+    ClinicalMdrRel,
+)
 from clinical_mdr_api.domain_repositories.models.study import StudyValue
 from clinical_mdr_api.domain_repositories.models.study_epoch import StudyEpoch
 from clinical_mdr_api.domain_repositories.models.study_selections import (
@@ -32,7 +35,17 @@ from clinical_mdr_api.domain_repositories.models.study_selections import (
 )
 
 
+class StudyVisitGroup(ClinicalMdrNodeWithUID):
+    group_format = StringProperty()
+
+
 class StudyVisit(StudySelection):
+    in_visit_group = RelationshipTo(
+        StudyVisitGroup,
+        "IN_VISIT_GROUP",
+        model=ClinicalMdrRel,
+        cardinality=ZeroOrOne,
+    )
     has_study_visit = RelationshipFrom(
         StudyValue,
         "HAS_STUDY_VISIT",
@@ -61,7 +74,6 @@ class StudyVisit(StudySelection):
     visit_name_label = StringProperty()
     short_visit_label = StringProperty()
     unique_visit_number = StringProperty()
-    consecutive_visit_group = StringProperty()
     show_visit = BooleanProperty()
 
     visit_window_min = IntegerProperty()

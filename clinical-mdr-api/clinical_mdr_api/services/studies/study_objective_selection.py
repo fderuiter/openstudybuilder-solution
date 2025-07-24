@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 from neomodel import db
 
@@ -307,7 +308,7 @@ class StudyObjectiveSelectionService(StudySelectionMixin):
         try:
             # Load aggregate
             # check if name exists
-            objective_service = ObjectiveService()
+            objective_service: ObjectiveService = ObjectiveService()
             objective_ar = objective_service.create_ar_from_input_values(
                 selection_create_input.objective_data,
                 study_uid=study_uid,
@@ -530,7 +531,7 @@ class StudyObjectiveSelectionService(StudySelectionMixin):
             # Load aggregate
             with db.transaction:
                 # check if name exists
-                objective_service = ObjectiveService()
+                objective_service: ObjectiveService = ObjectiveService()
                 objective_ar = objective_service.create_ar_from_input_values(
                     selection_create_input.objective_data,
                     generate_uid_callback=(lambda: "preview"),
@@ -593,10 +594,10 @@ class StudyObjectiveSelectionService(StudySelectionMixin):
         no_brackets: bool,
         project_name: str | None = None,
         project_number: str | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> GenericFilteringReturn[StudySelectionObjective]:
@@ -644,7 +645,7 @@ class StudyObjectiveSelectionService(StudySelectionMixin):
         project_name: str | None = None,
         project_number: str | None = None,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
         study_value_version: str | None = None,
@@ -709,8 +710,8 @@ class StudyObjectiveSelectionService(StudySelectionMixin):
         self,
         study_uid: str,
         no_brackets: bool,
-        sort_by: dict | None = None,
-        filter_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_number: int = 1,
         page_size: int = 0,

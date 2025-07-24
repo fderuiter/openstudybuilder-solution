@@ -15,13 +15,13 @@ from clinical_mdr_api.domains.clinical_programmes.clinical_programme import (
     ClinicalProgrammeAR,
 )
 from clinical_mdr_api.repositories._utils import sb_clear_cache
-from common import config
+from common.config import settings
 from common.exceptions import BusinessLogicException, NotFoundException
 
 
 class ClinicalProgrammeRepository:
     cache_store_item_by_uid = TTLCache(
-        maxsize=config.CACHE_MAX_SIZE, ttl=config.CACHE_TTL
+        maxsize=settings.cache_max_size, ttl=settings.cache_ttl
     )
     lock_store_item_by_uid = Lock()
 
@@ -119,21 +119,21 @@ class ClinicalProgrammeRepository:
     def find_all(self) -> Collection[ClinicalProgrammeAR]:
         clinical_programmes: list[ClinicalProgramme] = ClinicalProgramme.nodes.all()
         # projecting results to ClinicalProgrammeAR instances
-        clinical_programmes: list[ClinicalProgrammeAR] = [
+        clinical_programme_ars: list[ClinicalProgrammeAR] = [
             ClinicalProgrammeAR.from_input_values(
-                name=p.name, generate_uid_callback=lambda p=p: p.uid
+                name=c.name, generate_uid_callback=lambda c=c: c.uid
             )
-            for p in clinical_programmes
+            for c in clinical_programmes
         ]
 
         # attaching a proper repository closure data
         repository_closure_data = RepositoryClosureData(
             not_for_update=True, repository=self, additional_closure=None
         )
-        for clinical_programme in clinical_programmes:
-            clinical_programme.repository_closure_data = repository_closure_data
+        for clinical_programme_ar in clinical_programme_ars:
+            clinical_programme_ar.repository_closure_data = repository_closure_data
 
-        return clinical_programmes
+        return clinical_programme_ars
 
     def is_used_in_projects(self, uid: str) -> bool:
         rs = db.cypher_query(

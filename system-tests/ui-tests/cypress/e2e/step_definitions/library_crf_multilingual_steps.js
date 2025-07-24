@@ -6,10 +6,6 @@ When('The multilingual CRFs option is toggled on in the settings menu', () => se
 
 When('The multilingual CRFs option is toggled off in the settings menu', () => setMultilingualOptionInSettings(false))
 
-Given('The single language CRFs are enabled', () => setMultilingualOption(false))
-
-Given('The multilingual CRFs are enabled', () => setMultilingualOption(true))
-
 Then('The system is showing Translations section for the CRF Forms', () => {
     checkIfSystemDisplayesTranslations('forms', 'form')
 })
@@ -77,11 +73,6 @@ function checkIfSystemDisplayesTranslations(section, button, shouldBeDisplayed =
     cy.visit(`library/crfs/${section}`)
     cy.clickButton(`add-crf-${button}`)
     cy.get('.v-stepper-item__title').should(condition, 'Translations')
-}
-
-function setMultilingualOption(turnOn) {
-    localStorage.setItem('userData', `{"darkTheme":false,"rows":10,"studyNumberLength":4,"multilingual":${turnOn}}`)
-    cy.reload()
 }
 
 function setMultilingualOptionInSettings(turnOn) {

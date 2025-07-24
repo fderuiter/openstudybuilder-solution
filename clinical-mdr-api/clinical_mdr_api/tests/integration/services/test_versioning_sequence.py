@@ -1,3 +1,4 @@
+from typing import Any
 from unittest import TestCase
 
 from pydantic import BaseModel
@@ -53,7 +54,7 @@ class TestDraftEdit(TestCase):
             cls.objective_template = cls.objective_template.model_dump()
 
     def test_edit(self):
-        data = {
+        data: dict[Any, Any] = {
             "name": template_data["name"] + " edited",
             "change_description": "tested",
         }

@@ -20,10 +20,7 @@ from clinical_mdr_api.tests.integration.utils.factory_epoch import (
     create_study_epoch,
     create_study_epoch_codelists_ret_cat_and_lib,
 )
-from common.config import (
-    DAY_UNIT_CONVERSION_FACTOR_TO_MASTER,
-    WEEK_UNIT_CONVERSION_FACTOR_TO_MASTER,
-)
+from common.config import settings
 
 DAY = {
     "name": "day",
@@ -38,7 +35,7 @@ DAY = {
     "unit_dimension": "TIME_UID",
     "legacy_code": "unit1-legacy-code",
     "use_molecular_weight": False,
-    "conversion_factor_to_master": DAY_UNIT_CONVERSION_FACTOR_TO_MASTER,
+    "conversion_factor_to_master": settings.day_unit_conversion_factor_to_master,
 }
 
 WEEK = {
@@ -54,7 +51,7 @@ WEEK = {
     "unit_dimension": "TIME_UID",
     "legacy_code": "unit2-legacy-code",
     "use_molecular_weight": False,
-    "conversion_factor_to_master": WEEK_UNIT_CONVERSION_FACTOR_TO_MASTER,
+    "conversion_factor_to_master": settings.week_unit_conversion_factor_to_master,
 }
 
 

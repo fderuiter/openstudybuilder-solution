@@ -24,8 +24,9 @@ from clinical_mdr_api.services.dictionaries.dictionary_term_generic_service impo
 from clinical_mdr_api.services.dictionaries.dictionary_term_substance_service import (
     DictionaryTermSubstanceService,
 )
-from common import config
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.config import settings
 from common.models.error import ErrorResponse
 
 # Prefixed with "/dictionaries"
@@ -36,7 +37,7 @@ DictionaryTermUID = Path(description="The unique id of the DictionaryTerm")
 
 @router.get(
     "/terms",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List terms in the dictionary codelist.",
     description=f"""
 Business logic:
@@ -92,15 +93,15 @@ def get_terms(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -110,12 +111,14 @@ def get_terms(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
 ) -> CustomPage[DictionaryTerm]:
-    dictionary_term_service = DictionaryTermGenericService()
+    dictionary_term_service: DictionaryTermGenericService = (
+        DictionaryTermGenericService()
+    )
     results = dictionary_term_service.get_all_dictionary_terms(
         codelist_uid=codelist_uid,
         sort_by=sort_by,
@@ -132,7 +135,7 @@ def get_terms(
 
 @router.get(
     "/terms/headers",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns possibles values from the database for a given header",
     description="Allowed parameters include : field name for which to get possible values, "
     "search string to provide filtering for the field name, additional filters to apply on other fields",
@@ -164,12 +167,14 @@ def get_distinct_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
-    dictionary_term_service = DictionaryTermGenericService()
+    dictionary_term_service: DictionaryTermGenericService = (
+        DictionaryTermGenericService()
+    )
     return dictionary_term_service.get_distinct_values_for_header(
         codelist_uid=codelist_uid,
         field_name=field_name,
@@ -182,7 +187,7 @@ def get_distinct_values_for_header(
 
 @router.post(
     "/terms",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Creates new dictionary term.",
     description="""The following nodes are created
   * DictionaryTermRoot
@@ -207,13 +212,15 @@ def create(
         Body(description="Properties to create DictionaryTermValue node."),
     ],
 ) -> DictionaryTerm:
-    dictionary_term_service = DictionaryTermGenericService()
+    dictionary_term_service: DictionaryTermGenericService = (
+        DictionaryTermGenericService()
+    )
     return dictionary_term_service.create(dictionary_term_input)
 
 
 @router.get(
     "/terms/{dictionary_term_uid}",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List details on the specific dictionary term",
     description="""
 State before:
@@ -237,13 +244,15 @@ Possible errors:
 def get_codelists(
     dictionary_term_uid: Annotated[str, DictionaryTermUID],
 ) -> DictionaryTerm:
-    dictionary_term_service = DictionaryTermGenericService()
+    dictionary_term_service: DictionaryTermGenericService = (
+        DictionaryTermGenericService()
+    )
     return dictionary_term_service.get_by_uid(term_uid=dictionary_term_uid)
 
 
 @router.get(
     "/terms/{dictionary_term_uid}/versions",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List version history for a specific dictionary term",
     description="""
 State before:
@@ -271,13 +280,15 @@ Possible errors:
 def get_versions(
     dictionary_term_uid: Annotated[str, DictionaryTermUID],
 ) -> list[DictionaryTermVersion]:
-    dictionary_term_service = DictionaryTermGenericService()
+    dictionary_term_service: DictionaryTermGenericService = (
+        DictionaryTermGenericService()
+    )
     return dictionary_term_service.get_version_history(term_uid=dictionary_term_uid)
 
 
 @router.patch(
     "/terms/{dictionary_term_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Update a dictionary term",
     description="""
 State before:
@@ -326,7 +337,9 @@ def edit(
         ),
     ],
 ) -> DictionaryTerm:
-    dictionary_term_service = DictionaryTermGenericService()
+    dictionary_term_service: DictionaryTermGenericService = (
+        DictionaryTermGenericService()
+    )
     return dictionary_term_service.edit_draft(
         term_uid=dictionary_term_uid, term_input=dictionary_term_input
     )
@@ -334,7 +347,7 @@ def edit(
 
 @router.post(
     "/terms/{dictionary_term_uid}/versions",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary=" Create a new version of a dictionary term",
     description="""
 State before:
@@ -374,13 +387,15 @@ Possible errors:
 def create_new_version(
     dictionary_term_uid: Annotated[str, DictionaryTermUID],
 ) -> DictionaryTerm:
-    dictionary_term_service = DictionaryTermGenericService()
+    dictionary_term_service: DictionaryTermGenericService = (
+        DictionaryTermGenericService()
+    )
     return dictionary_term_service.create_new_version(term_uid=dictionary_term_uid)
 
 
 @router.post(
     "/terms/{dictionary_term_uid}/approvals",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Approve draft version of the dictionary term",
     description="""
 State before:
@@ -417,13 +432,15 @@ Possible errors:
     },
 )
 def approve(dictionary_term_uid: Annotated[str, DictionaryTermUID]) -> DictionaryTerm:
-    dictionary_term_service = DictionaryTermGenericService()
+    dictionary_term_service: DictionaryTermGenericService = (
+        DictionaryTermGenericService()
+    )
     return dictionary_term_service.approve(term_uid=dictionary_term_uid)
 
 
 @router.delete(
     "/terms/{dictionary_term_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary=" Inactivate final version of a dictionary term",
     description="""
 State before:
@@ -461,13 +478,15 @@ Possible errors:
 def inactivate(
     dictionary_term_uid: Annotated[str, DictionaryTermUID],
 ) -> DictionaryTerm:
-    dictionary_term_service = DictionaryTermGenericService()
+    dictionary_term_service: DictionaryTermGenericService = (
+        DictionaryTermGenericService()
+    )
     return dictionary_term_service.inactivate_final(term_uid=dictionary_term_uid)
 
 
 @router.post(
     "/terms/{dictionary_term_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Reactivate retired version of a dictionary term",
     description="""
 State before:
@@ -505,13 +524,15 @@ Possible errors:
 def reactivate(
     dictionary_term_uid: Annotated[str, DictionaryTermUID],
 ) -> DictionaryTerm:
-    dictionary_term_service = DictionaryTermGenericService()
+    dictionary_term_service: DictionaryTermGenericService = (
+        DictionaryTermGenericService()
+    )
     return dictionary_term_service.reactivate_retired(term_uid=dictionary_term_uid)
 
 
 @router.delete(
     "/terms/{dictionary_term_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Delete draft version of a dictionary term",
     description="""
 State before:
@@ -545,13 +566,15 @@ Possible errors:
     },
 )
 def delete_ct_term(dictionary_term_uid: Annotated[str, DictionaryTermUID]):
-    dictionary_term_service = DictionaryTermGenericService()
+    dictionary_term_service: DictionaryTermGenericService = (
+        DictionaryTermGenericService()
+    )
     dictionary_term_service.soft_delete(term_uid=dictionary_term_uid)
 
 
 @router.post(
     "/substances",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Creates new substance dictionary term.",
     description="""The following nodes are created
   * DictionaryTermRoot/UNIITermRoot
@@ -582,7 +605,7 @@ def create_substance(
 
 @router.get(
     "/substances/{dictionary_term_uid}",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Details of the specific substance dictionary term",
     description="""
 State before:
@@ -612,7 +635,7 @@ def get_substance_by_id(
 
 @router.get(
     "/substances",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List terms in the substances dictionary codelist.",
     description="""
 Business logic:
@@ -636,15 +659,15 @@ def get_substances(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -654,14 +677,14 @@ def get_substances(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
 ) -> CustomPage[DictionaryTermSubstance]:
     dictionary_term_service = DictionaryTermSubstanceService()
     results = dictionary_term_service.get_all_dictionary_terms(
-        codelist_name=config.LIBRARY_SUBSTANCES_CODELIST_NAME,
+        codelist_name=settings.library_substances_codelist_name,
         sort_by=sort_by,
         page_number=page_number,
         page_size=page_size,
@@ -676,7 +699,7 @@ def get_substances(
 
 @router.patch(
     "/substances/{dictionary_term_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Update a substance dictionary term",
     description="""
 State before:

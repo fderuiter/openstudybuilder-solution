@@ -26,52 +26,52 @@
   </SimpleFormDialog>
 </template>
 
-<script>
+<script setup>
 import SimpleFormDialog from '@/components/tools/SimpleFormDialog.vue'
 import studyEpochs from '@/api/studyEpochs'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
+import { inject, ref } from 'vue'
 
-export default {
-  components: {
-    SimpleFormDialog,
+const formRules = inject('formRules')
+const studiesGeneralStore = useStudiesGeneralStore()
+const emit = defineEmits(['close', 'created'])
+
+const props = defineProps({
+  visits: {
+    type: Array,
+    default: () => [],
   },
-  inject: ['formRules'],
-  props: {
-    open: Boolean,
-    visits: {
-      type: Array,
-      default: () => [],
-    },
+  format: {
+    type: String,
+    default: '',
   },
-  emits: ['close', 'created'],
-  setup() {
-    const studiesGeneralStore = useStudiesGeneralStore()
-    return {
-      selectedStudy: studiesGeneralStore.selectedStudy,
-    }
-  },
-  data() {
-    return {
-      visitTemplate: null,
-    }
-  },
-  methods: {
-    close() {
-      this.$emit('close')
-      this.visitTemplate = null
-      this.$refs.observer.reset()
-      this.$refs.form.working = false
-    },
-    async submit() {
-      const visitUids = this.visits.map((item) => item.refs[0].uid)
-      await studyEpochs.createCollapsibleVisitGroup(
-        this.selectedStudy.uid,
-        visitUids,
-        this.visitTemplate
-      )
-      this.$emit('created')
-      this.close()
-    },
-  },
+  open: Boolean,
+})
+const observer = ref()
+const form = ref()
+
+const visitTemplate = ref(null)
+
+function close() {
+  emit('close')
+  visitTemplate.value = null
+  observer.value.reset()
+  form.value.working = false
+}
+
+async function submit() {
+  const visitUids = props.visits.map((item) => item.refs[0].uid)
+  const data = {
+    visits_to_assign: visitUids,
+    format: props.format,
+    overwrite_visit_from_template: visitTemplate.value,
+    validate_only: false,
+  }
+  await studyEpochs.createCollapsibleVisitGroup(
+    studiesGeneralStore.selectedStudy.uid,
+    data
+  )
+  emit('created')
+  close()
 }
 </script>

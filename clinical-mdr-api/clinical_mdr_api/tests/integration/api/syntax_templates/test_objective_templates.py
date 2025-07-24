@@ -12,6 +12,7 @@ Tests for objective-templates endpoints
 import json
 import logging
 from functools import reduce
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -241,7 +242,7 @@ def test_get_objective_template(api_client):
     # Check fields included in the response
     fields_all_set = set(ENDPOINT_TEMPLATE_FIELDS_ALL)
     fields_all_set.add("counts")
-    assert set(list(res.keys())) == fields_all_set
+    assert set(res.keys()) == fields_all_set
     for key in ENDPOINT_TEMPLATE_FIELDS_NOT_NULL:
         assert res[key] is not None
 
@@ -276,28 +277,28 @@ def test_get_objective_template(api_client):
 
 
 def test_get_objective_templates_pagination(api_client):
-    results_paginated: dict = {}
+    results_paginated: dict[Any, Any] = {}
     sort_by = '{"uid": true}'
     for page_number in range(1, 4):
         response = api_client.get(
             f"{URL}?page_number={page_number}&page_size=10&sort_by={sort_by}"
         )
         res = response.json()
-        res_uids = list(map(lambda x: x["uid"], res["items"]))
+        res_uids = [item["uid"] for item in res["items"]]
         results_paginated[page_number] = res_uids
         log.info("Page %s: %s", page_number, res_uids)
 
     log.info("All pages: %s", results_paginated)
 
     results_paginated_merged = list(
-        list(reduce(lambda a, b: a + b, list(results_paginated.values())))
+        reduce(lambda a, b: list(a) + list(b), list(results_paginated.values()))
     )
     log.info("All rows returned by pagination: %s", results_paginated_merged)
 
     res_all = api_client.get(
         f"{URL}?page_number=1&page_size=100&sort_by={sort_by}"
     ).json()
-    results_all_in_one_page = list(map(lambda x: x["uid"], res_all["items"]))
+    results_all_in_one_page = [item["uid"] for item in res_all["items"]]
     log.info("All rows in one page: %s", results_all_in_one_page)
     assert len(results_all_in_one_page) == len(results_paginated_merged)
     assert len(objective_templates) == len(results_paginated_merged)
@@ -573,10 +574,8 @@ def test_headers(api_client, field_name):
 def test_pre_validate_objective_template_name(api_client):
     data = {"name": "test [TextValue]"}
     response = api_client.post(f"{URL}/pre-validate", json=data)
-    res = response.json()
-    log.info("Pre Validated Objective Template name: %s", res)
-
-    assert_response_status_code(response, 202)
+    log.info("Pre Validated Objective Template name: %s", data)
+    assert_response_status_code(response, 204)
 
 
 def test_create_objective_template(api_client):
@@ -621,7 +620,7 @@ def test_create_objective_template(api_client):
     )
     assert res["version"] == "0.1"
     assert res["status"] == "Draft"
-    assert set(list(res.keys())) == set(ENDPOINT_TEMPLATE_FIELDS_ALL)
+    assert set(res.keys()) == set(ENDPOINT_TEMPLATE_FIELDS_ALL)
     for key in ENDPOINT_TEMPLATE_FIELDS_NOT_NULL:
         assert res[key] is not None
 
@@ -665,7 +664,7 @@ def test_create_new_version_of_objective_template(api_client):
     )
     assert res["version"] == "1.1"
     assert res["status"] == "Draft"
-    assert set(list(res.keys())) == set(ENDPOINT_TEMPLATE_FIELDS_ALL)
+    assert set(res.keys()) == set(ENDPOINT_TEMPLATE_FIELDS_ALL)
     for key in ENDPOINT_TEMPLATE_FIELDS_NOT_NULL:
         assert res[key] is not None
 
@@ -770,7 +769,7 @@ def test_change_objective_template_indexings(api_client):
     )
     assert res["version"] == "1.0"
     assert res["status"] == "Final"
-    assert set(list(res.keys())) == set(ENDPOINT_TEMPLATE_FIELDS_ALL)
+    assert set(res.keys()) == set(ENDPOINT_TEMPLATE_FIELDS_ALL)
     for key in ENDPOINT_TEMPLATE_FIELDS_NOT_NULL:
         assert res[key] is not None
 
@@ -798,7 +797,7 @@ def test_remove_objective_template_indexings(api_client):
     assert not res["categories"]
     assert res["version"] == "1.0"
     assert res["status"] == "Final"
-    assert set(list(res.keys())) == set(ENDPOINT_TEMPLATE_FIELDS_ALL)
+    assert set(res.keys()) == set(ENDPOINT_TEMPLATE_FIELDS_ALL)
     for key in ENDPOINT_TEMPLATE_FIELDS_NOT_NULL:
         assert res[key] is not None
 
@@ -1134,7 +1133,7 @@ def test_objective_template_sequence_id_generation(api_client):
     )
     assert res["version"] == "0.1"
     assert res["status"] == "Draft"
-    assert set(list(res.keys())) == set(ENDPOINT_TEMPLATE_FIELDS_ALL)
+    assert set(res.keys()) == set(ENDPOINT_TEMPLATE_FIELDS_ALL)
     for key in ENDPOINT_TEMPLATE_FIELDS_NOT_NULL:
         assert res[key] is not None
 

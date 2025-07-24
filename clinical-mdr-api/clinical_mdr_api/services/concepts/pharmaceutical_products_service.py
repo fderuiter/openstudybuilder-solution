@@ -18,7 +18,6 @@ from clinical_mdr_api.models.concepts.pharmaceutical_product import (
 )
 from clinical_mdr_api.services.concepts.concept_generic_service import (
     ConceptGenericService,
-    _AggregateRootType,
 )
 
 
@@ -43,7 +42,7 @@ class PharmaceuticalProductService(ConceptGenericService[PharmaceuticalProductAR
 
     def _create_aggregate_root(
         self, concept_input: PharmaceuticalProductCreateInput, library
-    ) -> _AggregateRootType:
+    ) -> PharmaceuticalProductAR:
         return PharmaceuticalProductAR.from_input_values(
             author_id=self.author_id,
             concept_vo=PharmaceuticalProductVO.from_repository_values(

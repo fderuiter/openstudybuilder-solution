@@ -1,5 +1,6 @@
 import itertools
 import unittest
+from typing import Any
 
 from neomodel import db
 
@@ -79,10 +80,10 @@ class TestCTTermRepository(unittest.TestCase):
             "CDASH CT": ["CDASH_PACKAGE_1", "CDASH_PACKAGE_2"],
         }
         term_uid_to_package_name = {}
-        all_terms_for_package = {}
-        all_terms_for_library = {}
-        all_terms_for_codelist = {}
-        all_terms_for_codelist_name = {}
+        all_terms_for_package: dict[Any, Any] = {}
+        all_terms_for_library: dict[Any, Any] = {}
+        all_terms_for_codelist: dict[Any, Any] = {}
+        all_terms_for_codelist_name: dict[Any, Any] = {}
 
         for library in available_libraries:
             for catalogue in available_catalogues:

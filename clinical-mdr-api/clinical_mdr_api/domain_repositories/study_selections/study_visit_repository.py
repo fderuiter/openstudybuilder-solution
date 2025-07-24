@@ -1,7 +1,11 @@
 import datetime
+from typing import Any
 
 from neomodel import db
 
+from clinical_mdr_api.domain_repositories._utils.helpers import (
+    acquire_write_lock_study_value,
+)
 from clinical_mdr_api.domain_repositories.concepts.unit_definitions.unit_definition_repository import (
     UnitDefinitionRepository,
 )
@@ -28,7 +32,10 @@ from clinical_mdr_api.domain_repositories.models.study_audit_trail import (
     Edit,
 )
 from clinical_mdr_api.domain_repositories.models.study_epoch import StudyEpoch
-from clinical_mdr_api.domain_repositories.models.study_visit import StudyVisit
+from clinical_mdr_api.domain_repositories.models.study_visit import (
+    StudyVisit,
+    StudyVisitGroup,
+)
 from clinical_mdr_api.domain_repositories.study_selections.study_epoch_repository import (
     get_ctlist_terms_by_name,
 )
@@ -51,17 +58,11 @@ from clinical_mdr_api.domains.study_selections.study_visit import (
     StudyVisitVO,
     TextValue,
     TimePoint,
-    TimeUnit,
-    VisitClass,
-    VisitSubclass,
+    VisitGroup,
 )
-from common import config
-from common.config import (
-    GLOBAL_ANCHOR_VISIT_NAME,
-    PREVIOUS_VISIT_NAME,
-    STUDY_VISIT_TIMEREF_NAME,
-)
+from common.config import settings
 from common.exceptions import ValidationException
+from common.utils import TimeUnit, VisitClass, VisitSubclass
 
 
 def get_valid_time_references_for_study(
@@ -101,10 +102,10 @@ def get_valid_time_references_for_study(
     items, _ = db.cypher_query(
         cypher_query,
         {
-            "time_reference_codelist_name": STUDY_VISIT_TIMEREF_NAME,
+            "time_reference_codelist_name": settings.study_visit_timeref_name,
             "study_uid": study_uid,
-            "global_anchor_visit_name": GLOBAL_ANCHOR_VISIT_NAME,
-            "previous_visit_name": PREVIOUS_VISIT_NAME,
+            "global_anchor_visit_name": settings.global_anchor_visit_name,
+            "previous_visit_name": settings.previous_visit_name,
             "effective_date": (
                 effective_date.strftime("%Y-%m-%dT%H:%M:%SZ")
                 if effective_date
@@ -177,7 +178,7 @@ class StudyVisitRepository:
         return len(nodes)
 
     def from_study_visit_vo_to_history_vo(
-        self, study_visit_vo: StudyVisitVO, input_dict: dict
+        self, study_visit_vo: StudyVisitVO, input_dict: dict[str, Any]
     ) -> StudyVisitHistoryVO:
         change_type = input_dict.get("change_type")
         for action in change_type:
@@ -188,7 +189,7 @@ class StudyVisitRepository:
             uid=study_visit_vo.uid,
             visit_number=study_visit_vo.visit_number,
             visit_sublabel_reference=study_visit_vo.visit_sublabel_reference,
-            consecutive_visit_group=study_visit_vo.consecutive_visit_group,
+            study_visit_group=study_visit_vo.study_visit_group,
             show_visit=study_visit_vo.show_visit,
             timepoint=study_visit_vo.timepoint,
             study_day=study_visit_vo.study_day,
@@ -228,7 +229,7 @@ class StudyVisitRepository:
         )
 
     def _create_aggregate_root_instance_from_cypher_result(
-        self, input_dict: dict, audit_trail: bool = False
+        self, input_dict: dict[str, Any], audit_trail: bool = False
     ) -> StudyVisitVO | StudyVisitHistoryVO:
         study_uid = input_dict.get("study_uid")
         study_epoch = input_dict.get("epoch")
@@ -247,7 +248,6 @@ class StudyVisitRepository:
                 conversion_factor_to_master=unit_definition.get(
                     "conversion_factor_to_master"
                 ),
-                from_timedelta=lambda u, x: u.conversion_factor_to_master * x,
             )
         else:
             time_unit_object = None
@@ -269,20 +269,17 @@ class StudyVisitRepository:
                 conversion_factor_to_master=window_unit.get(
                     "conversion_factor_to_master"
                 ),
-                from_timedelta=lambda u, x: u.conversion_factor_to_master * x,
             )
         else:
             window_unit_object = None
         day_unit_object = TimeUnit(
-            name=config.DAY_UNIT_NAME,
-            conversion_factor_to_master=config.DAY_UNIT_CONVERSION_FACTOR_TO_MASTER,
-            from_timedelta=lambda u, x: u.conversion_factor_to_master * x,
+            name=settings.day_unit_name,
+            conversion_factor_to_master=settings.day_unit_conversion_factor_to_master,
         )
 
         week_unit_object = TimeUnit(
-            name=config.WEEK_UNIT_NAME,
-            conversion_factor_to_master=config.WEEK_UNIT_CONVERSION_FACTOR_TO_MASTER,
-            from_timedelta=lambda u, x: u.conversion_factor_to_master * x,
+            name=settings.week_unit_name,
+            conversion_factor_to_master=settings.week_unit_conversion_factor_to_master,
         )
         visit_name = input_dict.get("visit_name")
         study_day = input_dict.get("study_day")
@@ -293,14 +290,21 @@ class StudyVisitRepository:
         vis_subclass = input_dict.get("study_visit").get("visit_subclass")
         visit_subclass = VisitSubclass[vis_subclass] if vis_subclass else None
         is_soa_milestone = input_dict.get("study_visit").get("is_soa_milestone")
+        consecutive_visit_group = input_dict.get("consecutive_visit_group")
         study_visit_vo = StudyVisitVO(
             uid=input_dict.get("study_visit").get("uid"),
             visit_number=input_dict.get("study_visit").get("visit_number"),
             visit_sublabel_reference=input_dict.get("study_visit").get(
                 "visit_sublabel_reference"
             ),
-            consecutive_visit_group=input_dict.get("study_visit").get(
-                "consecutive_visit_group"
+            study_visit_group=(
+                VisitGroup(
+                    uid=consecutive_visit_group.get("uid"),
+                    group_name=consecutive_visit_group.get("group_name"),
+                    group_format=consecutive_visit_group.get("group_format"),
+                )
+                if consecutive_visit_group
+                else None
             ),
             show_visit=input_dict.get("study_visit").get("show_visit"),
             timepoint=timpeoint_object,
@@ -419,7 +423,7 @@ class StudyVisitRepository:
         study_value_version: str | None = None,
         study_visit_uid: str | None = None,
         audit_trail: bool = False,
-    ) -> tuple[str, dict]:
+    ) -> tuple[str, dict[Any, Any]]:
         params = {}
         if not audit_trail:
             if study_value_version:
@@ -481,15 +485,39 @@ class StudyVisitRepository:
                 head([(study_visit)-[:HAS_WEEK_IN_STUDY]->(wisr:WeekInStudyRoot)-[:LATEST]->(wisv:WeekInStudyValue) | {uid:wisr.uid, value:wisv.value}]) AS week_in_study,
                 head([(study_visit)-[:HAS_EPOCH_ALLOCATION]->(epoch_allocation:CTTermRoot) | epoch_allocation.uid]) AS epoch_allocation_uid,
                 size([(study_visit)-[:STUDY_VISIT_HAS_SCHEDULE]->(activity_schedule:StudyActivitySchedule)<-[:HAS_STUDY_ACTIVITY_SCHEDULE]-(:StudyValue) | activity_schedule]) AS count_activities,
-                coalesce(head([(user:User)-[*0]-() WHERE user.user_id=study_action.author_id | user.username]), study_action.author_id) AS author_username
+                coalesce(head([(user:User)-[*0]-() WHERE user.user_id=study_action.author_id | user.username]), study_action.author_id) AS author_username,
+                head([(study_visit)-[:IN_VISIT_GROUP]->(visit_group:StudyVisitGroup) | 
+                {
+                    visit_group:visit_group,
+                    consecutive_visits:apoc.coll.sortMaps([(visit_group)<-[:IN_VISIT_GROUP]-(consecutive_visits:StudyVisit) WHERE NOT (consecutive_visits)--(:Delete) AND NOT (consecutive_visits)-[:BEFORE]-()
+                        | {vis:consecutive_visits, unique_visit_number:toInteger(consecutive_visits.unique_visit_number)}], '^unique_visit_number')
+                }]) AS group
+        """
+        return_statement = """
+            RETURN *,
+                CASE
+                    WHEN group.visit_group.group_format = "range" 
+                        THEN {
+                                group_name: head(group.consecutive_visits).vis.short_visit_label + "-" + last(group.consecutive_visits).vis.short_visit_label, 
+                                uid: group.visit_group.uid, 
+                                group_format:'range'
+                            }
+                    WHEN group.visit_group.group_format = "list" 
+                        THEN {
+                                group_name: apoc.text.join([visit in group.consecutive_visits | visit.vis.short_visit_label], ','), 
+                                uid: group.visit_group.uid, 
+                                group_format: 'list'
+                            }
+                    ELSE null
+                END AS consecutive_visit_group
         """
         if audit_trail:
-            query += """,head([(study_visit:StudyVisit)<-[:BEFORE]-(study_action_before:StudyAction) | study_action_before]) AS study_action_before,
+            query += f""",head([(study_visit:StudyVisit)<-[:BEFORE]-(study_action_before:StudyAction) | study_action_before]) AS study_action_before,
                 labels(study_action) AS change_type
-                RETURN * ORDER BY study_visit.uid, study_action.date DESC
+                {return_statement} ORDER BY study_visit.uid, study_action.date DESC
             """
         else:
-            query += "RETURN * ORDER BY study_visit.unique_visit_number"
+            query += f"{return_statement} ORDER BY study_visit.unique_visit_number"
         return query, params
 
     def find_all_visits_by_study_uid(
@@ -519,8 +547,15 @@ class StudyVisitRepository:
         )
 
     def find_by_uid(
-        self, study_uid: str, uid: str, study_value_version: str | None = None
+        self,
+        study_uid: str,
+        uid: str,
+        study_value_version: str | None = None,
+        for_update: bool = False,
     ) -> StudyVisitVO:
+        if for_update:
+            acquire_write_lock_study_value(uid=study_uid)
+
         query, params = self.find_all_visits_query(
             study_uid=study_uid,
             study_value_version=study_value_version,
@@ -615,7 +650,6 @@ class StudyVisitRepository:
             visit_sublabel_reference=study_visit.visit_sublabel_reference,
             short_visit_label=study_visit.visit_short_name,
             unique_visit_number=study_visit.unique_visit_number,
-            consecutive_visit_group=study_visit.consecutive_visit_group,
             show_visit=study_visit.show_visit,
             visit_window_min=study_visit.visit_window_min,
             visit_window_max=study_visit.visit_window_max,
@@ -671,6 +705,12 @@ class StudyVisitRepository:
         if study_visit.week_in_study:
             week_in_study = WeekInStudyRoot.nodes.get(uid=study_visit.week_in_study.uid)
             new_visit.has_week_in_study.connect(week_in_study)
+
+        if study_visit.study_visit_group:
+            study_visit_group = StudyVisitGroup.nodes.get(
+                uid=study_visit.study_visit_group.uid
+            )
+            new_visit.in_visit_group.connect(study_visit_group)
 
         visit_name_text_value = VisitNameRoot.nodes.get(
             uid=study_visit.visit_name_sc.uid

@@ -43,10 +43,10 @@ class OdmGenericRepository(ConceptGenericRepository[_AggregateRootType], ABC):
     def find_all(
         self,
         library: str | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         return_all_versions: bool = False,
@@ -157,7 +157,7 @@ class OdmGenericRepository(ConceptGenericRepository[_AggregateRootType], ABC):
         uid: str,
         relation_uid: str,
         relationship_type: RelationType,
-        parameters: dict | None = None,
+        parameters: dict[str, Any] | None = None,
     ) -> None:
         origin, relation_node = self.__class__._get_origin_and_relation_node(
             uid, relation_uid, relationship_type
@@ -266,6 +266,7 @@ class OdmGenericRepository(ConceptGenericRepository[_AggregateRootType], ABC):
 
     def odm_object_exists(
         self,
+        library_name: str | None = None,
         description_uids: list[str] | None = None,
         alias_uids: list[str] | None = None,
         sdtm_domain_uids: list[str] | None = None,
@@ -290,6 +291,7 @@ class OdmGenericRepository(ConceptGenericRepository[_AggregateRootType], ABC):
             formal_expression_uids (list[str] | None): List of UIDs for ODM Formal Expressions to match.
             scope_uid (str | None): UID for a specific scope to match.
             codelist_uid (str | None): UID for a CT Codelist to match.
+            library_name (str | None): Name of the library to match.
             **value_attributes: Arbitrary key-value pairs to match against properties of the ODM object.
 
         Returns:
@@ -313,6 +315,12 @@ class OdmGenericRepository(ConceptGenericRepository[_AggregateRootType], ABC):
         """
 
         params = {}
+
+        if library_name:
+            query += (
+                " MATCH (:Library {name: $library_name})-[:CONTAINS_CONCEPT]->(root) "
+            )
+            params["library_name"] = library_name
 
         if description_uids:
             query += " MATCH (desc_root:OdmDescriptionRoot)<-[:HAS_DESCRIPTION]-(root) "

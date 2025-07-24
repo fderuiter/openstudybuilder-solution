@@ -130,9 +130,9 @@ Feature: Library - Concepts - Activities - Activity Subgroups
         Then The activity subgroup is no longer available
 
     Scenario: [Create][Negative case][Draft group] User must not be able to create subgroup linked to Drafted group until it is approved
-        Given The '/library/activities/activity-subgroups' page is opened
-        And [API] Activity group in status Draft exists
+        Given [API] Activity group in status Draft exists
         And Group name created through API is found
+        Given The '/library/activities/activity-subgroups' page is opened
         When The Add activity subgroup button is clicked
         Then Drafted or Retired group is not available during subgroup creation
         And Modal window form is closed by clicking cancel button
@@ -142,11 +142,12 @@ Feature: Library - Concepts - Activities - Activity Subgroups
         And The item has status 'Draft' and version '0.1'
 
     Scenario: [Create][Negative case][Retired group] User must not be able to create subgroup linked to Retired group until it is approved
-        Given The '/library/activities/activity-subgroups' page is opened
-        And [API] Activity group in status Draft exists
+        Given [API] Activity group in status Draft exists
         And [API] Activity group is approved
         And [API] Activity group is inactivated
         And Group name created through API is found
+        And User waits for 1 seconds
+        Given The '/library/activities/activity-subgroups' page is opened
         When The Add activity subgroup button is clicked
         Then Drafted or Retired group is not available during subgroup creation
         And Modal window form is closed by clicking cancel button
@@ -232,6 +233,12 @@ Feature: Library - Concepts - Activities - Activity Subgroups
         Given The '/library/activities/activity-subgroups' page is opened
         When The existing item in search by lowercased name
         And More than one result is found
+
+    @BUG_ID:2813782
+    Scenario: User must be presented with correct values in history table
+        Given The '/library/activities/activity-subgroups' page is opened
+        When The user opens version history of activity subgroup
+        Then The version history displays correct data for activity subgroup
 
     Scenario Outline: [Table][Filtering] User must be able to filter the table by text fields
         Given The '/library/activities/activity-subgroups' page is opened

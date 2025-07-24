@@ -19,8 +19,9 @@ from clinical_mdr_api.routers import _generic_descriptions, decorators
 from clinical_mdr_api.services.dictionaries.dictionary_codelist_generic_service import (
     DictionaryCodelistGenericService,
 )
-from common import config
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.config import settings
 from common.models.error import ErrorResponse
 
 # Prefixed with "/dictionaries"
@@ -35,7 +36,7 @@ TermUID = Path(description="The unique id of the Codelist Term")
 
 @router.get(
     "/codelists",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List all dictionary codelists.",
     description=f"""
 State before:
@@ -87,15 +88,15 @@ def get_codelists(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -105,7 +106,7 @@ def get_codelists(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -127,7 +128,7 @@ def get_codelists(
 
 @router.get(
     "/codelists/headers",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns possibles values from the database for a given header",
     description="Allowed parameters include : field name for which to get possible values, "
     "search string to provide filtering for the field name, additional filters to apply on other fields",
@@ -157,10 +158,10 @@ def get_distinct_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     dictionary_codelist_service = DictionaryCodelistGenericService()
     return dictionary_codelist_service.get_distinct_values_for_header(
@@ -175,7 +176,7 @@ def get_distinct_values_for_header(
 
 @router.post(
     "/codelists",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Creates new dictionary codelist.",
     description="""The following nodes are created
   * DictionaryCodelistRoot
@@ -207,7 +208,7 @@ def create(
 
 @router.get(
     "/codelists/{dictionary_codelist_uid}",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List details on the dictionary codelist with {dictionary_codelist_uid}",
     description="""
 State before:
@@ -244,7 +245,7 @@ def get_codelist(
 
 @router.get(
     "/codelists/{dictionary_codelist_uid}/versions",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List version history for a dictionary codelist",
     description="""
 State before:
@@ -280,7 +281,7 @@ def get_versions(
 
 @router.patch(
     "/codelists/{dictionary_codelist_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary=" Update name or template parameter flag for dictionary codelist",
     description="""
 State before:
@@ -331,7 +332,7 @@ def edit(
 
 @router.post(
     "/codelists/{dictionary_codelist_uid}/versions",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary=" Create a new version of the dictionary codelist",
     description="""
 State before:
@@ -381,7 +382,7 @@ def create_new_version(
 
 @router.post(
     "/codelists/{dictionary_codelist_uid}/approvals",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Approve draft version of the dictionary codelist",
     description="""
 State before:
@@ -425,7 +426,7 @@ def approve(
 
 @router.post(
     "/codelists/{dictionary_codelist_uid}/terms",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary=" Attaches a dictionary term to a dictionary codelist",
     description="""
 State before:
@@ -472,7 +473,7 @@ def add_term(
 
 @router.delete(
     "/codelists/{dictionary_codelist_uid}/terms/{dictionary_term_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Removes a dictionary term from a dictionary codelist",
     description="""
 State before:
@@ -489,10 +490,9 @@ Possible errors:
  - Invalid codelist_uid.
  - Invalid dictionary_term_uid.
 - Term is not part of the specified codelist. """,
-    status_code=201,
+    status_code=200,
     responses={
-        403: _generic_descriptions.ERROR_403,
-        201: {
+        200: {
             "description": "The HAS_TERM relationship was successfully deleted and "
             "HAD_TERM relationship was successfully created.\n"
             "The HAS_PARAMETER_TERM relationship was successfully deleted if codelist identified by "
@@ -505,6 +505,7 @@ Possible errors:
             "- The term doesn't exist.\n"
             "- The codelist doesn't have passed term.\n",
         },
+        403: _generic_descriptions.ERROR_403,
         404: _generic_descriptions.ERROR_404,
     },
 )

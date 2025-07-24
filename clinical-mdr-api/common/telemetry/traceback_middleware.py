@@ -3,11 +3,13 @@ import traceback
 
 from fastapi import Request, status
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse
 from opencensus.trace import execution_context
 from opencensus.trace.attributes_helper import COMMON_ATTRIBUTES
-from starlette.types import ASGIApp, Message, Receive, Scope, Send
+from starlette.types import ASGIApp, Receive, Scope, Send
 
+from common.config import settings
+from common.exceptions import InternalServerError
 from common.models.error import ErrorResponse
 
 log = logging.getLogger(__name__)
@@ -27,30 +29,35 @@ class ExceptionTracebackMiddleware:
             await self.app(scope, receive, send)
             return
 
-        response_started = False
-
-        async def _send(message: Message) -> None:
-            nonlocal response_started, send
-
-            if message["type"] == "http.response.start":
-                response_started = True
-            await send(message)
-
         try:
-            await self.app(scope, receive, _send)
-
-        # pylint: disable=broad-except
-        except Exception as exc:
+            await self.app(scope, receive, send)
+            return
+        except Exception as exc:  # pylint: disable=broad-except
             self.add_traceback_attributes(exc)
 
-            # log traceback
-            log.exception(exc)
+            query_string = scope.get("query_string")
+            log.error(
+                "%s %s%s -> %s",
+                scope.get("method"),
+                scope.get("path"),
+                "?" + query_string.decode("utf-8") if query_string else "",
+                exc,
+                exc_info=exc,
+            )
 
-            request = Request(scope)
-            response = self.error_response(request, exc)
+            msg = None
+            if settings.app_debug:
+                msg = exc
 
-            if not response_started:
-                await response(scope, receive, send)
+            response = JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content=jsonable_encoder(
+                    ErrorResponse(Request(scope), InternalServerError(msg))
+                ),
+            )
+
+            await response(scope, receive, send)
+            return
 
     @staticmethod
     def add_traceback_attributes(exception):
@@ -67,21 +74,3 @@ class ExceptionTracebackMiddleware:
                 COMMON_ATTRIBUTES["STACKTRACE"],
                 "\n".join(traceback.format_tb(exception.__traceback__)),
             )
-
-    @staticmethod
-    def error_response(request: Request, exception: Exception) -> Response:
-        """Returns a 500 error response with JSON payload from Exception"""
-
-        # TODO we should not return the exception cause in production
-        # rather consider doing the following instead:
-        # if production:
-        # user_exception = Exception("No detailed information available.")
-        # else:
-        user_exception = exception
-
-        response = JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=jsonable_encoder(ErrorResponse(request, user_exception)),
-        )
-
-        return response

@@ -1,6 +1,6 @@
 # API architecture
 
-This document describes the architecture of th Clinical MDR API service component.
+This document describes the architecture of the Clinical MDR API service component.
 
 ## API Documentation
 
@@ -58,7 +58,7 @@ This section describes what is our current approach of implementing automated te
 
 #### Assertion
 
-To ensure the function is working correctly, we assert the actual output with the expected out.
+To ensure the function is working correctly, we assert the actual output with the expected output.
 
 Example of a simple test by assertion:
 ```
@@ -73,11 +73,11 @@ class TestSum(unittest.TestCase):
 
 #### Setup Test Data
 
-Most of the time, it is needed to setup a test database in order to perform our test. Our current approach is to call exisitng service to create a test database instead of writing a full cypher query.
+Most of the time, it is needed to set up a test database in order to perform our test. Our current approach is to call existing service to create a test database instead of writing a full cypher query.
 
-This way we can make use of existing service and for easy maintaince.
+This way we can make use of existing service and for easy maintenance.
 
-For easy and fast setup of a test database, a method_library has been made to gather all the methods for setting up different components of required test database, that the developer can choose from.
+For easy and fast set up of a test database, a method_library has been made to gather all the methods for setting up different components of required test database, that the developer can choose from.
 
 The method library can be found in:
 ```
@@ -95,7 +95,7 @@ The method library can be found in:
 
 ```
 #### Maintain method_library.py
-* For easier maintainance, serval fatory files is made next to the method_library, for grouping of methods. i.e. factory_epoch for containing methods related to creating epochs.
+* For easier maintenance, several factory files is made next to the method_library, for grouping of methods. i.e. factory_epoch for containing methods related to creating epochs.
 * All methods from the factory files should be imported to method_library, so it act as a centralised place for all methods to create test database.
 * All methods should be called from method_library instead of directly from factory files.
 
@@ -159,7 +159,7 @@ General schema for json scenario configuration:
     * length - optional value for response json length checking
 
 ## Acceptance tests
-We use Pytest-BBB for writting acceptance tests based on Gherkin features.
+We use Pytest-BBB for writing acceptance tests based on Gherkin features.
 
 Pytest-BDD is based on pytest and allows almost everything that is possible with pytest.  
 Documentation: https://pytest-bdd.readthedocs.io/en/stable/#welcome-to-pytest-bdd-s-documentation

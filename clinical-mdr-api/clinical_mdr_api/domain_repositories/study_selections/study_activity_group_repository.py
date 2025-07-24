@@ -1,5 +1,6 @@
 import datetime
 from dataclasses import dataclass
+from typing import Any
 
 from neomodel import db
 
@@ -51,7 +52,7 @@ class StudySelectionActivityGroupRepository(
     _aggregate_root_type = StudySelectionActivityGroupAR
 
     def _create_value_object_from_repository(
-        self, selection: dict, acv: bool
+        self, selection: dict[Any, Any], acv: bool
     ) -> StudySelectionActivityGroupVO:
         return StudySelectionActivityGroupVO.from_input_values(
             study_selection_uid=selection["study_selection_uid"],
@@ -64,9 +65,7 @@ class StudySelectionActivityGroupRepository(
             ],
             study_soa_group_uid=selection["study_soa_group_uid"],
             study_activity_subgroup_uids=(
-                selection["study_activity_subgroup_uids"]
-                if selection["study_activity_subgroup_uids"]
-                else None
+                selection.get("study_activity_subgroup_uids") or None
             ),
             order=selection["order"],
             start_date=convert_to_datetime(value=selection["start_date"]),
@@ -77,47 +76,75 @@ class StudySelectionActivityGroupRepository(
     def _additional_match(self) -> str:
         return """
             WITH sr, sv
-            MATCH (sv)-[:HAS_STUDY_ACTIVITY]->(study_activity:StudyActivity)-[:STUDY_ACTIVITY_HAS_STUDY_ACTIVITY_GROUP]->
-                (sa:StudyActivityGroup)-[:HAS_SELECTED_ACTIVITY_GROUP]->(av:ActivityGroupValue)<-[ver:HAS_VERSION]-(ar:ActivityGroupRoot)
-            MATCH (study_activity)-[STUDY_ACTIVITY_HAS_STUDY_SOA_GROUP]->(study_soa_group:StudySoAGroup)
+            
+            MATCH (sv)-[:HAS_STUDY_ACTIVITY]->(sa:StudyActivity)
+                -[:STUDY_ACTIVITY_HAS_STUDY_ACTIVITY_GROUP]->(sag:StudyActivityGroup)
+            WHERE NOT (sag)<-[:BEFORE]-()
+            
+            OPTIONAL MATCH (sa)-[:STUDY_ACTIVITY_HAS_STUDY_SOA_GROUP]->(soag:StudySoAGroup)
+            WHERE NOT (soag)<-[:BEFORE]-()
+            
+            OPTIONAL MATCH (sa)-[:STUDY_ACTIVITY_HAS_STUDY_ACTIVITY_SUBGROUP]->(sasg:StudyActivitySubGroup)
+            WHERE NOT (sasg)<-[:BEFORE]-()
+            
+            WITH DISTINCT sr, sag, soag, collect(DISTINCT sasg.uid) AS study_activity_subgroup_uids
+            
+            MATCH (sag)-[:HAS_SELECTED_ACTIVITY_GROUP]->(agv:ActivityGroupValue)<-[:HAS_VERSION]-(agr:ActivityGroupRoot)
+            WITH DISTINCT *
+            
+            MATCH (sag)<-[:AFTER]-(sac:StudyAction)
         """
 
-    def _filter_clause(self, query_parameters: dict, **kwargs) -> str:
-        filter_query = "WHERE NOT (sa)<-[:BEFORE]-()"
+    def _filter_clause(self, query_parameters: dict[Any, Any], **kwargs) -> str:
+        filter_query = []
 
-        study_soa_group_uid = kwargs.get("study_soa_group_uid")
-        if study_soa_group_uid is not None:
-            filter_query += "AND study_soa_group.uid=$study_soa_group_uid"
+        if study_soa_group_uid := kwargs.get("study_soa_group_uid"):
+            filter_query.append("soag.uid = $study_soa_group_uid")
             query_parameters["study_soa_group_uid"] = study_soa_group_uid
 
-        return filter_query
+        if filter_query:
+            return "WHERE " + " AND ".join(filter_query)
+        return ""
+
+    def _versioning_query(self):
+        return """
+            CALL {
+                WITH agr, agv
+                MATCH (agr)-[version:HAS_VERSION]-(agv)
+                WHERE version.status in ['Final', 'Retired']
+                WITH version
+                ORDER BY [i IN split(version.version, '.') | toInteger(i)] DESC,
+                         version.end_date DESC, version.start_date DESC
+                LIMIT 1
+                RETURN version.version AS activity_group_version
+            }
+        """
 
     def _order_by_query(self):
         return """
             WITH DISTINCT *
-            ORDER BY study_soa_group.order, sa.order ASC
-            MATCH (sa)<-[:AFTER]-(sac:StudyAction)
+            ORDER BY soag.order, sag.order
         """
 
     def _return_clause(self) -> str:
-        return """RETURN DISTINCT
+        return """
+            RETURN
                 sr.uid AS study_uid,
-                sa.uid AS study_selection_uid,
-                sa.accepted_version AS accepted_version,
-                coalesce(sa.show_activity_group_in_protocol_flowchart, false) AS show_activity_group_in_protocol_flowchart,
-                ar.uid AS activity_group_uid,
-                av.name AS activity_group_name,
-                head([(sa)<-[:STUDY_ACTIVITY_HAS_STUDY_ACTIVITY_GROUP]-(:StudyActivity)-[:STUDY_ACTIVITY_HAS_STUDY_SOA_GROUP]->(study_soa_group:StudySoAGroup) 
-                    | study_soa_group.uid]) as study_soa_group_uid,
-                apoc.coll.toSet([(sa)<-[:STUDY_ACTIVITY_HAS_STUDY_ACTIVITY_GROUP]-(:StudyActivity)-[:STUDY_ACTIVITY_HAS_STUDY_ACTIVITY_SUBGROUP]->(study_activity_subgroup:StudyActivitySubGroup) 
-                    | study_activity_subgroup.uid]) as study_activity_subgroup_uids,
-                sa.order AS order,
+                sag.uid AS study_selection_uid,
+                sag.accepted_version AS accepted_version,
+                coalesce(sag.show_activity_group_in_protocol_flowchart, false) AS show_activity_group_in_protocol_flowchart,
+                agr.uid AS activity_group_uid,
+                agv.name AS activity_group_name,
+                soag.uid AS study_soa_group_uid,
+                study_activity_subgroup_uids,
+                sag.order AS order,
                 sac.date AS start_date,
                 sac.author_id AS author_id,
-                hv_ver.version AS activity_group_version"""
+                activity_group_version
+        """
 
     def get_selection_history(
-        self, selection: dict, change_type: str, end_date: datetime
+        self, selection: dict[Any, Any], change_type: str, end_date: datetime.datetime
     ):
         return SelectionHistory(
             study_selection_uid=selection["study_selection_uid"],
@@ -129,9 +156,7 @@ class StudySelectionActivityGroupRepository(
             ],
             study_soa_group_uid=selection["study_soa_group_uid"],
             study_activity_subgroup_uids=(
-                selection["study_activity_subgroup_uids"]
-                if selection["study_activity_subgroup_uids"]
-                else None
+                selection.get("study_activity_subgroup_uids") or None
             ),
             author_id=selection["author_id"],
             change_type=change_type,

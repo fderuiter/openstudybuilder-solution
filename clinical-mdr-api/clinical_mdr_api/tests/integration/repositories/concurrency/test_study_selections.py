@@ -1,5 +1,6 @@
 import unittest
 
+import pytest
 from neomodel import db
 
 from clinical_mdr_api.domain_repositories.controlled_terminologies.ct_term_attributes_repository import (
@@ -63,11 +64,13 @@ from clinical_mdr_api.tests.integration.utils.data_library import (
     STARTUP_STUDY_FIELD_CYPHER,
     inject_base_data,
 )
+from clinical_mdr_api.tests.integration.utils.utils import TestUtils
 from clinical_mdr_api.tests.unit.domain.utils import AUTHOR_ID
 from clinical_mdr_api.utils import strip_html
 from common import exceptions
 
 
+@pytest.mark.forked
 class StudySelectionsConcurrencyTests(unittest.TestCase):
     """
     Tests for the following two cases:
@@ -127,7 +130,7 @@ class StudySelectionsConcurrencyTests(unittest.TestCase):
                 initial_id_metadata=StudyIdentificationMetadataVO.from_input_values(
                     project_number="456",
                     study_acronym="STUDY_ACR",
-                    study_number="123",
+                    study_number=TestUtils.get_study_number(),
                     subpart_id=None,
                     description="123description",
                     registry_identifiers=RegistryIdentifiersVO.from_input_values(

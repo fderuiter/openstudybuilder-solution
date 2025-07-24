@@ -16,7 +16,7 @@ from clinical_mdr_api.models.controlled_terminologies.ct_term_codelist import (
 from clinical_mdr_api.models.controlled_terminologies.ct_term_name import CTTermName
 from clinical_mdr_api.models.libraries.library import Library
 from clinical_mdr_api.models.utils import BaseModel, PostInputModel
-from common import config
+from common.config import settings
 
 
 class CTTerm(BaseModel):
@@ -125,7 +125,7 @@ class CTTermCreateInput(PostInputModel):
     sponsor_preferred_name_sentence_case: Annotated[str, Field(min_length=1)]
     order: Annotated[
         int | None,
-        Field(json_schema_extra={"nullable": True}, gt=0, lt=config.MAX_INT_NEO4J),
+        Field(json_schema_extra={"nullable": True}, gt=0, lt=settings.max_int_neo4j),
     ] = 999999
     library_name: Annotated[str, Field(min_length=1)]
 

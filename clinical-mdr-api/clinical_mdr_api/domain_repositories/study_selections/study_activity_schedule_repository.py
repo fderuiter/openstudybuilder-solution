@@ -13,7 +13,7 @@ from clinical_mdr_api.domain_repositories.study_selections import base
 from clinical_mdr_api.domains.study_selections.study_activity_schedule import (
     StudyActivityScheduleVO,
 )
-from common import config
+from common.config import settings
 from common.exceptions import BusinessLogicException, NotFoundException
 from common.utils import convert_to_datetime
 
@@ -28,16 +28,6 @@ class SelectionHistory(base.SelectionHistory):
 
 
 class StudyActivityScheduleRepository(base.StudySelectionRepository):
-    @staticmethod
-    def _acquire_write_lock_study_value(uid: str) -> None:
-        db.cypher_query(
-            """
-             MATCH (sr:StudyRoot {uid: $uid})
-             REMOVE sr.__WRITE_LOCK__
-             RETURN true
-            """,
-            {"uid": uid},
-        )
 
     def _from_repository_values(
         self, study_uid: str, selection: StudyActivitySchedule
@@ -226,13 +216,15 @@ class StudyActivityScheduleRepository(base.StudySelectionRepository):
         study_uid: str,
         study_value_version: str | None = None,
         operational: bool = False,
+        study_visit_uid: str | None = None,
     ):
         """
         returns study activity schedules for a study_uid
         """
         query = ""
         query_parameters = {}
-        query_parameters["library_name"] = config.REQUESTED_LIBRARY_NAME
+        query_parameters["study_visit_uid"] = study_visit_uid
+        query_parameters["library_name"] = settings.requested_library_name
         if study_value_version:
             query = "MATCH (sr:StudyRoot { uid: $uid})-[l:HAS_VERSION{status:'RELEASED', version:$study_value_version}]->(sv:StudyValue)"
             query_parameters["study_value_version"] = study_value_version
@@ -251,16 +243,21 @@ class StudyActivityScheduleRepository(base.StudySelectionRepository):
         if operational:
             operational_match = """
             MATCH (sv)--(sa_instance:StudyActivityInstance)<-[:STUDY_ACTIVITY_HAS_STUDY_ACTIVITY_INSTANCE]-(sa)
+            MATCH (sa_instance)-[:HAS_SELECTED_ACTIVITY_INSTANCE]->(:ActivityInstanceValue)
             MATCH (sa)-[:HAS_SELECTED_ACTIVITY]-(:ActivityValue)-[:HAS_VERSION]-(:ActivityRoot)-[:CONTAINS_CONCEPT]-(lib:Library)
                 WHERE lib.name <> $library_name
             """
             operational_return = """
                 sa_instance.uid AS study_activity_instance_uid,
             """
-
+        if study_visit_uid:
+            visit_filter_query = "WHERE svi.uid=$study_visit_uid"
+        else:
+            visit_filter_query = ""
         query += f"""
             MATCH (sas)<-[:STUDY_VISIT_HAS_SCHEDULE]-(svi:StudyVisit)--(sv)
             MATCH (sas)<-[:STUDY_ACTIVITY_HAS_SCHEDULE]-(sa:StudyActivity)--(sv)
+            {visit_filter_query}
             {operational_match}
             WITH *
             ORDER BY sas.uid, asa.date DESC

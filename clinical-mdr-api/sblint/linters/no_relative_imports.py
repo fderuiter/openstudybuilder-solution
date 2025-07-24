@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import ast
 import sys
 
@@ -10,22 +8,22 @@ from sblint.sblinter import SBLinter
 
 class NoRelativeImports(SBLinter):
     @classmethod
-    def validate(cls, code: str) -> bool:
+    def validate(cls, code_tree: ast.Module) -> list[int]:
         """
         Validates the given Python code by checking if it contains any relative imports.
 
         Args:
-            code (str): The Python code to validate.
+            code_tree (ast.Module): The tree of the Python code to be validated.
 
         Returns:
-            bool: True if the code contains relative imports, False otherwise.
+            list[int]: A list of line numbers where relative imports are found.
         """
-        tree = ast.parse(code)
+        lines = []
 
-        for node in ast.walk(tree):
+        for node in ast.walk(code_tree):
             if isinstance(node, ast.ImportFrom) and node.level != 0:
-                return False
-        return True
+                lines.append(node.lineno)
+        return sorted(lines)
 
     @classmethod
     def expose_validation(cls, invalid_files: list[str]) -> None:
@@ -37,8 +35,10 @@ class NoRelativeImports(SBLinter):
         """
         if invalid_files:
             rptint(
-                "The following files contain imports that use relative paths. Use only absolute paths for imports."
+                "Relative imports? Really? It's like you saw the rules and thought, 'Nah, I'll just make my own chaos.' Bold move, but not the best one.\n"
             )
+
+            rptint("Fix: Use only absolute paths for imports.")
 
             super().expose_validation(invalid_files)
 

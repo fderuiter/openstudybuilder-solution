@@ -1,5 +1,6 @@
 import re
 from abc import ABC
+from typing import Any
 
 from clinical_mdr_api.domain_repositories.concepts.odms.form_repository import (
     FormRepository,
@@ -140,7 +141,7 @@ class OdmGenericService(ConceptGenericService[_AggregateRootType], ABC):
     def attribute_values_matches_their_regex(
         self,
         input_attributes: list[OdmVendorRelationPostInput],
-        attribute_patterns: dict,
+        attribute_patterns: dict[str, Any],
     ):
         """
         Determines whether the values of the given ODM vendor attributes match their regex patterns.

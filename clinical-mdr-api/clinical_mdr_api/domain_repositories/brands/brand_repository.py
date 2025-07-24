@@ -9,12 +9,12 @@ from clinical_mdr_api.domain_repositories.generic_repository import (
 from clinical_mdr_api.domain_repositories.models.brand import Brand
 from clinical_mdr_api.domains.brands.brand import BrandAR
 from clinical_mdr_api.repositories._utils import sb_clear_cache
-from common import config
+from common.config import settings
 
 
 class BrandRepository:
     cache_store_item_by_uid = TTLCache(
-        maxsize=config.CACHE_MAX_SIZE, ttl=config.CACHE_TTL
+        maxsize=settings.cache_max_size, ttl=settings.cache_ttl
     )
     lock_store_item_by_uid = Lock()
 

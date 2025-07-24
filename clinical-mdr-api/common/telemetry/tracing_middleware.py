@@ -18,7 +18,7 @@ from starlette.responses import Response
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 from starlette_context import context
 
-from common import config
+from common.config import settings
 from common.telemetry.request_metrics import (
     add_request_metrics_header,
     include_request_metrics,
@@ -52,8 +52,9 @@ class TracingMiddleware:
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] not in ("http", "websocket"):  # pragma: no cover
             log.debug(
-                "Bypassing middleware %s because of request type is {scope['type']}",
+                "Bypassing middleware %s because of request type is %s",
                 type(self).__name__,
+                scope["type"],
             )
             await self.app(scope, receive, send)
             return
@@ -105,8 +106,10 @@ class TracingMiddleware:
                 if (body := message.get("body")) is not None:
                     request_body_size += len(body)
 
-                    if not request_body and config.TRACE_REQUEST_BODY:
-                        request_body = body[: config.TRACE_REQUEST_BODY_TRUNCATE_BYTES]
+                    if not request_body and settings.trace_request_body:
+                        request_body = body[
+                            : settings.trace_request_body_truncate_bytes
+                        ]
 
             return message
 
@@ -115,7 +118,7 @@ class TracingMiddleware:
         async def _send(message: Message) -> None:
             if message["type"] == "http.response.start":
                 self.add_traceresponse_header(message)
-                if config.TRACING_METRICS_HEADER:
+                if settings.tracing_metrics_header:
                     add_request_metrics_header(message)
                 self.log_access(scope, message)
                 self.add_attributes_form_request_body(
@@ -165,10 +168,7 @@ class TracingMiddleware:
 
         span.add_attribute(COMMON_ATTRIBUTES["HTTP_METHOD"], scope.get("method"))
         span.add_attribute(COMMON_ATTRIBUTES["HTTP_PATH"], path_qs[0])
-        span.add_attribute(
-            COMMON_ATTRIBUTES["HTTP_URL"],
-            "?".join(path_qs),
-        )
+        span.add_attribute(COMMON_ATTRIBUTES["HTTP_URL"], "?".join(path_qs))
         span.add_attribute(
             COMMON_ATTRIBUTES["HTTP_CLIENT_PROTOCOL"],
             f"{scope.get('type', '').upper()}/{scope.get('http_version')}",
@@ -192,8 +192,8 @@ class TracingMiddleware:
                 span.add_attribute(COMMON_ATTRIBUTES["HTTP_REQUEST_SIZE"], request_size)
 
             if (
-                config.TRACE_REQUEST_BODY
-                and status_code >= config.TRACE_REQUEST_BODY_MIN_STATUS_CODE
+                settings.trace_request_body
+                and status_code >= settings.trace_request_body_min_status_code
                 and request_body is not None
             ):
                 request_body = request_body.decode("utf-8", errors="replace")

@@ -24,7 +24,7 @@
             v-else
             :activity="itemOverview.group"
             :all-versions="allVersions(itemOverview)"
-            :show-library="false"
+            :show-library="true"
             :show-nci-concept-id="false"
             :show-data-collection="false"
             :show-abbreviation="false"
@@ -71,7 +71,8 @@
             :loading="false"
             :column-data-resource="'concepts/activities/activity-sub-groups'"
             :filters-modify-function="modifyFilters"
-            @filter="(filters, options) => handleFilter(filters, options)"
+            :initial-column-data="getInitialColumnData()"
+            @filter="handleFilter"
             @update:options="updateTableOptions"
             @click:column="handleColumnClick"
           >
@@ -305,13 +306,20 @@ function handleColumnClick(column) {
 }
 
 let lastSearchTerm = ''
-// Handles filter event
-function handleFilter(filters, options) {
-  if (filters && typeof filters === 'string' && filters.includes('\\"')) {
-    return
+let savedFilters = ref({})
+
+// Handles filter event - Client-side filtering since API doesn't support it
+function handleFilter(filters, options, filtersUpdated) {
+  // Save filters if provided
+  if (filters !== undefined) {
+    savedFilters.value = filters
   }
 
-  if (options && options.search === lastSearchTerm) {
+  if (!options) {
+    options = tableOptions.value
+  }
+
+  if (options && options.search === lastSearchTerm && !filtersUpdated) {
     return
   }
 
@@ -329,6 +337,7 @@ function handleFilter(filters, options) {
 
   let filteredItems = [...sourceItems]
 
+  // Apply search filter
   if (options && options.search) {
     tableOptions.value.search = options.search
     const searchTerm = options.search.toLowerCase()
@@ -339,76 +348,75 @@ function handleFilter(filters, options) {
     tableOptions.value.search = ''
   }
 
-  if (filters) {
-    let filtersObj = filters
-    if (typeof filters === 'string') {
+  // Apply column filters
+  if (savedFilters.value && savedFilters.value !== '{}') {
+    let filtersObj = savedFilters.value
+    if (typeof filtersObj === 'string') {
       try {
-        filtersObj = JSON.parse(filters)
+        filtersObj = JSON.parse(filtersObj)
       } catch (e) {
         console.error('Error parsing filters string:', e)
+        return
       }
     }
 
-    // Check if filters is a column-specific filter object (from FilterAutocomplete)
-    if (filtersObj.column && filtersObj.data) {
-      const filterKey = filtersObj.column
-      const filterValues = filtersObj.data
+    // Skip column filters if this is a search filter (has '*' key with search term)
+    if (filtersObj['*'] && filtersObj['*'].v && options && options.search) {
+      // Don't apply column filters when it's just a search
+    } else {
+      // Check if filters is a column-specific filter object (from FilterAutocomplete)
+      if (filtersObj.column && filtersObj.data) {
+        const filterKey = filtersObj.column
+        const filterValues = filtersObj.data
 
-      if (filterValues && filterValues.length > 0) {
-        filteredItems = filteredItems.filter((item) => {
-          return applyFilter(item, filterKey, filterValues)
+        if (filterValues && filterValues.length > 0) {
+          filteredItems = filteredItems.filter((item) => {
+            return applyFilter(item, filterKey, filterValues)
+          })
+        }
+      }
+      // If filters is a regular object with multiple filters
+      else if (typeof filtersObj === 'object') {
+        Object.keys(filtersObj).forEach((filterKey) => {
+          // Get the filter values object
+          const filterValueObj = filtersObj[filterKey]
+
+          if (!filterValueObj) {
+            // Skip empty filter
+            return
+          }
+
+          // Check if the filter has 'v' property (from NNTable)
+          if (filterValueObj.v && Array.isArray(filterValueObj.v)) {
+            const filterValues = filterValueObj.v
+
+            if (filterValues.length > 0) {
+              filteredItems = filteredItems.filter((item) => {
+                const matches = applyFilter(item, filterKey, filterValues)
+                return matches
+              })
+            }
+          }
+          // Check if the filter has 'data' property
+          else if (Array.isArray(filterValueObj.data)) {
+            const filterValues = filterValueObj.data
+            // Process filters from data property
+
+            if (filterValues.length > 0) {
+              filteredItems = filteredItems.filter((item) => {
+                return applyFilter(item, filterKey, filterValues)
+              })
+            }
+          }
         })
       }
-    }
-    // If filters is a regular object with multiple filters
-    else {
-      Object.keys(filtersObj).forEach((filterKey) => {
-        // Get the filter values object
-        const filterValueObj = filtersObj[filterKey]
-
-        if (!filterValueObj) {
-          // Skip empty filter
-          return
-        }
-
-        // Check if the filter has 'v' property (from NNTable)
-        if (Array.isArray(filterValueObj.v)) {
-          const filterValues = filterValueObj.v
-          // Process filters from v property
-
-          if (filterValues.length > 0) {
-            filteredItems = filteredItems.filter((item) => {
-              return applyFilter(item, filterKey, filterValues)
-            })
-
-            console.log(
-              `After filtering by ${filterKey}, items count: ${filteredItems.length}`
-            )
-          }
-        }
-        // Check if the filter has 'data' property
-        else if (Array.isArray(filterValueObj.data)) {
-          const filterValues = filterValueObj.data
-          // Process filters from data property
-
-          if (filterValues.length > 0) {
-            filteredItems = filteredItems.filter((item) => {
-              return applyFilter(item, filterKey, filterValues)
-            })
-
-            console.log(
-              `After filtering by ${filterKey}, items count: ${filteredItems.length}`
-            )
-          }
-        } else {
-          // No valid filter values found
-        }
-      })
     }
   }
 
   // Helper function to apply filter based on key and values
   function applyFilter(item, filterKey, filterValues) {
+    const itemValue = item[filterKey]
+
     // Handle special case for status which might be different formats
     if (filterKey === 'status') {
       return filterValues.includes(item.status)
@@ -424,17 +432,19 @@ function handleFilter(filters, options) {
     }
     // Handle version filtering
     else if (filterKey === 'version') {
-      return filterValues.includes(item.version)
+      // Convert to string for comparison as filterValues might be strings
+      return (
+        filterValues.includes(item.version) ||
+        filterValues.includes(String(item.version))
+      )
     }
     // Handle name filtering - this is the one we need most often
     else if (filterKey === 'name') {
       const included = filterValues.includes(item.name)
-
       return included
     }
     // Generic handling for other fields
     else {
-      const itemValue = item[filterKey]
       return filterValues.includes(itemValue)
     }
   }
@@ -535,6 +545,32 @@ function modifyFilters(jsonFilter, params) {
   }
 }
 
+// Function to get initial column data for filters
+function getInitialColumnData() {
+  if (!props.itemOverview?.subgroups) return {}
+
+  const sourceItems =
+    props.itemOverview.subgroups.items || props.itemOverview.subgroups
+  if (!Array.isArray(sourceItems) || sourceItems.length === 0) return {}
+
+  const columnData = {}
+
+  // Extract unique values for each column from the actual table data
+  subgroupsHeaders.value.forEach((header) => {
+    if (header.key === 'actions' || header.noFilter) return
+
+    const uniqueValues = [
+      ...new Set(sourceItems.map((item) => item[header.key])),
+    ].filter((val) => val !== undefined && val !== null && val !== '')
+
+    if (uniqueValues.length > 0) {
+      columnData[header.key] = uniqueValues
+    }
+  })
+
+  return columnData
+}
+
 function handleSubgroupsUpdate(subgroupsData) {
   if (props.itemOverview) {
     emit('update:itemOverview', {
@@ -547,10 +583,15 @@ function handleSubgroupsUpdate(subgroupsData) {
     props.itemOverview.subgroups = subgroupsData
 
     const items = subgroupsData?.items || subgroupsData || []
-    filteredSubgroups.value = Array.isArray(items) ? [...items] : []
 
-    subgroupsTotal.value =
-      subgroupsData?.total || filteredSubgroups.value.length || 0
+    // Check if we have an active search - if so, don't overwrite filtered results
+    if (tableOptions.value.search) {
+      subgroupsTotal.value = subgroupsData?.total || items.length || 0
+    } else {
+      filteredSubgroups.value = Array.isArray(items) ? [...items] : []
+      subgroupsTotal.value =
+        subgroupsData?.total || filteredSubgroups.value.length || 0
+    }
 
     setTimeout(() => {
       loadingSubgroups.value = false
@@ -569,14 +610,32 @@ watch(
       return
     }
 
+    // If subgroups is null, we need to fetch them
+    if (newItemOverview?.subgroups === null) {
+      loadingSubgroups.value = true
+      // Fetch subgroups when itemOverview changes with null subgroups
+      fetchSubgroups(tableOptions.value)
+      return
+    }
+
     loadingSubgroups.value = !newItemOverview?.subgroups
 
-    // If we're not searching, update filtered results
-    if (!tableOptions.value.search && newItemOverview?.subgroups) {
+    // If we have subgroups data and an active search or filters, re-apply them
+    if (newItemOverview?.subgroups) {
       const sourceItems =
         newItemOverview.subgroups.items || newItemOverview.subgroups
-      filteredSubgroups.value = sourceItems
       subgroupsTotal.value = sourceItems.length
+
+      // If there's an active search or filters, re-apply them
+      if (
+        tableOptions.value.search ||
+        (savedFilters.value && Object.keys(savedFilters.value).length > 0)
+      ) {
+        handleFilter(savedFilters.value, tableOptions.value)
+      } else {
+        // Only update directly if there's no active search or filters
+        filteredSubgroups.value = sourceItems
+      }
     }
   },
   { immediate: true }
@@ -586,6 +645,11 @@ watch(
 watch(
   () => props.itemOverview?.subgroups,
   (newSubgroups) => {
+    // If subgroups is null, keep loading state and let route watcher fetch
+    if (newSubgroups === null) {
+      return
+    }
+
     loadingSubgroups.value = false
 
     if (newSubgroups) {
@@ -593,12 +657,16 @@ watch(
       const initialSubgroups = [...items]
       subgroupsTotal.value = newSubgroups.total || items.length
 
+      // Always apply filters if there's an active search or saved filters
       if (
         tableOptions.value.search ||
+        (savedFilters.value && Object.keys(savedFilters.value).length > 0) ||
         (tableOptions.value.sortBy && tableOptions.value.sortBy.length > 0)
       ) {
-        handleFilter(null, tableOptions.value)
+        // Apply filters which will handle search, column filters, and sorting
+        handleFilter(savedFilters.value, tableOptions.value)
       } else {
+        // Only set directly if there's no search, filters, or custom sorting
         if (initialSort.value.length > 0) {
           const sortKey = initialSort.value[0].key
           const sortDesc = initialSort.value[0].order === 'desc'
@@ -684,22 +752,12 @@ const fetchSubgroups = async (options = {}) => {
 }
 
 watch(
-  [
-    () => route.params.id,
-    () => route.params.version,
-    () => tableOptions.value.page,
-    () => tableOptions.value.itemsPerPage,
-  ],
-  ([id]) => {
-    if (id) {
-      if (tableOptions.value.search) {
-        // Skip fetching when search is active
-      } else {
-        fetchSubgroups(tableOptions.value)
-      }
+  [() => tableOptions.value.page, () => tableOptions.value.itemsPerPage],
+  () => {
+    if (route.params.id && !tableOptions.value.search) {
+      fetchSubgroups(tableOptions.value)
     }
-  },
-  { immediate: true }
+  }
 )
 
 // Fetch headers for filtering when component mounts
@@ -709,6 +767,11 @@ onMounted(() => {
     .catch((error) => {
       console.error('Error loading subgroups headers:', error)
     })
+
+  // Initial fetch of subgroups if not provided
+  if (props.itemOverview?.subgroups === null) {
+    fetchSubgroups(tableOptions.value)
+  }
 })
 
 onMounted(() => {
@@ -728,7 +791,7 @@ onMounted(() => {
 
   appStore.addBreadcrumbsLevel(
     t('Sidebar.library.activities_groups'),
-    { name: 'Activities' },
+    { name: 'Activities', params: { tab: 'activity-groups' } },
     3,
     true
   )

@@ -1,6 +1,6 @@
 import copy
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Generic
 
 from neo4j.graph import Node
 from neomodel import db
@@ -37,15 +37,17 @@ from clinical_mdr_api.repositories._utils import (
 )
 
 
-class ConceptGenericRepository(LibraryItemRepositoryImplBase[_AggregateRootType], ABC):
+class ConceptGenericRepository(
+    LibraryItemRepositoryImplBase, Generic[_AggregateRootType], ABC
+):
     root_class = type
     value_class = type
     return_model = type
-    filter_query_parameters = {}
+    filter_query_parameters: dict[Any, Any] = {}
 
     @abstractmethod
     def _create_aggregate_root_instance_from_cypher_result(
-        self, input_dict: dict
+        self, input_dict: dict[str, Any]
     ) -> _AggregateRootType:
         raise NotImplementedError
 
@@ -220,8 +222,7 @@ class ConceptGenericRepository(LibraryItemRepositoryImplBase[_AggregateRootType]
 
     def create_query_filter_statement(
         self, library: str | None = None, **kwargs
-    ) -> tuple[str, dict]:
-        # pylint: disable=unused-argument
+    ) -> tuple[str, dict[Any, Any]]:
         filter_parameters = []
         filter_query_parameters = {}
         if library:
@@ -249,10 +250,10 @@ class ConceptGenericRepository(LibraryItemRepositoryImplBase[_AggregateRootType]
     def find_all(
         self,
         library: str | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         return_all_versions: bool = False,
@@ -349,7 +350,7 @@ class ConceptGenericRepository(LibraryItemRepositoryImplBase[_AggregateRootType]
         field_name: str,
         search_string: str | None = "",
         library: str | None = None,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
         **kwargs,

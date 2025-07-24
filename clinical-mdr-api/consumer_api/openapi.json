@@ -2,10 +2,184 @@
   "openapi": "3.0.2",
   "info": {
     "title": "StudyBuilder Consumer API",
-    "description": "\n## NOTICE\n\nThis license information is applicable to the swagger documentation of the clinical-mdr-api, that is the openapi.json.\n\n## License Terms (MIT)\n\nCopyright (C) 2022 Novo Nordisk A/S, Danish company registration no. 24256790\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n## Licenses and Acknowledgements for Incorporated Software\n\nThis component contains software licensed under different licenses when compiled, please refer to the third-party-licenses.md file for further information and full license texts.\n\n## Authentication\n\nSupports OAuth2 [Authorization Code Flow](https://datatracker.ietf.org/doc/html/rfc6749#section-4.1),\nat paths described in the OpenID Connect Discovery metadata document (whose URL is defined by the `OAUTH_METADATA_URL` environment variable).\n\nMicrosoft Identity Platform documentation can be read \n([here](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)).\n\n## System information\n\nSystem information is provided by a separate [System Information](./system/docs) sub-app which doesn't require authentication.\n",
-    "version": "0.1.64"
+    "description": "\n## NOTICE\n\nThis license information is applicable to the swagger documentation of the clinical-mdr-api, that is the openapi.json.\n\n## License Terms (MIT)\n\nCopyright (C) 2025 Novo Nordisk A/S, Danish company registration no. 24256790\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n## Licenses and Acknowledgements for Incorporated Software\n\nThis component contains software licensed under different licenses when compiled, please refer to the third-party-licenses.md file for further information and full license texts.\n\n## Authentication\n\nSupports OAuth2 [Authorization Code Flow](https://datatracker.ietf.org/doc/html/rfc6749#section-4.1),\nat paths described in the OpenID Connect Discovery metadata document (whose URL is defined by the `OAUTH_METADATA_URL` environment variable).\n\nMicrosoft Identity Platform documentation can be read \n([here](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)).\n",
+    "version": "0.1.83"
   },
   "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system/information": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Returns various information about this API (running version, etc.)",
+        "operationId": "get_system_information_system_information_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemInformation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system/information/build-id": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Returns build id as plain text",
+        "operationId": "get_build_id_system_information_build_id_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "title": "Response Get Build Id System Information Build Id Get"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system/healthcheck": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Returns 200 OK status if the system is ready to serve requests",
+        "operationId": "healthcheck_system_healthcheck_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "title": "Response Healthcheck System Healthcheck Get"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system/information/sbom.md": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Returns SBOM as markdown text",
+        "operationId": "get_sbom_md_system_information_sbom_md_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system/information/license.md": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Returns license as markdown text",
+        "operationId": "get_license_md_system_information_license_md_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/studies": {
       "get": {
         "tags": [
@@ -144,7 +318,7 @@
             "required": false,
             "schema": {
               "$ref": "#/components/schemas/SortByStudyVisits",
-              "default": "uid"
+              "default": "unique_visit_number"
             }
           },
           {
@@ -641,6 +815,143 @@
           }
         }
       }
+    },
+    "/v1/papillons/soa": {
+      "get": {
+        "tags": [
+          "V1"
+        ],
+        "summary": "Get Papillons Soa",
+        "operationId": "get_papillons_soa_v1_papillons_soa_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Project",
+              "title": "Project"
+            },
+            "description": "Project"
+          },
+          {
+            "name": "study_number",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Study Number",
+              "title": "Study Number"
+            },
+            "description": "Study Number"
+          },
+          {
+            "name": "subpart",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Study Subpart Identifier, for example `SAD, MAD, EXT, etc..`",
+              "title": "Subpart"
+            },
+            "description": "Study Subpart Identifier, for example `SAD, MAD, EXT, etc..`"
+          },
+          {
+            "name": "study_version_number",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Study Version Number, for example `2.1`",
+              "title": "Study Version Number"
+            },
+            "description": "Study Version Number, for example `2.1`"
+          },
+          {
+            "name": "datetime",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "If specified, study data with latest released version of specified datetime is returned. format in YYYY-MM-DDThh:mm:ssZ. ",
+              "title": "Datetime"
+            },
+            "description": "If specified, study data with latest released version of specified datetime is returned. format in YYYY-MM-DDThh:mm:ssZ. "
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PapillonsSoA"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Item not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -915,6 +1226,117 @@
           "items"
         ],
         "title": "PaginatedResponse[Study]"
+      },
+      "PapillonsSoA": {
+        "properties": {
+          "project": {
+            "type": "string",
+            "title": "Project",
+            "description": "Project"
+          },
+          "study_number": {
+            "type": "string",
+            "title": "Study Number",
+            "description": "Study Number"
+          },
+          "subpart": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subpart",
+            "description": "Study Subpart",
+            "nullable": true
+          },
+          "study": {
+            "type": "string",
+            "title": "Study",
+            "description": "Full Study ID concatenate as: project-study"
+          },
+          "api_version": {
+            "type": "string",
+            "title": "Api Version",
+            "description": "API Version"
+          },
+          "study_version": {
+            "type": "string",
+            "title": "Study Version",
+            "description": "Study Version"
+          },
+          "specified_dt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Specified Dt",
+            "description": "Specified datetime which the released version before that datetime is returned.",
+            "nullable": true
+          },
+          "fetch_dt": {
+            "type": "string",
+            "title": "Fetch Dt",
+            "description": "Datetime when the data is fetched."
+          },
+          "SoA": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PapillonsSoAItem"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Soa",
+            "description": "Scheduled activities"
+          }
+        },
+        "type": "object",
+        "required": [
+          "project",
+          "study_number",
+          "subpart",
+          "study",
+          "api_version",
+          "study_version",
+          "specified_dt",
+          "fetch_dt",
+          "SoA"
+        ],
+        "title": "PapillonsSoA"
+      },
+      "PapillonsSoAItem": {
+        "properties": {
+          "topic_cd": {
+            "type": "string",
+            "title": "Topic Cd",
+            "description": "Topic code"
+          },
+          "visits": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Visits",
+            "description": "Lists of visits which the activity was assessed."
+          }
+        },
+        "type": "object",
+        "required": [
+          "topic_cd",
+          "visits"
+        ],
+        "title": "PapillonsSoAItem"
       },
       "SortByStudies": {
         "type": "string",
@@ -1563,13 +1985,29 @@
             "title": "Uid",
             "description": "Study Visit UID"
           },
+          "visit_class": {
+            "$ref": "#/components/schemas/VisitClass",
+            "description": "Study Visit Class name"
+          },
+          "visit_subclass": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VisitSubclass"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Study Visit Sub Class name",
+            "nullable": true
+          },
           "visit_name": {
             "type": "string",
             "title": "Visit Name",
             "description": "Study Visit Name"
           },
           "visit_order": {
-            "type": "number",
+            "type": "integer",
             "title": "Visit Order",
             "description": "Study Visit Order"
           },
@@ -1724,12 +2162,26 @@
             "title": "Time Value",
             "description": "Study Visit Time Value",
             "nullable": true
+          },
+          "time_reference_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Reference Name",
+            "description": "Study Visit Time Reference Name",
+            "nullable": true
           }
         },
         "type": "object",
         "required": [
           "study_uid",
           "uid",
+          "visit_class",
           "visit_name",
           "visit_order",
           "unique_visit_number",
@@ -1741,6 +2193,74 @@
           "study_epoch_name"
         ],
         "title": "StudyVisit"
+      },
+      "SystemInformation": {
+        "properties": {
+          "api_version": {
+            "type": "string",
+            "title": "Api Version",
+            "description": "Version of the API specification"
+          },
+          "db_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Db Version",
+            "description": "Version information from the Neo4j database the application is using"
+          },
+          "db_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Db Name",
+            "description": "Name of the database the application is using"
+          },
+          "build_id": {
+            "type": "string",
+            "title": "Build Id",
+            "description": "The Build.BuildNumber identifier from the pipeline run"
+          },
+          "commit_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Commit Id",
+            "description": "The reference to the repository state: the id of the last commit to the branch at build"
+          },
+          "branch_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Branch Name",
+            "description": "Name of the VCS repository branch the app was built from"
+          }
+        },
+        "type": "object",
+        "required": [
+          "api_version",
+          "build_id"
+        ],
+        "title": "SystemInformation"
       },
       "ValidationError": {
         "properties": {
@@ -1774,6 +2294,27 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "VisitClass": {
+        "type": "string",
+        "enum": [
+          "Single visit",
+          "Special visit",
+          "Non visit",
+          "Unscheduled visit",
+          "Manually defined visit"
+        ],
+        "title": "VisitClass"
+      },
+      "VisitSubclass": {
+        "type": "string",
+        "enum": [
+          "Single visit",
+          "Additional subvisit in a group of subvisits",
+          "Anchor visit in group of subvisits",
+          "Repeating visit"
+        ],
+        "title": "VisitSubclass"
       }
     },
     "securitySchemes": {
@@ -1782,7 +2323,7 @@
         "flows": {
           "authorizationCode": {
             "scopes": {
-              "api://None/API.call": "Make calls to the API"
+              "api:///API.call": "Make calls to the API"
             },
             "authorizationUrl": "",
             "tokenUrl": ""

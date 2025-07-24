@@ -51,10 +51,12 @@ from clinical_mdr_api.models.study_selections.study import (
     StudyIdentificationMetadataJsonModel,
     StudyInterventionJsonModel,
     StudyMetadataJsonModel,
+    StudyMinimal,
     StudyPatchRequestJsonModel,
     StudyPopulationJsonModel,
     StudyPreferredTimeUnit,
     StudyProtocolTitle,
+    StudySimple,
     StudySoaPreferences,
     StudySoaPreferencesInput,
     StudyStructureOverview,
@@ -78,12 +80,7 @@ from clinical_mdr_api.services._utils import (  # type: ignore
     service_level_generic_header_filtering,
 )
 from common.auth.user import user
-from common.config import (
-    DAY_UNIT_NAME,
-    STUDY_FIELD_PREFERRED_TIME_UNIT_NAME,
-    STUDY_FIELD_SOA_PREFERRED_TIME_UNIT_NAME,
-    WEEK_UNIT_NAME,
-)
+from common.config import settings
 from common.exceptions import (
     BusinessLogicException,
     NotFoundException,
@@ -323,10 +320,10 @@ class StudyService:
     @db.transaction
     def get_study_structure_overview(
         self,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> list[StudyStructureOverview]:
@@ -353,7 +350,7 @@ class StudyService:
         self,
         field_name: str,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
     ):
@@ -384,7 +381,7 @@ class StudyService:
         return StudyStructureStatistics(**counters)
 
     def _group_study_structure_overview_by_data(self, items):
-        parsed_items: dict[tuple, StudyStructureOverview] = {}
+        parsed_items: dict[tuple[Any, ...], StudyStructureOverview] = {}
 
         for study_id, item in items:
             index = (
@@ -805,6 +802,16 @@ class StudyService:
         finally:
             self._close_all_repos()
 
+    def get_studies_list(
+        self, minimal_response=True
+    ) -> list[StudySimple | StudyMinimal]:
+        items = self._repos.study_definition_repository.get_studies_list()
+
+        if minimal_response:
+            return [StudyMinimal.from_input(item) for item in items]
+
+        return [StudySimple.from_input(item) for item in items]
+
     def get_all(
         self,
         include_sections: list[StudyComponentEnum] | None = None,
@@ -815,10 +822,10 @@ class StudyService:
         has_study_criteria: bool | None = None,
         has_study_activity: bool | None = None,
         has_study_activity_instruction: bool | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         deleted: bool = False,
@@ -876,10 +883,10 @@ class StudyService:
     def get_study_snapshot_history(
         self,
         study_uid: str,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> GenericFilteringReturn[CompactStudy]:
@@ -918,7 +925,7 @@ class StudyService:
         self,
         field_name: str,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
     ):
@@ -1217,14 +1224,14 @@ class StudyService:
             self.post_study_preferred_time_unit(
                 study_uid=study_definition.uid,
                 unit_definition_uid=self._repos.unit_definition_repository.find_uid_by_name(
-                    DAY_UNIT_NAME
+                    settings.day_unit_name
                 ),
             )
             # create default soa preferred time unit pointing to 'Week' Unit Definition
             self.post_study_preferred_time_unit(
                 study_uid=study_definition.uid,
                 unit_definition_uid=self._repos.unit_definition_repository.find_uid_by_name(
-                    WEEK_UNIT_NAME
+                    settings.week_unit_name
                 ),
                 for_protocol_soa=True,
             )
@@ -1660,10 +1667,7 @@ class StudyService:
 
     @db.transaction
     def patch(
-        self,
-        uid: str,
-        dry: bool,
-        study_patch_request: StudyPatchRequestJsonModel,
+        self, uid: str, dry: bool, study_patch_request: StudyPatchRequestJsonModel
     ) -> Study:
         _study_number = None
         _study_acronym = None
@@ -1702,7 +1706,9 @@ class StudyService:
                 if study_patch_request.study_parent_part_uid:
                     BusinessLogicException.raise_if(
                         study_patch_request.current_metadata.identification_metadata
-                        and study_patch_request.current_metadata.identification_metadata.study_acronym,
+                        and study_patch_request.current_metadata.identification_metadata.study_acronym
+                        and study_patch_request.current_metadata.identification_metadata.study_acronym
+                        != study_definition_ar.current_metadata.id_metadata.study_acronym,
                         msg="Cannot edit Study Acronym of Study Subparts.",
                     )
 
@@ -2055,9 +2061,9 @@ class StudyService:
         self, nodes: NodeSet, study_uid: str, for_protocol_soa: bool = False
     ):
         study_field_name = (
-            STUDY_FIELD_SOA_PREFERRED_TIME_UNIT_NAME
+            settings.study_field_soa_preferred_time_unit_name
             if for_protocol_soa
-            else STUDY_FIELD_PREFERRED_TIME_UNIT_NAME
+            else settings.study_field_preferred_time_unit_name
         )
         BusinessLogicException.raise_if(
             len(nodes) > 1,

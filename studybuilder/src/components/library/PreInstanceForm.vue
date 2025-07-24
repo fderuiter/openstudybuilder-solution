@@ -6,7 +6,7 @@
       :steps="steps"
       :form-observer-getter="getObserver"
       :help-items="helpItems"
-      :editable="preInstance !== undefined"
+      :editable="preInstance !== undefined && preInstance !== null"
       @close="close"
       @save="submit"
     >

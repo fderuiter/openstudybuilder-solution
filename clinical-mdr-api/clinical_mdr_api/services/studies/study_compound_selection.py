@@ -1,3 +1,5 @@
+from typing import Any
+
 from neomodel import db
 
 from clinical_mdr_api.domain_repositories.study_selections.study_compound_repository import (
@@ -202,10 +204,10 @@ class StudyCompoundSelectionService(
         self,
         project_name: str | None = None,
         project_number: str | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> GenericFilteringReturn[StudySelectionCompound]:
@@ -245,7 +247,7 @@ class StudyCompoundSelectionService(
         project_name: str | None = None,
         project_number: str | None = None,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
     ):
@@ -299,7 +301,7 @@ class StudyCompoundSelectionService(
         self,
         study_uid: str,
         study_value_version: str | None = None,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_number: int = 1,
         page_size: int = 0,

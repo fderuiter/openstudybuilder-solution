@@ -12,7 +12,7 @@ from clinical_mdr_api.tests.utils.checks import (
     assert_response_content_type,
     assert_response_status_code,
 )
-from common import config
+from common.config import settings
 
 
 @pytest.fixture
@@ -22,8 +22,8 @@ def mock_msgraph_service_to_none(monkeypatch):
 
 # Test purpose is to validate Ms-Graph API integration config, only if Ms-Graph Integration is enabled and configured
 @pytest.mark.skipif(
-    not config.MS_GRAPH_INTEGRATION_ENABLED,
-    reason="Ms-Graph integration is disabled (see MS_GRAPH_INTEGRATION_ENABLED env var)",
+    not settings.ms_graph_integration_enabled,
+    reason="Ms-Graph integration is disabled (see ms_graph_integration_enabled env var)",
 )
 # run test at least twice because it utilizes caching and singleton class and reusing of access token
 @pytest.mark.parametrize(

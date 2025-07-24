@@ -120,7 +120,7 @@ class CTTermAggregatedRepository:
     """
 
     def _create_term_aggregate_instances_from_cypher_result(
-        self, term_dict: dict
+        self, term_dict: dict[str, Any]
     ) -> tuple[CTTermNameAR, CTTermAttributesAR]:
         """
         Method creates a tuple of CTTermNameAR and CTTermAttributesAR objects for one CTTermRoot node.
@@ -148,10 +148,10 @@ class CTTermAggregatedRepository:
         package: str | None = None,
         is_sponsor: bool = False,
         include_removed_terms: bool = False,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> GenericFilteringReturn[tuple[CTTermNameAR, CTTermAttributesAR]]:
@@ -237,7 +237,7 @@ class CTTermAggregatedRepository:
         package: str | None = None,
         is_sponsor: bool = False,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
     ) -> list[Any]:
@@ -307,7 +307,7 @@ class CTTermAggregatedRepository:
         package: str | None = None,
         is_sponsor: bool = False,
         include_removed_terms: bool = False,
-    ) -> tuple[str, dict]:
+    ) -> tuple[str, dict[Any, Any]]:
         match_clause = ""
         if is_sponsor:
             ValidationException.raise_if_not(
@@ -376,7 +376,7 @@ class CTTermAggregatedRepository:
                 -[:HAS_ATTRIBUTES_ROOT]->(term_attributes_root:CTTermAttributesRoot)-[:LATEST]->(term_attributes_value:CTTermAttributesValue)
                 """
 
-        filter_query_parameters = {}
+        filter_query_parameters: dict[Any, Any] = {}
         if library_name or package:
             # Build specific filtering for package and library
             # This is separate from generic filtering as the list of filters is predefined

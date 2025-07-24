@@ -1,7 +1,7 @@
 from fastapi import Query
 
 from clinical_mdr_api.models.validators import FLOAT_REGEX
-from common import config
+from common.config import settings
 from common.models.error import ErrorResponse
 
 
@@ -63,7 +63,7 @@ Errors: `page_size` not provided, `page_number` must be equal or greater than 1.
 
 PAGE_SIZE = f"""
 Number of items to be returned per page.\n
-Default: {config.DEFAULT_PAGE_SIZE}\n
+Default: {settings.default_page_size}\n
 Functionality: Provided together with `page_number`, selects the number of results per page.\n
 In case the value is set to `0`, all rows will be returned.\n
 Errors: `page_number` not provided.
@@ -184,7 +184,6 @@ STUDY_VALUE_VERSION_QUERY = Query(
 ERROR_400 = {"model": ErrorResponse, "description": "Error"}
 ERROR_403 = {"model": ErrorResponse, "description": "Forbidden"}
 ERROR_404 = {"model": ErrorResponse, "description": "Entity not found"}
-ERROR_405 = {"model": ErrorResponse, "description": "Unsupported method"}
 ERROR_409 = {
     "model": ErrorResponse,
     "description": "The request could not be completed due to a conflict with the current state of the target resource. "

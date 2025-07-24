@@ -10,7 +10,7 @@ The study Structure menu consists of:
 -	The **Study Arms** which provide the option to add single or multiple arms with different arm types from Observational arms to investigational arms
 -	The **Study Branches** where users can split arms to branches 
 -	The **Study Cohorts** for adding cohorts for a single arm/branch or across arms/branches
--	The **Study Epochs** where the different periods in a study is described with a relation to treatment or not, and before, during or after treatment.
+-	The **Study Epochs** where the different periods in a study are described with a relation to treatment or not, and before, during or after treatment.
 -	The **Study Elements** tab, where the user can specify intended main purpose within an arm in a certain period (epoch)
 -	The **Study Visits** where the user can assign visits to the epoch with visit types and reference timepoints
 -	The **Design Matrix** that provides an overview of the combination of arms/branches, epochs, and elements
@@ -32,10 +32,10 @@ A Study arm must be created with the following mandatory items:
 Optional choices for study arms:
 
 -	An **Arm type** describing the main purpose of the arm. The current arm types are a subset of the CDISC Protocol Study Arm type code list (C174222)
--	An **arm code**. The arm code can be reused as randomisation code, but it is also possible to write another randomisation code or leave randomisation code blank.
+-	An **arm code**. The arm code can be reused as randomization code, but it is also possible to write another randomization code or leave randomization code blank.
 -	Add the number of subjects planned to participate in the arm. This information will also be used to calculate the total planned number of subjects for the study structure overview.
 -	A free text description
--	As a specific feature across all the study structure pages, it is possible to assign a RGB colour to every part created, to make a more eye-friendly drawing for the protocol or other places (Figure 1).
+-	As a specific feature across all the study structure pages, it is possible to assign an RGB colour to every part created, to make a more eye-friendly drawing for the protocol or other places (Figure 1).
 
 ![Screenshot - Trial Design with colours](~@source/images/user_guides/guide_sstruct_02.png)
 

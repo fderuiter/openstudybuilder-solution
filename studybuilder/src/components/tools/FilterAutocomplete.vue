@@ -49,6 +49,7 @@
         hide-details
         single-line
         class="select filterAutocompleteLabel ml-1"
+        :loading="loading"
         @input="getColumnData(item.key)"
         @update:model-value="filterTable"
       >
@@ -165,6 +166,10 @@ const props = defineProps({
     required: true,
     default: null,
   },
+  loadFilters: {
+    type: Boolean,
+    default: false,
+  },
 })
 const emit = defineEmits(['filter'])
 
@@ -174,6 +179,7 @@ const searchString = ref('')
 const select = ref()
 const timeout = ref(null)
 const adapter = useDate()
+const loading = ref(false)
 
 watch(searchString, () => {
   if (timeout.value) clearTimeout(timeout.value)
@@ -188,7 +194,7 @@ watch(
   }
 )
 watch(
-  () => props.tableItems,
+  () => props.loadFilters,
   () => {
     getColumnData(props.item.key)
   }
@@ -215,6 +221,10 @@ function getColumnData(value) {
   if (value === 'actions') {
     return []
   }
+  if (value === 'add') {
+    return []
+  }
+  loading.value = true
   let jsonFilter = JSON.parse(props.filters)
   delete jsonFilter[value]
   if (props.item.exludeFromHeader) {
@@ -264,6 +274,9 @@ function getColumnData(value) {
   if (props.item.disableColumnFilters) {
     params.filters = {}
   }
+  if (props.item.split_activity_by_groupings) {
+    params.split_activity_by_groupings = true
+  }
   columnData.getHeaderData(params, externalFilter).then((resp) => {
     items.value = booleanValidator(resp.data)
     items.value = items.value.filter((element) => {
@@ -288,6 +301,7 @@ function getColumnData(value) {
       )
     }
   })
+  loading.value = false
 }
 
 function filterDate() {

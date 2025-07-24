@@ -21,8 +21,9 @@ from clinical_mdr_api.routers.responses import YAMLResponse
 from clinical_mdr_api.services.concepts.activities.activity_group_service import (
     ActivityGroupService,
 )
-from common import config
 from common.auth import rbac
+from common.auth.dependencies import security
+from common.config import settings
 from common.models.error import ErrorResponse
 
 # Prefixed with "/concepts/activities"
@@ -33,7 +34,7 @@ ActivityGroupUID = Path(description="The unique id of the ActivityGroup")
 
 @router.get(
     "/activity-groups",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List all activity groups (for a given library)",
     description=f"""
 State before:
@@ -76,15 +77,15 @@ def get_activity_groups(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -94,7 +95,7 @@ def get_activity_groups(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -116,7 +117,7 @@ def get_activity_groups(
 
 @router.get(
     "/activity-groups/versions",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List all versions of all activity groups (for a given library)",
     description=f"""
 State before:
@@ -157,15 +158,15 @@ def get_activity_groups_versions(
     library_name: Annotated[str | None, Query()] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     filters: Annotated[
         Json | None,
         Query(
@@ -175,7 +176,7 @@ def get_activity_groups_versions(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -197,7 +198,7 @@ def get_activity_groups_versions(
 
 @router.get(
     "/activity-groups/headers",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns possible values from the database for a given header",
     description="Allowed parameters include : field name for which to get possible values, "
     "search string to provide filtering for the field name, additional filters to apply on other fields",
@@ -241,10 +242,10 @@ def get_distinct_values_for_header(
     ] = None,
     operator: Annotated[
         str | None, Query(description=_generic_descriptions.FILTER_OPERATOR)
-    ] = config.DEFAULT_FILTER_OPERATOR,
+    ] = settings.default_filter_operator,
     page_size: Annotated[
         int | None, Query(description=_generic_descriptions.HEADER_PAGE_SIZE)
-    ] = config.DEFAULT_HEADER_PAGE_SIZE,
+    ] = settings.default_header_page_size,
 ) -> list[Any]:
     activity_group_service = ActivityGroupService()
     return activity_group_service.get_distinct_values_for_header(
@@ -261,7 +262,7 @@ def get_distinct_values_for_header(
 
 @router.get(
     "/activity-groups/{activity_group_uid}",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Get details on a specific activity group (in a specific version)",
     description="""
 State before:
@@ -291,7 +292,7 @@ def get_activity(activity_group_uid: Annotated[str, ActivityGroupUID]) -> Activi
 
 @router.get(
     "/activity-groups/{activity_group_uid}/versions",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="List version history for activity groups",
     description="""
 State before:
@@ -325,7 +326,7 @@ def get_versions(
 
 @router.get(
     "/activity-groups/{activity_group_uid}/details",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Get only the details of a specific activity group",
     description="""
 Returns only the activity group details without linked subgroups:
@@ -362,7 +363,7 @@ def get_activity_group_details(
 
 @router.get(
     "/activity-groups/{activity_group_uid}/subgroups",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Get only the subgroups linked to a specific activity group",
     description=f"""
 Returns only the activity subgroups linked to a specific activity group:
@@ -412,15 +413,15 @@ def get_activity_group_subgroups(
     ] = None,
     page_number: Annotated[
         int | None, Query(ge=1, description=_generic_descriptions.PAGE_NUMBER)
-    ] = config.DEFAULT_PAGE_NUMBER,
+    ] = settings.default_page_number,
     page_size: Annotated[
         int | None,
         Query(
             ge=0,
-            le=config.MAX_PAGE_SIZE,
+            le=settings.max_page_size,
             description=_generic_descriptions.PAGE_SIZE,
         ),
-    ] = config.DEFAULT_PAGE_SIZE,
+    ] = settings.default_page_size,
     total_count: Annotated[
         bool | None, Query(description=_generic_descriptions.TOTAL_COUNT)
     ] = False,
@@ -446,7 +447,7 @@ def get_activity_group_subgroups(
 
 @router.get(
     "/activity-groups/{activity_group_uid}/overview",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Get detailed overview of a specific activity group",
     description="""
 Returns detailed description about activity group including:
@@ -492,7 +493,7 @@ def get_activity_group_overview(
 
 @router.get(
     "/activity-groups/{activity_group_uid}/overview.cosmos",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Get a COSMoS compatible representation of a specific activity group",
     description="""
 Returns detailed description about activity group, including information about:
@@ -528,7 +529,7 @@ def get_cosmos_activity_group_overview(
 
 @router.post(
     "/activity-groups",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Creates new activity group.",
     description="""
 State before:
@@ -572,7 +573,7 @@ def create(
 
 @router.put(
     "/activity-groups/{activity_group_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Update activity group",
     description="""
 State before:
@@ -621,7 +622,7 @@ def edit(
 
 @router.post(
     "/activity-groups/{activity_group_uid}/versions",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary=" Create a new version of activity group",
     description="""
 State before:
@@ -663,7 +664,7 @@ def create_new_version(
 
 @router.post(
     "/activity-groups/{activity_group_uid}/approvals",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Approve draft version of activity group",
     description="""
 State before:
@@ -705,7 +706,7 @@ def approve(activity_group_uid: Annotated[str, ActivityGroupUID]) -> ActivityGro
 
 @router.delete(
     "/activity-groups/{activity_group_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary=" Inactivate final version of activity group",
     description="""
 State before:
@@ -746,7 +747,7 @@ def inactivate(activity_group_uid: Annotated[str, ActivityGroupUID]) -> Activity
 
 @router.post(
     "/activity-groups/{activity_group_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Reactivate retired version of a activity group",
     description="""
 State before:
@@ -787,7 +788,7 @@ def reactivate(activity_group_uid: Annotated[str, ActivityGroupUID]) -> Activity
 
 @router.delete(
     "/activity-groups/{activity_group_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Delete draft version of activity group",
     description="""
 State before:

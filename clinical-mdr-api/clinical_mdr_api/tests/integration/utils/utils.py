@@ -83,7 +83,12 @@ from clinical_mdr_api.models.concepts.medicinal_product import (
     MedicinalProduct,
     MedicinalProductCreateInput,
 )
+from clinical_mdr_api.models.concepts.odms.odm_form import OdmForm, OdmFormPostInput
 from clinical_mdr_api.models.concepts.odms.odm_item import OdmItem, OdmItemPostInput
+from clinical_mdr_api.models.concepts.odms.odm_item_group import (
+    OdmItemGroup,
+    OdmItemGroupPostInput,
+)
 from clinical_mdr_api.models.concepts.pharmaceutical_product import (
     PharmaceuticalProduct,
     PharmaceuticalProductCreateInput,
@@ -185,6 +190,8 @@ from clinical_mdr_api.models.study_selections.study_selection import (
     StudySelectionActivity,
     StudySelectionActivityCreateInput,
     StudySelectionActivityInput,
+    StudySelectionActivityInstanceBatchCreate,
+    StudySelectionActivityInstanceEditInput,
     StudySelectionArm,
     StudySelectionArmCreateInput,
     StudySelectionCompound,
@@ -319,6 +326,8 @@ from clinical_mdr_api.services.concepts.compound_service import CompoundService
 from clinical_mdr_api.services.concepts.medicinal_products_service import (
     MedicinalProductService,
 )
+from clinical_mdr_api.services.concepts.odms.odm_forms import OdmFormService
+from clinical_mdr_api.services.concepts.odms.odm_item_groups import OdmItemGroupService
 from clinical_mdr_api.services.concepts.odms.odm_items import OdmItemService
 from clinical_mdr_api.services.concepts.pharmaceutical_products_service import (
     PharmaceuticalProductService,
@@ -392,6 +401,9 @@ from clinical_mdr_api.services.standard_data_models.variable_class import (
     VariableClassService,
 )
 from clinical_mdr_api.services.studies.study import StudyService
+from clinical_mdr_api.services.studies.study_activity_instance_selection import (
+    StudyActivityInstanceSelectionService,
+)
 from clinical_mdr_api.services.studies.study_activity_schedule import (
     StudyActivityScheduleService,
 )
@@ -473,11 +485,13 @@ from clinical_mdr_api.services.syntax_templates.timeframe_templates import (
 from clinical_mdr_api.tests.unit.domain.study_definition_aggregate.test_study_metadata import (
     initialize_ct_data_map,
 )
-from clinical_mdr_api.tests.utils.checks import assert_response_status_code
-from common import config
+from clinical_mdr_api.tests.utils.checks import (
+    assert_response_content_type,
+    assert_response_status_code,
+)
 from common.auth.dependencies import dummy_user_auth
 from common.auth.user import clear_users_cache
-from common.config import DEFAULT_STUDY_FIELD_CONFIG_FILE
+from common.config import settings
 
 log = logging.getLogger(__name__)
 
@@ -536,7 +550,7 @@ class TestUtils:
     @classmethod
     def assert_response_shape_ok(
         cls,
-        response_json: any,
+        response_json: Any,
         expected_fields: list[str],
         expected_not_null_fields: list[str],
     ):
@@ -547,7 +561,7 @@ class TestUtils:
     @classmethod
     def assert_paginated_response_shape_ok(
         cls,
-        response_json: any,
+        response_json: Any,
         include_study_version: bool = True,
     ):
         expected_fields = {"self", "prev", "next", "items"}
@@ -575,12 +589,12 @@ class TestUtils:
 
     @classmethod
     def assert_timestamp_is_in_utc_zone(cls, val: str):
-        datetime_ts: datetime = datetime.strptime(val, config.DATE_TIME_FORMAT)
+        datetime_ts: datetime = datetime.strptime(val, settings.date_time_format)
         assert datetime_ts.tzinfo == timezone.utc
 
     @classmethod
     def assert_timestamp_is_newer_than(cls, val: str, seconds: int):
-        datetime_ts: datetime = datetime.strptime(val, config.DATE_TIME_FORMAT)
+        datetime_ts: datetime = datetime.strptime(val, settings.date_time_format)
         assert abs(datetime.now(timezone.utc) - datetime_ts) < timedelta(
             seconds=seconds
         )
@@ -588,12 +602,14 @@ class TestUtils:
     @classmethod
     def assert_chronological_sequence(cls, val1: str, val2: str):
         """Asserts that val1 timestamp is chronologically older than val2 timestamp"""
-        ts1: datetime = datetime.strptime(val1, config.DATE_TIME_FORMAT)
-        ts2: datetime = datetime.strptime(val2, config.DATE_TIME_FORMAT)
+        ts1: datetime = datetime.strptime(val1, settings.date_time_format)
+        ts2: datetime = datetime.strptime(val2, settings.date_time_format)
         assert ts1 - ts2 < timedelta(seconds=0)
 
     @classmethod
-    def assert_sort_order(cls, items: list[dict], key: str, desc: bool = False):
+    def assert_sort_order(
+        cls, items: list[dict[Any, Any]], key: str, desc: bool = False
+    ):
         """Asserts that the supplied list of dictionaries is sorted by `key` in expected order"""
         sorted_items = sorted(items, key=lambda x: x[key], reverse=desc)
         assert items == sorted_items
@@ -601,7 +617,7 @@ class TestUtils:
     @classmethod
     def get_datetime(cls, val: str) -> datetime:
         """Returns datetime object from supplied string value"""
-        return datetime.strptime(val, config.DATE_TIME_FORMAT)
+        return datetime.strptime(val, settings.date_time_format)
 
     @classmethod
     def assert_valid_csv(cls, val: str):
@@ -636,7 +652,7 @@ class TestUtils:
         api_client: TestClient,
         export_format: str,
         url: str,
-        params: dict | None = None,
+        params: dict[Any, Any] | None = None,
     ):
         """Verifies that the specified endpoint returns valid csv/xml/Excel content"""
         headers = {"Accept": export_format}
@@ -644,7 +660,7 @@ class TestUtils:
         response = api_client.get(url, headers=headers, params=params)
 
         assert_response_status_code(response, 200)
-        assert export_format in response.headers["content-type"]
+        assert_response_content_type(response, export_format)
 
         if export_format == "text/csv":
             TestUtils.assert_valid_csv(response.content.decode("utf-8"))
@@ -721,7 +737,7 @@ class TestUtils:
         enabled: bool = False,
         description: str | None = "Feature Flag Description",
     ) -> FeatureFlag:
-        service = FeatureFlagService()
+        service: FeatureFlagService = FeatureFlagService()
         payload = FeatureFlagInput(name=name, enabled=enabled, description=description)
         return service.create_feature_flag(payload)
 
@@ -735,7 +751,7 @@ class TestUtils:
         ended_at: datetime | None = None,
         published: bool = False,
     ) -> Notification:
-        service = NotificationService()
+        service: NotificationService = NotificationService()
         payload = NotificationPostInput(
             title=title,
             notification_type=notification_type,
@@ -756,7 +772,7 @@ class TestUtils:
         abbreviation: str | None = None,
         template_parameter: bool | None = True,
     ) -> TextValue:
-        service = TextValueService()
+        service: TextValueService = TextValueService()
         payload: TextValuePostInput = TextValuePostInput(
             name=cls.random_if_none(name, prefix="name-"),
             name_sentence_case=cls.random_if_none(
@@ -783,7 +799,7 @@ class TestUtils:
         category_uids: list[str] | None = None,
         approve: bool = True,
     ) -> ObjectiveTemplate:
-        service = ObjectiveTemplateService()
+        service: ObjectiveTemplateService = ObjectiveTemplateService()
         payload: ObjectiveTemplateCreateInput = ObjectiveTemplateCreateInput(
             name=cls.random_if_none(name, prefix="ot-"),
             guidance_text=guidance_text,
@@ -811,7 +827,7 @@ class TestUtils:
         sub_category_uids: list[str] | None = None,
         approve: bool = True,
     ) -> EndpointTemplate:
-        service = EndpointTemplateService()
+        service: EndpointTemplateService = EndpointTemplateService()
         payload: EndpointTemplateCreateInput = EndpointTemplateCreateInput(
             name=cls.random_if_none(name, prefix="et-"),
             guidance_text=guidance_text,
@@ -839,7 +855,9 @@ class TestUtils:
         activity_subgroup_uids: list[str] | None = None,
         approve: bool = True,
     ) -> ActivityInstructionTemplate:
-        service = ActivityInstructionTemplateService()
+        service: ActivityInstructionTemplateService = (
+            ActivityInstructionTemplateService()
+        )
         payload: ActivityInstructionTemplateCreateInput = (
             ActivityInstructionTemplateCreateInput(
                 name=cls.random_if_none(name, prefix="ct-"),
@@ -870,7 +888,7 @@ class TestUtils:
         sub_category_uids: list[str] | None = None,
         approve: bool = True,
     ) -> CriteriaTemplate:
-        service = CriteriaTemplateService()
+        service: CriteriaTemplateService = CriteriaTemplateService()
         payload: CriteriaTemplateCreateInput = CriteriaTemplateCreateInput(
             name=cls.random_if_none(name, prefix="ct-"),
             guidance_text=cls.random_if_none(guidance_text),
@@ -900,7 +918,7 @@ class TestUtils:
         activity_subgroup_uids: list[str] | None = None,
         approve: bool = True,
     ) -> FootnoteTemplate:
-        service = FootnoteTemplateService()
+        service: FootnoteTemplateService = FootnoteTemplateService()
         payload: FootnoteTemplateCreateInput = FootnoteTemplateCreateInput(
             name=cls.random_if_none(name, prefix="ct-"),
             study_uid=study_uid,
@@ -925,7 +943,7 @@ class TestUtils:
         library_name: str | None = LIBRARY_NAME,
         approve: bool = True,
     ) -> TimeframeTemplate:
-        service = TimeframeTemplateService()
+        service: TimeframeTemplateService = TimeframeTemplateService()
         payload: TimeframeTemplateCreateInput = TimeframeTemplateCreateInput(
             name=cls.random_if_none(name, prefix="tt-"),
             guidance_text=guidance_text,
@@ -961,16 +979,16 @@ class TestUtils:
                 ).uid
             )
 
-        service = ActivityInstructionService()
+        service: ActivityInstructionService = ActivityInstructionService()
         payload: ActivityInstructionCreateInput = ActivityInstructionCreateInput(
             activity_instruction_template_uid=activity_instruction_template_uid,
             library_name=library_name,
             parameter_terms=parameter_terms,
         )
 
-        result = service.create(payload)
+        result: ActivityInstruction = service.create(payload)
         if approve:
-            result: ActivityInstruction = service.approve(result.uid)
+            result = service.approve(result.uid)
         return result
 
     @classmethod
@@ -995,16 +1013,16 @@ class TestUtils:
                 activity_subgroup_uids=[],
             ).uid
 
-        service = FootnoteService()
+        service: FootnoteService = FootnoteService()
         payload: FootnoteCreateInput = FootnoteCreateInput(
             footnote_template_uid=footnote_template_uid,
             library_name=library_name,
             parameter_terms=parameter_terms,
         )
 
-        result = service.create(payload)
+        result: Footnote = service.create(payload)
         if approve:
-            result: Footnote = service.approve(result.uid)
+            result = service.approve(result.uid)
         return result
 
     @classmethod
@@ -1029,16 +1047,16 @@ class TestUtils:
                 ).term_uid,
             ).uid
 
-        service = CriteriaService()
+        service: CriteriaService = CriteriaService()
         payload: CriteriaCreateInput = CriteriaCreateInput(
             criteria_template_uid=criteria_template_uid,
             library_name=library_name,
             parameter_terms=parameter_terms,
         )
 
-        result = service.create(payload)
+        result: Criteria = service.create(payload)
         if approve:
-            result: Criteria = service.approve(result.uid)
+            result = service.approve(result.uid)
         return result
 
     @classmethod
@@ -1063,16 +1081,16 @@ class TestUtils:
                 sub_category_uids=[],
             ).uid
 
-        service = EndpointService()
+        service: EndpointService = EndpointService()
         payload: EndpointCreateInput = EndpointCreateInput(
             endpoint_template_uid=endpoint_template_uid,
             library_name=library_name,
             parameter_terms=parameter_terms,
         )
 
-        result = service.create(payload)
+        result: Endpoint = service.create(payload)
         if approve:
-            result: Endpoint = service.approve(result.uid)
+            result = service.approve(result.uid)
         return result
 
     @classmethod
@@ -1093,16 +1111,16 @@ class TestUtils:
                 category_uids=[],
             ).uid
 
-        service = ObjectiveService()
+        service: ObjectiveService = ObjectiveService()
         payload: ObjectiveCreateInput = ObjectiveCreateInput(
             objective_template_uid=objective_template_uid,
             library_name=library_name,
             parameter_terms=parameter_terms,
         )
 
-        result = service.create(payload)
+        result: Objective = service.create(payload)
         if approve:
-            result: Objective = service.approve(result.uid)
+            result = service.approve(result.uid)
         return result
 
     @classmethod
@@ -1120,16 +1138,16 @@ class TestUtils:
                 library_name="Sponsor",
             ).uid
 
-        service = TimeframeService()
+        service: TimeframeService = TimeframeService()
         payload: TimeframeCreateInput = TimeframeCreateInput(
             timeframe_template_uid=timeframe_template_uid,
             library_name=library_name,
             parameter_terms=parameter_terms,
         )
 
-        result = service.create(payload)
+        result: Timeframe = service.create(payload)
         if approve:
-            result: Timeframe = service.approve(result.uid)
+            result = service.approve(result.uid)
         return result
 
     # endregion
@@ -1165,7 +1183,9 @@ class TestUtils:
                 approve=False,
             ).uid
 
-        service = ActivityInstructionPreInstanceService()
+        service: ActivityInstructionPreInstanceService = (
+            ActivityInstructionPreInstanceService()
+        )
         payload: ActivityInstructionPreInstanceCreateInput = (
             ActivityInstructionPreInstanceCreateInput(
                 library_name=library_name,
@@ -1207,7 +1227,7 @@ class TestUtils:
                 sub_category_uids=[],
             ).uid
 
-        service = EndpointPreInstanceService()
+        service: EndpointPreInstanceService = EndpointPreInstanceService()
         payload: EndpointPreInstanceCreateInput = EndpointPreInstanceCreateInput(
             library_name=library_name,
             parameter_terms=parameter_terms,
@@ -1243,7 +1263,7 @@ class TestUtils:
                 category_uids=[],
             ).uid
 
-        service = ObjectivePreInstanceService()
+        service: ObjectivePreInstanceService = ObjectivePreInstanceService()
         payload: ObjectivePreInstanceCreateInput = ObjectivePreInstanceCreateInput(
             library_name=library_name,
             is_confirmatory_testing=is_confirmatory_testing,
@@ -1288,7 +1308,7 @@ class TestUtils:
                 ],
             ).uid
 
-        service = FootnotePreInstanceService()
+        service: FootnotePreInstanceService = FootnotePreInstanceService()
         payload: FootnotePreInstanceCreateInput = FootnotePreInstanceCreateInput(
             library_name=library_name,
             parameter_terms=parameter_terms,
@@ -1325,7 +1345,7 @@ class TestUtils:
                 category_uids=[],
             ).uid
 
-        service = CriteriaPreInstanceService()
+        service: CriteriaPreInstanceService = CriteriaPreInstanceService()
         payload: CriteriaPreInstanceCreateInput = CriteriaPreInstanceCreateInput(
             library_name=library_name,
             parameter_terms=parameter_terms,
@@ -1354,7 +1374,7 @@ class TestUtils:
         external_id=None,
         approve: bool = False,
     ) -> Compound:
-        service = CompoundService()
+        service: CompoundService = CompoundService()
         payload: CompoundCreateInput = CompoundCreateInput(
             name=cls.random_if_none(name, prefix="name-"),
             name_sentence_case=cls.random_if_none(
@@ -1384,7 +1404,7 @@ class TestUtils:
         compound_uid=None,
         approve: bool = False,
     ) -> CompoundAlias:
-        service = CompoundAliasService()
+        service: CompoundAliasService = CompoundAliasService()
         payload: CompoundAliasCreateInput = CompoundAliasCreateInput(
             name=cls.random_if_none(name, prefix="name-"),
             name_sentence_case=cls.random_if_none(
@@ -1416,7 +1436,7 @@ class TestUtils:
         unii_term_uid=None,
         approve: bool = False,
     ) -> ActiveSubstance:
-        service = ActiveSubstanceService()
+        service: ActiveSubstanceService = ActiveSubstanceService()
         payload: ActiveSubstanceCreateInput = ActiveSubstanceCreateInput(
             external_id=cls.random_if_none(external_id, prefix="prodex-id-"),
             analyte_number=cls.random_if_none(analyte_number, prefix="analyte-"),
@@ -1442,7 +1462,7 @@ class TestUtils:
         formulations=None,
         approve: bool = False,
     ) -> PharmaceuticalProduct:
-        service = PharmaceuticalProductService()
+        service: PharmaceuticalProductService = PharmaceuticalProductService()
         payload: PharmaceuticalProductCreateInput = PharmaceuticalProductCreateInput(
             external_id=cls.random_if_none(external_id, prefix="prodex-id-"),
             library_name=library_name,
@@ -1473,7 +1493,7 @@ class TestUtils:
         compound_uid=None,
         approve: bool = False,
     ) -> MedicinalProduct:
-        service = MedicinalProductService()
+        service: MedicinalProductService = MedicinalProductService()
         payload: MedicinalProductCreateInput = MedicinalProductCreateInput(
             name=cls.random_if_none(name, prefix="name-"),
             name_sentence_case=cls.random_if_none(
@@ -1523,7 +1543,7 @@ class TestUtils:
         retire_after_approve: bool = False,
         preview=False,
     ) -> ActivityInstance:
-        service = ActivityInstanceService()
+        service: ActivityInstanceService = ActivityInstanceService()
         groupings = []
         for activity_uid, activity_subgroup_uid, activity_group_uid in zip(
             activities, activity_subgroups, activity_groups
@@ -1574,11 +1594,10 @@ class TestUtils:
         is_domain_specific: bool | None = None,
         level: int | None = None,
         parent_uid: str | None = None,
-        data_domain_uids: list[str] | None = None,
         library_name: str | None = LIBRARY_NAME,
         approve: bool = True,
     ) -> ActivityInstanceClass:
-        service = ActivityInstanceClassService()
+        service: ActivityInstanceClassService = ActivityInstanceClassService()
         activity_instance_class_input: ActivityInstanceClassInput = (
             ActivityInstanceClassInput(
                 name=name,
@@ -1587,7 +1606,6 @@ class TestUtils:
                 is_domain_specific=is_domain_specific,
                 level=level,
                 parent_uid=parent_uid,
-                data_domain_uids=data_domain_uids,
                 library_name=library_name,
             )
         )
@@ -1612,7 +1630,7 @@ class TestUtils:
         library_name: str | None = LIBRARY_NAME,
         approve: bool = True,
     ) -> ActivityItemClass:
-        service = ActivityItemClassService()
+        service: ActivityItemClassService = ActivityItemClassService()
         activity_item_class_input: ActivityItemClassCreateInput = (
             ActivityItemClassCreateInput(
                 name=name,
@@ -1650,7 +1668,7 @@ class TestUtils:
         library_name: str | None = LIBRARY_NAME,
         approve: bool = True,
     ) -> Activity:
-        service = ActivityService()
+        service: ActivityService = ActivityService()
         groupings = []
         if not synonyms:
             synonyms = []
@@ -1697,7 +1715,7 @@ class TestUtils:
         library_name: str | None = LIBRARY_NAME,
         approve: bool = True,
     ) -> ActivitySubGroup:
-        service = ActivitySubGroupService()
+        service: ActivitySubGroupService = ActivitySubGroupService()
         activity_subgroup_create_input: ActivitySubGroupCreateInput = (
             ActivitySubGroupCreateInput(
                 name=name,
@@ -1725,7 +1743,7 @@ class TestUtils:
         library_name: str | None = LIBRARY_NAME,
         approve: bool = True,
     ) -> ActivityGroup:
-        service = ActivityGroupService()
+        service: ActivityGroupService = ActivityGroupService()
         activity_group_create_input: ActivityGroupCreateInput = (
             ActivityGroupCreateInput(
                 name=name,
@@ -1752,7 +1770,7 @@ class TestUtils:
         activity_group_uid: str | None = None,
         activity_instance_uid: str | None = None,
     ) -> StudySelectionActivity:
-        service = StudyActivitySelectionService()
+        service: StudyActivitySelectionService = StudyActivitySelectionService()
         study_activity: StudySelectionActivity = service.make_selection(
             study_uid=study_uid,
             selection_create_input=StudySelectionActivityCreateInput(
@@ -1764,6 +1782,38 @@ class TestUtils:
             ),
         )
         return study_activity
+
+    @staticmethod
+    def patch_study_activity_instance(
+        study_uid: str,
+        study_activity_instance_uid: str,
+        activity_instance_uid: str,
+        study_activity_uid: str,
+        show_activity_instance_in_protocol_flowchart: bool = False,
+    ):
+        return StudyActivityInstanceSelectionService().patch_selection(
+            study_uid=study_uid,
+            study_selection_uid=study_activity_instance_uid,
+            selection_update_input=StudySelectionActivityInstanceEditInput(
+                activity_instance_uid=activity_instance_uid,
+                study_activity_uid=study_activity_uid,
+                show_activity_instance_in_protocol_flowchart=show_activity_instance_in_protocol_flowchart,
+            ),
+        )
+
+    @staticmethod
+    def batch_select_study_activity_instances(
+        study_uid: str,
+        study_activity_uid: str,
+        activity_instance_uids: list[str],
+    ):
+        return StudyActivityInstanceSelectionService().batch_create(
+            study_uid=study_uid,
+            create_payload=StudySelectionActivityInstanceBatchCreate(
+                study_activity_uid=study_activity_uid,
+                activity_instance_uids=activity_instance_uids,
+            ),
+        )
 
     @classmethod
     def delete_study(cls, study_uid: str):
@@ -1778,7 +1828,7 @@ class TestUtils:
         study_visit_uid: str,
         study_activity_uid: str,
     ) -> StudyActivitySchedule:
-        service = StudyActivityScheduleService()
+        service: StudyActivityScheduleService = StudyActivityScheduleService()
         study_activity_schedule: StudyActivityScheduleCreateInput = (
             StudyActivityScheduleCreateInput(
                 study_activity_uid=study_activity_uid,
@@ -1802,7 +1852,7 @@ class TestUtils:
         show_soa_group_in_protocol_flowchart: bool = False,
         soa_group_term_uid: str | None = None,
     ) -> StudyActivitySchedule:
-        service = StudyActivitySelectionService()
+        service: StudyActivitySelectionService = StudyActivitySelectionService()
         update = StudySelectionActivityInput(
             show_activity_in_protocol_flowchart=show_activity_in_protocol_flowchart,
             show_activity_subgroup_in_protocol_flowchart=show_activity_subgroup_in_protocol_flowchart,
@@ -1821,12 +1871,18 @@ class TestUtils:
     def create_study_soa_footnote(
         cls,
         study_uid: str,
-        footnote_template_uid: str,
         referenced_items: list[ReferencedItem],
+        footnote_uid: str | None = None,
+        footnote_template_uid: str | None = None,
     ) -> StudySoAFootnote:
-        service = StudySoAFootnoteService()
+        if not any((footnote_uid, footnote_template_uid)):
+            raise ValueError(
+                "At least one of footnote_uid or footnote_template_uid must be provided"
+            )
+        service: StudySoAFootnoteService = StudySoAFootnoteService()
         study_soa_footnote_input: StudySoAFootnoteCreateInput = (
             StudySoAFootnoteCreateInput(
+                footnote_uid=footnote_uid,
                 footnote_template_uid=footnote_template_uid,
                 referenced_items=referenced_items,
             )
@@ -1862,7 +1918,7 @@ class TestUtils:
         epoch_allocation_uid: str | None = None,
         visit_subclass: str | None = None,
     ) -> StudyVisit:
-        service = StudyVisitService(study_uid=study_uid)
+        service: StudyVisitService = StudyVisitService(study_uid=study_uid)
         study_visit_input: StudyVisitCreateInput = StudyVisitCreateInput(
             study_epoch_uid=study_epoch_uid,
             visit_type_uid=visit_type_uid,
@@ -1912,7 +1968,7 @@ class TestUtils:
         if not parameter_terms:
             parameter_terms = []
 
-        service = StudyObjectiveSelectionService()
+        service: StudyObjectiveSelectionService = StudyObjectiveSelectionService()
         objective_create_input: StudySelectionObjectiveCreateInput = (
             StudySelectionObjectiveCreateInput(
                 objective_level_uid=objective_level_uid,
@@ -1942,7 +1998,7 @@ class TestUtils:
         endpoint_units: EndpointUnitsInput | None = None,
         timeframe_uid: str | None = None,
     ) -> StudySelectionEndpoint:
-        service = StudyEndpointSelectionService()
+        service: StudyEndpointSelectionService = StudyEndpointSelectionService()
         if parameter_terms is None:
             parameter_terms = []
         endpoint_create_input: StudySelectionEndpointCreateInput = (
@@ -1973,7 +2029,7 @@ class TestUtils:
         library_name: str | None = LIBRARY_NAME,
         parameter_terms: list[TemplateParameterMultiSelectInput] | None = None,
     ) -> StudySelectionCriteria:
-        service = StudyCriteriaSelectionService()
+        service: StudyCriteriaSelectionService = StudyCriteriaSelectionService()
         if parameter_terms is None:
             parameter_terms = []
         criteria_create_input: StudySelectionCriteriaCreateInput = (
@@ -2005,7 +2061,7 @@ class TestUtils:
         dose_frequency_uid=None,
         dose_value_uid=None,
     ) -> StudySelectionCompound:
-        service = StudyCompoundSelectionService()
+        service: StudyCompoundSelectionService = StudyCompoundSelectionService()
         payload: StudySelectionCompoundCreateInput = StudySelectionCompoundCreateInput(
             medicinal_product_uid=medicinal_product_uid,
             compound_alias_uid=compound_alias_uid,
@@ -2032,7 +2088,9 @@ class TestUtils:
         dose_value_uid=None,
         dose_frequency_uid=None,
     ) -> StudyCompoundDosing:
-        service = StudyCompoundDosingSelectionService()
+        service: StudyCompoundDosingSelectionService = (
+            StudyCompoundDosingSelectionService()
+        )
         payload: StudyCompoundDosingInput = StudyCompoundDosingInput(
             study_compound_uid=study_compound_uid,
             study_element_uid=study_element_uid,
@@ -2059,7 +2117,7 @@ class TestUtils:
         element_colour=None,
         element_subtype_uid=None,
     ) -> StudySelectionElement:
-        service = StudyElementSelectionService()
+        service: StudyElementSelectionService = StudyElementSelectionService()
         payload: StudySelectionElementCreateInput = StudySelectionElementCreateInput(
             name=name,
             short_name=short_name,
@@ -2103,7 +2161,7 @@ class TestUtils:
         template_parameter=False,
         approve: bool = True,
     ) -> UnitDefinitionModel:
-        service = UnitDefinitionService()
+        service: UnitDefinitionService = UnitDefinitionService()
 
         payload: UnitDefinitionPostInput = UnitDefinitionPostInput(
             name=name,
@@ -2128,6 +2186,88 @@ class TestUtils:
         )
 
         result: UnitDefinitionModel = service.create(concept_input=payload)
+        if approve:
+            service.approve(result.uid)
+        return result
+
+    @classmethod
+    def create_odm_form(
+        cls,
+        name=None,
+        library_name=LIBRARY_NAME,
+        oid=None,
+        repeating="Yes",
+        sdtm_version=None,
+        scope_uid=None,
+        descriptions=None,
+        alias_uids=None,
+        approve: bool = True,
+    ) -> UnitDefinitionModel:
+        if not descriptions:
+            descriptions = []
+        if not alias_uids:
+            alias_uids = []
+
+        service: OdmFormService = OdmFormService()
+
+        payload: OdmFormPostInput = OdmFormPostInput(
+            library_name=library_name,
+            name=cls.random_if_none(name),
+            oid=cls.random_if_none(oid),
+            repeating=repeating,
+            sdtm_version=cls.random_if_none(sdtm_version),
+            scope_uid=scope_uid,
+            descriptions=descriptions,
+            alias_uids=alias_uids,
+        )
+
+        result: OdmForm = service.create_with_relations(concept_input=payload)
+        if approve:
+            service.approve(result.uid)
+        return result
+
+    @classmethod
+    def create_odm_item_group(
+        cls,
+        name=None,
+        library_name=LIBRARY_NAME,
+        oid=None,
+        repeating="Yes",
+        is_reference_data=None,
+        sas_dataset_name=None,
+        origin=None,
+        purpose=None,
+        comment=None,
+        descriptions=None,
+        alias_uids=None,
+        sdtm_domain_uids=None,
+        approve: bool = True,
+    ) -> UnitDefinitionModel:
+        if not descriptions:
+            descriptions = []
+        if not alias_uids:
+            alias_uids = []
+        if not sdtm_domain_uids:
+            sdtm_domain_uids = []
+
+        service: OdmItemGroupService = OdmItemGroupService()
+
+        payload: OdmItemGroupPostInput = OdmItemGroupPostInput(
+            library_name=library_name,
+            name=cls.random_if_none(name),
+            oid=cls.random_if_none(oid),
+            repeating=repeating,
+            is_reference_data=is_reference_data,
+            sas_dataset_name=cls.random_if_none(sas_dataset_name),
+            origin=cls.random_if_none(origin),
+            purpose=cls.random_if_none(purpose),
+            comment=cls.random_if_none(comment),
+            descriptions=descriptions,
+            alias_uids=alias_uids,
+            sdtm_domain_uids=sdtm_domain_uids,
+        )
+
+        result: OdmItemGroup = service.create_with_relations(concept_input=payload)
         if approve:
             service.approve(result.uid)
         return result
@@ -2162,7 +2302,7 @@ class TestUtils:
         if not alias_uids:
             alias_uids = []
 
-        service = OdmItemService()
+        service: OdmItemService = OdmItemService()
 
         payload: OdmItemPostInput = OdmItemPostInput(
             library_name=library_name,
@@ -2189,7 +2329,9 @@ class TestUtils:
         return result
 
     @classmethod
-    def create_library(cls, name: str = LIBRARY_NAME, is_editable: bool = True) -> dict:
+    def create_library(
+        cls, name: str = LIBRARY_NAME, is_editable: bool = True
+    ) -> dict[str, str | bool]:
         libraries = library_service.get_libraries(is_editable)
         existing_library = next((x for x in libraries if x["name"] == name), None)
 
@@ -2205,7 +2347,7 @@ class TestUtils:
         description="Base project",
         clinical_programme_uid=None,
     ) -> Project:
-        service = ProjectService()
+        service: ProjectService = ProjectService()
         payload = ProjectCreateInput(
             name=name,
             project_number=project_number,
@@ -2216,7 +2358,7 @@ class TestUtils:
 
     @classmethod
     def create_clinical_programme(cls, name: str = "CP") -> ClinicalProgramme:
-        service = ClinicalProgrammeService()
+        service: ClinicalProgrammeService = ClinicalProgrammeService()
         return service.create(ClinicalProgrammeInput(name=name))
 
     @classmethod
@@ -2236,7 +2378,7 @@ class TestUtils:
         description: str | None = None,
         study_parent_part_uid: str | None = None,
     ) -> Study:
-        service = StudyService()
+        service: StudyService = StudyService()
         if not study_parent_part_uid:
             payload = StudyCreateInput(
                 study_number=cls.get_study_number(number),
@@ -2259,7 +2401,7 @@ class TestUtils:
         study_uid: str,
         ct_package_uid: str,
     ) -> Study:
-        service = StudyStandardVersionService()
+        service: StudyStandardVersionService = StudyStandardVersionService()
         payload = StudyStandardVersionInput(
             ct_package_uid=ct_package_uid,
         )
@@ -2281,7 +2423,7 @@ class TestUtils:
         approve: bool = True,
         effective_date: datetime | None = None,
     ) -> CTTerm:
-        service = CTTermService()
+        service: CTTermService = CTTermService()
         payload = CTTermCreateInput(
             catalogue_name=catalogue_name,
             codelist_uid=codelist_uid,
@@ -2318,8 +2460,8 @@ class TestUtils:
         parent=None,
         relationship_type: str = "type",
         parent_uid: str | None = None,
-    ) -> CTTerm:
-        service = CTTermService()
+    ):
+        service: CTTermService = CTTermService()
         service.add_parent(
             term_uid=term.term_uid,
             parent_uid=parent_uid if parent_uid else parent.term_uid,
@@ -2464,7 +2606,7 @@ class TestUtils:
         if terms is None:
             terms = []
 
-        service = CTCodelistService()
+        service: CTCodelistService = CTCodelistService()
         payload = CTCodelistCreateInput(
             catalogue_name=catalogue_name,
             name=cls.random_if_none(name, prefix="name-"),
@@ -2498,7 +2640,7 @@ class TestUtils:
         library_name: str | None = DICTIONARY_CODELIST_LIBRARY,
         approve: bool | None = True,
     ) -> DictionaryCodelist:
-        service = DictionaryCodelistService()
+        service: DictionaryCodelistService = DictionaryCodelistService()
         all_codelists = service.get_all_dictionary_codelists(library=library_name)
         existing_codelist = next(
             (x for x in all_codelists.items if x.name == name), None
@@ -2528,7 +2670,7 @@ class TestUtils:
         library_name: str | None = DICTIONARY_CODELIST_LIBRARY,
         approve: bool | None = True,
     ) -> DictionaryTerm:
-        service = DictionaryTermService()
+        service: DictionaryTermService = DictionaryTermService()
         all_terms = service.get_all_dictionary_terms(codelist_uid=codelist_uid)
         existing_term = next((x for x in all_terms.items if x.name == name), None)
         if not existing_term:
@@ -2593,7 +2735,7 @@ class TestUtils:
                 log.info("Unit '%s' already exists", unit)
                 unit_definition_uid = cls.get_unit_uid_by_name(unit_name=unit)
 
-        service = NumericValueWithUnitService()
+        service: NumericValueWithUnitService = NumericValueWithUnitService()
         payload = NumericValueWithUnitPostInput(
             name=cls.random_if_none(name, prefix="name-"),
             name_sentence_case=cls.random_if_none(
@@ -2670,7 +2812,7 @@ class TestUtils:
                 )
                 sdtm_domain_uid = sdtm_domains.items[0].term_uid
 
-        service = LagTimeService()
+        service: LagTimeService = LagTimeService()
         payload = LagTimePostInput(
             name=cls.random_if_none(name, prefix="name-"),
             name_sentence_case=cls.random_if_none(
@@ -2727,7 +2869,7 @@ class TestUtils:
         cls,
         name: str | None = None,
     ) -> Brand:
-        service = BrandService()
+        service: BrandService = BrandService()
         return service.create(BrandCreateInput(name=name))
 
     @classmethod
@@ -2752,10 +2894,12 @@ class TestUtils:
     def create_study_ct_data_map(
         cls,
         codelist_uid: str,
-        # pylint: disable=dangerous-default-value
-        ct_data_map: dict = initialize_ct_data_map,
+        ct_data_map: dict[Any, Any] | None = None,
         library_name: str = LIBRARY_NAME,
     ):
+        if ct_data_map is None:
+            ct_data_map = initialize_ct_data_map
+
         dictionary_codelist = cls.create_dictionary_codelist()
         # used cypher below to manually assign uids related to CDISC concept_ids
         create_ct_term_with_custom_uid_query = """
@@ -2824,7 +2968,7 @@ class TestUtils:
     @classmethod
     def create_study_fields_configuration(cls):
         config_service = CTConfigService()
-        with open(DEFAULT_STUDY_FIELD_CONFIG_FILE, encoding="UTF-8") as file:
+        with open(settings.default_study_field_config_file, encoding="UTF-8") as file:
             res = db.cypher_query(
                 "MATCH (n:CTCodelistRoot) RETURN COLLECT(n.uid) as uids"
             )
@@ -2951,15 +3095,15 @@ class TestUtils:
             implementation_guides = []
         create_data_model = (
             """
-            MERGE (data_model_root:DataModelRoot {uid: $data_model_uid})-[:LATEST]->(data_model_value:DataModelValue
-            {name: $name, description: $description, version_number: $version_number})
-            MERGE (data_model_root)-[final:LATEST_FINAL]->(data_model_value)
-            MERGE (data_model_root)-[hv:HAS_VERSION]->(data_model_value)
-            WITH data_model_root, data_model_value, final, hv
-            MATCH (library:Library {name:$library_name})
-            WITH library, data_model_root, data_model_value, final, hv
-            MERGE (library)-[:CONTAINS_DATA_MODEL]->(data_model_root)
-            """
+                    MERGE (data_model_root:DataModelRoot {uid: $data_model_uid})-[:LATEST]->(data_model_value:DataModelValue
+                    {name: $name, description: $description, version_number: $version_number})
+                    MERGE (data_model_root)-[final:LATEST_FINAL]->(data_model_value)
+                    MERGE (data_model_root)-[hv:HAS_VERSION]->(data_model_value)
+                    WITH data_model_root, data_model_value, final, hv
+                    MATCH (library:Library {name:$library_name})
+                    WITH library, data_model_root, data_model_value, final, hv
+                    MERGE (library)-[:CONTAINS_DATA_MODEL]->(data_model_root)
+                    """
             + cls.set_final_props("hv")
             + """ WITH data_model_root, data_model_value, final
             UNWIND CASE WHEN $implementation_guides = [] THEN [NULL] 
@@ -3001,15 +3145,15 @@ class TestUtils:
         """
         create_data_model_ig = (
             """
-            MERGE (data_model_ig_root:DataModelIGRoot {uid: $data_model_ig_uid})-[:LATEST]->(data_model_ig_value:DataModelIGValue
-            {name: $name, description: $description, version_number: $version_number})
-            MERGE (data_model_ig_root)-[final:LATEST_FINAL]->(data_model_ig_value)
-            MERGE (data_model_ig_root)-[hv:HAS_VERSION]->(data_model_ig_value)
-            WITH data_model_ig_root, data_model_ig_value, final, hv
-            MATCH (library:Library {name:$library_name})
-            WITH library, data_model_ig_root, data_model_ig_value, final, hv
-            MERGE (library)-[:CONTAINS_DATA_MODEL_IG]->(data_model_ig_root)
-            """
+                    MERGE (data_model_ig_root:DataModelIGRoot {uid: $data_model_ig_uid})-[:LATEST]->(data_model_ig_value:DataModelIGValue
+                    {name: $name, description: $description, version_number: $version_number})
+                    MERGE (data_model_ig_root)-[final:LATEST_FINAL]->(data_model_ig_value)
+                    MERGE (data_model_ig_root)-[hv:HAS_VERSION]->(data_model_ig_value)
+                    WITH data_model_ig_root, data_model_ig_value, final, hv
+                    MATCH (library:Library {name:$library_name})
+                    WITH library, data_model_ig_root, data_model_ig_value, final, hv
+                    MERGE (library)-[:CONTAINS_DATA_MODEL_IG]->(data_model_ig_root)
+                    """
             + cls.set_final_props("hv")
             + """WITH data_model_ig_root, data_model_ig_value, final
             MATCH (data_model_root:DataModelRoot {uid:$implemented_data_model})-[:LATEST]->(data_model_value)
@@ -3141,7 +3285,7 @@ class TestUtils:
         change_description: str | None = None,
         library_name: str | None = LIBRARY_NAME,
     ) -> SponsorModelAPIModel:
-        service = SponsorModelService()
+        service: SponsorModelService = SponsorModelService()
         result: SponsorModelAPIModel = service.create(
             item_input=SponsorModelInput(
                 ig_uid=ig_uid,
@@ -3179,7 +3323,7 @@ class TestUtils:
         state: str | None = "state",
         extended_domain: str | None = "extended_domain",
     ) -> SponsorModelDatasetAPIModel:
-        service = SponsorModelDatasetService()
+        service: SponsorModelDatasetService = SponsorModelDatasetService()
         result: SponsorModelDatasetAPIModel = service.create(
             item_input=SponsorModelDatasetInput(
                 dataset_uid=dataset_uid,
@@ -3224,7 +3368,7 @@ class TestUtils:
         display_format: str | None = "display_format",
         xml_datatype: str | None = "xml_datatype",
         xml_codelist: str | None = "xml_codelist",
-        xml_codelist_multi: list[str] | None = None,
+        xml_codelist_multi: bool | None = None,
         core: str | None = "core",
         origin: str | None = "origin",
         role: str | None = "role",
@@ -3248,7 +3392,9 @@ class TestUtils:
         incl_cre_domain: bool | None = False,
         xml_codelist_values: str | None = "xml_codelist_values",
     ) -> SponsorModelDatasetVariableAPIModel:
-        service = SponsorModelDatasetVariableService()
+        service: SponsorModelDatasetVariableService = (
+            SponsorModelDatasetVariableService()
+        )
         result: SponsorModelDatasetVariableAPIModel = service.create(
             item_input=SponsorModelDatasetVariableInput(
                 dataset_uid=dataset_uid,
@@ -3298,7 +3444,7 @@ class TestUtils:
         disease_milestone_type=None,
         repetition_indicator=None,
     ) -> StudyDiseaseMilestone:
-        service = StudyDiseaseMilestoneService()
+        service: StudyDiseaseMilestoneService = StudyDiseaseMilestoneService()
         payload = StudyDiseaseMilestoneCreateInput(
             study_uid=study_uid,
             disease_milestone_type=disease_milestone_type,
@@ -3400,6 +3546,7 @@ class TestUtils:
         simple_datatype: str = "simple_datatype",
         role: str = "role",
         core: str = "core",
+        references_codelist_uid: str | None = None,
         library_name: str = LIBRARY_NAME,
     ) -> DatasetVariableAPIModel:
         """
@@ -3416,6 +3563,7 @@ class TestUtils:
         :param simple_datatype
         :param role
         :param core
+        :param references_codelist
         :param library_name
         """
 
@@ -3432,9 +3580,13 @@ class TestUtils:
             WITH dataset_variable_root, dataset_variable_value, dataset_value, has_dataset_variable
             MATCH (class_variable_root:VariableClass {uid: $class_variable_uid})-[:HAS_INSTANCE]->(class_variable_value)
             MERGE (dataset_variable_value)-[:IMPLEMENTS_VARIABLE]->(class_variable_value)
-            WITH *
+            WITH dataset_value, has_dataset_variable, dataset_variable_value
             MATCH (dataset_value)<-[:HAS_DATASET]-(data_model_ig_value:DataModelIGValue)
-            SET has_dataset_variable.version_number = data_model_ig_value.version_number"""
+            SET has_dataset_variable.version_number = data_model_ig_value.version_number
+            WITH dataset_variable_value
+            MATCH (codelist:CTCodelistRoot {uid:$referenced_codelist_uid})
+            MERGE (dataset_variable_value)-[:REFERENCES_CODELIST]->(codelist)
+            """
         dataset_variable_uid = DatasetVariable.get_next_free_uid_and_increment_counter()
         db.cypher_query(
             create_dataset_variable,
@@ -3449,6 +3601,7 @@ class TestUtils:
                 "simple_datatype": simple_datatype,
                 "role": role,
                 "core": core,
+                "referenced_codelist_uid": references_codelist_uid,
                 "library_name": library_name,
             },
         )
@@ -3600,7 +3753,7 @@ class TestUtils:
         topic_path="topic A",
         text="some thread text",
     ) -> CommentThread:
-        service = CommentsService()
+        service: CommentsService = CommentsService()
         payload = CommentThreadCreateInput(
             text=text,
             topic_path=topic_path,
@@ -3613,15 +3766,15 @@ class TestUtils:
         thread_uid=None,
         text="some reply text",
     ) -> CommentReply:
-        service = CommentsService()
+        service: CommentsService = CommentsService()
         payload = CommentReplyCreateInput(
             text=text,
         )
         return service.create_comment_reply(thread_uid, payload)
 
     @classmethod
-    def lock_and_unlock_study(cls, study_uid) -> str:
-        """locks a study version (giving it a study-title first), then unlocks it, returns locked study version"""
+    def lock_study(cls, study_uid) -> str:
+        """locks a study version (giving it a study-title first), returns locked study version"""
 
         study_service = StudyService()
 
@@ -3644,8 +3797,19 @@ class TestUtils:
             study.current_metadata.version_metadata.version_number
         )
 
-        study_service.unlock(uid=study_uid)
+        return latest_study_version
 
+    @classmethod
+    def unlock_study(cls, study_uid):
+        """unlocks study"""
+        StudyService().unlock(uid=study_uid)
+
+    @classmethod
+    def lock_and_unlock_study(cls, study_uid) -> str:
+        """locks a study version (giving it a study-title first), then unlocks it, returns locked study version"""
+
+        latest_study_version = cls.lock_study(study_uid)
+        cls.unlock_study(study_uid)
         return latest_study_version
 
     @classmethod
@@ -3674,7 +3838,7 @@ class TestUtils:
     ) -> None:
         date_now = datetime.now().date()
         if not catalogue:
-            catalogue = config.SDTM_CT_CATALOGUE_NAME
+            catalogue = settings.sdtm_ct_catalogue_name
         if not package_name:
             package_name = f"{catalogue} {date_now}"
         if not effective_date:
@@ -3712,7 +3876,7 @@ class TestUtils:
         study_standard_version_uid: str,
         ct_package_uid: str,
     ) -> None:
-        service = StudyStandardVersionService()
+        service: StudyStandardVersionService = StudyStandardVersionService()
         payload = StudyStandardVersionEditInput(
             ct_package_uid=ct_package_uid,
         )
@@ -3731,7 +3895,7 @@ class TestUtils:
         return TestClient(app).get(codelists_url).json()["items"]
 
     @classmethod
-    def get_codelist_uid_by_name(cls, codelists: any, name: str) -> str:
+    def get_codelist_uid_by_name(cls, codelists: Any, name: str) -> str:
         return next(item for item in codelists if item["name"] == name)["codelist_uid"]
 
     @staticmethod

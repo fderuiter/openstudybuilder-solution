@@ -1,5 +1,6 @@
 import csv
 from dataclasses import dataclass
+from typing import Any
 
 from clinical_mdr_api.domain_repositories.controlled_terminologies.configuration_repository import (
     CTConfigRepository,
@@ -148,7 +149,7 @@ def from_database():
 
 
 class FieldConfiguration:
-    field_config = []
+    field_config: list[Any] = []
 
     @classmethod
     def default_field_config(cls):

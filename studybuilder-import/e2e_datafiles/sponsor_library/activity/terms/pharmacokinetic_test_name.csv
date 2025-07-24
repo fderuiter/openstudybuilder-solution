@@ -1,0 +1,4 @@
+CT_CD_LIST_SUBMVAL,CT_NAME,NAME_SENTENSE_CASE,CT_SUBMVAL,DEFINITION,ORDER,CT_CD,NCI_PREFERRED_NAME
+PCTEST,Metformin Concentration,metformin concentration,Metformin Concentration,Metformin Concentration,1,,Metformin Concentration
+PCTEST,Dasiglucagon Measurement,dasiglucagon measurement,Dasiglucagon Measurement,Dasiglucagon Measurement,2,,Dasiglucagon Measurement
+PCTEST,Cyclodextrin Concentration,cyclodextrin concentration,Cyclodextrin Concentration,Cyclodextrin Concentration,3,,Cyclodextrin Concentration

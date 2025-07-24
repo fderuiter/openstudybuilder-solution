@@ -38,6 +38,7 @@ from clinical_mdr_api.models.concepts.odms.odm_form import (
     OdmFormPostInput,
 )
 from clinical_mdr_api.models.concepts.odms.odm_formal_expression import (
+    OdmFormalExpression,
     OdmFormalExpressionPostInput,
 )
 from clinical_mdr_api.models.concepts.odms.odm_item import (
@@ -324,7 +325,7 @@ class OdmXmlImporterService:
             )
         )
 
-        new_vendor_namespaces = []
+        new_vendor_namespaces: list[OdmVendorNamespace] = []
         for missing_prefix in missing_prefixes:
             rs = self._create(
                 self._repos.odm_vendor_namespace_repository,
@@ -351,7 +352,7 @@ class OdmXmlImporterService:
         self._create_missing_vendor_element_attributes(def_element.childNodes)
 
     def _create_missing_vendor_attributes(self, elm_attributes):
-        new_vendor_attributes = []
+        new_vendor_attributes: list[OdmVendorAttribute] = []
 
         for elm_attribute in elm_attributes:
             if not isinstance(elm_attribute, minidom.Attr) or not elm_attribute.prefix:
@@ -384,7 +385,7 @@ class OdmXmlImporterService:
         self.db_vendor_attributes.extend(new_vendor_attributes)
 
     def _create_missing_vendor_elements(self, elements: minicompat.NodeList):
-        new_vendor_elements = []
+        new_vendor_elements: list[OdmVendorElement] = []
 
         for element in elements:
             if not isinstance(element, minidom.Element) or not element.prefix:
@@ -419,7 +420,7 @@ class OdmXmlImporterService:
             if not isinstance(element, minidom.Element) or not element.prefix:
                 continue
 
-            new_vendor_element_attributes = []
+            new_vendor_element_attributes: list[OdmVendorAttribute] = []
             for element_attribute in element.attributes.values():
                 if (
                     not isinstance(element_attribute, minidom.Attr)
@@ -753,7 +754,7 @@ class OdmXmlImporterService:
         ]
 
     def _create_formal_expressions(self, target):
-        new_formal_expressions = []
+        new_formal_expressions: list[OdmFormalExpression] = []
         for formal_expression in target.getElementsByTagName("FormalExpression"):
             rs = self._create(
                 self._repos.odm_formal_expression_repository,
@@ -1393,7 +1394,8 @@ class OdmXmlImporterService:
                 name=item_def.getAttribute("Name"),
                 prompt=item_def.getAttribute("Prompt"),
                 datatype=item_def.getAttribute("DataType"),
-                length=item_def.getAttribute("Length"),
+                length=item_def.getAttribute("Length") or None,
+                significant_digits=item_def.getAttribute("SignificantDigits") or None,
                 sas_field_name=item_def.getAttribute("SASFieldName"),
                 sds_var_name=item_def.getAttribute("SDSVarName"),
                 origin=item_def.getAttribute("Origin"),

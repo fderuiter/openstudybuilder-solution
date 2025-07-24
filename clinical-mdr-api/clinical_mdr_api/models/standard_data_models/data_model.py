@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Any
 
 from pydantic import Field
 
@@ -39,7 +39,7 @@ class DataModel(BaseModel):
     status: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = None
 
     @classmethod
-    def from_repository_output(cls, input_dict: dict):
+    def from_repository_output(cls, input_dict: dict[str, Any]):
         return cls(
             uid=input_dict.get("uid"),
             name=input_dict.get("standard_value").get("name"),

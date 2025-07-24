@@ -15,3 +15,4 @@ python_version = "3.13.0"
 [scripts]
 build-sbom = "python pipelines/scripts/generate_sbom.py"
 export = "python -m export"
+export-study-list = "python -m export_study_list"

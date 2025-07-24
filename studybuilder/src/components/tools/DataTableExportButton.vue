@@ -11,6 +11,7 @@
           :title="$t('DataTableExportButton.export')"
           data-cy="table-export-button"
           icon="mdi-download-outline"
+          :loading="loading"
         />
       </slot>
     </template>
@@ -39,6 +40,7 @@ import ExcelJS from 'exceljs'
 import repository from '@/api/repository'
 import exportLoader from '@/utils/exportLoader'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
+import { ref } from 'vue'
 
 const emit = defineEmits(['export'])
 const studiesGeneralStore = useStudiesGeneralStore()
@@ -84,6 +86,7 @@ const downloadFormats = [
     extension: 'xlsx',
   },
 ]
+const loading = ref(false)
 
 function createDownloadLink(content, format) {
   const today = DateTime.local().toFormat('yyyy-MM-dd')
@@ -220,12 +223,14 @@ async function localExport(format) {
 }
 
 async function exportContent(format) {
+  loading.value = true
   const result = await new Promise((resolve) => emit('export', resolve))
   if (!result) {
     return
   }
   if (props.items.length) {
     localExport(format)
+    loading.value = false
     return
   }
 
@@ -242,6 +247,7 @@ async function exportContent(format) {
     .get(props.dataUrl, { params, headers, responseType: 'blob' })
     .then((response) => {
       createDownloadLink(response.data, format)
+      loading.value = false
     })
 }
 </script>

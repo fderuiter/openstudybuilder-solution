@@ -95,7 +95,7 @@ export default {
   getAll(params) {
     return repository.get(resource, { params })
   },
-  getByCodelist(name, options) {
+  getByCodelist(name, options, filters) {
     const codelist = knownCodelists[name]
     if (codelist !== undefined) {
       const params = { page_size: options?.all ? 0 : 100 }
@@ -103,6 +103,9 @@ export default {
         params.sort_by = JSON.stringify({ 'name.sponsor_preferred_name': true })
       }
       params[codelist.attribute] = codelist.value
+      if (filters) {
+        params.filters = filters
+      }
       return repository.get(`${resource}`, { params })
     }
     throw new Error(`Provided codelist (${name}) is unknown`)

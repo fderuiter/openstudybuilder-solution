@@ -24,6 +24,13 @@
         >
           {{ $t('_global.copy_link') }}
         </v-btn>
+        <v-spacer />
+        <v-btn
+          v-if="topRightCancel"
+          icon="mdi-close"
+          variant="text"
+          @click="cancel"
+        />
       </v-card-title>
       <v-divider />
       <v-card-text>
@@ -35,30 +42,33 @@
         <div>
           <slot name="actions" />
         </div>
-        <v-btn
-          data-cy="cancel-button"
-          :disabled="actionDisabled"
-          variant="outlined"
-          rounded
-          elevation="0"
-          width="120px"
-          @click="cancel"
-        >
-          {{ $t('_global.cancel') }}
-        </v-btn>
-        <v-btn
-          v-if="!noSaving"
-          data-cy="save-button"
-          color="secondary"
-          variant="flat"
-          width="120px"
-          :loading="working"
-          :disabled="actionDisabled"
-          rounded
-          @click="submit"
-        >
-          {{ actionButtonLabel }}
-        </v-btn>
+        <div v-if="!noDefaultActions">
+          <v-btn
+            data-cy="cancel-button"
+            :disabled="actionDisabled"
+            variant="outlined"
+            rounded
+            class="mr-2"
+            elevation="0"
+            width="120px"
+            @click="cancel"
+          >
+            {{ $t('_global.cancel') }}
+          </v-btn>
+          <v-btn
+            v-if="!noSaving"
+            data-cy="save-button"
+            color="secondary"
+            variant="flat"
+            width="120px"
+            :loading="working"
+            :disabled="actionDisabled"
+            rounded
+            @click="submit"
+          >
+            {{ actionButtonLabel }}
+          </v-btn>
+        </div>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -108,6 +118,14 @@ export default {
     scrollable: {
       type: Boolean,
       default: true,
+    },
+    noDefaultActions: {
+      type: Boolean,
+      default: false,
+    },
+    topRightCancel: {
+      type: Boolean,
+      default: false,
     },
   },
   emits: ['close', 'submit'],

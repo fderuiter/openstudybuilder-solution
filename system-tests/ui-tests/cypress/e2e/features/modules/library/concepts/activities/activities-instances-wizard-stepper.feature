@@ -14,18 +14,19 @@ Feature: Library - Concepts - Activities - Activity instances - new wizard stepp
         When The Add Activity Instance button is clicked
         Then The Activity Instance Wizard Stepper 'Select activity' page is displayed
         When An Activity is selected from the activity list
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         Then The Activity Instance Wizard Stepper 'Required' page is displayed
         When The 'NumericFindings' is selected from the Activity instance class field
         And The 'LB' is selected from the Activity instance domain field
         Then The Required Activity Item Classes field is displayed
         When The Required Activity Item Classes field is filled with data
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         Then The Activity Instance Wizard Stepper 'PARAM/PARAMCD' page is displayed
         And Automatically assigned activity instance name is saved
-        And 'continue' button is clicked on form
+        And Topic code is changed to the unique one
+        And Form continue button is clicked
         Then The Activity Instance Wizard Stepper 'Data specification' page is displayed
-        And 'save' button is clicked on form
+        And Form save button is clicked
         Then The current URL is '/overview'
         And Correct instance overview page is displayed
         Then The '/library/activities/activity-instances' page is opened
@@ -36,15 +37,16 @@ Feature: Library - Concepts - Activities - Activity instances - new wizard stepp
         When The Add Activity Instance button is clicked
         Then The Activity Instance Wizard Stepper 'Select activity' page is displayed
         When An Activity is selected from the activity list
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         Then The Activity Instance Wizard Stepper 'Required' page is displayed
         And The 'CategoricFindings' is selected from the Activity instance class field
         And First value is selected from the Data domain field
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         And Field 'ADaM parameter' is filled with value 'ADAM'
         And Automatically assigned activity instance name is saved
-        And 'continue' button is clicked on form
-        And 'save' button is clicked on form
+        And Topic code is changed to the unique one
+        And Form continue button is clicked
+        And Form save button is clicked
         Then The current URL is '/overview'
         And Correct instance overview page is displayed
         Then The '/library/activities/activity-instances' page is opened
@@ -55,15 +57,16 @@ Feature: Library - Concepts - Activities - Activity instances - new wizard stepp
         When The Add Activity Instance button is clicked
         Then The Activity Instance Wizard Stepper 'Select activity' page is displayed
         When An Activity is selected from the activity list
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         Then The Activity Instance Wizard Stepper 'Required' page is displayed
         And The 'TextualFindings' is selected from the Activity instance class field
         And First value is selected from the Data domain field
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         And Field 'ADaM parameter' is filled with value 'ADAM'
         And Automatically assigned activity instance name is saved
-        And 'continue' button is clicked on form
-        And 'save' button is clicked on form
+        And Topic code is changed to the unique one
+        And Form continue button is clicked
+        And Form save button is clicked
         Then The current URL is '/overview'
         And Correct instance overview page is displayed
         Then The '/library/activities/activity-instances' page is opened
@@ -75,14 +78,15 @@ Feature: Library - Concepts - Activities - Activity instances - new wizard stepp
         When The Add Activity Instance button is clicked
         And Activity created via API is searched for
         And An Activity is selected from the activity list
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         And The 'CategoricFindings' is selected from the Activity instance class field
         And First value is selected from the Data domain field
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         And Field 'ADaM parameter' is filled with value 'ADAM'
         And Automatically assigned activity instance name is saved
-        And 'continue' button is clicked on form
-        And 'save' button is clicked on form
+        And Topic code is changed to the unique one
+        And Form continue button is clicked
+        And Form save button is clicked
         Then The current URL is '/overview'
         And Correct instance overview page is displayed
         Then The '/library/activities/activity-instances' page is opened
@@ -91,7 +95,7 @@ Feature: Library - Concepts - Activities - Activity instances - new wizard stepp
     Scenario: [Create][Mandatory fields] User must not be able to continue without selecting activity
         Given The '/library/activities/activity-instances' page is opened
         When The Add Activity Instance button is clicked
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         Then Warning about not selected acitivity is displayed
         And The Activity Instance Wizard Stepper 'Select activity' page is displayed
         
@@ -99,8 +103,8 @@ Feature: Library - Concepts - Activities - Activity instances - new wizard stepp
         Given The '/library/activities/activity-instances' page is opened
         When The Add Activity Instance button is clicked
         When An Activity is selected from the activity list
-        And 'continue' button is clicked on form
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
+        And Form continue button is clicked
         Then Warning is displayed for mandatory field 'Activity instance class'
         Then Warning is displayed for mandatory field 'Data domain'
         And The Activity Instance Wizard Stepper 'Required' page is displayed
@@ -109,10 +113,10 @@ Feature: Library - Concepts - Activities - Activity instances - new wizard stepp
         Given The '/library/activities/activity-instances' page is opened
         When The Add Activity Instance button is clicked
         When An Activity is selected from the activity list
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         And The 'CategoricFindings' is selected from the Activity instance class field
         And First value is selected from the Data domain field
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         And Mandatory field 'Activity instance name' is cleared
         And Mandatory field 'Sentence case name' is cleared
         And Mandatory field 'Topic code' is cleared
@@ -127,14 +131,14 @@ Feature: Library - Concepts - Activities - Activity instances - new wizard stepp
         Given The '/library/activities/activity-instances' page is opened
         When The Add Activity Instance button is clicked
         When An Activity is selected from the activity list
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         And The 'CategoricFindings' is selected from the Activity instance class field
         And First value is selected from the Data domain field
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         And Field 'ADaM parameter' is filled with value 'ADAM'
         And Add activity item class button is clicked
         And The first Activity item class is selected
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         Then The mandatory value field is outlined in red
         And The Activity Instance Wizard Stepper 'PARAM/PARAMCD' page is displayed
     
@@ -142,15 +146,15 @@ Feature: Library - Concepts - Activities - Activity instances - new wizard stepp
         Given The '/library/activities/activity-instances' page is opened
         When The Add Activity Instance button is clicked
         When An Activity is selected from the activity list
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         And The 'CategoricFindings' is selected from the Activity instance class field
         And First value is selected from the Data domain field
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         And Field 'ADaM parameter' is filled with value 'ADAM'
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         And Add activity item class button is clicked
         And The first Activity item class is selected
-        And 'save' button is clicked on form
+        And Form save button is clicked
         Then The mandatory value field is outlined in red
         And The Activity Instance Wizard Stepper 'Data specification' page is displayed
 
@@ -158,27 +162,27 @@ Feature: Library - Concepts - Activities - Activity instances - new wizard stepp
         Given The '/library/activities/activity-instances' page is opened
         When The Add Activity Instance button is clicked
         When An Activity is selected from the activity list
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         And The 'CategoricFindings' is selected from the Activity instance class field
         And First value is selected from the Data domain field
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         And Field 'ADaM parameter' is filled with value 'ADAM'
         And Mandatory field 'Activity instance name' is cleared
         And Mandatory field 'Sentence case name' is cleared
         And Field 'Activity instance name' is filled with value 'TEST'
         And Field 'Sentence case name' is filled with value 'test2'
         Then Warning about not matching name and sentence case name is displayed
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         And The Activity Instance Wizard Stepper 'PARAM/PARAMCD' page is displayed
         
     Scenario: [Create][Sentence case name validation] System must ensure that sentance case name is lowercased version of instance name
         Given The '/library/activities/activity-instances' page is opened
         When The Add Activity Instance button is clicked
         When An Activity is selected from the activity list
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         And The 'CategoricFindings' is selected from the Activity instance class field
         And First value is selected from the Data domain field
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         Then Sentence case name is lowercased version of instance name
 
     Scenario: [Create][Uniqueness check][Topic code] User must not be able to save instance with topic code that already exists
@@ -199,7 +203,7 @@ Feature: Library - Concepts - Activities - Activity instances - new wizard stepp
         Given The '/library/activities/activity-instances' page is opened
         When The Add Activity Instance button is clicked
         When An Activity is selected from the activity list
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         When The 'NumericFindings' is selected from the Activity instance class field
         And The 'LB' is selected from the Activity instance domain field
         Then The Required Activity Item Classes field is displayed
@@ -215,18 +219,19 @@ Feature: Library - Concepts - Activities - Activity instances - new wizard stepp
         Given The '/library/activities/activity-instances' page is opened
         When The Add Activity Instance button is clicked
         When An Activity is selected from the activity list
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         And The 'CategoricFindings' is selected from the Activity instance class field
         And First value is selected from the Data domain field
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         And Field 'ADaM parameter' is filled with value 'ADAM'
         And Automatically assigned activity instance name is saved
+        And Topic code is changed to the unique one
         And Add activity item class button is clicked
         Then Value 'specimen' is selected for 0 Activity item class field
         And Add activity item class button is clicked
         Then Value 'position' is selected for 1 Activity item class field
-        And 'continue' button is clicked on form
-        And 'save' button is clicked on form
+        And Form continue button is clicked
+        And Form save button is clicked
         Then The current URL is '/overview'
         And Correct instance overview page is displayed
         Then The '/library/activities/activity-instances' page is opened
@@ -236,13 +241,14 @@ Feature: Library - Concepts - Activities - Activity instances - new wizard stepp
         Given The '/library/activities/activity-instances' page is opened
         When The Add Activity Instance button is clicked
         And An Activity is selected from the activity list
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         And The 'CategoricFindings' is selected from the Activity instance class field
         And First value is selected from the Data domain field
-        And 'continue' button is clicked on form
+        And Form continue button is clicked
         And Field 'ADaM parameter' is filled with value 'ADAM'
         And Automatically assigned activity instance name is saved
-        And 'continue' button is clicked on form
+        And Topic code is changed to the unique one
+        And Form continue button is clicked
         When Fullscreen wizard is closed by clicking cancel button
         And Action is confirmed by clicking continue
         Then The form is no longer available

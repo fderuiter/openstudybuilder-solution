@@ -18,6 +18,11 @@ Cypress.Commands.add('performActionOnSearchedItem', (action, message = null) => 
     cy.wait(1500)
 })
 
+Cypress.Commands.add('performActionOnFlaggedItem', (action) => {
+    cy.get('table tbody tr button').click()
+    cy.clickButton(action)
+})
+
 Cypress.Commands.add('clickTableActionsButton', (rowIndex) => {
     cy.get(tableRowLocator).filter(':visible').eq(rowIndex).within(() => cy.clickButton('table-item-action-button', true))
 })
@@ -71,6 +76,10 @@ Cypress.Commands.add('getCellValue', (rowIndex, columnName) => {
     return getCellByName(rowIndex, columnName).invoke('text')
 })
 
+Cypress.Commands.add('getCellValueNoVisibilityCheck', (rowIndex, columnName) => {
+    return getCellByNameNoVisibilityCheck(rowIndex, columnName).invoke('text')
+})
+
 Cypress.Commands.add('getCellValueInPopUp', (rowIndex, columnName) => {
     return getCellByNameInPopUp(rowIndex, columnName).invoke('text')
 })
@@ -81,11 +90,16 @@ Cypress.Commands.add('addTableFilter', (filerName) => {
     cy.contains('.v-overlay__content .v-list-item', 'Add to filter').click()
 })
 
-function getCellByName(rowIndex, columnName, isPopUp = false) {
-    let headerCellLocator = isPopUp ? tableHeaderCellLocatorInPopUp : tableHeaderCellLocator
-    return cy.contains(headerCellLocator, regex(columnName))
+function getCellByName(rowIndex, columnName) {
+    return cy.contains(tableHeaderCellLocator, regex(columnName))
             .invoke('index')
             .then((columnIndex) => cy.get(tableBodyLocator).filter(':visible').find('tr').eq(rowIndex).find('td').eq(columnIndex))
+}
+
+function getCellByNameNoVisibilityCheck(rowIndex, columnName) {
+    return cy.contains(tableHeaderCellLocator, regex(columnName))
+            .invoke('index')
+            .then((columnIndex) => cy.get(tableBodyLocator).find('tr').eq(rowIndex).find('td').eq(columnIndex))
 }
 
 function getCellByNameInPopUp(rowIndex, columnName) {

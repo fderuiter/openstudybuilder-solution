@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Any
 
 from pydantic import Field
 
@@ -9,20 +9,8 @@ from clinical_mdr_api.models.utils import BaseModel
 
 
 class SimpleReferencedCodelist(BaseModel):
-    uid: Annotated[
-        str | None,
-        Field(
-            title="The uid of the referenced codelist",
-            json_schema_extra={"nullable": True},
-        ),
-    ] = None
-    name: Annotated[
-        str | None,
-        Field(
-            title="The name of the referenced codelist",
-            json_schema_extra={"nullable": True},
-        ),
-    ] = None
+    uid: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = None
+    name: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = None
 
 
 class SimpleDatasetClass(BaseModel):
@@ -87,7 +75,7 @@ class VariableClass(BaseModel):
     ] = None
 
     @classmethod
-    def from_repository_output(cls, input_dict: dict):
+    def from_repository_output(cls, input_dict: dict[str, Any]):
         return cls(
             uid=input_dict.get("uid"),
             label=input_dict.get("standard_value").get("label"),

@@ -5,6 +5,7 @@ Tests for /concepts/activities/activities endpoints
 import logging
 from functools import reduce
 from operator import itemgetter
+from typing import Any
 
 import pytest
 import yaml
@@ -210,6 +211,8 @@ def test_data():
             "ct_term_uids": [ct_terms[0].term_uid],
             "unit_definition_uids": [],
             "is_adam_param_specific": False,
+            "odm_form_uids": [],
+            "odm_item_group_uids": [],
             "odm_item_uids": [],
         },
         {
@@ -217,6 +220,8 @@ def test_data():
             "ct_term_uids": [ct_terms[1].term_uid],
             "unit_definition_uids": [],
             "is_adam_param_specific": False,
+            "odm_form_uids": [],
+            "odm_item_group_uids": [],
             "odm_item_uids": [],
         },
         {
@@ -224,6 +229,8 @@ def test_data():
             "ct_term_uids": [ct_terms[0].term_uid, ct_terms[1].term_uid],
             "unit_definition_uids": [],
             "is_adam_param_specific": False,
+            "odm_form_uids": [],
+            "odm_item_group_uids": [],
             "odm_item_uids": [],
         },
     ]
@@ -388,7 +395,7 @@ def test_get_activity(api_client):
     assert_response_status_code(response, 200)
 
     # Check fields included in the response
-    assert set(list(res.keys())) == set(ACTIVITY_FIELDS_ALL)
+    assert set(res.keys()) == set(ACTIVITY_FIELDS_ALL)
     for key in ACTIVITY_FIELDS_NOT_NULL:
         assert res[key] is not None
 
@@ -427,21 +434,22 @@ def test_get_activity(api_client):
 
 
 def test_get_activity_pagination(api_client):
-    results_paginated: dict = {}
+    results_paginated: dict[Any, Any] = {}
     sort_by = '{"name": true}'
     for page_number in range(1, 4):
         url = f"/concepts/activities/activities?page_number={page_number}&page_size=3&sort_by={sort_by}"
         response = api_client.get(url)
         res = response.json()
-        res_names = list(map(lambda x: x["name"], res["items"]))
+        res_names = [item["name"] for item in res["items"]]
         results_paginated[page_number] = res_names
         log.info("Page %s: %s", page_number, res_names)
 
     log.info("All pages: %s", results_paginated)
 
     results_paginated_merged = list(
-        list(reduce(lambda a, b: a + b, list(results_paginated.values())))
+        reduce(lambda a, b: list(a) + list(b), list(results_paginated.values()))
     )
+
     log.info("All rows returned by pagination: %s", results_paginated_merged)
 
     res_all = api_client.get(
@@ -510,6 +518,93 @@ def test_get_activity_pagination(api_client):
     ), "Results should be returned by ActivitySubGroup name descending order"
 
 
+def test_get_activities_with_split_groupings_pagination(api_client):
+    results_paginated: dict[int, str] = {}
+    sort_by = '{"name": true}'
+    for page_number in range(1, 5):
+        url = f"/concepts/activities/activities?page_number={page_number}&page_size=3&sort_by={sort_by}&split_activity_by_groupings=true"
+        response = api_client.get(url)
+        res = response.json()
+        res_names = [item["name"] for item in res["items"]]
+        results_paginated[page_number] = res_names
+        log.info("Page %s: %s", page_number, res_names)
+
+    log.info("All pages: %s", results_paginated)
+
+    results_paginated_merged = list(
+        reduce(lambda a, b: list(a) + list(b), list(results_paginated.values()))
+    )
+    log.info("All rows returned by pagination: %s", results_paginated_merged)
+
+    res_all = api_client.get(
+        f"/concepts/activities/activities?page_number=1&page_size=100&sort_by={sort_by}&split_activity_by_groupings=true"
+    ).json()
+    results_all_in_one_page = list(map(lambda x: x["name"], res_all["items"]))
+    log.info("All rows in one page: %s", results_all_in_one_page)
+    assert len(results_all_in_one_page) == len(results_paginated_merged)
+    activities_len_with_splitted_groupings = 0
+    for activity in activities_all:
+        activities_len_with_splitted_groupings += len(activity.activity_groupings)
+    assert activities_len_with_splitted_groupings == len(results_paginated_merged)
+    assert results_all_in_one_page == sorted(results_all_in_one_page)
+
+    # Assert sorting by ActivityGroup works fine
+    sort_by = '{"activity_group_name":true}'
+    res_all = api_client.get(
+        f"/concepts/activities/activities?page_number=1&page_size=100&sort_by={sort_by}&split_activity_by_groupings=true"
+    ).json()
+    all_results = list(
+        map(
+            lambda x: x["activity_group_name"],
+            res_all["items"],
+        )
+    )
+    assert all_results == sorted(
+        all_results
+    ), "Results should be returned by ActivityGroup name ascending order"
+    sort_by = '{"activity_group_name":false}'
+    res_all = api_client.get(
+        f"/concepts/activities/activities?page_number=1&page_size=100&sort_by={sort_by}&split_activity_by_groupings=true"
+    ).json()
+    all_results = list(
+        map(
+            lambda x: x["activity_group_name"],
+            res_all["items"],
+        )
+    )
+    assert all_results == sorted(
+        all_results, reverse=True
+    ), "Results should be returned by ActivityGroup name descending order"
+
+    # Assert sorting by ActivitySubGroup works fine
+    sort_by = '{"activity_subgroup_name":true}'
+    res_all = api_client.get(
+        f"/concepts/activities/activities?page_number=1&page_size=100&sort_by={sort_by}&split_activity_by_groupings=true"
+    ).json()
+    all_results = list(
+        map(
+            lambda x: x["activity_subgroup_name"],
+            res_all["items"],
+        )
+    )
+    assert all_results == sorted(
+        all_results
+    ), "Results should be returned by ActivitySubGroup name ascending order"
+    sort_by = '{"activity_subgroup_name":false}'
+    res_all = api_client.get(
+        f"/concepts/activities/activities?page_number=1&page_size=100&sort_by={sort_by}&split_activity_by_groupings=true"
+    ).json()
+    all_results = list(
+        map(
+            lambda x: x["activity_subgroup_name"],
+            res_all["items"],
+        )
+    )
+    assert all_results == sorted(
+        all_results, reverse=True
+    ), "Results should be returned by ActivitySubGroup name descending order"
+
+
 def test_get_activity_versions(api_client):
     # Create a new version of an activity
     response = api_client.post(
@@ -524,7 +619,7 @@ def test_get_activity_versions(api_client):
     assert_response_status_code(response, 200)
 
     # Check fields included in the response
-    assert set(list(res.keys())) == set(["items", "total", "page", "size"])
+    assert set(res.keys()) == set(["items", "total", "page", "size"])
 
     assert len(res["items"]) == len(activities_all) * 2 + 1
     for item in res["items"]:
@@ -699,6 +794,10 @@ def test_explicit_filtering_by_activity_subgroup_and_group_uid(api_client):
 
 def test_groupped_groupings_payload_flag(api_client):
     url = "/concepts/activities/activities"
+
+    response = api_client.get(url)
+    assert_response_status_code(response, 200)
+
     response = api_client.get(
         url,
         params={
@@ -712,7 +811,7 @@ def test_groupped_groupings_payload_flag(api_client):
         res[1]["activity_groupings"][0]["activity_group_name"]
         == "different activity_group"
     )
-    url = "/concepts/activities/activities"
+
     response = api_client.get(
         url,
         params={
@@ -927,11 +1026,11 @@ def test_update_activity(api_client):
             "name_sentence_case": activity.name_sentence_case,
             "synonyms": ["new name", "CCC"],
             "activity_groupings": [
-                activity.activity_groupings[0].dict(),
+                activity.activity_groupings[0].model_dump(),
                 ActivityGrouping(
                     activity_group_uid=different_activity_group.uid,
                     activity_subgroup_uid=different_activity_subgroup.uid,
-                ).dict(),
+                ).model_dump(),
             ],
             "change_description": "Updated synonyms and groupings",
         },

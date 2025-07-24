@@ -92,6 +92,18 @@ Feature: Studies - Define Study - Study Data Specifications - Study Activity Ins
 
     ### Add more scenarios to cover the listings....
 
+    @BUG_ID:2775624
+    Scenario Outline: [Table][Filtering] User must be able to filter the table by text fields
+        Given The 'studies/Study_000001/data_specification/activity_instances' page is opened
+        When The user filters field '<name>'
+        Then The table is filtered correctly
+
+        Examples:
+            | name              |
+            | Activity          |
+            | Activity instance |
+            | State/Actions     |
+
 
 
     Scenario Outline: State/Actions must be displayed for all study activities and related study activity instances

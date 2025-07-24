@@ -21,7 +21,7 @@ from clinical_mdr_api.tests.integration.utils.method_library import (
 )
 from clinical_mdr_api.tests.integration.utils.utils import TestUtils
 from common import exceptions
-from common.config import SDTM_CT_CATALOGUE_NAME
+from common.config import settings
 
 
 class TestStudyEpochManagement(unittest.TestCase):
@@ -35,7 +35,7 @@ class TestStudyEpochManagement(unittest.TestCase):
         # Generate UIDs
         StudyRoot.generate_node_uids_if_not_present()
         self.study = StudyRoot.nodes.all()[0]
-        TestUtils.create_ct_catalogue(catalogue_name=SDTM_CT_CATALOGUE_NAME)
+        TestUtils.create_ct_catalogue(catalogue_name=settings.sdtm_ct_catalogue_name)
         TestUtils.set_study_standard_version(
             study_uid=self.study.uid, create_codelists_and_terms_for_package=False
         )
@@ -400,7 +400,7 @@ class TestStudyEpochManagement(unittest.TestCase):
         self.assertIsNotNone(previous_epoch.end_date)
         self.assertGreater(current_epoch.start_date, previous_epoch.start_date)
         # test all versions
-        epoch: StudyEpoch = create_study_epoch(epoch_subtype_uid="EpochSubType_0002")
+        epoch = create_study_epoch(epoch_subtype_uid="EpochSubType_0002")
         epoch_service = StudyEpochService()
         epoch = epoch_service.find_by_uid(uid=epoch.uid, study_uid=epoch.study_uid)
         start_rule = "New start rule"

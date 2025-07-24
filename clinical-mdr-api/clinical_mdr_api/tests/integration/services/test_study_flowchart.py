@@ -1,9 +1,11 @@
 # pylint: disable=redefined-outer-name,unused-argument
 
 import logging
-from copy import deepcopy
+from collections import defaultdict
+from typing import Any, Iterable
 
 import pytest
+from docx.table import Table
 
 from clinical_mdr_api.domain_repositories.models.study import StudyRoot
 from clinical_mdr_api.domain_repositories.study_selections.study_soa_repository import (
@@ -35,14 +37,19 @@ from clinical_mdr_api.services.studies.study_activity_selection import (
 from clinical_mdr_api.services.studies.study_epoch import StudyEpochService
 from clinical_mdr_api.services.studies.study_flowchart import _T as _gettext
 from clinical_mdr_api.services.studies.study_flowchart import (
+    NUM_OPERATIONAL_CODE_COLS,
+    SOA_CHECK_MARK,
     StudyFlowchartService,
     study_version,
 )
 from clinical_mdr_api.services.studies.study_soa_footnote import StudySoAFootnoteService
 from clinical_mdr_api.services.studies.study_visit import StudyVisitService
-from clinical_mdr_api.services.utils.table_f import TableRow, TableWithFootnotes
+from clinical_mdr_api.services.utils.table_f import TableWithFootnotes
 from clinical_mdr_api.tests.fixtures.database import TempDatabasePopulated
-from clinical_mdr_api.tests.integration.utils.factory_soa import SoATestData
+from clinical_mdr_api.tests.integration.utils.factory_soa import (
+    SoATestData,
+    SoATestDataMinimal,
+)
 from clinical_mdr_api.tests.integration.utils.utils import TestUtils
 from clinical_mdr_api.tests.unit.services.test_study_flowchart import (
     check_flowchart_table_dimensions,
@@ -51,96 +58,23 @@ from clinical_mdr_api.tests.unit.services.test_study_flowchart import (
     check_flowchart_table_visit_rows,
     check_hidden_row_propagation,
 )
-from common import config
+from common.config import settings
 
 log = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="module")
 def soa_test_data(temp_database_populated: TempDatabasePopulated) -> SoATestData:
+    test_data = SoATestData(project=temp_database_populated.project)
+    # lock study so efforts trying to modify shared test data would result in error
+    TestUtils.lock_study(test_data.study.uid)
+    return test_data
+
+
+@pytest.fixture(scope="module")
+def soa_test_data2(temp_database_populated: TempDatabasePopulated) -> SoATestData:
+    """Test data for SoA snapshot & versioning tests, as they modify the test study, may interfere with other tests"""
     return SoATestData(project=temp_database_populated.project)
-
-
-@pytest.fixture(scope="module")
-def detailed_soa_table__days(soa_test_data: SoATestData) -> TableWithFootnotes:
-    """get non-operational SoA table directly from StudyFlowchartService"""
-    service = StudyFlowchartService()
-    soa_table = service.build_flowchart_table(
-        study_uid=soa_test_data.study.uid,
-        study_value_version=None,
-        layout=SoALayout.DETAILED,
-        time_unit="day",
-    )
-    return soa_table
-
-
-@pytest.fixture(scope="module")
-def detailed_soa_table__weeks(soa_test_data: SoATestData) -> TableWithFootnotes:
-    """get non-operational SoA table directly from StudyFlowchartService"""
-    service = StudyFlowchartService()
-    soa_table = service.build_flowchart_table(
-        study_uid=soa_test_data.study.uid,
-        study_value_version=None,
-        layout=SoALayout.DETAILED,
-        time_unit="week",
-    )
-    return soa_table
-
-
-@pytest.fixture(scope="module")
-def protocol_soa_table__days(soa_test_data: SoATestData) -> TableWithFootnotes:
-    """get non-operational SoA table directly from StudyFlowchartService"""
-    service = StudyFlowchartService()
-    soa_table: TableWithFootnotes = service.build_flowchart_table(
-        study_uid=soa_test_data.study.uid,
-        study_value_version=None,
-        layout=SoALayout.PROTOCOL,
-        time_unit="day",
-    )
-    StudyFlowchartService.propagate_hidden_rows(soa_table.rows)
-    soa_table.rows[0].cells[0].text = _gettext("procedure_label")
-    return soa_table
-
-
-@pytest.fixture(scope="module")
-def protocol_soa_table__weeks(soa_test_data: SoATestData) -> TableWithFootnotes:
-    """get non-operational SoA table directly from StudyFlowchartService"""
-    service = StudyFlowchartService()
-    soa_table: TableWithFootnotes = service.build_flowchart_table(
-        study_uid=soa_test_data.study.uid,
-        study_value_version=None,
-        layout=SoALayout.PROTOCOL,
-        time_unit="week",
-    )
-    StudyFlowchartService.propagate_hidden_rows(soa_table.rows)
-    soa_table.rows[0].cells[0].text = _gettext("procedure_label")
-    return soa_table
-
-
-@pytest.fixture(scope="module")
-def operational_soa_table__days(soa_test_data: SoATestData) -> TableWithFootnotes:
-    """get non-operational SoA table directly from StudyFlowchartService"""
-    service = StudyFlowchartService()
-    soa_table = service.build_flowchart_table(
-        study_uid=soa_test_data.study.uid,
-        study_value_version=None,
-        layout=SoALayout.OPERATIONAL,
-        time_unit="day",
-    )
-    return soa_table
-
-
-@pytest.fixture(scope="module")
-def operational_soa_table__weeks(soa_test_data: SoATestData) -> TableWithFootnotes:
-    """get non-operational SoA table directly from StudyFlowchartService"""
-    service = StudyFlowchartService()
-    soa_table = service.build_flowchart_table(
-        study_uid=soa_test_data.study.uid,
-        study_value_version=None,
-        layout=SoALayout.OPERATIONAL,
-        time_unit="week",
-    )
-    return soa_table
 
 
 @pytest.mark.parametrize(
@@ -167,7 +101,7 @@ def test_build_flowchart_table(
     hide_soa_groups: bool,
 ):
     service = StudyFlowchartService()
-    table = service.build_flowchart_table(
+    table: TableWithFootnotes = service.build_flowchart_table(
         study_uid=soa_test_data.study.uid,
         study_value_version=None,
         layout=layout,
@@ -238,7 +172,9 @@ def test_build_flowchart_table(
     for idx, row in enumerate(
         table.rows[table.num_header_rows :], start=table.num_header_rows
     ):
-        study_selection = None
+        study_selection: (
+            StudySelectionActivity | StudySelectionActivityInstance | None
+        ) = None
 
         for ref in row.cells[0].refs or []:
             assert (
@@ -259,12 +195,10 @@ def test_build_flowchart_table(
 
             if ref.type == SoAItemType.STUDY_ACTIVITY.value:
                 activity_uid = ref.uid
-                study_selection: StudySelectionActivity = study_activities_map[ref.uid]
+                study_selection = study_activities_map[ref.uid]
 
             if ref.type == SoAItemType.STUDY_ACTIVITY_INSTANCE.value:
-                study_selection: StudySelectionActivityInstance = (
-                    study_activity_instances_map[ref.uid]
-                )
+                study_selection = study_activity_instances_map[ref.uid]
                 assert study_selection.study_activity_uid == activity_uid
 
             if hide_soa_groups and soa_group_id is None and ref.type == "ActivityGroup":
@@ -310,7 +244,7 @@ def test_build_flowchart_table(
                 f" {study_selection.study_activity_uid}[{idx}]"
             )
             prev = -1
-            for i in filter(
+            _filters: Iterable = filter(
                 lambda x: x is not None,
                 (
                     row_idx_by_uid.get(soa_group_id),
@@ -318,7 +252,8 @@ def test_build_flowchart_table(
                     row_idx_by_uid.get(activity_subgroup_id),
                     idx,
                 ),
-            ):
+            )
+            for i in _filters:
                 assert i > prev, assert_error_msg
                 prev = i
 
@@ -326,7 +261,7 @@ def test_build_flowchart_table(
     for activity in soa_test_data.study_activities.values():
         if (
             layout == SoALayout.OPERATIONAL
-            and activity.activity.library_name == config.REQUESTED_LIBRARY_NAME
+            and activity.activity.library_name == settings.requested_library_name
         ):
             # THEN Study Activity Placeholders are not shown in operational SoA
             assert (
@@ -339,11 +274,12 @@ def test_build_flowchart_table(
 
     # THEN all study activity instances are present in operational SoA table (regardless whether scheduled for any visit)
     if layout == SoALayout.OPERATIONAL:
-        for activity in soa_test_data.study_activity_instances.values():
-            if activity.activity_instance:
-                assert (
-                    activity.study_activity_instance_uid in rows_by_uid
-                ), f"{activity.study_activity_instance_uid} not found in SoA table"
+        for activity_instances in soa_test_data.study_activity_instances.values():
+            for activity_instance in activity_instances:
+                if activity_instance.activity_instance:
+                    assert (
+                        activity_instance.study_activity_instance_uid in rows_by_uid
+                    ), f"{activity_instance.study_activity_instance_uid} not found in SoA table"
 
     for sas in study_activity_schedules:
         if layout == SoALayout.OPERATIONAL and sas.study_activity_instance_uid:
@@ -373,7 +309,7 @@ def test_build_flowchart_table(
             assert (
                 sas.study_activity_uid in rows_by_uid
             ), f"No row with reference to activity {sas.study_activity_uid}"
-            row: TableRow = rows_by_uid[sas.study_activity_uid]
+            row = rows_by_uid[sas.study_activity_uid]
 
             # THEN Activity name in 1st row
             assert row.cells[0].text == study_activity.activity.name
@@ -429,7 +365,7 @@ def test_build_flowchart_table(
         check_flowchart_table_footnotes(table, soa_test_data.soa_footnotes)
 
 
-def ensure_flowchart_table_has_no_footnotes(table: dict):
+def ensure_flowchart_table_has_no_footnotes(table: Table):
     """ensure SoA flowchart doesn't have footnotes"""
 
     for r_idx, row in enumerate(table.rows):
@@ -442,30 +378,43 @@ def ensure_flowchart_table_has_no_footnotes(table: dict):
 
 
 @pytest.mark.parametrize(
-    "soa_table_fixture_name",
-    ["protocol_soa_table__days", "protocol_soa_table__weeks"],
+    "time_unit",
+    ["day", "week"],
 )
-def test_propagate_hidden_rows(request, soa_table_fixture_name):
+def test_propagate_hidden_rows(soa_test_data: SoATestData, time_unit):
     """Validates propagation of crosses and footnotes from hidden rows to the first visible parent row"""
-    soa_table: TableWithFootnotes = deepcopy(
-        request.getfixturevalue(soa_table_fixture_name)
+
+    service = StudyFlowchartService()
+    soa_table: TableWithFootnotes = service.build_flowchart_table(
+        study_uid=soa_test_data.study.uid,
+        study_value_version=None,
+        layout=SoALayout.PROTOCOL,
+        time_unit=time_unit,
     )
-    StudyFlowchartService.propagate_hidden_rows(soa_table.rows)
+    service.propagate_hidden_rows(soa_table.rows)
+    soa_table.rows[0].cells[0].text = _gettext("procedure_label")
+
     check_hidden_row_propagation(soa_table)
 
 
-def test_get_flowchart_item_uid_coordinates(
-    soa_test_data: SoATestData, detailed_soa_table__weeks: TableWithFootnotes
-):
+def test_get_flowchart_item_uid_coordinates(soa_test_data: SoATestData):
     service = StudyFlowchartService()
+
+    soa_table = service.build_flowchart_table(
+        study_uid=soa_test_data.study.uid,
+        study_value_version=None,
+        layout=SoALayout.DETAILED,
+        time_unit="week",
+    )
+
     results = service.get_flowchart_item_uid_coordinates(
         study_uid=soa_test_data.study.uid
     )
     assert isinstance(results, dict)
 
-    collected_coordinates: dict(str, tuple(int, int)) = {
+    collected_coordinates: dict[str, tuple[int, int]] = {
         ref.uid: (r_idx, c_idx)
-        for r_idx, row in enumerate(detailed_soa_table__weeks.rows)
+        for r_idx, row in enumerate(soa_table.rows)
         for c_idx, cell in enumerate(row.cells)
         if cell.refs
         for ref in cell.refs
@@ -536,7 +485,7 @@ def test_get_flowchart_item_uid_coordinates(
         # THEN all StudySelectionActivity have coordinates
         assert results.pop(study_selection_activity.study_activity_uid, None), (
             f"Missing coordinates of StudySelectionActivity[{study_selection_activity.study_activity_uid}]: "
-            + study_selection_activity.study_activity_uid
+            + str(study_selection_activity.study_activity_uid)
         )
 
         if (
@@ -687,17 +636,21 @@ def test_download_operational_soa_content(
     """Test returned data of download_operational_soa_content"""
 
     study_uid = soa_test_data.study.uid
-    service = StudyFlowchartService()
-    results = service.download_operational_soa_content(
+    results = StudyFlowchartService().download_operational_soa_content(
         study_uid=study_uid,
     )
     assert results
     assert isinstance(results, list)
 
     schedules = StudyActivityScheduleService().get_all_schedules(
-        study_uid=study_uid,
-        operational=True,
+        study_uid=study_uid, operational=True
     )
+    study_activity_schedules_map: dict[str, list[StudyActivitySchedule]] = {}
+    for schedule in schedules:
+        study_activity_schedules_map.setdefault(
+            schedule.study_activity_schedule_uid, []
+        ).append(schedule)
+
     study_visits_map: dict[str, StudyVisit] = {
         svis.uid: svis
         for svis in StudyVisitService(study_uid=soa_test_data.study.uid)
@@ -717,32 +670,26 @@ def test_download_operational_soa_content(
             study_uid=study_uid,
             filter_by={
                 "activity.library_name": {
-                    "v": [config.REQUESTED_LIBRARY_NAME],
+                    "v": [settings.requested_library_name],
                     "op": "ne",
                 }
             },
         )
         .items
     }
-    study_activity_schedules_map: dict[str, StudyActivitySchedule] = {
-        schedule.study_activity_schedule_uid: schedule for schedule in schedules
-    }
-    assert len(results) == len(schedules), "record count mismatch"
+    assert (
+        len(results) == soa_test_data.NUM_OPERATIONAL_SOA_EXPORT_ROWS
+    ), "record count mismatch"
 
     sched: StudyActivitySchedule
     for i, res in enumerate(results):
         study_activity_schedule_uid = res["study_activity_schedule_uid"]
-        sched = study_activity_schedules_map[study_activity_schedule_uid]
+        sched = study_activity_schedules_map[study_activity_schedule_uid][0]
         study_activity = study_activities_map[sched.study_activity_uid]
-        study_activity_instance = study_activity_instances_map[
-            sched.study_activity_instance_uid
-        ]
         study_visit = study_visits_map[sched.study_visit_uid]
 
         assert len(res.keys()) == 12, f"record #{i} property count mismatch"
-        assert res["study_version"] == study_version(soa_test_data.study) or res[
-            "study_version"
-        ].startswith("LATEST on 20")
+        assert res["study_version"].startswith("LATEST on 20")
         assert (
             res["study_number"]
             == soa_test_data.study.current_metadata.identification_metadata.study_number
@@ -760,28 +707,32 @@ def test_download_operational_soa_content(
         )
         assert res["activity"] == study_activity.activity.name
 
-        assert res["activity_instance"] == (
-            study_activity_instance.activity_instance.name
-            if study_activity_instance.activity_instance
-            else None
+        # a StudyActivitySchedule schedules an activity for a visit, so can intrinsicly schedule multiple StudyActivityInstnaces
+        # Find the StudyActivityInstance by name for this StudyActivitySchedule (when study activity has multiple instances)
+        for sched in study_activity_schedules_map[study_activity_schedule_uid]:
+            study_activity_instance = study_activity_instances_map[
+                sched.study_activity_instance_uid
+            ]
+            if (
+                res["activity_instance"]
+                == study_activity_instance.activity_instance.name
+            ):
+                break
+        assert (
+            res["activity_instance"] == study_activity_instance.activity_instance.name
+        ), "no study activity instance found by the name and schedule uid"
+        assert (
+            res["param_code"]
+            == study_activity_instance.activity_instance.adam_param_code
         )
-        assert res["param_code"] == (
-            study_activity_instance.activity_instance.adam_param_code
-            if study_activity_instance.activity_instance
-            else None
-        )
-        assert res["topic_code"] == (
-            study_activity_instance.activity_instance.topic_code
-            if study_activity_instance.activity_instance
-            else None
-        )
+        assert res["topic_code"] == study_activity_instance.activity_instance.topic_code
 
 
 class TestSoASnapshot:
     """Tests StudyFlowchartService and StudySoARepository saving and loading SoA snapshots with Study versioning"""
 
     def test_soa_snapshot_versioned(
-        self, soa_test_data: SoATestData, layout: SoALayout = SoALayout.PROTOCOL
+        self, soa_test_data2: SoATestData, layout: SoALayout = SoALayout.PROTOCOL
     ):
         """Tests saving and retrieving SoA snapshots with study versioning"""
 
@@ -789,7 +740,7 @@ class TestSoASnapshot:
         study_service = StudyService()
 
         # GIVEN: a Study populated with data required for SoA
-        study_uid = soa_test_data.study.uid
+        study_uid = soa_test_data2.study.uid
 
         # GIVEN: references of SoA snapshot
         expected_refs: list[SoACellReference] = (
@@ -870,7 +821,7 @@ class TestSoASnapshot:
 
         # SCENARIO: After changing the SoA data of DRAFT Study, the SoA snapshot of the previous Study version reads back correctly
         # WHEN: Changed Study SoA data
-        self._remove_first_visible_study_activity(soa_test_data)
+        self._remove_first_visible_study_activity(soa_test_data2)
         # WHEN: SoA snapshot of the previous Study version read from the db
         # THEN: It matches the SoA snapshot of the previous Study version
         self._assert_soa_snapshot_refs_from_db_match_expected_refs(
@@ -1024,7 +975,7 @@ class TestSoASnapshot:
                 break
 
     def test_build_soa_snapshot_versioned(
-        self, soa_test_data: SoATestData, layout: SoALayout = SoALayout.PROTOCOL
+        self, soa_test_data2: SoATestData, layout: SoALayout = SoALayout.PROTOCOL
     ):
         """tests StudyFlowchartService.get_soa_row_refs with versioning
 
@@ -1038,15 +989,15 @@ class TestSoASnapshot:
 
         # GIVEN: SoA snapshot of latest draft built
         previous_refs = study_flowchart_service.build_soa_snapshot(
-            study_uid=soa_test_data.study.uid, study_value_version=None, layout=layout
+            study_uid=soa_test_data2.study.uid, study_value_version=None, layout=layout
         )
         # GIVEN: Study has a locked version
         previous_study_version = TestUtils.lock_and_unlock_study(
-            soa_test_data.study.uid
+            soa_test_data2.study.uid
         )
 
         # GIVEN: Latest draft version has a new activity added
-        soa_test_data.create_study_activity(
+        soa_test_data2.create_study_activity(
             name="Mind the gap",
             soa_group="Safety",
             group="General",
@@ -1060,7 +1011,7 @@ class TestSoASnapshot:
 
         # WHEN Building SoA snapshot of the locked study version
         refs = study_flowchart_service.build_soa_snapshot(
-            study_uid=soa_test_data.study.uid,
+            study_uid=soa_test_data2.study.uid,
             study_value_version=previous_study_version,
             layout=layout,
         )
@@ -1069,7 +1020,7 @@ class TestSoASnapshot:
 
         # WHEN Building SoA snapshot of the latest draft
         current_refs = study_flowchart_service.build_soa_snapshot(
-            study_uid=soa_test_data.study.uid,
+            study_uid=soa_test_data2.study.uid,
             study_value_version=None,
             layout=layout,
         )
@@ -1079,7 +1030,7 @@ class TestSoASnapshot:
         assert current_refs > previous_refs
 
     def test_soa_snapshot_of_previous_locked_versions(
-        self, soa_test_data: SoATestData, layout: SoALayout = SoALayout.PROTOCOL
+        self, soa_test_data2: SoATestData, layout: SoALayout = SoALayout.PROTOCOL
     ):
         """Tests SoA snapshot of previous locked Study versions"""
 
@@ -1087,7 +1038,7 @@ class TestSoASnapshot:
         study_service = StudyService()
 
         # GIVEN: a Study populated with SoA data
-        study_uid = soa_test_data.study.uid
+        study_uid = soa_test_data2.study.uid
         # GIVEN: Study has 3 locked versions and a draft version, all differs in SoA
 
         # Build SoA snapshot
@@ -1105,7 +1056,7 @@ class TestSoASnapshot:
         study_service.unlock(uid=study_uid)
 
         # add a new activity
-        activity_v2 = soa_test_data.create_study_activity(
+        activity_v2 = soa_test_data2.create_study_activity(
             name="Potassium",
             soa_group="Efficacy",
             group="Laboratory Assessments",
@@ -1131,7 +1082,7 @@ class TestSoASnapshot:
         study_service.unlock(uid=study_uid)
 
         # add another activity
-        soa_test_data.create_study_activity(
+        soa_test_data2.create_study_activity(
             name="Potato peeler",
             soa_group="Safety",
             group="General",
@@ -1158,7 +1109,7 @@ class TestSoASnapshot:
 
         # remove an activity from draft version
         StudyActivitySelectionService().delete_selection(
-            study_uid=soa_test_data.study.uid,
+            study_uid=soa_test_data2.study.uid,
             study_selection_uid=activity_v2.study_activity_uid,
         )
         log.info("deleted StudyActivity [%s]", activity_v2.study_activity_uid)
@@ -1223,7 +1174,7 @@ class TestSoASnapshot:
             )
 
     def test_soa_snapshot_references(
-        self, soa_test_data: SoATestData, layout: SoALayout = SoALayout.PROTOCOL
+        self, soa_test_data2: SoATestData, layout: SoALayout = SoALayout.PROTOCOL
     ):
         """checks that saving and loading SoA snapshot references match"""
 
@@ -1231,19 +1182,19 @@ class TestSoASnapshot:
 
         expected_cell_references, expected_footnote_references = (
             service.build_soa_snapshot(
-                study_uid=soa_test_data.study.uid,
+                study_uid=soa_test_data2.study.uid,
                 study_value_version=None,
                 layout=layout,
             )
         )
 
         service.update_soa_snapshot(
-            study_uid=soa_test_data.study.uid, study_value_version=None, layout=layout
+            study_uid=soa_test_data2.study.uid, study_value_version=None, layout=layout
         )
 
         cell_references, footnote_references = self._load_soa_snapshot_for_comparison(
             service,
-            study_uid=soa_test_data.study.uid,
+            study_uid=soa_test_data2.study.uid,
             study_value_version=None,
             layout=layout,
         )
@@ -1260,7 +1211,7 @@ class TestSoASnapshot:
     )
     def test_soa_snapshot_and_reconstruction(
         self,
-        soa_test_data: SoATestData,
+        soa_test_data2: SoATestData,
         time_unit: str,
         layout: SoALayout = SoALayout.PROTOCOL,
     ):
@@ -1269,7 +1220,7 @@ class TestSoASnapshot:
         service = StudyFlowchartService()
 
         expected_table = service.build_flowchart_table(
-            study_uid=soa_test_data.study.uid,
+            study_uid=soa_test_data2.study.uid,
             study_value_version=None,
             layout=layout,
             time_unit=time_unit,
@@ -1287,24 +1238,24 @@ class TestSoASnapshot:
                     cell.refs = list(dict.fromkeys(cell.refs))
 
         service.update_soa_snapshot(
-            study_uid=soa_test_data.study.uid, study_value_version=None, layout=layout
+            study_uid=soa_test_data2.study.uid, study_value_version=None, layout=layout
         )
 
         table = service.load_soa_snapshot(
-            study_uid=soa_test_data.study.uid,
+            study_uid=soa_test_data2.study.uid,
             study_value_version=None,
             layout=layout,
             time_unit=time_unit,
         )
 
-        assert table.dict() == expected_table.dict()
+        assert table.model_dump() == expected_table.model_dump()
 
 
 def test_soa_snapshot_versioning_with_footnote_linking(
-    soa_test_data: SoATestData,
+    temp_database_populated,
     layout: SoALayout = SoALayout.PROTOCOL,
 ):
-    # soa_test_data = SoATestDataMinimal(project=temp_database_populated.project)
+    soa_test_data = SoATestDataMinimal(project=temp_database_populated.project)
     service = StudyFlowchartService()
 
     # get protocol soa
@@ -1334,7 +1285,7 @@ def test_soa_snapshot_versioning_with_footnote_linking(
         layout=layout,
         force_build=True,
     )
-    assert soa.dict() == soa_v1.dict()
+    assert soa.model_dump() == soa_v1.model_dump()
 
     # check v1 SoA snapshot
     cell_references, footnote_references = service.repository.load(
@@ -1374,7 +1325,7 @@ def test_soa_snapshot_versioning_with_footnote_linking(
     )
 
     # ensure SoA changed between Study versions
-    assert soa_v1.dict() != soa_v2.dict()
+    assert soa_v1.model_dump() != soa_v2.model_dump()
 
     # check v1 SoA after modifications to draft
     soa = service.get_flowchart_table(
@@ -1383,7 +1334,7 @@ def test_soa_snapshot_versioning_with_footnote_linking(
         layout=layout,
         force_build=True,
     )
-    assert soa.dict() == soa_v1.dict()
+    assert soa.model_dump() == soa_v1.model_dump()
 
     # check v1 SoA snapshot build after modifications to draft
     cell_references, footnote_references = service.build_soa_snapshot(
@@ -1415,7 +1366,7 @@ def test_soa_snapshot_versioning_with_footnote_linking(
         layout=layout,
         force_build=True,
     )
-    assert soa.dict() == soa_v1.dict()
+    assert soa.model_dump() == soa_v1.model_dump()
 
     # check v1 SoA snapshot build after modifications to draft
     cell_references, footnote_references = service.build_soa_snapshot(
@@ -1465,7 +1416,7 @@ def test_soa_snapshot_versioning_with_footnote_linking(
     soa = service.load_soa_snapshot(
         study_uid=soa_test_data.study.uid, study_value_version=v1_version, layout=layout
     )
-    assert soa.dict() == soa_v1.dict()
+    assert soa.model_dump() == soa_v1.model_dump()
 
     # check v2 SoA snapshot
     expected_cell_references, expected_footnote_references = service.repository.load(
@@ -1500,4 +1451,70 @@ def test_soa_snapshot_versioning_with_footnote_linking(
     soa = service.load_soa_snapshot(
         study_uid=soa_test_data.study.uid, study_value_version=v2_version, layout=layout
     )
-    assert soa.dict() == soa_v2.dict()
+    assert soa.model_dump() == soa_v2.model_dump()
+
+
+def test_operational_soa(soa_test_data: SoATestData):
+    soa_table = StudyFlowchartService().get_flowchart_table(
+        study_uid=soa_test_data.study.uid,
+        study_value_version=None,
+        layout=SoALayout.OPERATIONAL,
+    )
+    log.info(soa_test_data.VISITS)
+    log.info(
+        StudyVisitService(study_uid=soa_test_data.study.uid, study_value_version=None)
+        .get_all_visits(study_uid=soa_test_data.study.uid, study_value_version=None)
+        .items
+    )
+    check_operational_soa_table(soa_test_data, soa_table)
+
+
+def check_operational_soa_table(
+    soa_test_data: SoATestData, soa_table: TableWithFootnotes
+):
+    # check number of columns
+    num_cols = len(soa_table.rows[soa_table.num_header_rows - 1].cells)
+    assert num_cols == soa_table.num_header_cols + NUM_OPERATIONAL_CODE_COLS + len(
+        soa_test_data.VISITS
+    ), f"Unexpected number of columns in SoA table: {soa_table.rows[:soa_table.num_header_rows]}"
+
+    # check number of rows
+    num_rows = len(soa_table.rows)
+    assert (
+        num_rows == soa_test_data.NUM_OPERATIONAL_SOA_ROWS + soa_table.num_header_rows
+    ), "Unexpected number of rows in SoA table"
+
+    # no footnotes
+    assert not soa_table.footnotes, "Expected no footnotes in operational SoA"
+
+    # index cells by references and count schedule crosses
+    cells_by_uid = {}
+    cells_by_ref: dict[Any, Any] = defaultdict(dict)
+    num_schedule_crosses = 0
+    for r, row in enumerate(soa_table.rows):
+        for c, cell in enumerate(row.cells):
+            if cell.refs:
+                for ref in cell.refs:
+                    cells_by_uid[ref.uid] = cell
+                    cells_by_ref[ref.type][ref.uid] = cell
+            if (
+                r >= soa_table.num_header_rows
+                and c >= soa_table.num_header_cols + NUM_OPERATIONAL_CODE_COLS
+                and cell.text == SOA_CHECK_MARK
+            ):
+                num_schedule_crosses += 1
+
+    # check number of schedules
+    assert (
+        len(cells_by_ref[SoAItemType.STUDY_ACTIVITY_SCHEDULE.value])
+        == soa_test_data.NUM_OPERATIONAL_SOA_SCHEDULES
+    ), "Unexpected number of schedules"
+    assert (
+        num_schedule_crosses == soa_test_data.NUM_OPERATIONAL_SOA_CHECKMARKS
+    ), "Unexpected number of schedule crosses"
+
+    # check number of study activity instance rows
+    assert (
+        len(cells_by_ref[SoAItemType.STUDY_ACTIVITY_INSTANCE.value])
+        == soa_test_data.NUM_ACTIVITY_INSTANCES
+    ), "Unexpected number of study activity instances"

@@ -13,7 +13,7 @@ from starlette.responses import Response
 from starlette.types import Message
 from starlette_context import context
 
-from common import config
+from common.config import settings
 from common.telemetry import trace_block
 
 log = logging.getLogger(__name__)
@@ -25,27 +25,27 @@ class RequestMetrics(BaseModel):
     """Per-request metrics"""
 
     cypher_count: int = Field(
-        0, alias="cypher.count", title="Number of Cypher queries executed"
+        0, alias="cypher.count", description="Number of Cypher queries executed"
     )
     cypher_times: float = Field(
         0,
         alias="cypher.times",
-        title="Cumulative walltime (in seconds) of Cypher queries",
+        description="Cumulative walltime (in seconds) of Cypher queries",
     )
     cypher_slowest_time: float = Field(
         0,
         alias="cypher.slowest.time",
-        title="Walltime (in seconds) of the slowest Cypher query",
+        description="Walltime (in seconds) of the slowest Cypher query",
     )
     cypher_slowest_query: str | None = Field(
         None,
         alias="cypher.slowest.query",
-        title="The slowest Cypher query (by walltime, truncated to 1000 chars) ",
+        description="The slowest Cypher query (by walltime, truncated to 1000 chars) ",
     )
     cypher_slowest_query_params: dict | None = Field(
         None,
         alias="cypher.slowest.query.params",
-        title="Parameters of the slowest Cypher query",
+        description="Parameters of the slowest Cypher query",
     )
 
 
@@ -108,7 +108,7 @@ def cypher_tracing(query: str, params: Mapping):
         start_time = time.time()
 
     with trace_block("neomodel.query") as span:
-        span.add_attribute("cypher.query", query[: config.TRACE_QUERY_MAX_LEN])
+        span.add_attribute("cypher.query", query[: settings.trace_query_max_len])
         # span.add_attribute("cypher.params", params)
 
         # run the query (or any wrapped code) as a distinct operation (logical tracing block == Span)
@@ -125,8 +125,8 @@ def cypher_tracing(query: str, params: Mapping):
             metrics.cypher_slowest_time = delta_time
 
             # also record query text and parameters if slower than the threshold
-            if delta_time > config.SLOW_QUERY_TIME_SECS:
-                metrics.cypher_slowest_query = query[: config.TRACE_QUERY_MAX_LEN]
+            if delta_time > settings.slow_query_duration:
+                metrics.cypher_slowest_query = query[: settings.trace_query_max_len]
                 # metrics.cypher_slowest_query_params = params
 
 

@@ -9,9 +9,6 @@ from clinical_mdr_api.domains.biomedical_concepts.activity_instance_class import
 from clinical_mdr_api.domains.biomedical_concepts.activity_item_class import (
     ActivityItemClassAR,
 )
-from clinical_mdr_api.domains.controlled_terminologies.ct_codelist_attributes import (
-    CTCodelistAttributesAR,
-)
 from clinical_mdr_api.domains.versioned_object_aggregate import (
     LibraryItemStatus,
     ObjectAction,
@@ -24,7 +21,7 @@ from clinical_mdr_api.models.utils import (
     PatchInputModel,
     PostInputModel,
 )
-from common import config
+from common.config import settings
 
 
 class CompactActivityInstanceClass(BaseModel):
@@ -113,49 +110,6 @@ class SimpleVariableClass(BaseModel):
     ] = None
 
 
-class SimpleCTCodelist(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    @classmethod
-    def from_codelist_uid(
-        cls,
-        uid: str,
-        find_codelist_attribute_by_codelist_uid: Callable[
-            [str], CTCodelistAttributesAR | None
-        ],
-    ) -> Self | None:
-        if uid is not None:
-            codelist_attribute = find_codelist_attribute_by_codelist_uid(uid)
-
-            if codelist_attribute is not None:
-                simple_codelist_attribute_model = cls(
-                    uid=uid,
-                    name=codelist_attribute._ct_codelist_attributes_vo.name,
-                )
-            else:
-                simple_codelist_attribute_model = cls(
-                    uid=uid,
-                    name=None,
-                )
-        else:
-            simple_codelist_attribute_model = None
-        return simple_codelist_attribute_model
-
-    uid: Annotated[
-        str | None,
-        Field(json_schema_extra={"source": "related_codelist.uid", "nullable": True}),
-    ] = None
-    name: Annotated[
-        str | None,
-        Field(
-            json_schema_extra={
-                "source": "related_codelist.has_attributes_root.has_latest_value.name",
-                "nullable": True,
-            }
-        ),
-    ] = None
-
-
 class ActivityItemClass(VersionProperties):
     model_config = ConfigDict(from_attributes=True)
 
@@ -181,10 +135,6 @@ class ActivityItemClass(VersionProperties):
     activity_instance_classes: Annotated[
         list[CompactActivityInstanceClass] | None, Field()
     ]
-    codelists: Annotated[
-        list[SimpleCTCodelist] | None,
-        Field(json_schema_extra={"nullable": True}),
-    ] = None
     variable_classes: Annotated[
         list[SimpleVariableClass] | None, Field(json_schema_extra={"nullable": True})
     ] = None
@@ -240,9 +190,6 @@ class ActivityItemClass(VersionProperties):
         find_activity_instance_class_by_uid: Callable[
             [str], ActivityInstanceClassAR | None
         ],
-        find_codelist_attribute_by_codelist_uid: Callable[
-            [str], CTCodelistAttributesAR | None
-        ],
     ) -> Self:
         _activity_instance_classes = [
             find_activity_instance_class_by_uid(activity_instance_class.uid)
@@ -288,17 +235,6 @@ class ActivityItemClass(VersionProperties):
                 if activity_item_class_ar.activity_item_class_vo.variable_class_uids
                 else []
             ),
-            codelists=(
-                [
-                    SimpleCTCodelist.from_codelist_uid(
-                        uid=codelist_uid,
-                        find_codelist_attribute_by_codelist_uid=find_codelist_attribute_by_codelist_uid,
-                    )
-                    for codelist_uid in activity_item_class_ar.activity_item_class_vo.codelist_uids
-                ]
-                if activity_item_class_ar.activity_item_class_vo.codelist_uids
-                else []
-            ),
             library_name=Library.from_library_vo(activity_item_class_ar.library).name,
             start_date=activity_item_class_ar.item_metadata.start_date,
             end_date=activity_item_class_ar.item_metadata.end_date,
@@ -312,6 +248,42 @@ class ActivityItemClass(VersionProperties):
         )
 
 
+class CompactActivityItemClass(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    uid: Annotated[
+        str | None,
+        Field(json_schema_extra={"nullable": True}),
+    ] = None
+    name: Annotated[
+        str | None,
+        Field(
+            json_schema_extra={
+                "source": "has_latest_value.name",
+                "nullable": True,
+            }
+        ),
+    ] = None
+    mandatory: Annotated[
+        bool | None,
+        Field(
+            json_schema_extra={
+                "source": "has_activity_instance_class|mandatory",
+                "nullable": True,
+            }
+        ),
+    ] = None
+    is_adam_param_specific_enabled: Annotated[
+        bool | None,
+        Field(
+            json_schema_extra={
+                "source": "has_activity_instance_class|is_adam_param_specific_enabled",
+                "nullable": True,
+            }
+        ),
+    ] = None
+
+
 class ActivityInstanceClassRelInput(InputModel):
     uid: Annotated[str | None, Field(min_length=1)] = None
     is_adam_param_specific_enabled: Annotated[bool, Field()]
@@ -322,19 +294,18 @@ class ActivityItemClassCreateInput(PostInputModel):
     name: Annotated[str, Field()]
     definition: Annotated[str | None, Field(min_length=1)] = None
     nci_concept_id: Annotated[str | None, Field(min_length=1)] = None
-    order: Annotated[int, Field(gt=0, lt=config.MAX_INT_NEO4J)]
+    order: Annotated[int, Field(gt=0, lt=settings.max_int_neo4j)]
     activity_instance_classes: Annotated[list[ActivityInstanceClassRelInput], Field()]
     role_uid: Annotated[str, Field()]
     data_type_uid: Annotated[str, Field()]
     library_name: Annotated[str, Field()]
-    codelist_uids: list[str] = Field(default_factory=list)
 
 
 class ActivityItemClassEditInput(PatchInputModel):
     name: Annotated[str | None, Field(min_length=1)] = None
     definition: Annotated[str | None, Field(min_length=1)] = None
     nci_concept_id: Annotated[str | None, Field(min_length=1)] = None
-    order: Annotated[int | None, Field(gt=0, lt=config.MAX_INT_NEO4J)] = None
+    order: Annotated[int | None, Field(gt=0, lt=settings.max_int_neo4j)] = None
     activity_instance_classes: list[ActivityInstanceClassRelInput] = Field(
         default_factory=list
     )
@@ -342,7 +313,6 @@ class ActivityItemClassEditInput(PatchInputModel):
     change_description: Annotated[str | None, Field(min_length=1)] = None
     role_uid: Annotated[str | None, Field(min_length=1)] = None
     data_type_uid: Annotated[str | None, Field(min_length=1)] = None
-    codelist_uids: list[str] = Field(default_factory=list)
 
 
 class ActivityItemClassMappingInput(PatchInputModel):

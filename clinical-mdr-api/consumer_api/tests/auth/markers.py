@@ -1,7 +1,7 @@
 import pytest
 
-from common.auth import config
+from common.config import settings
 
 if_oauth_enabled = pytest.mark.skipif(
-    not config.OAUTH_ENABLED, reason="Authentication is disabled"
+    not settings.oauth_enabled, reason="Authentication is disabled"
 )

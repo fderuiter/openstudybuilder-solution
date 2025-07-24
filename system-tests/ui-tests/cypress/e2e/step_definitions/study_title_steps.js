@@ -20,7 +20,7 @@ Then('The study selected has new title copied', () => {
 When('The study title is copied from another study', () => {
     cy.contains('table thead th', 'Study title').should('be.visible')
     cy.waitForTableData()
-    cy.getCellValue(0, 'Study title').then((copiedTitle) => studyTitle = copiedTitle)
+    cy.getCellValueNoVisibilityCheck(0, 'Study title').then((copiedTitle) => studyTitle = copiedTitle)
     cy.clickFirstButton('copy-title')
     cy.clickButton('save-button')
 })

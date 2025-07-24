@@ -1,3 +1,4 @@
+import ast
 import os
 import sys
 from abc import ABC, abstractmethod
@@ -15,7 +16,7 @@ class SBLinter(ABC):
 
     @classmethod
     @final
-    def get_sblinters(cls) -> list["SBLinter"]:
+    def get_sblinters(cls) -> list[type["SBLinter"]]:
         """
         Returns a list of SBLinter classes to be used for static code analysis.
 
@@ -23,35 +24,51 @@ class SBLinter(ABC):
         and detecting potential issues in the codebase. Each linter class implements
         its own set of rules and checks.
         """
-        from sblint.linters.no_field_as_default_value_without_required_args import (
-            NoFieldAsDefaultValueWithoutRequiredArgs,
+        from sblint.linters.no_fields_as_default_value_without_required_args import (
+            NoFieldsAsDefaultValueWithoutRequiredArgs,
         )
-        from sblint.linters.no_field_in_annotated_with_disallowed_args import (
-            NoFieldInAnnotatedWithDisallowedArgs,
+        from sblint.linters.no_fields_in_annotated_with_disallowed_args import (
+            NoFieldsInAnnotatedWithDisallowedArgs,
+        )
+        from sblint.linters.no_fields_with_disallowed_args import (
+            NoFieldsWithDisallowedArgs,
+        )
+        from sblint.linters.no_fields_with_empty_string_args import (
+            NoFieldsWithEmptyStringArgs,
+        )
+        from sblint.linters.no_http_methods_with_disallowed_status_code import (
+            NoHTTPMethodsWithDisallowedStatusCode,
         )
         from sblint.linters.no_relative_imports import NoRelativeImports
+        from sblint.linters.no_type_hints_with_implicit_any import (
+            NoTypeHintsWithImplicitAny,
+        )
         from sblint.linters.no_unnecessary_imports import NoUnnecessaryImports
 
         return [
-            NoFieldAsDefaultValueWithoutRequiredArgs,
-            NoFieldInAnnotatedWithDisallowedArgs,
+            NoFieldsAsDefaultValueWithoutRequiredArgs,
+            NoFieldsInAnnotatedWithDisallowedArgs,
+            NoFieldsWithDisallowedArgs,
+            NoFieldsWithEmptyStringArgs,
+            NoTypeHintsWithImplicitAny,
+            NoHTTPMethodsWithDisallowedStatusCode,
             NoRelativeImports,
             NoUnnecessaryImports,
         ]
 
     @classmethod
     @abstractmethod
-    def validate(cls, code: str) -> bool:
+    def validate(cls, code_tree: ast.Module) -> list[int]:
         """
-        Validate the given code string.
+        Validates the given Python code.
 
         This abstract method must be implemented by subclasses to define the validation logic for the provided code.
 
         Args:
-            code (str): The Python code to be validated.
+            code_tree (ast.Module): The tree of the Python code to be validated.
 
         Returns:
-            bool: `True` if the code passes the validation, otherwise `False`.
+            list[int]: A list of line numbers where validation issues were found.
 
         Raises:
             NotImplementedError: If the method is not implemented by a subclass.
@@ -79,9 +96,9 @@ class SBLinter(ABC):
     def code_crawler(
         cls,
         directories: list[str],
-        validators: list[Callable[[str], bool]],
+        validators: list[Callable[[ast.Module], list[int]]],
         extension: str = ".py",
-    ) -> dict[str, set]:
+    ) -> dict[str, list]:
         """
         Crawls through the specified directories to validate Python files using the provided validators.
 
@@ -92,9 +109,9 @@ class SBLinter(ABC):
             extension (str): The file extension to filter files. Defaults to `.py`.
 
         Returns:
-            dict[str, set]: A dictionary where the keys are the validator functions (as strings) and the values are sets of file paths that failed the corresponding validation.
+            dict[str, list]: A dictionary where the keys are the validator functions (as strings) and the values are sets of file paths that failed the corresponding validation.
         """
-        invalid_files: dict[str, set] = defaultdict(set)
+        invalid_files: dict[str, list] = defaultdict(list)
 
         for directory in directories:
             for root, _, files in os.walk(directory):
@@ -102,18 +119,21 @@ class SBLinter(ABC):
                     if file.endswith(extension):
                         file_path = os.path.join(root, file)
                         with open(file_path, "r", encoding="utf-8") as f:
-                            content = f.read()
-                            if content:
+                            if content := f.read():
+                                tree = ast.parse(content)
                                 for validate in validators:
-                                    if not validate(content):
-                                        invalid_files[validate].add(file_path)
+                                    if lines := validate(tree):
+                                        for line in lines:
+                                            invalid_files[validate.__qualname__].append(
+                                                f"{file_path}:{line}"
+                                            )
 
         return invalid_files
 
     @classmethod
     @final
     def validate_and_report(
-        cls, directories_to_crawl: list[str], validators: list["SBLinter"]
+        cls, directories_to_crawl: list[str], validators: list[type["SBLinter"]]
     ):
         """
         Validates the specified directories using the provided validators and reports any issues.
@@ -143,12 +163,14 @@ class SBLinter(ABC):
             terminal.rule("[b]SBLint Failed[/b]", characters="=", style="bold")
             rptint("[b][red]SBLint detected issues in the following areas:[/red][/b]\n")
             for validator in validators:
-                if validator.validate in failed_validators:
+                if validator.validate.__qualname__ in failed_validators:
                     rptint(f"[b][red]- {validator.__name__}[/red][/b]")
             print("\n")
 
             for validator in validators:
-                if invalid_files := failed_validators.get(validator.validate):
+                if invalid_files := failed_validators.get(
+                    validator.validate.__qualname__
+                ):
                     terminal.rule(
                         f"[b][red]{validator.__name__}[/red][/b]",
                         characters="-",
@@ -157,6 +179,11 @@ class SBLinter(ABC):
                     validator.expose_validation(invalid_files)
 
             sys.exit(1)
+
+        rptint(
+            "[b][green]You got away this time... but remember, SBLint never sleeps. "
+            "I'll be lurking, waiting for your next mistake![/green][/b]"
+        )
 
     @classmethod
     @final

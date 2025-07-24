@@ -3,13 +3,15 @@ import csv
 from datetime import datetime
 import json
 import os
+import re
 from collections import defaultdict
 
 import aiohttp
 
-from .functions.utils import load_env
-from .utils.importer import BaseImporter, open_file_async
-from .utils.metrics import Metrics
+from importers.functions.caselessdict import CaselessDict
+from importers.functions.utils import load_env
+from importers.utils.importer import BaseImporter, open_file_async
+from importers.utils.metrics import Metrics
 
 # ---------------------------------------------------------------
 # Env loading
@@ -62,7 +64,7 @@ class SponsorModels(BaseImporter):
         if cell is None:
             return None
         else:
-            return cell == "Y"
+            return cell in ["Y", "X"]
 
     def reverse_bool(self, boolean: bool | None) -> bool | None:
         if boolean is None:
@@ -100,7 +102,7 @@ class SponsorModels(BaseImporter):
             for i, v in existing_instance_classes.items()
         }
 
-        grouped_items = defaultdict(list)
+        grouped_items = {}
 
         for row in csv_reader:
             class_cell = row[headers.index("activity_instance_class")]
@@ -110,23 +112,18 @@ class SponsorModels(BaseImporter):
                     None,
                 )
                 if activity_instance_class_uid is not None:
-                    # There might be some duplicates in the CSV file
-                    if (
-                        row[headers.index("dataset_class")]
-                        not in grouped_items[activity_instance_class_uid]
-                    ):
-                        grouped_items[activity_instance_class_uid].append(
-                            row[headers.index("dataset_class")]
-                        )
+                    grouped_items[activity_instance_class_uid] = row[
+                        headers.index("dataset_class")
+                    ]
 
-        for instance_class_uid, datasets in grouped_items.items():
+        for instance_class_uid, dataset in grouped_items.items():
             data = {
                 "body": {
-                    "dataset_class_uids": datasets,
+                    "dataset_class_uid": dataset,
                 },
             }
             self.log.info(
-                "Adding relationships to datasets for activity instance class '%s'",
+                "Adding relationship to dataset for activity instance class '%s'",
                 instance_class_uid,
             )
             api_tasks.append(
@@ -358,6 +355,72 @@ class SponsorModels(BaseImporter):
             )
         await asyncio.gather(*api_tasks)
 
+    # Get all terms from a codelist
+    def _get_codelist_terms(self, codelist_uid):
+        self.ensure_cache()
+        if codelist_uid is not None:
+            terms = [
+                term
+                for term in self.cache.all_terms_attributes
+                if codelist_uid in [x["codelist_uid"] for x in term["codelists"]]
+            ]
+            return terms
+
+    # Get a dictionary mapping submission values to term uids for a codelist identified by its uid
+    def _get_submissionvalues_for_codelist(self, codelist_uid):
+        terms = self._get_codelist_terms(codelist_uid)
+        name_submvals = CaselessDict(
+            self.api.get_all_identifiers(
+                terms,
+                identifier="name_submission_value",
+                value="term_uid",
+            )
+        )
+        code_submvals = CaselessDict(
+            self.api.get_all_identifiers(
+                terms,
+                identifier="code_submission_value",
+                value="term_uid",
+            )
+        )
+        name_submvals.update(code_submvals)
+        return name_submvals
+
+    def parse_referenced_ct(self, headers, row, all_codelist_uids) -> tuple[dict, dict]:
+        # Sponsor specific code
+        # Custom logic to extract CT relationships at sponsor model level
+        references_codelists = []
+        references_terms = []
+        xml_codelist_multi = self.parse_bool(row[headers.index("xmlcodelist_multi")])
+        term = row[headers.index("term")] or None
+        # Some Variables link to multiple codelists
+        if xml_codelist_multi is True and term != "*":
+            for submval in row[headers.index("term")].split("|"):
+                submval = re.sub(r"[()]", "", submval)
+                if submval in all_codelist_uids:
+                    references_codelists.append(all_codelist_uids.get(submval))
+        # All others link to a single one
+        else:
+            _codelist_uid = all_codelist_uids.get(row[headers.index("xmlcodelist")])
+            if _codelist_uid:
+                references_codelists.append(_codelist_uid)
+
+                # Variables referencing a single codelist can reference specific Terms too
+                # As a subset of the referenced codelist
+                if row[headers.index("xmlcodelistvalues")]:
+                    terms_in_codelist = self._get_submissionvalues_for_codelist(
+                        _codelist_uid
+                    )
+                    for term_submval in row[headers.index("xmlcodelistvalues")].split(
+                        "|"
+                    ):
+                        # Known special case
+                        if term_submval == "U":
+                            term_submval = "UNKNOWN"
+                        if term_submval in terms_in_codelist:
+                            references_terms.append(terms_in_codelist[term_submval])
+        return references_codelists, references_terms
+
     @open_file_async()
     async def handle_dataset_variables(self, csvfile, session):
         # Populate sponsor model dataset variables
@@ -365,7 +428,12 @@ class SponsorModels(BaseImporter):
         headers = next(csv_reader)
         api_tasks = []
 
+        all_codelist_uids = self.api.get_codelists_uid_and_submval()
+
         for row in csv_reader:
+            references_codelists, references_terms = self.parse_referenced_ct(
+                headers=headers, row=row, all_codelist_uids=all_codelist_uids
+            )
             data = {
                 "body": {
                     # Expected fields
@@ -384,29 +452,27 @@ class SponsorModels(BaseImporter):
                     "label": row[headers.index("label")],
                     "variable_type": row[headers.index("type")],
                     "length": row[headers.index("length")],
-                    "display_format": row[headers.index("displayformat")],
+                    "display_format": row[headers.index("displayformat")] or None,
                     "xml_datatype": row[headers.index("xmldatatype")],
-                    "xml_codelist": row[headers.index("xmlcodelist")],
-                    "xml_codelist_multi": row[headers.index("xmlcodelist_multi")].split(
-                        " "
-                    ),
+                    "references_codelists": references_codelists,
+                    "references_terms": references_terms,
                     "core": row[headers.index("core")],
-                    "origin": row[headers.index("origin")],
+                    "origin": row[headers.index("origin")] or None,
                     "origin_type": (
-                        row[headers.index("origintype")]
+                        row[headers.index("origintype")] or None
                         if "origintype" in headers
                         else None
                     ),
                     "origin_source": (
-                        row[headers.index("originsource")]
+                        row[headers.index("originsource")] or None
                         if "originsource" in headers
                         else None
                     ),
                     "role": row[headers.index("role")],
-                    "term": row[headers.index("term")],
-                    "algorithm": row[headers.index("algorithm")],
+                    "term": row[headers.index("term")] or None,
+                    "algorithm": row[headers.index("algorithm")] or None,
                     "qualifiers": (
-                        row[headers.index("qualifiers")].split(" ")
+                        row[headers.index("qualifiers")].split(" ") or None
                         if row[headers.index("qualifiers")]
                         else None
                     ),
@@ -416,30 +482,31 @@ class SponsorModels(BaseImporter):
                         else None
                     ),
                     "comment": row[headers.index("comment")] or None,
-                    "ig_comment": row[headers.index("IGcomment")],
+                    "ig_comment": row[headers.index("IGcomment")] or None,
                     "map_var_flag": row[headers.index("map_var_flag")],
-                    "fixed_mapping": row[headers.index("fixed_mapping")],
+                    "fixed_mapping": row[headers.index("fixed_mapping")] or None,
                     "include_in_raw": self.parse_bool(
                         row[headers.index("include_in_raw")]
                     ),
                     "nn_internal": self.parse_bool(row[headers.index("nn_internal")]),
-                    "value_lvl_where_cols": row[headers.index("value_lvl_where_cols")],
-                    "value_lvl_label_col": row[headers.index("value_lvl_label_col")],
+                    "value_lvl_where_cols": row[headers.index("value_lvl_where_cols")]
+                    or None,
+                    "value_lvl_label_col": row[headers.index("value_lvl_label_col")]
+                    or None,
                     "value_lvl_collect_ct_val": row[
                         headers.index("value_lvl_collect_ct_val")
-                    ],
+                    ]
+                    or None,
                     "value_lvl_ct_codelist_id_col": row[
                         headers.index("value_lvl_ct_cdlist_id_col")
-                    ],
+                    ]
+                    or None,
                     "enrich_build_order": (
-                        row[headers.index("enrich_build_order")]
+                        row[headers.index("enrich_build_order")] or None
                         if row[headers.index("enrich_build_order")]
                         else 0
                     ),
-                    "enrich_rule": row[headers.index("enrich_rule")],
-                    "xml_codelist_values": self.parse_bool(
-                        row[headers.index("xmlcodelistvalues")]
-                    ),
+                    "enrich_rule": row[headers.index("enrich_rule")] or None,
                     **self._common_body_params,
                 },
             }

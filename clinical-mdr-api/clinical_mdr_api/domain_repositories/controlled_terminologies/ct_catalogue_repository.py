@@ -22,7 +22,7 @@ class CTCatalogueRepository:
             ]
 
         # projecting results to CTCatalogueAR instances
-        ct_catalogues: list[CTCatalogueAR] = [
+        ct_catalogues = [
             CTCatalogueAR.from_input_values(
                 name=catalogue.name,
                 library_name=catalogue.contains_catalogue.single().name,

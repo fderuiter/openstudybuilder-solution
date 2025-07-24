@@ -2,6 +2,7 @@
 
 import logging
 from collections import defaultdict
+from typing import Any
 
 import pytest
 import starlette.routing
@@ -9,8 +10,8 @@ from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 from fastapi.testclient import TestClient
 
-from common.auth.config import OAUTH_ENABLED
 from common.auth.dependencies import dummy_access_token_claims, dummy_auth_object
+from common.config import settings
 
 log = logging.getLogger(__name__)
 
@@ -52,7 +53,7 @@ def api_client(main_app, request) -> TestClient:
 
 
 @pytest.fixture(scope="session")
-def openapi_schema(main_app) -> dict[str, any]:
+def openapi_schema(main_app) -> dict[str, Any]:
     schema = get_openapi(title="test", version="test", routes=main_app.routes)
     return schema
 
@@ -70,7 +71,7 @@ def main_app_all_route_paths(main_app) -> tuple[tuple[str, tuple[str]], ...]:
     return tuple(paths)
 
 
-@pytest.fixture(scope="session", autouse=not OAUTH_ENABLED)
+@pytest.fixture(scope="session", autouse=not settings.oauth_enabled)
 def mock_auth_context(request):
     """Mock starlette context with dummy user data"""
 

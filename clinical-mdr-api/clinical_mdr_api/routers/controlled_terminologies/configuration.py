@@ -15,6 +15,7 @@ from clinical_mdr_api.services.controlled_terminologies.configuration import (
     CTConfigService,
 )
 from common.auth import rbac
+from common.auth.dependencies import security
 from common.models.error import ErrorResponse
 
 # Prefixed with "/configurations"
@@ -27,7 +28,7 @@ CodelistConfigUID = Path(description="The unique id of configuration.")
 
 @router.get(
     "",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns all configurations in their latest/newest version.",
     status_code=200,
     responses={
@@ -80,7 +81,7 @@ def get_all(
 
 @router.get(
     "/{configuration_uid}",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns the latest/newest version of a specific configuration identified by 'configuration_uid'.",
     description="""If multiple request query parameters are used, then they need to
     match all at the same time (they are combined with the AND operation).""",
@@ -136,7 +137,7 @@ def get_by_uid(
 
 @router.get(
     "/{configuration_uid}/versions",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns the version history of a specific configuration identified by 'configuration_uid'.",
     description="The returned versions are ordered by\n"
     "0. start_date descending (newest entries first)",
@@ -196,7 +197,7 @@ def get_versions(
 
 @router.post(
     "",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Creates a new configuration in 'Draft' status.",
     description="""
 
@@ -228,7 +229,7 @@ def post(
 
 @router.patch(
     "/{configuration_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Updates the configuration identified by 'configuration_uid'.",
     description="""This request is only valid if the configuration
 * is in 'Draft' status and
@@ -268,7 +269,7 @@ def patch(
 
 @router.post(
     "/{configuration_uid}/versions",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Creates a new version of the configuration identified by 'configuration_uid'.",
     description="""This request is only valid if the configuration
 * is in 'Final' or 'Retired' status only (so no latest 'Draft' status exists) 
@@ -303,7 +304,7 @@ def new_version(
 
 @router.post(
     "/{configuration_uid}/approvals",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Approves the configuration identified by 'configuration_uid'.",
     description="""This request is only valid if the configuration
 * is in 'Draft' status
@@ -337,7 +338,7 @@ def approve(
 
 @router.delete(
     "/{configuration_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Inactivates/deactivates the configuration identified by 'configuration_uid'.",
     description="""This request is only valid if the configuration
 * is in 'Final' status only (so no latest 'Draft' status exists).
@@ -371,7 +372,7 @@ def inactivate(
 
 @router.post(
     "/{configuration_uid}/activations",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Reactivates the configuration identified by 'configuration_uid'.",
     description="""This request is only valid if the configuration
 * is in 'Retired' status only (so no latest 'Draft' status exists).
@@ -405,7 +406,7 @@ def reactivate(
 
 @router.delete(
     "/{configuration_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Deletes the configuration identified by 'configuration_uid'.",
     description="""This request is only valid if \n
 * the configuration is in 'Draft' status and

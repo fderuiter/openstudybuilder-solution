@@ -139,19 +139,23 @@ const headers = [
     title: t('StudyActivityInstances.topic_code'),
     key: 'activity_instance.topic_code',
   },
+  {
+    title: t('StudyActivityInstances.test_name_code'),
+    key: 'test_name_code',
+  },
+  {
+    title: t('StudyActivityInstances.specimen'),
+    key: 'specimen',
+  },
+  {
+    title: t('StudyActivityInstances.standard_unit'),
+    key: 'standard_unit',
+  },
   { title: t('StudyActivityInstances.state_actions'), key: 'state' },
   {
     title: t('StudyActivityInstances.adam_code'),
     key: 'activity_instance.adam_param_code',
   },
-]
-const defaultFilters = [
-  { title: t('StudyActivity.activity'), key: 'activity.name' },
-  {
-    title: t('StudyActivityInstances.activity_instance'),
-    key: 'activity_instance.name',
-  },
-  { title: t('StudyActivityInstances.state_actions'), key: 'state' },
 ]
 const studyActivitiesInstances = ref([])
 const total = ref(0)
@@ -193,7 +197,13 @@ const actions = [
     click: openHistory,
   },
 ]
-
+const defaultFilters = computed(() => {
+  return headers
+    .filter((a) => a.key !== 'actions')
+    .filter((a) => a.key !== 'test_name_code')
+    .filter((a) => a.key !== 'specimen')
+    .filter((a) => a.key !== 'standard_unit')
+})
 const exportDataUrl = computed(() => {
   return `studies/${studiesGeneralStore.selectedStudy.uid}/study-activity-instances`
 })
@@ -262,6 +272,18 @@ function getStudyActivityInstances(filters, options, filtersUpdated) {
   params.studyUid = studiesGeneralStore.selectedStudy.uid
   activitiesStore.fetchStudyActivityInstances(params).then((resp) => {
     studyActivitiesInstances.value = resp.data.items
+    studyActivitiesInstances.value.forEach((instance) => {
+      instance.specimen = instance.activity_instance?.activity_items?.find(
+        (item) => item.activity_item_class.name === 'specimen'
+      )?.ct_terms[0].name
+      instance.test_name_code =
+        instance.activity_instance?.activity_items?.find(
+          (item) => item.activity_item_class.name === 'test_name_code'
+        )?.ct_terms[0].name
+      instance.standard_unit = instance.activity_instance?.activity_items?.find(
+        (item) => item.activity_item_class.name === 'standard_unit'
+      )?.unit_definitions[0].name
+    })
     total.value = resp.data.total
   })
 }

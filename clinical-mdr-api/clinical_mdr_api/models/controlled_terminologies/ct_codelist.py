@@ -16,7 +16,7 @@ from clinical_mdr_api.models.controlled_terminologies.ct_codelist_name import (
 )
 from clinical_mdr_api.models.libraries.library import Library
 from clinical_mdr_api.models.utils import BaseModel, PostInputModel
-from common import config
+from common.config import settings
 
 
 class CTCodelist(BaseModel):
@@ -90,7 +90,7 @@ class CTCodelistTermInput(PostInputModel):
     term_uid: Annotated[str, Field(min_length=1)]
     order: Annotated[
         int | None,
-        Field(json_schema_extra={"nullable": True}, gt=0, lt=config.MAX_INT_NEO4J),
+        Field(json_schema_extra={"nullable": True}, gt=0, lt=settings.max_int_neo4j),
     ] = 999999
 
 

@@ -1,0 +1,4 @@
+CT_CD_LIST_SUBMVAL,CT_NAME,NAME_SENTENSE_CASE,CT_SUBMVAL,DEFINITION,ORDER,CT_CD,NCI_PREFERRED_NAME
+CECAT,AE Requiring Additional Data,AE requiring additional data,AE REQUIRING ADDITIONAL DATA,"AE Requiring Additional Data, e.g. for SHARP forms",1,,AE Requiring Additional Data
+CECAT,Complaint,complaint,COMPLAINT,Complaint,2,,Complaint
+CECAT,Etiology for Elevated Liver Enzymes,etiology for elevated liver enzymes,ETIOLOGY FOR ELEVATED LIVER ENZYMES,Etiology for elevated liver enzymes,3,,Etiology for Elevated Liver Enzymes

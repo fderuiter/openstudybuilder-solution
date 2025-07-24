@@ -21,7 +21,6 @@ class ActivityInstanceClassVO:
     The ActivityInstanceClassVO acts as the value object for a single ActivityInstanceClass value object
     """
 
-    parent_uid: str | None
     name: str
     order: int | None
     definition: str | None
@@ -29,7 +28,6 @@ class ActivityInstanceClassVO:
     level: int | None
     dataset_class_uid: str | None
     activity_item_classes: list[ActivityInstanceClassActivityItemClassRelVO]
-    data_domain_uids: list[str]
 
     @classmethod
     def from_repository_values(
@@ -39,10 +37,8 @@ class ActivityInstanceClassVO:
         definition: str | None,
         is_domain_specific: bool | None,
         level: int | None,
-        parent_uid: str | None,
         dataset_class_uid: str | None,
         activity_item_classes: list[ActivityInstanceClassActivityItemClassRelVO],
-        data_domain_uids: list[str],
     ) -> Self:
         activity_instance_class_vo = cls(
             name=name,
@@ -50,10 +46,8 @@ class ActivityInstanceClassVO:
             definition=definition,
             is_domain_specific=is_domain_specific,
             level=level,
-            parent_uid=parent_uid,
             dataset_class_uid=dataset_class_uid,
             activity_item_classes=activity_item_classes,
-            data_domain_uids=data_domain_uids,
         )
 
         return activity_instance_class_vo
@@ -61,9 +55,7 @@ class ActivityInstanceClassVO:
     def validate(
         self,
         activity_instance_class_exists_by_name_callback: Callable[[str], bool],
-        activity_instance_class_parent_exists: Callable[[str], bool],
         dataset_class_exists_by_uid: Callable[[str], DatasetClass],
-        ct_term_exists_by_uid_callback: Callable[[str], bool],
         previous_name: str | None = None,
     ) -> None:
         AlreadyExistsException.raise_if(
@@ -74,20 +66,10 @@ class ActivityInstanceClassVO:
             "Name",
         )
         BusinessLogicException.raise_if(
-            self.parent_uid
-            and not activity_instance_class_parent_exists(self.parent_uid),
-            msg=f"Activity Instance Class tried to connect to non-existent or non-final Activity Instance Class with UID '{self.parent_uid}'.",
-        )
-        BusinessLogicException.raise_if(
             self.dataset_class_uid
             and not dataset_class_exists_by_uid(self.dataset_class_uid),
             msg=f"Activity Instance Class tried to connect to non-existent Dataset Class with UID '{self.dataset_class_uid}'.",
         )
-        for data_domain_uid in self.data_domain_uids or []:
-            BusinessLogicException.raise_if_not(
-                ct_term_exists_by_uid_callback(data_domain_uid),
-                msg=f"Activity Instance Class tried to connect to non-existent CT Term with UID '{data_domain_uid}'.",
-            )
 
 
 @dataclass
@@ -102,15 +84,15 @@ class ActivityInstanceClassAR(LibraryItemAggregateRootBase):
     def activity_instance_class_vo(self) -> ActivityInstanceClassVO:
         return self._activity_instance_class_vo
 
-    @property
-    def name(self) -> str:
-        return self._activity_instance_class_vo.name
-
     @activity_instance_class_vo.setter
     def activity_instance_class_vo(
         self, activity_instance_class_vo: ActivityInstanceClassVO
     ):
         self._activity_instance_class_vo = activity_instance_class_vo
+
+    @property
+    def name(self) -> str:
+        return self._activity_instance_class_vo.name
 
     @classmethod
     def from_repository_values(
@@ -135,10 +117,8 @@ class ActivityInstanceClassAR(LibraryItemAggregateRootBase):
         author_id: str,
         activity_instance_class_vo: ActivityInstanceClassVO,
         library: LibraryVO,
-        activity_instance_class_parent_exists: Callable[[str], bool],
         activity_instance_class_exists_by_name_callback: Callable[[str], bool],
         dataset_class_exists_by_uid: Callable[[str], DatasetClass],
-        ct_term_exists_by_uid_callback: Callable[[str], bool],
         generate_uid_callback: Callable[[], str | None] = (lambda: None),
     ) -> Self:
         item_metadata = LibraryItemMetadataVO.get_initial_item_metadata(
@@ -149,10 +129,8 @@ class ActivityInstanceClassAR(LibraryItemAggregateRootBase):
             msg=f"Library with Name '{library.name}' doesn't allow creation of objects.",
         )
         activity_instance_class_vo.validate(
-            activity_instance_class_parent_exists=activity_instance_class_parent_exists,
             activity_instance_class_exists_by_name_callback=activity_instance_class_exists_by_name_callback,
             dataset_class_exists_by_uid=dataset_class_exists_by_uid,
-            ct_term_exists_by_uid_callback=ct_term_exists_by_uid_callback,
         )
         activity_instance_class_ar = cls(
             _uid=generate_uid_callback(),
@@ -167,19 +145,15 @@ class ActivityInstanceClassAR(LibraryItemAggregateRootBase):
         author_id: str,
         change_description: str | None,
         activity_instance_class_vo: ActivityInstanceClassVO,
-        activity_instance_class_parent_exists: Callable[[str], bool],
         activity_instance_class_exists_by_name_callback: Callable[[str], bool],
         dataset_class_exists_by_uid: Callable[[str], DatasetClass],
-        ct_term_exists_by_uid_callback: Callable[[str], bool],
     ) -> None:
         """
         Creates a new draft version for the object.
         """
 
         activity_instance_class_vo.validate(
-            activity_instance_class_parent_exists=activity_instance_class_parent_exists,
             dataset_class_exists_by_uid=dataset_class_exists_by_uid,
-            ct_term_exists_by_uid_callback=ct_term_exists_by_uid_callback,
             activity_instance_class_exists_by_name_callback=activity_instance_class_exists_by_name_callback,
             previous_name=self.name,
         )

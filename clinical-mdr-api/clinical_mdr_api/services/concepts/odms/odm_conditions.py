@@ -117,7 +117,7 @@ class OdmConditionService(OdmGenericService[OdmConditionAR]):
 
         condition = self.non_transactional_create(
             concept_input=OdmConditionPostInput(
-                library=concept_input.library_name,
+                library_name=concept_input.library_name,
                 oid=get_input_or_new_value(concept_input.oid, "C.", concept_input.name),
                 name=concept_input.name,
                 formal_expressions=formal_expression_uids,

@@ -19,6 +19,7 @@ from clinical_mdr_api.models.listings.listings_study import (
     StudyTypeListingModel,
     StudyVisitListingModel,
 )
+from clinical_mdr_api.models.study_selections.study import Study
 from clinical_mdr_api.services.listings.listings_study import (
     StudyMetadataListingService,
 )
@@ -45,7 +46,9 @@ from clinical_mdr_api.tests.integration.utils.method_library import (
     study_population_json_model_to_vo,
 )
 from clinical_mdr_api.tests.integration.utils.utils import TestUtils
-from common.config import STUDY_ENDPOINT_TP_NAME
+from common.config import settings
+
+study: Study
 
 
 class TestStudyListing(unittest.TestCase):
@@ -53,18 +56,13 @@ class TestStudyListing(unittest.TestCase):
     def setUpClass(cls) -> None:
         inject_and_clear_db("StudyListingTest")
         TestUtils.create_library(name="UCUM", is_editable=True)
-        inject_base_data()
+        global study
+        study = inject_base_data()
         codelist = TestUtils.create_ct_codelist()
         TestUtils.create_study_ct_data_map(codelist_uid=codelist.codelist_uid)
-        study_service = StudyService()
-        studies = study_service.get_all()
-        cls.study_uid = studies.items[0].uid
-        cls.project_id = studies.items[
-            0
-        ].current_metadata.identification_metadata.project_number
-        cls.study_number = studies.items[
-            0
-        ].current_metadata.identification_metadata.study_number
+        cls.study_uid = study.uid
+        cls.project_id = study.current_metadata.identification_metadata.project_number
+        cls.study_number = study.current_metadata.identification_metadata.study_number
         # Inject study metadata
         input_metadata_in_study(cls.study_uid)
         # Create study epochs
@@ -275,7 +273,7 @@ class TestStudyListing(unittest.TestCase):
         )
 
         # Create endpoint templates
-        TestUtils.create_template_parameter(STUDY_ENDPOINT_TP_NAME)
+        TestUtils.create_template_parameter(settings.study_endpoint_tp_name)
         endpoint_template = TestUtils.create_endpoint_template()
 
         unit_definitions = [
@@ -308,6 +306,7 @@ class TestStudyListing(unittest.TestCase):
         )
 
         # lock study
+        study_service = StudyService()
         study_service.lock(uid=cls.study_uid, change_description="locking it")
         study_service.unlock(uid=cls.study_uid)
 
@@ -321,7 +320,7 @@ class TestStudyListing(unittest.TestCase):
         )
         expected_output = StudyMetadataListingModel(
             api_ver="TBA",
-            study_id="123-123",
+            study_id=f"{study.current_metadata.identification_metadata.project_number}-{study.current_metadata.identification_metadata.study_number}",
             study_ver=1,
             request_dt=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S"),
             specified_dt="2099-12-30",

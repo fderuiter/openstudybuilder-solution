@@ -15,7 +15,7 @@ from clinical_mdr_api.domain_repositories.models.project import Project
 from clinical_mdr_api.domain_repositories.models.study import StudyRoot
 from clinical_mdr_api.domains.projects.project import ProjectAR
 from clinical_mdr_api.repositories._utils import sb_clear_cache
-from common import config
+from common.config import settings
 from common.exceptions import (
     AlreadyExistsException,
     BusinessLogicException,
@@ -25,15 +25,15 @@ from common.exceptions import (
 
 class ProjectRepository:
     cache_store_item_by_uid = TTLCache(
-        maxsize=config.CACHE_MAX_SIZE, ttl=config.CACHE_TTL
+        maxsize=settings.cache_max_size, ttl=settings.cache_ttl
     )
     lock_store_item_by_uid = Lock()
     cache_store_item_by_study_uid = TTLCache(
-        maxsize=config.CACHE_MAX_SIZE, ttl=config.CACHE_TTL
+        maxsize=settings.cache_max_size, ttl=settings.cache_ttl
     )
     lock_store_item_by_study_uid = Lock()
     cache_store_item_by_project_number = TTLCache(
-        maxsize=config.CACHE_MAX_SIZE, ttl=config.CACHE_TTL
+        maxsize=settings.cache_max_size, ttl=settings.cache_ttl
     )
     lock_store_item_by_project_number = Lock()
 
@@ -210,7 +210,7 @@ class ProjectRepository:
     def find_all(self) -> Collection[ProjectAR]:
         projects: list[Project] = Project.nodes.all()
         # projecting results to ProjectAR instances
-        projects: list[ProjectAR] = [
+        project_ars: list[ProjectAR] = [
             ProjectAR.from_input_values(
                 project_number=p.project_number,
                 name=p.name,
@@ -226,10 +226,10 @@ class ProjectRepository:
         repository_closure_data = RepositoryClosureData(
             not_for_update=True, repository=self, additional_closure=None
         )
-        for project in projects:
-            project.repository_closure_data = repository_closure_data
+        for project_ar in project_ars:
+            project_ar.repository_closure_data = repository_closure_data
 
-        return projects
+        return project_ars
 
     def is_used_in_studies(self, uid: str) -> bool:
         rs = db.cypher_query(

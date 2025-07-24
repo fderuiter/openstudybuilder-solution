@@ -30,7 +30,7 @@ from clinical_mdr_api.tests.integration.utils.method_library import (
 )
 from clinical_mdr_api.tests.integration.utils.utils import TestUtils
 from clinical_mdr_api.tests.utils.checks import assert_response_status_code
-from common.config import CDISC_LIBRARY_NAME, SDTM_CT_CATALOGUE_NAME
+from common.config import settings
 
 study_uid: str
 
@@ -57,9 +57,10 @@ def test_data():
     create_some_visits()
     TestUtils.create_study_fields_configuration()
     # Creating codelists, library and catalogue for study standard version
-    TestUtils.create_library(name=CDISC_LIBRARY_NAME, is_editable=True)
+    TestUtils.create_library(name=settings.cdisc_library_name, is_editable=True)
     TestUtils.create_ct_catalogue(
-        library=CDISC_LIBRARY_NAME, catalogue_name=SDTM_CT_CATALOGUE_NAME
+        library=settings.cdisc_library_name,
+        catalogue_name=settings.sdtm_ct_catalogue_name,
     )
     TestUtils.create_ct_codelists_using_cypher()
     TestUtils.set_study_standard_version(study_uid=study_uid)

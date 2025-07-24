@@ -4,6 +4,9 @@ from dataclasses import dataclass
 from neomodel import db
 
 from clinical_mdr_api import utils
+from clinical_mdr_api.domain_repositories._utils.helpers import (
+    acquire_write_lock_study_value,
+)
 from clinical_mdr_api.domain_repositories.models.study import StudyRoot, StudyValue
 from clinical_mdr_api.domain_repositories.models.study_audit_trail import (
     Create,
@@ -49,16 +52,6 @@ class SelectionHistoryCohort:
 
 
 class StudySelectionCohortRepository:
-    @staticmethod
-    def _acquire_write_lock_study_value(uid: str) -> None:
-        db.cypher_query(
-            """
-             MATCH (sr:StudyRoot {uid: $uid})
-             REMOVE sr.__WRITE_LOCK__
-             RETURN true
-            """,
-            {"uid": uid},
-        )
 
     def _retrieves_all_data(
         self,
@@ -177,7 +170,7 @@ class StudySelectionCohortRepository:
         :return:
         """
         if for_update:
-            self._acquire_write_lock_study_value(study_uid)
+            acquire_write_lock_study_value(study_uid)
         all_selections = self._retrieves_all_data(
             study_uid,
             arm_uid=arm_uid,

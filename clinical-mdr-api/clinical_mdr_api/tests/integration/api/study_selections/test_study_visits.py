@@ -10,6 +10,7 @@ Tests for /studies/{study_uid}/study-visits endpoints
 # which pylint interprets as unused arguments
 
 from datetime import datetime, timezone
+from typing import Any
 from unittest import mock
 
 import pytest
@@ -17,7 +18,6 @@ from fastapi.testclient import TestClient
 from neomodel import db
 
 from clinical_mdr_api import main
-from clinical_mdr_api.domains.study_selections.study_visit import VisitClass
 from clinical_mdr_api.models.clinical_programmes.clinical_programme import (
     ClinicalProgramme,
 )
@@ -46,7 +46,8 @@ from clinical_mdr_api.tests.integration.utils.method_library import (
 )
 from clinical_mdr_api.tests.integration.utils.utils import TestUtils
 from clinical_mdr_api.tests.utils.checks import assert_response_status_code
-from common import config
+from common.config import settings
+from common.utils import VisitClass
 
 # Global variables shared between fixtures and tests
 study: Study
@@ -54,7 +55,7 @@ study_visit_uid: str
 epoch_uid: str
 DAYUID: str
 WEEKUID: str
-visits_basic_data: dict
+visits_basic_data: dict[Any, Any]
 clinical_programme: ClinicalProgramme
 project: Project
 initial_ct_term_study_standard_test: CTTermName
@@ -1026,8 +1027,8 @@ def test_study_visit_timings(api_client):
 
 def test_create_repeating_visit(api_client):
     _codelist = TestUtils.create_ct_codelist(
-        name=config.STUDY_VISIT_REPEATING_FREQUENCY,
-        sponsor_preferred_name=config.STUDY_VISIT_REPEATING_FREQUENCY,
+        name=settings.study_visit_repeating_frequency,
+        sponsor_preferred_name=settings.study_visit_repeating_frequency,
         extensible=True,
         approve=True,
     )
@@ -1631,7 +1632,7 @@ def test_study_visist_version_selecting_ct_package(api_client):
         f"/ct/terms/{ctterm_uid}/names/versions",
     )
     assert_response_status_code(response, 201)
-    response = api_client.patch(
+    api_client.patch(
         f"/ct/terms/{ctterm_uid}/names",
         json={
             "sponsor_preferred_name": new_ctterm_name,

@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Annotated, Callable, Collection, Iterable, Self
+from typing import Annotated, Any, Callable, Collection, Iterable, Self
 
 from pydantic import ConfigDict, Field
 
@@ -40,7 +40,7 @@ from clinical_mdr_api.models.controlled_terminologies.ct_term import (
 )
 from clinical_mdr_api.models.study_selections.duration import DurationJsonModel
 from clinical_mdr_api.models.utils import BaseModel, PatchInputModel, PostInputModel
-from common import config
+from common.config import settings
 from common.exceptions import (
     BusinessLogicException,
     NotFoundException,
@@ -49,7 +49,11 @@ from common.exceptions import (
 
 
 def update_study_subpart_properties(study: "Study | CompactStudy"):
-    if study.study_parent_part and study.study_parent_part.study_id:
+    if (
+        study.study_parent_part
+        and study.study_parent_part.study_id
+        and study.current_metadata.identification_metadata.subpart_id is not None
+    ):
         study.current_metadata.identification_metadata.study_id = (
             study.study_parent_part.study_id
             + "-"
@@ -92,21 +96,20 @@ class StudySoaPreferencesInput(PatchInputModel):
         populate_by_name=True, title="Study SoA Preferences input"
     )
 
-    show_epochs: bool = Field(
+    show_epochs: bool = Field(  # type: ignore[literal-required]
         True,
         description="Show study epochs in detailed SoA",
-        alias=config.STUDY_FIELD_SOA_SHOW_EPOCHS,
+        alias=settings.study_field_soa_show_epochs,
     )
-    show_milestones: bool = Field(
+    show_milestones: bool = Field(  # type: ignore[literal-required]
         False,
         description="Show study milestones in detailed SoA",
-        alias=config.STUDY_FIELD_SOA_SHOW_MILESTONES,
+        alias=settings.study_field_soa_show_milestones,
     )
-    baseline_as_time_zero: bool = Field(
+    baseline_as_time_zero: bool = Field(  # type: ignore[literal-required]
         False,
-        title="Baseline shown as time 0",
         description="Show the baseline visit as time 0 in all SoA layouts",
-        alias=config.STUDY_FIELD_SOA_BASELINE_AS_TIME_ZERO,
+        alias=settings.study_field_soa_baseline_as_time_zero,
     )
 
 
@@ -118,8 +121,7 @@ class StudySoaPreferences(StudySoaPreferencesInput):
 
 class RegistryIdentifiersJsonModel(BaseModel):
     model_config = ConfigDict(
-        title="RegistryIdentifiersMetadata",
-        description="RegistryIdentifiersMetadata metadata for study definition.",
+        title="RegistryIdentifiersMetadata metadata for study definition"
     )
 
     ct_gov_id: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = None
@@ -342,10 +344,7 @@ class RegistryIdentifiersJsonModel(BaseModel):
 
 
 class StudyIdentificationMetadataJsonModel(BaseModel):
-    model_config = ConfigDict(
-        title="StudyIdentificationMetadata",
-        description="Identification metadata for study definition.",
-    )
+    model_config = ConfigDict(title="Identification metadata for study definition")
 
     study_number: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = (
         None
@@ -415,10 +414,7 @@ class StudyIdentificationMetadataJsonModel(BaseModel):
 
 
 class CompactStudyIdentificationMetadataJsonModel(BaseModel):
-    model_config = ConfigDict(
-        title="CompactStudyIdentificationMetadata",
-        description="Identification metadata for study definition.",
-    )
+    model_config = ConfigDict(title="Identification metadata for study definition")
 
     study_number: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = (
         None
@@ -476,10 +472,7 @@ class CompactStudyIdentificationMetadataJsonModel(BaseModel):
 
 
 class StudyVersionMetadataJsonModel(BaseModel):
-    model_config = ConfigDict(
-        title="StudyVersionMetadata",
-        description="Version metadata for study definition.",
-    )
+    model_config = ConfigDict(title="Version metadata for study definition")
 
     study_status: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = (
         None
@@ -515,8 +508,7 @@ class StudyVersionMetadataJsonModel(BaseModel):
 
 class HighLevelStudyDesignJsonModel(BaseModel):
     model_config = ConfigDict(
-        title="high_level_study_design",
-        description="High level study design parameters for study definition.",
+        title="High level study design parameters for study definition"
     )
 
     study_type_code: Annotated[
@@ -599,7 +591,8 @@ class HighLevelStudyDesignJsonModel(BaseModel):
 
         c_codes = list(
             set(
-                [
+                high_level_study_design_vo.trial_type_codes
+                + [
                     high_level_study_design_vo.study_type_code,
                     high_level_study_design_vo.study_type_null_value_code,
                     high_level_study_design_vo.trial_type_null_value_code,
@@ -611,7 +604,6 @@ class HighLevelStudyDesignJsonModel(BaseModel):
                     high_level_study_design_vo.confirmed_response_minimum_duration_null_value_code,
                     high_level_study_design_vo.post_auth_indicator_null_value_code,
                 ]
-                + high_level_study_design_vo.trial_type_codes
             )
         )
 
@@ -708,10 +700,7 @@ class HighLevelStudyDesignJsonModel(BaseModel):
 
 
 class StudyPopulationJsonModel(BaseModel):
-    model_config = ConfigDict(
-        title="study_population",
-        description="Study population parameters for study definition.",
-    )
+    model_config = ConfigDict(title="Study population parameters for study definition")
 
     therapeutic_area_codes: Annotated[
         list[SimpleTermModel] | None, Field(json_schema_extra={"nullable": True})
@@ -1028,8 +1017,7 @@ class StudyPopulationJsonModel(BaseModel):
 
 class StudyInterventionJsonModel(BaseModel):
     model_config = ConfigDict(
-        title="study_intervention",
-        description="Study interventions parameters for study definition.",
+        title="Study interventions parameters for study definition"
     )
 
     intervention_type_code: Annotated[
@@ -1121,7 +1109,8 @@ class StudyInterventionJsonModel(BaseModel):
             return None
         c_codes = list(
             set(
-                [
+                study_intervention_vo.trial_intent_types_codes
+                + [
                     study_intervention_vo.intervention_type_code,
                     study_intervention_vo.intervention_type_null_value_code,
                     study_intervention_vo.add_on_to_existing_treatments_null_value_code,
@@ -1136,7 +1125,6 @@ class StudyInterventionJsonModel(BaseModel):
                     study_intervention_vo.planned_study_length_null_value_code,
                     study_intervention_vo.trial_intent_type_null_value_code,
                 ]
-                + study_intervention_vo.trial_intent_types_codes
             )
         )
         if None in c_codes:
@@ -1246,10 +1234,7 @@ class StudyInterventionJsonModel(BaseModel):
 
 
 class StudyDescriptionJsonModel(BaseModel):
-    model_config = ConfigDict(
-        title="study_description",
-        description="Study description for the study definition.",
-    )
+    model_config = ConfigDict(title="Study description for the study definition")
 
     study_title: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = (
         None
@@ -1271,7 +1256,7 @@ class StudyDescriptionJsonModel(BaseModel):
 
 
 class CompactStudyMetadataJsonModel(BaseModel):
-    model_config = ConfigDict(title="StudyMetadata", description="Study metadata")
+    model_config = ConfigDict(title="Compact Study Metadata")
 
     identification_metadata: Annotated[
         CompactStudyIdentificationMetadataJsonModel | None,
@@ -1308,7 +1293,7 @@ class CompactStudyMetadataJsonModel(BaseModel):
 
 
 class StudyMetadataJsonModel(BaseModel):
-    model_config = ConfigDict(title="StudyMetadata", description="Study metadata")
+    model_config = ConfigDict(title="Study Metadata")
 
     identification_metadata: Annotated[
         StudyIdentificationMetadataJsonModel | None,
@@ -1380,10 +1365,7 @@ class StudyMetadataJsonModel(BaseModel):
 
 
 class StudyPatchRequestJsonModel(PatchInputModel):
-    model_config = ConfigDict(
-        title="StudyPatchRequest",
-        description="Identification metadata for study definition.",
-    )
+    model_config = ConfigDict(title="StudyPatchRequest")
 
     study_parent_part_uid: Annotated[
         str | None, Field(description="UID of the Study Parent Part")
@@ -1446,18 +1428,22 @@ class StudyParentPart(BaseModel):
 
 class StudyStructureOverview(BaseModel):
     study_ids: Annotated[list[str], Field()]
-    arms: Annotated[int, Field(title="Number of Study Arms")]
+    arms: Annotated[int, Field(description="Number of Study Arms")]
     pre_treatment_epochs: Annotated[
-        int, Field(title="Number of Study Pre Treatment Epochs")
+        int, Field(description="Number of Study Pre Treatment Epochs")
     ]
-    treatment_epochs: Annotated[int, Field(title="Number of Treatment Epochs")]
-    no_treatment_epochs: Annotated[int, Field(title="Number of No Treatment Epochs")]
+    treatment_epochs: Annotated[int, Field(description="Number of Treatment Epochs")]
+    no_treatment_epochs: Annotated[
+        int, Field(description="Number of No Treatment Epochs")
+    ]
     post_treatment_epochs: Annotated[
-        int, Field(title="Number of Post Treatment Epochs")
+        int, Field(description="Number of Post Treatment Epochs")
     ]
-    treatment_elements: Annotated[int, Field(title="Number of Treatment Elements")]
+    treatment_elements: Annotated[
+        int, Field(description="Number of Treatment Elements")
+    ]
     no_treatment_elements: Annotated[
-        int, Field(title="Number of No Treatment Elements")
+        int, Field(description="Number of No Treatment Elements")
     ]
     cohorts_in_study: Annotated[str, Field()]
 
@@ -1518,6 +1504,71 @@ class CompactStudy(BaseModel):
         update_study_subpart_properties(study)
 
         return study
+
+
+class StudyMinimal(BaseModel):
+    uid: Annotated[str, Field(description="UID of the study, e.g. 'Study_000001'")]
+    id: Annotated[
+        str | None,
+        Field(
+            description="ID of the study, e.g. 'NN1234-56789'",
+            json_schema_extra={"nullable": True},
+        ),
+    ] = None
+    acronym: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = None
+
+    @classmethod
+    def from_input(
+        cls,
+        val: dict[str, Any],
+    ) -> Self:
+        return cls(
+            uid=val["uid"],
+            acronym=val["acronym"],
+            id=val["id"],
+        )
+
+
+class StudySimple(StudyMinimal):
+    number: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = None
+    title: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = None
+    subpart_id: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = (
+        None
+    )
+    subpart_acronym: Annotated[
+        str | None, Field(json_schema_extra={"nullable": True})
+    ] = None
+    clinical_programme_name: Annotated[str, Field()]
+    project_number: Annotated[str, Field()]
+    project_name: Annotated[str, Field()]
+    version_author: Annotated[str, Field()]
+    version_status: Annotated[StudyStatus, Field()]
+    version_start_date: Annotated[datetime, Field()]
+    version_number: Annotated[
+        str | None, Field(json_schema_extra={"nullable": True})
+    ] = None
+
+    @classmethod
+    def from_input(
+        cls,
+        val: dict[str, Any],
+    ) -> Self:
+        return cls(
+            uid=val["uid"],
+            acronym=val.get("acronym"),
+            number=val.get("study_number"),
+            id=val["id"],
+            title=val.get("title"),
+            subpart_id=val.get("subpart_id"),
+            subpart_acronym=val.get("subpart_acronym"),
+            clinical_programme_name=val["clinical_programme_name"],
+            project_number=val["project_number"],
+            project_name=val["project_name"],
+            version_author=val["version_author"],
+            version_status=StudyStatus(val["version_status"]),
+            version_start_date=val["version_start_date"],
+            version_number=val["version_number"],
+        )
 
 
 class Study(BaseModel):

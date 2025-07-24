@@ -1198,6 +1198,16 @@ ALL_ROUTES_METHODS_ROLES = (
         {"Library.Read"},
     ),
     (
+        "/concepts/activities/activity-instances/{activity_instance_uid}/activity-groupings",
+        "GET",
+        {"Library.Read"},
+    ),
+    (
+        "/concepts/activities/activity-instances/{activity_instance_uid}/activity-items",
+        "GET",
+        {"Library.Read"},
+    ),
+    (
         "/concepts/activities/activity-instances/{activity_instance_uid}/overview.cosmos",
         "GET",
         {"Library.Read"},
@@ -1250,6 +1260,16 @@ ALL_ROUTES_METHODS_ROLES = (
         "GET",
         {"Library.Read"},
     ),
+    (
+        "/activity-instance-classes/{activity_instance_class_uid}/activity-item-classes",
+        "GET",
+        {"Library.Read"},
+    ),
+    (
+        "/activity-instance-classes/model-mappings/datasets",
+        "GET",
+        {"Library.Read"},
+    ),
     ("/activity-instance-classes", "POST", {"Library.Write"}),
     (
         "/activity-instance-classes/{activity_instance_class_uid}",
@@ -1281,10 +1301,19 @@ ALL_ROUTES_METHODS_ROLES = (
         "DELETE",
         {"Library.Write"},
     ),
+    (
+        "/activity-instance-classes/{activity_instance_class_uid}/model-mappings",
+        "PATCH",
+        {"Library.Write"},
+    ),
     ("/activity-item-classes", "GET", {"Library.Read"}),
     ("/activity-item-classes/headers", "GET", {"Library.Read"}),
     ("/activity-item-classes/{activity_item_class_uid}", "GET", {"Library.Read"}),
-    ("/activity-item-classes/{activity_item_class_uid}/terms", "GET", {"Library.Read"}),
+    (
+        "/activity-item-classes/{activity_item_class_uid}/datasets/{dataset_uid}/terms",
+        "GET",
+        {"Library.Read"},
+    ),
     (
         "/activity-item-classes/{activity_item_class_uid}/versions",
         "GET",
@@ -1586,6 +1615,11 @@ ALL_ROUTES_METHODS_ROLES = (
         "GET",
         {"Library.Read"},
     ),
+    (
+        "/concepts/activities/activity-sub-groups/{activity_subgroup_uid}/activity-groups",
+        "GET",
+        {"Library.Read"},
+    ),
     ("/concepts/activities/activity-groups", "GET", {"Library.Read"}),
     ("/concepts/activities/activity-groups/versions", "GET", {"Library.Read"}),
     ("/concepts/activities/activity-groups/headers", "GET", {"Library.Read"}),
@@ -1716,6 +1750,7 @@ ALL_ROUTES_METHODS_ROLES = (
     ("/brands/{brand_uid}", "DELETE", {"Library.Write"}),
     ("/studies", "GET", {"Study.Read"}),
     ("/studies/headers", "GET", {"Study.Read"}),
+    ("/studies/list", "GET", {"Study.Read"}),
     ("/studies/structure-overview", "GET", {"Study.Read"}),
     ("/studies/structure-overview/headers", "GET", {"Study.Read"}),
     ("/studies/{study_uid}/locks", "POST", {"Study.Write"}),

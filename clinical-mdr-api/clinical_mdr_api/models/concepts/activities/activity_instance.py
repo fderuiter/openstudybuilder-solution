@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated, Callable, Self
+from typing import Annotated, Any, Callable, Self
 
 from pydantic import ConfigDict, Field
 
@@ -31,7 +31,9 @@ from clinical_mdr_api.models.concepts.activities.activity_item import (
     ActivityItemCreateInput,
     CompactActivityItemClass,
     CompactCTTerm,
+    CompactOdmForm,
     CompactOdmItem,
+    CompactOdmItemGroup,
     CompactUnitDefinition,
 )
 from clinical_mdr_api.models.concepts.concept import (
@@ -74,6 +76,8 @@ class ActivityInstance(ActivityBase):
         for activity_item in activity_ar.concept_vo.activity_items:
             ct_terms = []
             unit_definitions = []
+            odm_forms = []
+            odm_item_groups = []
             odm_items = []
             for unit in activity_item.unit_definitions:
                 unit_definitions.append(
@@ -85,6 +89,22 @@ class ActivityInstance(ActivityBase):
             for term in activity_item.ct_terms:
                 ct_terms.append(CompactCTTerm(uid=term.uid, name=term.name))
             ct_terms.sort(key=lambda x: x.uid)
+            for odm_form in activity_item.odm_forms:
+                odm_forms.append(
+                    CompactOdmForm(
+                        uid=odm_form.uid, oid=odm_form.oid, name=odm_form.name
+                    )
+                )
+            odm_forms.sort(key=lambda x: x.uid)
+            for odm_item_group in activity_item.odm_item_groups:
+                odm_item_groups.append(
+                    CompactOdmItemGroup(
+                        uid=odm_item_group.uid,
+                        oid=odm_item_group.oid,
+                        name=odm_item_group.name,
+                    )
+                )
+            odm_item_groups.sort(key=lambda x: x.uid)
             for odm_item in activity_item.odm_items:
                 odm_items.append(
                     CompactOdmItem(
@@ -102,9 +122,49 @@ class ActivityInstance(ActivityBase):
                     ct_terms=ct_terms,
                     unit_definitions=unit_definitions,
                     is_adam_param_specific=activity_item.is_adam_param_specific,
+                    odm_forms=odm_forms,
+                    odm_item_groups=odm_item_groups,
                     odm_items=odm_items,
                 )
             )
+
+        activity_groupings = []
+        for activity_grouping in activity_ar.concept_vo.activity_groupings:
+            if activity_grouping.activity_name:
+                # Activity name is there, it means we are building for a GET query
+                translation = ActivityInstanceHierarchySimpleModel(
+                    activity_group=ActivityHierarchySimpleModel(
+                        uid=activity_grouping.activity_group_uid,
+                        name=activity_grouping.activity_group_name,
+                    ),
+                    activity_subgroup=ActivityHierarchySimpleModel(
+                        uid=activity_grouping.activity_subgroup_uid,
+                        name=activity_grouping.activity_subgroup_name,
+                    ),
+                    activity=ActivityHierarchySimpleModel(
+                        uid=activity_grouping.activity_uid,
+                        name=activity_grouping.activity_name,
+                    ),
+                )
+            else:
+                translation = ActivityInstanceHierarchySimpleModel(
+                    activity_group=ActivityHierarchySimpleModel.from_activity_uid(
+                        uid=activity_grouping.activity_group_uid,
+                        find_activity_by_uid=find_activity_group_by_uid,
+                        version=activity_grouping.activity_group_version,
+                    ),
+                    activity_subgroup=ActivityHierarchySimpleModel.from_activity_uid(
+                        uid=activity_grouping.activity_subgroup_uid,
+                        find_activity_by_uid=find_activity_subgroup_by_uid,
+                        version=activity_grouping.activity_subgroup_version,
+                    ),
+                    activity=ActivityHierarchySimpleModel.from_activity_uid(
+                        uid=activity_grouping.activity_uid,
+                        find_activity_by_uid=find_activity_hierarchy_by_uid,
+                        version=activity_grouping.activity_version,
+                    ),
+                )
+            activity_groupings.append(translation)
 
         return cls(
             uid=activity_ar.uid,
@@ -124,26 +184,7 @@ class ActivityInstance(ActivityBase):
             is_legacy_usage=activity_ar.concept_vo.is_legacy_usage,
             is_derived=activity_ar.concept_vo.is_derived,
             legacy_description=activity_ar.concept_vo.legacy_description,
-            activity_groupings=[
-                ActivityInstanceHierarchySimpleModel(
-                    activity_group=ActivityHierarchySimpleModel.from_activity_uid(
-                        uid=activity_grouping.activity_group_uid,
-                        find_activity_by_uid=find_activity_group_by_uid,
-                        version=activity_grouping.activity_group_version,
-                    ),
-                    activity_subgroup=ActivityHierarchySimpleModel.from_activity_uid(
-                        uid=activity_grouping.activity_subgroup_uid,
-                        find_activity_by_uid=find_activity_subgroup_by_uid,
-                        version=activity_grouping.activity_subgroup_version,
-                    ),
-                    activity=ActivityHierarchySimpleModel.from_activity_uid(
-                        uid=activity_grouping.activity_uid,
-                        find_activity_by_uid=find_activity_hierarchy_by_uid,
-                        version=activity_grouping.activity_version,
-                    ),
-                )
-                for activity_grouping in activity_ar.concept_vo.activity_groupings
-            ],
+            activity_groupings=activity_groupings,
             activity_name=activity_ar.concept_vo.activity_name,
             activity_instance_class=CompactActivityInstanceClass(
                 uid=activity_ar.concept_vo.activity_instance_class_uid,
@@ -184,10 +225,34 @@ class ActivityInstance(ActivityBase):
                 key=lambda x: x.uid,
             )
 
+            odm_forms = sorted(
+                [
+                    CompactOdmForm(
+                        uid=odm_form.uid, oid=odm_form.oid, name=odm_form.name
+                    )
+                    for odm_form in activity_item.odm_forms
+                ],
+                key=lambda x: x.uid,
+            )
+
+            odm_item_groups = sorted(
+                [
+                    CompactOdmItemGroup(
+                        uid=odm_item_group.uid,
+                        oid=odm_item_group.oid,
+                        name=odm_item_group.name,
+                    )
+                    for odm_item_group in activity_item.odm_item_groups
+                ],
+                key=lambda x: x.uid,
+            )
+
             odm_items = sorted(
                 [
-                    CompactOdmItem(uid=item.uid, oid=item.oid, name=item.name)
-                    for item in activity_item.odm_items
+                    CompactOdmItem(
+                        uid=odm_item.uid, oid=odm_item.oid, name=odm_item.name
+                    )
+                    for odm_item in activity_item.odm_items
                 ],
                 key=lambda x: x.uid,
             )
@@ -201,6 +266,8 @@ class ActivityInstance(ActivityBase):
                     ct_terms=ct_terms,
                     unit_definitions=unit_definitions,
                     is_adam_param_specific=activity_item.is_adam_param_specific,
+                    odm_forms=odm_forms,
+                    odm_item_groups=odm_item_groups,
                     odm_items=odm_items,
                 )
             )
@@ -285,7 +352,9 @@ class ActivityInstance(ActivityBase):
     legacy_description: Annotated[
         str | None, Field(json_schema_extra={"nullable": True})
     ] = None
-    activity_groupings: Annotated[list[ActivityInstanceHierarchySimpleModel], Field()]
+    activity_groupings: Annotated[
+        list[ActivityInstanceHierarchySimpleModel] | None, Field()
+    ]
     activity_name: Annotated[
         str | None, Field(json_schema_extra={"nullable": True})
     ] = None
@@ -294,18 +363,18 @@ class ActivityInstance(ActivityBase):
         Field(description="The uid and the name of the linked activity instance class"),
     ]
     activity_items: Annotated[
-        list[ActivityItem],
+        list[ActivityItem] | None,
         Field(
             description="List of activity items",
         ),
     ]
-    start_date: Annotated[datetime, Field()]
+    start_date: Annotated[datetime | None, Field()]
     end_date: Annotated[
         datetime | None, Field(json_schema_extra={"nullable": True})
     ] = None
-    status: Annotated[str, Field()]
-    version: Annotated[str, Field()]
-    change_description: Annotated[str, Field()]
+    status: Annotated[str | None, Field()]
+    version: Annotated[str | None, Field()]
+    change_description: Annotated[str | None, Field()]
     author_username: Annotated[
         str | None,
         Field(
@@ -313,7 +382,7 @@ class ActivityInstance(ActivityBase):
         ),
     ] = None
     possible_actions: Annotated[
-        list[str],
+        list[str] | None,
         Field(
             description=(
                 "Holds those actions that can be performed on the ActivityInstances. "
@@ -425,6 +494,8 @@ class SimplifiedActivityItem(BaseModel):
     unit_definitions: list[CompactUnitDefinition] = Field(default_factory=list)
     activity_item_class: Annotated[SimpleActivityItemClass, Field()]
     is_adam_param_specific: Annotated[bool, Field()]
+    odm_forms: list[CompactOdmForm] = Field(default_factory=list)
+    odm_item_groups: list[CompactOdmItemGroup] = Field(default_factory=list)
     odm_items: list[CompactOdmItem] = Field(default_factory=list)
 
 
@@ -439,7 +510,7 @@ class ActivityInstanceOverview(BaseModel):
     all_versions: Annotated[list[str], Field()]
 
     @classmethod
-    def from_repository_input(cls, overview: dict):
+    def from_repository_input(cls, overview: dict[str, Any]):
         activity_items = []
         for activity_item in overview.get("activity_items"):
             units = sorted(
@@ -460,6 +531,28 @@ class ActivityInstanceOverview(BaseModel):
                 ],
                 key=lambda x: x.uid,
             )
+            odm_forms = sorted(
+                [
+                    CompactOdmForm(
+                        uid=odm_form.get("uid"),
+                        oid=odm_form.get("oid"),
+                        name=odm_form.get("name"),
+                    )
+                    for odm_form in activity_item.get("odm_forms", [])
+                ],
+                key=lambda x: x.uid,
+            )
+            odm_item_groups = sorted(
+                [
+                    CompactOdmItemGroup(
+                        uid=odm_item_group.get("uid"),
+                        oid=odm_item_group.get("oid"),
+                        name=odm_item_group.get("name"),
+                    )
+                    for odm_item_group in activity_item.get("odm_item_groups", [])
+                ],
+                key=lambda x: x.uid,
+            )
             odm_items = sorted(
                 [
                     CompactOdmItem(
@@ -475,6 +568,8 @@ class ActivityInstanceOverview(BaseModel):
                 SimplifiedActivityItem(
                     ct_terms=terms,
                     unit_definitions=units,
+                    odm_forms=odm_forms,
+                    odm_item_groups=odm_item_groups,
                     odm_items=odm_items,
                     activity_item_class=SimpleActivityItemClass(
                         name=activity_item.get("activity_item_class").get("name"),
@@ -524,6 +619,12 @@ class ActivityInstanceOverview(BaseModel):
                         definition=activity_grouping.get("activity_group_value").get(
                             "definition"
                         ),
+                        version=activity_grouping.get("activity_group_version", {}).get(
+                            "version"
+                        ),
+                        status=activity_grouping.get("activity_group_version", {}).get(
+                            "status"
+                        ),
                     ),
                     activity_subgroup=SimpleActivitySubGroup(
                         uid=activity_grouping.get("activity_subgroup_uid"),
@@ -533,6 +634,12 @@ class ActivityInstanceOverview(BaseModel):
                         definition=activity_grouping.get("activity_subgroup_value").get(
                             "definition"
                         ),
+                        version=activity_grouping.get(
+                            "activity_subgroup_version", {}
+                        ).get("version"),
+                        status=activity_grouping.get(
+                            "activity_subgroup_version", {}
+                        ).get("status"),
                     ),
                 )
                 for activity_grouping in overview.get("hierarchy")
@@ -623,7 +730,7 @@ class ActivityInstanceDetail(BaseModel):
     adam_param_code: Annotated[
         str | None, Field(json_schema_extra={"nullable": True})
     ] = None
-    children: Annotated[list[dict] | None, Field()] = None
+    children: Annotated[list[dict[Any, Any]] | None, Field()] = None
 
 
 class ActivityInstancePaginatedResponse(BaseModel):
@@ -635,7 +742,7 @@ class ActivityInstancePaginatedResponse(BaseModel):
     page_size: int
 
     @classmethod
-    def from_repository_input(cls, overview: dict):
+    def from_repository_input(cls, overview: dict[str, Any]):
         activity_items = []
         for activity_item in overview.get("activity_items"):
             units = sorted(
@@ -656,6 +763,29 @@ class ActivityInstancePaginatedResponse(BaseModel):
                 ],
                 key=lambda x: x.uid,
             )
+
+            odm_forms = sorted(
+                [
+                    CompactOdmForm(
+                        uid=odm_form.get("uid"),
+                        oid=odm_form.get("oid"),
+                        name=odm_form.get("name"),
+                    )
+                    for odm_form in activity_item.get("odm_forms", [])
+                ],
+                key=lambda x: x.uid,
+            )
+            odm_item_groups = sorted(
+                [
+                    CompactOdmItemGroup(
+                        uid=odm_item_group.get("uid"),
+                        oid=odm_item_group.get("oid"),
+                        name=odm_item_group.get("name"),
+                    )
+                    for odm_item_group in activity_item.get("odm_item_groups", [])
+                ],
+                key=lambda x: x.uid,
+            )
             odm_items = sorted(
                 [
                     CompactOdmItem(
@@ -663,7 +793,7 @@ class ActivityInstancePaginatedResponse(BaseModel):
                         oid=odm_item.get("oid"),
                         name=odm_item.get("name"),
                     )
-                    for odm_item in activity_item.get("odm_items", {})
+                    for odm_item in activity_item.get("odm_items", [])
                 ],
                 key=lambda x: x.uid,
             )
@@ -671,6 +801,8 @@ class ActivityInstancePaginatedResponse(BaseModel):
                 SimplifiedActivityItem(
                     ct_terms=terms,
                     unit_definitions=units,
+                    odm_forms=odm_forms,
+                    odm_item_groups=odm_item_groups,
                     odm_items=odm_items,
                     activity_item_class=SimpleActivityItemClass(
                         name=activity_item.get("activity_item_class").get("name"),
@@ -720,6 +852,12 @@ class ActivityInstancePaginatedResponse(BaseModel):
                         definition=activity_grouping.get("activity_group_value").get(
                             "definition"
                         ),
+                        version=activity_grouping.get("activity_group_version", {}).get(
+                            "version"
+                        ),
+                        status=activity_grouping.get("activity_group_version", {}).get(
+                            "status"
+                        ),
                     ),
                     activity_subgroup=SimpleActivitySubGroup(
                         uid=activity_grouping.get("activity_subgroup_uid"),
@@ -729,6 +867,12 @@ class ActivityInstancePaginatedResponse(BaseModel):
                         definition=activity_grouping.get("activity_subgroup_value").get(
                             "definition"
                         ),
+                        version=activity_grouping.get(
+                            "activity_subgroup_version", {}
+                        ).get("version"),
+                        status=activity_grouping.get(
+                            "activity_subgroup_version", {}
+                        ).get("status"),
                     ),
                 )
                 for activity_grouping in overview.get("hierarchy")

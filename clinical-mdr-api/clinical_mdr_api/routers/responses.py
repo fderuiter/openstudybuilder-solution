@@ -10,4 +10,4 @@ class YAMLResponse(Response):
     media_type = "application/x-yaml"
 
     def render(self, content: Any) -> bytes:
-        return yaml.dump(content, encoding="utf-8")
+        return yaml.safe_dump(content, encoding="utf-8", allow_unicode=True)

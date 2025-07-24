@@ -147,6 +147,7 @@ def map_variables(variables: "list[DataModelVariable]"):
                 "implements_variables": _variable.implements_variables,
                 "mapping_targets": _variable.mapping_targets,
                 "prior_version": _variable.prior_version,
+                "analysis_variable_set": _variable.analysis_variable_set,
             }
         )
     return variables_data

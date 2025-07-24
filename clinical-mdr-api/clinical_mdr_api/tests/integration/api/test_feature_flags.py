@@ -73,7 +73,7 @@ FEATURE_FLAG_NOT_NULL = [
 
 
 def test_get_all_feature_flags(api_client):
-    response = api_client.get("system/feature-flags")
+    response = api_client.get("feature-flags")
     res = response.json()
 
     assert_response_status_code(response, 200)

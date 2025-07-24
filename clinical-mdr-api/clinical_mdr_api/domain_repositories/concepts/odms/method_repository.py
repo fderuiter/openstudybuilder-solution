@@ -1,8 +1,7 @@
+from typing import Any
+
 from neomodel import db
 
-from clinical_mdr_api.domain_repositories._generic_repository_interface import (
-    _AggregateRootType,
-)
 from clinical_mdr_api.domain_repositories.concepts.odms.odm_generic_repository import (
     OdmGenericRepository,
 )
@@ -67,8 +66,8 @@ class MethodRepository(OdmGenericRepository[OdmMethodAR]):
         )
 
     def _create_aggregate_root_instance_from_cypher_result(
-        self, input_dict: dict
-    ) -> _AggregateRootType:
+        self, input_dict: dict[str, Any]
+    ) -> OdmMethodAR:
         major, minor = input_dict.get("version").split(".")
         odm_method_ar = OdmMethodAR.from_repository_values(
             uid=input_dict.get("uid"),

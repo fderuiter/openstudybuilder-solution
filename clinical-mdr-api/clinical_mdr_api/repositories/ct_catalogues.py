@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import Enum
+from typing import Any
 
 from neomodel import db
 
@@ -27,7 +28,7 @@ def get_ct_catalogues_changes(
     comparison_type: CatalogueComparisonType,
     start_datetime: datetime,
     end_datetime=datetime,
-) -> dict:
+) -> dict[str, Any]:
     filter_parameters = []
     if library_name is not None:
         filter_by_library_name = """

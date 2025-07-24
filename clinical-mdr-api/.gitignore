@@ -1,6 +1,7 @@
 .*.swp
 tags
 **/__pycache__/**
+**mypy_cache**
 .coverage
 /.vscode
 /.idea

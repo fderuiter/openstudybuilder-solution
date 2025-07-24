@@ -49,7 +49,7 @@ class StudySoARepository:
     @staticmethod
     def _study_value_query(
         study_uid: str, study_value_version: str | None
-    ) -> tuple[str, dict[str:str]]:
+    ) -> tuple[list[str], dict[str, str]]:
         """constructs a Cypher query and params for getting the StudyValue node of a given study version
 
         Returns:
@@ -211,12 +211,13 @@ class StudySoARepository:
         except DoesNotExist as e:
             raise NotFoundException("Study", study_uid) from e
 
+        study_value: StudyValue
         if study_value_version:
             if study_status is None:
                 study_status = StudyStatus.RELEASED
 
             try:
-                study_value: StudyValue = study_root.has_version.match(
+                study_value = study_root.has_version.match(
                     status=study_status.value, version=study_value_version
                 )[0]
             except IndexError as e:
@@ -228,7 +229,7 @@ class StudySoARepository:
             if study_status is None:
                 study_status = StudyStatus.DRAFT
 
-            study_value: StudyValue = study_root.latest_value.get()
+            study_value = study_root.latest_value.get()
 
         # delete previous SoA snapshot
         cls._disconnect_soa_rows(

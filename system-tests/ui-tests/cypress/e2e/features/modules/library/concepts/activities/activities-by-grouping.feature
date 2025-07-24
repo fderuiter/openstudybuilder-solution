@@ -25,3 +25,8 @@ Feature: Library - Concepts - Activities - Activities by grouping
         Given The '/library/activities/activities-by-grouping' page is opened
         When The '>' button is clicked
         Then the row exspand to display all nested rows
+
+    @manual_test @BUG_ID:2770368
+    Scenario:[BUG] Activities by Grouping should present correct group/subgroup combinations
+        Given The '/library/activities/activities-by-grouping' page is opened
+        Then The groups and subgroups are correctly presented for each item

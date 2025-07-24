@@ -153,6 +153,8 @@
         "select": "Select",
         "view_all": "View All",
         "author": "Author",
+        "role": "Role",
+        "data_type": "Data type",
         "multi_error_title": "One or more errors were encountered during operation"
     },
     "_errors": {
@@ -451,7 +453,7 @@
             "select_template": "To create an instantiation of a Time Frame, select from the relevant library and it's listed templates."
         },
         "StudyForm": {
-            "project_id": "Select the project number from the drop-down list. For details on project see <a href='https://novonordisk.sharepoint.com/sites/ProjectToolbox' target='_blank'>[Project Toolbox]<a> ",
+            "project_id": "Select the project ID from the drop-down list. For details on project see <a href='https://novonordisk.sharepoint.com/sites/ProjectToolbox' target='_blank'>[Project Toolbox]<a> ",
             "project_name": "Auto-populated based on selected project",
             "brand_name": "Auto-populated based on selected project (only populated if brand name exists)",
             "study_id": "ID that will be generated for this study",
@@ -884,7 +886,7 @@
         "ProjectForm": {
             "general": "Add a new project to a clinical programme.",
             "name": "Name for the new project, example: 'Demo Project'.",
-            "project_number": "Project number for the new project, example: 'AB1234'.",
+            "project_number": "Project ID for the new project, example: 'AB1234'.",
             "description": "Description of the project, example: 'Project for demonstration purposes'.",
             "clinical_programme": "Clinical programme that the project belongs to."
         },
@@ -994,7 +996,8 @@
         "mdr-standards-import": "Standards Import",
         "mdr-standards-import_description": "CDISC Library Standards Import",
         "neo4j-mdr-db": "Clinical MDR",
-        "neo4j-mdr-db_description": "Logical and physical data models"
+        "neo4j-mdr-db_description": "Logical and physical data models",
+        "components": "Components"
     },
     "Sidebar": {
         "dashboard": "Dashboard",
@@ -1716,7 +1719,7 @@
         "copy_objective": "Select objective",
         "brand_name": "Brand name",
         "project_name": "Project name",
-        "project_number": "Project number",
+        "project_number": "Project ID",
         "study_id": "Study ID",
         "template": "Template",
         "select_objective_title": "Selected objective",
@@ -1826,7 +1829,7 @@
         "endpoint_added": "Endpoint added",
         "brand_name": "Brand name",
         "project_name": "Project name",
-        "project_number": "Project number",
+        "project_number": "Project ID",
         "study_id": "Study ID",
         "unit": "Unit",
         "endpoint_title": "Endpoint title",
@@ -2155,8 +2158,8 @@
         "submit_request": "Submit request",
         "similar_activity_alert": "It looks like an Activity with a similar name already exist. Please do not request Activities that already exists, but instead select the existing activity below.",
         "similar_activity_title": "Existing activities with similar name",
-        "draft_activity_edit_alert": "Selected activity is in DRAFT state. Please move the activity to FINAL state before editing the Activity Instance.",
-        "draft_activity_create_alert": "Selected activity is in DRAFT state. Please move the activity to FINAL state before creating the Activity Instance."
+        "draft_activity_edit_alert": "Selected activity is in {state} state. Please move the activity to FINAL state before editing the Activity Instance.",
+        "draft_activity_create_alert": "Selected activity is in {state} state. Please move the activity to FINAL state before creating the Activity Instance."
     },
     "StudyTitleView": {
         "title": "Study Title",
@@ -2424,7 +2427,8 @@
         "select_term_label": "Select an existing term",
         "concept_id": "Concept ID",
         "sponsor_name": "Sponsor name",
-        "no_selection": "You must select at least one term to add"
+        "no_selection": "You must select at least one term to add",
+        "submission_value": "Submission Value"
     },
     "CodelistTermNamesForm": {
         "title": "Edit sponsor term",
@@ -3158,7 +3162,7 @@
     "Study": {
         "brand_name": "Brand name",
         "project_name": "Project name",
-        "project_number": "Project number",
+        "project_number": "Project ID",
         "study_number": "Study number",
         "study_id": "Study ID",
         "study_acronym": "Study acronym",
@@ -3243,6 +3247,22 @@
         "downloading": "Download in progress...",
         "loading": "Table is reloading..."
     },
+    "StudyActivityUpdateForms": {
+        "update_to_activity": "Update to Study Activity",
+        "update_to_request": "Update to Study Activity request",
+        "request_accepted": "Study Activity request has been accepted",
+        "activity_group": "Activity group",
+        "activity_subgroup": "Activity subgroup",
+        "activity_name": "Activity name",
+        "data_collection": "Data collection",
+        "accept_change": "Do you want to accept this change?",
+        "decline_keep": "Decline and keep",
+        "decline_remove": "Decline and remove",
+        "accept": "Accept",
+        "update_success": "Study activity updated",
+        "remove_success": "Study activity removed",
+        "decline_success": "Changes declined"
+    },
     "StudyActivityTable": {
         "confirm_delete": "The study activity '{activity}' will be removed",
         "confirm_delete_side_effect": "Removing this study activity will impact protocol SoA display",
@@ -3323,7 +3343,10 @@
         "notification": "Notification",
         "action_needed": "Action needed",
         "na": "Not applicable",
-        "multiple_select_info": "Selecting multiple instances will result in the creation of new Study Activity Instances."
+        "multiple_select_info": "Selecting multiple instances will result in the creation of new Study Activity Instances.",
+        "test_name_code": "Test name code",
+        "specimen": "Specimen",
+        "standard_unit": "Standard unit"
     },
     "StudyActivityForm": {
         "add_title": "Add study activities",
@@ -3611,7 +3634,8 @@
         "global_history_title": "Study elements history",
         "study_element_history_title": "History for study element [{elementUid}]",
         "planned_duration": "Planned duration",
-        "description": "Description"
+        "description": "Description",
+        "planned_duration_time": "Planned study duration time"
     },
     "DesignMatrix": {
         "global_help": "For each of the Study Arms, select the relevant elements in the given epochs. If a study element is missing then go back to the Study Elements tab to create/update the elments",
@@ -3959,7 +3983,13 @@
         "title": "Add collapsible visit group",
         "warning": "Automatic creation of a new collapsible visit group failed because selected visits differ in some way. You can still force creation by selecting a visit to act as a template to overwrite the other ones.",
         "visit_template": "Select a template",
-        "creation_success": "Collapsible visit group created"
+        "creation_success": "Collapsible visit group created",
+        "format_title": "Group selected visits together",
+        "format_question": "How do you want to show collapsed visits?",
+        "format_info": "The visit timing will be shown in a similar way.",
+        "range_visits": "Range ({visits})",
+        "list_visits": "List ({visits})",
+        "selected_visits": "Visits selected ({number}):"
     },
     "SelectOrAddStudyTable": {
         "tab1_title": "Study list",
@@ -4065,6 +4095,7 @@
         "activity_group": "Activity group",
         "activity_subgroup": "Activity subgroup",
         "activity": "Activity",
+        "activity_name": "Activity",
         "nci_concept_id": "NCI Concept ID",
         "nci_concept_name": "NCI Concept Name",
         "is_research_lab": "Research Lab",
@@ -4072,6 +4103,7 @@
         "adam_code": "ADaM parameter code",
         "topic_code": "Topic code",
         "class": "Activity instance class",
+        "activity_instance_class": "Activity instance class",
         "items": "Activity items",
         "item_class": "Activity item class",
         "activity_groupings": "Activity groupings",
@@ -4109,7 +4141,14 @@
         "library": "Library",
         "author": "Author",
         "definition": "Definition",
-        "activities": "Activities"
+        "activities": "Activities",
+        "activity_items": "Activity Items",
+        "no_terms": "No CT terms available",
+        "no_units": "No unit definitions available",
+        "no_forms": "No ODM forms available"
+    },
+    "SubgroupOverview": {
+        "noItemsAvailable": "No items available"
     },
     "activityInstancesTable": {
         "versionNotAvailable": "Version not available",
@@ -4123,6 +4162,14 @@
         "headerActivityInstanceClass": "Activity Instance class",
         "headerTopicCode": "Topic code",
         "headerAdamParamCode": "Adam parameter code"
+  },
+  "activityItemsTable": {
+        "exportLabel": "Activity Items",
+        "noItemsFound": "No activity items found",
+        "noItemsAvailable": "No activity items available",
+        "headerDataType": "Data type",
+        "headerName": "Name",
+        "headerActivityItemClass": "Activity Item Class"
   },
   "activitySummary": {
         "dataCollection": "Data collection"
@@ -4224,7 +4271,7 @@
         "copy_footnote": "Select footnote",
         "brand_name": "Brand name",
         "project_name": "Project name",
-        "project_number": "Project number",
+        "project_number": "Project ID",
         "study_id": "Study ID",
         "template": "Template",
         "select_footnote_title": "Selected footnote",
@@ -4293,7 +4340,7 @@
     },
     "Projects": {
         "name": "Name",
-        "project_number": "Project number",
+        "project_number": "Project ID",
         "description": "Description",
         "clinical_programme": "Clinical programme",
         "add_success": "Project added",
@@ -4305,7 +4352,7 @@
         "add_title": "Add project",
         "edit_title": "Edit project",
         "name": "Name",
-        "project_number": "Project number",
+        "project_number": "Project ID",
         "description": "Description",
         "clinical_programme": "Clinical programme"
     },

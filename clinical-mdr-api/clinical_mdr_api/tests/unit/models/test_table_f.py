@@ -5,7 +5,10 @@ import bs4
 import docx
 import pytest
 from docx.enum.style import WD_STYLE_TYPE
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from pyrate_limiter import Any
 
+from clinical_mdr_api.services.utils.docx_builder import DocxBuilder
 from clinical_mdr_api.services.utils.table_f import (
     SimpleFootnote,
     TableCell,
@@ -317,7 +320,7 @@ def compare_html_footnotes(doc: bs4.BeautifulSoup, test_table: TableWithFootnote
 def test_table_to_docx(test_table: TableWithFootnotes):
     """Tests table_to_docx() by comparing DOCX document to TableWithFootnotes input"""
 
-    docx_doc: docx.Document = table_to_docx(test_table, styles=DOCX_STYLES).document
+    docx_doc: DocxBuilder = table_to_docx(test_table, styles=DOCX_STYLES).document
 
     # THEN the document contains exactly one table
     assert len(docx_doc.tables) == 1, "expected exactly 1 table in DOCX SoA"
@@ -331,7 +334,7 @@ def test_table_to_docx(test_table: TableWithFootnotes):
 def compare_docx_table(
     tablex: docx.table.Table,
     test_table: TableWithFootnotes,
-    docx_styles: Mapping[str, tuple[str, any]],
+    docx_styles: Mapping[str, tuple[str, Any]],
 ):
     """Compares DOCX table with TableWithFootnotes by column contents and properties"""
 
@@ -386,6 +389,16 @@ def compare_docx_table(
                     tcpr.get(DOCX_TEXT_DIRECTION_VALUE) == "btLr"
                 ), f"vertical cell direction 'btLr' expected row {row_idx} column {col_idx}"
 
+            # THEN header columns are aligned left, other columns centered
+            if col_idx < test_table.num_header_cols:
+                assert (
+                    parax0.alignment is None
+                ), f"paragraph is aligned in row {row_idx} column {col_idx}"
+            else:
+                assert (
+                    parax0.alignment == WD_ALIGN_PARAGRAPH.CENTER
+                ), f"paragraph is not centered in row {row_idx} column {col_idx}"
+
             if cell.style in docx_styles:
                 # THEN cell styling matches
                 expected_style_name = docx_styles.get(cell.style, ["Normal"])[0]
@@ -410,9 +423,9 @@ def compare_docx_table(
 
 
 def compare_docx_footnotes(
-    docx_doc: docx.Document,
+    docx_doc: DocxBuilder,
     footnotes: dict[str, SimpleFootnote],
-    docx_styles: Mapping[str, tuple[str, any]],
+    docx_styles: Mapping[str, tuple[str, Any]],
 ):
     """Compares DOCX paragraphs with footnotes of TableWithFootnotes"""
 

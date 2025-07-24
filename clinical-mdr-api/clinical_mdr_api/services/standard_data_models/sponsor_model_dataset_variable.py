@@ -13,7 +13,9 @@ from clinical_mdr_api.models.standard_data_models.sponsor_model_dataset_variable
 from clinical_mdr_api.services.neomodel_ext_generic import NeomodelExtGenericService
 
 
-class SponsorModelDatasetVariableService(NeomodelExtGenericService):
+class SponsorModelDatasetVariableService(
+    NeomodelExtGenericService[SponsorModelDatasetVariableAR]
+):
     repository_interface = SponsorModelDatasetVariableRepository
     api_model_class = SponsorModelDatasetVariable
 
@@ -44,8 +46,8 @@ class SponsorModelDatasetVariableService(NeomodelExtGenericService):
                 length=item_input.length,
                 display_format=item_input.display_format,
                 xml_datatype=item_input.xml_datatype,
-                xml_codelist=item_input.xml_codelist,
-                xml_codelist_multi=item_input.xml_codelist_multi,
+                references_codelists=item_input.references_codelists,
+                references_terms=item_input.references_terms,
                 core=item_input.core,
                 origin=item_input.origin,
                 origin_type=item_input.origin_type,
@@ -69,7 +71,6 @@ class SponsorModelDatasetVariableService(NeomodelExtGenericService):
                 value_lvl_ct_codelist_id_col=item_input.value_lvl_ct_codelist_id_col,
                 enrich_build_order=item_input.enrich_build_order,
                 enrich_rule=item_input.enrich_rule,
-                xml_codelist_values=item_input.xml_codelist_values,
             ),
             library=library,
         )
@@ -96,8 +97,8 @@ class SponsorModelDatasetVariableService(NeomodelExtGenericService):
                 length=item_edit_input.length,
                 display_format=item_edit_input.display_format,
                 xml_datatype=item_edit_input.xml_datatype,
-                xml_codelist=item_edit_input.xml_codelist,
-                xml_codelist_multi=item_edit_input.xml_codelist_multi,
+                references_codelists=item_edit_input.references_codelists,
+                references_terms=item_edit_input.references_terms,
                 core=item_edit_input.core,
                 origin=item_edit_input.origin,
                 origin_type=item_edit_input.origin_type,
@@ -121,7 +122,6 @@ class SponsorModelDatasetVariableService(NeomodelExtGenericService):
                 value_lvl_ct_codelist_id_col=item_edit_input.value_lvl_ct_codelist_id_col,
                 enrich_build_order=item_edit_input.enrich_build_order,
                 enrich_rule=item_edit_input.enrich_rule,
-                xml_codelist_values=item_edit_input.xml_codelist_values,
             ),
         )
         return item

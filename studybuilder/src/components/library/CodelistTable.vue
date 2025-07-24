@@ -34,6 +34,7 @@
     <template #beforeSwitches="">
       <v-select
         v-model="selectedTerms"
+        data-cy="search-with-terms-field"
         :label="$t('CodelistTable.search_with_terms')"
         :items="termsStore.terms"
         item-title="sponsor_preferred_name"
@@ -94,6 +95,7 @@
       </v-select>
       <v-select
         v-model="termsFilterOperator"
+        data-cy="search-with-terms-operator-field"
         :items="operators"
         rounded="lg"
         variant="outlined"

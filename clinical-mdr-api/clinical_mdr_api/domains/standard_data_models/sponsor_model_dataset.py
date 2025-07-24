@@ -135,13 +135,13 @@ class SponsorModelDatasetAR(LibraryItemAggregateRootBase):
     def sponsor_model_dataset_vo(self) -> SponsorModelDatasetVO:
         return self._sponsor_model_dataset_vo
 
-    @property
-    def name(self) -> str:
-        return self._uid
-
     @sponsor_model_dataset_vo.setter
     def sponsor_model_dataset_vo(self, sponsor_model_dataset_vo: SponsorModelDatasetVO):
         self._sponsor_model_dataset_vo = sponsor_model_dataset_vo
+
+    @property
+    def name(self) -> str:
+        return self._uid
 
     @classmethod
     def from_repository_values(

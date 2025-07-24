@@ -237,7 +237,12 @@ Feature: Studies - Define Study - Study Activities - Schedule of Activities - De
     Scenario: [Table][Search][Positive case] User must be able to search study activity
         Given [API] Study Activity is created and approved
         And The '/studies/Study_000001/activities/list' page is opened
-        And User adds newly created activity with status Final
+        When Study activity add button is clicked
+        And Activity from library is selected
+        And Form continue button is clicked
+        And User search and select activity created via API
+        And Form save button is clicked
+        Then The pop up displays 'Study activity added'
         And The '/studies/Study_000001/activities/soa' page is opened
         And User expand table
         When User search newly added activity
@@ -272,3 +277,17 @@ Feature: Studies - Define Study - Study Activities - Schedule of Activities - De
         And User expand table
         When User search search activity by group
         Then No activities are found
+
+    @manual_test @BUG_ID:2851795
+    Scenario:[Edit] User must be presented with all activity groups linked when editing the activity
+        Given The '/studies/Study_000001/activities/soa' page is opened
+        And The activity with more than one activity group exists in the table
+        When The user opens the edit form for that activity
+        Then The Activity group dropdown is presenting all linked activity groups
+
+    @manual_test @BUG_ID:2844670
+    Scenario:[Edit] User must be able to hide groups when activity groups has been changed
+        Given The '/studies/Study_000001/activities/soa' page is opened
+        And The activity with linked activity group is present for the study
+        When The user hides that activity group
+        Then The group is hidden correctly

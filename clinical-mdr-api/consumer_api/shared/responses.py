@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import Annotated, Generic, Self, TypeVar
+from typing import Annotated, Any, Generic, Self, TypeVar
 
 from fastapi import Request
 from pydantic import BaseModel, Field
@@ -110,7 +110,7 @@ class PaginatedResponse(BaseModel, Generic[T]):
         )
 
 
-class PaginatedResponseWithStudyVersion(PaginatedResponse):
+class PaginatedResponseWithStudyVersion(PaginatedResponse, Generic[T]):
     """
     Paginated response model with study version
     """
@@ -124,7 +124,7 @@ class PaginatedResponseWithStudyVersion(PaginatedResponse):
     def from_input(
         cls,
         request: Request,
-        study_version: dict,
+        study_version: dict[str, Any],
         sort_by: str,
         sort_order: str,
         page_size: int,

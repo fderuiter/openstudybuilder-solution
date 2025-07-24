@@ -15,12 +15,13 @@ from clinical_mdr_api.routers import study_router as router
 from clinical_mdr_api.routers.studies import utils
 from clinical_mdr_api.services.studies.study_design_cell import StudyDesignCellService
 from common.auth import rbac
+from common.auth.dependencies import security
 from common.models.error import ErrorResponse
 
 
 @router.get(
     "/studies/{study_uid}/study-design-cells",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List all study design cells currently defined for the study",
     response_model_exclude_unset=True,
     status_code=200,
@@ -47,7 +48,7 @@ def get_all_design_cells(
 
 @router.post(
     "/studies/{study_uid}/study-design-cells",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Add a study design cell to a study",
     response_model_exclude_unset=True,
     status_code=201,
@@ -79,7 +80,7 @@ def post_new_design_cell_create(
 
 @router.patch(
     "/studies/{study_uid}/study-design-cells/{study_design_cell_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Update a study design cell",
     description="""
     The StudyDesignCell has the following properties:
@@ -134,7 +135,7 @@ def edit_design_cell(
 
 @router.delete(
     "/studies/{study_uid}/study-design-cells/{study_design_cell_uid}",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Delete a study design cell",
     status_code=204,
     responses={
@@ -157,7 +158,7 @@ def delete_design_cell(
 
 @router.get(
     "/studies/{study_uid}/study-design-cells/audit-trail/",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List full audit trail related to definition of all study design cells.",
     description="""
 The following values should be returned for all study design cells:
@@ -183,7 +184,7 @@ def get_all_design_cells_audit_trail(
 
 @router.get(
     "/studies/{study_uid}/study-design-cells/{study_design_cell_uid}/audit-trail/",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="List audit trail related to definition of a specific study design cell.",
     response_model_exclude_unset=True,
     status_code=200,
@@ -207,7 +208,7 @@ def get_specific_schedule_audit_trail(
 
 @router.post(
     "/studies/{study_uid}/study-design-cells/batch",
-    dependencies=[rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE],
     summary="Batch operations (create, delete) for study design cells",
     status_code=207,
     responses={
@@ -229,7 +230,7 @@ def design_cell_batch_operations(
 
 @router.get(
     "/studies/{study_uid}/study-design-cells/arm/{arm_uid}",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="""List all study design-cells currently selected for study with provided uid that are connected to an StudyArm with arm_uid""",
     description="""
     State before:
@@ -273,7 +274,7 @@ def get_all_selected_design_cells_connected_arm(
 
 @router.get(
     "/studies/{study_uid}/study-design-cells/branch-arm/{branch_arm_uid}",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="""List all study design-cells currently selected for study with provided
     uid that are connected to an StudyBranchArm with branch_arm_uid""",
     description="""
@@ -321,7 +322,7 @@ def get_all_selected_design_cells_connected_branch_arm(
 
 @router.get(
     "/studies/{study_uid}/study-design-cells/study-epochs/{study_epoch_uid}",
-    dependencies=[rbac.STUDY_READ],
+    dependencies=[security, rbac.STUDY_READ],
     summary="""List all study design-cells currently selected for study with provided uid that are connected to an StudyEpoch with study_epoch_uid""",
     description="""
     State before:

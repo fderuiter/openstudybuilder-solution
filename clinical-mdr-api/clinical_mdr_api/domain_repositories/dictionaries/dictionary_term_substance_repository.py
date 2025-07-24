@@ -1,3 +1,5 @@
+from typing import Any
+
 from neomodel import db
 
 from clinical_mdr_api.domain_repositories._generic_repository_interface import (
@@ -32,9 +34,7 @@ from clinical_mdr_api.services.user_info import UserInfoService
 from common.utils import convert_to_datetime
 
 
-class DictionaryTermSubstanceRepository(
-    DictionaryTermGenericRepository[DictionaryTermSubstanceAR]
-):
+class DictionaryTermSubstanceRepository(DictionaryTermGenericRepository):
     def _create_new_value_node(
         self, library_name: str, ar: _AggregateRootType
     ) -> VersionValue:
@@ -50,7 +50,7 @@ class DictionaryTermSubstanceRepository(
         return value_node
 
     def _create_aggregate_root_instance_from_cypher_result(
-        self, term_dict: dict
+        self, term_dict: dict[str, Any]
     ) -> DictionaryTermSubstanceAR:
         major, minor = term_dict.get("version").split(".")
         return DictionaryTermSubstanceAR.from_repository_values(
@@ -131,8 +131,8 @@ class DictionaryTermSubstanceRepository(
     def find_all(
         self,
         codelist_uid: str | None = None,
-        sort_by: dict | None = None,
-        filter_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_number: int = 1,
         page_size: int = 0,

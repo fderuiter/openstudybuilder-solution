@@ -1,4 +1,5 @@
 import datetime
+from typing import Any
 
 from clinical_mdr_api.domain_repositories.concepts.activities.activity_instance_repository import (
     ActivityInstanceRepository,
@@ -20,15 +21,18 @@ from clinical_mdr_api.models.concepts.activities.activity_instance import (
     ActivityInstanceOverview,
     ActivityInstancePreviewInput,
     ActivityInstanceVersion,
+    SimpleActivityInstanceGrouping,
+    SimplifiedActivityItem,
 )
 from clinical_mdr_api.models.concepts.activities.activity_item import (
+    CompactOdmForm,
     CompactOdmItem,
+    CompactOdmItemGroup,
     CompactUnitDefinition,
 )
 from clinical_mdr_api.services.concepts import constants
 from clinical_mdr_api.services.concepts.concept_generic_service import (
     ConceptGenericService,
-    _AggregateRootType,
 )
 from common.exceptions import NotFoundException
 from common.utils import get_edit_input_or_previous_value
@@ -61,7 +65,7 @@ class ActivityInstanceService(ConceptGenericService[ActivityInstanceAR]):
         concept_input: ActivityInstanceCreateInput,
         library: LibraryVO,
         preview: bool = False,
-    ) -> _AggregateRootType:
+    ) -> ActivityInstanceAR:
         activity_items = []
         if (
             getattr(concept_input, "activity_items", None)
@@ -76,7 +80,15 @@ class ActivityInstanceService(ConceptGenericService[ActivityInstanceAR]):
                     LibraryItem(uid=term_uid, name=None)
                     for term_uid in item.ct_term_uids
                 ]
-                odm_items = [
+                odm_forms: list[CompactOdmForm] = [
+                    CompactOdmForm(uid=odm_form_uid, oid=None, name=None)
+                    for odm_form_uid in item.odm_form_uids
+                ]
+                odm_item_groups: list[CompactOdmItemGroup] = [
+                    CompactOdmItemGroup(uid=odm_item_group_uid, oid=None, name=None)
+                    for odm_item_group_uid in item.odm_item_group_uids
+                ]
+                odm_items: list[CompactOdmItem] = [
                     CompactOdmItem(uid=odm_item_uid, oid=None, name=None)
                     for odm_item_uid in item.odm_item_uids
                 ]
@@ -87,6 +99,8 @@ class ActivityInstanceService(ConceptGenericService[ActivityInstanceAR]):
                         activity_item_class_name=None,
                         ct_terms=ct_terms,
                         unit_definitions=unit_definitions,
+                        odm_forms=odm_forms,
+                        odm_item_groups=odm_item_groups,
                         odm_items=odm_items,
                     )
                 )
@@ -135,6 +149,8 @@ class ActivityInstanceService(ConceptGenericService[ActivityInstanceAR]):
             concept_exists_by_library_and_property_value_callback=self._repos.activity_instance_repository.latest_concept_in_library_exists_by_property_value,
             ct_term_exists_by_uid_callback=self._repos.ct_term_name_repository.term_exists,
             unit_definition_exists_by_uid_callback=self._repos.unit_definition_repository.final_concept_exists,
+            odm_form_exists_by_uid_callback=self._repos.odm_form_repository.final_concept_exists,
+            odm_item_group_exists_by_uid_callback=self._repos.odm_item_group_repository.final_concept_exists,
             odm_item_exists_by_uid_callback=self._repos.odm_item_repository.final_concept_exists,
             get_final_activity_value_by_uid_callback=self._repos.activity_repository.final_concept_value,
             activity_group_exists=self._repos.activity_group_repository.final_concept_exists,
@@ -188,7 +204,15 @@ class ActivityInstanceService(ConceptGenericService[ActivityInstanceAR]):
                         LibraryItem(uid=term_uid, name=None)
                         for term_uid in activity_item.ct_term_uids
                     ]
-                    odm_items = [
+                    odm_forms: list[CompactOdmForm] = [
+                        CompactOdmForm(uid=odm_form_uid, oid=None, name=None)
+                        for odm_form_uid in activity_item.odm_form_uids
+                    ]
+                    odm_item_groups: list[CompactOdmItemGroup] = [
+                        CompactOdmItemGroup(uid=odm_item_group_uid, oid=None, name=None)
+                        for odm_item_group_uid in activity_item.odm_item_group_uids
+                    ]
+                    odm_items: list[CompactOdmItem] = [
                         CompactOdmItem(uid=odm_item_uid, oid=None, name=None)
                         for odm_item_uid in activity_item.odm_item_uids
                     ]
@@ -199,6 +223,8 @@ class ActivityInstanceService(ConceptGenericService[ActivityInstanceAR]):
                             activity_item_class_name=None,
                             ct_terms=ct_terms,
                             unit_definitions=unit_definitions,
+                            odm_forms=odm_forms,
+                            odm_item_groups=odm_item_groups,
                             odm_items=odm_items,
                         )
                     )
@@ -272,6 +298,8 @@ class ActivityInstanceService(ConceptGenericService[ActivityInstanceAR]):
             concept_exists_by_library_and_property_value_callback=self._repos.activity_instance_repository.latest_concept_in_library_exists_by_property_value,
             ct_term_exists_by_uid_callback=self._repos.ct_term_name_repository.term_exists,
             unit_definition_exists_by_uid_callback=self._repos.unit_definition_repository.final_concept_exists,
+            odm_form_exists_by_uid_callback=self._repos.odm_form_repository.final_concept_exists,
+            odm_item_group_exists_by_uid_callback=self._repos.odm_item_group_repository.final_concept_exists,
             odm_item_exists_by_uid_callback=self._repos.odm_item_repository.final_concept_exists,
             get_final_activity_value_by_uid_callback=self._repos.activity_repository.final_concept_value,
             activity_group_exists=self._repos.activity_group_repository.final_concept_exists,
@@ -297,16 +325,48 @@ class ActivityInstanceService(ConceptGenericService[ActivityInstanceAR]):
         )
         return ActivityInstanceOverview.from_repository_input(overview=overview)
 
-    def get_cosmos_activity_instance_overview(self, activity_instance_uid: str) -> dict:
+    def get_activity_instance_groupings(
+        self, activity_instance_uid: str, version: str | None = None
+    ) -> list[SimpleActivityInstanceGrouping]:
         NotFoundException.raise_if_not(
             self.repository.exists_by("uid", activity_instance_uid, True),
             "Activity Instance",
             activity_instance_uid,
         )
-        data: dict = self.repository.get_cosmos_activity_instance_overview(
+        overview = self.repository.get_activity_instance_overview(
+            uid=activity_instance_uid, version=version
+        )
+        return ActivityInstanceOverview.from_repository_input(
+            overview=overview
+        ).activity_groupings
+
+    def get_activity_instance_items(
+        self, activity_instance_uid: str, version: str | None = None
+    ) -> list[SimplifiedActivityItem]:
+        NotFoundException.raise_if_not(
+            self.repository.exists_by("uid", activity_instance_uid, True),
+            "Activity Instance",
+            activity_instance_uid,
+        )
+        overview = self.repository.get_activity_instance_overview(
+            uid=activity_instance_uid, version=version
+        )
+        return ActivityInstanceOverview.from_repository_input(
+            overview=overview
+        ).activity_items
+
+    def get_cosmos_activity_instance_overview(
+        self, activity_instance_uid: str
+    ) -> dict[str, Any]:
+        NotFoundException.raise_if_not(
+            self.repository.exists_by("uid", activity_instance_uid, True),
+            "Activity Instance",
+            activity_instance_uid,
+        )
+        data: dict[Any, Any] = self.repository.get_cosmos_activity_instance_overview(
             uid=activity_instance_uid
         )
-        result: dict = {
+        result: dict[str, Any] = {
             "packageDate": datetime.date.today().isoformat(),
             "packageType": "bc",
             "conceptId": data["activity_instance_value"]["nci_concept_id"],

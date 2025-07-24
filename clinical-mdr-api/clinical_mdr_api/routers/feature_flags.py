@@ -11,6 +11,7 @@ from clinical_mdr_api.models.feature_flag import (
 from clinical_mdr_api.routers import _generic_descriptions, decorators
 from clinical_mdr_api.services.feature_flags import FeatureFlagService
 from common.auth import rbac
+from common.auth.dependencies import security
 
 # Prefixed with "/feature-flags"
 router = APIRouter()
@@ -21,8 +22,20 @@ service = FeatureFlagService()
 
 
 @router.get(
+    "",
+    summary="Returns all feature flags.",
+    status_code=200,
+    responses={
+        404: _generic_descriptions.ERROR_404,
+    },
+)
+def get_all_feature_flags() -> list[FeatureFlag]:
+    return service.get_all_feature_flags()
+
+
+@router.get(
     "/{serial_number}",
-    dependencies=[rbac.ADMIN_READ],
+    dependencies=[security, rbac.ADMIN_READ],
     summary="Returns the feature flag identified by the provided Serial Number.",
     status_code=200,
     responses={
@@ -37,7 +50,7 @@ def get_feature_flag(serial_number: Annotated[int, SN]) -> FeatureFlag:
 
 @router.post(
     "",
-    dependencies=[rbac.ADMIN_WRITE],
+    dependencies=[security, rbac.ADMIN_WRITE],
     summary="Creates a feature flag.",
     status_code=201,
     responses={
@@ -54,7 +67,7 @@ def create_feature_flag(
 
 @router.patch(
     "/{serial_number}",
-    dependencies=[rbac.ADMIN_WRITE],
+    dependencies=[security, rbac.ADMIN_WRITE],
     summary="Updates the feature flag identified by the provided Serial Number.",
     status_code=200,
     responses={
@@ -73,7 +86,7 @@ def update_feature_flag(
 
 @router.delete(
     "/{serial_number}",
-    dependencies=[rbac.ADMIN_WRITE],
+    dependencies=[security, rbac.ADMIN_WRITE],
     summary="Deletes the feature flag identified by the provided Serial Number.",
     status_code=204,
     responses={

@@ -37,12 +37,31 @@ class NeomodelExtBaseRepository:
 
         raise NotImplementedError
 
+    def check_for_incorrect_optional_markers(
+        self, nodes: NodeSet, q_filters: list[Any]
+    ) -> None:
+        """
+        Make sure that traversal used in filters are included in the cypher query
+        using a MATCH and not an OPTIONAL MATCH statement.
+        """
+        for qfilter in q_filters:
+            path = qfilter.children[0][0]
+            if "__" not in path and "|" not in path:
+                continue
+            parts = path.split("__")
+            path = "__".join(parts[:-1])
+            if "|" in parts[-1]:
+                path += "__" + parts[-1].split("|")[0]
+            for relation in nodes.relations_to_fetch:
+                if relation.value == path and relation.optional:
+                    relation.optional = False
+
     def find_all(
         self,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> tuple[list[_StandardsReturnType], int]:
@@ -59,6 +78,7 @@ class NeomodelExtBaseRepository:
         start: int = (page_number - 1) * page_size
         end: int = start + page_size
         nodes = self.get_neomodel_extension_query()
+        self.check_for_incorrect_optional_markers(nodes, q_filters)
         nodes = nodes.order_by(sort_paths[0] if len(sort_paths) > 0 else "uid")
         nodes = nodes.filter(*q_filters)[start:end]
         nodes = nodes.resolve_subgraph()
@@ -80,7 +100,7 @@ class NeomodelExtBaseRepository:
         self,
         field_name: str,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
     ) -> list[Any]:

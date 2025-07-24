@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 from neomodel import db
 
@@ -294,7 +295,7 @@ class StudyEndpointSelectionService(StudySelectionMixin):
         repos = self._repos
         try:
             # check if name exists
-            endpoint_service = EndpointService()
+            endpoint_service: EndpointService = EndpointService()
             endpoint_ar = endpoint_service.create_ar_from_input_values(
                 selection_create_input.endpoint_data
             )
@@ -560,7 +561,7 @@ class StudyEndpointSelectionService(StudySelectionMixin):
             # Load aggregate
             with db.transaction:
                 # check if name exists
-                endpoint_service = EndpointService()
+                endpoint_service: EndpointService = EndpointService()
                 endpoint_ar = endpoint_service.create_ar_from_input_values(
                     selection_create_input.endpoint_data,
                     generate_uid_callback=(lambda: "preview"),
@@ -655,10 +656,10 @@ class StudyEndpointSelectionService(StudySelectionMixin):
         no_brackets: bool,
         project_name: str | None = None,
         project_number: str | None = None,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> GenericFilteringReturn[StudySelectionEndpoint]:
@@ -707,7 +708,7 @@ class StudyEndpointSelectionService(StudySelectionMixin):
         project_name: str | None = None,
         project_number: str | None = None,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
         study_value_version: str | None = None,
@@ -809,8 +810,8 @@ class StudyEndpointSelectionService(StudySelectionMixin):
         self,
         study_uid: str,
         no_brackets: bool,
-        sort_by: dict | None = None,
-        filter_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_number: int = 1,
         page_size: int = 0,
@@ -978,22 +979,20 @@ class StudyEndpointSelectionService(StudySelectionMixin):
     ) -> StudySelectionEndpointVO:
         endpoint_repo = self._repos.endpoint_repository
         timeframe_repo = self._repos.timeframe_repository
+        endpoint_ar: EndpointAR
         if request_study_endpoint.endpoint_uid:
-            endpoint_ar: EndpointAR = endpoint_repo.find_by_uid(
-                request_study_endpoint.endpoint_uid
-            )
+            endpoint_ar = endpoint_repo.find_by_uid(request_study_endpoint.endpoint_uid)
         elif current_study_endpoint.endpoint_uid:
-            endpoint_ar: EndpointAR = endpoint_repo.find_by_uid(
-                current_study_endpoint.endpoint_uid
-            )
+            endpoint_ar = endpoint_repo.find_by_uid(current_study_endpoint.endpoint_uid)
         else:
             endpoint_ar = None
+        timeframe_ar: TimeframeAR
         if request_study_endpoint.timeframe_uid:
-            timeframe_ar: TimeframeAR = timeframe_repo.find_by_uid(
+            timeframe_ar = timeframe_repo.find_by_uid(
                 request_study_endpoint.timeframe_uid
             )
         elif current_study_endpoint.timeframe_uid:
-            timeframe_ar: TimeframeAR = timeframe_repo.find_by_uid(
+            timeframe_ar = timeframe_repo.find_by_uid(
                 current_study_endpoint.timeframe_uid
             )
         else:

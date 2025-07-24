@@ -11,7 +11,7 @@ The system offers access to the following directories:
 | Section | Description       |
 |:------:|:----------------|
 | Dashboard| The most important metrics at a glance |
-| Manage Studies  | This module allows you to access all existing modules and modify them |
+| Manage Studies  | This module allows you to access all existing studies and modify them |
 | Define Study | From here it is possible to create new studies |
 | Build Specifications | Overview of specifications |
 | List | Clinical Metadata listing |

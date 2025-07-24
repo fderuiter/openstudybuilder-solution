@@ -38,7 +38,6 @@ class ActivityItemClassVO:
     role_uid: str
     role_name: str | None
     variable_class_uids: list[str] | None
-    codelist_uids: list[str] | None
 
     @classmethod
     def from_repository_values(
@@ -53,7 +52,6 @@ class ActivityItemClassVO:
         data_type_name: str | None = None,
         role_name: str | None = None,
         variable_class_uids: list[str] | None = None,
-        codelist_uids: list[str] | None = None,
     ) -> Self:
         activity_item_class_vo = cls(
             name=name,
@@ -64,7 +62,6 @@ class ActivityItemClassVO:
             role_uid=role_uid,
             role_name=role_name,
             variable_class_uids=variable_class_uids,
-            codelist_uids=codelist_uids,
             definition=definition,
             nci_concept_id=nci_concept_id,
         )
@@ -76,7 +73,6 @@ class ActivityItemClassVO:
         activity_item_class_exists_by_name_callback: Callable[[str], bool],
         activity_instance_class_exists: Callable[[str], bool],
         ct_term_exists: Callable[[str], bool],
-        ct_codelist_exists: Callable[[str], bool],
         previous_name: str | None = None,
     ) -> None:
         AlreadyExistsException.raise_if(
@@ -100,12 +96,6 @@ class ActivityItemClassVO:
                 msg=f"Activity Item Class tried to connect to non-existent or non-final Activity Instance Class with UID '{activity_instance_class.uid}'.",
             )
 
-        for codelist_uid in self.codelist_uids or []:
-            BusinessLogicException.raise_if_not(
-                ct_codelist_exists(codelist_uid),
-                msg=f"Activity Item Class tried to connect to non-existent Codelist with UID '{codelist_uid}'.",
-            )
-
 
 @dataclass
 class ActivityItemClassAR(LibraryItemAggregateRootBase):
@@ -119,6 +109,10 @@ class ActivityItemClassAR(LibraryItemAggregateRootBase):
     def activity_item_class_vo(self) -> ActivityItemClassVO:
         return self._activity_item_class_vo
 
+    @activity_item_class_vo.setter
+    def activity_item_class_vo(self, activity_item_class_vo: ActivityItemClassVO):
+        self._activity_item_class_vo = activity_item_class_vo
+
     @property
     def name(self) -> str:
         return self._activity_item_class_vo.name
@@ -130,10 +124,6 @@ class ActivityItemClassAR(LibraryItemAggregateRootBase):
     @property
     def nci_concept_id(self) -> str | None:
         return self._activity_item_class_vo.nci_concept_id
-
-    @activity_item_class_vo.setter
-    def activity_item_class_vo(self, activity_item_class_vo: ActivityItemClassVO):
-        self._activity_item_class_vo = activity_item_class_vo
 
     @classmethod
     def from_repository_values(
@@ -161,7 +151,6 @@ class ActivityItemClassAR(LibraryItemAggregateRootBase):
         activity_instance_class_exists: Callable[[str], bool],
         activity_item_class_exists_by_name_callback: Callable[[str], bool],
         ct_term_exists: Callable[[str], bool],
-        ct_codelist_exists: Callable[[str], bool],
         generate_uid_callback: Callable[[], str | None] = (lambda: None),
     ) -> Self:
         item_metadata = LibraryItemMetadataVO.get_initial_item_metadata(
@@ -175,7 +164,6 @@ class ActivityItemClassAR(LibraryItemAggregateRootBase):
             activity_instance_class_exists=activity_instance_class_exists,
             activity_item_class_exists_by_name_callback=activity_item_class_exists_by_name_callback,
             ct_term_exists=ct_term_exists,
-            ct_codelist_exists=ct_codelist_exists,
         )
         activity_item_class_ar = cls(
             _uid=generate_uid_callback(),
@@ -193,7 +181,6 @@ class ActivityItemClassAR(LibraryItemAggregateRootBase):
         activity_instance_class_exists: Callable[[str], bool],
         activity_item_class_exists_by_name_callback: Callable[[str], bool],
         ct_term_exists: Callable[[str], bool],
-        ct_codelist_exists: Callable[[str], bool],
     ) -> None:
         """
         Creates a new draft version for the object.
@@ -204,7 +191,6 @@ class ActivityItemClassAR(LibraryItemAggregateRootBase):
             activity_item_class_exists_by_name_callback=activity_item_class_exists_by_name_callback,
             previous_name=self.name,
             ct_term_exists=ct_term_exists,
-            ct_codelist_exists=ct_codelist_exists,
         )
         if self._activity_item_class_vo != activity_item_class_vo:
             super()._edit_draft(

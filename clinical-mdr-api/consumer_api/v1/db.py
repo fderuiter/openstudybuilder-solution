@@ -2,7 +2,7 @@
 # pylint: disable=redefined-builtin
 from typing import Any
 
-from common.exceptions import NotFoundException
+from common.exceptions import NotFoundException, ValidationException
 from common.utils import validate_page_number_and_page_size
 from consumer_api.shared.common import (
     SortByType,
@@ -27,13 +27,61 @@ def get_base_query_for_study_root_and_value(study_version_number: str | None) ->
     """
 
 
+def get_base_query_for_study_root_and_value_with_study_id(
+    study_version_number: str | None, subpart: str | None
+) -> str:
+    base_query = "MATCH (study_root:StudyRoot)-[rel"
+    if study_version_number:
+        base_query += (
+            ":HAS_VERSION {version: $study_version_number, status: 'RELEASED'}"
+        )
+    else:
+        base_query += ":LATEST_RELEASED"
+    if subpart:
+        base_query += "]->(study_value:StudyValue {study_id_prefix: $project, study_number: $study_number, study_subpart_acronym: $subpart})"
+    else:
+        base_query += "]->(study_value:StudyValue {study_id_prefix: $project, study_number: $study_number})"
+    base_query += "WITH study_root, study_value, rel ORDER BY rel.end_date DESC LIMIT 1"
+    return base_query
+
+
+def get_latest_version_from_datetime(
+    project: str, study_number: str, datetime: str, subpart: str | None
+) -> str:
+    params = {
+        "project": project,
+        "study_number": study_number,
+        "datetime": datetime,
+        "subpart": subpart,
+    }
+    full_query = "MATCH (study_root:StudyRoot)-[hv:HAS_VERSION {status:'RELEASED'}]->"
+    if subpart:
+        full_query += "(study_value:StudyValue {study_id_prefix: $project, study_number: $study_number, study_subpart_acronym: $subpart})"
+    else:
+        full_query += "(study_value:StudyValue {study_id_prefix: $project, study_number: $study_number})"
+    full_query += """
+        where datetime(hv.end_date) <= datetime($datetime)
+        with hv ORDER BY hv.end_date DESC LIMIT 1
+        return hv.version AS version
+        """
+
+    res = query(full_query, params)
+
+    NotFoundException.raise_if_not(
+        res,
+        msg=f"Study has no RELEASED version before {datetime}.",
+    )
+
+    return res[0]["version"]
+
+
 def get_studies(
     sort_by: models.SortByStudies = models.SortByStudies.UID,
     sort_order: models.SortOrder = models.SortOrder.ASC,
     page_size: int = 10,
     page_number: int = 1,
     id: str = None,
-) -> list[dict]:
+) -> list[dict[Any, Any]]:
     validate_page_number_and_page_size(page_number, page_size)
 
     params = {}
@@ -41,7 +89,7 @@ def get_studies(
 
     if id is not None:
         params["id"] = id.strip()
-        filter_clause = "WHERE id CONTAINS toUpper($id)"
+        filter_clause = "WHERE toUpper(id) CONTAINS toUpper($id)"
 
     base_query = f"""
         MATCH (study_root:StudyRoot)-[:LATEST]->(study_value:StudyValue)
@@ -59,8 +107,8 @@ def get_studies(
             study_value.study_id_prefix as id_prefix,
             study_value.study_number as number,
             CASE study_value.subpart_id
-                WHEN IS NULL THEN toUpper(COALESCE(study_value.study_id_prefix, '') + "-" + COALESCE(study_value.study_number, ''))
-                ELSE toUpper(COALESCE(study_value.study_id_prefix, '') + "-" + COALESCE(study_value.study_number, '')) + "-" + study_value.subpart_id
+                WHEN IS NULL THEN COALESCE(study_value.study_id_prefix, '') + "-" + COALESCE(study_value.study_number, '')
+                ELSE COALESCE(study_value.study_id_prefix, '') + "-" + COALESCE(study_value.study_number, '') + "-" + study_value.subpart_id
             END AS id,
             COLLECT({{
                 version_status: hv.status,
@@ -123,7 +171,7 @@ def get_study_visits(
     page_size: int = 10,
     page_number: int = 1,
     study_version_number: str | None = None,
-) -> list[dict]:
+) -> list[dict[Any, Any]]:
     validate_page_number_and_page_size(page_number, page_size)
 
     params = {"study_uid": study_uid, "study_version_number": study_version_number}
@@ -137,6 +185,7 @@ def get_study_visits(
         OPTIONAL MATCH (study_epoch)-[:HAS_EPOCH]->(epoch_ct_term_root:CTTermRoot)-[:HAS_NAME_ROOT]->(:CTTermNameRoot)-[:LATEST]->(epoch_term:CTTermNameValue)
         OPTIONAL MATCH (study_visit)-[:HAS_TIMEPOINT]->(:TimePointRoot)-[:LATEST]->(:TimePointValue)-[:HAS_UNIT_DEFINITION]->(time_unit_unit_definition_root:UnitDefinitionRoot)-[:LATEST]->(time_unit_unit_definition_value:UnitDefinitionValue)
         OPTIONAL MATCH (study_visit)-[:HAS_TIMEPOINT]->(:TimePointRoot)-[:LATEST]->(:TimePointValue)-[:HAS_VALUE]->(time_value_root:NumericValueRoot)-[:LATEST]->(time_value_value:NumericValue)
+        OPTIONAL MATCH (study_visit)-[:HAS_TIMEPOINT]->(:TimePointRoot)-[:LATEST]->(:TimePointValue)-[:HAS_TIME_REFERENCE]->(time_ref_ct_root:CTTermRoot)-[:HAS_NAME_ROOT]->(:CTTermNameRoot)-[:LATEST]->(time_ref_ct_term_name_value:CTTermNameValue)
         OPTIONAL MATCH (study_visit)-[:HAS_WINDOW_UNIT]->(window_unit_unit_definition_root:UnitDefinitionRoot)-[:LATEST]->(window_unit_unit_definition_value:UnitDefinitionValue)
 
         WITH
@@ -148,6 +197,9 @@ def get_study_visits(
             study_visit.visit_window_min AS visit_window_min,
             study_visit.visit_window_max AS visit_window_max,
             study_visit.is_global_anchor_visit AS is_global_anchor_visit,
+            study_visit.visit_class AS visit_class,
+            study_visit.visit_subclass AS visit_subclass,
+            study_visit.visit_sublabel_reference AS anchor_visit_uid,
             visit_name_value.name AS visit_name,
             visit_type_ct_term_root.uid AS visit_type_uid,
             visit_type_ct_term_name_value.name AS visit_type_name,
@@ -157,8 +209,10 @@ def get_study_visits(
             epoch_term.name AS study_epoch_name,
             time_unit_unit_definition_root.uid AS time_unit_uid,
             time_unit_unit_definition_value.name AS time_unit_name,
+            time_unit_unit_definition_value.conversion_factor_to_master AS time_unit_conversion_factor_to_master,
             time_value_root.uid AS time_value_uid,
-            time_value_value.value AS time_value_value
+            time_value_value.value AS time_value_value,
+            time_ref_ct_term_name_value.name AS time_reference_name
         RETURN *
         """
 
@@ -187,7 +241,7 @@ def get_study_activities(
     page_size: int = 10,
     page_number: int = 1,
     study_version_number: str | None = None,
-) -> list[dict]:
+) -> list[dict[Any, Any]]:
     validate_page_number_and_page_size(page_number, page_size)
 
     params = {"study_uid": study_uid, "study_version_number": study_version_number}
@@ -261,7 +315,7 @@ def get_study_detailed_soa(
     page_size: int = 10,
     page_number: int = 1,
     study_version_number: str | None = None,
-) -> list[dict]:
+) -> list[dict[Any, Any]]:
     validate_page_number_and_page_size(page_number, page_size)
 
     params = {"study_uid": study_uid, "study_version_number": study_version_number}
@@ -317,7 +371,7 @@ def get_study_operational_soa(
     page_size: int = 10,
     page_number: int = 1,
     study_version_number: str | None = None,
-) -> list[dict]:
+) -> list[dict[Any, Any]]:
     validate_page_number_and_page_size(page_number, page_size)
 
     params = {"study_uid": study_uid, "study_version_number": study_version_number}
@@ -373,3 +427,65 @@ def get_study_operational_soa(
         ]
     )
     return query(full_query, params)
+
+
+def get_papillons_soa(
+    project: str,
+    study_number: str,
+    subpart: str | None = None,
+    datetime: str | None = None,
+    study_version_number: str | None = None,
+) -> dict[str, Any]:
+    if datetime:
+        study_version_number = get_latest_version_from_datetime(
+            project=project,
+            study_number=study_number,
+            datetime=datetime,
+            subpart=subpart,
+        )
+    api_version = "v1"
+    params = {
+        "project": project,
+        "study_number": study_number,
+        "subpart": subpart,
+        "study_version_number": study_version_number,
+        "api_version": api_version,
+        "specified_dt": datetime,
+    }
+    full_query = get_base_query_for_study_root_and_value_with_study_id(
+        study_version_number=study_version_number, subpart=subpart
+    )
+    full_query += """
+        match (study_value)-[:HAS_STUDY_ACTIVITY]->(study_activity:StudyActivity)-[:STUDY_ACTIVITY_HAS_SCHEDULE]->(study_activity_schedule:StudyActivitySchedule)
+        match (study_visit:StudyVisit)-[:STUDY_VISIT_HAS_SCHEDULE]->(study_activity_schedule)
+        match (study_activity)-[:STUDY_ACTIVITY_HAS_STUDY_ACTIVITY_INSTANCE]->(study_activity_instance:StudyActivityInstance)-[:HAS_SELECTED_ACTIVITY_INSTANCE]->(activity_instance_value:ActivityInstanceValue)
+        match (study_value)-[:HAS_STUDY_ACTIVITY_INSTANCE]->(study_activity_instance)
+        match (study_value)-[:HAS_STUDY_ACTIVITY_SCHEDULE]->(study_activity_schedule)
+        match (study_value)-[:HAS_STUDY_VISIT]->(study_visit)
+        WITH
+            study_value, rel, activity_instance_value, study_visit
+            order by toInteger(study_visit.unique_visit_number)
+        WITH
+            study_value, rel, activity_instance_value,
+            {topic_cd:activity_instance_value.topic_code,
+            visits: collect(distinct study_visit.unique_visit_number)} AS activities
+
+        return 
+        study_value.study_id_prefix  AS project,
+        study_value.study_number     AS study_number,
+        study_value.study_subpart_acronym       AS subpart,
+        COALESCE(study_value.study_id_prefix,"") + '-' + COALESCE(study_value.study_number ,"") + COALESCE(study_value.study_subpart_acronym ,"") AS full_study_id,
+        $api_version                 AS api_version,
+        rel.version           AS study_version,
+        $specified_dt                AS specified_dt,
+        toString(datetime())                   AS fetch_dt,
+        collect(activities)          AS SoA
+        """
+    res = query(full_query, params)
+
+    NotFoundException.raise_if(
+        len(res) == 0,
+        msg="Study SoA not found, please ensure the study has at least one released version.",
+    )
+    ValidationException.raise_if(len(res) > 1, msg="Too many results.")
+    return res[0]

@@ -57,7 +57,7 @@ from clinical_mdr_api.models.controlled_terminologies.ct_term import (
 )
 from clinical_mdr_api.models.utils import BaseModel, PostInputModel
 from clinical_mdr_api.models.validators import validate_string_represents_boolean
-from common import config
+from common.config import settings
 from common.utils import booltostr
 
 
@@ -330,7 +330,7 @@ class OdmItemGroupActivitySubGroupPostInput(PostInputModel):
 
 class OdmItemGroupItemPostInput(PostInputModel):
     uid: Annotated[str, Field(min_length=1)]
-    order_number: Annotated[int, Field(lt=config.MAX_INT_NEO4J)]
+    order_number: Annotated[int, Field(lt=settings.max_int_neo4j)]
     mandatory: Annotated[str, Field()]
     key_sequence: Annotated[str, Field()]
     method_oid: Annotated[str | None, Field()] = None

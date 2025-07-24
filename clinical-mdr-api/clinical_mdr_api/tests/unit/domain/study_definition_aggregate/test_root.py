@@ -34,7 +34,7 @@ from clinical_mdr_api.tests.unit.domain.study_definition_aggregate.test_study_me
 )
 from clinical_mdr_api.tests.unit.domain.utils import random_str
 from common import exceptions
-from common.config import DEFAULT_STUDY_FIELD_CONFIG_FILE
+from common.config import settings
 
 
 def _test_uid_generator() -> str:
@@ -88,7 +88,7 @@ def create_random_study(
         initial_study_intervention = random_valid_study_intervention(
             condition=new_study_intervention_condition, max_tries=max_tries
         )
-        result = StudyDefinitionAR.from_initial_values(
+        result: StudyDefinitionAR = StudyDefinitionAR.from_initial_values(
             generate_uid_callback=generate_uid_callback,
             initial_id_metadata=initial_id_metadata,
             project_exists_callback=(lambda _: True),
@@ -352,7 +352,9 @@ class TestStudyDefinitionAR(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.patcher = patch(
             target=study_configuration.__name__ + ".from_database",
-            new=lambda: study_configuration.from_file(DEFAULT_STUDY_FIELD_CONFIG_FILE),
+            new=lambda: study_configuration.from_file(
+                settings.default_study_field_config_file
+            ),
         )
         cls.patcher.start()
 
@@ -755,7 +757,7 @@ class TestStudyDefinitionAR(unittest.TestCase):
                 expected_released_description = (
                     study.latest_released_or_locked_metadata.ver_metadata.version_description
                 )
-                exp_released_ver_number = (
+                exp_released_ver_number: Decimal = (
                     given_study_released_metadata.ver_metadata.version_number
                     if given_study_released_metadata
                     else Decimal("0")
@@ -856,6 +858,8 @@ class TestStudyDefinitionAR(unittest.TestCase):
                 expected_version_number = (
                     given_latest_locked_metadata.ver_metadata.version_number + 1
                     if given_latest_locked_metadata is not None
+                    and given_latest_locked_metadata.ver_metadata.version_number
+                    is not None
                     else 1
                 )
 

@@ -8,6 +8,7 @@ from clinical_mdr_api.models.libraries.library import Library
 from clinical_mdr_api.routers import _generic_descriptions
 from clinical_mdr_api.services.libraries import libraries as service
 from common.auth import rbac
+from common.auth.dependencies import security
 
 # Prefixed with "/libraries"
 router = APIRouter()
@@ -15,7 +16,7 @@ router = APIRouter()
 
 @router.get(
     "",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns all libraries",
 )
 # pylint: disable=unused-argument
@@ -33,7 +34,7 @@ def get_libraries(
 
 @router.post(
     "",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Creates a new library.",
     status_code=201,
     responses={

@@ -1,3 +1,5 @@
+from typing import Any
+
 from neomodel import db
 
 from clinical_mdr_api.domain_repositories.concepts.concept_generic_repository import (
@@ -34,7 +36,7 @@ class ActivityGroupRepository(ConceptGenericRepository[ActivityGroupAR]):
     return_model = ActivityGroup
 
     def _create_aggregate_root_instance_from_cypher_result(
-        self, input_dict: dict
+        self, input_dict: dict[str, Any]
     ) -> ActivityGroupAR:
         major, minor = input_dict.get("version").split(".")
         return ActivityGroupAR.from_repository_values(
@@ -100,7 +102,7 @@ class ActivityGroupRepository(ConceptGenericRepository[ActivityGroupAR]):
 
     def create_query_filter_statement(
         self, library: str | None = None, **kwargs
-    ) -> tuple[str, dict]:
+    ) -> tuple[str, dict[Any, Any]]:
         (
             filter_statements_from_concept,
             filter_query_parameters,
@@ -159,7 +161,7 @@ class ActivityGroupRepository(ConceptGenericRepository[ActivityGroupAR]):
             MATCH (concept_root:ActivityGroupRoot)-[version:HAS_VERSION]->(concept_value:ActivityGroupValue)
         """
 
-    def get_cosmos_group_overview(self, group_uid: str) -> dict:
+    def get_cosmos_group_overview(self, group_uid: str) -> dict[str, Any]:
         """
         Get a COSMoS compatible representation of a specific activity group.
         Similar to get_group_overview but formatted for COSMoS.
@@ -198,11 +200,26 @@ class ActivityGroupRepository(ConceptGenericRepository[ActivityGroupAR]):
                     version: head([(activity_root)-[hv:HAS_VERSION]->(activity_value) | hv.version])
                 }]) AS linked_activities
         RETURN
-            group_value,
+            {
+                uid: group_root.uid,
+                name: group_value.name,
+                name_sentence_case: group_value.name_sentence_case,
+                definition: group_value.definition,
+                abbreviation: group_value.abbreviation
+            } AS group_value,
             group_library_name,
             linked_subgroups,
             linked_activities,
-            apoc.coll.dropDuplicateNeighbors(apoc.coll.sort(all_versions)) AS all_versions
+            apoc.coll.dropDuplicateNeighbors(
+                [v in apoc.coll.sortMulti(
+                    [v in all_versions | {
+                        version: v,
+                        major: toInteger(split(v, '.')[0]),
+                        minor: toInteger(split(v, '.')[1])
+                    }],
+                    ['major', 'minor']
+                ) | v.version]
+            ) AS all_versions
         """
 
         result_array, attribute_names = db.cypher_query(
@@ -227,7 +244,7 @@ class ActivityGroupRepository(ConceptGenericRepository[ActivityGroupAR]):
         skip: int = 0,
         limit: int = None,
         count_total: bool = False,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """
         Get the UIDs of all activity subgroups linked to a specific activity group version.
         Will return the latest version of each subgroup connected to this activity group version.
@@ -243,8 +260,11 @@ class ActivityGroupRepository(ConceptGenericRepository[ActivityGroupAR]):
             A dictionary containing the subgroups list and optionally the total count
         """
         query = """
-        // 1. Find a specific activity group version
+        // 1. Find a specific activity group version - use LIMIT 1 to handle duplicates
         MATCH (gr:ActivityGroupRoot {uid: $group_uid})-[gv_rel:HAS_VERSION {version: $version}]->(gv:ActivityGroupValue)
+        WITH gr, gv, gv_rel
+        ORDER BY gv_rel.start_date DESC
+        LIMIT 1
 
         // 2. Find when this version's validity ends (either its end_date or the start of the next version)
         OPTIONAL MATCH (gr)-[next_rel:HAS_VERSION]->(next_gv:ActivityGroupValue)
@@ -255,77 +275,45 @@ class ActivityGroupRepository(ConceptGenericRepository[ActivityGroupAR]):
                   ELSE gv_rel.end_date 
              END as version_end_date
 
-        // 3. Find all subgroup versions connected to this group with correct relationship direction
+        // 3. Find all subgroups linked to this group version through ActivityValidGroup
         MATCH (avg:ActivityValidGroup)-[:IN_GROUP]->(gv)
         MATCH (sgv:ActivitySubGroupValue)-[:HAS_GROUP]->(avg)
         MATCH (sgr:ActivitySubGroupRoot)-[sgv_rel:HAS_VERSION]->(sgv)
 
-        // Filter subgroup versions created before the group's next version/end date
-        // Only include Final status subgroups
+        // 4. Filter subgroup versions that existed when this activity group version was active
+        WITH gr, gv, gv_rel, version_end_date, sgr, sgv, sgv_rel
         WHERE sgv_rel.start_date <= COALESCE(version_end_date, datetime())
-        AND sgv_rel.status = "Final"
+        
+        // 5. Group by subgroup to get all valid versions
+        WITH DISTINCT sgr.uid as subgroup_uid,
+             collect(DISTINCT {
+                 version: sgv_rel.version,
+                 name: sgv.name,
+                 definition: sgv.definition,
+                 status: sgv_rel.status,
+                 major: toInteger(SPLIT(sgv_rel.version, '.')[0]),
+                 minor: toInteger(SPLIT(sgv_rel.version, '.')[1]),
+                 start_date: sgv_rel.start_date
+             }) as versions
 
-        // 4. Group by subgroup for processing
-        WITH 
-            gr.uid as group_uid, 
-            gv_rel.version as group_version,
-            sgr.uid as subgroup_uid, 
-            sgv_rel.version as subgroup_version,
-            sgv.name as subgroup_name,
-            sgv.definition as subgroup_definition,
-            sgv_rel.status as subgroup_status,
-            toInteger(SPLIT(sgv_rel.version, '.')[0]) as sg_major_version,
-            toInteger(SPLIT(sgv_rel.version, '.')[1]) as sg_minor_version
+        // 6. Find the highest version of each subgroup that existed before the activity group's end
+        WITH subgroup_uid, versions,
+             reduce(highest = versions[0], v IN versions | 
+                 CASE 
+                     WHEN v.major > highest.major THEN v
+                     WHEN v.major = highest.major AND v.minor > highest.minor THEN v
+                     ELSE highest
+                 END
+             ) as latest_version
+        WHERE latest_version IS NOT NULL
 
-        // 5. Collect all versions by subgroup
-        WITH 
-            subgroup_uid, 
-            collect({
-                sg_major: sg_major_version, 
-                sg_minor: sg_minor_version,
-                subgroup_version: subgroup_version, 
-                subgroup_name: subgroup_name,
-                subgroup_definition: subgroup_definition,
-                subgroup_status: subgroup_status
-            }) as versions
-
-        // 6. Find highest major version
-        WITH 
-            subgroup_uid, 
-            versions,
-            reduce(max_sg_major = 0, v IN versions | 
-                CASE WHEN v.sg_major > max_sg_major THEN v.sg_major ELSE max_sg_major END
-            ) as max_sg_major
-
-        // 7. Filter to only include versions with the maximum major version
-        WITH 
-            subgroup_uid, 
-            [v in versions WHERE v.sg_major = max_sg_major] as sg_max_major_versions,
-            max_sg_major
-
-        // 8. Find highest minor version
-        WITH 
-            subgroup_uid, 
-            max_sg_major,
-            reduce(max_sg_minor = -1, v IN sg_max_major_versions | 
-                CASE WHEN v.sg_minor > max_sg_minor THEN v.sg_minor ELSE max_sg_minor END
-            ) as max_sg_minor,
-            sg_max_major_versions
-
-        // 9. Extract the specific version information
-        WITH 
-            subgroup_uid, 
-            max_sg_major, 
-            max_sg_minor,
-            [v in sg_max_major_versions WHERE v.sg_minor = max_sg_minor][0] as sg_version_info
-
-        // 10. Return data in the required format
+        // 7. Return the appropriate version of each subgroup
         RETURN {
             uid: subgroup_uid,
-            name: sg_version_info.subgroup_name,
-            version: sg_version_info.subgroup_version,
-            status: sg_version_info.subgroup_status,
-            definition: sg_version_info.subgroup_definition
+            name: latest_version.name,
+            version: latest_version.version,
+            status: latest_version.status,
+            definition: latest_version.definition
         } as result
         """
 
@@ -350,8 +338,13 @@ class ActivityGroupRepository(ConceptGenericRepository[ActivityGroupAR]):
         total = None
         if count_total:
             count_query = """
-            // Same query as above but only count the results
+            // Count distinct subgroups with temporal filtering
             MATCH (gr:ActivityGroupRoot {uid: $group_uid})-[gv_rel:HAS_VERSION {version: $version}]->(gv:ActivityGroupValue)
+            WITH gr, gv, gv_rel
+            ORDER BY gv_rel.start_date DESC
+            LIMIT 1
+            
+            // Find when this version's validity ends
             OPTIONAL MATCH (gr)-[next_rel:HAS_VERSION]->(next_gv:ActivityGroupValue)
             WHERE toFloat(next_rel.version) > toFloat(gv_rel.version)
             WITH gv, gr, gv_rel, 
@@ -359,11 +352,11 @@ class ActivityGroupRepository(ConceptGenericRepository[ActivityGroupAR]):
                       THEN min(next_rel.start_date) 
                       ELSE gv_rel.end_date 
                  END as version_end_date
+                 
             MATCH (avg:ActivityValidGroup)-[:IN_GROUP]->(gv)
             MATCH (sgv:ActivitySubGroupValue)-[:HAS_GROUP]->(avg)
             MATCH (sgr:ActivitySubGroupRoot)-[sgv_rel:HAS_VERSION]->(sgv)
             WHERE sgv_rel.start_date <= COALESCE(version_end_date, datetime())
-            AND sgv_rel.status = "Final"
             RETURN count(DISTINCT sgr.uid) as total
             """
             count_result, _ = db.cypher_query(

@@ -12,6 +12,7 @@ Tests for /studies/{study_uid}/study-compounds endpoints
 import copy
 import json
 import logging
+from typing import Any
 from unittest import mock
 
 import pytest
@@ -43,7 +44,7 @@ HEADERS = {"content-type": "application/json"}
 BASE_URL = "/studies/{study_uid}/study-compounds"
 
 rand: str
-CREATE_STUDY_COMPOUND_PAYLOAD_OK: dict
+CREATE_STUDY_COMPOUND_PAYLOAD_OK: dict[Any, Any]
 study: Study
 ct_term_dosage: CTTerm
 ct_term_delivery_device: CTTerm

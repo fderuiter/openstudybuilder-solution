@@ -25,6 +25,7 @@
 import { ref } from 'vue'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import StudySelectorField from './StudySelectorField.vue'
+import studyApi from '@/api/study'
 
 const emit = defineEmits(['close', 'selected'])
 
@@ -41,8 +42,18 @@ async function select() {
   if (!valid) {
     return
   }
-  await studiesGeneralStore.selectStudy(selectedStudy.value)
-  emit('selected')
-  close()
+  studiesGeneralStore.selectedStudyVersion = null
+  studyApi
+    .getStudy(selectedStudy.value.uid)
+    .then((study) => {
+      selectedStudy.value = study.data
+      studiesGeneralStore.selectStudy(selectedStudy.value).then(() => {
+        emit('selected')
+        close()
+      })
+    })
+    .catch((error) => {
+      console.error('Error fetching study:', error)
+    })
 }
 </script>

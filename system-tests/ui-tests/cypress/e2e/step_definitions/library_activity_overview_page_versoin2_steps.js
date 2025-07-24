@@ -25,7 +25,7 @@ Then('The Activity instances table will be displayed with correct column', () =>
     });
 })
 
-Then('The linked group, subgroup and instance should be displayed in the Acivity groupings table', () => {
+Then('The linked group, subgroup and instance should be displayed in the Activity groupings table', () => {
     const expectedTexts = [apiGroupName, apiSubgroupName, apiInstanceName];
 
     // Select the tbody of the table and find the td elements
@@ -45,7 +45,7 @@ Then('The free text search field should be displayed in the Activity instances t
     cy.get('[data-cy="search-field"]').eq(1).should('be.visible'); // Check if the search field for Activity instances table is present
 })
 
-Then('The linked instance should be displayed in the Acivity instances table', () => {
+Then('The linked instance should be displayed in the Activity instances table', () => {
     cy.get('.v-row.activity-section').eq(1).find('[data-cy="data-table"]') 
     .get('tbody.v-data-table__tbody')
     .find('a.text-truncate')
@@ -100,7 +100,7 @@ Then('The status should be displayed as {string}', (status) => {
           });
     });
  
-Then('The instance in both Activity groupings and Acitivity instances table should be empty', () => {
+Then('The instance in both Activity groupings and Activity instances table should be empty', () => {
    //Check table Activity groupings
     const expectedTexts = [apiGroupName, apiSubgroupName]; // Only the first two expected values for checking
 
@@ -135,7 +135,7 @@ When('I select the version {string} from the Version dropdown list', (version) =
     // Click to open the version selection dropdown
     cy.get('.version-select .v-input__control').click();
         
-    // Find and select the value "0.1"
+    // Find and select the value
     cy.get('.v-list-item').contains(version).click();
     
     // Verify that the correct value is selected

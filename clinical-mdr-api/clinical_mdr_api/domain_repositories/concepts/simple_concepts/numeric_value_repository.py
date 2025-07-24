@@ -1,3 +1,5 @@
+from typing import Any
+
 from clinical_mdr_api.domain_repositories.concepts.simple_concepts.simple_concept_generic_repository import (
     SimpleConceptGenericRepository,
 )
@@ -49,7 +51,7 @@ class NumericValueRepository(SimpleConceptGenericRepository[NumericValueAR]):
         return concept_properties_changed or are_labels_changed or is_value_changed
 
     def _create_aggregate_root_instance_from_cypher_result(
-        self, input_dict: dict
+        self, input_dict: dict[str, Any]
     ) -> NumericValueAR:
         major, minor = input_dict.get("version").split(".")
         return self.aggregate_class.from_repository_values(

@@ -1,4 +1,5 @@
 import functools
+import inspect
 from collections.abc import Hashable
 from dataclasses import dataclass
 from enum import Enum
@@ -408,9 +409,9 @@ def create_duration_object_from_api_input(
 @trace_calls
 def service_level_generic_filtering(
     items: list[Any],
-    filter_by: dict | None = None,
+    filter_by: dict[str, dict[str, Any]] | None = None,
     filter_operator: FilterOperator = FilterOperator.AND,
-    sort_by: dict | None = None,
+    sort_by: dict[str, bool] | None = None,
     total_count: bool = False,
     page_number: int = 1,
     page_size: int = 0,
@@ -468,9 +469,9 @@ def service_level_generic_filtering(
 
 def generic_item_filtering(
     items: list[Any],
-    filter_by: dict | None = None,
+    filter_by: dict[str, dict[str, Any]] | None = None,
     filter_operator: FilterOperator = FilterOperator.AND,
-    sort_by: dict | None = None,
+    sort_by: dict[str, bool] | None = None,
 ) -> list[Any]:
     """
     Filters and sorts a list of items based on the provided filter and sort criteria.
@@ -533,7 +534,7 @@ def generic_item_filtering(
         for key in filters.elements:
             _values = filters.elements[key].v
             _operator = filters.elements[key].op
-            matching_items = list(
+            matching_items: list[Any] = list(
                 filter(
                     lambda x, k=key, v=_values, o=_operator: filter_aggregated_items(
                         x, k, v, o
@@ -641,7 +642,7 @@ def service_level_generic_header_filtering(
     field_name: str,
     filter_operator: FilterOperator = FilterOperator.AND,
     search_string: str = "",
-    filter_by: dict | None = None,
+    filter_by: dict[str, dict[str, Any]] | None = None,
     page_size: int = 10,
 ) -> list[Any]:
     """
@@ -712,7 +713,7 @@ def service_level_generic_header_filtering(
         for key in filters.elements:
             _values = filters.elements[key].v
             _operator = filters.elements[key].op
-            matching_items = list(
+            matching_items: list[Any] = list(
                 filter(
                     lambda x, k=key, v=_values, o=_operator: filter_aggregated_items(
                         x, k, v, o
@@ -724,7 +725,7 @@ def service_level_generic_header_filtering(
         filtered_items = _filtered_items
 
     # Return values for field_name
-    extracted_values = []
+    extracted_values: list[Any] = []
     for item in filtered_items:
         extracted_value = extract_nested_key_value(item, field_name)
         # The extracted value can be
@@ -765,7 +766,7 @@ def extract_nested_key_type(term, key):
 
 
 def extract_properties_for_wildcard(item, prefix: str = ""):
-    output = []
+    output: list[Any] = []
     if prefix:
         prefix += "."
     # item can be None - ignore if it is
@@ -1003,8 +1004,8 @@ def calculate_diffs_history(
     unique_list_uids = list({x.uid for x in selection_history})
     unique_list_uids.sort(reverse=True)
     # list of all study_elements
-    data = []
-    ith_selection_history = []
+    data: list[Any] = []
+    ith_selection_history: list[Any] = []
     for i_unique in unique_list_uids:
         ith_selection_history = []
         # gather the selection history of the i_unique Uid
@@ -1065,8 +1066,10 @@ def extract_filtering_values(filters, parameter_name, single_value=False):
 
 
 def build_simple_filters(
-    _vo_to_ar_filter_map: dict, filter_by: dict | None, sort_by: dict | None
-) -> dict | None:
+    _vo_to_ar_filter_map: dict[Any, Any],
+    filter_by: dict[Any, Any] | None,
+    sort_by: dict[Any, Any] | None,
+) -> dict[Any, Any] | None:
     if (
         filter_by is None
         or all(key in _vo_to_ar_filter_map.keys() for key in filter_by.keys())
@@ -1096,11 +1099,9 @@ class AggregatedTransactionProxy(neomodel.sync_.core.TransactionProxy):
     __manage_transaction = None
 
     def __enter__(self):
-        self.__manage_transaction = (
-            getattr(self.db, "_active_transaction", None) is None
-        )
+        self.__manage_transaction = self.db._active_transaction is None
         if self.__manage_transaction:
-            return super().__enter__()
+            super().__enter__()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -1108,6 +1109,29 @@ class AggregatedTransactionProxy(neomodel.sync_.core.TransactionProxy):
             super().__exit__(exc_type, exc_value, traceback)
 
 
-def ensure_transaction(db: neomodel.sync_.core.Database) -> Callable:
-    """decorator to ensure a database transaction: starts a new transaction if not already in an active transaction"""
-    return AggregatedTransactionProxy(db)
+_Func = TypeVar("_Func", bound=Callable[..., Any])
+
+
+def ensure_transaction(db: neomodel.sync_.core.Database) -> Callable[[_Func], _Func]:
+    """decorator to manage transaction `with TransactionProxy(db)` only if not already in db a transaction"""
+
+    def decorate(func: _Func) -> _Func:
+        if inspect.iscoroutinefunction(func):
+            raise TypeError(
+                f"@ensure_transaction cannot be used with async function '{func.__name__}'"
+            )
+
+        @functools.wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            if db._active_transaction is None:
+                # No active transaction, wrap call into TransactionProxy to start and manage a transaction
+                with neomodel.sync_.core.TransactionProxy(db):
+                    return func(*args, **kwargs)
+
+            else:
+                # Active transaction detected, just call func without managing a transaction
+                return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorate

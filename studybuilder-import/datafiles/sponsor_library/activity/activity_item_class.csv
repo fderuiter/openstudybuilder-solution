@@ -54,12 +54,12 @@ Events,toxicity,Toxicity,C27990,,,No,No,29,Yes,RECOQUAL,TEXT,
 Events,toxicity_grade,Records toxicity grade using a standard toxicity scale (such as the NCI CTCAE). Sponsor should specify which scale and version is used in the Sponsor Comments column of the Define.XML document.,C82528,,,No,No,30,Yes,RECOQUAL,TEXT,
 Events,medically_imp_serious_event,An important serious medical event,C82521,,,No,No,31,Yes,RECOQUAL,CTTERM,NY
 Finding,reference_id,Reference identifier,C82531,,,No,No,1,Yes,IDENTIFIER,TEXT,
-Finding,test_code,Test code linkage to external or sponsor-defined controlled  terminology,C82503,,,Yes,No,2,Yes,TOPIC,CTTERM,DDTESTCD;FATESTCD;QSTESTCD;RPTESTCD;RSTESTCD;SCTESTCD;VSTESTCD;ZATESTCD;BSTESTCD;CVTESTCD;DATESTCD;DOTESTCD;DUTESTCD;EGTESTCD;FTTESTCD;IETESTCD;ISTESTCD;LBTESTCD;MBTESTCD;MITESTCD;MKTESTCD;MOTESTCD;MSTESTCD;NVTESTCD;OETESTCD;PCTESTCD;PETESTCD;PFTESTCD;RETESTCD;SRTESTCD;SSTESTCD;TRTESTCD;TUTESTCD;URTESTCD;XATESTCD;XSTESTCD;ZITESTCD
-Finding,test_name,Test name linkage to external or sponsor-defined controlled  terminology,C82541,,,Yes,No,3,Yes,SYNOQUAL,CTTERM,DDTEST;FATEST;QSTEST;RPTEST;RSTEST;VSTEST;ZATEST;BSTEST;CVTEST;DATEST;DOTEST;DUTEST;EGTEST;FTTEST;IETEST;ISTEST;LBTEST;MBTEST;MITEST;MKTEST;MOTEST;MSTEST;NVTEST;OETEST;PCTEST;PETEST;PFTEST;RETEST;SRTEST;SSTEST;TRTEST;TUTEST;URTEST;XATEST;XSTEST;ZITEST
+Finding,test_code,Test code linkage to external or sponsor-defined controlled  terminology,C82503,,,Yes,No,2,Yes,TOPIC,CTTERM,DDTESTCD;FATESTCD;TSQM01TC;RPTESTCD;AIMS01TC;SCTESTCD;VSTESTCD;ZATESTCD;BSTESTCD;CVTESTCD;DATESTCD;DOTESTCD;DUTESTCD;EGTESTCD;ADCTC;ISTESTCD;LBTESTCD;MBTESTCD;MITESTCD;MUSCTSCD;MOTESTCD;MSTESTCD;NVTESTCD;OETESTCD;PCTESTCD;PFTESTCD;RETESTCD;SRTESTCD;SSTESTCD;TRTESTCD;TUTESTCD;URNSTSCD;GASTROCD
+Finding,test_name,Test name linkage to external or sponsor-defined controlled  terminology,C82541,,,Yes,No,3,Yes,SYNOQUAL,CTTERM,DDTEST;FATEST;TSQM01TN;RPTEST;AIMS01TN;VSTEST;ZATEST;BSTEST;CVTEST;DATEST;DOTEST;DUTEST;EGTEST;ADCTN;ISTEST;LBTEST;MBTEST;MITEST;MUSCTS;MOTEST;MSTEST;NVTEST;OETEST;PCTEST;PFTEST;RETEST;SRTEST;SSTEST;TRTEST;TUTEST;URNSTS;GASTRO
 Finding,object_of_observation,Object of the observation,C82546,,,No,No,4,Yes,RECOQUAL,TEXT,
 Finding,repitition_number,Repitition number,,,,No,No,5,No,RECOQUAL,FLOAT,
 Finding,test_detail,"Measurement, Test or Examination Detail",C117062,,,No,No,6,Yes,RECOQUAL,CTTERM,MIFTSDTL
-Finding,finding_category,Finding category of related records.,C25372,,,No,No,7,No,GROUQUAL,CTTERM,QSCAT;RPCAT;CCCAT;VSCAT;EGCAT;IECAT;OECAT;PECAT;QSCAT;RPCAT;CCCAT;IECAT;VSCAT
+Finding,finding_category,Finding category of related records.,C25372,,,No,No,7,No,GROUQUAL,CTTERM,QSCAT;RPCAT;CCCAT;VSCAT;EGCAT;IECAT;OECAT;QSCAT;RPCAT;CCCAT;IECAT;VSCAT
 Finding,finding_subcategory,Finding sub-Category of related records.,C25692,,,No,No,8,No,GROUQUAL,TEXT,
 Finding,position,Position of subject,C71148,,,No,Yes,9,Yes,RECOQUAL,CTTERM,POSITION
 Finding,normal_range_lower_limit,Lower Normal Limit,C82580,,,No,No,10,Yes,VARIQUAL,FLOAT,
@@ -89,7 +89,7 @@ Finding,time_point,Text description of time when a measurement or observation sh
 Finding,elapsed_time,"Planned Elapsed time in ISO 8601 format which is relative to a planned fixed reference. It is to be used when there are repetitive measurements. It is not a clock time or a date/time variable, but an interval.",C82572,,,No,No,34,Yes,RECOQUAL,TEXT,
 Finding,evaluation_interval,Evaluation interval,C82534,,,No,No,35,Yes,TIMING,TEXT,
 Finding,evaluation_interval_text,"Evaluation interval associated with an observation, where the interval is not able to be represented in ISO 8601 format",C117044,,,No,No,36,Yes,TIMING,TEXT,
-CategoricFindings,categoric_finding_original_result,Categoric Finding Original result,C117221,,,No,No,1,Yes,RESUQUAL,CTTERM,HEP_CQ; QUEST_RESPONSE; YESNO
+CategoricFindings,categoric_finding_original_result,Categoric Finding Original result,C117221,,,No,No,1,Yes,RESUQUAL,CTTERM,HEP_CQ; NY
 NumericFindings,numeric_finding_original_result,Numeric Finding Original result,C117221,,,No,No,1,Yes,RESUQUAL,FLOAT,
 NumericFindings,numeric_finding_original_result_unit,Numeric Finding Original result unit,C82586,,,No,No,2,Yes,VARIQUAL,CTTERM,UNIT
 NumericFindings,standard_unit,Standardised unit,C82587,,,Yes,Yes,3,Yes,VARIQUAL,CTTERM,UNIT
@@ -108,7 +108,7 @@ Interventions,dose,Amount of treatment in numeric format,C25488,,,No,No,10,Yes,R
 Interventions,dose_description,Amount of treatment in non-numeric format,C70961,,,No,No,11,Yes,RECOQUAL,TEXT,
 Interventions,dose_unit,Unit for dose,C166259,,,No,No,12,Yes,VARIQUAL,CTTERM,UNIT
 Interventions,dose_form,Dose form for treatment,C42636,,,No,No,13,Yes,VARIQUAL,CTTERM,FRM
-Interventions,frequency,Intended schedule or regimen for the Intervention,C71113,,,No,No,14,Yes,VARIQUAL,CTTERM,FRQ
+Interventions,frequency,Intended schedule or regimen for the Intervention,C71113,,,No,No,14,Yes,VARIQUAL,CTTERM,FREQ
 Interventions,total_daily_dose,Total daily dose of treatment,C70888,,,No,No,15,Yes,RECOQUAL,FLOAT,
 Interventions,dose_regimen,Intended schedule or regimen for the Intervention,C71137,,,No,No,16,Yes,VARIQUAL,TEXT,
 Interventions,route,Route of administration of treatment,C38114,,,No,No,17,Yes,VARIQUAL,CTTERM,ROUTE

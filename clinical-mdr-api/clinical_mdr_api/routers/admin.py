@@ -8,6 +8,7 @@ from clinical_mdr_api.routers import _generic_descriptions
 from clinical_mdr_api.services._meta_repository import MetaRepository
 from common import exceptions
 from common.auth import rbac
+from common.auth.dependencies import security
 
 # Prefixed with "/admin"
 router = APIRouter()
@@ -21,7 +22,7 @@ CACHE_STORE_NAMES = [
 
 @router.get(
     "/caches",
-    dependencies=[rbac.ADMIN_READ],
+    dependencies=[security, rbac.ADMIN_READ],
     summary="Returns all cache stores",
     status_code=200,
     responses={
@@ -29,14 +30,16 @@ CACHE_STORE_NAMES = [
         404: _generic_descriptions.ERROR_404,
     },
 )
-def get_caches(show_items: Annotated[bool | None, Query()] = False) -> list[dict]:
+def get_caches(
+    show_items: Annotated[bool | None, Query()] = False,
+) -> list[dict[Any, Any]]:
     all_repos = _get_all_repos()
     return [_get_cache_info(x, show_items) for x in all_repos]
 
 
 @router.delete(
     "/caches",
-    dependencies=[rbac.ADMIN_WRITE],
+    dependencies=[security, rbac.ADMIN_WRITE],
     summary="Clears all cache stores",
     status_code=200,
     responses={
@@ -44,7 +47,7 @@ def get_caches(show_items: Annotated[bool | None, Query()] = False) -> list[dict
         404: _generic_descriptions.ERROR_404,
     },
 )
-def clear_caches() -> list[dict]:
+def clear_caches() -> list[dict[Any, Any]]:
     all_repos = _get_all_repos()
     for repo in all_repos:
         for store_name in CACHE_STORE_NAMES:
@@ -57,7 +60,7 @@ def clear_caches() -> list[dict]:
 
 @router.get(
     "/users",
-    dependencies=[rbac.ADMIN_READ],
+    dependencies=[security, rbac.ADMIN_READ],
     summary="Returns all users",
     status_code=200,
     responses={
@@ -72,7 +75,7 @@ def get_users() -> list[UserInfo]:
 
 @router.patch(
     "/users/{user_id}",
-    dependencies=[rbac.ADMIN_WRITE],
+    dependencies=[security, rbac.ADMIN_WRITE],
     summary="Patch user",
     description="Set the username and/or email of a user",
     status_code=200,
@@ -99,7 +102,7 @@ def _get_all_repos():
     return all_repos
 
 
-def _get_cache_info(repo: Any, show_items: bool = False) -> dict:
+def _get_cache_info(repo: Any, show_items: bool = False) -> dict[str, Any]:
     ret = {
         "class": str(repo.__class__),
         "cache_stores": [],

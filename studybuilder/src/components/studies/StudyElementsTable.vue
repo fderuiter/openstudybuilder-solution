@@ -153,7 +153,6 @@ import filteringParameters from '@/utils/filteringParameters'
 import HistoryTable from '@/components/tools/HistoryTable.vue'
 import { useAccessGuard } from '@/composables/accessGuard'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
-import { useUnitsStore } from '@/stores/units'
 import { computed, onMounted, inject, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
@@ -165,7 +164,6 @@ const studiesGeneralStore = useStudiesGeneralStore()
 const accessGuard = useAccessGuard()
 const table = ref()
 const confirm = ref()
-const unitsStore = useUnitsStore()
 
 const [parent, studyElements] = useDragAndDrop([], {
   onDragend: (event) => {
@@ -242,7 +240,7 @@ const studyElementHistoryTitle = computed(() => {
 })
 
 onMounted(() => {
-  unitsStore.fetchUnits()
+  studiesGeneralStore.fetchUnits()
   terms.getByCodelist('elementTypes').then((resp) => {
     elementTypes.value = resp.data.items
   })

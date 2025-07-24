@@ -1,6 +1,7 @@
 """Service for study activity instructions."""
 
 import datetime
+from typing import Any
 
 from fastapi import status
 from neomodel import db
@@ -49,10 +50,10 @@ class StudyActivityInstructionService(StudySelectionMixin):
     @db.transaction
     def get_all_instructions_for_all_studies(
         self,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
     ) -> GenericFilteringReturn[StudyActivityInstruction]:
@@ -150,7 +151,7 @@ class StudyActivityInstructionService(StudySelectionMixin):
     def _create_activity_instruction(
         self, activity_instruction_data: ActivityInstructionCreateInput
     ) -> ActivityInstructionAR:
-        service = ActivityInstructionService()
+        service: ActivityInstructionService = ActivityInstructionService()
         activity_instruction_ar = service.create_ar_from_input_values(
             activity_instruction_data
         )

@@ -48,7 +48,7 @@ def test_create_a_new_odm_item(api_client):
         "name": "name1",
         "oid": "oid1",
         "prompt": "prompt1",
-        "datatype": "datatype1",
+        "datatype": "string",
         "length": 11,
         "significant_digits": 11,
         "sas_field_name": "sas_field_name1",
@@ -82,7 +82,7 @@ def test_create_a_new_odm_item(api_client):
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 11
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -249,7 +249,7 @@ def test_add_odm_vendor_element_to_an_odm_item(api_client):
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 11
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -338,7 +338,7 @@ def test_add_odm_vendor_element_attribute_to_an_odm_item(api_client):
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 11
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -427,7 +427,7 @@ def test_cannot_create_a_new_odm_item_with_same_properties(api_client):
         "name": "name1",
         "oid": "oid1",
         "prompt": "prompt1",
-        "datatype": "datatype1",
+        "datatype": "string",
         "length": 11,
         "significant_digits": 11,
         "sas_field_name": "sas_field_name1",
@@ -459,7 +459,7 @@ def test_cannot_create_a_new_odm_item_with_same_properties(api_client):
     assert res["type"] == "AlreadyExistsException"
     assert (
         res["message"]
-        == "ODM Item already exists with UID (OdmItem_000001) and data {'description_uids': ['odm_description2', 'odm_description3'], 'alias_uids': ['odm_alias1'], 'unit_definition_uids': ['unit_definition_root1'], 'codelist_uid': 'editable_cr', 'term_uids': ['term_root_final'], 'name': 'name1', 'oid': 'oid1', 'datatype': 'datatype1', 'prompt': 'prompt1', 'length': 11, 'significant_digits': 11, 'sas_field_name': 'sas_field_name1', 'sds_var_name': 'sds_var_name1', 'origin': 'origin1', 'comment': 'comment1'}"
+        == "ODM Item already exists with UID (OdmItem_000001) and data {'library_name': 'Sponsor', 'alias_uids': ['odm_alias1'], 'unit_definition_uids': ['unit_definition_root1'], 'codelist_uid': 'editable_cr', 'term_uids': ['term_root_final'], 'name': 'name1', 'oid': 'oid1', 'datatype': 'string', 'prompt': 'prompt1', 'length': 11, 'significant_digits': 11, 'sas_field_name': 'sas_field_name1', 'sds_var_name': 'sds_var_name1', 'origin': 'origin1', 'comment': 'comment1'}"
     )
 
 
@@ -469,7 +469,7 @@ def test_cannot_create_an_odm_item_connected_to_non_existent_concepts(api_client
         "name": "new name",
         "oid": "new oid",
         "prompt": "prompt1",
-        "datatype": "datatype1",
+        "datatype": "string",
         "length": 11,
         "significant_digits": 11,
         "sas_field_name": "sas_field_name1",
@@ -501,7 +501,7 @@ def test_cannot_create_an_odm_item_connected_to_non_existent_codelist(api_client
         "name": "new name",
         "oid": "new oid",
         "prompt": "prompt1",
-        "datatype": "datatype1",
+        "datatype": "string",
         "length": 11,
         "significant_digits": 11,
         "sas_field_name": "sas_field_name1",
@@ -535,7 +535,7 @@ def test_cannot_create_an_odm_item_connected_to_ct_terms_without_providing_a_cod
         "name": "new name",
         "oid": "new oid",
         "prompt": "prompt1",
-        "datatype": "datatype1",
+        "datatype": "string",
         "length": 11,
         "significant_digits": 11,
         "sas_field_name": "sas_field_name1",
@@ -566,7 +566,7 @@ def test_cannot_create_an_odm_item_connected_to_ct_terms_belonging_to_a_codelist
         "name": "new name",
         "oid": "new oid",
         "prompt": "prompt1",
-        "datatype": "datatype1",
+        "datatype": "string",
         "length": 11,
         "significant_digits": 11,
         "sas_field_name": "sas_field_name1",
@@ -697,7 +697,7 @@ def test_approve_odm_item(api_client):
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 11
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -792,7 +792,7 @@ def test_inactivate_odm_item(api_client):
     assert res["name"] == "name1"
     assert res["oid"] == "oid1"
     assert res["prompt"] == "prompt1"
-    assert res["datatype"] == "datatype1"
+    assert res["datatype"] == "string"
     assert res["length"] == 11
     assert res["significant_digits"] == 11
     assert res["sas_field_name"] == "sas_field_name1"
@@ -935,3 +935,113 @@ def test_cannot_add_odm_vendor_element_attribute_to_an_odm_item_that_is_in_retir
 
     assert res["type"] == "BusinessLogicException"
     assert res["message"] == "The object is inactive"
+
+
+def test_cannot_provide_non_null_length_when_datatype_is_not_string_text_integer_or_float(
+    api_client,
+):
+    data = {
+        "library_name": "Sponsor",
+        "name": "name",
+        "datatype": "date",
+        "length": 11,
+        "significant_digits": 11,
+    }
+    response = api_client.post("concepts/odms/items", json=data)
+
+    assert_response_status_code(response, 422)
+
+    res = response.json()
+
+    assert res == {
+        "detail": [
+            {
+                "ctx": {
+                    "error": {},
+                },
+                "input": {
+                    "datatype": "date",
+                    "length": 11,
+                    "library_name": "Sponsor",
+                    "name": "name",
+                    "significant_digits": 11,
+                },
+                "loc": ["body"],
+                "msg": "Value error, When datatype is not 'text', 'string', 'integer' or "
+                "'float', length must be null.",
+                "type": "value_error",
+            },
+        ],
+    }
+
+
+def test_cannot_provide_null_length_when_datatype_is_string_or_text(api_client):
+    data = {
+        "library_name": "Sponsor",
+        "name": "name",
+        "datatype": "text",
+        "length": None,
+        "significant_digits": 11,
+    }
+    response = api_client.post("concepts/odms/items", json=data)
+
+    assert_response_status_code(response, 422)
+
+    res = response.json()
+
+    assert res == {
+        "detail": [
+            {
+                "ctx": {
+                    "error": {},
+                },
+                "input": {
+                    "datatype": "text",
+                    "length": None,
+                    "library_name": "Sponsor",
+                    "name": "name",
+                    "significant_digits": 11,
+                },
+                "loc": ["body"],
+                "msg": "Value error, When datatype is 'text' or 'string', length must be provided.",
+                "type": "value_error",
+            },
+        ],
+    }
+
+
+def test_cannot_provide_only_one_of_length_or_significant_digits_when_datatype_is_float_both_must_either_be_provided_or_null(
+    api_client,
+):
+    data = {
+        "library_name": "Sponsor",
+        "name": "name",
+        "datatype": "float",
+        "length": None,
+        "significant_digits": 11,
+    }
+    response = api_client.post("concepts/odms/items", json=data)
+
+    assert_response_status_code(response, 422)
+
+    res = response.json()
+
+    assert res == {
+        "detail": [
+            {
+                "ctx": {
+                    "error": {},
+                },
+                "input": {
+                    "datatype": "float",
+                    "length": None,
+                    "library_name": "Sponsor",
+                    "name": "name",
+                    "significant_digits": 11,
+                },
+                "loc": ["body"],
+                "msg": "Value error, When datatype is 'float', both length and significant_digits must be provided together, or both must be null.",
+                "type": "value_error",
+            },
+        ],
+    }

@@ -11,6 +11,7 @@ Tests for /concepts/active-substances endpoints
 import json
 import logging
 from functools import reduce
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -145,7 +146,7 @@ def test_get_active_substance(api_client):
     assert_response_status_code(response, 200)
 
     # Check fields included in the response
-    assert set(list(res.keys())) == set(ACTIVE_SUBSTANCE_FIELDS_ALL)
+    assert set(res.keys()) == set(ACTIVE_SUBSTANCE_FIELDS_ALL)
     for key in ACTIVE_SUBSTANCE_FIELDS_NOT_NULL:
         assert res[key] is not None
 
@@ -199,6 +200,7 @@ def test_get_active_substances_versions_csv_xml_excel(api_client, export_format)
 
 
 def test_update_active_substance_property(api_client):
+    payload: dict[Any, Any]
     # First try a dummy patch with no new property values in the payload
     payload = {
         "unii_term_uid": dictionary_term_unii.term_uid,
@@ -325,6 +327,7 @@ def test_update_active_substance_unii(api_client):
         name="Substance 123",
     )
 
+    payload: dict[Any, Any]
     # Change unii value
     payload = {
         "unii_term_uid": unii_term_new.term_uid,
@@ -465,20 +468,24 @@ def test_get_active_substance_versioning(api_client):
 
 
 def test_get_active_substances_pagination(api_client):
-    results_paginated: dict = {}
+    results_paginated: dict[Any, Any] = {}
     sort_by = '{"analyte_number": true}'
     for page_number in range(1, 4):
         url = f"/concepts/active-substances?page_number={page_number}&page_size=10&sort_by={sort_by}"
         response = api_client.get(url)
         res = response.json()
-        res_analyte_numbers = list(map(lambda x: x["analyte_number"], res["items"]))
+        res_analyte_numbers = [item["analyte_number"] for item in res["items"]]
         results_paginated[page_number] = res_analyte_numbers
         log.info("Page %s: %s", page_number, res_analyte_numbers)
 
     log.info("All pages: %s", results_paginated)
 
     results_paginated_merged = list(
-        set(list(reduce(lambda a, b: a + b, list(results_paginated.values()))))
+        set(
+            list(
+                reduce(lambda a, b: list(a) + list(b), list(results_paginated.values()))
+            )
+        )
     )
     log.info("All unique rows returned by pagination: %s", results_paginated_merged)
 

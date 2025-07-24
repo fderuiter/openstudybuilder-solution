@@ -1,4 +1,5 @@
 import re
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
@@ -16,11 +17,11 @@ from clinical_mdr_api.services.controlled_terminologies.ct_codelist import (
 )
 from clinical_mdr_api.services.controlled_terminologies.ct_term import CTTermService
 from clinical_mdr_api.tests.integration.utils.utils import LIBRARY_NAME, TestUtils
-from common import config
+from common.config import settings
 
 library_data = {"name": "Test library", "is_editable": True}
 
-template_data = {
+template_data: dict[str, Any] = {
     "name": "Test_Name_Template",
     "library": library_data,
     "library_name": "Test library",
@@ -374,7 +375,7 @@ CREATE (odm_description_root1)-[hv1:HAS_VERSION]->(odm_description_value1)
 SET hv1 = final_properties
 
 MERGE (item_root1:ConceptRoot:OdmItemRoot {uid: "odm_item1"})
-MERGE (item_value1:ConceptValue:OdmItemValue {oid: "oid1", name: "name1", datatype: "datatype1", length: 1, significant_digits: 1, sas_field_name: "sasfieldname1", sds_var_name: "sdsvarname1", origin: "origin1", comment: "comment1"})
+MERGE (item_value1:ConceptValue:OdmItemValue {oid: "oid1", name: "name1", datatype: "string", length: 1, significant_digits: 1, sas_field_name: "sasfieldname1", sds_var_name: "sdsvarname1", origin: "origin1", comment: "comment1"})
 MERGE (library)-[:CONTAINS_CONCEPT]->(item_root1)
 MERGE (item_root1)-[r1:LATEST_FINAL]->(item_value1)
 MERGE (item_root1)-[hv2:HAS_VERSION]->(item_value1)
@@ -1448,7 +1449,11 @@ MERGE (library)-[:CONTAINS_CONCEPT]->(activity_root1:ConceptRoot:ActivityRoot {u
 name:"name1",
 name_sentence_case:"name1",
 definition:"definition1",
-abbreviation:"abbv"
+abbreviation:"abbv",
+is_request_final: false,
+is_request_rejected: false,
+is_data_collected: false,
+is_multiple_selection_allowed: true
 })
 MERGE (activity_root1)-[latest_final1:LATEST_FINAL]->(activity_value1)
 MERGE (activity_root1)-[has_version1:HAS_VERSION]->(activity_value1)
@@ -1475,7 +1480,12 @@ MERGE (library)-[:CONTAINS_CONCEPT]->(activity_root2:ConceptRoot:ActivityRoot {u
 name:"name2",
 name_sentence_case:"name2",
 definition:"definition2",
-abbreviation:"abbv"
+abbreviation:"abbv",
+is_request_final: false,
+is_request_rejected: false,
+is_data_collected: false,
+is_multiple_selection_allowed: true,
+synonyms: []
 })
 MERGE (activity_root2)-[latest_draft2:LATEST_DRAFT]->(activity_value2)
 MERGE (activity_root2)-[has_version2:HAS_VERSION]->(activity_value2)
@@ -2352,7 +2362,7 @@ MERGE (pr5)-[hv5:HAS_VERSION]->(prv5)
 set hv5 = final_properties
 
 //Study Endpoint
-MERGE (endpoint:TemplateParameter {{name: '{config.STUDY_ENDPOINT_TP_NAME}'}})
+MERGE (endpoint:TemplateParameter {{name: '{settings.study_endpoint_tp_name}'}})
 
 CREATE (l)-[:CONTAINS]->(pr1)
 CREATE (l)-[:CONTAINS]->(pr2)
@@ -3069,7 +3079,7 @@ CREATE_BASE_TEMPLATE_PARAMETER_TREE = f"""
         MERGE (lag_time)-[:HAS_PARENT_PARAMETER]->(numeric_values)
 
         //Study Endpoint
-        MERGE (endpoint:TemplateParameter {{name: '{config.STUDY_ENDPOINT_TP_NAME}'}})
+        MERGE (endpoint:TemplateParameter {{name: '{settings.study_endpoint_tp_name}'}})
 """
 
 CREATE_NA_TEMPLATE_PARAMETER = """
@@ -3468,7 +3478,7 @@ def create_paths():
     return _create_paths(app)
 
 
-def _create_paths(app: FastAPI, path_prefix="") -> list[dict[str, any]]:
+def _create_paths(app: FastAPI, path_prefix="") -> list[dict[str, Any]]:
     paths = []
     for route in app.routes:
         if isinstance(route, APIRoute):
@@ -3512,15 +3522,17 @@ def inject_base_data(inject_unit_subset: bool = True) -> Study:
     )
 
     ## Libraries
-    TestUtils.create_library(config.CDISC_LIBRARY_NAME, True)
+    TestUtils.create_library(settings.cdisc_library_name, True)
     TestUtils.create_library("Sponsor", True)
     TestUtils.create_library("SNOMED", True)
-    TestUtils.create_library(name=config.REQUESTED_LIBRARY_NAME, is_editable=True)
+    TestUtils.create_library(name=settings.requested_library_name, is_editable=True)
     TestUtils.create_ct_catalogue(
-        library=config.CDISC_LIBRARY_NAME, catalogue_name=config.SDTM_CT_CATALOGUE_NAME
+        library=settings.cdisc_library_name,
+        catalogue_name=settings.sdtm_ct_catalogue_name,
     )
     TestUtils.create_ct_catalogue(
-        library=config.CDISC_LIBRARY_NAME, catalogue_name=config.ADAM_CT_CATALOGUE_NAME
+        library=settings.cdisc_library_name,
+        catalogue_name=settings.adam_ct_catalogue_name,
     )
     unit_subsets = []
     if inject_unit_subset:
@@ -3539,33 +3551,33 @@ def inject_base_data(inject_unit_subset: bool = True) -> Study:
 
     ## Unit Definitions
     TestUtils.create_unit_definition(
-        name=config.DAY_UNIT_NAME,
+        name=settings.day_unit_name,
         convertible_unit=True,
         display_unit=True,
         master_unit=False,
         si_unit=True,
         us_conventional_unit=True,
-        conversion_factor_to_master=config.DAY_UNIT_CONVERSION_FACTOR_TO_MASTER,
+        conversion_factor_to_master=settings.day_unit_conversion_factor_to_master,
         unit_subsets=unit_subsets,
     )
     TestUtils.create_unit_definition(
-        name=config.DAYS_UNIT_NAME,
+        name=settings.days_unit_name,
         convertible_unit=True,
         display_unit=True,
         master_unit=False,
         si_unit=True,
         us_conventional_unit=True,
-        conversion_factor_to_master=config.DAY_UNIT_CONVERSION_FACTOR_TO_MASTER,
+        conversion_factor_to_master=settings.day_unit_conversion_factor_to_master,
         unit_subsets=unit_subsets,
     )
     TestUtils.create_unit_definition(
-        name=config.WEEK_UNIT_NAME,
+        name=settings.week_unit_name,
         convertible_unit=True,
         display_unit=True,
         master_unit=False,
         si_unit=True,
         us_conventional_unit=True,
-        conversion_factor_to_master=config.WEEK_UNIT_CONVERSION_FACTOR_TO_MASTER,
+        conversion_factor_to_master=settings.week_unit_conversion_factor_to_master,
         unit_subsets=unit_subsets,
     )
 
@@ -3577,10 +3589,12 @@ def inject_base_data(inject_unit_subset: bool = True) -> Study:
     TestUtils.create_study_fields_configuration()
 
     ## Study
-    study = TestUtils.create_study("123", "study_root", project.project_number)
+    study = TestUtils.create_study(
+        TestUtils.get_study_number(), "study_root", project.project_number
+    )
 
     TestUtils.set_study_standard_version(
-        study_uid=study.uid, catalogue=config.SDTM_CT_CATALOGUE_NAME
+        study_uid=study.uid, catalogue=settings.sdtm_ct_catalogue_name
     )
 
     return study
@@ -3595,7 +3609,7 @@ def fix_study_preferred_time_unit(study_uid):
         u.name: u
         for u in unit_definition_service.get_all(library_name=LIBRARY_NAME).items
     }
-    if unit_definition := unit_definitions.get(config.DAY_UNIT_NAME):
+    if unit_definition := unit_definitions.get(settings.day_unit_name):
         if unit_definition.status in {
             LibraryItemStatus.DRAFT,
             LibraryItemStatus.RETIRED,
@@ -3640,23 +3654,23 @@ def fix_study_preferred_time_unit(study_uid):
             )
 
         unit_definition = TestUtils.create_unit_definition(
-            name=config.DAY_UNIT_NAME,
+            name=settings.day_unit_name,
             convertible_unit=True,
             display_unit=True,
             master_unit=False,
             si_unit=True,
             us_conventional_unit=True,
-            conversion_factor_to_master=config.DAY_UNIT_CONVERSION_FACTOR_TO_MASTER,
+            conversion_factor_to_master=settings.day_unit_conversion_factor_to_master,
             unit_subsets=[unit_subset_term.term_uid],
         )
         TestUtils.create_unit_definition(
-            name=config.WEEK_UNIT_NAME,
+            name=settings.week_unit_name,
             convertible_unit=True,
             display_unit=True,
             master_unit=False,
             si_unit=True,
             us_conventional_unit=True,
-            conversion_factor_to_master=config.WEEK_UNIT_CONVERSION_FACTOR_TO_MASTER,
+            conversion_factor_to_master=settings.week_unit_conversion_factor_to_master,
             unit_subsets=[unit_subset_term.term_uid],
         )
 

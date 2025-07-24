@@ -118,3 +118,19 @@ Then('The special visit is added without timing and with name defined as {string
 
     })
 })
+
+When('The user edits the special visit and saves', () => {
+    cy.contains('.v-data-table__tr', 'Special visit').within(() =>{
+        cy.clickButton('table-item-action-button')
+    })
+    cy.clickButton('Edit')
+    cy.clickFormActionButton('continue')
+    cy.wait(300)
+    cy.clickFormActionButton('continue')
+    cy.fillInput('visit-description', 'Testing edit functionality')
+    cy.clickFormActionButton('save')
+})
+
+Then('The special visit is updated correctly', () => {
+        cy.tableContains('Testing edit functionality')
+})

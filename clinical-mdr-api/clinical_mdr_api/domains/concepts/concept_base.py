@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import AbstractSet, Callable, Self, TypeVar
+from typing import AbstractSet, Callable, Generic, Self, TypeVar
 
 from clinical_mdr_api.domains.versioned_object_aggregate import (
     LibraryItemAggregateRootBase,
@@ -152,7 +152,7 @@ _AggregateRootType = TypeVar("_AggregateRootType")
 
 
 @dataclass
-class ConceptARBase(LibraryItemAggregateRootBase):
+class ConceptARBase(LibraryItemAggregateRootBase, Generic[_ConceptVOType]):
     """
     An abstract generic activity item aggregate for versioned activity items
     """

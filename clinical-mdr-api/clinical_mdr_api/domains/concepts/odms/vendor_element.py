@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, Self
+from typing import Any, Callable, Self
 
 from clinical_mdr_api.domains.concepts.concept_base import ConceptVO
 from clinical_mdr_api.domains.concepts.odms.odm_ar_base import OdmARBase
@@ -39,7 +39,7 @@ class OdmVendorElementVO(ConceptVO):
         self,
         odm_vendor_namespace_exists_by_callback: Callable[[str, str, bool], bool],
         find_odm_vendor_element_callback: Callable[
-            [dict], tuple[list["OdmVendorElementAR"], int] | None
+            [dict[Any, Any]], tuple[list["OdmVendorElementAR"], int] | None
         ],
     ) -> None:
         if self.vendor_namespace_uid is not None:
@@ -110,7 +110,7 @@ class OdmVendorElementAR(OdmARBase):
             [str, str, bool], bool
         ] = lambda x, y, z: True,
         find_odm_vendor_element_callback: Callable[
-            [dict], tuple[list["OdmVendorElementAR"], int] | None
+            [dict[Any, Any]], tuple[list["OdmVendorElementAR"], int] | None
         ] = lambda _: None,
     ) -> Self:
         item_metadata = LibraryItemMetadataVO.get_initial_item_metadata(

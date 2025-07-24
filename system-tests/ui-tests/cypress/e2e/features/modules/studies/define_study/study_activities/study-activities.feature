@@ -36,14 +36,25 @@ Feature: Studies - Define Study - Study Activities - Study Activities
 
     Scenario: [Create][Existing Study][By Id] User must be able to create a Study Activity from an existing study by study id
         And The '/studies/Study_000001/activities/list' page is opened
-        When The Study Activity is added from an existing study by study id
-        And The new Study Activity added from Library is visible in table
-        Then The Study Activity copied from existing study is visible within the Study Activities table
+        When Study activity add button is clicked
+        And Activity from studies is selected
+        And Study with id value '999-3000' is selected
+        And Form continue button is clicked
+        And User selects first available activity
+        And Form save button is clicked
+        Then The pop up displays 'Study activity added'
+        And The Study Activity is found
+        Then The Study Activity is visible in table
 
     Scenario: [Actions][Delete][Activity] User must be able to delete a Study Activity
         Given The '/studies/Study_000001/activities/list' page is opened
         And [API] Study Activity is created and approved
-        And User adds newly created activity with status Final
+        When Study activity add button is clicked
+        And Activity from library is selected
+        And Form continue button is clicked
+        And User search and select activity created via API
+        And Form save button is clicked
+        Then The pop up displays 'Study activity added'
         And Study Activity is found
         When The 'Remove Activity' option is clicked from the three dot menu list
         And Action is confirmed by clicking continue
@@ -51,19 +62,35 @@ Feature: Studies - Define Study - Study Activities - Study Activities
 
     Scenario: [Create][Existing Study][By Acronym] User must be able to create a Study Activity from an existing study by study acronym
         And The '/studies/Study_000001/activities/list' page is opened
-        When The Study Activity is added from an existing study by study acronym
-        And The new Study Activity added from Library is visible in table
-        Then The Study Activity copied from existing study is visible within the Study Activities table
+        When Study activity add button is clicked
+        And Activity from studies is selected
+        And Study with acronym value 'DummyStudy 0' is selected
+        And Form continue button is clicked
+        And User selects first available activity
+        And Form save button is clicked
+        Then The pop up displays 'Study activity added'
+        And The Study Activity is found
+        Then The Study Activity is visible in table
 
     Scenario: [Create][From Library] User must be able to create a Study Activity from the library
         And The activity exists in the library
         And The '/studies/Study_000001/activities/list' page is opened
-        When The Study Activity is added from the library
-        Then The Study Activity created from library is visible within the Study Activities table
+        When Study activity add button is clicked
+        And Activity from library is selected
+        And Form continue button is clicked
+        And User selects first available activity and SoA group
+        And Form save button is clicked
+        Then The pop up displays 'Study activity added'
+        Then The Study Activity is visible in table
 
     Scenario: [Create][Placeholder] User must be able to create a Study Activity placeholder as an activity concept request
         And The '/studies/Study_000001/activities/list' page is opened
-        When The Study Activity is added as a placeholder for new activity request
+        When Study activity add button is clicked
+        And Activity from placeholder is selected
+        And Form continue button is clicked
+        When Activity placeholder data is filled in
+        And Form save button is clicked
+        And The form is no longer available
         And Activity placeholder is found
         Then The Study Activity placeholder is visible within the Study Activities table
 
@@ -77,86 +104,176 @@ Feature: Studies - Define Study - Study Activities - Study Activities
     Scenario: [Actions][Edit][version 0.1][Activity] User must be able to edit a Study Activity
         Given The '/studies/Study_000001/activities/list' page is opened
         And [API] Study Activity is created and approved
-        And User adds newly created activity with status Final
+        When Study activity add button is clicked
+        And Activity from library is selected
+        And Form continue button is clicked
+        And User search and select activity created via API
+        And Form save button is clicked
+        Then The pop up displays 'Study activity added'
         And Study Activity is found
         When The 'Edit' option is clicked from the three dot menu list
         And The SoA group can be changed
+        And Modal window 'Save' button is clicked
+        And The form is no longer available
+        And Study Activity is found
         Then The edited Study Activity data is reflected within the Study Activity table
 
     # Note, currently only the SoA group can be changed, not the request, will be specified and updated in later release
     Scenario: [Actions][Edit][version 0.1][Placeholder] User must be able to edit a Study Activity placeholder
         Given The '/studies/Study_000001/activities/list' page is opened
-        When The Study Activity is added as a placeholder for new activity request
+        When Study activity add button is clicked
+        And Activity from placeholder is selected
+        And Form continue button is clicked
+        When Activity placeholder data is filled in
+        And Selected study id is saved
+        And Form save button is clicked
+        And The form is no longer available
         And Activity placeholder is found
         When The 'Edit' option is clicked from the three dot menu list
         And The SoA group can be changed
+        And Modal window 'Save' button is clicked
+        And The form is no longer available
+        Then The pop up displays 'Study activity updated'
+        And Activity placeholder is found
         Then The edited Study Activity data is reflected within the Study Activity table
+
+    @BUG_ID:2722627
+    Scenario: [Actions][Edit][version 0.1][Placeholder] User must be able to edit data collection flag
+        Given The '/studies/Study_000001/activities/list' page is opened
+        When Study activity add button is clicked
+        And Activity from placeholder is selected
+        And Form continue button is clicked
+        When Activity placeholder data is filled in
+        And Data collection flag is unchecked
+        And Form save button is clicked
+        And The form is no longer available
+        And Activity placeholder is found
+        When The 'Edit' option is clicked from the three dot menu list
+        And Data collection flag is checked
+        And Modal window 'Save' button is clicked
+        And The form is no longer available
+        Then The pop up displays 'Study activity updated'
+        And Activity placeholder is found
+        Then The study activity table is displaying updated value for data collection
 
     Scenario: [Create][Mandatory fields][Activity] User must not be able to create Study Activity from studies without study selected
         Given The '/studies/Study_000001/activities/list' page is opened
-        When The Study Activity select from study form is opened on second step
-        And The user tries to go to Activity Selection without study chosen
+        When Study activity add button is clicked
+        When Activity from studies is selected
+        And Form continue button is clicked
         Then The validation appears and Create Activity form stays on Study Selection
 
     Scenario: [Create][Mandatory fields][Activity] User must not be able to create Study Activity from library without SoA group selected
         Given The '/studies/Study_000001/activities/list' page is opened
-        When The Study Activity select from library form is opened on second step
+        When Study activity add button is clicked
+        When Activity from library is selected
+        And Form continue button is clicked
         And The user tries to go further without SoA group chosen
+        And Form save button is clicked
         Then The validation appears and Create Activity form stays on SoA group selection
 
     Scenario: [Create][Mandatory fields][Placeholder] User must not be able to create Study Activity placeholder without SoA group selected
         Given The '/studies/Study_000001/activities/list' page is opened
-        When The Study Activity create placeholder form is opened on second step
+        And Study activity add button is clicked
+        And Activity from placeholder is selected
+        And Form continue button is clicked
         And The user tries to go further in activity placeholder creation without SoA group chosen
+        And Form save button is clicked
         Then The validation appears under empty SoA group selection
 
     Scenario: [Actions][Approve] User must be able to add newly created approved Activity
         Given The '/studies/Study_000001/activities/list' page is opened
         And [API] Study Activity is created and approved
-        When User adds newly created activity with status Final
-        Then The new Study Activity added from Library is visible in table
+        When Study activity add button is clicked
+        And Activity from library is selected
+        And Form continue button is clicked
+        And User search and select activity created via API
+        And Form save button is clicked
+        Then The pop up displays 'Study activity added'
+        Then The Study Activity is found
 
     Scenario: [Create][Negative case][Draft Activity] User must mot be able to add newly created draft Activity
         Given The '/studies/Study_000001/activities/list' page is opened
         And [API] Study Activity is created and not approved
+        When Study activity add button is clicked
+        And Activity from library is selected
+        And Form continue button is clicked
         When User tries to add Activity in Draft status
         Then The Activity in Draft status is not found
 
     Scenario: [Create][Negative case][Draft Group] User must not be able to add activity that has Draft group until it is approved
         Given The '/studies/Study_000001/activities/list' page is opened
         And [API] Study Activity is created and group is drafted
-        When User initiate adding Study Activity from Library
+        When Study activity add button is clicked
+        And Activity from library is selected
+        And Form continue button is clicked
+        And User search and select activity created via API
+        And Form save button is clicked
         Then Warning that 'Draft' 'groups' can not be added to the study is displayed
         And [API] Activity group is approved
-        When User adds newly created activity with status Final
-        Then The new Study Activity added from Library is visible in table
+        When Study activity add button is clicked
+        And Activity from library is selected
+        And Form continue button is clicked
+        And User search and select activity created via API
+        And Form save button is clicked
+        Then The pop up displays 'Study activity added'
+        Then The Study Activity is found
         
     Scenario: [Create][Negative case][Retired Group]  User must not be able to add activity that has Retired group until it is approved
         Given The '/studies/Study_000001/activities/list' page is opened
         And [API] Study Activity is created and group is inactivated
-        When User initiate adding Study Activity from Library
+        When Study activity add button is clicked
+        And Activity from library is selected
+        And Form continue button is clicked
+        And User search and select activity created via API
+        And Form save button is clicked
         Then Warning that 'Retired' 'groups' can not be added to the study is displayed
         And [API] Activity group is reactivated
-        When User adds newly created activity with status Final
-        Then The new Study Activity added from Library is visible in table
+        When Study activity add button is clicked
+        And Activity from library is selected
+        And Form continue button is clicked
+        And User search and select activity created via API
+        And Form save button is clicked
+        Then The pop up displays 'Study activity added'
+        Then The Study Activity is found
         
     Scenario: [Create][Negative case][Draft Subgroup] User must not be able to add activity that has Draft subgroup until it is approved
         Given The '/studies/Study_000001/activities/list' page is opened
         And [API] Study Activity is created and subgroup is drafted
-        When User initiate adding Study Activity from Library
+        When Study activity add button is clicked
+        And Activity from library is selected
+        And Form continue button is clicked
+        And User search and select activity created via API
+        And Form save button is clicked
         Then Warning that 'Draft' 'subgroups' can not be added to the study is displayed
         And [API] Activity subgroup is approved
-        When User adds newly created activity with status Final
-        Then The new Study Activity added from Library is visible in table
+        And User waits for 1 seconds
+        When Study activity add button is clicked
+        And Activity from library is selected
+        And Form continue button is clicked
+        And User search and select activity created via API
+        And Form save button is clicked
+        Then The pop up displays 'Study activity added'
+        Then The Study Activity is found
         
     Scenario: [Create][Negative case][Retired Subgroup] User must not be able to add activity that has Retired subgroup until it is approved
         Given The '/studies/Study_000001/activities/list' page is opened
         And [API] Study Activity is created and subgroup is inactivated
-        When User initiate adding Study Activity from Library
+        When Study activity add button is clicked
+        And Activity from library is selected
+        And Form continue button is clicked
+        And User search and select activity created via API
+        And Form save button is clicked
         Then Warning that 'Retired' 'subgroups' can not be added to the study is displayed
         And [API] Activity subgroup is reactivated
-        When User adds newly created activity with status Final
-        Then The new Study Activity added from Library is visible in table
+        And User waits for 1 seconds
+        When Study activity add button is clicked
+        And Activity from library is selected
+        And Form continue button is clicked
+        And User search and select activity created via API
+        And Form save button is clicked
+        Then The pop up displays 'Study activity added'
+        Then The Study Activity is found
 
     Scenario: [Export][CSV] User must be able to export the data in CSV format
         Given The '/studies/Study_000001/activities/list' page is opened

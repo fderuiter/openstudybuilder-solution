@@ -36,7 +36,7 @@ from clinical_mdr_api.tests.integration.utils.api import (
 )
 from clinical_mdr_api.tests.integration.utils.utils import TestUtils
 from common import exceptions
-from common.config import STUDY_ENDPOINT_TP_NAME
+from common.config import settings
 
 AUTHOR = "TEST"
 
@@ -123,11 +123,11 @@ def test_crud(test_data, study_objective_service, objective_template_service):
     """
     # Create
     objective_template = TestUtils.create_objective_template(
-        name=f"Test objective template with [{STUDY_ENDPOINT_TP_NAME}] parameter"
+        name=f"Test objective template with [{settings.study_endpoint_tp_name}] parameter"
     )
     parameter_term_dict = {
         "index": 1,
-        "type": STUDY_ENDPOINT_TP_NAME,
+        "type": settings.study_endpoint_tp_name,
         "uid": study_endpoint.study_endpoint_uid,
         "name": study_endpoint.endpoint.name,
     }

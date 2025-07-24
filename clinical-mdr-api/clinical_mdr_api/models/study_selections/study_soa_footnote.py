@@ -35,7 +35,6 @@ class StudySoAFootnote(BaseModel):
     study_version: Annotated[
         str | None,
         Field(
-            title="study version or date information",
             description="Study version number, if specified, otherwise None.",
             json_schema_extra={"nullable": True},
         ),
@@ -146,7 +145,8 @@ class StudySoAFootnoteCreateInput(PostInputModel):
     footnote_uid: Annotated[str | None, Field()] = None
     footnote_template_uid: Annotated[str | None, Field()] = None
     referenced_items: list[ReferencedItem] = Field(
-        title="The list of items referenced by a single footnote", default_factory=list
+        description="The list of items referenced by a single footnote",
+        default_factory=list,
     )
 
 
@@ -156,7 +156,7 @@ class StudySoAFootnoteCreateFootnoteInput(PostInputModel):
         Field(description="Footnote data to create new footnote"),
     ]
     referenced_items: list[ReferencedItem] = Field(
-        title="The list of items referenced by a single footnote",
+        description="The list of items referenced by a single footnote",
         default_factory=list,
     )
 
@@ -166,7 +166,7 @@ class StudySoAFootnoteEditInput(PatchInputModel):
     footnote_template_uid: Annotated[str | None, Field()] = None
     referenced_items: Annotated[
         list[ReferencedItem] | None,
-        Field(title="The list of items referenced by a single footnote"),
+        Field(description="The list of items referenced by a single footnote"),
     ] = None
 
 

@@ -44,7 +44,7 @@ from clinical_mdr_api.repositories._utils import (
 )
 from clinical_mdr_api.services.user_info import UserInfoService
 from clinical_mdr_api.utils import convert_to_plain, validate_dict
-from common import config
+from common.config import settings
 from common.exceptions import (
     BusinessLogicException,
     NotFoundException,
@@ -65,7 +65,7 @@ class LibraryItemRepositoryImplBase(
     RepositoryImpl, GenericRepository[_AggregateRootType], abc.ABC
 ):
     cache_store_item_by_uid = TTLCache(
-        maxsize=config.CACHE_MAX_SIZE, ttl=config.CACHE_TTL
+        maxsize=settings.cache_max_size, ttl=settings.cache_ttl
     )
     lock_store_item_by_uid = Lock()
     has_library = True
@@ -477,14 +477,15 @@ class LibraryItemRepositoryImplBase(
             if library and library_name is not None and library_name != library.name:
                 continue
 
+            value: VersionValue
             if status is None:
-                value: VersionValue = has_latest_value_rel.single()
+                value = has_latest_value_rel.single()
             elif status == LibraryItemStatus.FINAL:
-                value: VersionValue = latest_final_rel.single()
+                value = latest_final_rel.single()
             elif status == LibraryItemStatus.DRAFT:
-                value: VersionValue = latest_draft_rel.single()
+                value = latest_draft_rel.single()
             elif status == LibraryItemStatus.RETIRED:
-                value: VersionValue = latest_retired_rel.single()
+                value = latest_retired_rel.single()
 
             relationship: VersionRelationship = self._get_latest_version(root, value)
 
@@ -647,21 +648,22 @@ class LibraryItemRepositoryImplBase(
         if not self._is_repository_related_to_ct():
             root: VersionRoot | None = self.root_class.nodes.get_or_none(uid=uid)
             if root is not None:
+
                 if self.has_library:
-                    library: Library = root.has_library.get()
+                    library = root.has_library.get()
                 else:
                     library = None
         else:
             # ControlledTerminology version root items don't contain uid - then we have to get object by it's id
-            result, _ = db.cypher_query(
+            _result, _ = db.cypher_query(
                 MATCH_NODE_BY_ID,
                 {"id": uid},
                 resolve_objects=True,
             )
-            root = result[0][0]
+            root = _result[0][0]
             if root is not None:
                 if self.has_library:
-                    library: Library = root.has_root.single().has_library.get()
+                    library = root.has_root.single().has_library.get()
                 else:
                     library = None
 
@@ -767,12 +769,13 @@ class LibraryItemRepositoryImplBase(
         at_specific_date: datetime,
         status=None,
     ) -> tuple[VersionValue | None, VersionRelationship | None]:
+        matching_values: list[VersionValue]
         if status:
-            matching_values: list[VersionValue] = has_version_rel.match(
+            matching_values = has_version_rel.match(
                 start_date__lte=at_specific_date, status__exact=status.value
             )
         else:
-            matching_values: list[VersionValue] = has_version_rel.match(
+            matching_values = has_version_rel.match(
                 start_date__lte=at_specific_date,
             )
         latest_matching_relationship: VersionRelationship | None = None
@@ -972,7 +975,7 @@ class LibraryItemRepositoryImplBase(
                 return None, None
             ct_root = root.has_root.single()
             if self.has_library:
-                library: Library = ct_root.has_library.get()
+                library = ct_root.has_library.get()
             else:
                 library = None
         return root, library
@@ -990,12 +993,14 @@ class LibraryItemRepositoryImplBase(
         value: VersionValue | ControlledTerminology,
         relation: VersionRelationship,
     ) -> tuple[Mapping, VersionValue, VersionRelationship]:
+        library: Library | None
+
         if not self.has_library:
             library = None
         elif not self._is_repository_related_to_ct():
-            library: Library = item.has_library.get()
+            library = item.has_library.get()
         else:
-            library: Library = item.has_root.single().has_library.get()
+            library = item.has_root.single().has_library.get()
         data = value.to_dict()
         rdata = data.copy()
         rdata.update(relation.to_dict())
@@ -1369,14 +1374,14 @@ class LibraryItemRepositoryImplBase(
         status: LibraryItemStatus | None = None,
         library_name: str | None = None,
         return_study_count: bool | None = False,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         for_audit_trail: bool = False,
-        version_specific_uids: dict | None = None,
+        version_specific_uids: dict[Any, Any] | None = None,
         at_specific_date: datetime | None = None,
         include_retired_versions: bool = False,
         get_latest_final: bool = False,
@@ -1420,10 +1425,10 @@ class LibraryItemRepositoryImplBase(
         status: LibraryItemStatus | None = None,
         library_name: str | None = None,
         return_study_count: bool | None = False,
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         page_number: int = 1,
         page_size: int = 0,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         total_count: bool = False,
         for_audit_trail: bool = False,
@@ -1431,7 +1436,7 @@ class LibraryItemRepositoryImplBase(
         at_specific_date: datetime | None = None,
         include_retired_versions: bool = False,
         get_latest_final: bool = False,
-    ) -> tuple[list, int]:
+    ) -> tuple[list[Any], int]:
         validate_dict(filter_by, "filters")
         validate_dict(sort_by, "sort_by")
         validate_max_skip_clause(page_number=page_number, page_size=page_size)
@@ -1615,7 +1620,7 @@ class LibraryItemRepositoryImplBase(
         self,
         uids: Iterable[str],
         get_latest_final: bool = False,
-    ) -> dict[str:LibraryItemAggregateRootBase]:
+    ) -> dict[str, LibraryItemAggregateRootBase]:
         """get all items where uid is IN a list of uids, and return them as a dictionary with item uid as key"""
 
         if not isinstance(uids, list):
@@ -1634,7 +1639,7 @@ class LibraryItemRepositoryImplBase(
         field_name: str,
         status: LibraryItemStatus | None = None,
         search_string: str | None = "",
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
     ):
@@ -1809,12 +1814,12 @@ class LibraryItemRepositoryImplBase(
 
     def _where_stmt_optimized(
         self,
-        filter_by: dict | None = None,
+        filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator = FilterOperator.AND,
         version_specific_uids: dict[str, Iterable[str]] | None = None,
     ):
         def date_stmt(name: str):
-            if name in filter_by:
+            if name in filter_by:  # type: ignore[operator]
                 if (
                     "op" not in filter_by[name]
                     or filter_by[name]["op"] in ComparisonOperator.EQUALS.value
@@ -1965,7 +1970,7 @@ END
 
         return "WHERE " + where_stmt, params
 
-    def _sort_stmt(self, sort_by: dict | None = None):
+    def _sort_stmt(self, sort_by: dict[str, bool] | None = None):
         if not sort_by:
             return "ORDER BY root.uid DESC"
 
@@ -2107,7 +2112,7 @@ END
         with_versions_in_where: bool = False,
         return_study_count: bool = False,
         where_stmt: str = "",
-        sort_by: dict | None = None,
+        sort_by: dict[str, bool] | None = None,
         uid: str | None = None,
         for_audit_trail: bool = False,
         include_retired_versions: bool = False,
@@ -2531,6 +2536,18 @@ END
                 }
                 CALL{
                     WITH activity_item
+                    MATCH (activity_item)-[:HAS_ODM_FORM]->(odm_form_root:OdmFormRoot)
+                    MATCH (odm_form_root)-[:LATEST]->(odm_form_value:OdmFormValue)
+                    RETURN collect(DISTINCT {uid: odm_form_root.uid, oid: odm_form_value.oid, name: odm_form_value.name}) AS odm_forms
+                }
+                CALL{
+                    WITH activity_item
+                    MATCH (activity_item)-[:HAS_ODM_ITEM_GROUP]->(odm_item_group_root:OdmItemRoot)
+                    MATCH (odm_item_group_root)-[:LATEST]->(odm_item_group_value:OdmItemValue)
+                    RETURN collect(DISTINCT {uid: odm_item_group_root.uid, oid: odm_item_group_value.oid, name: odm_item_group_value.name}) AS odm_item_groups
+                }
+                CALL{
+                    WITH activity_item
                     MATCH (activity_item)-[:HAS_ODM_ITEM]->(odm_item_root:OdmItemRoot)
                     MATCH (odm_item_root)-[:LATEST]->(odm_item_value:OdmItemValue)
                     RETURN collect(DISTINCT {uid: odm_item_root.uid, oid: odm_item_value.oid, name: odm_item_value.name}) AS odm_items
@@ -2541,6 +2558,8 @@ END
                     ct_terms:ct_terms, 
                     unit_definitions: unit_definitions,
                     is_adam_param_specific: activity_item.is_adam_param_specific,
+                    odm_forms: odm_forms,
+                    odm_item_groups: odm_item_groups,
                     odm_items: odm_items
                 }) as activity_items
             }

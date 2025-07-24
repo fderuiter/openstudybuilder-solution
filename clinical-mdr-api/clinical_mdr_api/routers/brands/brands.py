@@ -6,6 +6,7 @@ from clinical_mdr_api.models.brands.brand import Brand, BrandCreateInput
 from clinical_mdr_api.routers import _generic_descriptions
 from clinical_mdr_api.services.brands.brand import BrandService
 from common.auth import rbac
+from common.auth.dependencies import security
 from common.models.error import ErrorResponse
 
 # Prefixed with "/brands"
@@ -17,7 +18,7 @@ Service = BrandService
 
 @router.get(
     "",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns all brands.",
     status_code=200,
     responses={
@@ -31,7 +32,7 @@ def get_brands() -> list[Brand]:
 
 @router.get(
     "/{brand_uid}",
-    dependencies=[rbac.LIBRARY_READ],
+    dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns the brand identified by the specified 'brand_uid'.",
     status_code=200,
     responses={
@@ -47,7 +48,7 @@ def get_brand(
 
 @router.post(
     "",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Creates a new brand.",
     status_code=201,
     responses={
@@ -71,7 +72,7 @@ def create(
 
 @router.delete(
     "/{brand_uid}",
-    dependencies=[rbac.LIBRARY_WRITE],
+    dependencies=[security, rbac.LIBRARY_WRITE],
     summary="Deletes the brand identified by 'brand_uid'.",
     status_code=204,
     responses={

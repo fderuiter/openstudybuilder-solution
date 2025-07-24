@@ -1,7 +1,11 @@
 import datetime
+from typing import Any
 
 from neomodel import db
 
+from clinical_mdr_api.domain_repositories._utils.helpers import (
+    acquire_write_lock_study_value,
+)
 from clinical_mdr_api.domain_repositories.generic_repository import (
     manage_previous_connected_study_selection_relationships,
 )
@@ -25,7 +29,7 @@ from clinical_mdr_api.domains.study_selections.study_epoch import (
     StudyEpochType,
     StudyEpochVO,
 )
-from common import config as settings
+from common.config import settings
 from common.exceptions import ValidationException
 
 
@@ -95,7 +99,7 @@ class StudyEpochRepository:
         items, _ = db.cypher_query(
             cypher_query,
             {
-                "code_list_name": settings.STUDY_EPOCH_SUBTYPE_NAME,
+                "code_list_name": settings.study_epoch_subtype_name,
                 "effective_date": (
                     effective_date.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
                     if effective_date
@@ -114,12 +118,12 @@ class StudyEpochRepository:
         """
         basic_visit, _ = db.cypher_query(
             cypher_query,
-            {"basic_epoch_name": settings.BASIC_EPOCH_NAME, "study_uid": study_uid},
+            {"basic_epoch_name": settings.basic_epoch_name, "study_uid": study_uid},
         )
         return basic_visit[0][0] if len(basic_visit) > 0 else None
 
     def _create_aggregate_root_instance_from_cypher_result(
-        self, input_dict: dict, audit_trail: bool = False
+        self, input_dict: dict[str, Any], audit_trail: bool = False
     ) -> StudyEpochVO | StudyEpochHistoryVO:
         study_epoch_vo = StudyEpochVO(
             uid=input_dict.get("study_epoch").get("uid"),
@@ -171,7 +175,7 @@ class StudyEpochRepository:
         study_value_version: str | None = None,
         study_epoch_uid: str | None = None,
         audit_trail: bool = False,
-    ) -> tuple[str, dict]:
+    ) -> tuple[str, dict[Any, Any]]:
         params = {}
         if not audit_trail:
             if study_value_version:
@@ -250,8 +254,14 @@ class StudyEpochRepository:
         return len(sdc_node) > 0
 
     def find_by_uid(
-        self, uid: str, study_uid: str, study_value_version: str | None = None
+        self,
+        uid: str,
+        study_uid: str,
+        study_value_version: str | None = None,
+        for_update: bool = False,
     ) -> StudyEpochVO:
+        if for_update:
+            acquire_write_lock_study_value(uid=study_uid)
         query, params = self.find_all_epochs_query(
             study_uid=study_uid,
             study_value_version=study_value_version,
@@ -286,7 +296,7 @@ class StudyEpochRepository:
         return extracted_items
 
     def from_study_epoch_vo_to_history_vo(
-        self, study_epoch_vo: StudyEpochVO, input_dict: dict
+        self, study_epoch_vo: StudyEpochVO, input_dict: dict[str, Any]
     ) -> StudyEpochHistoryVO:
         change_type = input_dict.get("change_type")
         for action in change_type:

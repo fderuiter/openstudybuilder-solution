@@ -2,6 +2,7 @@
   <div>
     <v-card :elevation="elevation" class="rounded-0">
       <v-card-title
+        v-if="!noTitle"
         style="z-index: 3; position: relative"
         class="d-flex align-center"
         :class="props.noPadding ? 'pa-0' : 'pt-0'"
@@ -78,7 +79,7 @@
             data-cy="filters-button"
             :active="showFilterBar"
             icon="mdi-filter-outline"
-            @click="showFilterBar = !showFilterBar"
+            @click="enableFiltering"
           />
           <v-menu rounded offset-y :close-on-content-click="false">
             <template #activator="{ props }">
@@ -158,6 +159,7 @@
               <FilterAutocomplete
                 v-for="item in itemsToFilter"
                 :key="item.text"
+                :load-filters="loadFilters"
                 :clear-input="trigger"
                 :item="item"
                 :filters="savedFilters"
@@ -206,6 +208,7 @@
               :headers="shownColumns"
               :fixed-header="fixedHeader"
               :no-data-text="noDataText"
+              :hide-default-footer="hideDefaultFooter"
               disable-sort
               v-bind="$attrs"
               @update:options="filterTable"
@@ -566,6 +569,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  noTitle: {
+    type: Boolean,
+    default: false,
+  },
+  hideDefaultFooter: {
+    type: Boolean,
+    default: false,
+  },
 })
 const emit = defineEmits(['filter'])
 
@@ -593,6 +604,7 @@ const sortBy = ref(props.initialSortBy)
 const selectedColumnData = ref({})
 const confirm = ref()
 const selectedColumns = ref([])
+const loadFilters = ref(false)
 
 const headerActions = [
   {
@@ -772,6 +784,12 @@ onUpdated(() => {
     })
   }
 })
+
+function enableFiltering() {
+  showFilterBar.value = !showFilterBar.value
+  loadFilters.value = true
+}
+
 function updateColumns() {
   if (!props.modifiableTable) {
     if (props.defaultHeaders && props.defaultHeaders.length !== 0) {
