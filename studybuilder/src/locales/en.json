@@ -2204,8 +2204,8 @@
         "item_history_title": "History for standard version selection ({item})"
     },
     "CTStandardVersionsForm": {
-        "create_package": "Create CT package",
-        "select_package": "Select CT package",
+        "create_package": "Create",
+        "select_package": "Select",
         "mode_create": "Create a new Sponsor CT Package",
         "mode_select": "Select existing Sponsor CT Package",
         "add_title": "Add a sponsor CT Package for the study",
