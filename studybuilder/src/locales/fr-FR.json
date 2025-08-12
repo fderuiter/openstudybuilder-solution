@@ -895,18 +895,18 @@
             "name": "Name for the new clinical program."
         },
         "UsdmPage": {
-            "general": "This page display the JSON file generated based on the  Digital Data Flow (DDF) CDISC / TransCelerate Unified Study Definitions Model (USDM). The data available here are extracted and converted into the USDM model, based on mapping rules defined within the StudyBuilder team: Be aware about that.",
-            "official_protocol_title": "The formal descriptive name for the protocol.",
-            "clinical_study_def": "A clinical study involves research using human volunteers (also called participants) that is intended to add to medical knowledge. There are two main types of clinical studies: clinical trials (also called interventional studies) and observational studies. [[http://ClinicalTrials.gov]](CDISC Glossary)",
-            "study_protocol_version": "A plan at a particular point in time for a formal investigation to assess the utility, impact, pharmacological, physiological, and/or psychological effects of a particular treatment, procedure, drug, device, biologic, food product, cosmetic, care plan, or subject characteristic. (BRIDG)",
-            "protocol_status": "A condition of the protocol at a point in time with respect to its state of readiness for implementation. See [<a href='/library/ct_catalogs/All/C188723/terms'>C188723-CDISC DDF Protocol Status Value Set Terminology</a>]",
-            "study_design": "A plan detailing how a study will be performed in order to represent the phenomenon under examination, to answer the research questions that have been asked, and informing the statistical approach.",
-            "organization_type": "A characterization or classification of the formalized group of persons or other organizations collected together for a common purpose (such as administrative, legal, political) and the infrastructure to carry out that purpose. See [<a href='/library/ct_catalogs/All/C188724/terms'>C188724-CDISC DDF Organization Type Value Set Terminology</a>]",
-            "trial_type": "The nature of the interventional study for which information is being collected. See [<a href='/library/ct_catalogs/All/C66739/terms'>C66739-CDISC SDTM Trial Type Terminology</a>]",
-            "intervention_model_type": "The general design of the strategy for assigning interventions to participants in a clinical study. (clinicaltrials.gov). See [<a href='/library/ct_catalogs/All/C99076/terms'>C99076-CDISC SDTM Intervention Model Terminology</a>]",
-            "therapeutic_areas": "A categorization of a disease, disorder, or other condition based on common characteristics and often associated with a medical specialty focusing on research and development of specific therapeutic interventions for the purpose of treatment and prevention.",
-            "trial_blinding_schema": "The type of experimental design used to describe the level of awareness of the study subjects and/ or study personnel as it relates to the respective intervention(s) or assessments being observed, received or administered. See [<a href='/library/ct_catalogs/All/C66735/terms'>C66735-CDISC SDTM Trial Blinding Schema Terminology</a>]",
-            "target_study_population": "The population within the general population to which the study results can be generalized."
+            "general": "Cette page affiche le fichier JSON généré sur la base du modèle Unified Study Definitions Model (USDM) du Digital Data Flow (DDF) CDISC/TransCelerate. Les données disponibles ici sont extraites et converties dans le modèle USDM en fonction des règles de correspondance définies par l'équipe StudyBuilder ; veuillez en tenir compte.",
+            "official_protocol_title": "Le nom descriptif officiel du protocole.",
+            "clinical_study_def": "Une étude clinique implique une recherche utilisant des volontaires humains (également appelés participants) destinée à accroître les connaissances médicales. Il existe deux principaux types d'études cliniques : les essais cliniques (également appelés études interventionnelles) et les études observationnelles. [[http://ClinicalTrials.gov]](CDISC Glossary)",
+            "study_protocol_version": "Un plan à un moment donné pour une enquête formelle visant à évaluer l'utilité, l'impact ainsi que les effets pharmacologiques, physiologiques et/ou psychologiques d'un traitement, d'une procédure, d'un médicament, d'un dispositif, d'un produit biologique, d'un aliment, d'un cosmétique, d'un plan de soins ou d'une caractéristique du sujet. (BRIDG)",
+            "protocol_status": "Un état du protocole à un moment donné en ce qui concerne son niveau de préparation à la mise en œuvre. Voir [<a href='/library/ct_catalogs/All/C188723/terms'>C188723-CDISC DDF Protocol Status Value Set Terminology</a>]",
+            "study_design": "Un plan détaillant la manière dont une étude sera réalisée afin de représenter le phénomène examiné, de répondre aux questions de recherche et d'informer l'approche statistique.",
+            "organization_type": "Une caractérisation ou une classification du groupe formalisé de personnes ou d'autres organisations réunies pour un objectif commun (tel qu'administratif, juridique, politique) ainsi que l'infrastructure nécessaire pour accomplir cet objectif. Voir [<a href='/library/ct_catalogs/All/C188724/terms'>C188724-CDISC DDF Organization Type Value Set Terminology</a>]",
+            "trial_type": "La nature de l'étude interventionnelle pour laquelle des informations sont recueillies. Voir [<a href='/library/ct_catalogs/All/C66739/terms'>C66739-CDISC SDTM Trial Type Terminology</a>]",
+            "intervention_model_type": "Le schéma général de la stratégie d'affectation des interventions aux participants dans une étude clinique (clinicaltrials.gov). Voir [<a href='/library/ct_catalogs/All/C99076/terms'>C99076-CDISC SDTM Intervention Model Terminology</a>]",
+            "therapeutic_areas": "Une catégorisation d'une maladie, d'un trouble ou d'une autre condition basée sur des caractéristiques communes et souvent associée à une spécialité médicale se concentrant sur la recherche et le développement d'interventions thérapeutiques spécifiques pour le traitement et la prévention.",
+            "trial_blinding_schema": "Le type de conception expérimentale utilisé pour décrire le niveau de connaissance des sujets de l'étude et/ou du personnel de l'étude en ce qui concerne les interventions ou évaluations respectives observées, reçues ou administrées. Voir [<a href='/library/ct_catalogs/All/C66735/terms'>C66735-CDISC SDTM Trial Blinding Schema Terminology</a>]",
+            "target_study_population": "La population au sein de la population générale à laquelle les résultats de l'étude peuvent être généralisés."
         },
         "StudyStructuresOverview": {
             "general": "The Study Structures page is intended to assist Standards Developers by offering an overview of how existing trials have been defined. It allows users to view the study structures they can replicate, identify trends, and spot any deviations. The Study Structures page aims to increase consistency when setting up new trials. Note that studies that share the same structure are grouped together and listed in the table under the same row. The columns display numeric values indicating the number of arms/epochs/elements in the trial or Y/N to indicate if cohorts are part of the trial design."
@@ -2243,10 +2243,10 @@
     },
     "CtrOdmXmlVue": {
         "title": "CTR ODM XML",
-        "download": "Download XML",
-        "downloading": "Downloading XML...",
-        "iframe_title": "Rendered CTR ODM document",
-        "loading": "Loading XML..."
+        "download": "Télécharger XML",
+        "downloading": "Téléchargement de l'XML...",
+        "iframe_title": "Document CTR ODM rendu",
+        "loading": "Chargement de l'XML..."
     },
     "ProtocolElementsObjectiveTable": {
         "title": "Objectives and Endpoints",
@@ -3064,19 +3064,19 @@
         "disease_milestone_rep_ind": "Disease Milestone Repetition Indicator"
     },
     "UsdmPage": {
-        "title": "USDM version of the Protocol / USDM version: {version}",
-        "general": "General",
-        "clinical_study_def": "Clinical study [C15206]",
-        "official_protocol_title": "Official Protocol Title [C132346]",
-        "study_protocol_version": "Study Protocol Version [C93490]",
-        "protocol_status": "Protocol Status [C188818]",
-        "study_design": "Study Design [C15320]",
-        "organization_type": "Organization Type [C188820]",
-        "trial_type": "Trial Type [C49660]",
-        "intervention_model_type": "Intervention Model Type [C98746]",
-        "therapeutic_areas": "Therapeutic Areas [C101302]",
-        "trial_blinding_schema": "Trial Blinding Schema [C49658]",
-        "target_study_population": "Target Study Population [C142728]"
+        "title": "Version USDM du protocole / Version USDM : {version}",
+        "general": "Général",
+        "clinical_study_def": "Étude clinique [C15206]",
+        "official_protocol_title": "Titre officiel du protocole [C132346]",
+        "study_protocol_version": "Version du protocole d'étude [C93490]",
+        "protocol_status": "Statut du protocole [C188818]",
+        "study_design": "Plan d'étude [C15320]",
+        "organization_type": "Type d'organisation [C188820]",
+        "trial_type": "Type d'essai [C49660]",
+        "intervention_model_type": "Type de modèle d'intervention [C98746]",
+        "therapeutic_areas": "Domaines thérapeutiques [C101302]",
+        "trial_blinding_schema": "Schéma d'aveuglement de l'essai [C49658]",
+        "target_study_population": "Population cible de l'étude [C142728]"
     },
     "IchM11Page": {
         "title": "ICH M11 version of the protocol"
@@ -3893,24 +3893,24 @@
         "delete_approve": "Are you sure to delete this Alias?"
     },
     "OdmViewer": {
-        "blank": "Blank",
-        "sdtm": "SDTM Annotation",
-        "allowed_namespaces": "Allowed Extensions",
-        "specific": "Specific",
-        "provide_uri": "Provide URI",
-        "stylesheet": "Stylesheet",
-        "loading_message": "Please be patient, we are creating your ODM-XML document",
-        "load": "Load",
-        "load_another": "Reload",
-        "odm_references": "ODM References",
-        "odm_element_type": "ODM Element Type",
-        "odm_element_name": "ODM Element Name",
-        "template": "Template",
-        "form": "Form",
-        "item_group": "Item Group",
-        "item": "Item",
-        "element_status": "ODM Element Status",
-        "export": "Export ",
+        "blank": "Vide",
+        "sdtm": "Annotation SDTM",
+        "allowed_namespaces": "Extensions autorisées",
+        "specific": "Spécifique",
+        "provide_uri": "Fournir l'URI",
+        "stylesheet": "Feuille de style",
+        "loading_message": "Veuillez patienter, nous créons votre document ODM-XML",
+        "load": "Charger",
+        "load_another": "Recharger",
+        "odm_references": "Références ODM",
+        "odm_element_type": "Type d'élément ODM",
+        "odm_element_name": "Nom de l'élément ODM",
+        "template": "Modèle",
+        "form": "Formulaire",
+        "item_group": "Groupe d'items",
+        "item": "Élément",
+        "element_status": "Statut de l'élément ODM",
+        "export": "Exporter ",
         "format": "Format"
     },
     "TemplateIndexingDialog": {
@@ -4175,11 +4175,11 @@
         "dataCollection": "Data collection"
     },
     "YamlViewer": {
-        "search_content": "Search for content",
-        "expand_all": "Expand all",
-        "collapse_all": "Collapse all",
-        "download": "Download YAML content",
-        "close_tab": "Close YAML viewer"
+        "search_content": "Rechercher du contenu",
+        "expand_all": "Tout développer",
+        "collapse_all": "Tout réduire",
+        "download": "Télécharger le contenu YAML",
+        "close_tab": "Fermer le visualiseur YAML"
     },
     "ActivityInstructionsView": {
         "title": "Activity Instructions"

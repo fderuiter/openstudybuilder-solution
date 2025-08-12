@@ -895,18 +895,18 @@
             "name": "Name for the new clinical programme."
         },
         "UsdmPage": {
-            "general": "This page display the JSON file generated based on the  Digital Data Flow (DDF) CDISC / TransCelerate Unified Study Definitions Model (USDM). The data available here are extracted and converted into the USDM model, based on mapping rules defined within the StudyBuilder team: Be aware about that.",
-            "official_protocol_title": "The formal descriptive name for the protocol.",
-            "clinical_study_def": "A clinical study involves research using human volunteers (also called participants) that is intended to add to medical knowledge. There are two main types of clinical studies: clinical trials (also called interventional studies) and observational studies. [[http://ClinicalTrials.gov]](CDISC Glossary)",
-            "study_protocol_version": "A plan at a particular point in time for a formal investigation to assess the utility, impact, pharmacological, physiological, and/or psychological effects of a particular treatment, procedure, drug, device, biologic, food product, cosmetic, care plan, or subject characteristic. (BRIDG)",
-            "protocol_status": "A condition of the protocol at a point in time with respect to its state of readiness for implementation. See [<a href='/library/ct_catalogues/All/C188723/terms'>C188723-CDISC DDF Protocol Status Value Set Terminology</a>]",
-            "study_design": "A plan detailing how a study will be performed in order to represent the phenomenon under examination, to answer the research questions that have been asked, and informing the statistical approach.",
-            "organization_type": "A characterization or classification of the formalized group of persons or other organizations collected together for a common purpose (such as administrative, legal, political) and the infrastructure to carry out that purpose. See [<a href='/library/ct_catalogues/All/C188724/terms'>C188724-CDISC DDF Organization Type Value Set Terminology</a>]",
-            "trial_type": "The nature of the interventional study for which information is being collected. See [<a href='/library/ct_catalogues/All/C66739/terms'>C66739-CDISC SDTM Trial Type Terminology</a>]",
-            "intervention_model_type": "The general design of the strategy for assigning interventions to participants in a clinical study. (clinicaltrials.gov). See [<a href='/library/ct_catalogues/All/C99076/terms'>C99076-CDISC SDTM Intervention Model Terminology</a>]",
-            "therapeutic_areas": "A categorization of a disease, disorder, or other condition based on common characteristics and often associated with a medical specialty focusing on research and development of specific therapeutic interventions for the purpose of treatment and prevention.",
-            "trial_blinding_schema": "The type of experimental design used to describe the level of awareness of the study subjects and/ or study personnel as it relates to the respective intervention(s) or assessments being observed, received or administered. See [<a href='/library/ct_catalogues/All/C66735/terms'>C66735-CDISC SDTM Trial Blinding Schema Terminology</a>]",
-            "target_study_population": "The population within the general population to which the study results can be generalized."
+            "general": "이 페이지는 Digital Data Flow (DDF) CDISC/TransCelerate Unified Study Definitions Model (USDM)을 기반으로 생성된 JSON 파일을 표시합니다. 여기의 데이터는 StudyBuilder 팀에서 정의한 매핑 규칙에 따라 추출되어 USDM 모델로 변환됩니다. 이 점을 유념해 주십시오.",
+            "official_protocol_title": "프로토콜의 공식적인 설명 이름입니다.",
+            "clinical_study_def": "임상 연구는 의료 지식을 향상시키기 위해 인간 지원자(참가자라고도 함)를 사용하는 연구를 포함합니다. 임상 연구에는 두 가지 주요 유형이 있습니다: 임상 시험(중재 연구라고도 함)과 관찰 연구입니다. [[http://ClinicalTrials.gov]](CDISC Glossary)",
+            "study_protocol_version": "특정 치료, 절차, 약물, 장치, 생물학적 제제, 식품, 화장품, 치료 계획 또는 피험자 특성의 유용성, 영향 및 약리학적, 생리학적 및/또는 심리학적 영향을 평가하기 위한 공식 조사의 특정 시점의 계획입니다. (BRIDG)",
+            "protocol_status": "프로토콜의 실행 준비 상태에 대한 특정 시점의 조건입니다. [<a href='/library/ct_catalogs/All/C188723/terms'>C188723-CDISC DDF Protocol Status Value Set Terminology</a>]를 참조하십시오.",
+            "study_design": "연구 질문에 답하고 검토 중인 현상을 나타내며 통계적 접근 방식을 안내하기 위해 연구가 어떻게 수행될지 자세히 설명한 계획입니다.",
+            "organization_type": "공동 목적(예: 행정, 법률, 정치)을 위해 모인 정식 그룹 또는 기타 조직 및 그 목적을 수행하기 위한 기반 시설의 특성 또는 분류입니다. [<a href='/library/ct_catalogs/All/C188724/terms'>C188724-CDISC DDF Organization Type Value Set Terminology</a>]를 참조하십시오.",
+            "trial_type": "정보가 수집되는 중재 연구의 성격입니다. [<a href='/library/ct_catalogs/All/C66739/terms'>C66739-CDISC SDTM Trial Type Terminology</a>]를 참조하십시오.",
+            "intervention_model_type": "임상 연구에서 참가자에게 중재를 할당하기 위한 전략의 일반적인 설계입니다 (clinicaltrials.gov). [<a href='/library/ct_catalogs/All/C99076/terms'>C99076-CDISC SDTM Intervention Model Terminology</a>]를 참조하십시오.",
+            "therapeutic_areas": "공통 특성에 따라 질병, 장애 또는 기타 상태를 분류하며, 치료와 예방을 위한 특정 치료 개입의 연구 및 개발에 집중하는 의학 전문 분야와 관련되는 경우가 많습니다.",
+            "trial_blinding_schema": "관찰되거나, 받은 또는 실시된 중재 또는 평가와 관련하여 연구 대상자 및/또는 연구 인원의 인식 수준을 설명하기 위해 사용되는 실험 설계 유형입니다. [<a href='/library/ct_catalogs/All/C66735/terms'>C66735-CDISC SDTM Trial Blinding Schema Terminology</a>]를 참조하십시오.",
+            "target_study_population": "연구 결과를 일반화할 수 있는 일반 인구 내의 모집단입니다."
         },
         "StudyStructuresOverview": {
             "general": "The Study Structures page is intended to assist Standards Developers by offering an overview of how existing trials have been defined. It allows users to view the study structures they can replicate, identify trends, and spot any deviations. The Study Structures page aims to increase consistency when setting up new trials. Note that studies that share the same structure are grouped together and listed in the table under the same row. The columns display numeric values indicating the number of arms/epochs/elements in the trial or Y/N to indicate if cohorts are part of the trial design."
@@ -2243,10 +2243,10 @@
     },
     "CtrOdmXmlVue": {
         "title": "CTR ODM XML",
-        "download": "Download XML",
-        "downloading": "Downloading XML...",
-        "iframe_title": "Rendered CTR ODM document",
-        "loading": "Loading XML..."
+        "download": "XML 다운로드",
+        "downloading": "XML 다운로드 중...",
+        "iframe_title": "렌더링된 CTR ODM 문서",
+        "loading": "XML 로딩 중..."
     },
     "ProtocolElementsObjectiveTable": {
         "title": "Objectives and Endpoints",
@@ -3064,19 +3064,19 @@
         "disease_milestone_rep_ind": "Disease Milestone Repetition Indicator"
     },
     "UsdmPage": {
-        "title": "USDM version of the Protocol / USDM version: {version}",
-        "general": "General",
-        "clinical_study_def": "Clinical study [C15206]",
-        "official_protocol_title": "Official Protocol Title [C132346]",
-        "study_protocol_version": "Study Protocol Version [C93490]",
-        "protocol_status": "Protocol Status [C188818]",
-        "study_design": "Study Design [C15320]",
-        "organization_type": "Organization Type [C188820]",
-        "trial_type": "Trial Type [C49660]",
-        "intervention_model_type": "Intervention Model Type [C98746]",
-        "therapeutic_areas": "Therapeutic Areas [C101302]",
-        "trial_blinding_schema": "Trial Blinding Schema [C49658]",
-        "target_study_population": "Target Study Population [C142728]"
+        "title": "프로토콜의 USDM 버전 / USDM 버전: {version}",
+        "general": "일반",
+        "clinical_study_def": "임상 연구 [C15206]",
+        "official_protocol_title": "공식 프로토콜 제목 [C132346]",
+        "study_protocol_version": "연구 프로토콜 버전 [C93490]",
+        "protocol_status": "프로토콜 상태 [C188818]",
+        "study_design": "연구 설계 [C15320]",
+        "organization_type": "조직 유형 [C188820]",
+        "trial_type": "시험 유형 [C49660]",
+        "intervention_model_type": "중재 모델 유형 [C98746]",
+        "therapeutic_areas": "치료 영역 [C101302]",
+        "trial_blinding_schema": "시험 눈가림 방식 [C49658]",
+        "target_study_population": "대상 연구 집단 [C142728]"
     },
     "IchM11Page": {
         "title": "ICH M11 version of the protocol"
@@ -3893,25 +3893,25 @@
         "delete_approve": "Are you sure to delete this Alias?"
     },
     "OdmViewer": {
-        "blank": "Blank",
-        "sdtm": "SDTM Annotation",
-        "allowed_namespaces": "Allowed Extensions",
-        "specific": "Specific",
-        "provide_uri": "Provide URI",
-        "stylesheet": "Stylesheet",
-        "loading_message": "Please be patient, we are creating your ODM-XML document",
-        "load": "Load",
-        "load_another": "Reload",
-        "odm_references": "ODM References",
-        "odm_element_type": "ODM Element Type",
-        "odm_element_name": "ODM Element Name",
-        "template": "Template",
-        "form": "Form",
-        "item_group": "Item Group",
-        "item": "Item",
-        "element_status": "ODM Element Status",
-        "export": "Export ",
-        "format": "Format"
+        "blank": "빈 값",
+        "sdtm": "SDTM 주석",
+        "allowed_namespaces": "허용된 확장",
+        "specific": "특정",
+        "provide_uri": "URI 제공",
+        "stylesheet": "스타일시트",
+        "loading_message": "ODM-XML 문서를 생성 중입니다. 잠시만 기다려 주세요",
+        "load": "불러오기",
+        "load_another": "다시 불러오기",
+        "odm_references": "ODM 참조",
+        "odm_element_type": "ODM 요소 유형",
+        "odm_element_name": "ODM 요소 이름",
+        "template": "템플릿",
+        "form": "폼",
+        "item_group": "아이템 그룹",
+        "item": "아이템",
+        "element_status": "ODM 요소 상태",
+        "export": "내보내기 ",
+        "format": "형식"
     },
     "TemplateIndexingDialog": {
         "title": "Edit indexing properties",
@@ -4175,11 +4175,11 @@
         "dataCollection": "Data collection"
     },
     "YamlViewer": {
-        "search_content": "Search for content",
-        "expand_all": "Expand all",
-        "collapse_all": "Collapse all",
-        "download": "Download YAML content",
-        "close_tab": "Close YAML viewer"
+        "search_content": "내용 검색",
+        "expand_all": "모두 펼치기",
+        "collapse_all": "모두 접기",
+        "download": "YAML 콘텐츠 다운로드",
+        "close_tab": "YAML 뷰어 닫기"
     },
     "ActivityInstructionsView": {
         "title": "Activity Instructions"
