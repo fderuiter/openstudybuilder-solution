@@ -479,7 +479,7 @@
             "studystoprule": "The rule(s), regulation(s) and/or condition(s) that determines the point in time when a clinical trial will be terminated. Stopping rule as specified in Protocol. If there is no stopping rule record 'NONE' in this field",
             "extensiontrial": "Indicate whether the study is an extension trial",
             "adaptivedesign": "Indicate if the study includes a prospectively planned opportunity for modification of one or more specified aspects of the study design and hypotheses based on analysis of data (usually interim data) from subjects in the study",
-            "post_auth_safety_indicator": "An indication as to whether the clinical study is a post authorization safety study",
+            "post_auth_safety_indicator": "An indication as to whether the clinical study is a post authorisation safety study",
             "confirmed_resp_min_duration": "The protocol specified minimum amount of time needed to meet the definition of a confirmed response to treatment. Write value and unit or select NA"
         },
         "StudyPopulationForm": {
@@ -901,7 +901,7 @@
             "study_protocol_version": "A plan at a particular point in time for a formal investigation to assess the utility, impact, pharmacological, physiological, and/or psychological effects of a particular treatment, procedure, drug, device, biologic, food product, cosmetic, care plan, or subject characteristic. (BRIDG)",
             "protocol_status": "A condition of the protocol at a point in time with respect to its state of readiness for implementation. See [<a href='/library/ct_catalogues/All/C188723/terms'>C188723-CDISC DDF Protocol Status Value Set Terminology</a>]",
             "study_design": "A plan detailing how a study will be performed in order to represent the phenomenon under examination, to answer the research questions that have been asked, and informing the statistical approach.",
-            "organization_type": "A characterization or classification of the formalized group of persons or other organizations collected together for a common purpose (such as administrative, legal, political) and the infrastructure to carry out that purpose. See [<a href='/library/ct_catalogues/All/C188724/terms'>C188724-CDISC DDF Organization Type Value Set Terminology</a>]",
+            "organization_type": "A characterisation or classification of the formalised group of persons or other organisations collected together for a common purpose (such as administrative, legal, political) and the infrastructure to carry out that purpose. See [<a href='/library/ct_catalogues/All/C188724/terms'>C188724-CDISC DDF Organization Type Value Set Terminology</a>]",
             "trial_type": "The nature of the interventional study for which information is being collected. See [<a href='/library/ct_catalogues/All/C66739/terms'>C66739-CDISC SDTM Trial Type Terminology</a>]",
             "intervention_model_type": "The general design of the strategy for assigning interventions to participants in a clinical study. (clinicaltrials.gov). See [<a href='/library/ct_catalogues/All/C99076/terms'>C99076-CDISC SDTM Intervention Model Terminology</a>]",
             "therapeutic_areas": "A categorization of a disease, disorder, or other condition based on common characteristics and often associated with a medical specialty focusing on research and development of specific therapeutic interventions for the purpose of treatment and prevention.",
@@ -1585,7 +1585,7 @@
         "update_success": "Study Type updated",
         "drug_study_indicator": "FDA-regulated drug study indicator",
         "device_study_indicator": "FDA-regulated device study indicator",
-        "post_auth_safety_indicator": "Post authorization safety study indicator",
+        "post_auth_safety_indicator": "Post authorisation safety study indicator",
         "confirmed_resp_min_duration": "Confirmed response minimum duration",
         "none": "NONE"
     },
@@ -3071,7 +3071,7 @@
         "study_protocol_version": "Study Protocol Version [C93490]",
         "protocol_status": "Protocol Status [C188818]",
         "study_design": "Study Design [C15320]",
-        "organization_type": "Organization Type [C188820]",
+        "organization_type": "Organisation Type [C188820]",
         "trial_type": "Trial Type [C49660]",
         "intervention_model_type": "Intervention Model Type [C98746]",
         "therapeutic_areas": "Therapeutic Areas [C101302]",
