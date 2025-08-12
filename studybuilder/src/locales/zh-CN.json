@@ -1023,7 +1023,7 @@
       "ucum": "UCUM",
       "ct_catalogues": "CT Catalogues",
       "ct_packages": "CT Packages",
-      "objective_instances": "Objective Instances",
+      "objective_instances": "目标实例",
       "endpoint_instances": "Endpoint Instances",
       "estimand_instances": "Estimand Instances",
       "estimand_templates": "Estimand Templates",
@@ -1037,7 +1037,7 @@
       "footnote_templates": "Footnote Templates",
       "footnote_instances": "Footnote Instances",
       "code_lists": "Code Lists",
-      "objectives": "Objectives",
+      "objectives": "目标",
       "endpoints": "Endpoints",
       "timeframes": "Time Frames",
       "criteria": "Criteria",
@@ -1091,7 +1091,7 @@
       "compound_dosings": "Study Compound Dosings",
       "other_interventions": "Other Interventions",
       "protocol_interventions_table": "方案干预表",
-      "objectives": "Study Objectives",
+      "objectives": "研究目标",
       "estimands": "Study Estimands",
       "study_endpoints": "Study Endpoints",
       "study_criteria": "Study Criteria",
@@ -1107,7 +1107,7 @@
       "standarisation_plan": "Standarisation Plan",
       "protocol_elements": "方案要素",
       "flow_chart": "SoA",
-      "objective_endpoints_estimands": "Objectives and Endpoints",
+      "objective_endpoints_estimands": "目标和终点",
       "study_design": "Study Design",
       "study_properties": "Study Properties",
       "study_structure": "Study Structure",
@@ -1214,25 +1214,25 @@
     "title": "Time Frame Templates"
   },
   "ObjectiveTemplateTable": {
-    "title": "Objective templates",
-    "singular_title": "Objective template",
-    "rot_uri": "Root objective",
-    "actions": "Actions",
-    "add": "Add template",
-    "approve_success": "Template is now in Final state",
-    "approve_pre_instance_success": "Pre-instance is now in Final state",
-    "new_version_success": "New version created",
-    "inactivate_success": "Template inactivated",
-    "reactivate_success": "Template reactivated",
-    "delete_success": "Template deleted",
-    "delete_pre_instance_success": "Pre-instance deleted",
-    "history": "Show template history",
-    "new_version_default_description": "New version",
-    "objective_cat": "Objective category",
-    "confirmatory_testing": "Confirmatory testing",
-    "duplicate_success": "Pre-instance duplicated",
-    "inactivate_pre_instance_success": "Pre-Instance inactivated",
-    "reactivate_pre_instance_success": "Pre-Instance reactivated"
+    "title": "目标模板",
+    "singular_title": "目标模板",
+    "rot_uri": "根目标",
+    "actions": "操作",
+    "add": "添加模板",
+    "approve_success": "模板现已处于最终状态",
+    "approve_pre_instance_success": "预实例现已处于最终状态",
+    "new_version_success": "已创建新版本",
+    "inactivate_success": "模板已停用",
+    "reactivate_success": "模板已重新激活",
+    "delete_success": "模板已删除",
+    "delete_pre_instance_success": "预实例已删除",
+    "history": "显示模板历史",
+    "new_version_default_description": "新版本",
+    "objective_cat": "目标类别",
+    "confirmatory_testing": "确证性测试",
+    "duplicate_success": "预实例已复制",
+    "inactivate_pre_instance_success": "预实例已停用",
+    "reactivate_pre_instance_success": "预实例已重新激活"
   },
   "CtCataloguesTable": {
     "title": "Objective templates",
@@ -1244,7 +1244,7 @@
     "inactivate_success": "Template inactivated",
     "reactivate_success": "Template reactivated",
     "history": "Show template history",
-    "add_objective_template": "Add a new CT Catalogue",
+    "add_objective_template": "添加新的 CT 目录",
     "new_version_default_description": "New version"
   },
   "CTTermDisplay": {
@@ -1299,28 +1299,28 @@
     "endpoint_sub_category": "Endpoint sub-category"
   },
   "ObjectiveTemplateForm": {
-    "add_title": "Add objective template",
-    "edit_title": "Edit objective template",
-    "step1_add_title": "Create template",
-    "step1_edit_title": "Edit template",
-    "step2_title": "Test or set parameter values",
-    "step3_title": "Index template",
-    "step4_title": "Change description",
-    "name": "Objective template",
-    "add_success": "Objective template added",
-    "update_success": "Objective template updated",
-    "objective_category": "Objective category",
-    "confirmatory_testing": "Related to confirmatory testing"
+    "add_title": "添加目标模板",
+    "edit_title": "编辑目标模板",
+    "step1_add_title": "创建模板",
+    "step1_edit_title": "编辑模板",
+    "step2_title": "测试或设置参数值",
+    "step3_title": "索引模板",
+    "step4_title": "更改描述",
+    "name": "目标模板",
+    "add_success": "已添加目标模板",
+    "update_success": "已更新目标模板",
+    "objective_category": "目标类别",
+    "confirmatory_testing": "与确证性测试相关"
   },
   "PreInstanceForm": {
     "step1_title": "设置模板参数值",
     "step2_title": "索引模板"
   },
   "ObjectiveTemplatesPreInstanceForm": {
-    "add_title": "添加目标模板预实例化",
-    "edit_title": "编辑目标模板预实例化",
-    "add_success": "目标模板预实例化已添加",
-    "update_success": "目标模板预实例化已更新"
+    "add_title": "添加目标模板预实例",
+    "edit_title": "编辑目标模板预实例",
+    "add_success": "已添加目标模板预实例",
+    "update_success": "已更新目标模板预实例"
   },
   "EndpointTemplatesPreInstanceForm": {
     "add_title": "添加终点模板预实例化",
@@ -1416,10 +1416,10 @@
     "show_studies": "Display studies using this {type}"
   },
   "ObjectiveTable": {
-    "singular_title": "Objective",
-    "studies_count": "Number of studies",
-    "show_studies": "Display studies using this objective",
-    "item_history_title": "History for objective [{objective}]"
+    "singular_title": "目标",
+    "studies_count": "研究数量",
+    "show_studies": "显示使用该目标的研究",
+    "item_history_title": "目标 [{objective}] 的历史"
   },
   "InstanceStudiesDialog": {
     "title": "List of studies with a specific {type}",
@@ -1434,7 +1434,7 @@
     "view": "View"
   },
   "ObjectivesView": {
-    "title": "Objective instantiations"
+    "title": "目标实例"
   },
   "UnderConstruction": {
     "title": "Under Construction",
@@ -1471,7 +1471,7 @@
     "parameters_updated": "Updated parameters",
     "update_success": "Endpoint updated",
     "select_template": "Endpoint template",
-    "objective_label": "Objective"
+    "objective_label": "目标"
   },
   "TimeframeTable": {
     "delete_success": "Time frame has been deleted",
@@ -1673,64 +1673,64 @@
     "label": "Unit"
   },
   "StudyObjectivesTable": {
-    "objective_level": "Objective level",
-    "endpoint_count": "Endpoint count",
-    "delete_objective_success": "Objective deleted",
-    "update_version_successful": "objective version updated",
-    "update_version_alert": "The underlying template has been updated",
-    "update_version_alert_cont": "with:",
-    "update_version_alert_cont2": "are you sure?",
-    "previous_version": "Old version",
-    "new_version": "New version",
+    "objective_level": "目标级别",
+    "endpoint_count": "终点数量",
+    "delete_objective_success": "目标已删除",
+    "update_version_successful": "目标版本已更新",
+    "update_version_alert": "底层模板已更新",
+    "update_version_alert_cont": "更新内容：",
+    "update_version_alert_cont2": "您确定吗？",
+    "previous_version": "旧版本",
+    "new_version": "新版本",
     "order": "#",
-    "objective": "Objective",
-    "sort_help_msg": "You can only sort study objectives of the same level",
-    "update_version_tooltip": "Update template",
-    "update_version_retired_tooltip": "Template retired",
-    "keep_old_version": "Keep old version",
-    "use_new_version": "Use new version",
-    "confirm_delete": "The objective '{objective}' will be deleted",
-    "edit_template_text": "Edit template text",
-    "global_history_title": "Study objectives history",
-    "study_objective_history_title": "History for study objective [{studyObjectiveUid}]"
+    "objective": "目标",
+    "sort_help_msg": "只能对同一级别的研究目标进行排序",
+    "update_version_tooltip": "更新模板",
+    "update_version_retired_tooltip": "模板已废弃",
+    "keep_old_version": "保留旧版本",
+    "use_new_version": "使用新版本",
+    "confirm_delete": "目标“{objective}”将被删除",
+    "edit_template_text": "编辑模板文本",
+    "global_history_title": "研究目标历史",
+    "study_objective_history_title": "研究目标 [{studyObjectiveUid}] 的历史"
   },
   "StudyObjectiveForm": {
-    "add_title": "Add study objective",
-    "step2_title": "Define objective details",
-    "step3_title": "Select objective level",
-    "select_tpl_title": "Select objective templates",
-    "create_template_title": "Create template",
-    "edit_template_title": "Edit template",
-    "step_edit_title": "Edit objective",
-    "create_from_tpl_title": "Create study objective from template",
-    "creation_mode_label": "Select method",
-    "select_mode": "Select from studies",
-    "template_mode": "Select from standards",
-    "scratch_mode": "Create from scratch",
-    "select_objective_tpl": "Select template",
-    "select_objective": "Select objective",
-    "objective_level": "Objective level",
-    "select_template_label": "Choose a template",
-    "select_level_title": "Select objective level",
-    "objective_added": "Study objective added",
-    "objective_tpl_label": "Objective template",
-    "select_tpl_parameters_label": "Select template parameters",
-    "copy_instructions": "Copy from table",
-    "copy_objective_instructions": "Copy from table",
-    "copy_template": "Select template",
-    "copy_objective": "Select objective",
-    "brand_name": "Brand name",
-    "project_name": "Project name",
-    "project_number": "Project ID",
-    "study_id": "Study ID",
-    "template": "Template",
-    "select_objective_title": "Selected objective",
-    "select_template_title": "Selected objective template",
-    "select_studies": "Select studies",
-    "study_objective": "Study Objective",
-    "selected_objectives": "Selected study objectives",
-    "template_not_selected": "You must select a template first",
-    "show_pre_instances": "Select from pre-instances"
+    "add_title": "添加研究目标",
+    "step2_title": "定义目标详情",
+    "step3_title": "选择目标级别",
+    "select_tpl_title": "选择目标模板",
+    "create_template_title": "创建模板",
+    "edit_template_title": "编辑模板",
+    "step_edit_title": "编辑目标",
+    "create_from_tpl_title": "从模板创建研究目标",
+    "creation_mode_label": "选择方式",
+    "select_mode": "从研究中选择",
+    "template_mode": "从标准中选择",
+    "scratch_mode": "从头创建",
+    "select_objective_tpl": "选择模板",
+    "select_objective": "选择目标",
+    "objective_level": "目标级别",
+    "select_template_label": "选择模板",
+    "select_level_title": "选择目标级别",
+    "objective_added": "已添加研究目标",
+    "objective_tpl_label": "目标模板",
+    "select_tpl_parameters_label": "选择模板参数",
+    "copy_instructions": "从表格复制",
+    "copy_objective_instructions": "从表格复制",
+    "copy_template": "选择模板",
+    "copy_objective": "选择目标",
+    "brand_name": "品牌名称",
+    "project_name": "项目名称",
+    "project_number": "项目 ID",
+    "study_id": "研究 ID",
+    "template": "模板",
+    "select_objective_title": "已选目标",
+    "select_template_title": "已选目标模板",
+    "select_studies": "选择研究",
+    "study_objective": "研究目标",
+    "selected_objectives": "已选研究目标",
+    "template_not_selected": "必须先选择一个模板",
+    "show_pre_instances": "从预实例中选择"
   },
   "StudySelectionEditForm": {
     "edit_syntax": "Edit syntax",
@@ -1742,9 +1742,9 @@
     "unformatted_text": "Unformatted text preview (SDTM)"
   },
   "StudyObjectiveEditForm": {
-    "title": "Edit study objective",
-    "select_level": "Select level",
-    "objective_updated": "Study objective updated"
+    "title": "编辑研究目标",
+    "select_level": "选择级别",
+    "objective_updated": "已更新研究目标"
   },
   "ParameterValueSelector": {
     "separator": "分隔符",
@@ -1756,19 +1756,19 @@
     "title": "Study List"
   },
   "ObjectiveTemplatesView": {
-    "title": "Objective Templates"
+    "title": "目标模板"
   },
   "CtCataloguesView": {
     "title": "CT Catalogues"
   },
   "StudyEndpointsTable": {
     "endpoint_title": "Endpoint title",
-    "objective": "Objective",
+    "objective": "目标",
     "time_frame": "Time frame",
     "units": "Unit",
     "endpoint_level": "Endpoint level",
     "endpoint_sub_level": "Endpoint sub-level",
-    "objective_level": "Objective level",
+    "objective_level": "目标级别",
     "add_endpoint": "Add new study endpoint",
     "delete_endpoint": "Delete study endpoint",
     "delete_success": "Study endpoint deleted",
@@ -1786,8 +1786,8 @@
     "update_endpoint_version": "Update endpoint version",
     "update_timeframe_version_alert": "You  are going to replace timeframe version:",
     "update_endpoint_version_alert": "You  are going to replace endpoint version:",
-    "study_objective_label": "Study objective:",
-    "objective_level_label": "Objective level:",
+    "study_objective_label": "研究目标：",
+    "objective_level_label": "目标级别：",
     "sort_endpoints": "Sort endpoints",
     "order": "#",
     "history_title": "Study Endpoint",
@@ -1807,7 +1807,7 @@
     "creation_mode_title": "Select method",
     "select_studies": "Select studies",
     "select_endpoint": "Select endpoint",
-    "select_objective_title": "Select objective",
+    "select_objective_title": "选择目标",
     "select_timeframe_title": "Select time frame template",
     "step2_title": "Select endpoint template",
     "step3_title": "Define endpoint details",
@@ -1821,8 +1821,8 @@
     "selected_endpoint_units": "Unit(s)",
     "selected_timeframe": "Time frame",
     "copy_endpoint_instructions": "Copy from table",
-    "objective": "Objective",
-    "objective_level": "Objective level",
+    "objective": "目标",
+    "objective_level": "目标级别",
     "select_template": "Select template",
     "units": "Unit(s)",
     "endpoint_level": "Endpoint level",
@@ -1842,11 +1842,11 @@
     "no_endpoint_template": "You must select an endpoint template",
     "timeframe_template": "Time frame template",
     "endpoint_title_warning": "Clinicaltrials.gov does only allow 254 characters in the Endpoint Title.",
-    "select_objective": "Select a study objective or check the Select later box",
-    "copy_objective": "Select study objective",
+    "select_objective": "选择一个研究目标或勾选“稍后选择”",
+    "copy_objective": "选择研究目标",
     "selected_endpoints": "Selected study endpoints",
     "study_endpoint": "Study endpoint",
-    "no_objective_available": "No objective is available yet. Click Select later and continue or cancel."
+    "no_objective_available": "尚无可用目标。点击“稍后选择”并继续或取消。"
   },
   "StudyEndpointEditForm": {
     "title": "Edit study endpoint",
@@ -1856,7 +1856,7 @@
     "timeframe": "Time frame",
     "unformatted_preview_section": "Unformatted text preview of study endpoint",
     "level_section": "Endpoint level",
-    "objective_section": "Objective addressed",
+    "objective_section": "涉及的目标",
     "endpoint_updated": "Study endpoint updated"
   },
   "StudyInterventionTypeView": {
@@ -2251,9 +2251,9 @@
     "loading": "正在加载 XML..."
   },
   "ProtocolElementsObjectiveTable": {
-    "title": "Objectives and Endpoints",
-    "downloading": "Download in progress...",
-    "loading": "Reloading Objectives and Endpoints..."
+    "title": "目标和终点",
+    "downloading": "正在下载...",
+    "loading": "正在重新加载目标和终点..."
   },
   "ActivityTemplatesView": {
     "title": "活动说明模板"
@@ -3128,7 +3128,7 @@
     "schedules": "Study Activities",
     "study_title": "Study Title",
     "estimands": "Estimands",
-    "objectives": "Objectives",
+    "objectives": "目标",
     "endpoints": "Endpoints",
     "study_type": "Study Type",
     "study_arms": "Study Arms",
@@ -3585,10 +3585,10 @@
     "compounds_defined": "Compounds defined:",
     "other_interventions_defined": "Other interventions defined:",
     "study_purpose": "Study Purpose",
-    "study_objectives_tab": "Study Objectives tab",
+    "study_objectives_tab": "研究目标标签页",
     "study_endpoints_tab": "Study Endpoints tab",
     "study_estimands_tab": "Study Estimands tab",
-    "objectives_defined": "Objectives defined:",
+    "objectives_defined": "已定义的目标：",
     "endpoints_defined": "Endpoints defined:",
     "estimands_defined": "Estimands defined:",
     "study_activities": "Study Activities",
