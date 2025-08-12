@@ -500,16 +500,16 @@
       "na": "Not Applicable. Fx. in a clinical pharmacology study conducted in healthy volunteers for a drug where indications are not yet established"
     },
     "StudyInterventionTypeForm": {
-      "general": "Information about the Study intervention(s)",
-      "intervention_type": "The kind of product or procedure investigated in the study. Select from the drop-down list. Behavioral Intervention (e.g. psychotherapy, lifestyle counseling), Biological Agent (e.g. virus, therapeutic serum, toxin, antitoxin, vaccine, blood, blood component or derivative, allergenic product, or analogous product), Dietary Supplement (e.g. vitamins, minerals, herbs, amino acids, extracts and metabolites), Gene Therapy (Introduction of genetic material into cells in order to correct or treat an inherited or acquired disease e.g. gene transfer, stem cell and recombinant DNA), Medical Device (e.g. instrument, apparatus, implement, machine, appliance, implant, reagent for in vitro use, software, material or other similar or related article, intended by the manufacturer to be used, alone or in combination for, one or more specific medical purpose(s), Pharmacologic Substance (e.g. active substance/drug including placebo), Physical Medical Procedure (e.g. activity performed by manual and/or instrumental means for the purpose of diagnosis, activity, therapy, prevention, or palliative care. If study type is 'INTERVENTIONAL' this parameter is required (in Study Design/Study Type). ",
-      "study_intent_type": "The planned purpose of the therapy, device, or agent under study in the clinical trial.",
-      "intervention_model": "The general design of the strategy for assigning interventions to participants in a clinical study, e.g. Single Group: Clinical trials with a single arm, Parallel: Participants are assigned to one of two or more groups in parallel for the duration of the study, Crossover: Participants receive one of two (or more) alternative interventions during the initial phase of the study and receive the other intervention during the second phase of the study, Factorial: Two or more interventions, each alone and in combination, are evaluated in parallel against a control group, Group Sequential: Groups of participants are assigned to receive interventions based on prior milestones being reached in the study, such as in some dose escalation and adaptive design studies, ",
-      "control_type": "Comparator against which the study treatment is evaluated. Active Control: A type of control, which has a demonstrated effect, administered as a comparator to subjects in a clinical trial, Dose Response Control: A type of control using different doses or regimens of the same treatment across the treatment arms, Placebo Control: An inactive, identical-appearing drug or treatment that does not contain the test product. ",
-      "randomised": "Indicate whether assignment of study participants to treatment or control groups was done by randomisation. Blinding is the process of assigning trial subjects to treatment or control groups using an element of chance to determine the assignments in order to reduce bias. NOTE: Unequal randomization is used to allocate subjects into groups at a differential rate; for example, three subjects may be assigned to a treatment group for every one assigned to the control group.",
-      "strfactor": "Selected factors that are used during randomization to ensure there is balance of these factors across all subjects within each arm of a study. The subject level values of these factors may be used as fixed effects in statistical models and for sensitivity analyses.  If applicable. Use as many rows as needed, one for each factor.",
-      "blinding_schema": "The type of design used to describe the level of awareness of the study participants and/or investigators of the intervention(s) that they are receiving and/or administering. Double Blind: A study in which neither the subject nor the investigator nor the research team interacting with the subject or data during the trial knows what treatment a subject is receiving. Open Label: A trial in which subjects and investigators know which product each subject is receiving; opposite of a blinded or double-blind study, Open Label for Treatment And Double Blind to Dose: A study in which the therapeutic treatment is open label but the dosing information of the investigational medicinal product (IMP) is double-blinded, Single Blind: A study in which one party, either the investigator or the subject, does not know which medication or placebo is administered to the subject; also called single-masked study. ",
-      "planned_st_length": "Planned length of observation for a single subject",
-      "added_to_et": "The addition of a therapeutic product to the existing regimen in a clinical study, where both entities remain as discrete products"
+      "general": "研究干预信息",
+      "intervention_type": "研究中调查的产品或程序类型。请从下拉列表中选择。Behavioral Intervention（例如心理治疗、生活方式咨询）、Biological Agent（例如病毒、治疗血清、毒素、抗毒素、疫苗、血液、血液成分或衍生物、过敏原产品或类似产品）、Dietary Supplement（例如维生素、矿物质、草药、氨基酸、提取物和代谢物）、Gene Therapy（将遗传物质引入细胞以纠正或治疗先天或获得性疾病，例如基因转移、干细胞和重组DNA）、Medical Device（例如用于一种或多种特定医疗目的的仪器、器具、工具、机器、设备、植入物、体外试剂、软件、材料或其他类似相关物品，可单独或组合使用）、Pharmacologic Substance（例如活性物质/药物，包括安慰剂）、Physical Medical Procedure（例如通过手动和/或器械手段为诊断、治疗、预防或姑息护理而进行的活动）。如果研究类型为“INTERVENTIONAL”，则此参数为必填项（见研究设计/研究类型）。",
+      "study_intent_type": "临床试验中研究的治疗、器械或试剂的计划用途。",
+      "intervention_model": "将干预措施分配给临床研究参与者的总体设计。例如，Single Group：只有一个试验组的临床试验；Parallel：参与者在整个研究期间被分配到两个或更多组之一；Crossover：参与者在研究初始阶段接受两种（或更多）替代干预之一，在第二阶段接受另一种；Factorial：两个或更多干预单独及组合与对照组同时评估；Group Sequential：根据研究中达到的先前里程碑分组给予干预，例如某些剂量递增和自适应设计研究；",
+      "control_type": "用于评估研究治疗的比较对象。Active Control：具有确切疗效并作为比较对象给临床试验受试者的对照类型；Dose Response Control：在各治疗组使用同一治疗的不同剂量或方案的对照类型；Placebo Control：不含受试产品的惰性、外观相同的药物或治疗。",
+      "randomised": "指明将研究参与者分配到治疗组或对照组是否通过随机化完成。随机化是一种利用随机方式将试验对象分配到治疗组或对照组以减少偏倚的过程。注意：不等比例随机化用于以不同比例将受试者分配到各组，例如每有一名受试者分配到对照组，就有三名分配到治疗组。",
+      "strfactor": "在随机化过程中选择的因素，用于确保这些因素在研究的每个试验组中保持平衡。受试者层面的这些因素值可在统计模型和敏感性分析中作为固定效应。如适用，可根据需要使用多行，每行一个因素。",
+      "blinding_schema": "用于描述研究参与者和/或研究者对其接受和/或实施的干预知晓程度的设计类型。Double Blind：受试者、研究者以及在试验期间与受试者或数据接触的研究团队均不知道受试者接受的治疗。Open Label：受试者和研究者均知道每位受试者所接受的产品；与盲法或双盲研究相反。Open Label for Treatment And Double Blind to Dose：治疗为开放标签，但试验药品（IMP）的剂量信息为双盲。Single Blind：研究者或受试者其中一方不知道受试者接受的药物或安慰剂；亦称单盲研究。",
+      "planned_st_length": "对单个受试者计划的观察时长",
+      "added_to_et": "在临床研究中将治疗产品添加到现有方案中，且两者仍为独立产品"
     },
     "StudyCompoundForm": {
       "general": "Compounds are defined in the Study Builder Library. If a new compound or additional information to an existing compound is needed it must be defined in the library.",
@@ -524,10 +524,10 @@
       "other": "Description of other information regarding the compound as applicable for the study."
     },
     "StudyCompoundDosingForm": {
-      "element": "Choose study element from drop-down",
-      "compound": "Choose compound from drop-down",
-      "dose_value": "Choose value from drop-down, e.g. 500mg",
-      "dose_frequency": "Choose value from drop-down, e.g. Daily"
+      "element": "从下拉列表选择研究要素",
+      "compound": "从下拉列表选择化合物",
+      "dose_value": "从下拉列表选择数值，例如 500mg",
+      "dose_frequency": "从下拉列表选择数值，例如 每日"
     },
     "StudyObjectiveTable": {
       "general": "Use the add button (under the menu) to add the objective needed. The objective can be based on standard templates, selected from other studies or created from scratch. Some criteria contain parameters highlighted with orange text (parameter labels) or green text (parameter values) for which new values can be selected, or the parameter omitted, by using the Edit button next to each editable objective in the table."
@@ -1638,18 +1638,18 @@
     "pinf": "PINF"
   },
   "StudyInterventionTypeForm": {
-    "title": "Add or edit study intervention type information",
-    "intervention_type": "Intervention type",
-    "study_intent_type": "Study intent type",
-    "intervention_model": "Intervention model",
-    "control_type": "Control type",
-    "randomised": "Study is randomised",
-    "strfactor": "Stratification factor",
-    "rdquotient": "Randomisation quotient",
-    "blinding_schema": "Study blinding schema",
-    "planned_st_length": "Planned study length",
-    "added_to_et": "Add-on to existing treatments",
-    "update_success": "Intervention type updated"
+    "title": "添加或编辑研究干预类型信息",
+    "intervention_type": "干预类型",
+    "study_intent_type": "研究目的类型",
+    "intervention_model": "干预模型",
+    "control_type": "对照类型",
+    "randomised": "研究是否随机化",
+    "strfactor": "分层因素",
+    "rdquotient": "随机化比",
+    "blinding_schema": "研究盲法方案",
+    "planned_st_length": "计划研究时长",
+    "added_to_et": "添加至现有治疗",
+    "update_success": "干预类型已更新"
   },
   "RegistryIdentifiersForm": {
     "title": "Add or edit registry identifiers",
@@ -1858,10 +1858,10 @@
     "endpoint_updated": "Study endpoint updated"
   },
   "StudyInterventionTypeView": {
-    "title": "Study Intervention Type"
+    "title": "研究干预类型"
   },
   "StudyInterventionTypeSummary": {
-    "intervention_type_info": "Study intervention type information"
+    "intervention_type_info": "研究干预类型信息"
   },
   "StudyRegistryIdentifiersView": {
     "title": "Registry Identifiers"
@@ -1949,39 +1949,39 @@
     "update_success": "Study compound updated"
   },
   "StudyCompoundDosingTable": {
-    "element": "Study Element",
-    "compound": "Compound Name",
-    "compound_alias": "Compound Alias Name",
-    "preferred_alias": "Preferred Alias",
-    "dose_value": "Dose Value",
-    "dose_frequency": "Dose Frequency",
-    "confirm_delete": "The study compound dosing '{element} / {compound}' will be removed",
-    "delete_success": "Study compound dosing deleted",
-    "study_compound_dosing_history_title": "History for study compound dosing [{studyCompoundDosingUid}]",
-    "global_history_title": "Study compound dosings history"
+    "element": "研究要素",
+    "compound": "化合物名称",
+    "compound_alias": "化合物别名",
+    "preferred_alias": "首选别名",
+    "dose_value": "剂量值",
+    "dose_frequency": "给药频率",
+    "confirm_delete": "研究化合物给药 '{element} / {compound}' 将被删除",
+    "delete_success": "研究化合物给药已删除",
+    "study_compound_dosing_history_title": "研究化合物给药 [{studyCompoundDosingUid}] 的历史记录",
+    "global_history_title": "研究化合物给药历史"
   },
   "StudyCompoundDosingForm": {
-    "add_title": "Add study compound dosing",
-    "edit_title": "Edit study compound dosing",
-    "step1_title": "Select study element",
-    "step2_title": "Select study compound",
-    "step3_title": "Select compound dosing information",
-    "element": "Study element",
-    "element_order": "Element order",
-    "element_type": "Element type",
-    "element_subtype": "Element subtype",
-    "element_name": "Element name",
-    "element_short_name": "Element short name",
-    "element_description": "Element description",
-    "compound": "Study compound",
-    "type_of_treatment": "Type of treatment",
-    "compound_order": "Compound order",
-    "compound_name": "Compound name",
-    "compound_alias_name": "Compound alias name",
-    "dose_value": "Dose value",
-    "dose_frequency": "Dose frequency",
-    "add_success": "Study compound dosing added",
-    "update_success": "Study compound dosing updated"
+    "add_title": "添加研究化合物给药",
+    "edit_title": "编辑研究化合物给药",
+    "step1_title": "选择研究要素",
+    "step2_title": "选择研究化合物",
+    "step3_title": "选择化合物给药信息",
+    "element": "研究要素",
+    "element_order": "要素顺序",
+    "element_type": "要素类型",
+    "element_subtype": "要素子类型",
+    "element_name": "要素名称",
+    "element_short_name": "要素简称",
+    "element_description": "要素描述",
+    "compound": "研究化合物",
+    "type_of_treatment": "治疗类型",
+    "compound_order": "化合物顺序",
+    "compound_name": "化合物名称",
+    "compound_alias_name": "化合物别名",
+    "dose_value": "剂量值",
+    "dose_frequency": "给药频率",
+    "add_success": "研究化合物给药已添加",
+    "update_success": "研究化合物给药已更新"
   },
   "InterventionOverview": {
     "no_intervention_selected": "No study intervention selected",
