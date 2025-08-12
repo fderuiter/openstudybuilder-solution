@@ -356,13 +356,13 @@ def validate_max_skip_clause(page_number: int, page_size: int) -> None:
 
 def load_env(key: str, default: str | None = None):
     value = os.environ.get(key)
-    log.info("ENV variable fetched: %s=%s", key, value)
-    if value is None and default is None:
+    if value is not None:
+        log.info("ENV variable fetched: %s", key)
+        return value
+    if default is None:
         log.error("%s is not set and no default was provided", key)
         raise EnvironmentError(f"Failed because {key} is not set.")
-    if value is not None:
-        return value
-    log.warning("%s is not set, using default value: %s", key, default)
+    log.warning("%s is not set, using default value", key)
     return default
 
 

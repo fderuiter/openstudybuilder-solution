@@ -1,3 +1,4 @@
+import logging
 import pytest
 
 from common import exceptions
@@ -68,13 +69,26 @@ def test_validate_page_number_and_page_size_negative_inputs(
     assert str(exc_info.value) == msg
 
 
-def test_load_env():
-    env_var1 = load_env("VAR1", "value1")
-    assert env_var1 == "value1"
+def test_load_env(monkeypatch, caplog):
+    monkeypatch.setenv("VAR1", "secret")
+    with caplog.at_level(logging.INFO):
+        env_var = load_env("VAR1", "value1")
+    assert env_var == "secret"
+    assert "VAR1" in caplog.text
+    assert "secret" not in caplog.text
 
-    env_var1 = load_env("VAR1", "")
-    assert env_var1 == ""
+    caplog.clear()
+    monkeypatch.delenv("VAR1", raising=False)
+    with caplog.at_level(logging.WARNING):
+        env_var = load_env("VAR1", "value1")
+    assert env_var == "value1"
+    assert "VAR1" in caplog.text
+    assert "value1" not in caplog.text
 
-    with pytest.raises(EnvironmentError) as exc_info:
-        load_env("VAR1")
+    caplog.clear()
+    with caplog.at_level(logging.ERROR):
+        with pytest.raises(EnvironmentError) as exc_info:
+            load_env("VAR1")
     assert str(exc_info.value) == "Failed because VAR1 is not set."
+    assert "VAR1" in caplog.text
+    assert "secret" not in caplog.text
