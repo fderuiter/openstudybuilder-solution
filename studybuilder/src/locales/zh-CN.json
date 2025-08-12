@@ -1590,7 +1590,7 @@
     "none": "NONE"
   },
   "StudyProperties": {
-    "study_type": "Study Type"
+    "study_type": "研究类型"
   },
   "StudyStructure": {
     "study_arms": "Study Arms",
@@ -1616,25 +1616,25 @@
     "label": "Reason for missing"
   },
   "StudyPopulationForm": {
-    "title": "Add or edit study population information",
-    "therapeuticarea": "Therapeutic area",
-    "disease_condition": "Study disease, condition or indication",
-    "diagnosis_group": "Diagnosis group",
-    "rare_disease_indicator": "Rare disease indicator",
-    "healthy_subjects": "Healthy subject indicator",
-    "planned_min_max_age": "Minimum and maximum age of study participants",
-    "planned_min_age": "Planned minimum age of study participants",
-    "planned_max_age": "Planned maximum age of study participants",
-    "pediatric_study_indicator": "Paediatric study indicator",
-    "pediatric_postmarket_study_indicator": "Paediatric post-market study indicator",
-    "pediatric_investigation_plan_indicator": "Paediatric investigation plan indicator",
-    "update_success": "Study population updated",
-    "stable_disease_min_duration": "Stable disease minimum duration",
-    "relapse_criteria": "Relapse criteria",
-    "number_of_expected_subjects_hint": "Total number of subjects expected to be screened",
-    "number_of_expected_subjects": "Total number of subjects",
-    "sex_of_study_participants": "Sex of study participants",
-    "na": "NA",
+    "title": "添加或编辑研究人群信息",
+    "therapeuticarea": "治疗领域",
+    "disease_condition": "研究疾病、状况或适应症",
+    "diagnosis_group": "诊断分组",
+    "rare_disease_indicator": "罕见病指示",
+    "healthy_subjects": "健康受试者指示",
+    "planned_min_max_age": "受试者计划的最小和最大年龄",
+    "planned_min_age": "受试者计划最小年龄",
+    "planned_max_age": "受试者计划最大年龄",
+    "pediatric_study_indicator": "儿童研究指示",
+    "pediatric_postmarket_study_indicator": "儿童上市后研究指示",
+    "pediatric_investigation_plan_indicator": "儿童研究计划指示",
+    "update_success": "研究人群已更新",
+    "stable_disease_min_duration": "稳定疾病的最短持续时间",
+    "relapse_criteria": "复发标准",
+    "number_of_expected_subjects_hint": "预期筛查受试者总数",
+    "number_of_expected_subjects": "受试者总数",
+    "sex_of_study_participants": "受试者性别",
+    "na": "不适用",
     "pinf": "PINF"
   },
   "StudyInterventionTypeForm": {
@@ -1872,18 +1872,18 @@
     "registry_identifiers": "Registry identifiers"
   },
   "StudyPopulationView": {
-    "title": "Study Population",
-    "show_all": "Show all criteria",
-    "hide_all": "Hide criteria details"
+    "title": "研究人群",
+    "show_all": "显示所有标准",
+    "hide_all": "隐藏标准详情"
   },
   "StudyPopulationSummary": {
-    "info_column": "Study population information"
+    "info_column": "研究人群信息"
   },
   "StudyTypeView": {
-    "title": "Study Type"
+    "title": "研究类型"
   },
   "StudyTypeSummary": {
-    "info_column": "Study type information"
+    "info_column": "研究类型信息"
   },
   "StudyMetadataSummary": {
     "selected_values": "Selected values",
@@ -2162,30 +2162,30 @@
     "draft_activity_create_alert": "Selected activity is in {state} state. Please move the activity to FINAL state before creating the Activity Instance."
   },
   "StudyTitleView": {
-    "title": "Study Title",
-    "short_title": "Study Short Title",
-    "edit_title": "Edit study title"
+    "title": "研究标题",
+    "short_title": "研究短标题",
+    "edit_title": "编辑研究标题"
   },
   "StudyTitleForm": {
-    "title": "Define study title",
-    "global_help": "If relevant, copy from another study and use as starting point",
-    "project_id": "Project ID",
-    "project_name": "Project name",
-    "study_id": "Study ID",
-    "study_title": "Study title",
-    "title_label": "Study title",
-    "short_title": "Short study title",
-    "title_hint": "The Title must include the name of the study intervention(s) under clinical investigation, the condition being studied, the participants included and the primary purpose, and should not be longer than 600 characters, including spaces. Two studies must not have identical titles.",
-    "update_success": "Study title updated",
-    "copy_title": "Use this study's title as a template",
-    "short_title_hint": "The short title is used for the front page of the protocol, for participant information/informed consent forms (PI/IC) and protocol synopsis in lay language (PSLL), if applicable. The short title should be in lay language and be a maximum of 300 characters. For guidance on lay language titles please refer to the User Guide on Lay Language Titles in the PI/IC toolbox on Sharepoint."
+    "title": "定义研究标题",
+    "global_help": "如适用，可从其他研究复制并作为起点",
+    "project_id": "项目ID",
+    "project_name": "项目名称",
+    "study_id": "研究ID",
+    "study_title": "研究标题",
+    "title_label": "研究标题",
+    "short_title": "研究短标题",
+    "title_hint": "标题必须包含临床研究的干预措施名称、研究疾病或状况、参与者以及主要目的，并且长度不得超过600个字符（含空格）。两个研究不得有相同的标题。",
+    "update_success": "研究标题已更新",
+    "copy_title": "使用此研究标题作为模板",
+    "short_title_hint": "短标题用于方案封面、受试者信息/知情同意书(PI/IC)及简明语言的方案概要(PSLL)。短标题应使用通俗语言且最多300个字符。有关通俗语言标题的指南，请参阅SharePoint上PI/IC工具箱中的《通俗语言标题用户指南》。"
   },
   "StudyStatusView": {
-    "title": "Study",
-    "tab1_title": "Study Core Attributes",
-    "tab2_title": "Study Status",
-    "tab3_title": "Study Subparts",
-    "tab4_title": "Protocol Version"
+    "title": "研究",
+    "tab1_title": "研究核心属性",
+    "tab2_title": "研究状态",
+    "tab3_title": "子研究部分",
+    "tab4_title": "方案版本"
   },
   "StudyDataStandardVersionsView": {
     "title": "Data Standard Versions",
@@ -2217,29 +2217,29 @@
     "core_attribute": "Core attribute"
   },
   "StudyStatusTable": {
-    "unlock_success": "Study has been unlocked",
-    "confirm_delete": "Study {studyId} will be deleted",
-    "delete_success": "Study has been deleted"
+    "unlock_success": "研究已解锁",
+    "confirm_delete": "研究 {studyId} 将被删除",
+    "delete_success": "研究已删除"
   },
   "StudyStatusForm": {
-    "release_title": "Release study",
-    "lock_title": "Lock study",
-    "release_description": "Release description",
-    "lock_description": "Lock description",
-    "lock_success": "Study has been locked",
-    "release_success": "Study has been released"
+    "release_title": "发布研究",
+    "lock_title": "锁定研究",
+    "release_description": "发布说明",
+    "lock_description": "锁定说明",
+    "lock_success": "研究已锁定",
+    "release_success": "研究已发布"
   },
   "StudyProtocolElementsView": {
-    "title": "Protocol Elements",
-    "title_page": "Title Page Information",
-    "protocol_flowchart": "Protocol SoA",
-    "study_interventions": "Study Interventions",
-    "procedures_and_activities": "Procedures and Activities",
-    "study_design": "Study Design",
-    "download": "Download",
-    "loading": "Loading...",
-    "downloading": "Downloading...",
-    "protocol_soa": "Protocol SoA"
+    "title": "方案要素",
+    "title_page": "标题页信息",
+    "protocol_flowchart": "方案活动时间表",
+    "study_interventions": "研究干预措施",
+    "procedures_and_activities": "程序与活动",
+    "study_design": "研究设计",
+    "download": "下载",
+    "loading": "加载中...",
+    "downloading": "正在下载...",
+    "protocol_soa": "方案活动时间表"
   },
   "CtrOdmXmlVue": {
     "title": "CTR ODM XML",
@@ -3464,9 +3464,9 @@
     "copy_item": "Copy item"
   },
   "StudyPurposeView": {
-    "study_objectives": "Study Objectives",
-    "study_endpoints": "Study Endpoints",
-    "study_estimands": "Study Estimands"
+    "study_objectives": "研究目标",
+    "study_endpoints": "研究终点",
+    "study_estimands": "研究估量"
   },
   "StudyActivityBatchEditForm": {
     "title": "Batch edit study activities",
