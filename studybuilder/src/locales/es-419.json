@@ -437,7 +437,7 @@
             "definition": "Una descripción del término."
         },
         "UnitForm": {
-            "ct_term": "",
+            "ct_term": "Seleccione el término de terminología controlada que representa esta unidad.",
             "convertible_unit": "Deslice si la unidad se puede convertir. ",
             "ucum_unit": "Seleccione la unidad equivalente en UCUM en el menú desplegable. ",
             "display_unit": "Diapositiva si esta unidad se usa como una unidad de visualización, p. ",
