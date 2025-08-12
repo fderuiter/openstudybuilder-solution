@@ -4,6 +4,7 @@ import enUS from '@/locales/en-US.json'
 import zhCN from '@/locales/zh-CN.json'
 import es419 from '@/locales/es-419.json'
 import frFR from '@/locales/fr-FR.json'
+import koKR from '@/locales/ko-KR.json'
 
 const instance = createI18n({
   legacy: false,
@@ -12,11 +13,14 @@ const instance = createI18n({
   messages: {
     en: en,
     'en-US': enUS,
+    zh: zhCN,
     'zh-CN': zhCN,
     es: es419,
     'es-419': es419,
     fr: frFR,
     'fr-FR': frFR,
+    ko: koKR,
+    'ko-KR': koKR,
   },
 })
 
