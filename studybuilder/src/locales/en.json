@@ -2957,7 +2957,7 @@
         "order": "Order",
         "add_success": "Epoch added",
         "update_success": "Epoch updated",
-        "color": "Background color (used in timeline view)",
+        "color": "Background colour (used in timeline view)",
         "name": "Epoch name",
         "epoch_number": "Epoch number",
         "epoch_type": "Epoch type",
