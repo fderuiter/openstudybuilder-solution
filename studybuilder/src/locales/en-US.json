@@ -533,10 +533,10 @@
             "general": "1. Click the Add button under the menu. 2. Select a standard template, copy an objective from another study, or create one from scratch. 3. Parameters use orange labels and green values. 4. Click Edit next to an objective to change parameter values or remove them."
         },
         "StudyArmsForm": {
-            "arm_name": "Long-label of the arm, e.g. Placebo",
+            "arm_name": "Full label of the arm, e.g., Placebo",
             "arm_short_name": "Abbreviated name of the arm, e.g. PBO",
-            "arm_type": "Investigational - Intervention being investigated, Comparator - Intervention the investigational intervention is being compared against, Placebo - if comparator is Placebo select this option, Observational - No intervention is made",
-            "arm_code": "An abbreviated code of the interventions in the arm, e.g. AB for a cross-over study with Drug A followed by drug B, or  PBO for a Placebo arm",
+            "arm_type": "Investigational - intervention being investigated; Comparator - intervention the investigational intervention is compared against; Placebo - choose when the comparator is placebo; Observational - no intervention is made.",
+            "arm_code": "An abbreviated code of the interventions in the arm, e.g., AB for a cross-over study with Drug A followed by Drug B or PBO for a placebo arm",
             "randomisation_group": "The group assigned in the randomization list, e.g. A=AB and B=BA from the randomization list.",
             "planned_number": "The planned number of subjects in the arm.",
             "description": "(optional) A description of the arm."
