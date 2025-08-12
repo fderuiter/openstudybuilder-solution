@@ -26,7 +26,10 @@ from clinical_mdr_api.domains.comments.comments import (
 from clinical_mdr_api.repositories._utils import sb_clear_cache
 from common import exceptions
 from common.config import settings
-from common.utils import convert_to_datetime, validate_max_skip_clause
+from common.utils import (
+    convert_to_datetime,
+    validate_page_number_and_page_size,
+)
 
 
 class CommentsRepository:
@@ -248,7 +251,9 @@ class CommentsRepository:
         page_number: int = 1,
         page_size: int = 0,
     ) -> tuple[list[CommentThreadAR], int]:
-        validate_max_skip_clause(page_number=page_number, page_size=page_size)
+        validate_page_number_and_page_size(
+            page_number=page_number, page_size=page_size
+        )
 
         topic_clause = ""
         if topic_path is not None:
@@ -366,7 +371,9 @@ class CommentsRepository:
         page_number: int = 1,
         page_size: int = 0,
     ) -> tuple[list[CommentTopicAR], int]:
-        validate_max_skip_clause(page_number=page_number, page_size=page_size)
+        validate_page_number_and_page_size(
+            page_number=page_number, page_size=page_size
+        )
 
         topic_clause = ""
         if topic_path is not None:

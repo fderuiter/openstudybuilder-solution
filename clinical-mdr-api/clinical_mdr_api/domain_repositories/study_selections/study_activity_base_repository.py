@@ -20,7 +20,10 @@ from clinical_mdr_api.domains.study_selections.study_selection_base import (
     StudySelectionBaseAR,
     StudySelectionBaseVO,
 )
-from common.utils import convert_to_datetime, validate_max_skip_clause
+from common.utils import (
+    convert_to_datetime,
+    validate_page_number_and_page_size,
+)
 
 _AggregateRootType = TypeVar("_AggregateRootType")
 
@@ -621,7 +624,9 @@ class StudySelectionActivityBaseRepository(Generic[_AggregateRootType], abc.ABC)
         detailed_soa_audit_trail += (
             "SKIP $page_number * $page_size LIMIT $page_size" if page_size > 0 else ""
         )
-        validate_max_skip_clause(page_number=page_number, page_size=page_size)
+        validate_page_number_and_page_size(
+            page_number=page_number, page_size=page_size
+        )
 
         detailed_soa_audit_trail = db.cypher_query(
             detailed_soa_audit_trail,

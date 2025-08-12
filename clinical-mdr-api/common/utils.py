@@ -335,6 +335,14 @@ def convert_to_datetime(value: "neo4j.time.DateTime") -> datetime | None:
 
 
 def validate_page_number_and_page_size(page_number: int, page_size: int):
+    ValidationException.raise_if(
+        page_number < 1,
+        msg="page_number must be greater than or equal to 1",
+    )
+    ValidationException.raise_if(
+        page_size < 0,
+        msg="page_size must be greater than or equal to 0",
+    )
     validate_max_skip_clause(page_number=page_number, page_size=page_size)
 
 
