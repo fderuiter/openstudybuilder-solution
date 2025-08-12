@@ -530,7 +530,7 @@
             "dose_frequency": "Choose value from drop-down, e.g. Daily"
         },
         "StudyObjectiveTable": {
-            "general": "Use the add button (under the menu) to add the objective needed. The objective can be based on standard templates, selected from other studies or created from scratch. Some criteria contain parameters highlighted with orange text (parameter labels) or green text (parameter values) for which new values can be selected, or the parameter omitted, by using the Edit button next to each editable objective in the table."
+            "general": "1. Click the Add button under the menu. 2. Select a standard template, copy an objective from another study, or create one from scratch. 3. Parameters use orange labels and green values. 4. Click Edit next to an objective to change parameter values or remove them."
         },
         "StudyArmsForm": {
             "arm_name": "Long-label of the arm, e.g. Placebo",
