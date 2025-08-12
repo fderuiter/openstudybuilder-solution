@@ -392,9 +392,9 @@
       "is_preferred_synonym": "若这是贵组织的首选同义词，请勾选“是”。"
     },
     "EndpointTemplateForm": {
-      "name": "An endpoint consists of a title, timeframe and unit. Example: title: Change in systolic blood pressure, timeframe: from baseline to week 20, unit: mmHg. So put together 'Change in systolic blood pressure from baseline to week 20 (mmHg)'. A generic template could be defined as: Change in [ActivityInstance] from [Time Point Reference] to [Time Point Reference] ([Unit]). Add parameters enclosed in square brackets [ and ].",
-      "endpoint_category": "Select one or more categories from the drop-down for which this endpoint applies. Tick NA if not applicable.",
-      "endpoint_sub_category": "Select one or more categories from the drop-down for which this endpoint applies. Tick NA if not applicable. For a detailed description of the categories see the 'Objectives and endpoints library guidance' document. For the systolic BP example the category is 'Continuous (relative change)'"
+      "name": "终点由标题、时间范围和单位组成。例如：标题：收缩压变化；时间范围：从基线到第20周；单位：mmHg。组合后为“从基线到第20周收缩压的变化 (mmHg)”。通用模板可定义为：Change in [ActivityInstance] from [Time Point Reference] to [Time Point Reference] ([Unit])。将参数置于方括号 [ ] 中。",
+      "endpoint_category": "从下拉列表中选择适用此终点的一个或多个类别。如不适用，请勾选 NA。",
+      "endpoint_sub_category": "从下拉列表中选择适用此终点的一个或多个子类别。如不适用，请勾选 NA。关于类别的详细说明，请参阅“Objectives and endpoints library guidance”文档。在收缩压示例中，类别为“Continuous (relative change)”"
     },
     "TimeframeTemplateForm": {
       "name": "时间范围可以作为终点的一部分引用。例如：从基线（第0周）到第28周。模板可以为 'from [Time Point Reference] ([VisitName]) to [VisitName]'。将参数放在方括号 [ 和 ] 中。"
@@ -564,7 +564,7 @@
       "description": "A description of the element"
     },
     "StudyEndpointTable": {
-      "general": "Use the add button (under the menu) to add the endpoint needed. The endpoint can be based on standard templates, selected from other studies or created from scratch. Some criteria contain parameters highlighted with orange text (parameter labels) or green text (parameter values) for which new values can be selected, or the parameter omitted, by using the Edit button next to each editable endpoint in the table."
+      "general": "使用菜单下方的添加按钮添加所需终点。终点可基于标准模板、从其他研究中选择或从头创建。某些终点包含以橙色文本（参数标签）或绿色文本（参数值）突出显示的参数，可通过表中每个可编辑终点旁的“编辑”按钮选择新值或省略该参数。"
     },
     "StudyVisitForm": {
       "vtype_step_label": "选择访视类型：按方案计划的访视为计划访视。非计划访视是为捕捉可能发生在正常时间表之外的活动（如额外的实验室样本）而增加的访视。非访视用于与任何访视无关的研究活动，例如自测血糖结果。非计划访视和非访视是大多数研究中进行正确 SDTM 映射所需的占位符。特殊访视是没有具体时间但与数据收集相关的访视。特殊访视始终与另一访视相关，并在活动时间表中显示为 VxxA、VxxB 等（其中“xx”为相关访视的编号）。此类访视还可用作“提前停药访视”，在计划的治疗结束访视之外采集特定数据。此时，特殊访视将命名为 VxxX。试验中可能存在多个提前停药访视，额外的提前停药访视将命名为 VxxY 和 VxxZ。如果在研究首例受试者入组（FPFV）后因方案修订需要新增访视，则必须使用手动定义访视。FPFV 之后更改已实现访视的名称或编号可能产生严重后果，而添加手动定义访视不会影响已收集的数据。",
@@ -749,7 +749,7 @@
       "general": "Generic templates for objectives are defined here. Click on the + button to add a new template. In the User Defined Templates you can view templates being defined on different studies. To make a template accessible for use it must be approved. Use the Approve in the left context-menu (3 vertical dots to the left of the template). To set default values for parameters use the 'Default' values in the context menu."
     },
     "EndpointTemplatesTable": {
-      "general": "Generic templates for endpoints are defined here. Click on the + button to add a new template. In the User Defined Templates you can view templates being defined on different studies. To make a template accessible for use it must be approved. Use the Approve in the left context-menu (3 vertical dots to the left of the template). To set default values for parameters use the 'Default' values in the context menu."
+      "general": "此处定义终点的通用模板。点击 + 按钮可添加新模板。在“用户定义模板”中可查看在不同研究中定义的模板。要使模板可用，必须先批准，请在左侧上下文菜单（模板左侧的三个竖点）中选择“批准”。如需为参数设置默认值，请在上下文菜单中使用“默认值”选项。"
     },
     "TimeframeTemplatesTable": {
       "general": "此处定义时间范围的通用模板。点击 + 按钮可添加新模板。在“用户定义的模板”中可以查看在不同研究中定义的模板。要使模板可使用，必须先批准，请使用左侧上下文菜单（模板左侧的三个垂直点）中的“批准”。要为参数设置默认值，请在上下文菜单中使用“默认值”选项。"
@@ -764,7 +764,7 @@
       "general": "The list of objectives and which template they are based on, and the number of studies using the objective. To view the studies, then select the 'Display studies using this objective' in the context menu of the objective."
     },
     "EndpointsTable": {
-      "general": "The list of endpoints and which template they are based on, and the number of studies using the endpoint. To create specific endpoint from a template, click on the +-button in the top right side of the table."
+      "general": "列出终点及其所基于的模板，以及使用该终点的研究数量。要从模板创建特定终点，请点击表格右上角的 + 按钮。"
     },
     "TimeframesTable": {
       "general": "列出时间范围及其所基于的模板，以及使用该时间范围的研究数量。要从模板创建特定的时间范围，请点击表格右上角的 + 按钮。"
@@ -793,19 +793,19 @@
       "step_edit_title": "For template-based objective change the parameter(s) using the drop-down list"
     },
     "StudyEndpointsTable": {
-      "endpoint_title": "The text of the endpoint",
-      "objective": "Objective the the endpoint is linked to",
-      "time_frame": "Time point(s) at which the measurement is assessed for the specific metric used. The description of the time point(s) of activity must be specific to the outcome measure and is generally the specific duration of time over which each participant is assessed (not the overall duration of the study)",
-      "units": "The unit of measure of the endpoint"
+      "endpoint_title": "终点文本",
+      "objective": "终点所关联的目标",
+      "time_frame": "根据所用特定指标进行测量的时间点。活动时间点的描述必须针对结局指标，并通常表示每位受试者被评估的具体时间段（而非整个研究的持续时间）",
+      "units": "终点的计量单位"
     },
     "StudyEndpointForm": {
-      "add_title": "Add new study endpoint",
-      "template_mode": "Endpoints made from a pre-defined template. Some endpoints contain parameters highlighted with orange text (parameter labels) or green text (parameter values) for which new values can be selected, or the parameter omitted",
-      "scratch_mode": "Write your own criteria from scratch",
-      "select_objective_title": "Choose which objective the endpoint should be linked to",
-      "step2_title": "Copy endpoint(s) from the list of templates using the copy icon and press Continue",
+      "add_title": "添加新的研究终点",
+      "template_mode": "基于预定义模板生成终点。某些终点包含以橙色文本（参数标签）或绿色文本（参数值）突出显示的参数，可选择新值或省略该参数。",
+      "scratch_mode": "从头编写自己的终点",
+      "select_objective_title": "选择此终点应关联的目标",
+      "step2_title": "使用复制图标从模板列表中复制终点，并点击“继续”",
       "timeframe_template": "测量针对特定指标进行评估的时间点。请从下拉列表中选择时间范围模板",
-      "step3_title": "Finish the endpoint by selecting the parameters from the drop-down lists",
+      "step3_title": "通过从下拉列表中选择参数来完成终点",
       "endpoint_level": "主要：方案中规定的最重要终点，通常用于统计效能计算。大多数临床研究只有一个主要终点，但也可能有多个。次要：重要性低于主要终点，但作为预先指定分析计划的一部分，用于评估研究中干预措施的影响，并且未被指定为探索性终点。临床研究可能有多个次要终点。探索性：计划中的终点，但更具探索性质。附加：除事后终点外的其他终点，用于评估干预措施或（对观察性研究而言）研究关注的其他方面。"
     },
     "ActivitiesView": {
@@ -1207,8 +1207,8 @@
     "parameter_values_title": "编辑参数值"
   },
   "EndpointTemplatesView": {
-    "title": "Endpoint Templates",
-    "endpoints": "Endpoint titles"
+    "title": "终点模板",
+    "endpoints": "终点标题"
   },
   "TimeframeTemplatesView": {
     "title": "时间范围模板"
@@ -1266,37 +1266,37 @@
     "delete_success": "时间范围模板已删除"
   },
   "EndpointTemplateTable": {
-    "title": "Endpoint templates",
-    "singular_title": "Endpoint template",
-    "rot_uri": "Root endpoint",
-    "actions": "Actions",
-    "add": "Add template",
-    "approve_success": "Template is now in Final state",
-    "approve_pre_instance_success": "Pre-instance is now in Final state",
-    "new_version_success": "New version created",
-    "inactivate_success": "Template inactivated",
-    "reactivate_success": "Template reactivated",
-    "history": "Show template history",
-    "new_version_default_description": "New version",
-    "delete_success": "Endpoint template has been deleted",
-    "delete_pre_instance_success": "Endpoint template pre-instance has been deleted",
-    "endpoint_cat": "Endpoint category",
-    "endpoint_sub_cat": "Endpoint sub-category",
-    "duplicate_success": "Pre-instance duplicated",
-    "inactivate_pre_instance_success": "Pre-Instance inactivated",
-    "reactivate_pre_instance_success": "Pre-Instance reactivated"
+    "title": "终点模板",
+    "singular_title": "终点模板",
+    "rot_uri": "根终点",
+    "actions": "操作",
+    "add": "添加模板",
+    "approve_success": "模板现已处于最终状态",
+    "approve_pre_instance_success": "预实例现已处于最终状态",
+    "new_version_success": "已创建新版本",
+    "inactivate_success": "模板已停用",
+    "reactivate_success": "模板已重新激活",
+    "history": "显示模板历史",
+    "new_version_default_description": "新版本",
+    "delete_success": "终点模板已删除",
+    "delete_pre_instance_success": "终点模板预实例已删除",
+    "endpoint_cat": "终点类别",
+    "endpoint_sub_cat": "终点子类别",
+    "duplicate_success": "预实例已复制",
+    "inactivate_pre_instance_success": "预实例已停用",
+    "reactivate_pre_instance_success": "预实例已重新激活"
   },
   "EndpointTemplateForm": {
-    "add_title": "Add endpoint template",
-    "edit_title": "Edit endpoint template",
-    "name": "Endpoint template",
-    "add_success": "Endpoint template added",
-    "update_success": "Endpoint template updated",
-    "verify_syntax": "Verify syntax",
-    "valid_syntax": "This syntax is valid",
-    "invalid_syntax": "This syntax is invalid",
-    "endpoint_category": "Endpoint category",
-    "endpoint_sub_category": "Endpoint sub-category"
+    "add_title": "添加终点模板",
+    "edit_title": "编辑终点模板",
+    "name": "终点模板",
+    "add_success": "已添加终点模板",
+    "update_success": "终点模板已更新",
+    "verify_syntax": "验证语法",
+    "valid_syntax": "语法有效",
+    "invalid_syntax": "语法无效",
+    "endpoint_category": "终点类别",
+    "endpoint_sub_category": "终点子类别"
   },
   "ObjectiveTemplateForm": {
     "add_title": "添加目标模板",
@@ -1442,35 +1442,35 @@
     "not_supported": "Page Not Supported"
   },
   "EndpointsView": {
-    "title": "Endpoints"
+    "title": "终点"
   },
   "StudyCriteriaTable": {
     "general": "General",
     "study_criteria": "Study Criteria"
   },
   "EndpointTable": {
-    "delete_success": "Endpoint has been deleted",
-    "approve_success": "Endpoint is now in Final state",
-    "inactivate_success": "Endpoint inactivated",
-    "reactivate_success": "Endpoint reactivated",
-    "add_endpoint": "Add a new endpoint from a template",
-    "singular_title": "Endpoint",
-    "studies_count": "Number of studies",
-    "item_history_title": "History for endpoint [{endpoint}]",
-    "show_studies": "Show studies using this endpoint"
+    "delete_success": "终点已删除",
+    "approve_success": "终点现已处于最终状态",
+    "inactivate_success": "终点已停用",
+    "reactivate_success": "终点已重新激活",
+    "add_endpoint": "从模板添加新终点",
+    "singular_title": "终点",
+    "studies_count": "研究数量",
+    "item_history_title": "终点 [{endpoint}] 的历史记录",
+    "show_studies": "显示使用该终点的研究"
   },
   "EndpointForm": {
-    "add_title": "Add endpoint from a template",
-    "edit_title": "Edit endpoint",
-    "add_success": "Endpoint added",
-    "current_endpoint": "Current endpoint:",
-    "preview_endpoint": "Preview endpoint with selected parameters:",
-    "select_params": "Select your parameters:",
-    "endpoint_name": "Endpoint:",
-    "template_name": "Template:",
-    "parameters_updated": "Updated parameters",
-    "update_success": "Endpoint updated",
-    "select_template": "Endpoint template",
+    "add_title": "从模板添加终点",
+    "edit_title": "编辑终点",
+    "add_success": "终点已添加",
+    "current_endpoint": "当前终点：",
+    "preview_endpoint": "使用所选参数预览终点：",
+    "select_params": "选择参数：",
+    "endpoint_name": "终点：",
+    "template_name": "模板：",
+    "parameters_updated": "参数已更新",
+    "update_success": "终点已更新",
+    "select_template": "终点模板",
     "objective_label": "目标"
   },
   "TimeframeTable": {
@@ -1762,102 +1762,102 @@
     "title": "CT 目录"
   },
   "StudyEndpointsTable": {
-    "endpoint_title": "Endpoint title",
+    "endpoint_title": "终点标题",
     "objective": "目标",
     "time_frame": "时间范围",
-    "units": "Unit",
-    "endpoint_level": "Endpoint level",
-    "endpoint_sub_level": "Endpoint sub-level",
+    "units": "单位",
+    "endpoint_level": "终点级别",
+    "endpoint_sub_level": "终点子级",
     "objective_level": "目标级别",
-    "add_endpoint": "Add new study endpoint",
-    "delete_endpoint": "Delete study endpoint",
-    "delete_success": "Study endpoint deleted",
-    "edit_endpoint": "Edit study endpoint",
-    "orphan_endpoints": "Study endpoints without study objective",
-    "update_version_successful": "objective version updated",
-    "update_version_alert": "you are going to replace objective version:",
-    "update_version_alert_cont": "with:",
-    "update_version_alert_cont2": "are you sure?",
-    "previous_version": "Previous version",
-    "new_version": "New version",
+    "add_endpoint": "添加新的研究终点",
+    "delete_endpoint": "删除研究终点",
+    "delete_success": "研究终点已删除",
+    "edit_endpoint": "编辑研究终点",
+    "orphan_endpoints": "无对应研究目标的研究终点",
+    "update_version_successful": "目标版本已更新",
+    "update_version_alert": "您即将替换目标版本：",
+    "update_version_alert_cont": "替换为：",
+    "update_version_alert_cont2": "是否确认？",
+    "previous_version": "之前的版本",
+    "new_version": "新版本",
     "update_timeframe_version_retired": "更新的时间范围版本已停用",
-    "update_endpoint_version_retired": "Updated endpoint version is retired",
+    "update_endpoint_version_retired": "更新的终点版本已停用",
     "update_timeframe_version": "更新时间范围版本",
-    "update_endpoint_version": "Update endpoint version",
+    "update_endpoint_version": "更新终点版本",
     "update_timeframe_version_alert": "您将替换时间范围版本：",
-    "update_endpoint_version_alert": "You  are going to replace endpoint version:",
+    "update_endpoint_version_alert": "您将替换终点版本：",
     "study_objective_label": "研究目标：",
     "objective_level_label": "目标级别：",
-    "sort_endpoints": "Sort endpoints",
+    "sort_endpoints": "终点排序",
     "order": "#",
-    "history_title": "Study Endpoint",
-    "history": "Show study endpoint history",
-    "confirm_delete": "The endpoint '{endpoint}' will be deleted",
-    "sort_help_msg": "You can only sort study endpoints of the same level",
-    "edit_template_text": "Edit template text",
-    "global_history_title": "Study endpoints history",
-    "study_endpoint_history_title": "History for study endpoint [{studyEndpointUid}]"
+    "history_title": "研究终点",
+    "history": "显示研究终点历史",
+    "confirm_delete": "终点‘{endpoint}’将被删除",
+    "sort_help_msg": "只能对同一级别的研究终点进行排序",
+    "edit_template_text": "编辑模板文本",
+    "global_history_title": "研究终点历史",
+    "study_endpoint_history_title": "研究终点 [{studyEndpointUid}] 的历史记录"
   },
   "StudyEndpointForm": {
-    "add_title": "Add new study endpoint",
-    "edit_title": "Edit study endpoint",
-    "select_mode": "Select from studies",
-    "template_mode": "Select from standards",
-    "scratch_mode": "Create from scratch",
-    "creation_mode_title": "Select method",
-    "select_studies": "Select studies",
-    "select_endpoint": "Select endpoint",
+    "add_title": "添加新的研究终点",
+    "edit_title": "编辑研究终点",
+    "select_mode": "从研究中选择",
+    "template_mode": "从标准中选择",
+    "scratch_mode": "从头创建",
+    "creation_mode_title": "选择方式",
+    "select_studies": "选择研究",
+    "select_endpoint": "选择终点",
     "select_objective_title": "选择目标",
     "select_timeframe_title": "选择时间范围模板",
-    "step2_title": "Select endpoint template",
-    "step3_title": "Define endpoint details",
+    "step2_title": "选择终点模板",
+    "step3_title": "定义终点详细信息",
     "step4_title": "创建时间范围",
-    "create_tpl_title": "Create endpoint title template",
-    "edit_tpl_title": "Edit endpoint title template",
-    "endpoint_level_title": "Select endpoint level",
-    "selected_endpoint": "Selected endpoint title",
-    "selected_endpoint_template": "Selected endpoint title template",
+    "create_tpl_title": "创建终点标题模板",
+    "edit_tpl_title": "编辑终点标题模板",
+    "endpoint_level_title": "选择终点级别",
+    "selected_endpoint": "已选择的终点标题",
+    "selected_endpoint_template": "已选择的终点标题模板",
     "selected_timeframe_template": "已选择的终点时间范围模板",
-    "selected_endpoint_units": "Unit(s)",
+    "selected_endpoint_units": "单位",
     "selected_timeframe": "时间范围",
-    "copy_endpoint_instructions": "Copy from table",
+    "copy_endpoint_instructions": "从表中复制",
     "objective": "目标",
     "objective_level": "目标级别",
-    "select_template": "Select template",
-    "units": "Unit(s)",
-    "endpoint_level": "Endpoint level",
-    "endpoint_sub_level": "Endpoint sub-level",
-    "separator": "Separator",
-    "endpoint_added": "Endpoint added",
-    "brand_name": "Brand name",
-    "project_name": "Project name",
-    "project_number": "Project ID",
-    "study_id": "Study ID",
-    "unit": "Unit",
-    "endpoint_title": "Endpoint title",
+    "select_template": "选择模板",
+    "units": "单位",
+    "endpoint_level": "终点级别",
+    "endpoint_sub_level": "终点子级",
+    "separator": "分隔符",
+    "endpoint_added": "终点已添加",
+    "brand_name": "商品名",
+    "project_name": "项目名称",
+    "project_number": "项目编号",
+    "study_id": "研究 ID",
+    "unit": "单位",
+    "endpoint_title": "终点标题",
     "timeframe": "时间范围",
-    "endpoint_subtitle_1": "Endpoint title and unit(s)",
-    "create_template": "Create endpoint title template",
-    "select_later": "Select later",
-    "no_endpoint_template": "You must select an endpoint template",
+    "endpoint_subtitle_1": "终点标题和单位",
+    "create_template": "创建终点标题模板",
+    "select_later": "稍后选择",
+    "no_endpoint_template": "必须选择一个终点模板",
     "timeframe_template": "时间范围模板",
-    "endpoint_title_warning": "Clinicaltrials.gov does only allow 254 characters in the Endpoint Title.",
+    "endpoint_title_warning": "Clinicaltrials.gov 的终点标题最多允许 254 个字符。",
     "select_objective": "选择一个研究目标或勾选“稍后选择”",
     "copy_objective": "选择研究目标",
-    "selected_endpoints": "Selected study endpoints",
-    "study_endpoint": "Study endpoint",
-    "no_objective_available": "尚无可用目标。点击“稍后选择”并继续或取消。"
+    "selected_endpoints": "已选择的研究终点",
+    "study_endpoint": "研究终点",
+    "no_objective_available": "尚无可用目标。请点击“稍后选择”并继续或取消。"
   },
   "StudyEndpointEditForm": {
-    "title": "Edit study endpoint",
-    "units_section": "Unit(s)",
-    "unit": "Unit",
+    "title": "编辑研究终点",
+    "units_section": "单位",
+    "unit": "单位",
     "timeframe_section": "已分配的时间范围",
     "timeframe": "时间范围",
-    "unformatted_preview_section": "Unformatted text preview of study endpoint",
-    "level_section": "Endpoint level",
+    "unformatted_preview_section": "研究终点的未格式化文本预览",
+    "level_section": "终点级别",
     "objective_section": "涉及的目标",
-    "endpoint_updated": "Study endpoint updated"
+    "endpoint_updated": "研究终点已更新"
   },
   "StudyInterventionTypeView": {
     "title": "研究干预类型"
