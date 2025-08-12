@@ -397,7 +397,7 @@
       "endpoint_sub_category": "Select one or more categories from the drop-down for which this endpoint applies. Tick NA if not applicable. For a detailed description of the categories see the 'Objectives and endpoints library guidance' document. For the systolic BP example the category is 'Continuous (relative change)'"
     },
     "TimeframeTemplateForm": {
-      "name": "A timeframe can be referenced as part of an endpoint. Example: from from baseline (week 0) to Week 28. A template for this could be 'from from [Time Point Reference] ([VisitName]) to [VisitName]'. Add parameters enclosed in square brackets [ and ]."
+      "name": "时间范围可以作为终点的一部分引用。例如：从基线（第0周）到第28周。模板可以为 'from [Time Point Reference] ([VisitName]) to [VisitName]'。将参数放在方括号 [ 和 ] 中。"
     },
     "CriteriaTemplateForm": {
       "guidance_text": "根据标准类型可以定义通用模板。例如：在签署知情同意书时年龄≥18岁可参数化为“在签署知情同意书时年龄[Operator][NumericValue][Age Unit]”。",
@@ -450,7 +450,7 @@
       "conversion_factor": "Conversion factor from unit defined to the master unit. All simple unit conversions are converted through the master unit."
     },
     "TimeframeForm": {
-      "select_template": "To create an instantiation of a Time Frame, select from the relevant library and it's listed templates."
+      "select_template": "要创建时间范围实例，请从相关库及其列出的模板中选择。"
     },
     "StudyForm": {
       "project_id": "Select the project ID from the drop-down list. For details on project see <a href='https://novonordisk.sharepoint.com/sites/ProjectToolbox' target='_blank'>[Project Toolbox]<a> ",
@@ -752,7 +752,7 @@
       "general": "Generic templates for endpoints are defined here. Click on the + button to add a new template. In the User Defined Templates you can view templates being defined on different studies. To make a template accessible for use it must be approved. Use the Approve in the left context-menu (3 vertical dots to the left of the template). To set default values for parameters use the 'Default' values in the context menu."
     },
     "TimeframeTemplatesTable": {
-      "general": "Generic templates for Time Frames are defined here. Click on the + button to add a new template. In the User Defined Templates you can view templates being defined on different studies. To make a template accessible for use it must be approved. Use the Approve in the left context-menu (3 vertical dots to the left of the template). To set default values for parameters use the 'Default' values in the context menu."
+      "general": "此处定义时间范围的通用模板。点击 + 按钮可添加新模板。在“用户定义的模板”中可以查看在不同研究中定义的模板。要使模板可使用，必须先批准，请使用左侧上下文菜单（模板左侧的三个垂直点）中的“批准”。要为参数设置默认值，请在上下文菜单中使用“默认值”选项。"
     },
     "CriteriaTemplatesTable": {
       "general": "此处定义各种标准的通用模板。点击 + 按钮添加新模板。在“用户定义模板”中可以查看在不同研究中定义的模板。要使模板可用，必须先批准。请使用左侧上下文菜单中的“批准”（模板左侧的三个竖点）。要为参数设置默认值，请在上下文菜单中使用“默认值”选项。"
@@ -767,7 +767,7 @@
       "general": "The list of endpoints and which template they are based on, and the number of studies using the endpoint. To create specific endpoint from a template, click on the +-button in the top right side of the table."
     },
     "TimeframesTable": {
-      "general": "The list of Time Frames and which template they are based on, and the number of studies using the Time Frame. To create specific time rame from a template, click on the +-button in the top right side of the table."
+      "general": "列出时间范围及其所基于的模板，以及使用该时间范围的研究数量。要从模板创建特定的时间范围，请点击表格右上角的 + 按钮。"
     },
     "StudyPurposeView": {
       "general": "A statement describing the overall rationale of the study. It describes the contribution of this study to product development, i.e., what knowledge is being contributed from the conduct of this study. Follow the tabs to define objectives, endpoints and estimands (if applicable).",
@@ -804,7 +804,7 @@
       "scratch_mode": "Write your own criteria from scratch",
       "select_objective_title": "Choose which objective the endpoint should be linked to",
       "step2_title": "Copy endpoint(s) from the list of templates using the copy icon and press Continue",
-      "timeframe_template": "Time point(s) at which the measurement is assessed for the specific metric used. Select Time frame template from the dropdown-list",
+      "timeframe_template": "测量针对特定指标进行评估的时间点。请从下拉列表中选择时间范围模板",
       "step3_title": "Finish the endpoint by selecting the parameters from the drop-down lists",
       "endpoint_level": "主要：方案中规定的最重要终点，通常用于统计效能计算。大多数临床研究只有一个主要终点，但也可能有多个。次要：重要性低于主要终点，但作为预先指定分析计划的一部分，用于评估研究中干预措施的影响，并且未被指定为探索性终点。临床研究可能有多个次要终点。探索性：计划中的终点，但更具探索性质。附加：除事后终点外的其他终点，用于评估干预措施或（对观察性研究而言）研究关注的其他方面。"
     },
@@ -1027,8 +1027,8 @@
       "endpoint_instances": "Endpoint Instances",
       "estimand_instances": "Estimand Instances",
       "estimand_templates": "Estimand Templates",
-      "timeframe_instances": "Time Frame Instances",
-      "timeframe_templates": "Time Frame Templates",
+      "timeframe_instances": "时间范围实例",
+      "timeframe_templates": "时间范围模板",
       "parameter_templates": "Parameter Templates",
       "criteria_instances": "Criteria Instances",
       "criteria_templates": "Criteria Templates",
@@ -1039,7 +1039,7 @@
       "code_lists": "Code Lists",
       "objectives": "目标",
       "endpoints": "Endpoints",
-      "timeframes": "Time Frames",
+      "timeframes": "时间范围",
       "criteria": "Criteria",
       "project": "Project",
       "general": "General",
@@ -1211,7 +1211,7 @@
     "endpoints": "Endpoint titles"
   },
   "TimeframeTemplatesView": {
-    "title": "Time Frame Templates"
+    "title": "时间范围模板"
   },
   "ObjectiveTemplateTable": {
     "title": "目标模板",
@@ -1251,19 +1251,19 @@
     "conflict_title": "This Controlled Terminology Term doesn't contain a FINAL version on the Effective Date of the CTPackage selected by the Data Standard Versions"
   },
   "TimeframeTemplateTable": {
-    "title": "Time frame templates",
-    "singular_title": "Time frame template",
-    "rot_uri": "Root objective",
-    "actions": "Actions",
-    "add": "Add template",
-    "approve_success": "Template is now in Final state",
-    "new_version_success": "New version created",
-    "inactivate_success": "Template inactivated",
-    "reactivate_success": "Template reactivated",
-    "history": "Show template history",
-    "add_template": "Add a new time frame template",
-    "new_version_default_description": "New version",
-    "delete_success": "Timeframe template has been deleted"
+    "title": "时间范围模板",
+    "singular_title": "时间范围模板",
+    "rot_uri": "根目标",
+    "actions": "操作",
+    "add": "添加模板",
+    "approve_success": "模板现已处于最终状态",
+    "new_version_success": "已创建新版本",
+    "inactivate_success": "模板已停用",
+    "reactivate_success": "模板已重新激活",
+    "history": "显示模板历史",
+    "add_template": "添加新的时间范围模板",
+    "new_version_default_description": "新版本",
+    "delete_success": "时间范围模板已删除"
   },
   "EndpointTemplateTable": {
     "title": "Endpoint templates",
@@ -1356,14 +1356,14 @@
     "update_success": "Objective template updated"
   },
   "TimeframeTemplateForm": {
-    "add_title": "Add time frame template",
-    "edit_title": "Edit time frame template",
-    "name": "Template",
-    "add_success": "Time frame template added",
-    "update_success": "Time frame template updated",
-    "verify_syntax": "Verify syntax",
-    "valid_syntax": "This syntax is valid",
-    "invalid_syntax": "This syntax is invalid"
+    "add_title": "添加时间范围模板",
+    "edit_title": "编辑时间范围模板",
+    "name": "模板",
+    "add_success": "已添加时间范围模板",
+    "update_success": "时间范围模板已更新",
+    "verify_syntax": "验证语法",
+    "valid_syntax": "语法有效",
+    "invalid_syntax": "语法无效"
   },
   "HistoryTable": {
     "title": "历史记录：",
@@ -1474,30 +1474,30 @@
     "objective_label": "目标"
   },
   "TimeframeTable": {
-    "delete_success": "Time frame has been deleted",
-    "approve_success": "Time frame is now in Final state",
-    "inactivate_success": "Time frame inactivated",
-    "reactivate_success": "Time frame reactivated",
-    "singular_title": "Time frame",
-    "item_history_title": "History for time frame [{timeframe}]",
-    "show_studies": "Display studies using this time frame"
+    "delete_success": "时间范围已删除",
+    "approve_success": "时间范围现已处于最终状态",
+    "inactivate_success": "时间范围已停用",
+    "reactivate_success": "时间范围已重新激活",
+    "singular_title": "时间范围",
+    "item_history_title": "时间范围 [{timeframe}] 的历史",
+    "show_studies": "显示使用此时间范围的研究"
   },
   "TimeframeForm": {
-    "add_title": "Add time frame from a template",
-    "edit_title": "Edit time frame",
-    "add_success": "Time frame added",
-    "current_name": "The current name is:",
-    "preview_name": "Name preview with selected parameters:",
-    "select_params": "Select your parameters:",
-    "timeframe_name": "Time frame:",
-    "template_name": "Template:",
-    "parameters_updated": "Updated parameters",
-    "current_timeframe": "Current time frame:",
-    "update_success": "Time frame updated",
-    "select_template": "Time frame template"
+    "add_title": "从模板添加时间范围",
+    "edit_title": "编辑时间范围",
+    "add_success": "已添加时间范围",
+    "current_name": "当前名称：",
+    "preview_name": "选择参数后的名称预览：",
+    "select_params": "请选择参数：",
+    "timeframe_name": "时间范围：",
+    "template_name": "模板：",
+    "parameters_updated": "参数已更新",
+    "current_timeframe": "当前时间范围：",
+    "update_success": "时间范围已更新",
+    "select_template": "时间范围模板"
   },
   "TimeframesView": {
-    "title": "Time Frames"
+    "title": "时间范围"
   },
   "CriteriaView": {
       "title": "标准"
@@ -1764,7 +1764,7 @@
   "StudyEndpointsTable": {
     "endpoint_title": "Endpoint title",
     "objective": "目标",
-    "time_frame": "Time frame",
+    "time_frame": "时间范围",
     "units": "Unit",
     "endpoint_level": "Endpoint level",
     "endpoint_sub_level": "Endpoint sub-level",
@@ -1780,11 +1780,11 @@
     "update_version_alert_cont2": "are you sure?",
     "previous_version": "Previous version",
     "new_version": "New version",
-    "update_timeframe_version_retired": "Updated timeframe version is retired",
+    "update_timeframe_version_retired": "更新的时间范围版本已停用",
     "update_endpoint_version_retired": "Updated endpoint version is retired",
-    "update_timeframe_version": "Update timeframe version",
+    "update_timeframe_version": "更新时间范围版本",
     "update_endpoint_version": "Update endpoint version",
-    "update_timeframe_version_alert": "You  are going to replace timeframe version:",
+    "update_timeframe_version_alert": "您将替换时间范围版本：",
     "update_endpoint_version_alert": "You  are going to replace endpoint version:",
     "study_objective_label": "研究目标：",
     "objective_level_label": "目标级别：",
@@ -1808,18 +1808,18 @@
     "select_studies": "Select studies",
     "select_endpoint": "Select endpoint",
     "select_objective_title": "选择目标",
-    "select_timeframe_title": "Select time frame template",
+    "select_timeframe_title": "选择时间范围模板",
     "step2_title": "Select endpoint template",
     "step3_title": "Define endpoint details",
-    "step4_title": "Create time frame",
+    "step4_title": "创建时间范围",
     "create_tpl_title": "Create endpoint title template",
     "edit_tpl_title": "Edit endpoint title template",
     "endpoint_level_title": "Select endpoint level",
     "selected_endpoint": "Selected endpoint title",
     "selected_endpoint_template": "Selected endpoint title template",
-    "selected_timeframe_template": "Selected endpoint timeframe template",
+    "selected_timeframe_template": "已选择的终点时间范围模板",
     "selected_endpoint_units": "Unit(s)",
-    "selected_timeframe": "Time frame",
+    "selected_timeframe": "时间范围",
     "copy_endpoint_instructions": "Copy from table",
     "objective": "目标",
     "objective_level": "目标级别",
@@ -1835,12 +1835,12 @@
     "study_id": "Study ID",
     "unit": "Unit",
     "endpoint_title": "Endpoint title",
-    "timeframe": "Time frame",
+    "timeframe": "时间范围",
     "endpoint_subtitle_1": "Endpoint title and unit(s)",
     "create_template": "Create endpoint title template",
     "select_later": "Select later",
     "no_endpoint_template": "You must select an endpoint template",
-    "timeframe_template": "Time frame template",
+    "timeframe_template": "时间范围模板",
     "endpoint_title_warning": "Clinicaltrials.gov does only allow 254 characters in the Endpoint Title.",
     "select_objective": "选择一个研究目标或勾选“稍后选择”",
     "copy_objective": "选择研究目标",
@@ -1852,8 +1852,8 @@
     "title": "Edit study endpoint",
     "units_section": "Unit(s)",
     "unit": "Unit",
-    "timeframe_section": "Timeframe assigned",
-    "timeframe": "Time frame",
+    "timeframe_section": "已分配的时间范围",
+    "timeframe": "时间范围",
     "unformatted_preview_section": "Unformatted text preview of study endpoint",
     "level_section": "Endpoint level",
     "objective_section": "涉及的目标",
