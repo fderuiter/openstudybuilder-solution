@@ -2,6 +2,7 @@ import { createI18n } from 'vue-i18n'
 import en from '@/locales/en.json'
 import enUS from '@/locales/en-US.json'
 import es from '@/locales/es.json'
+import zhCN from '@/locales/zh-CN.json'
 
 const instance = createI18n({
   legacy: false,
@@ -11,6 +12,7 @@ const instance = createI18n({
     en: en,
     'en-US': enUS,
     es: es,
+    'zh-CN': zhCN,
   },
 })
 
