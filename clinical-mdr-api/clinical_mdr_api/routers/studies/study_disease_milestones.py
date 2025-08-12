@@ -154,7 +154,7 @@ def get_distinct_values_for_header(
     field_name: Annotated[
         str, Query(description=_generic_descriptions.HEADER_FIELD_NAME)
     ],
-    study_uid: Annotated[str, studyUID],  # TODO: Use this argument!
+    study_uid: Annotated[str, studyUID],
     study_value_version: Annotated[
         str | None, _generic_descriptions.STUDY_VALUE_VERSION_QUERY
     ] = None,
@@ -177,11 +177,13 @@ def get_distinct_values_for_header(
 ) -> list[Any]:
     service = StudyDiseaseMilestoneService()
     return service.get_distinct_values_for_header(
+        study_uid=study_uid,
         field_name=field_name,
         search_string=search_string,
         filter_by=filters,
         filter_operator=FilterOperator.from_str(operator),
         page_size=page_size,
+        study_value_version=study_value_version,
     )
 
 
@@ -261,7 +263,9 @@ def get_study_disease_milestone(
     ],
 ) -> study_disease_milestone.StudyDiseaseMilestone:
     service = StudyDiseaseMilestoneService()
-    return service.find_by_uid(study_disease_milestone_uid)
+    return service.find_by_uid(
+        study_uid=study_uid, uid=study_disease_milestone_uid
+    )
 
 
 @router.get(
@@ -383,14 +387,16 @@ Possible errors:
 @decorators.validate_if_study_is_not_locked("study_uid")
 # pylint: disable=unused-argument
 def delete_study_disease_milestone(
-    study_uid: Annotated[str, studyUID],  # TODO: Use this argument!
+    study_uid: Annotated[str, studyUID],
     study_disease_milestone_uid: Annotated[
         str, study_disease_milestone_uid_description
     ],
 ):
     service = StudyDiseaseMilestoneService()
-
-    service.delete(study_disease_milestone_uid=study_disease_milestone_uid)
+    service.delete(
+        study_uid=study_uid,
+        study_disease_milestone_uid=study_disease_milestone_uid,
+    )
 
 
 @router.patch(
@@ -436,7 +442,7 @@ Possible errors:
 @decorators.validate_if_study_is_not_locked("study_uid")
 # pylint: disable=unused-argument
 def patch_reorder(
-    study_uid: Annotated[str, studyUID],  # TODO: Use this argument!
+    study_uid: Annotated[str, studyUID],
     study_disease_milestone_uid: Annotated[
         str, study_disease_milestone_uid_description
     ],
@@ -447,6 +453,7 @@ def patch_reorder(
 ) -> study_disease_milestone.StudyDiseaseMilestone:
     service = StudyDiseaseMilestoneService()
     return service.reorder(
+        study_uid=study_uid,
         study_disease_milestone_uid=study_disease_milestone_uid,
         new_order=new_order_input.new_order,
     )
@@ -497,6 +504,7 @@ def patch_update_disease_milestone(
 ) -> study_disease_milestone.StudyDiseaseMilestone:
     service = StudyDiseaseMilestoneService()
     return service.edit(
+        study_uid=study_uid,
         study_disease_milestone_uid=study_disease_milestone_uid,
         study_disease_milestone_input=selection,
     )

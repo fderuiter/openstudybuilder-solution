@@ -204,3 +204,37 @@ def test_get_disease_milestones_csv_xml_excel(api_client, export_format):
     if export_format == "text/csv":
         assert "study_version" in str(exported_data.read())
         assert "LATEST" in str(exported_data.read())
+
+
+def test_study_uid_scope_enforced(api_client):
+    other_study = TestUtils.create_study()
+    TestUtils.set_study_standard_version(study_uid=other_study.uid)
+
+    response = api_client.get(
+        f"/studies/{other_study.uid}/study-disease-milestones/{disease_milestone_uid}"
+    )
+    assert_response_status_code(response, 404)
+
+    response = api_client.delete(
+        f"/studies/{other_study.uid}/study-disease-milestones/{disease_milestone_uid}"
+    )
+    assert_response_status_code(response, 404)
+
+    response = api_client.patch(
+        f"/studies/{other_study.uid}/study-disease-milestones/{disease_milestone_uid}/order",
+        json={"new_order": 1},
+    )
+    assert_response_status_code(response, 404)
+
+    response = api_client.patch(
+        f"/studies/{other_study.uid}/study-disease-milestones/{disease_milestone_uid}",
+        json={"repetition_indicator": False},
+    )
+    assert_response_status_code(response, 404)
+
+    response = api_client.get(
+        f"/studies/{other_study.uid}/study-disease-milestones/headers",
+        params={"field_name": "disease_milestone_type"},
+    )
+    assert_response_status_code(response, 200)
+    assert response.json() == []
