@@ -950,7 +950,7 @@
         "projects": "View or create projects.",
         "clinical_programmes": "View or create clinical programs.",
         "administrative_definitions": "View or create administrative definitions.",
-        "overview_pages_description": ""
+        "overview_pages_description": "See high-level summaries of Library sections with quick navigation to detailed pages."
     },
     "Studies": {
         "description_top_before": "Under ",
