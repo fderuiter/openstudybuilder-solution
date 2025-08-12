@@ -3,6 +3,7 @@ import en from '@/locales/en.json'
 import enUS from '@/locales/en-US.json'
 import zhCN from '@/locales/zh-CN.json'
 import es419 from '@/locales/es-419.json'
+import deDE from '@/locales/de-DE.json'
 import frFR from '@/locales/fr-FR.json'
 import koKR from '@/locales/ko-KR.json'
 
@@ -17,6 +18,8 @@ const instance = createI18n({
     'zh-CN': zhCN,
     es: es419,
     'es-419': es419,
+    de: deDE,
+    'de-DE': deDE,
     fr: frFR,
     'fr-FR': frFR,
     ko: koKR,
