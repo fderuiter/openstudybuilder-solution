@@ -222,8 +222,8 @@
             "context": "The Context attribute specifies the application domain in which this additional name is relevant. You could use for example 'CDASH/SDTM' with a 'Name' = 'DM:Demographics|DS:Disposition' and then the ODM-XML view will display it as an annotation for two SDTM Domain."
         },
         "GenericTemplateForm": {
-            "study_indication": "Indications, conditions, diseases or disorders in scope for the template. Select NA (not applicable), if template is generic not targeted specific studies.",
-            "study_phase": "Study phases in scope for the template. Select NA (not applicable), if template is generic not targeted specific studies."
+            "study_indication": "Indicações, condições, doenças ou distúrbios abrangidos pelo modelo. Selecione NA (não aplicável) se o modelo for genérico e não direcionado a estudos específicos.",
+            "study_phase": "Fases do estudo abrangidas pelo modelo. Selecione NA (não aplicável) se o modelo for genérico e não direcionado a estudos específicos."
         },
         "ObjectiveTemplateForm": {
             "name": "Example of objective: 'To demonstrate superiority of [CompoundDosing] [NumericValue] [Dose Unit] versus [Comparator] [NumericValue] [Dose Unit] with respect to [ActivityInstance] at [TimePoint] in patients with [DiseaseDisorder]' or 'To document the safety profile of [StudyIntervention].' Add parameters enclosed in square brackets [ and ].",
@@ -895,18 +895,18 @@
             "name": "Name for the new clinical programme."
         },
         "UsdmPage": {
-            "general": "This page display the JSON file generated based on the  Digital Data Flow (DDF) CDISC / TransCelerate Unified Study Definitions Model (USDM). The data available here are extracted and converted into the USDM model, based on mapping rules defined within the StudyBuilder team: Be aware about that.",
-            "official_protocol_title": "The formal descriptive name for the protocol.",
-            "clinical_study_def": "A clinical study involves research using human volunteers (also called participants) that is intended to add to medical knowledge. There are two main types of clinical studies: clinical trials (also called interventional studies) and observational studies. [[http://ClinicalTrials.gov]](CDISC Glossary)",
-            "study_protocol_version": "A plan at a particular point in time for a formal investigation to assess the utility, impact, pharmacological, physiological, and/or psychological effects of a particular treatment, procedure, drug, device, biologic, food product, cosmetic, care plan, or subject characteristic. (BRIDG)",
-            "protocol_status": "A condition of the protocol at a point in time with respect to its state of readiness for implementation. See [<a href='/library/ct_catalogues/All/C188723/terms'>C188723-CDISC DDF Protocol Status Value Set Terminology</a>]",
-            "study_design": "A plan detailing how a study will be performed in order to represent the phenomenon under examination, to answer the research questions that have been asked, and informing the statistical approach.",
-            "organization_type": "A characterization or classification of the formalized group of persons or other organizations collected together for a common purpose (such as administrative, legal, political) and the infrastructure to carry out that purpose. See [<a href='/library/ct_catalogues/All/C188724/terms'>C188724-CDISC DDF Organization Type Value Set Terminology</a>]",
-            "trial_type": "The nature of the interventional study for which information is being collected. See [<a href='/library/ct_catalogues/All/C66739/terms'>C66739-CDISC SDTM Trial Type Terminology</a>]",
-            "intervention_model_type": "The general design of the strategy for assigning interventions to participants in a clinical study. (clinicaltrials.gov). See [<a href='/library/ct_catalogues/All/C99076/terms'>C99076-CDISC SDTM Intervention Model Terminology</a>]",
-            "therapeutic_areas": "A categorization of a disease, disorder, or other condition based on common characteristics and often associated with a medical specialty focusing on research and development of specific therapeutic interventions for the purpose of treatment and prevention.",
-            "trial_blinding_schema": "The type of experimental design used to describe the level of awareness of the study subjects and/ or study personnel as it relates to the respective intervention(s) or assessments being observed, received or administered. See [<a href='/library/ct_catalogues/All/C66735/terms'>C66735-CDISC SDTM Trial Blinding Schema Terminology</a>]",
-            "target_study_population": "The population within the general population to which the study results can be generalized."
+            "general": "Esta página exibe o arquivo JSON gerado com base no modelo Unified Study Definitions Model (USDM) do Digital Data Flow (DDF) CDISC/TransCelerate. Os dados disponíveis aqui são extraídos e convertidos para o modelo USDM com base nas regras de mapeamento definidas pela equipe do StudyBuilder; esteja ciente disso.",
+            "official_protocol_title": "O nome descritivo formal do protocolo.",
+            "clinical_study_def": "Um estudo clínico envolve pesquisa com voluntários humanos (também chamados de participantes) destinada a aumentar o conhecimento médico. Há dois principais tipos de estudos clínicos: ensaios clínicos (também chamados de estudos de intervenção) e estudos observacionais. [[http://ClinicalTrials.gov]](CDISC Glossary)",
+            "study_protocol_version": "Um plano em um ponto no tempo para uma investigação formal a fim de avaliar a utilidade, o impacto e os efeitos farmacológicos, fisiológicos e/ou psicológicos de um determinado tratamento, procedimento, medicamento, dispositivo, produto biológico, alimento, cosmético, plano de cuidados ou característica do sujeito. (BRIDG)",
+            "protocol_status": "Uma condição do protocolo em um ponto no tempo em relação ao seu estado de prontidão para implementação. Veja [<a href='/library/ct_catalogs/All/C188723/terms'>C188723-CDISC DDF Protocol Status Value Set Terminology</a>]",
+            "study_design": "Um plano detalhando como um estudo será realizado para representar o fenômeno examinado, responder às perguntas de pesquisa e orientar a abordagem estatística.",
+            "organization_type": "Uma caracterização ou classificação do grupo formalizado de pessoas ou outras organizações reunidas para um propósito comum (como administrativo, jurídico, político) e a infraestrutura para realizar esse propósito. Veja [<a href='/library/ct_catalogs/All/C188724/terms'>C188724-CDISC DDF Organization Type Value Set Terminology</a>]",
+            "trial_type": "A natureza do estudo de intervenção para o qual as informações estão sendo coletadas. Veja [<a href='/library/ct_catalogs/All/C66739/terms'>C66739-CDISC SDTM Trial Type Terminology</a>]",
+            "intervention_model_type": "O desenho geral da estratégia para atribuir intervenções aos participantes em um estudo clínico (clinicaltrials.gov). Veja [<a href='/library/ct_catalogs/All/C99076/terms'>C99076-CDISC SDTM Intervention Model Terminology</a>]",
+            "therapeutic_areas": "Uma categorização de uma doença, distúbrio ou outra condição com base em características comuns e frequentemente associada a uma especialidade médica focada na pesquisa e desenvolvimento de intervenções terapêuticas específicas para fins de tratamento e prevenção.",
+            "trial_blinding_schema": "O tipo de desenho experimental usado para descrever o nível de conhecimento dos participantes do estudo e/ou da equipe do estudo em relação às intervenções ou avaliações observadas, recebidas ou administradas. Veja [<a href='/library/ct_catalogs/All/C66735/terms'>C66735-CDISC SDTM Trial Blinding Schema Terminology</a>]",
+            "target_study_population": "A população dentro da população geral à qual os resultados do estudo podem ser generalizados."
         },
         "StudyStructuresOverview": {
             "general": "The Study Structures page is intended to assist Standards Developers by offering an overview of how existing trials have been defined. It allows users to view the study structures they can replicate, identify trends, and spot any deviations. The Study Structures page aims to increase consistency when setting up new trials. Note that studies that share the same structure are grouped together and listed in the table under the same row. The columns display numeric values indicating the number of arms/epochs/elements in the trial or Y/N to indicate if cohorts are part of the trial design."
@@ -1189,22 +1189,22 @@
         "integrate_text2": "via open API"
     },
     "GenericTemplateTable": {
-        "sponsor_tab": "Parent",
-        "pre_instances_tab": "Pre-instance",
-        "user_tab": "User Defined",
-        "confirm_parameter_values_delete": "You are about to delete default parameter values",
-        "template_history_title": "History for template [{templateUid}]"
+        "sponsor_tab": "Pai",
+        "pre_instances_tab": "Pré-instância",
+        "user_tab": "Definido pelo usuário",
+        "confirm_parameter_values_delete": "Você está prestes a excluir os valores padrão de parâmetros",
+        "template_history_title": "Histórico do modelo [{templateUid}]"
     },
     "GenericTemplateForm": {
-        "study_indication": "Indication or disorder",
-        "study_phase": "Study phase",
-        "template_properties": "Template properties",
-        "step1_add_title": "Create template",
-        "step1_edit_title": "Edit template",
-        "step2_title": "Test template",
-        "step3_title": "Index template",
-        "step4_title": "Change description",
-        "parameter_values_title": "Edit parameter values"
+        "study_indication": "Indicação ou distúrbio",
+        "study_phase": "Fase do estudo",
+        "template_properties": "Propriedades do modelo",
+        "step1_add_title": "Criar modelo",
+        "step1_edit_title": "Editar modelo",
+        "step2_title": "Testar modelo",
+        "step3_title": "Indexar modelo",
+        "step4_title": "Descrição da alteração",
+        "parameter_values_title": "Editar valores de parâmetros"
     },
     "EndpointTemplatesView": {
         "title": "Endpoint Templates",
@@ -1313,38 +1313,38 @@
         "confirmatory_testing": "Related to confirmatory testing"
     },
     "PreInstanceForm": {
-        "step1_title": "Set template parameter values",
-        "step2_title": "Index template"
+        "step1_title": "Definir valores de parâmetro do modelo",
+        "step2_title": "Indexar modelo"
     },
     "ObjectiveTemplatesPreInstanceForm": {
-        "add_title": "Add objective template pre-instantiation",
-        "edit_title": "Edit objective template pre-instantiation",
-        "add_success": "Objective template pre-instantiation added",
-        "update_success": "Objective template pre-instantiation updated"
+        "add_title": "Adicionar pré-instância de modelo de objetivo",
+        "edit_title": "Editar pré-instância de modelo de objetivo",
+        "add_success": "Pré-instância de modelo de objetivo adicionada",
+        "update_success": "Pré-instância de modelo de objetivo atualizada"
     },
     "EndpointTemplatesPreInstanceForm": {
-        "add_title": "Add endpoint template pre-instantiation",
-        "edit_title": "Edit endpoint template pre-instantiation",
-        "add_success": "Endpoint template pre-instantiation added",
-        "update_success": "Endpoint template pre-instantiation updated"
+        "add_title": "Adicionar pré-instância de modelo de desfecho",
+        "edit_title": "Editar pré-instância de modelo de desfecho",
+        "add_success": "Pré-instância de modelo de desfecho adicionada",
+        "update_success": "Pré-instância de modelo de desfecho atualizada"
     },
     "CriteriaTemplatesPreInstanceForm": {
-        "add_title": "Add criteria template pre-instantiation",
-        "edit_title": "Edit criteria template pre-instantiation",
-        "add_success": "Criteria template pre-instantiation added",
-        "update_success": "Criteria template pre-instantiation updated"
+        "add_title": "Adicionar pré-instância de modelo de critério",
+        "edit_title": "Editar pré-instância de modelo de critério",
+        "add_success": "Pré-instância de modelo de critério adicionada",
+        "update_success": "Pré-instância de modelo de critério atualizada"
     },
     "ActivityTemplatesPreInstanceForm": {
-        "add_title": "Add activity template pre-instantiation",
-        "edit_title": "Edit activity template pre-instantiation",
-        "add_success": "Activity template pre-instantiation added",
-        "update_success": "Activity template pre-instantiation updated"
+        "add_title": "Adicionar pré-instância de modelo de atividade",
+        "edit_title": "Editar pré-instância de modelo de atividade",
+        "add_success": "Pré-instância de modelo de atividade adicionada",
+        "update_success": "Pré-instância de modelo de atividade atualizada"
     },
     "FootnoteTemplatesPreInstanceForm": {
-        "add_title": "Add footnote template pre-instantiation",
-        "edit_title": "Edit footnote template pre-instantiation",
-        "add_success": "Footnote template pre-instantiation added",
-        "update_success": "Footnote template pre-instantiation updated"
+        "add_title": "Adicionar pré-instância de modelo de nota de rodapé",
+        "edit_title": "Editar pré-instância de modelo de nota de rodapé",
+        "add_success": "Pré-instância de modelo de nota de rodapé adicionada",
+        "update_success": "Pré-instância de modelo de nota de rodapé atualizada"
     },
     "CtCataloguesForm": {
         "add_title": "Add a new CT Catalogue",
@@ -1745,10 +1745,10 @@
         "objective_updated": "Study objective updated"
     },
     "ParameterValueSelector": {
-        "separator": "Separator",
-        "title": "Select values",
-        "preview": "Preview with selected values",
-        "na_tooltip": "Show/hide parameter in the sentence"
+        "separator": "Separador",
+        "title": "Selecionar valores",
+        "preview": "Pré-visualizar com os valores selecionados",
+        "na_tooltip": "Mostrar/ocultar o parâmetro na frase"
     },
     "StudyManageView": {
         "title": "Study List"
@@ -2243,10 +2243,10 @@
     },
     "CtrOdmXmlVue": {
         "title": "CTR ODM XML",
-        "download": "Download XML",
-        "downloading": "Downloading XML...",
-        "iframe_title": "Rendered CTR ODM document",
-        "loading": "Loading XML..."
+        "download": "Baixar XML",
+        "downloading": "Baixando XML...",
+        "iframe_title": "Documento CTR ODM renderizado",
+        "loading": "Carregando XML..."
     },
     "ProtocolElementsObjectiveTable": {
         "title": "Objectives and Endpoints",
@@ -3064,19 +3064,19 @@
         "disease_milestone_rep_ind": "Disease Milestone Repetition Indicator"
     },
     "UsdmPage": {
-        "title": "USDM version of the Protocol / USDM version: {version}",
-        "general": "General",
-        "clinical_study_def": "Clinical study [C15206]",
-        "official_protocol_title": "Official Protocol Title [C132346]",
-        "study_protocol_version": "Study Protocol Version [C93490]",
-        "protocol_status": "Protocol Status [C188818]",
-        "study_design": "Study Design [C15320]",
-        "organization_type": "Organization Type [C188820]",
-        "trial_type": "Trial Type [C49660]",
-        "intervention_model_type": "Intervention Model Type [C98746]",
-        "therapeutic_areas": "Therapeutic Areas [C101302]",
-        "trial_blinding_schema": "Trial Blinding Schema [C49658]",
-        "target_study_population": "Target Study Population [C142728]"
+        "title": "Versão USDM do Protocolo / Versão USDM: {version}",
+        "general": "Geral",
+        "clinical_study_def": "Estudo clínico [C15206]",
+        "official_protocol_title": "Título oficial do protocolo [C132346]",
+        "study_protocol_version": "Versão do protocolo do estudo [C93490]",
+        "protocol_status": "Status do protocolo [C188818]",
+        "study_design": "Desenho do estudo [C15320]",
+        "organization_type": "Tipo de organização [C188820]",
+        "trial_type": "Tipo de ensaio [C49660]",
+        "intervention_model_type": "Tipo de modelo de intervenção [C98746]",
+        "therapeutic_areas": "Áreas terapêuticas [C101302]",
+        "trial_blinding_schema": "Esquema de mascaramento do ensaio [C49658]",
+        "target_study_population": "População-alvo do estudo [C142728]"
     },
     "IchM11Page": {
         "title": "ICH M11 version of the protocol"
@@ -3893,29 +3893,29 @@
         "delete_approve": "Are you sure to delete this Alias?"
     },
     "OdmViewer": {
-        "blank": "Blank",
-        "sdtm": "SDTM Annotation",
-        "allowed_namespaces": "Allowed Extensions",
-        "specific": "Specific",
-        "provide_uri": "Provide URI",
-        "stylesheet": "Stylesheet",
-        "loading_message": "Please be patient, we are creating your ODM-XML document",
-        "load": "Load",
-        "load_another": "Reload",
-        "odm_references": "ODM References",
-        "odm_element_type": "ODM Element Type",
-        "odm_element_name": "ODM Element Name",
-        "template": "Template",
-        "form": "Form",
-        "item_group": "Item Group",
+        "blank": "Em branco",
+        "sdtm": "Anotação SDTM",
+        "allowed_namespaces": "Extensões permitidas",
+        "specific": "Específico",
+        "provide_uri": "Informar URI",
+        "stylesheet": "Folha de estilo",
+        "loading_message": "Por favor, aguarde, estamos criando seu documento ODM-XML",
+        "load": "Carregar",
+        "load_another": "Recarregar",
+        "odm_references": "Referências ODM",
+        "odm_element_type": "Tipo de elemento ODM",
+        "odm_element_name": "Nome do elemento ODM",
+        "template": "Modelo",
+        "form": "Formulário",
+        "item_group": "Grupo de itens",
         "item": "Item",
-        "element_status": "ODM Element Status",
-        "export": "Export ",
-        "format": "Format"
+        "element_status": "Status do elemento ODM",
+        "export": "Exportar ",
+        "format": "Formato"
     },
     "TemplateIndexingDialog": {
-        "title": "Edit indexing properties",
-        "update_success": "Indexing properties updated"
+        "title": "Editar propriedades de indexação",
+        "update_success": "Propriedades de indexação atualizadas"
     },
     "CrfDuplicationForm": {
         "duplicate": "Duplicate element",
@@ -4175,11 +4175,11 @@
         "dataCollection": "Data collection"
     },
     "YamlViewer": {
-        "search_content": "Search for content",
-        "expand_all": "Expand all",
-        "collapse_all": "Collapse all",
-        "download": "Download YAML content",
-        "close_tab": "Close YAML viewer"
+        "search_content": "Pesquisar conteúdo",
+        "expand_all": "Expandir tudo",
+        "collapse_all": "Recolher tudo",
+        "download": "Baixar conteúdo YAML",
+        "close_tab": "Fechar visualizador YAML"
     },
     "ActivityInstructionsView": {
         "title": "Activity Instructions"
