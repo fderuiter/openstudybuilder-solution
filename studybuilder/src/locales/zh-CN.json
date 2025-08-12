@@ -884,11 +884,11 @@
       "creation_mode_label": "Select the type of method for creating a footnote: use a standard, from an existing study, or make one form scratch."
     },
     "ProjectForm": {
-      "general": "Add a new project to a clinical programme.",
-      "name": "Name for the new project, example: 'Demo Project'.",
-      "project_number": "Project ID for the new project, example: 'AB1234'.",
-      "description": "Description of the project, example: 'Project for demonstration purposes'.",
-      "clinical_programme": "Clinical programme that the project belongs to."
+      "general": "向临床计划添加一个新项目。",
+      "name": "新项目的名称，例如：'演示项目'。",
+      "project_number": "新项目的项目 ID，例如：'AB1234'。",
+      "description": "项目的描述，例如：'用于演示的项目'。",
+      "clinical_programme": "项目所属的临床计划。"
     },
     "ClinicalProgrammeForm": {
       "general": "Add a new clinical programme.",
@@ -3996,34 +3996,34 @@
     "tab2_title": "Deleted studies"
   },
   "AnalysisStudyMetadata": {
-    "mdvisit": "MDVISIT",
-    "mdendpnt": "MDENDPNT"
+    "mdvisit": "访视元数据 (MDVISIT)",
+    "mdendpnt": "终点元数据 (MDENDPNT)"
   },
   "AnalysisMetadataTable": {
-    "study_id": "Study Identifier",
-    "visit_type_name": "Visit Type Name",
-    "visit_num": "Visit Number",
-    "visit_name": "Visit Name",
-    "visit_short_label": "Visit Short Label",
-    "day_name": "Day Name",
-    "day_value": "Day Value",
-    "week_name": "Week Name",
-    "week_value": "Week Value",
-    "objective_level": "Objective Level",
-    "objective": "Objective",
-    "objective_plain_text": "Objective Plain Text",
-    "endpoint_level": "Endpoint Level",
-    "endpoint_sub_level": "Endpoint Sub-level",
-    "endpoint_plain": "Endpoint",
-    "endpoint_plain_text": "Endpoint Plain Text",
-    "unit_definition": "Unit Definition",
-    "unit": "Unit",
-    "time_frame": "Time Frame",
-    "time_frame_plain_text": "Time Frame Plain Text",
-    "related_activity_groups": "Related Activity Groups",
-    "related_activity_subgroups": "Related Activity Subgroups",
-    "related_activities": "Related Activities",
-    "related_activity_instances": "Related Activity Instances"
+    "study_id": "研究标识符",
+    "visit_type_name": "访视类型名称",
+    "visit_num": "访视编号",
+    "visit_name": "访视名称",
+    "visit_short_label": "访视短标签",
+    "day_name": "天名称",
+    "day_value": "天数值",
+    "week_name": "周名称",
+    "week_value": "周数值",
+    "objective_level": "目标级别",
+    "objective": "目标",
+    "objective_plain_text": "目标纯文本",
+    "endpoint_level": "终点级别",
+    "endpoint_sub_level": "终点子级",
+    "endpoint_plain": "终点",
+    "endpoint_plain_text": "终点纯文本",
+    "unit_definition": "单位定义",
+    "unit": "单位",
+    "time_frame": "时间范围",
+    "time_frame_plain_text": "时间范围纯文本",
+    "related_activity_groups": "相关活动组",
+    "related_activity_subgroups": "相关活动子组",
+    "related_activities": "相关活动",
+    "related_activity_instances": "相关活动实例"
   },
   "ActivitiesTable": {
     "inactivate_activities_success": "Activity inactivated",
@@ -4336,25 +4336,25 @@
     "name": "Name"
   },
   "ProjectsView": {
-    "title": "Projects"
+    "title": "项目"
   },
   "Projects": {
-    "name": "Name",
-    "project_number": "Project ID",
-    "description": "Description",
-    "clinical_programme": "Clinical programme",
-    "add_success": "Project added",
-    "update_success": "Project updated",
-    "confirm_delete": "The project '{project}' will be deleted",
-    "delete_success": "Project deleted"
+    "name": "名称",
+    "project_number": "项目 ID",
+    "description": "描述",
+    "clinical_programme": "临床计划",
+    "add_success": "项目已添加",
+    "update_success": "项目已更新",
+    "confirm_delete": "项目 '{project}' 将被删除",
+    "delete_success": "项目已删除"
   },
   "ProjectForm": {
-    "add_title": "Add project",
-    "edit_title": "Edit project",
-    "name": "Name",
-    "project_number": "Project ID",
-    "description": "Description",
-    "clinical_programme": "Clinical programme"
+    "add_title": "添加项目",
+    "edit_title": "编辑项目",
+    "name": "名称",
+    "project_number": "项目 ID",
+    "description": "描述",
+    "clinical_programme": "临床计划"
   },
   "StudySubparts": {
     "study_id": "Study ID",
