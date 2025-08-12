@@ -957,7 +957,7 @@
         "description_top_after": " you create your study",
         "description_bottom": "and define all structured study design elements",
         "manage_description": "Register new studies in the application and manage the life-cycle of these.",
-        "dashboard_description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud",
+        "dashboard_description": "Shows an overview of the study with status information and quick links to manage design elements.",
         "define_description": "Specify the design, interventions, study population, objectives, visit structure, schedule of activities and activity, etc. by using controlled terminology and syntax templates or by reusing content from other studies.",
         "build_description": "Preview the study information (entered e.g. under Define Study), but compiled for different downstream usages, e.g. for import into the protocol template, for upload to external registries, for population of the SDTM study design datasets, for CRF design, etc. ",
         "select_description": "Find, edit and add studies.",
