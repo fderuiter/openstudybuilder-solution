@@ -530,7 +530,7 @@
             "dose_frequency": "Choose value from drop-down, e.g. Daily"
         },
         "StudyObjectiveTable": {
-            "general": "1. Click the Add button under the menu. 2. Select a standard template, copy an objective from another study, or create one from scratch. 3. Parameters use orange labels and green values. 4. Click Edit next to an objective to change parameter values or remove them."
+            "general": "Click Add below the menu. Select a template, copy an objective from another study, or create one from scratch. Parameters have orange labels and green values. Click Edit next to an objective to change or remove its parameters."
         },
         "StudyArmsForm": {
             "arm_name": "Full label of the arm, e.g., Placebo",
@@ -655,7 +655,7 @@
             "general": "Overall specification of the participants that will be recruited to the study"
         },
         "StudyInterventionsTable": {
-            "general": "The description of drug, device, therapy, or process under investigation in a clinical study. Follow the tabs to fill in the details on the compounds/other interventions for the study. The Overview tab will provide a tabular overview of the compounds specified."
+            "general": "Use the tabs to add drugs, devices, or other interventions. Enter details in Compounds or Other Interventions, then review them in Overview."
         },
         "StudyTitleView": {
             "general": "Click on the pencil to add a study title or copy from an existing study.",
