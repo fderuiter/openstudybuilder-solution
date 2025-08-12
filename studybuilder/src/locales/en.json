@@ -56,7 +56,7 @@
         "previous": "Previous",
         "all": "All",
         "warning": "Warning",
-        "default_description": "Lorem ipsum lorem ipsum",
+        "default_description": "No description provided.",
         "study_required_redirection": "The page requires a selected study",
         "no_study_selected": "The page requires a selected study",
         "ok": "OK",
