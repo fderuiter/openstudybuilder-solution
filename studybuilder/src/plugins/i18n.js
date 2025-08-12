@@ -1,5 +1,6 @@
 import { createI18n } from 'vue-i18n'
 import en from '@/locales/en.json'
+import enUS from '@/locales/en-US.json'
 
 const instance = createI18n({
   legacy: false,
@@ -7,6 +8,7 @@ const instance = createI18n({
   fallbackLocale: import.meta.env.VUE_APP_I18N_FALLBACK_LOCALE || 'en',
   messages: {
     en: en,
+    'en-US': enUS,
   },
 })
 
