@@ -437,7 +437,7 @@
             "definition": "A description of the term."
         },
         "UnitForm": {
-            "ct_term": "",
+            "ct_term": "Sélectionnez le terme de terminologie contrôlée représentant cette unité.",
             "convertible_unit": "Slide if the unit can be converted. e.g. mm is convertible to cm or meter, but the unit pH is not convertible.",
             "ucum_unit": "Select the equivalent unit in UCUM from the drop-down. For syntax rules see <a href='https://ucum.org/ucum.html.' target='_blank'>[Syntax Rules]<a>",
             "display_unit": "Slide if this unit is be used as a display unit, e.g. units used should be displayed in the output.",
