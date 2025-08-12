@@ -464,11 +464,11 @@
       "label": "If value is missing, select reason (null flavor)"
     },
     "RegistryIdentifiersForm": {
-      "ct_gov_id": "The unique identification code given to a clinical study registered on ClinicalTrials.gov. Format is 'NCT' followed by an 8-digit number (ex. NCT00000419).",
-      "eudract_id": "European Union Drug Regulating Authorities Clinical Trials identification number. Format is YYYY-NNNNNN-CC, where: YYYY is the year in which the number is issued. NNNNNN is a six digit sequential number. CC is a check digit (ex. 2007-002422-29)",
-      "universal_trial_number_utn": "WHO International Clinical Trials Registry identification number. Format is Uxxxx-xxxx-xxxx where x is a digit (ex.  U1111-1168-4339) ",
-      "japanese_trial_registry_id_japic": "Japan Pharmaceutical Information Center (JAPIC) Identification number. Format is Japic CTI-xxxxxx where x is a digit (ex. Japic CTI-111668)",
-      "investigational_new_drug_application_number_ind": "The identification number provided by FDA when a pharmaceutical company obtains permission to start human clinical trials. Format is IND Number xxxxxx where x is a digit (ex. IND Number: 132371)."
+      "ct_gov_id": "在 ClinicalTrials.gov 注册的临床研究所分配的唯一识别代码。格式为“NCT”加上 8 位数字（如 NCT00000419）。",
+      "eudract_id": "欧盟药物监管机构临床试验识别号。格式为 YYYY-NNNNNN-CC，其中 YYYY 为发放年份，NNNNNN 为六位顺序号，CC 为校验位（如 2007-002422-29）。",
+      "universal_trial_number_utn": "WHO 国际临床试验注册识别号。格式为 Uxxxx-xxxx-xxxx，其中 x 为数字（如 U1111-1168-4339）。",
+      "japanese_trial_registry_id_japic": "日本药品信息中心（JAPIC）识别号。格式为 Japic CTI-xxxxxx，其中 x 为数字（如 Japic CTI-111668）。",
+      "investigational_new_drug_application_number_ind": "制药公司获 FDA 许可开始人体临床试验时提供的识别号。格式为 IND Number xxxxxx，其中 x 为数字（如 IND Number: 132371）。"
     },
     "StudyDefineForm": {
       "general": "This section is for defining the Study. For requesting a term/value added to drop-down list, please refer to SharePoint",
@@ -1654,20 +1654,20 @@
     "update_success": "干预类型已更新"
   },
   "RegistryIdentifiersForm": {
-    "title": "Add or edit registry identifiers",
-    "update_success": "Registry identifiers updated",
-    "ct_gov_id": "ClinicalTrials.gov ID",
-    "eudract_id": "EUDRACT ID",
-    "universal_trial_number_utn": "Universal Trial Number (UTN)",
-    "japanese_trial_registry_id_japic": "Japanese Trial Registry ID (JAPIC)",
-    "investigational_new_drug_application_number_ind": "Investigational New Drug Application (IND) Number",
-    "eu_trial_number": "EU Trial Number",
-    "civ_id_sin_number": "CID ID SIN Number",
-    "national_clinical_trial_number": "National Clinical Trial Number",
-    "japanese_trial_registry_number_jrct": "Japanese Trial Registry Number",
-    "national_medical_products_administration_nmpa_number": "NMPA Number",
-    "eudamed_srn_number": "EUDAMED number",
-    "investigational_device_exemption_ide_number": "Investigational Device Exemption Number"
+    "title": "添加或编辑注册标识符",
+    "update_success": "注册标识符已更新",
+    "ct_gov_id": "ClinicalTrials.gov 注册号",
+    "eudract_id": "EudraCT 注册号",
+    "universal_trial_number_utn": "全球试验编号 (UTN)",
+    "japanese_trial_registry_id_japic": "日本临床试验注册 ID（JAPIC）",
+    "investigational_new_drug_application_number_ind": "新药临床试验申请 (IND) 编号",
+    "eu_trial_number": "欧盟试验编号",
+    "civ_id_sin_number": "CID ID SIN 编号",
+    "national_clinical_trial_number": "国家临床试验编号",
+    "japanese_trial_registry_number_jrct": "日本临床试验注册编号（jRCT）",
+    "national_medical_products_administration_nmpa_number": "国家药品监督管理局 (NMPA) 编号",
+    "eudamed_srn_number": "EUDAMED 编号",
+    "investigational_device_exemption_ide_number": "试验用医疗器械豁免 (IDE) 编号"
   },
   "DurationField": {
     "label": "Unit"
@@ -1866,12 +1866,12 @@
     "intervention_type_info": "研究干预类型信息"
   },
   "StudyRegistryIdentifiersView": {
-    "title": "Registry Identifiers"
+    "title": "注册标识符"
   },
   "StudyRegistryIdentifiersSummary": {
-    "study_id": "Study ID",
-    "study_number": "Study number",
-    "registry_identifiers": "Registry identifiers"
+    "study_id": "研究 ID",
+    "study_number": "研究编号",
+    "registry_identifiers": "注册标识符"
   },
   "StudyPopulationView": {
     "title": "研究人群",
@@ -2216,7 +2216,7 @@
     "update_success": "Sponsor CT package selection updated"
   },
   "StudyIdentificationSummary": {
-    "core_attribute": "Core attribute"
+    "core_attribute": "核心属性"
   },
   "StudyStatusTable": {
     "unlock_success": "研究已解锁",
