@@ -18,7 +18,11 @@ from clinical_mdr_api.models.concepts.concept import VersionProperties
 from clinical_mdr_api.models.controlled_terminologies.ct_term import SimpleTermModel
 from clinical_mdr_api.models.standard_data_models.sponsor_model import SponsorModelBase
 from common.exceptions import ValidationException
-from common.utils import get_field_type, get_sub_fields, validate_max_skip_clause
+from common.utils import (
+    get_field_type,
+    get_sub_fields,
+    validate_page_number_and_page_size,
+)
 
 # Re-used regex
 nested_regex = re.compile(r"\.")
@@ -833,7 +837,9 @@ class CypherQueryBuilder:
         )
 
     def build_pagination_clause(self) -> None:
-        validate_max_skip_clause(page_number=self.page_number, page_size=self.page_size)
+        validate_page_number_and_page_size(
+            page_number=self.page_number, page_size=self.page_size
+        )
 
         # Set clause
         self.pagination_clause = "SKIP $page_number * $page_size LIMIT $page_size"

@@ -52,7 +52,7 @@ from common.exceptions import (
 )
 from common.utils import (
     convert_to_datetime,
-    validate_max_skip_clause,
+    validate_page_number_and_page_size,
     version_string_to_tuple,
 )
 
@@ -401,7 +401,9 @@ class LibraryItemRepositoryImplBase(
             tuple[list[_AggregateRootType], int]: A tuple containing a list of retrieved audit trail entries and the total count of entries.
                 The audit trail entries are instances of the _AggregateRootType class.
         """
-        validate_max_skip_clause(page_number=page_number, page_size=page_size)
+        validate_page_number_and_page_size(
+            page_number=page_number, page_size=page_size
+        )
 
         query = f"""
             MATCH (root:{self.root_class.__name__})-[rel:HAS_VERSION]->(value:{self.value_class.__name__})
@@ -1439,7 +1441,9 @@ class LibraryItemRepositoryImplBase(
     ) -> tuple[list[Any], int]:
         validate_dict(filter_by, "filters")
         validate_dict(sort_by, "sort_by")
-        validate_max_skip_clause(page_number=page_number, page_size=page_size)
+        validate_page_number_and_page_size(
+            page_number=page_number, page_size=page_size
+        )
 
         aggregates = []
 
