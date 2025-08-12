@@ -56,7 +56,7 @@
         "previous": "Previous",
         "all": "All",
         "warning": "Warning",
-        "default_description": "Lorem ipsum lorem ipsum",
+        "default_description": "No description provided.",
         "study_required_redirection": "The page requires a selected study",
         "no_study_selected": "The page requires a selected study",
         "ok": "OK",
@@ -438,10 +438,10 @@
         },
         "UnitForm": {
             "ct_term": "Select the controlled terminology term representing this unit.",
-            "convertible_unit": "Slide if the unit can be converted. e.g. mm is convertible to cm or meter, but the unit pH is not convertible.",
+            "convertible_unit": "Slide if the unit can be converted. For example, mm is convertible to cm or metre, but the unit pH is not convertible.",
             "ucum_unit": "Select the equivalent unit in UCUM from the drop-down. For syntax rules see <a href='https://ucum.org/ucum.html.' target='_blank'>[Syntax Rules]<a>",
-            "display_unit": "Slide if this unit is to be used as a display unit, e.g., units used should be displayed in the output.",
-            "master_unit": "Slide if this unit is the master unit of a unit dimension. All units are converted through the master unit. For example, the master unit for length is m (meter). If cm is converted to mm, it is first converted to meter using the 'conversion factor to master' and then to mm. This is often the first unit created for a unit dimension. There can only be one master unit. It does not matter which unit is the master unit.",
+            "display_unit": "Slide if this unit is to be used as a display unit.",
+            "master_unit": "Slide if this unit is the master unit of a unit dimension. All units are converted through the master unit. For example, the master unit for length is m (metre). If cm is converted to mm, it is first converted to metre using the 'conversion factor to master' and then to mm. This is often the first unit created for a unit dimension. There can only be one master unit, but it does not matter which unit is chosen.",
             "si_unit": "Slide to indicate whether a unit is a SI unit.",
             "us_unit": "Slide to indicate whether a unit is a US unit.",
             "dimension": "Selection of the Unit Dimension, that the unit belongs to, which means the unit can be converted to the other units in the same Unit Dimension, using the conversion factors defined (except when convertible unit flag is unticked) E.g. cm and mm are in the unit dimension 'length' and can be converted to each other. The naming of these are not used but should be meaningful.",
@@ -505,8 +505,8 @@
             "study_intent_type": "The planned purpose of the therapy, device, or agent under study in the clinical trial.",
             "intervention_model": "The general design of the strategy for assigning interventions to participants in a clinical study, e.g. Single Group: Clinical trials with a single arm, Parallel: Participants are assigned to one of two or more groups in parallel for the duration of the study, Crossover: Participants receive one of two (or more) alternative interventions during the initial phase of the study and receive the other intervention during the second phase of the study, Factorial: Two or more interventions, each alone and in combination, are evaluated in parallel against a control group, Group Sequential: Groups of participants are assigned to receive interventions based on prior milestones being reached in the study, such as in some dose escalation and adaptive design studies, ",
             "control_type": "Comparator against which the study treatment is evaluated. Active Control: A type of control, which has a demonstrated effect, administered as a comparator to subjects in a clinical trial, Dose Response Control: A type of control using different doses or regimens of the same treatment across the treatment arms, Placebo Control: An inactive, identical-appearing drug or treatment that does not contain the test product. ",
-            "randomised": "Indicate whether assignment of study participants to treatment or control groups was done by randomisation. Blinding is the process of assigning trial subjects to treatment or control groups using an element of chance to determine the assignments in order to reduce bias. NOTE: Unequal randomization is used to allocate subjects into groups at a differential rate; for example, three subjects may be assigned to a treatment group for every one assigned to the control group.",
-            "strfactor": "Selected factors that are used during randomization to ensure there is balance of these factors across all subjects within each arm of a study. The subject level values of these factors may be used as fixed effects in statistical models and for sensitivity analyses.  If applicable. Use as many rows as needed, one for each factor.",
+            "randomised": "Indicate whether assignment of study participants to treatment or control groups was done by randomisation. Blinding is the process of assigning trial subjects to treatment or control groups using an element of chance to determine the assignments in order to reduce bias. NOTE: Unequal randomisation is used to allocate subjects into groups at a differential rate; for example, three subjects may be assigned to a treatment group for every one assigned to the control group.",
+            "strfactor": "Selected factors that are used during randomisation to ensure there is balance of these factors across all subjects within each arm of a study. The subject level values of these factors may be used as fixed effects in statistical models and for sensitivity analyses.  If applicable. Use as many rows as needed, one for each factor.",
             "blinding_schema": "The type of design used to describe the level of awareness of the study participants and/or investigators of the intervention(s) that they are receiving and/or administering. Double Blind: A study in which neither the subject nor the investigator nor the research team interacting with the subject or data during the trial knows what treatment a subject is receiving. Open Label: A trial in which subjects and investigators know which product each subject is receiving; opposite of a blinded or double-blind study, Open Label for Treatment And Double Blind to Dose: A study in which the therapeutic treatment is open label but the dosing information of the investigational medicinal product (IMP) is double-blinded, Single Blind: A study in which one party, either the investigator or the subject, does not know which medication or placebo is administered to the subject; also called single-masked study. ",
             "planned_st_length": "Planned length of observation for a single subject",
             "added_to_et": "The addition of a therapeutic product to the existing regimen in a clinical study, where both entities remain as discrete products"
@@ -530,7 +530,7 @@
             "dose_frequency": "Choose value from drop-down, e.g. Daily"
         },
         "StudyObjectiveTable": {
-            "general": "Click Add below the menu. Select a template, copy an objective from another study, or create one from scratch. Parameters have orange labels and green values. Click Edit next to an objective to change or remove its parameters."
+            "general": "1. Click Add below the menu.\n2. Select a template, copy an objective from another study, or create one from scratch.\n3. Parameters have orange labels and green values.\n4. Click Edit next to an objective to change or remove its parameters."
         },
         "StudyArmsForm": {
             "arm_name": "Full label of the arm, e.g., Placebo.",
@@ -957,7 +957,7 @@
         "description_top_after": " you create your study",
         "description_bottom": "and define all structured study design elements",
         "manage_description": "Register new studies in the application and manage the life-cycle of these.",
-        "dashboard_description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud",
+        "dashboard_description": "Shows an overview of the study with status information and quick links to manage design elements.",
         "define_description": "Specify the design, interventions, study population, objectives, visit structure, schedule of activities and activity, etc. by using controlled terminology and syntax templates or by reusing content from other studies.",
         "build_description": "Preview the study information (entered e.g. under Define Study), but compiled for different downstream usages, e.g. for import into the protocol template, for upload to external registries, for population of the SDTM study design datasets, for CRF design, etc. ",
         "select_description": "Find, edit and add studies.",
@@ -1165,7 +1165,7 @@
             "ichm11": "ICH M11"
         },
         "admin": {
-            "announcements": "System annoucement",
+            "announcements": "System announcement",
             "feature_flags": "Feature flags"
         }
     },
@@ -3638,7 +3638,7 @@
         "planned_duration_time": "Planned study duration time"
     },
     "DesignMatrix": {
-        "global_help": "For each of the Study Arms, select the relevant elements in the given epochs. If a study element is missing then go back to the Study Elements tab to create/update the elments",
+        "global_help": "For each of the Study Arms, select the relevant elements in the given epochs. If a study element is missing then go back to the Study Elements tab to create/update the elements",
         "study_arm": "Study Arm",
         "element": "Element",
         "cell_updated": "Cell updated",
@@ -4388,7 +4388,7 @@
     "SystemAnnouncementsView": {
         "title": "System announcement",
         "show_title": "Show announcement",
-        "show_help": "The annoucement will be shown at the top of StudyBuilder as a system-wide message",
+        "show_help": "The announcement will be shown at the top of StudyBuilder as a system-wide message",
         "announcement_type": "Choose type of announcement",
         "type_informative": "Informative",
         "help_informative": "An information that is not an error or potentially dangerous",
