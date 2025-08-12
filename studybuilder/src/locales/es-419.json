@@ -222,8 +222,8 @@
             "context": "El atributo de contexto especifica el dominio de la aplicación en el que este nombre adicional es relevante. "
         },
         "GenericTemplateForm": {
-            "study_indication": "Indicaciones, condiciones, enfermedades o trastornos en el alcance de la plantilla. ",
-            "study_phase": "Fases de estudio en el alcance de la plantilla. "
+            "study_indication": "Indicaciones, condiciones, enfermedades o trastornos que abarca la plantilla. Seleccione NA (no aplica) si la plantilla es genérica y no está dirigida a estudios específicos.",
+            "study_phase": "Fases del estudio que abarca la plantilla. Seleccione NA (no aplica) si la plantilla es genérica y no está dirigida a estudios específicos."
         },
         "ObjectiveTemplateForm": {
             "name": "Ejemplo de objetivo: 'Demostrar superioridad de [compuesto -doste] [numericvalue] [unidad de dosis] versus [comparador] [NumericValue] [Unidad de dosis] con respecto a [Activity Instance] en [TimePoint] en pacientes con [EnfermateSorder]' o 'Documentar el perfil de seguridad de [Studyervention]. ",
@@ -667,7 +667,7 @@
             "short_title": "El breve título del protocolo."
         },
         "SelectOrAddStudyTable": {
-            "general": "Para agregar un nuevo estudio, haga clic en el +-button. "
+            "general": "Para agregar un nuevo estudio, haga clic en el botón +."
         },
         "RegistryIdentifiersTable": {
             "general": "Especifique los identificadores de estudio relevantes. "
@@ -895,18 +895,18 @@
             "name": "Nombre para el nuevo programa clínico."
         },
         "UsdmPage": {
-            "general": "Esta página muestra el archivo JSON generado en función del modelo de definiciones de estudio unificadas de Flow Dig Digital Flow (DDF) CDISC / TransCelerate. ",
-            "official_protocol_title": "El nombre descriptivo formal para el protocolo.",
-            "clinical_study_def": "Un estudio clínico involucra una investigación utilizando voluntarios humanos (también llamados participantes) que está destinado a agregar al conocimiento médico. ",
-            "study_protocol_version": "Un plan en un momento particular para una investigación formal para evaluar los efectos de utilidad, impacto, farmacológicos, fisiológicos y/o psicológicos de un tratamiento, procedimiento, fármaco, dispositivo, biológico, productos alimenticios, cosméticos, plan de atención o característicos de sujeto. ",
-            "protocol_status": "Una condición del protocolo en un momento en el tiempo con respecto a su estado de preparación para la implementación. ",
-            "study_design": "Un plan que detalla cómo se realizará un estudio para representar el fenómeno bajo examen, para responder las preguntas de investigación que se han hecho e informar el enfoque estadístico.",
-            "organization_type": "Una caracterización o clasificación del grupo formal de personas u otras organizaciones recolectadas para un propósito común (como administrativo, legal, político) y la infraestructura para llevar a cabo ese propósito. ",
-            "trial_type": "La naturaleza del estudio intervencionista para el cual se recopila información. ",
-            "intervention_model_type": "El diseño general de la estrategia para asignar intervenciones a los participantes en un estudio clínico. ",
-            "therapeutic_areas": "Una categorización de una enfermedad, trastorno u otra condición basada en características comunes y, a menudo, asociada con una especialidad médica centrada en la investigación y el desarrollo de intervenciones terapéuticas específicas para el tratamiento y la prevención.",
-            "trial_blinding_schema": "El tipo de diseño experimental utilizado para describir el nivel de conciencia de los sujetos del estudio y/ o el personal del estudio en lo que respecta a la (s) intervención (s) o evaluaciones respectivas que se observan, reciben o administran. ",
-            "target_study_population": "La población dentro de la población general a la que los resultados del estudio pueden generalizarse."
+            "general": "Esta página muestra el archivo JSON generado a partir del modelo Unified Study Definitions Model (USDM) del Digital Data Flow (DDF) CDISC/TransCelerate. Los datos disponibles aquí se extraen y convierten al modelo USDM según las reglas de mapeo definidas por el equipo de StudyBuilder; téngalo en cuenta.",
+            "official_protocol_title": "El nombre descriptivo formal del protocolo.",
+            "clinical_study_def": "Un estudio clínico involucra investigación con voluntarios humanos (también llamados participantes) destinada a aumentar el conocimiento médico. Hay dos tipos principales de estudios clínicos: los ensayos clínicos (también llamados estudios de intervención) y los estudios observacionales. [[http://ClinicalTrials.gov]](CDISC Glossary)",
+            "study_protocol_version": "Un plan en un momento determinado para una investigación formal a fin de evaluar la utilidad, el impacto y los efectos farmacológicos, fisiológicos y/o psicológicos de un tratamiento, procedimiento, medicamento, dispositivo, producto biológico, alimento, cosmético, plan de atención o característica del sujeto. (BRIDG)",
+            "protocol_status": "Una condición del protocolo en un momento dado con respecto a su estado de preparación para la implementación. Véase [<a href='/library/ct_catalogs/All/C188723/terms'>C188723-CDISC DDF Protocol Status Value Set Terminology</a>]",
+            "study_design": "Un plan que detalla cómo se realizará un estudio para representar el fenómeno examinado, responder a las preguntas de investigación y orientar el enfoque estadístico.",
+            "organization_type": "Una caracterización o clasificación del grupo formalizado de personas u otras organizaciones reunidas para un propósito común (como administrativo, legal, político) y la infraestructura para llevar a cabo ese propósito. Véase [<a href='/library/ct_catalogs/All/C188724/terms'>C188724-CDISC DDF Organization Type Value Set Terminology</a>]",
+            "trial_type": "La naturaleza del estudio de intervención para el cual se recopila información. Véase [<a href='/library/ct_catalogs/All/C66739/terms'>C66739-CDISC SDTM Trial Type Terminology</a>]",
+            "intervention_model_type": "El diseño general de la estrategia para asignar intervenciones a los participantes en un estudio clínico (clinicaltrials.gov). Véase [<a href='/library/ct_catalogs/All/C99076/terms'>C99076-CDISC SDTM Intervention Model Terminology</a>]",
+            "therapeutic_areas": "Una categorización de una enfermedad, trastorno u otra condición basada en características comunes y a menudo asociada con una especialidad médica enfocada en la investigación y desarrollo de intervenciones terapéuticas específicas para fines de tratamiento y prevención.",
+            "trial_blinding_schema": "El tipo de diseño experimental utilizado para describir el nivel de conocimiento de los sujetos del estudio y/o del personal del estudio respecto a las intervenciones o evaluaciones observadas, recibidas o administradas. Véase [<a href='/library/ct_catalogs/All/C66735/terms'>C66735-CDISC SDTM Trial Blinding Schema Terminology</a>]",
+            "target_study_population": "La población dentro de la población general a la que se pueden generalizar los resultados del estudio."
         },
         "StudyStructuresOverview": {
             "general": "La página de estructuras de estudio está destinada a ayudar a los desarrolladores de estándares al ofrecer una visión general de cómo se han definido los ensayos existentes. "
@@ -944,7 +944,7 @@
         "syntax_templates_description": "Ver (o administrar) las diferentes plantillas de sintaxis utilizadas para especificar los objetivos, los puntos finales, la elegibilidad, la aleatorización, la dosificación y otros criterios para los estudios individuales. ",
         "template_instantiations_description": "Vea cómo se utilizan las diferentes plantillas en los estudios, incluido el número de estudios que utilizan una sintaxis específica y qué estudios.",
         "template_collections_description": "Encuentre colecciones de plantillas relevantes para plantillas de proyecto, plantillas compartidas y plantillas de soporte.",
-        "data_exchange_standards_description": "Consulte el modelo maestro completo para los siguientes estándares de intercambio de datos CDISC: CDASH, SDTM y Adam.",
+        "data_exchange_standards_description": "Consulte el modelo maestro completo para los siguientes estándares de intercambio de datos CDISC: CDASH, SDTM y ADaM.",
         "list_description": "Encuentre listados de todas las listas de códigos y términos para terminología controlada, diccionarios, conceptos, así como los estándares de intercambio de datos, tanto en formato nuevo como heredado.",
         "process_overview_description": "Encuentre descripciones esquemáticas de las actividades cubiertas por la biblioteca. ",
         "projects": "Ver o crear proyectos.",
@@ -1049,16 +1049,16 @@
             "shared_templates": "Plantillas compartidas",
             "supporting_templates": "Plantillas de apoyo",
             "data_exchange_std": "Estándares de intercambio de datos",
-            "cdash": "Cdash",
-            "sdtm": "Sdtm",
-            "adam": "Adán",
+            "cdash": "CDASH",
+            "sdtm": "SDTM",
+            "adam": "ADaM",
             "list": "Lista",
             "gen_clinical_metadata": "Metadatos clínicos generales",
             "cdash_std": "Normas CDASH",
             "sdtm_std_cst": "Estándares SDTM (CST)",
             "sdtm_std_dmw": "Estándares SDTM (DMW)",
-            "adam_std_cst": "Estándares de Adam (CST)",
-            "adam_std_new": "Estándares de Adam (Nuevo)",
+            "adam_std_cst": "Estándares de ADaM (CST)",
+            "adam_std_new": "Estándares de ADaM (Nuevo)",
             "process_overview": "Descripción general del proceso",
             "clinical_programmes": "Programas clínicos",
             "projects": "Proyectos",
@@ -1115,13 +1115,13 @@
             "study_attributes": "Atributos de estudio",
             "crf_specifications": "Especificaciones de CRF",
             "blank_crf": "CRF en blanco",
-            "cdash_crf": "CDash anotado CRF",
-            "sdtm_crf": "SDTM anotado CRF",
+            "cdash_crf": "CRF anotado CDASH",
+            "sdtm_crf": "CRF anotado SDTM",
             "odm_specification": "Especificación ODM",
             "ctr_odm_xml": "CTR ODM XML",
             "sdtm_specification": "Especificaciones SDTM",
             "sdtm_study": "Conjuntos de datos de diseño de estudio SDTM",
-            "adam_spec": "Especificación de Adam",
+            "adam_spec": "Especificación de ADaM",
             "inclusion_criteria": "Criterios de inclusión",
             "exclusion_criteria": "Criterios de exclusión",
             "dosing_criteria": "Criterios de dosificación",
@@ -1144,8 +1144,8 @@
             "sdtm_define_cst": "SDTM Definir (CST)",
             "dmw_additional_metadata": "DMW Metadatos adicionales",
             "sdtm_additional_metadata": "Metadatos adicionales SDTM",
-            "adam_define_p21": "Adam Define (P21)",
-            "adam_define_cst": "Adam Define (CST)",
+            "adam_define_p21": "ADaM Define (P21)",
+            "adam_define_cst": "ADaM Define (CST)",
             "analysis_study_metadata_new": "Metadatos del estudio de análisis (nuevo)",
             "study_activities": "Actividades de estudio",
             "time_profiles": "Perfiles de tiempo",
@@ -1189,20 +1189,20 @@
         "integrate_text2": "a través de API abierta"
     },
     "GenericTemplateTable": {
-        "sponsor_tab": "Padre",
-        "pre_instances_tab": "Previa",
-        "user_tab": "Usuario definido",
-        "confirm_parameter_values_delete": "Está a punto de eliminar los valores de parámetros predeterminados",
-        "template_history_title": "Historia para la plantilla [__ph_0__]"
+        "sponsor_tab": "Principal",
+        "pre_instances_tab": "Preinstancia",
+        "user_tab": "Definido por el usuario",
+        "confirm_parameter_values_delete": "Está a punto de eliminar los valores de parámetro predeterminados",
+        "template_history_title": "Historial de la plantilla [{templateUid}]"
     },
     "GenericTemplateForm": {
-        "study_indication": "Indicación o desorden",
-        "study_phase": "Fase de estudio",
-        "template_properties": "Propiedades de plantilla",
+        "study_indication": "Indicación o trastorno",
+        "study_phase": "Fase del estudio",
+        "template_properties": "Propiedades de la plantilla",
         "step1_add_title": "Crear plantilla",
-        "step1_edit_title": "Plantilla de edición",
-        "step2_title": "Plantilla de prueba",
-        "step3_title": "Plantilla de índice",
+        "step1_edit_title": "Editar plantilla",
+        "step2_title": "Probar plantilla",
+        "step3_title": "Indexar plantilla",
         "step4_title": "Descripción del cambio",
         "parameter_values_title": "Editar valores de parámetros"
     },
@@ -1313,38 +1313,38 @@
         "confirmatory_testing": "Relacionado con las pruebas confirmatorias"
     },
     "PreInstanceForm": {
-        "step1_title": "Establecer valores de parámetros de plantilla",
-        "step2_title": "Plantilla de índice"
+        "step1_title": "Definir valores de parámetros de la plantilla",
+        "step2_title": "Indexar plantilla"
     },
     "ObjectiveTemplatesPreInstanceForm": {
-        "add_title": "Agregar plantilla de objetivos preinstanciación",
-        "edit_title": "Editar plantilla de objetivos preinstanciación",
-        "add_success": "Plantilla de objetivos Precinstanciación agregada",
-        "update_success": "Plantilla de objetivos Precinstanciación actualizada"
+        "add_title": "Agregar preinstancia de plantilla de objetivo",
+        "edit_title": "Editar preinstancia de plantilla de objetivo",
+        "add_success": "Preinstancia de plantilla de objetivo agregada",
+        "update_success": "Preinstancia de plantilla de objetivo actualizada"
     },
     "EndpointTemplatesPreInstanceForm": {
-        "add_title": "Agregar plantilla de punto final preinstanciación",
-        "edit_title": "Editar plantilla de punto final preinstanciación",
-        "add_success": "Plantilla de punto final preinstanciación agregada",
-        "update_success": "Plantilla de punto final preinstanciación actualizada"
+        "add_title": "Agregar preinstancia de plantilla de criterio de valoración",
+        "edit_title": "Editar preinstancia de plantilla de criterio de valoración",
+        "add_success": "Preinstancia de plantilla de criterio de valoración agregada",
+        "update_success": "Preinstancia de plantilla de criterio de valoración actualizada"
     },
     "CriteriaTemplatesPreInstanceForm": {
-        "add_title": "Agregar plantilla de criterios preinstanciación",
-        "edit_title": "Editar plantilla de criterios preinstanciación",
-        "add_success": "Plantilla de criterios Precinstanciación agregada",
-        "update_success": "Plantilla de criterios preinstanciación actualizada"
+        "add_title": "Agregar preinstancia de plantilla de criterio",
+        "edit_title": "Editar preinstancia de plantilla de criterio",
+        "add_success": "Preinstancia de plantilla de criterio agregada",
+        "update_success": "Preinstancia de plantilla de criterio actualizada"
     },
     "ActivityTemplatesPreInstanceForm": {
-        "add_title": "Agregar plantilla de actividad preinstanciación",
-        "edit_title": "Editar plantilla de actividad preinstanciación",
-        "add_success": "Plantilla de actividad previa a la instanciación agregada",
-        "update_success": "Plantilla de actividad preinstanciación actualizada"
+        "add_title": "Agregar preinstancia de plantilla de actividad",
+        "edit_title": "Editar preinstancia de plantilla de actividad",
+        "add_success": "Preinstancia de plantilla de actividad agregada",
+        "update_success": "Preinstancia de plantilla de actividad actualizada"
     },
     "FootnoteTemplatesPreInstanceForm": {
-        "add_title": "Agregar plantilla de nota al pie Precinstanciación",
-        "edit_title": "Editar plantilla de nota al pie de la preinstanciación",
-        "add_success": "Plantilla de nota al pie preinstanciación agregada",
-        "update_success": "Plantilla de nota al pie Precinstanciación actualizada"
+        "add_title": "Agregar preinstancia de plantilla de nota al pie",
+        "edit_title": "Editar preinstancia de plantilla de nota al pie",
+        "add_success": "Preinstancia de plantilla de nota al pie agregada",
+        "update_success": "Preinstancia de plantilla de nota al pie actualizada"
     },
     "CtCataloguesForm": {
         "add_title": "Agregue un nuevo catálogo de CT",
@@ -1747,7 +1747,7 @@
     "ParameterValueSelector": {
         "separator": "Separador",
         "title": "Seleccionar valores",
-        "preview": "Vista previa con valores seleccionados",
+        "preview": "Vista previa con los valores seleccionados",
         "na_tooltip": "Mostrar/ocultar el parámetro en la oración"
     },
     "StudyManageView": {
@@ -2028,7 +2028,7 @@
         "rationale_for_request": "Justificación de la solicitud de actividad",
         "handle_placeholder_request": "Manejar la solicitud de marcador de posición",
         "topic_code": "Código de tema",
-        "adam_code": "Código de parámetros de Adam",
+        "adam_code": "Código de parámetros de ADaM",
         "specimen": "Muestra",
         "activity_group": "Grupo de actividades",
         "activity_subgroup": "Subgrupo de actividad",
@@ -2067,7 +2067,7 @@
         "definition": "Definición",
         "activities": "Actividades",
         "topicCode": "Código de tema",
-        "adamCode": "Código de parámetros de Adam",
+        "adamCode": "Código de parámetros de ADaM",
         "legacyDesc": "Descripción heredada",
         "activity_group": "Grupo de actividades",
         "activity_subgroup": "Subgrupo de actividad",
@@ -2131,7 +2131,7 @@
         "instance_class": "Clase de instancia de actividad",
         "activities": "Actividades",
         "topicCode": "Código de tema",
-        "adamCode": "Código de parámetros de Adam",
+        "adamCode": "Código de parámetros de ADaM",
         "legacyDesc": "Descripción heredada",
         "editInstance": "Editar instancia de actividad",
         "addInstance": "Agregar instancia de actividad",
@@ -2244,9 +2244,9 @@
     "CtrOdmXmlVue": {
         "title": "CTR ODM XML",
         "download": "Descargar XML",
-        "downloading": "Descargando XML ...",
-        "iframe_title": "Documento renderizado de CTR ODM",
-        "loading": "Cargando XML ..."
+        "downloading": "Descargando XML...",
+        "iframe_title": "Documento CTR ODM renderizado",
+        "loading": "Cargando XML..."
     },
     "ProtocolElementsObjectiveTable": {
         "title": "Objetivos y puntos finales",
@@ -2451,7 +2451,7 @@
         "legacy_code": "Código heredado",
         "molecular_weight": "Usa el peso molecular",
         "conversion_factor": "Factor de conversión para dominar",
-        "ucum_unit": "Unidad",
+        "ucum_unit": "Unidad UCUM",
         "unit_subsets": "Subconjuntos unitarios",
         "ct_units": "Términos de la unidad CT",
         "mandatory": "Obligatorio",
@@ -2477,7 +2477,7 @@
         "complex_conversion": "Utilice la conversión de unidades complejas"
     },
     "UCUMUnitField": {
-        "label": "Unidad"
+        "label": "Unidad UCUM"
     },
     "CrfsView": {
         "title": "CRFS (formularios de informe de caso)",
@@ -2686,7 +2686,7 @@
         "creation_success": "Paquete de CT de patrocinador creado"
     },
     "PackageTimeline": {
-        "add_label": "Agregar paquete"
+        "add_label": "Añadir paquete"
     },
     "NNTemplateInputField": {
         "default_hint": "Cree el texto de la plantilla e incluya parámetros editables de la lista desplegable como relevante. "
@@ -3010,61 +3010,61 @@
     },
     "SdtmSpecificationsView": {
         "title": "Especificaciones SDTM",
-        "sdtm_ts": "Sdtm ts",
-        "sdtm_tv": "TV SDTM",
-        "sdtm_te": "Sdtm te",
+        "sdtm_ts": "SDTM TS",
+        "sdtm_tv": "SDTM TV",
+        "sdtm_te": "SDTM TE",
         "sdtm_ta": "SDTM TA",
-        "sdtm_ti": "Sdtm ti",
-        "sdtm_td": "Sdtm td"
+        "sdtm_ti": "SDTM TI",
+        "sdtm_td": "SDTM TD"
     },
     "SdtmDesignTable": {
-        "trial_arm": "Brazo de prueba",
-        "trial_elem": "Elementos de prueba",
-        "trial_visits": "Visitas de prueba",
-        "trial_incl_excl": "Criterios de inclusión/exclusión",
-        "trial_disease": "Mito de la enfermedad del ensayo",
-        "trial_summary": "Resumen de prueba",
-        "study_id": "Identificador de estudio",
-        "domain_abbr": "Abreviación del dominio",
-        "planned_arm": "Código de brazo planificado",
+        "trial_arm": "Brazo del ensayo",
+        "trial_elem": "Elementos del ensayo",
+        "trial_visits": "Visitas del ensayo",
+        "trial_incl_excl": "Criterios de inclusión/exclusión del ensayo",
+        "trial_disease": "Hito de enfermedad del ensayo",
+        "trial_summary": "Resumen del ensayo",
+        "study_id": "Identificador del estudio",
+        "domain_abbr": "Abreviatura del dominio",
+        "planned_arm": "Código del brazo planificado",
         "arm_desc": "Descripción del brazo planificado",
-        "planned_order_of_elem": "Orden planificado de elemento dentro del brazo",
-        "elem_code": "Código de elemento",
+        "planned_order_of_elem": "Orden planificado del elemento dentro del brazo",
+        "elem_code": "Código del elemento",
         "elem_desc": "Descripción del elemento",
         "branch": "Rama",
         "transition_rule": "Regla de transición",
         "epoch": "Época",
-        "visit_number": "Número de visitas",
-        "visit_name": "Visitar nombre",
-        "planned_study_day": "Día de estudio de estudio planeado",
-        "planned_arm_code": "Código de brazo planificado",
+        "visit_number": "Número de visita",
+        "visit_name": "Nombre de la visita",
+        "planned_study_day": "Día de estudio planificado de la visita",
+        "planned_arm_code": "Código del brazo planificado",
         "planned_arm_desc": "Descripción del brazo planificado",
-        "visit_start_rule": "Visitar la regla de inicio",
-        "visit_end_rule": "Visitar la regla final",
+        "visit_start_rule": "Regla de inicio de la visita",
+        "visit_end_rule": "Regla de fin de la visita",
         "elem_start_rule": "Regla para el inicio del elemento",
-        "elem_end_rule": "Regla para el final del elemento",
+        "elem_end_rule": "Regla para el fin del elemento",
         "elem_planned_duration": "Duración planificada del elemento",
-        "incl_excl_short_name": "INCR/EXCR CRITERION Nombre corto",
+        "incl_excl_short_name": "Nombre corto del criterio de inclusión/exclusión",
         "incl_excl_criterion": "Criterio de inclusión/exclusión",
         "incl_excl_cat": "Categoría de inclusión/exclusión",
         "incl_excl_subcat": "Subcategoría de inclusión/exclusión",
-        "incl_excl_criterion_rule": "Regla de criterio de inclusión/exclusión",
-        "protocol_criteria_versions": "Versiones de criterios de protocolo",
+        "incl_excl_criterion_rule": "Regla del criterio de inclusión/exclusión",
+        "protocol_criteria_versions": "Versiones de los criterios del protocolo",
         "sequence_number": "Número de secuencia",
-        "group_id": "ID de grupo",
-        "trial_summary_short_name": "Nombre corto de resumen de resumen de prueba",
-        "trial_summary_param": "Parámetro de resumen de prueba",
-        "param_value": "Valor de parámetro",
-        "param_null": "Sabor nulo de parámetro",
-        "param_value_code": "Código de valor del parámetro",
+        "group_id": "ID del grupo",
+        "trial_summary_short_name": "Nombre corto del parámetro del resumen del ensayo",
+        "trial_summary_param": "Parámetro del resumen del ensayo",
+        "param_value": "Valor del parámetro",
+        "param_null": "Tipo de valor nulo del parámetro",
+        "param_value_code": "Código del valor del parámetro",
         "reference_term_name": "Nombre de la terminología de referencia",
         "reference_term_version": "Versión de la terminología de referencia",
         "disease_milestone_type": "Tipo de hito de la enfermedad",
-        "disease_milestone_definition": "Definición de la enfermedad de la enfermedad",
-        "disease_milestone_rep_ind": "Indicador de repetición de hitos de enfermedad"
+        "disease_milestone_definition": "Definición del hito de la enfermedad",
+        "disease_milestone_rep_ind": "Indicador de repetición del hito de la enfermedad"
     },
     "UsdmPage": {
-        "title": "Versión USDM de la versión de protocolo / USDM: __ph_0__",
+        "title": "Versión USDM del protocolo / Versión USDM: {version}",
         "general": "General",
         "clinical_study_def": "Estudio clínico [C15206]",
         "official_protocol_title": "Título del protocolo oficial [C132346]",
@@ -3072,11 +3072,11 @@
         "protocol_status": "Estado del protocolo [C188818]",
         "study_design": "Diseño del estudio [C15320]",
         "organization_type": "Tipo de organización [C188820]",
-        "trial_type": "Tipo de prueba [C49660]",
+        "trial_type": "Tipo de ensayo [C49660]",
         "intervention_model_type": "Tipo de modelo de intervención [C98746]",
         "therapeutic_areas": "Áreas terapéuticas [C101302]",
-        "trial_blinding_schema": "Esquema de cegamiento de prueba [C49658]",
-        "target_study_population": "Población de estudio objetivo [C142728]"
+        "trial_blinding_schema": "Esquema de enmascaramiento del ensayo [C49658]",
+        "target_study_population": "Población objetivo del estudio [C142728]"
     },
     "IchM11Page": {
         "title": "Versión M11 del protocolo"
@@ -3338,7 +3338,7 @@
         "suggestion": "Sugerencia",
         "study_activity_instance_history_title": "Historia para la instancia de actividad de estudio [__ph_0__]",
         "confirm_delete": "La instancia de actividad de estudio '__ph_0__' se eliminará",
-        "adam_code": "Código Adam Param",
+        "adam_code": "Código de parámetro ADaM",
         "no_action_needed": "No se necesita acción",
         "notification": "Notificación",
         "action_needed": "Se necesita acción",
@@ -3554,63 +3554,63 @@
         "link": "Enlace",
         "registry_identifiers": "Identificadores de registro",
         "registry_identifiers_tab": "Pestaña Identificadores de registro",
-        "study_design": "Diseño de estudio",
-        "study_type_tab": "Pestaña Tipo de estudio",
-        "study_arms_tab": "Pestaña de brazos de estudio",
-        "study_epochs_tab": "Pestaña de épocas de estudio",
-        "study_elements_tab": "Pestaña Elementos de estudio",
-        "study_visits_tab": "Pestaña Visitas de estudio",
-        "design_matrix_tab": "Pestaña Matriz de diseño",
+        "study_design": "Diseño del estudio",
+        "study_type_tab": "Pestaña tipo de estudio",
+        "study_arms_tab": "Pestaña de brazos del estudio",
+        "study_epochs_tab": "Pestaña de épocas del estudio",
+        "study_elements_tab": "Pestaña de elementos del estudio",
+        "study_visits_tab": "Pestaña de visitas del estudio",
+        "design_matrix_tab": "Pestaña de la matriz de diseño",
         "arms_defined": "Brazos definidos:",
         "epochs_defined": "Épocas definidas:",
         "elements_defined": "Elementos definidos:",
         "visits_defined": "Visitas definidas:",
-        "matrix_cells_defined": "Células de matriz definidas:",
-        "study_population": "Población de estudio",
-        "study_population_tab": "Pestaña de población de estudio",
-        "study_criteria": "Criterio de estudio",
+        "matrix_cells_defined": "Celdas de la matriz definidas:",
+        "study_population": "Población del estudio",
+        "study_population_tab": "Pestaña de población del estudio",
+        "study_criteria": "Criterios del estudio",
         "inclusion_criteria_tab": "Pestaña de criterios de inclusión",
-        "exclusion_criteria_tab": "Pestaña de criterios de exlusión",
-        "runin_criteria_tab": "Pestaña Criterios",
+        "exclusion_criteria_tab": "Pestaña de criterios de exclusión",
+        "runin_criteria_tab": "Pestaña de criterios de run-in",
         "randomisation_criteria_tab": "Pestaña de criterios de aleatorización",
         "dosing_criteria_tab": "Pestaña de criterios de dosificación",
         "withdrawal_criteria_tab": "Pestaña de criterios de retiro",
         "criteria_defined": "Criterios definidos:",
-        "study_interventions": "Intervenciones de estudio",
-        "intervention_type_tab": "Pestaña Tipo de intervención",
-        "study_compounds_tab": "Pestaña de compuestos de estudio",
-        "other_interventions_tab": "Otras pestañas de intervenciones",
+        "study_interventions": "Intervenciones del estudio",
+        "intervention_type_tab": "Pestaña de tipo de intervención",
+        "study_compounds_tab": "Pestaña de compuestos del estudio",
+        "other_interventions_tab": "Pestaña de otras intervenciones",
         "compounds_defined": "Compuestos definidos:",
         "other_interventions_defined": "Otras intervenciones definidas:",
-        "study_purpose": "Propósito de estudio",
-        "study_objectives_tab": "Pestaña de objetivos de estudio",
-        "study_endpoints_tab": "Pestaña de puntos finales de estudio",
-        "study_estimands_tab": "Pestaña Estimado de estudios",
+        "study_purpose": "Propósito del estudio",
+        "study_objectives_tab": "Pestaña de objetivos del estudio",
+        "study_endpoints_tab": "Pestaña de puntos finales del estudio",
+        "study_estimands_tab": "Pestaña de estimandos del estudio",
         "objectives_defined": "Objetivos definidos:",
         "endpoints_defined": "Puntos finales definidos:",
-        "estimands_defined": "Estimando definidos:",
-        "study_activities": "Actividades de estudio",
-        "list_of_activities_tab": "Pestaña Lista de actividades",
-        "detailed_flowchart_tab": "Pestaña SOA detallada",
+        "estimands_defined": "Estimandos definidos:",
+        "study_activities": "Actividades del estudio",
+        "list_of_activities_tab": "Pestaña de lista de actividades",
+        "detailed_flowchart_tab": "Pestaña de diagrama de flujo detallado",
         "activities_defined": "Actividades definidas:",
         "activities_with_visits": "Actividades con visitas asignadas:",
         "activities_no_visits": "Actividades sin visitas asignadas:",
         "activities_with_instructions": "Actividades con instrucciones:",
         "activities_no_instructions": "Actividades sin instrucciones:",
-        "specification_tab": "Pestañas de especificación:",
-        "completed": "Terminado:",
-        "in_progres": "En los programas:",
-        "not_started": "No se inició:",
+        "specification_tab": "Pestaña de especificación:",
+        "completed": "Completado:",
+        "in_progres": "En progreso:",
+        "not_started": "No iniciado:",
         "not_applicable": "No aplicable:",
-        "subject_info": "SUJETO",
-        "efficacy": "EFICACIA",
-        "safety": "SEGURIDAD",
+        "subject_info": "Información del sujeto",
+        "efficacy": "Eficacia",
+        "safety": "Seguridad",
         "biomarkers": "Biomarcadores",
         "demography": "Demografía",
         "laboratory_activities": "Actividades de laboratorio",
         "adverse_events": "Eventos adversos",
-        "body_measuremets": "Medidas del cuerpo",
-        "specification_elements": "Elementos de especificación",
+        "body_measuremets": "Mediciones corporales",
+        "specification_elements": "Elementos de la especificación",
         "tab_completion": "Descripción general del estado de finalización"
     },
     "StudyElements": {
@@ -3638,14 +3638,14 @@
         "planned_duration_time": "Tiempo de duración del estudio planificado"
     },
     "DesignMatrix": {
-        "global_help": "Para cada uno de los brazos de estudio, seleccione los elementos relevantes en las épocas dadas. ",
+        "global_help": "Para cada uno de los brazos del estudio, seleccione los elementos relevantes en las épocas indicadas. Si falta un elemento del estudio, vuelva a la pestaña Elementos del estudio para crearlo o actualizarlo.",
         "study_arm": "Brazo de estudio",
         "element": "Elemento",
         "cell_updated": "Celda actualizada",
         "cell_created": "Celda creada",
         "cell_deleted": "Celda eliminada",
-        "branches": "Sucursales",
-        "matrix_updated": "Matriz de diseño actualizado",
+        "branches": "Ramas",
+        "matrix_updated": "Matriz de diseño actualizada",
         "matrix_guide": "Para completar el diseño del estudio, asigne elementos a todas las épocas por brazo/rama."
     },
     "CRFForms": {
@@ -3893,24 +3893,24 @@
         "delete_approve": "¿Estás seguro de eliminar este alias?"
     },
     "OdmViewer": {
-        "blank": "Blanco",
-        "sdtm": "Anotación sdtm",
+        "blank": "En blanco",
+        "sdtm": "Anotación SDTM",
         "allowed_namespaces": "Extensiones permitidas",
         "specific": "Específico",
         "provide_uri": "Proporcionar URI",
         "stylesheet": "Hoja de estilo",
         "loading_message": "Tenga paciencia, estamos creando su documento ODM-XML",
-        "load": "Carga",
+        "load": "Cargar",
         "load_another": "Recargar",
         "odm_references": "Referencias ODM",
         "odm_element_type": "Tipo de elemento ODM",
         "odm_element_name": "Nombre del elemento ODM",
         "template": "Plantilla",
-        "form": "Forma",
-        "item_group": "Grupo de artículos",
-        "item": "Artículo",
+        "form": "Formulario",
+        "item_group": "Grupo de ítems",
+        "item": "Ítem",
         "element_status": "Estado del elemento ODM",
-        "export": "Exportar",
+        "export": "Exportar ",
         "format": "Formato"
     },
     "TemplateIndexingDialog": {
@@ -3992,7 +3992,7 @@
         "selected_visits": "Visitas seleccionadas (__ph_0__):"
     },
     "SelectOrAddStudyTable": {
-        "tab1_title": "Lista de estudio",
+        "tab1_title": "Lista de estudios",
         "tab2_title": "Estudios eliminados"
     },
     "AnalysisStudyMetadata": {
@@ -4054,7 +4054,7 @@
         "implemented_by": "Implementado por",
         "classes": "Clases",
         "cdash": "CDASH/CDASHIG",
-        "sdtm": "Sdtm/sdtmig",
+        "sdtm": "SDTM/SDTMIG",
         "cdash_models": "Modelos de CDASH",
         "cdash_ig": "Guía de implementación de CDASH",
         "sdtm_models": "Modelos SDTM",
@@ -4082,12 +4082,12 @@
         "c_code": "Código C variable",
         "codelist": "Cola de códigos",
         "value_list": "Lista de valores",
-        "sdtmig_ap": "Sdtmig ap",
-        "sdtmig_md": "Sdtmig md",
-        "sendig": "Sendig",
-        "sendig_ar": "Sendig AR",
-        "sendig_dart": "Sendig Dart",
-        "sendig_genetox": "Sendig Genetox"
+        "sdtmig_ap": "SDTMIG AP",
+        "sdtmig_md": "SDTMIG MD",
+        "sendig": "SENDIG",
+        "sendig_ar": "SENDIG AR",
+        "sendig_dart": "SENDIG DART",
+        "sendig_genetox": "SENDIG GENETOX"
     },
     "ActivityInstanceOverview": {
         "cosmos_yaml": "Cosmos yaml",
@@ -4100,7 +4100,7 @@
         "nci_concept_name": "Nombre del concepto de NCI",
         "is_research_lab": "Laboratorio de investigación",
         "molecular_weight": "Peso molecular",
-        "adam_code": "Código de parámetros de Adam",
+        "adam_code": "Código de parámetros de ADaM",
         "topic_code": "Código de tema",
         "class": "Clase de instancia de actividad",
         "activity_instance_class": "Clase de instancia de actividad",
@@ -4123,7 +4123,7 @@
         "activity_subgroups": "Subgrupos de actividad",
         "activity_group": "Grupo de actividades",
         "activity_subgroup": "Subgrupo de actividad",
-        "adam_code": "Código de parámetros de Adam",
+        "adam_code": "Código de parámetros de ADaM",
         "topic_code": "Código de tema",
         "is_data_collected": "Recopilación de datos",
         "class": "Clase de instancia de actividad",
@@ -4161,7 +4161,7 @@
         "headerStatus": "Estado",
         "headerActivityInstanceClass": "Clase de instancia de actividad",
         "headerTopicCode": "Código de tema",
-        "headerAdamParamCode": "Código de parámetros de Adam"
+        "headerAdamParamCode": "Código de parámetros de ADaM"
     },
     "activityItemsTable": {
         "exportLabel": "Ítems de actividad",
@@ -4177,9 +4177,9 @@
     "YamlViewer": {
         "search_content": "Buscar contenido",
         "expand_all": "Expandir todo",
-        "collapse_all": "Colapsar todo",
-        "download": "Descargar contenido Yaml",
-        "close_tab": "Cerrar el espectador Yaml"
+        "collapse_all": "Contraer todo",
+        "download": "Descargar contenido YAML",
+        "close_tab": "Cerrar visor YAML"
     },
     "ActivityInstructionsView": {
         "title": "Instrucciones de actividad"
@@ -4531,7 +4531,7 @@
         "sentence_case_name": "Nombre del caso de la oración",
         "nci_preferred_name": "Nombre preferido de NCI (opcional)",
         "topic_code": "Código de tema",
-        "adam_param_code": "Código de parámetros de Adam",
+        "adam_param_code": "Código de parámetros de ADaM",
         "nci_code": "Código NCI (opcional)"
     }
 }
