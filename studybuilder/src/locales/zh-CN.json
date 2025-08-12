@@ -437,7 +437,7 @@
       "definition": "术语的描述。"
     },
     "UnitForm": {
-      "ct_term": "",
+      "ct_term": "选择表示此单位的受控术语项。",
       "convertible_unit": "Slide if the unit can be converted. e.g. mm is convertible to cm or meter, but the unit pH is not convertible.",
       "ucum_unit": "Select the equivalent unit in UCUM from the drop-down. For syntax rules see <a href='https://ucum.org/ucum.html.' target='_blank'>[Syntax Rules]<a>",
       "display_unit": "Slide if this unit is be used as a display unit, e.g. units used should be displayed in the output.",
