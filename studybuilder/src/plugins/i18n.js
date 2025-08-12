@@ -1,6 +1,7 @@
 import { createI18n } from 'vue-i18n'
 import en from '@/locales/en.json'
 import enUS from '@/locales/en-US.json'
+import zhCN from '@/locales/zh-CN.json'
 import es419 from '@/locales/es-419.json'
 
 const instance = createI18n({
@@ -10,6 +11,7 @@ const instance = createI18n({
   messages: {
     en: en,
     'en-US': enUS,
+    'zh-CN': zhCN,
     es: es419,
     'es-419': es419,
   },
