@@ -359,7 +359,7 @@
             "general": "Definitions of compounds are created from the Compounds tab. If an alias name for a compound is needed, then this can be defined in the compound aliases tab."
         },
         "CompoundForm": {
-            "sponsor_compound": "Indicate if this is a sponsor compound. Tick yes if sponsor is the authorisation holder/or future authorisation holder of the compound.",
+            "sponsor_compound": "Indicate if this is a sponsor compound. Tick yes if sponsor is the authorization holder or future authorization holder of the compound.",
             "analyte_number": "Analyte number (Non-clinical), example is AN000028 (The analyte number for semaglutide).",
             "long_number": "Compound number (long). Example NNC0113-0000-0217. Only applicable for Novo Nordisk compound. Leave blank for other compounds.",
             "short_number": "Compound number (short). Example NNC0113-0217. Only applicable for Novo Nordisk compound. Leave blank for other compounds. ",
