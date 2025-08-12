@@ -1165,7 +1165,7 @@
             "ichm11": "ICH M11"
         },
         "admin": {
-            "announcements": "System annoucement",
+            "announcements": "System announcement",
             "feature_flags": "Feature flags"
         }
     },
@@ -4388,7 +4388,7 @@
     "SystemAnnouncementsView": {
         "title": "System announcement",
         "show_title": "Show announcement",
-        "show_help": "The annoucement will be shown at the top of StudyBuilder as a system-wide message",
+        "show_help": "The announcement will be shown at the top of StudyBuilder as a system-wide message",
         "announcement_type": "Choose type of announcement",
         "type_informative": "Informative",
         "help_informative": "An information that is not an error or potentially dangerous",
