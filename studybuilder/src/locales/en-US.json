@@ -438,9 +438,9 @@
         },
         "UnitForm": {
             "ct_term": "Select the controlled terminology term representing this unit.",
-            "convertible_unit": "Slide if the unit can be converted. For example, mm is convertible to cm or meter, but pH is not convertible.",
-            "ucum_unit": "Select the equivalent unit in UCUM from the drop-down. For syntax rules see <a href='https://ucum.org/ucum.html.' target='_blank'>[Syntax Rules]<a>",
-            "display_unit": "Slide if this unit is to be used as a display unit. For example, units should be displayed in the output.",
+            "convertible_unit": "Slide if the unit can be converted. e.g. mm is convertible to cm or meter, but the unit pH is not convertible.",
+            "ucum_unit": "Select the equivalent unit in UCUM from the drop-down. For syntax rules see <a href='https://ucum.org/ucum.html' target='_blank'>[Syntax Rules]</a>.",
+            "display_unit": "Slide if this unit is to be used as a display unit, e.g., units used should be displayed in the output.",
             "master_unit": "Slide if this unit is the master unit of a unit dimension. All units are converted through the master unit. For example, the master unit for length is m (meter). If cm is converted to mm, it is first converted to meter using the 'conversion factor to master' and then to mm. This is often the first unit created for a unit dimension. There can only be one master unit. It does not matter which unit is the master unit.",
             "si_unit": "Slide to indicate whether a unit is a SI unit.",
             "us_unit": "Slide to indicate whether a unit is a US unit.",
