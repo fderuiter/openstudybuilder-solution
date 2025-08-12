@@ -667,7 +667,7 @@
       "short_title": "The short title of the protocol."
     },
     "SelectOrAddStudyTable": {
-      "general": "To add a new study, click on the +-button. To select or edit a study from the list use the vertical dot-menu to the left of the row in the table."
+      "general": "要添加新研究，请点击 +- 按钮。要从列表中选择或编辑研究，请使用表格中行左侧的纵向点菜单。"
     },
     "RegistryIdentifiersTable": {
       "general": "Specify the relevant study identifiers. Click on the pencil to add value. Tick NA if not relevant"
@@ -953,16 +953,16 @@
     "overview_pages_description": ""
   },
   "Studies": {
-    "description_top_before": "Under ",
-    "description_top_after": " you create your study",
-    "description_bottom": "and define all structured study design elements",
-    "manage_description": "Register new studies in the application and manage the life-cycle of these.",
-    "dashboard_description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud",
-    "define_description": "Specify the design, interventions, study population, objectives, visit structure, schedule of activities and activity, etc. by using controlled terminology and syntax templates or by reusing content from other studies.",
-    "build_description": "Preview the study information (entered e.g. under Define Study), but compiled for different downstream usages, e.g. for import into the protocol template, for upload to external registries, for population of the SDTM study design datasets, for CRF design, etc. ",
-    "select_description": "Find, edit and add studies.",
-    "list_description": "Various kinds of listings of the study specification data defined for your study.",
-    "process_overview_description": "Find schematic overviews of the activities covered under Studies. You can use these to navigate to the relevant pages to enter or look up information."
+    "description_top_before": "在 ",
+    "description_top_after": " 下创建您的研究",
+    "description_bottom": "并定义所有结构化的研究设计元素",
+    "manage_description": "在应用程序中注册新研究并管理其生命周期。",
+    "dashboard_description": "示例文本：Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud",
+    "define_description": "通过使用受控术语和语法模板或重用其他研究的内容，指定设计、干预措施、研究人群、目标、访视结构、活动计划等。",
+    "build_description": "预览研究信息（例如在“定义研究”下输入的信息），并将其编译用于不同的下游用途，例如导入到方案模板、上传到外部注册机构、填充 SDTM 研究设计数据集、CRF 设计等。",
+    "select_description": "查找、编辑并添加研究。",
+    "list_description": "对为您的研究定义的研究规范数据进行各种列出。",
+    "process_overview_description": "查找“研究”下活动的示意图。您可以使用这些图导航到相关页面以录入或查询信息。"
   },
   "Settings": {
     "title": "Parameters Management",
@@ -1551,27 +1551,27 @@
     "no_selection": "You must select something to copy"
   },
   "StudyForm": {
-    "add_title": "Add study",
-    "edit_title": "Edit study",
-    "project_id": "Project ID",
-    "project_id_hint": "Here is a new help text",
-    "project_name": "Project name",
-    "project_name_hint": "Auto-populated based on selected project",
-    "brand_name": "Brand name",
-    "brand_name_hint": "Auto-populated based on selected project (only populated if brand name exists)",
-    "study_id": "Study ID",
-    "study_id_hint": "ID that will be generated for this study",
-    "number": "Study number",
-    "number_hint": "Type {length}-digits study number",
-    "acronym": "Study acronym",
-    "subpart_acronym": "Study subpart acronym",
-    "acronym_hint": "Optional free-text field (expect if used instead of study number in the early planning phase)",
-    "add_success": "Study added",
-    "update_success": "Study updated",
-    "one_of_two_error_message": "Either study number or study acronym must be given.",
-    "study_activity_warning_title": "Copying Study Activities?",
-    "study_activity_warning_msg": "If you are going to copy Study Activities as well, please refrain from doing any changes to the Study Structure before copying the Study Activities.",
-    "study_activity_warning_agree": "I understand"
+    "add_title": "添加研究",
+    "edit_title": "编辑研究",
+    "project_id": "项目 ID",
+    "project_id_hint": "此处是新的帮助文本",
+    "project_name": "项目名称",
+    "project_name_hint": "根据所选项目自动填充",
+    "brand_name": "品牌名称",
+    "brand_name_hint": "根据所选项目自动填充（仅当存在品牌名称时填写）",
+    "study_id": "研究 ID",
+    "study_id_hint": "将为此研究生成的 ID",
+    "number": "研究编号",
+    "number_hint": "输入 {length} 位研究编号",
+    "acronym": "研究缩写",
+    "subpart_acronym": "研究子部分缩写",
+    "acronym_hint": "可选的自由文本字段（除非在早期规划阶段代替研究编号）",
+    "add_success": "研究已添加",
+    "update_success": "研究已更新",
+    "one_of_two_error_message": "必须提供研究编号或研究缩写。",
+    "study_activity_warning_title": "要复制研究活动？",
+    "study_activity_warning_msg": "如果还要复制研究活动，请在复制研究活动之前避免对研究结构进行任何更改。",
+    "study_activity_warning_agree": "我理解"
   },
   "StudyDefineForm": {
     "title": "Add or edit study type information",
@@ -2971,11 +2971,11 @@
     "visit_count": "Number of visits"
   },
   "StudyQuickSelectForm": {
-    "title": "Select study ID or acronym",
-    "study_id": "Study ID",
-    "study_acronym": "Study acronym",
-    "help_message": "Select study ID (or acronym if ID is not available)",
-    "and_or": "And/Or"
+    "title": "选择研究 ID 或缩写",
+    "study_id": "研究 ID",
+    "study_acronym": "研究缩写",
+    "help_message": "选择研究 ID（如果没有 ID，则选择缩写）",
+    "and_or": "和/或"
   },
   "DictionaryTermTable": {
     "lower_case_name": "Lower case name",
@@ -3457,11 +3457,11 @@
     "table_caption": "Study activity instruction table"
   },
   "StudySelectionTable": {
-    "select_studies": "Select studies",
-    "studies": "Studies",
-    "study_ids": "Study IDs",
-    "study_acronyms": "Study acronyms",
-    "copy_item": "Copy item"
+    "select_studies": "选择研究",
+    "studies": "研究",
+    "study_ids": "研究 ID",
+    "study_acronyms": "研究缩写",
+    "copy_item": "复制项目"
   },
   "StudyPurposeView": {
     "study_objectives": "Study Objectives",
@@ -3510,8 +3510,8 @@
     "arm_updated": "Study Arm updated"
   },
   "StudyCopyForm": {
-    "title": "Select study to copy from",
-    "overwrite_content": "Overwrite existing content"
+    "title": "选择要复制的研究",
+    "overwrite_content": "覆盖现有内容"
   },
   "StudyActivityInstructionBatchForm": {
     "add_title": "Add instruction text",
@@ -3534,7 +3534,7 @@
     "name": "Activity template"
   },
   "StudyActivitySelectionTable": {
-    "show_items": "Show items:"
+    "show_items": "显示项目："
   },
   "StudyActivityInstructionBatchEditForm": {
     "title": "Edit instruction text",
@@ -3992,8 +3992,8 @@
     "selected_visits": "Visits selected ({number}):"
   },
   "SelectOrAddStudyTable": {
-    "tab1_title": "Study list",
-    "tab2_title": "Deleted studies"
+    "tab1_title": "研究列表",
+    "tab2_title": "已删除的研究"
   },
   "AnalysisStudyMetadata": {
     "mdvisit": "MDVISIT",
