@@ -172,33 +172,33 @@
   },
   "_help": {
     "CrfTemplates": {
-      "name": "Provide the name of the Template that will be displayed in the different part of the application (Mandatory field).",
-      "oid": "Specify an 'Object Identifier' as a unique ID in the application. As we are defining a Template, it could starts with T.XXX. This is not an ODM element but we are using it here to group Forms, ItemGroups and Items to be re-used after at the Study Level of the application (Mandatory field, but it can be auto-populated if left blank).",
-      "effective_date": "Provide an effective start date, when this Template will be applicable (Select a date in the datepicker).",
-      "retired_date": "Provide an obsolete stop date (a retired date), when this Template will be deprecated (Select a date in the datepicker)."
+      "name": "提供模板的名称，该名称将在应用程序的不同部分显示（必填字段）。",
+      "oid": "在应用程序中指定一个“对象标识符”作为唯一 ID。由于我们定义的是模板，它可以以 T.XXX 开头。这不是 ODM 元素，但我们在此使用它来将表单、项目组和项目分组，以便在研究级别重复使用（必填字段，可留空自动生成）。",
+      "effective_date": "提供此模板适用的生效开始日期（在日期选择器中选择日期）。",
+      "retired_date": "提供此模板停用的结束日期（退役日期），即模板将被弃用的时间（在日期选择器中选择日期）。"
     },
     "CRFForms": {
-      "name": "Provide the name of the Form. This will be used as the /ODM/FormDef/@name attribute in the ODM-XML file (Mandatory field).",
-      "oid": "Specify an 'Object Identifier' as a unique ID in the application. As we are defining a Form, it could starts with F.XXX. This will be used as the /ODM/FormDef/@OID attribute in the ODM-XML file (Mandatory field, but it can be auto-populated if left blank).",
-      "repeating": "Specify if the Form is repeating over time or not. This will be used as the /ODM/FormDef/@Repeating with a Yes/No answer.",
-      "description": "A free-text description of the containing study metadata component. This information will be used as the /ODM/FormDef/Description/TranslatedText.",
-      "impl_notes": "Provide here the text explaining the way this Form will be used in the application (as a Sponsor note). Note that here you can use the Rich Editor to add some html tag. This will be used as the /ODM/FormDef[@ImplementationNotes] attribute in the ODM-XML file.",
-      "displayed_text": "Specify here the label of the Form (using the default language). This will be used as the /ODM/FormDef/Description/TranslatedText/ tag in the ODM-XML file. When the multilingual is activated then, the stepper 'Translations' will allow the display text of the Form to be translated accordingly.",
-      "compl_instructions": "Provide here the help text that could be displayed in a CRF as an OnlineHelp. Note that here you can use the Rich Editor to add some html tag. This will be used as the /ODM/FormDef/[@CompletionInstructions] name attribute in the ODM-XML file.",
-      "vendor_extensions": "This stepper is dedicated to the extension of the Form by providing both Elements and / or Attributes. This will then be added to the ODM/FormDef as a Vendor like for example osb:displayAsTable='Yes' or as an extension under this OMD level. XML namespaces are used for providing uniquely named elements and attributes in an XML document. Provide also the datatype for this Vendor Extension and note that the value can be verified against a dedicated list of accepted reply.",
-      "aliases": "An Alias provides an additional name for an element, here for the Form element. The Context attribute specifies the application domain in which this additional name is relevant. This will be used as the /ODM/FormDef/Alias[@Context] name attribute in the ODM-XML file.",
-      "context": "The Context attribute specifies the application domain in which this additional name is relevant. You could use for example 'CDASH/SDTM' with a 'Name' = 'DM:Demographics' and then the ODM-XML view will display it as an annotation."
+      "name": "提供表单的名称。这将作为 ODM-XML 文件中 /ODM/FormDef/@name 属性（必填字段）。",
+      "oid": "在应用程序中指定一个“对象标识符”作为唯一 ID。由于我们定义的是表单，它可以以 F.XXX 开头。这将用作 ODM-XML 文件中的 /ODM/FormDef/@OID 属性（必填字段，可留空自动生成）。",
+      "repeating": "指定表单是否随时间重复。这将作为 /ODM/FormDef/@Repeating 属性，以是/否作答。",
+      "description": "对所含研究元数据组件的自由文本描述。此信息将作为 /ODM/FormDef/Description/TranslatedText 使用。",
+      "impl_notes": "在此提供说明该表单在应用程序中如何使用的文本（作为赞助方注释）。注意此处可使用富文本编辑器添加 HTML 标签。这将在 ODM-XML 文件中作为 /ODM/FormDef[@ImplementationNotes] 属性使用。",
+      "displayed_text": "在此指定表单的标签（使用默认语言）。这将在 ODM-XML 文件中作为 /ODM/FormDef/Description/TranslatedText/ 标签使用。启用多语言后，“Translations” 步骤器将允许将表单的显示文本翻译为相应语言。",
+      "compl_instructions": "在此提供可在 CRF 中显示为在线帮助的帮助文本。注意可使用富文本编辑器添加 HTML 标签。这将在 ODM-XML 文件中作为 /ODM/FormDef/[@CompletionInstructions] 属性使用。",
+      "vendor_extensions": "该步骤用于通过提供元素和/或属性来扩展表单。它将作为供应商扩展添加到 ODM/FormDef，例如 osb:displayAsTable='Yes'，或作为该 ODM 级别下的扩展。XML 命名空间用于在 XML 文档中提供唯一命名的元素和属性。还需提供此供应商扩展的数据类型，并注意该值可根据专用的允许值列表进行验证。",
+      "aliases": "别名为元素提供附加名称，此处针对表单元素。Context 属性指定该附加名称相关的应用领域。这将在 ODM-XML 文件中作为 /ODM/FormDef/Alias[@Context] 属性使用。",
+      "context": "Context 属性指定该附加名称相关的应用领域。例如，可使用 'CDASH/SDTM'，其 'Name' = 'DM:Demographics'，则 ODM-XML 视图将其显示为注释。"
     },
     "CRFItemGroups": {
-      "name": "Provide the name of the ItemGroup. An ItemGroup describes a type of item group (a group of clinical questions that are meaningful together) that can occur within a study. This will be used as the /ODM/ItemGroupDef/@name attribute in the ODM-XML file (Mandatory field).",
-      "oid": "Specify an 'Object Identifier' as a unique ID in the application. As we are defining an ItemGroup, it could starts with G.XXX. This will be used as the /ODM/ItemGroupDef/@OID attribute in the ODM-XML file (Mandatory field, but it can be auto-populated if left blank).",
-      "repeating": "Specify if the ItemGroup is repeating over time or not. This will be used as the /ODM/ItemGroupDef/@Repeating with a Yes/No answer.",
-      "description": "A free-text description of the containing study metadata component. This information will be used as the /ODM/ItemGroupDef/Description/TranslatedText.",
-      "impl_notes": "Provide here the text explaining the way this Item Group will be used in the application (as a Sponsor note). Note that here you can use the Rich Editor to add some html tag. This will be used as the /ODM/ItemGroupDef[@osb:instruction] attribute in the ODM-XML file.",
-      "displayed_text": "Specify here the label of the Item Group (using the default language). This will be used as the /ODM/ItemGroupDef/Description/TranslatedText/ tag in the ODM-XML file. When the multilingual is activated then, the stepper 'Translations' will allow the display text of the Form to be translated accordingly.",
-      "compl_instructions": "Provide here the help text that could be displayed in a CRF as an OnlineHelp. Note that here you can use the Rich Editor to add some html tag. This will be used as the /ODM/ItemGroupDef[@osb:sponsorInstruction] attribute in the ODM-XML file.",
-      "aliases": "An Alias provides an additional name for an element, here for the ItemGroup element. The Context attribute specifies the application domain in which this additional name is relevant. This will be used as the /ODM/ItemGroupDef/Alias[@Context] name attribute in the ODM-XML file.",
-      "context": "The Context attribute specifies the application domain in which this additional name is relevant. You could use for example 'CDASH/SDTM' with a 'Name' = 'DM:Demographics|DS:Disposition' and then the ODM-XML view will display it as an annotation for two SDTM Domain."
+      "name": "提供项目组名称。ItemGroup 描述在研究中可能出现的一种项目组（将相关的临床问题组合在一起）。这将在 ODM-XML 文件中用作 /ODM/ItemGroupDef/@name 属性（必填字段）。",
+      "oid": "在应用程序中指定一个“对象标识符”作为唯一 ID。由于我们定义的是项目组，它可以以 G.XXX 开头。这将作为 ODM-XML 文件中 /ODM/ItemGroupDef/@OID 属性（必填字段，可留空自动生成）。",
+      "repeating": "指定项目组是否随时间重复。这将作为 /ODM/ItemGroupDef/@Repeating 属性，以是/否作答。",
+      "description": "对所含研究元数据组件的自由文本描述。此信息将作为 /ODM/ItemGroupDef/Description/TranslatedText 使用。",
+      "impl_notes": "在此提供说明该项目组在应用程序中如何使用的文本（作为赞助方注释）。注意可使用富文本编辑器添加 HTML 标签。这将在 ODM-XML 文件中作为 /ODM/ItemGroupDef[@osb:instruction] 属性使用。",
+      "displayed_text": "在此指定项目组的标签（使用默认语言）。这将在 ODM-XML 文件中作为 /ODM/ItemGroupDef/Description/TranslatedText/ 标签使用。启用多语言后，“Translations” 步骤器将允许将表单的显示文本翻译为相应语言。",
+      "compl_instructions": "在此提供可在 CRF 中显示为在线帮助的帮助文本。注意可使用富文本编辑器添加 HTML 标签。这将在 ODM-XML 文件中作为 /ODM/ItemGroupDef[@osb:sponsorInstruction] 属性使用。",
+      "aliases": "别名为元素提供附加名称，此处针对项目组元素。Context 属性指定该附加名称相关的应用领域。这将在 ODM-XML 文件中作为 /ODM/ItemGroupDef/Alias[@Context] 属性使用。",
+      "context": "Context 属性指定该附加名称相关的应用领域。例如，可使用 'CDASH/SDTM'，其 'Name' = 'DM:Demographics|DS:Disposition'，则 ODM-XML 视图将其显示为两个 SDTM 域的注释。"
     },
     "CRFItems": {
       "name": "Provide the name of the Item. An ItemDef describes a type of item that can occur within a study. Item properties include name, datatype, measurement units, range or codelist restrictions, and several other properties. This will be used as the /ODM/ItemDef/@name attribute in the ODM-XML file (Mandatory field).",
@@ -222,8 +222,8 @@
       "context": "The Context attribute specifies the application domain in which this additional name is relevant. You could use for example 'CDASH/SDTM' with a 'Name' = 'DM:Demographics|DS:Disposition' and then the ODM-XML view will display it as an annotation for two SDTM Domain."
     },
     "GenericTemplateForm": {
-      "study_indication": "Indications, conditions, diseases or disorders in scope for the template. Select NA (not applicable), if template is generic not targeted specific studies.",
-      "study_phase": "Study phases in scope for the template. Select NA (not applicable), if template is generic not targeted specific studies."
+      "study_indication": "模板适用的适应症、情况、疾病或障碍。若模板是通用且不针对特定研究，请选择 NA（不适用）。",
+      "study_phase": "模板适用的研究阶段。若模板是通用且不针对特定研究，请选择 NA（不适用）。"
     },
     "ObjectiveTemplateForm": {
       "name": "Example of objective: 'To demonstrate superiority of [CompoundDosing] [NumericValue] [Dose Unit] versus [Comparator] [NumericValue] [Dose Unit] with respect to [ActivityInstance] at [TimePoint] in patients with [DiseaseDisorder]' or 'To document the safety profile of [StudyIntervention].' Add parameters enclosed in square brackets [ and ].",
@@ -500,16 +500,16 @@
       "na": "Not Applicable. Fx. in a clinical pharmacology study conducted in healthy volunteers for a drug where indications are not yet established"
     },
     "StudyInterventionTypeForm": {
-      "general": "Information about the Study intervention(s)",
-      "intervention_type": "The kind of product or procedure investigated in the study. Select from the drop-down list. Behavioral Intervention (e.g. psychotherapy, lifestyle counseling), Biological Agent (e.g. virus, therapeutic serum, toxin, antitoxin, vaccine, blood, blood component or derivative, allergenic product, or analogous product), Dietary Supplement (e.g. vitamins, minerals, herbs, amino acids, extracts and metabolites), Gene Therapy (Introduction of genetic material into cells in order to correct or treat an inherited or acquired disease e.g. gene transfer, stem cell and recombinant DNA), Medical Device (e.g. instrument, apparatus, implement, machine, appliance, implant, reagent for in vitro use, software, material or other similar or related article, intended by the manufacturer to be used, alone or in combination for, one or more specific medical purpose(s), Pharmacologic Substance (e.g. active substance/drug including placebo), Physical Medical Procedure (e.g. activity performed by manual and/or instrumental means for the purpose of diagnosis, activity, therapy, prevention, or palliative care. If study type is 'INTERVENTIONAL' this parameter is required (in Study Design/Study Type). ",
-      "study_intent_type": "The planned purpose of the therapy, device, or agent under study in the clinical trial.",
-      "intervention_model": "The general design of the strategy for assigning interventions to participants in a clinical study, e.g. Single Group: Clinical trials with a single arm, Parallel: Participants are assigned to one of two or more groups in parallel for the duration of the study, Crossover: Participants receive one of two (or more) alternative interventions during the initial phase of the study and receive the other intervention during the second phase of the study, Factorial: Two or more interventions, each alone and in combination, are evaluated in parallel against a control group, Group Sequential: Groups of participants are assigned to receive interventions based on prior milestones being reached in the study, such as in some dose escalation and adaptive design studies, ",
-      "control_type": "Comparator against which the study treatment is evaluated. Active Control: A type of control, which has a demonstrated effect, administered as a comparator to subjects in a clinical trial, Dose Response Control: A type of control using different doses or regimens of the same treatment across the treatment arms, Placebo Control: An inactive, identical-appearing drug or treatment that does not contain the test product. ",
-      "randomised": "Indicate whether assignment of study participants to treatment or control groups was done by randomisation. Blinding is the process of assigning trial subjects to treatment or control groups using an element of chance to determine the assignments in order to reduce bias. NOTE: Unequal randomization is used to allocate subjects into groups at a differential rate; for example, three subjects may be assigned to a treatment group for every one assigned to the control group.",
-      "strfactor": "Selected factors that are used during randomization to ensure there is balance of these factors across all subjects within each arm of a study. The subject level values of these factors may be used as fixed effects in statistical models and for sensitivity analyses.  If applicable. Use as many rows as needed, one for each factor.",
-      "blinding_schema": "The type of design used to describe the level of awareness of the study participants and/or investigators of the intervention(s) that they are receiving and/or administering. Double Blind: A study in which neither the subject nor the investigator nor the research team interacting with the subject or data during the trial knows what treatment a subject is receiving. Open Label: A trial in which subjects and investigators know which product each subject is receiving; opposite of a blinded or double-blind study, Open Label for Treatment And Double Blind to Dose: A study in which the therapeutic treatment is open label but the dosing information of the investigational medicinal product (IMP) is double-blinded, Single Blind: A study in which one party, either the investigator or the subject, does not know which medication or placebo is administered to the subject; also called single-masked study. ",
-      "planned_st_length": "Planned length of observation for a single subject",
-      "added_to_et": "The addition of a therapeutic product to the existing regimen in a clinical study, where both entities remain as discrete products"
+      "general": "研究干预信息",
+      "intervention_type": "研究中调查的产品或程序类型。请从下拉列表中选择。Behavioral Intervention（例如心理治疗、生活方式咨询）、Biological Agent（例如病毒、治疗血清、毒素、抗毒素、疫苗、血液、血液成分或衍生物、过敏原产品或类似产品）、Dietary Supplement（例如维生素、矿物质、草药、氨基酸、提取物和代谢物）、Gene Therapy（将遗传物质引入细胞以纠正或治疗先天或获得性疾病，例如基因转移、干细胞和重组DNA）、Medical Device（例如用于一种或多种特定医疗目的的仪器、器具、工具、机器、设备、植入物、体外试剂、软件、材料或其他类似相关物品，可单独或组合使用）、Pharmacologic Substance（例如活性物质/药物，包括安慰剂）、Physical Medical Procedure（例如通过手动和/或器械手段为诊断、治疗、预防或姑息护理而进行的活动）。如果研究类型为“INTERVENTIONAL”，则此参数为必填项（见研究设计/研究类型）。",
+      "study_intent_type": "临床试验中研究的治疗、器械或试剂的计划用途。",
+      "intervention_model": "将干预措施分配给临床研究参与者的总体设计。例如，Single Group：只有一个试验组的临床试验；Parallel：参与者在整个研究期间被分配到两个或更多组之一；Crossover：参与者在研究初始阶段接受两种（或更多）替代干预之一，在第二阶段接受另一种；Factorial：两个或更多干预单独及组合与对照组同时评估；Group Sequential：根据研究中达到的先前里程碑分组给予干预，例如某些剂量递增和自适应设计研究；",
+      "control_type": "用于评估研究治疗的比较对象。Active Control：具有确切疗效并作为比较对象给临床试验受试者的对照类型；Dose Response Control：在各治疗组使用同一治疗的不同剂量或方案的对照类型；Placebo Control：不含受试产品的惰性、外观相同的药物或治疗。",
+      "randomised": "指明将研究参与者分配到治疗组或对照组是否通过随机化完成。随机化是一种利用随机方式将试验对象分配到治疗组或对照组以减少偏倚的过程。注意：不等比例随机化用于以不同比例将受试者分配到各组，例如每有一名受试者分配到对照组，就有三名分配到治疗组。",
+      "strfactor": "在随机化过程中选择的因素，用于确保这些因素在研究的每个试验组中保持平衡。受试者层面的这些因素值可在统计模型和敏感性分析中作为固定效应。如适用，可根据需要使用多行，每行一个因素。",
+      "blinding_schema": "用于描述研究参与者和/或研究者对其接受和/或实施的干预知晓程度的设计类型。Double Blind：受试者、研究者以及在试验期间与受试者或数据接触的研究团队均不知道受试者接受的治疗。Open Label：受试者和研究者均知道每位受试者所接受的产品；与盲法或双盲研究相反。Open Label for Treatment And Double Blind to Dose：治疗为开放标签，但试验药品（IMP）的剂量信息为双盲。Single Blind：研究者或受试者其中一方不知道受试者接受的药物或安慰剂；亦称单盲研究。",
+      "planned_st_length": "对单个受试者计划的观察时长",
+      "added_to_et": "在临床研究中将治疗产品添加到现有方案中，且两者仍为独立产品"
     },
     "StudyCompoundForm": {
       "general": "Compounds are defined in the Study Builder Library. If a new compound or additional information to an existing compound is needed it must be defined in the library.",
@@ -524,10 +524,10 @@
       "other": "Description of other information regarding the compound as applicable for the study."
     },
     "StudyCompoundDosingForm": {
-      "element": "Choose study element from drop-down",
-      "compound": "Choose compound from drop-down",
-      "dose_value": "Choose value from drop-down, e.g. 500mg",
-      "dose_frequency": "Choose value from drop-down, e.g. Daily"
+      "element": "从下拉列表选择研究要素",
+      "compound": "从下拉列表选择化合物",
+      "dose_value": "从下拉列表选择数值，例如 500mg",
+      "dose_frequency": "从下拉列表选择数值，例如 每日"
     },
     "StudyObjectiveTable": {
       "general": "Use the add button (under the menu) to add the objective needed. The objective can be based on standard templates, selected from other studies or created from scratch. Some criteria contain parameters highlighted with orange text (parameter labels) or green text (parameter values) for which new values can be selected, or the parameter omitted, by using the Edit button next to each editable objective in the table."
@@ -884,29 +884,29 @@
       "creation_mode_label": "Select the type of method for creating a footnote: use a standard, from an existing study, or make one form scratch."
     },
     "ProjectForm": {
-      "general": "Add a new project to a clinical programme.",
-      "name": "Name for the new project, example: 'Demo Project'.",
-      "project_number": "Project ID for the new project, example: 'AB1234'.",
-      "description": "Description of the project, example: 'Project for demonstration purposes'.",
-      "clinical_programme": "Clinical programme that the project belongs to."
+      "general": "向临床计划添加一个新项目。",
+      "name": "新项目的名称，例如：'演示项目'。",
+      "project_number": "新项目的项目 ID，例如：'AB1234'。",
+      "description": "项目的描述，例如：'用于演示的项目'。",
+      "clinical_programme": "项目所属的临床计划。"
     },
     "ClinicalProgrammeForm": {
       "general": "Add a new clinical programme.",
       "name": "Name for the new clinical programme."
     },
     "UsdmPage": {
-      "general": "This page display the JSON file generated based on the  Digital Data Flow (DDF) CDISC / TransCelerate Unified Study Definitions Model (USDM). The data available here are extracted and converted into the USDM model, based on mapping rules defined within the StudyBuilder team: Be aware about that.",
-      "official_protocol_title": "方案的正式描述性名称。",
-      "clinical_study_def": "A clinical study involves research using human volunteers (also called participants) that is intended to add to medical knowledge. There are two main types of clinical studies: clinical trials (also called interventional studies) and observational studies. [[http://ClinicalTrials.gov]](CDISC Glossary)",
-      "study_protocol_version": "在特定时间点进行正式研究的计划，用于评估特定治疗、程序、药物、器械、生物制品、食品、化妆品、护理方案或受试者特征的效用、影响以及药理、生理和/或心理效应。（BRIDG）",
-      "protocol_status": "某一时间点上方案的状态，体现其实施准备程度。参见 [<a href='/library/ct_catalogues/All/C188723/terms'>C188723-CDISC DDF Protocol Status Value Set Terminology</a>]",
-      "study_design": "A plan detailing how a study will be performed in order to represent the phenomenon under examination, to answer the research questions that have been asked, and informing the statistical approach.",
-      "organization_type": "A characterization or classification of the formalized group of persons or other organizations collected together for a common purpose (such as administrative, legal, political) and the infrastructure to carry out that purpose. See [<a href='/library/ct_catalogues/All/C188724/terms'>C188724-CDISC DDF Organization Type Value Set Terminology</a>]",
-      "trial_type": "The nature of the interventional study for which information is being collected. See [<a href='/library/ct_catalogues/All/C66739/terms'>C66739-CDISC SDTM Trial Type Terminology</a>]",
-      "intervention_model_type": "The general design of the strategy for assigning interventions to participants in a clinical study. (clinicaltrials.gov). See [<a href='/library/ct_catalogues/All/C99076/terms'>C99076-CDISC SDTM Intervention Model Terminology</a>]",
-      "therapeutic_areas": "A categorization of a disease, disorder, or other condition based on common characteristics and often associated with a medical specialty focusing on research and development of specific therapeutic interventions for the purpose of treatment and prevention.",
-      "trial_blinding_schema": "The type of experimental design used to describe the level of awareness of the study subjects and/ or study personnel as it relates to the respective intervention(s) or assessments being observed, received or administered. See [<a href='/library/ct_catalogues/All/C66735/terms'>C66735-CDISC SDTM Trial Blinding Schema Terminology</a>]",
-      "target_study_population": "The population within the general population to which the study results can be generalized."
+      "general": "此页面显示基于 Digital Data Flow (DDF) CDISC/TransCelerate Unified Study Definitions Model (USDM) 生成的 JSON 文件。此处的数据依据 StudyBuilder 团队定义的映射规则提取并转换为 USDM 模型，请注意。",
+      "official_protocol_title": "协议的正式描述性名称。",
+      "clinical_study_def": "临床研究涉及使用人类志愿者（也称为参与者）的研究，旨在增加医学知识。临床研究主要有两种类型：临床试验（也称为干预性研究）和观察性研究。 [[http://ClinicalTrials.gov]](CDISC Glossary)",
+      "study_protocol_version": "在特定时间点为正式调查制定的计划，以评估特定治疗、程序、药物、设备、生物制品、食品、化妆品、护理计划或受试者特征的效用、影响以及药理、生理和/或心理效应。(BRIDG)",
+      "protocol_status": "协议在某一时间点相对于其实施准备状态的情况。参见 [<a href='/library/ct_catalogs/All/C188723/terms'>C188723-CDISC DDF Protocol Status Value Set Terminology</a>]",
+      "study_design": "详细说明如何开展研究以描述所考察的现象、回答研究问题并为统计方法提供信息的计划。",
+      "organization_type": "对为实现共同目的（如行政、法律、政治）而聚集在一起的正式人员或其他组织的表征或分类，以及为实现该目的而设立的基础设施。参见 [<a href='/library/ct_catalogs/All/C188724/terms'>C188724-CDISC DDF Organization Type Value Set Terminology</a>]",
+      "trial_type": "收集信息的干预性研究的性质。参见 [<a href='/library/ct_catalogs/All/C66739/terms'>C66739-CDISC SDTM Trial Type Terminology</a>]",
+      "intervention_model_type": "为临床研究中将干预措施分配给参与者而制定的总体策略设计（clinicaltrials.gov）。参见 [<a href='/library/ct_catalogs/All/C99076/terms'>C99076-CDISC SDTM Intervention Model Terminology</a>]",
+      "therapeutic_areas": "根据共同特征对疾病、障碍或其他情况进行分类，并且通常与专注于研究和开发特定治疗干预措施以进行治疗和预防的医学专业相关。",
+      "trial_blinding_schema": "用于描述研究对象和/或研究人员对所观察、接收或施行的干预或评估的知晓程度的试验设计类型。参见 [<a href='/library/ct_catalogs/All/C66735/terms'>C66735-CDISC SDTM Trial Blinding Schema Terminology</a>]",
+      "target_study_population": "总体中可推广研究结果的目标人群。"
     },
     "StudyStructuresOverview": {
       "general": "The Study Structures page is intended to assist Standards Developers by offering an overview of how existing trials have been defined. It allows users to view the study structures they can replicate, identify trends, and spot any deviations. The Study Structures page aims to increase consistency when setting up new trials. Note that studies that share the same structure are grouped together and listed in the table under the same row. The columns display numeric values indicating the number of arms/epochs/elements in the trial or Y/N to indicate if cohorts are part of the trial design."
@@ -1189,22 +1189,22 @@
     "integrate_text2": "via open API"
   },
   "GenericTemplateTable": {
-    "sponsor_tab": "Parent",
-    "pre_instances_tab": "Pre-instance",
-    "user_tab": "User Defined",
-    "confirm_parameter_values_delete": "You are about to delete default parameter values",
-    "template_history_title": "History for template [{templateUid}]"
+    "sponsor_tab": "父模板",
+    "pre_instances_tab": "预实例",
+    "user_tab": "用户自定义",
+    "confirm_parameter_values_delete": "您即将删除默认参数值",
+    "template_history_title": "模板 [{templateUid}] 的历史记录"
   },
   "GenericTemplateForm": {
-    "study_indication": "Indication or disorder",
-    "study_phase": "Study phase",
-    "template_properties": "Template properties",
-    "step1_add_title": "Create template",
-    "step1_edit_title": "Edit template",
-    "step2_title": "Test template",
-    "step3_title": "Index template",
-    "step4_title": "Change description",
-    "parameter_values_title": "Edit parameter values"
+    "study_indication": "适应症或疾病",
+    "study_phase": "研究阶段",
+    "template_properties": "模板属性",
+    "step1_add_title": "创建模板",
+    "step1_edit_title": "编辑模板",
+    "step2_title": "测试模板",
+    "step3_title": "索引模板",
+    "step4_title": "变更描述",
+    "parameter_values_title": "编辑参数值"
   },
   "EndpointTemplatesView": {
     "title": "Endpoint Templates",
@@ -1313,38 +1313,38 @@
     "confirmatory_testing": "Related to confirmatory testing"
   },
   "PreInstanceForm": {
-    "step1_title": "Set template parameter values",
-    "step2_title": "Index template"
+    "step1_title": "设置模板参数值",
+    "step2_title": "索引模板"
   },
   "ObjectiveTemplatesPreInstanceForm": {
-    "add_title": "Add objective template pre-instantiation",
-    "edit_title": "Edit objective template pre-instantiation",
-    "add_success": "Objective template pre-instantiation added",
-    "update_success": "Objective template pre-instantiation updated"
+    "add_title": "添加目标模板预实例化",
+    "edit_title": "编辑目标模板预实例化",
+    "add_success": "目标模板预实例化已添加",
+    "update_success": "目标模板预实例化已更新"
   },
   "EndpointTemplatesPreInstanceForm": {
-    "add_title": "Add endpoint template pre-instantiation",
-    "edit_title": "Edit endpoint template pre-instantiation",
-    "add_success": "Endpoint template pre-instantiation added",
-    "update_success": "Endpoint template pre-instantiation updated"
+    "add_title": "添加终点模板预实例化",
+    "edit_title": "编辑终点模板预实例化",
+    "add_success": "终点模板预实例化已添加",
+    "update_success": "终点模板预实例化已更新"
   },
   "CriteriaTemplatesPreInstanceForm": {
-    "add_title": "Add criteria template pre-instantiation",
-    "edit_title": "Edit criteria template pre-instantiation",
-    "add_success": "Criteria template pre-instantiation added",
-    "update_success": "Criteria template pre-instantiation updated"
+    "add_title": "添加标准模板预实例化",
+    "edit_title": "编辑标准模板预实例化",
+    "add_success": "标准模板预实例化已添加",
+    "update_success": "标准模板预实例化已更新"
   },
   "ActivityTemplatesPreInstanceForm": {
-    "add_title": "Add activity template pre-instantiation",
-    "edit_title": "Edit activity template pre-instantiation",
-    "add_success": "Activity template pre-instantiation added",
-    "update_success": "Activity template pre-instantiation updated"
+    "add_title": "添加活动模板预实例化",
+    "edit_title": "编辑活动模板预实例化",
+    "add_success": "活动模板预实例化已添加",
+    "update_success": "活动模板预实例化已更新"
   },
   "FootnoteTemplatesPreInstanceForm": {
-    "add_title": "Add footnote template pre-instantiation",
-    "edit_title": "Edit footnote template pre-instantiation",
-    "add_success": "Footnote template pre-instantiation added",
-    "update_success": "Footnote template pre-instantiation updated"
+    "add_title": "添加脚注模板预实例化",
+    "edit_title": "编辑脚注模板预实例化",
+    "add_success": "脚注模板预实例化已添加",
+    "update_success": "脚注模板预实例化已更新"
   },
   "CtCataloguesForm": {
     "add_title": "Add a new CT Catalogue",
@@ -1366,44 +1366,44 @@
     "invalid_syntax": "This syntax is invalid"
   },
   "HistoryTable": {
-    "title": "History for",
-    "change_description": "Change description",
-    "parameter_name": "Parameter Name",
-    "start_date": "From",
-    "end_date": "To",
-    "changed_value": "Value that was changed",
-    "legend": "Legend:",
-    "current_version": "Current version",
-    "older_version": "Older version",
-    "deleted_version": "Deleted version",
-    "short_name": "Short Name",
-    "arm_type": "Arm Type",
-    "branch_code": "Branch Code",
-    "planned_number": "Planned number of subjects in branch",
-    "rand_group": "Randomisation group",
-    "element_subtype": "Element Subtype",
-    "start_rule": "Start Rule",
-    "end_rule": "End Rule",
-    "number_of_subj": "Number of Subjects",
-    "change_type": "Change type",
-    "valid_from": "Valid from",
-    "valid_to": "Valid to",
-    "arms_uids": "Arm Roots Uids",
-    "branches_uids": "Branch Arm Roots Uids",
-    "planned_duration": "Planned duration",
-    "for_study": "for Study",
-    "history": "history",
-    "catalogue_name": "Catalogue Name",
-    "sponsor_pref_name": "Sponsored Preferred Name",
-    "code_submission_value": "Code Submission Value",
-    "name_submission_value": "Name Submission Value",
-    "nci_pref_name": "NCI Preferred Name",
-    "action": "Action",
-    "date": "Date",
-    "field": "Field",
-    "value_before": "Previous value",
-    "value_after": "New value",
-    "fields": "fields"
+    "title": "历史记录：",
+    "change_description": "变更描述",
+    "parameter_name": "参数名称",
+    "start_date": "从",
+    "end_date": "到",
+    "changed_value": "已更改的值",
+    "legend": "图例：",
+    "current_version": "当前版本",
+    "older_version": "旧版本",
+    "deleted_version": "已删除版本",
+    "short_name": "简称",
+    "arm_type": "试验臂类型",
+    "branch_code": "分支代码",
+    "planned_number": "分支中计划的受试者数量",
+    "rand_group": "随机化组",
+    "element_subtype": "元素子类型",
+    "start_rule": "开始规则",
+    "end_rule": "结束规则",
+    "number_of_subj": "受试者数量",
+    "change_type": "更改类型",
+    "valid_from": "有效期自",
+    "valid_to": "有效期至",
+    "arms_uids": "臂根UID",
+    "branches_uids": "分支臂根UID",
+    "planned_duration": "计划持续时间",
+    "for_study": "研究",
+    "history": "历史",
+    "catalogue_name": "目录名称",
+    "sponsor_pref_name": "申办方首选名称",
+    "code_submission_value": "代码提交值",
+    "name_submission_value": "名称提交值",
+    "nci_pref_name": "NCI 首选名称",
+    "action": "操作",
+    "date": "日期",
+    "field": "字段",
+    "value_before": "之前的值",
+    "value_after": "新值",
+    "fields": "字段"
   },
   "DataTableExportButton": {
     "export": "Export",
@@ -1590,7 +1590,7 @@
     "none": "NONE"
   },
   "StudyProperties": {
-    "study_type": "Study Type"
+    "study_type": "研究类型"
   },
   "StudyStructure": {
     "study_arms": "Study Arms",
@@ -1616,40 +1616,40 @@
     "label": "Reason for missing"
   },
   "StudyPopulationForm": {
-    "title": "Add or edit study population information",
-    "therapeuticarea": "Therapeutic area",
-    "disease_condition": "Study disease, condition or indication",
-    "diagnosis_group": "Diagnosis group",
-    "rare_disease_indicator": "Rare disease indicator",
-    "healthy_subjects": "Healthy subject indicator",
-    "planned_min_max_age": "Minimum and maximum age of study participants",
-    "planned_min_age": "Planned minimum age of study participants",
-    "planned_max_age": "Planned maximum age of study participants",
-    "pediatric_study_indicator": "Paediatric study indicator",
-    "pediatric_postmarket_study_indicator": "Paediatric post-market study indicator",
-    "pediatric_investigation_plan_indicator": "Paediatric investigation plan indicator",
-    "update_success": "Study population updated",
-    "stable_disease_min_duration": "Stable disease minimum duration",
-    "relapse_criteria": "Relapse criteria",
-    "number_of_expected_subjects_hint": "Total number of subjects expected to be screened",
-    "number_of_expected_subjects": "Total number of subjects",
-    "sex_of_study_participants": "Sex of study participants",
-    "na": "NA",
+    "title": "添加或编辑研究人群信息",
+    "therapeuticarea": "治疗领域",
+    "disease_condition": "研究疾病、状况或适应症",
+    "diagnosis_group": "诊断分组",
+    "rare_disease_indicator": "罕见病指示",
+    "healthy_subjects": "健康受试者指示",
+    "planned_min_max_age": "受试者计划的最小和最大年龄",
+    "planned_min_age": "受试者计划最小年龄",
+    "planned_max_age": "受试者计划最大年龄",
+    "pediatric_study_indicator": "儿童研究指示",
+    "pediatric_postmarket_study_indicator": "儿童上市后研究指示",
+    "pediatric_investigation_plan_indicator": "儿童研究计划指示",
+    "update_success": "研究人群已更新",
+    "stable_disease_min_duration": "稳定疾病的最短持续时间",
+    "relapse_criteria": "复发标准",
+    "number_of_expected_subjects_hint": "预期筛查受试者总数",
+    "number_of_expected_subjects": "受试者总数",
+    "sex_of_study_participants": "受试者性别",
+    "na": "不适用",
     "pinf": "PINF"
   },
   "StudyInterventionTypeForm": {
-    "title": "Add or edit study intervention type information",
-    "intervention_type": "Intervention type",
-    "study_intent_type": "Study intent type",
-    "intervention_model": "Intervention model",
-    "control_type": "Control type",
-    "randomised": "Study is randomised",
-    "strfactor": "Stratification factor",
-    "rdquotient": "Randomisation quotient",
-    "blinding_schema": "Study blinding schema",
-    "planned_st_length": "Planned study length",
-    "added_to_et": "Add-on to existing treatments",
-    "update_success": "Intervention type updated"
+    "title": "添加或编辑研究干预类型信息",
+    "intervention_type": "干预类型",
+    "study_intent_type": "研究目的类型",
+    "intervention_model": "干预模型",
+    "control_type": "对照类型",
+    "randomised": "研究是否随机化",
+    "strfactor": "分层因素",
+    "rdquotient": "随机化比",
+    "blinding_schema": "研究盲法方案",
+    "planned_st_length": "计划研究时长",
+    "added_to_et": "添加至现有治疗",
+    "update_success": "干预类型已更新"
   },
   "RegistryIdentifiersForm": {
     "title": "Add or edit registry identifiers",
@@ -1745,10 +1745,10 @@
     "objective_updated": "Study objective updated"
   },
   "ParameterValueSelector": {
-    "separator": "Separator",
-    "title": "Select values",
-    "preview": "Preview with selected values",
-    "na_tooltip": "Show/hide parameter in the sentence"
+    "separator": "分隔符",
+    "title": "选择值",
+    "preview": "使用所选值预览",
+    "na_tooltip": "在句子中显示/隐藏参数"
   },
   "StudyManageView": {
     "title": "Study List"
@@ -1858,10 +1858,10 @@
     "endpoint_updated": "Study endpoint updated"
   },
   "StudyInterventionTypeView": {
-    "title": "Study Intervention Type"
+    "title": "研究干预类型"
   },
   "StudyInterventionTypeSummary": {
-    "intervention_type_info": "Study intervention type information"
+    "intervention_type_info": "研究干预类型信息"
   },
   "StudyRegistryIdentifiersView": {
     "title": "Registry Identifiers"
@@ -1872,18 +1872,18 @@
     "registry_identifiers": "Registry identifiers"
   },
   "StudyPopulationView": {
-    "title": "Study Population",
-    "show_all": "Show all criteria",
-    "hide_all": "Hide criteria details"
+    "title": "研究人群",
+    "show_all": "显示所有标准",
+    "hide_all": "隐藏标准详情"
   },
   "StudyPopulationSummary": {
-    "info_column": "Study population information"
+    "info_column": "研究人群信息"
   },
   "StudyTypeView": {
-    "title": "Study Type"
+    "title": "研究类型"
   },
   "StudyTypeSummary": {
-    "info_column": "Study type information"
+    "info_column": "研究类型信息"
   },
   "StudyMetadataSummary": {
     "selected_values": "Selected values",
@@ -1949,39 +1949,39 @@
     "update_success": "Study compound updated"
   },
   "StudyCompoundDosingTable": {
-    "element": "Study Element",
-    "compound": "Compound Name",
-    "compound_alias": "Compound Alias Name",
-    "preferred_alias": "Preferred Alias",
-    "dose_value": "Dose Value",
-    "dose_frequency": "Dose Frequency",
-    "confirm_delete": "The study compound dosing '{element} / {compound}' will be removed",
-    "delete_success": "Study compound dosing deleted",
-    "study_compound_dosing_history_title": "History for study compound dosing [{studyCompoundDosingUid}]",
-    "global_history_title": "Study compound dosings history"
+    "element": "研究要素",
+    "compound": "化合物名称",
+    "compound_alias": "化合物别名",
+    "preferred_alias": "首选别名",
+    "dose_value": "剂量值",
+    "dose_frequency": "给药频率",
+    "confirm_delete": "研究化合物给药 '{element} / {compound}' 将被删除",
+    "delete_success": "研究化合物给药已删除",
+    "study_compound_dosing_history_title": "研究化合物给药 [{studyCompoundDosingUid}] 的历史记录",
+    "global_history_title": "研究化合物给药历史"
   },
   "StudyCompoundDosingForm": {
-    "add_title": "Add study compound dosing",
-    "edit_title": "Edit study compound dosing",
-    "step1_title": "Select study element",
-    "step2_title": "Select study compound",
-    "step3_title": "Select compound dosing information",
-    "element": "Study element",
-    "element_order": "Element order",
-    "element_type": "Element type",
-    "element_subtype": "Element subtype",
-    "element_name": "Element name",
-    "element_short_name": "Element short name",
-    "element_description": "Element description",
-    "compound": "Study compound",
-    "type_of_treatment": "Type of treatment",
-    "compound_order": "Compound order",
-    "compound_name": "Compound name",
-    "compound_alias_name": "Compound alias name",
-    "dose_value": "Dose value",
-    "dose_frequency": "Dose frequency",
-    "add_success": "Study compound dosing added",
-    "update_success": "Study compound dosing updated"
+    "add_title": "添加研究化合物给药",
+    "edit_title": "编辑研究化合物给药",
+    "step1_title": "选择研究要素",
+    "step2_title": "选择研究化合物",
+    "step3_title": "选择化合物给药信息",
+    "element": "研究要素",
+    "element_order": "要素顺序",
+    "element_type": "要素类型",
+    "element_subtype": "要素子类型",
+    "element_name": "要素名称",
+    "element_short_name": "要素简称",
+    "element_description": "要素描述",
+    "compound": "研究化合物",
+    "type_of_treatment": "治疗类型",
+    "compound_order": "化合物顺序",
+    "compound_name": "化合物名称",
+    "compound_alias_name": "化合物别名",
+    "dose_value": "剂量值",
+    "dose_frequency": "给药频率",
+    "add_success": "研究化合物给药已添加",
+    "update_success": "研究化合物给药已更新"
   },
   "InterventionOverview": {
     "no_intervention_selected": "No study intervention selected",
@@ -2162,29 +2162,29 @@
     "draft_activity_create_alert": "Selected activity is in {state} state. Please move the activity to FINAL state before creating the Activity Instance."
   },
   "StudyTitleView": {
-    "title": "Study Title",
-    "short_title": "Study Short Title",
-    "edit_title": "Edit study title"
+    "title": "研究标题",
+    "short_title": "研究短标题",
+    "edit_title": "编辑研究标题"
   },
   "StudyTitleForm": {
-    "title": "Define study title",
-    "global_help": "If relevant, copy from another study and use as starting point",
-    "project_id": "Project ID",
-    "project_name": "Project name",
-    "study_id": "Study ID",
-    "study_title": "Study title",
-    "title_label": "Study title",
-    "short_title": "Short study title",
-    "title_hint": "The Title must include the name of the study intervention(s) under clinical investigation, the condition being studied, the participants included and the primary purpose, and should not be longer than 600 characters, including spaces. Two studies must not have identical titles.",
-    "update_success": "Study title updated",
-    "copy_title": "Use this study's title as a template",
-    "short_title_hint": "短标题用于方案封面、受试者信息/知情同意书（PI/IC）以及（如适用）通俗语言的方案摘要（PSLL）。短标题应使用通俗语言，最长不超过 300 个字符。关于通俗语言标题的指导，请参阅 SharePoint 上 PI/IC 工具箱中的《通俗语言标题用户指南》。"
+    "title": "定义研究标题",
+    "global_help": "如适用，可从其他研究复制并作为起点",
+    "project_id": "项目ID",
+    "project_name": "项目名称",
+    "study_id": "研究ID",
+    "study_title": "研究标题",
+    "title_label": "研究标题",
+    "short_title": "研究短标题",
+    "title_hint": "标题必须包含临床研究的干预措施名称、研究疾病或状况、参与者以及主要目的，并且长度不得超过600个字符（含空格）。两个研究不得有相同的标题。",
+    "update_success": "研究标题已更新",
+    "copy_title": "使用此研究标题作为模板",
+    "short_title_hint": "短标题用于方案封面、受试者信息/知情同意书(PI/IC)及简明语言的方案概要(PSLL)。短标题应使用通俗语言且最多300个字符。有关通俗语言标题的指南，请参阅SharePoint上PI/IC工具箱中的《通俗语言标题用户指南》。"
   },
   "StudyStatusView": {
-    "title": "Study",
-    "tab1_title": "Study Core Attributes",
-    "tab2_title": "Study Status",
-    "tab3_title": "Study Subparts",
+    "title": "研究",
+    "tab1_title": "研究核心属性",
+    "tab2_title": "研究状态",
+    "tab3_title": "子研究部分",
     "tab4_title": "方案版本"
   },
   "StudyDataStandardVersionsView": {
@@ -2217,36 +2217,36 @@
     "core_attribute": "Core attribute"
   },
   "StudyStatusTable": {
-    "unlock_success": "Study has been unlocked",
-    "confirm_delete": "Study {studyId} will be deleted",
-    "delete_success": "Study has been deleted"
+    "unlock_success": "研究已解锁",
+    "confirm_delete": "研究 {studyId} 将被删除",
+    "delete_success": "研究已删除"
   },
   "StudyStatusForm": {
-    "release_title": "Release study",
-    "lock_title": "Lock study",
-    "release_description": "Release description",
-    "lock_description": "Lock description",
-    "lock_success": "Study has been locked",
-    "release_success": "Study has been released"
+    "release_title": "发布研究",
+    "lock_title": "锁定研究",
+    "release_description": "发布说明",
+    "lock_description": "锁定说明",
+    "lock_success": "研究已锁定",
+    "release_success": "研究已发布"
   },
   "StudyProtocolElementsView": {
     "title": "方案要素",
-    "title_page": "Title Page Information",
-    "protocol_flowchart": "方案 SoA",
-    "study_interventions": "Study Interventions",
-    "procedures_and_activities": "Procedures and Activities",
-    "study_design": "Study Design",
-    "download": "Download",
-    "loading": "Loading...",
-    "downloading": "Downloading...",
-    "protocol_soa": "方案 SoA"
+    "title_page": "标题页信息",
+    "protocol_flowchart": "方案活动时间表",
+    "study_interventions": "研究干预措施",
+    "procedures_and_activities": "程序与活动",
+    "study_design": "研究设计",
+    "download": "下载",
+    "loading": "加载中...",
+    "downloading": "正在下载...",
+    "protocol_soa": "方案活动时间表"
   },
   "CtrOdmXmlVue": {
     "title": "CTR ODM XML",
-    "download": "Download XML",
-    "downloading": "Downloading XML...",
-    "iframe_title": "Rendered CTR ODM document",
-    "loading": "Loading XML..."
+    "download": "下载 XML",
+    "downloading": "正在下载 XML...",
+    "iframe_title": "渲染的 CTR ODM 文档",
+    "loading": "正在加载 XML..."
   },
   "ProtocolElementsObjectiveTable": {
     "title": "Objectives and Endpoints",
@@ -2925,9 +2925,9 @@
     "time_unit": "Time unit"
   },
   "HelpMessages": {
-    "units": "Note that this table is providing the UCUM tool that allow the end user to verify and link a unit with one existing in the UCUM referential system. You just need to start entering few first letters and the UCUM engine will provide you with some suggestion. In order to keep the validated unit in the UCUM referential, just click on it in the list and the result will be kept with the corresponding unit.",
-    "crfs": "The case report form (CRF) is the tool used by the sponsor of the clinical trial to collect data from each participating patient. All data on each patient participating in a clinical trial are held and/or documented in the CRF, including adverse events (Wikipedia).",
-    "compounds": "Help message to define"
+    "units": "请注意，此表提供了 UCUM 工具，使终端用户能够验证并将一个单位与 UCUM 参照系统中的单位关联。只需开始输入几个首字母，UCUM 引擎就会提供一些建议。要在 UCUM 参照中保留已验证的单位，只需在列表中单击它，结果就会与相应的单位一起保留。",
+    "crfs": "病例报告表 (CRF) 是临床试验申办方用于收集每位参与患者数据的工具。临床试验中每位患者的所有数据（包括不良事件）都保存在并/或记录于 CRF 中（维基百科）。",
+    "compounds": "用于定义的帮助信息"
   },
   "StudyEpochTable": {
     "number": "#",
@@ -3064,19 +3064,19 @@
     "disease_milestone_rep_ind": "Disease Milestone Repetition Indicator"
   },
   "UsdmPage": {
-    "title": "方案的 USDM 版本 / USDM 版本：{version}",
-    "general": "General",
-    "clinical_study_def": "Clinical study [C15206]",
-    "official_protocol_title": "正式方案标题 [C132346]",
-    "study_protocol_version": "研究方案版本 [C93490]",
-    "protocol_status": "方案状态 [C188818]",
-    "study_design": "Study Design [C15320]",
-    "organization_type": "Organization Type [C188820]",
-    "trial_type": "Trial Type [C49660]",
-    "intervention_model_type": "Intervention Model Type [C98746]",
-    "therapeutic_areas": "Therapeutic Areas [C101302]",
-    "trial_blinding_schema": "Trial Blinding Schema [C49658]",
-    "target_study_population": "Target Study Population [C142728]"
+    "title": "协议的 USDM 版本 / USDM 版本：{version}",
+    "general": "通用",
+    "clinical_study_def": "临床研究 [C15206]",
+    "official_protocol_title": "正式协议标题 [C132346]",
+    "study_protocol_version": "研究协议版本 [C93490]",
+    "protocol_status": "协议状态 [C188818]",
+    "study_design": "研究设计 [C15320]",
+    "organization_type": "组织类型 [C188820]",
+    "trial_type": "试验类型 [C49660]",
+    "intervention_model_type": "干预模型类型 [C98746]",
+    "therapeutic_areas": "治疗领域 [C101302]",
+    "trial_blinding_schema": "试验盲法方案 [C49658]",
+    "target_study_population": "目标研究人群 [C142728]"
   },
   "IchM11Page": {
     "title": "方案的 ICH M11 版本"
@@ -3382,79 +3382,79 @@
     "update_success": "Study activity updated"
   },
   "DetailedFlowchart": {
-    "activities": "Activities",
-    "include_in_protocol_flowchart": "包含在方案 SoA 中",
-    "include_in_design_figure": "Include in design figure",
-    "study_epoch": "Epoch",
-    "study_milestone": "Milestone",
-    "visit_short_name": "Visit",
-    "study_week": "Week",
-    "visit_window": "Window",
-    "expand_all": "Expand table",
-    "collapse_all": "Collapse table",
+    "activities": "活动",
+    "include_in_protocol_flowchart": "在方案 SoA 中包含",
+    "include_in_design_figure": "包含在设计图中",
+    "study_epoch": "阶段",
+    "study_milestone": "里程碑",
+    "visit_short_name": "访视",
+    "study_week": "周",
+    "visit_window": "窗口",
+    "expand_all": "展开表格",
+    "collapse_all": "折叠表格",
     "toggle_soa_group_display": "在方案 SoA 中显示/隐藏 SoA 组",
     "toggle_group_display": "在方案 SoA 中显示/隐藏活动组",
     "toggle_subgroup_display": "在方案 SoA 中显示/隐藏活动子组",
     "toggle_activity_display": "在方案 SoA 中显示/隐藏活动",
     "hide_activity_selection": "在方案 SoA 中隐藏活动",
     "show_activity_selection": "在方案 SoA 中显示活动",
-    "edit_activity_selection": "Edit current activity selection",
-    "update_success": "Selection updated",
-    "batch_update_success": "{number} Study Activities has been updated.",
-    "edit_from": "Edit from",
-    "list_of_activity": "List of Activities",
-    "study_activities": "Study Activities",
-    "study_epochs": "Study Epochs",
-    "study_visits": "Study Visits",
-    "batch_edit_no_selection": "Select the items (rows) in scope for Batch Editing.",
-    "batch_remove_no_selection": "Select the items (rows) in scope for Batch Removing.",
-    "show_flowchart_groups": "Show SoA groups",
-    "edit_dialog_title": "Do you want to edit",
-    "table_caption": "SoA table",
-    "confirm_group_deletion": "The visit group {group} will be un-collapsed",
-    "soa_footnotes": "SoA footnotes",
-    "activity_instructions": "Activity Instructions",
-    "batch_edit_warning": "Batch editing will overwrite existing choices. Only activities expected to have same schedule should be batch-edited together. If no SoA group is selected, then the currently selected SoA groups will remain unchanged.",
-    "history_object_type": "Object type",
-    "history_title": "Detailed SoA history for study [{study}]",
-    "detailed": "Detailed",
+    "edit_activity_selection": "编辑当前活动选择",
+    "update_success": "选择已更新",
+    "batch_update_success": "{number} 个研究活动已更新。",
+    "edit_from": "编辑自",
+    "list_of_activity": "活动列表",
+    "study_activities": "研究活动",
+    "study_epochs": "研究阶段",
+    "study_visits": "研究访视",
+    "batch_edit_no_selection": "请选择要进行批量编辑的项目（行）。",
+    "batch_remove_no_selection": "请选择要进行批量移除的项目（行）。",
+    "show_flowchart_groups": "显示 SoA 组",
+    "edit_dialog_title": "您是否要编辑",
+    "table_caption": "SoA 表",
+    "confirm_group_deletion": "访视组 {group} 将被展开",
+    "soa_footnotes": "SoA 脚注",
+    "activity_instructions": "活动说明",
+    "batch_edit_warning": "批量编辑将覆盖现有选择。仅应对预期具有相同计划的活动进行批量编辑。如果未选择 SoA 组，则当前选择的 SoA 组将保持不变。",
+    "history_object_type": "对象类型",
+    "history_title": "研究 [{study}] 的详细 SoA 历史",
+    "detailed": "详细",
     "protocol": "方案",
-    "operational": "Operational",
-    "remove_activity": "Remove Activity",
-    "remove_activity_msg": "Do you want to remove Activity?",
-    "remove_multiple_activities_msg": "Are you sure you want to remove {activities} activities from the study?",
-    "remove_success": "{activities} Study Activities has been removed.",
-    "remove_activity_success": "Study activity removed",
-    "edit_activity": "Edit Activity",
-    "exchange_activity": "Exchange Activity",
-    "exchange_study_activity": "Exchange Study Activity",
-    "exchange_success": "Study Activity Exchanged",
-    "add_activity": "Add activity",
-    "bulk_edit": "Bulk Edit Activities",
-    "bulk_remove": "Bulk Remove Activities",
-    "reordering_help_msg": "Your changes are already saved, click here to leave reordering mode.",
-    "finish_reordering_btn": "Finish reordering",
-    "reorder": "Reorder",
-    "add_footnote": "Add footnote",
-    "remove_footnote": "Remove footnote",
-    "bulk_actions": "Bulk actions",
-    "empty_soa_title_1": "No activities & visits added yet",
-    "empty_soa_title_2": "No activities added yet",
-    "empty_soa_text_1": "You have not added any Study Activities or Visits yet. Click the button to add your first Activity or Visit.",
-    "empty_soa_text_2": "You have not added any Study Activities yet. Click the button to add your first Activity.",
-    "add_study_activity": "Add study activity",
-    "add_visit": "Add visit",
-    "search_activities": "Search Activities"
+    "operational": "操作",
+    "remove_activity": "移除活动",
+    "remove_activity_msg": "是否要移除活动？",
+    "remove_multiple_activities_msg": "确定要从研究中移除 {activities} 个活动吗？",
+    "remove_success": "已移除 {activities} 个研究活动。",
+    "remove_activity_success": "已移除研究活动",
+    "edit_activity": "编辑活动",
+    "exchange_activity": "替换活动",
+    "exchange_study_activity": "替换研究活动",
+    "exchange_success": "研究活动已替换",
+    "add_activity": "添加活动",
+    "bulk_edit": "批量编辑活动",
+    "bulk_remove": "批量移除活动",
+    "reordering_help_msg": "您的更改已保存，点击此处退出重新排序模式。",
+    "finish_reordering_btn": "完成重新排序",
+    "reorder": "重新排序",
+    "add_footnote": "添加脚注",
+    "remove_footnote": "移除脚注",
+    "bulk_actions": "批量操作",
+    "empty_soa_title_1": "尚未添加活动和访视",
+    "empty_soa_title_2": "尚未添加活动",
+    "empty_soa_text_1": "您尚未添加任何研究活动或访视。点击按钮以添加首个活动或访视。",
+    "empty_soa_text_2": "您尚未添加任何研究活动。点击按钮以添加首个活动。",
+    "add_study_activity": "添加研究活动",
+    "add_visit": "添加访视",
+    "search_activities": "搜索活动"
   },
   "StudyActivityInstructionTable": {
-    "activities": "Activities",
-    "visits": "Visits",
-    "instructions": "Instructions",
-    "confirm_delete": "The study activity instruction '{instruction}' will be removed",
-    "delete_success": "Study activity instruction deleted",
-    "batch_no_selection": "Select the items (rows) in scope for Batch Creation.",
-    "open_batch_form": "Open batch creation form",
-    "table_caption": "Study activity instruction table"
+    "activities": "活动",
+    "visits": "访视",
+    "instructions": "说明",
+    "confirm_delete": "研究活动说明 '{instruction}' 将被删除",
+    "delete_success": "研究活动说明已删除",
+    "batch_no_selection": "请选择要批量创建的项目（行）。",
+    "open_batch_form": "打开批量创建表单",
+    "table_caption": "研究活动说明表"
   },
   "StudySelectionTable": {
     "select_studies": "Select studies",
@@ -3464,20 +3464,20 @@
     "copy_item": "Copy item"
   },
   "StudyPurposeView": {
-    "study_objectives": "Study Objectives",
-    "study_endpoints": "Study Endpoints",
-    "study_estimands": "Study Estimands"
+    "study_objectives": "研究目标",
+    "study_endpoints": "研究终点",
+    "study_estimands": "研究估量"
   },
   "StudyActivityBatchEditForm": {
-    "title": "Batch edit study activities",
-    "note": "Note: The entire row of existing selections will be overwritten with the selection(s) done here",
-    "items_selected": "Items selected ({number}):",
-    "show_items": "Show items:",
-    "update_success": "Selection updated",
-    "delete_selection": "Delete selected items from list of study activities"
+    "title": "批量编辑研究活动",
+    "note": "注意：现有选择整行将被此处所做的选择覆盖",
+    "items_selected": "已选项目（{number}）：",
+    "show_items": "显示项目：",
+    "update_success": "选择已更新",
+    "delete_selection": "从研究活动列表中删除所选项目"
   },
   "StudyActivityScheduleBatchEditForm": {
-    "studyVisits": "Visits"
+    "studyVisits": "访视"
   },
   "StudyArmsTable": {
     "type": "Type",
@@ -3514,34 +3514,34 @@
     "overwrite_content": "Overwrite existing content"
   },
   "StudyActivityInstructionBatchForm": {
-    "add_title": "Add instruction text",
-    "creation_mode_title": "Select method",
-    "select_mode": "Select from studies",
-    "template_mode": "Select from template",
-    "scratch_mode": "Create from scratch",
-    "select_studies": "Select studies",
-    "select_from_studies_title": "Select instruction text",
-    "select_tpl_title": "Select template",
-    "create_text_title": "Create instruction text",
-    "batch_table_title": "Linked activities",
-    "create_template_title": "Create template",
-    "select_template_title": "Select activity instruction template",
-    "copy_instructions": "Copy from table",
-    "copy_template": "Select template",
-    "add_success": "Activity instruction(s) created",
-    "instruction_text": "Instruction text",
-    "selected_items": "Selected study activity instructions",
-    "name": "Activity template"
+    "add_title": "添加说明文本",
+    "creation_mode_title": "选择方式",
+    "select_mode": "从研究中选择",
+    "template_mode": "从模板中选择",
+    "scratch_mode": "从头创建",
+    "select_studies": "选择研究",
+    "select_from_studies_title": "选择说明文本",
+    "select_tpl_title": "选择模板",
+    "create_text_title": "创建说明文本",
+    "batch_table_title": "关联活动",
+    "create_template_title": "创建模板",
+    "select_template_title": "选择活动说明模板",
+    "copy_instructions": "从表中复制",
+    "copy_template": "选择模板",
+    "add_success": "活动说明已创建",
+    "instruction_text": "说明文本",
+    "selected_items": "所选研究活动说明",
+    "name": "活动模板"
   },
   "StudyActivitySelectionTable": {
-    "show_items": "Show items:"
+    "show_items": "显示项目："
   },
   "StudyActivityInstructionBatchEditForm": {
-    "title": "Edit instruction text",
-    "delete_selection": "Delete instruction text",
-    "delete_success": "Instruction text deleted",
-    "select_template": "Select a template",
-    "update_success": "Instruction text updated"
+    "title": "编辑说明文本",
+    "delete_selection": "删除说明文本",
+    "delete_success": "说明文本已删除",
+    "select_template": "选择模板",
+    "update_success": "说明文本已更新"
   },
   "SpecificationDashboard": {
     "status": "Status",
@@ -3893,29 +3893,29 @@
     "delete_approve": "Are you sure to delete this Alias?"
   },
   "OdmViewer": {
-    "blank": "Blank",
-    "sdtm": "SDTM Annotation",
-    "allowed_namespaces": "Allowed Extensions",
-    "specific": "Specific",
-    "provide_uri": "Provide URI",
-    "stylesheet": "Stylesheet",
-    "loading_message": "Please be patient, we are creating your ODM-XML document",
-    "load": "Load",
-    "load_another": "Reload",
-    "odm_references": "ODM References",
-    "odm_element_type": "ODM Element Type",
-    "odm_element_name": "ODM Element Name",
-    "template": "Template",
-    "form": "Form",
-    "item_group": "Item Group",
-    "item": "Item",
-    "element_status": "ODM Element Status",
-    "export": "Export ",
-    "format": "Format"
+    "blank": "空白",
+    "sdtm": "SDTM 注释",
+    "allowed_namespaces": "允许的扩展",
+    "specific": "特定",
+    "provide_uri": "提供 URI",
+    "stylesheet": "样式表",
+    "loading_message": "请耐心等待，我们正在生成您的 ODM-XML 文档",
+    "load": "加载",
+    "load_another": "重新加载",
+    "odm_references": "ODM 参考",
+    "odm_element_type": "ODM 元素类型",
+    "odm_element_name": "ODM 元素名称",
+    "template": "模板",
+    "form": "表单",
+    "item_group": "项目组",
+    "item": "项目",
+    "element_status": "ODM 元素状态",
+    "export": "导出 ",
+    "format": "格式"
   },
   "TemplateIndexingDialog": {
-    "title": "Edit indexing properties",
-    "update_success": "Indexing properties updated"
+    "title": "编辑索引属性",
+    "update_success": "索引属性已更新"
   },
   "CrfDuplicationForm": {
     "duplicate": "Duplicate element",
@@ -3996,34 +3996,34 @@
     "tab2_title": "Deleted studies"
   },
   "AnalysisStudyMetadata": {
-    "mdvisit": "MDVISIT",
-    "mdendpnt": "MDENDPNT"
+    "mdvisit": "访视元数据 (MDVISIT)",
+    "mdendpnt": "终点元数据 (MDENDPNT)"
   },
   "AnalysisMetadataTable": {
-    "study_id": "Study Identifier",
-    "visit_type_name": "Visit Type Name",
-    "visit_num": "Visit Number",
-    "visit_name": "Visit Name",
-    "visit_short_label": "Visit Short Label",
-    "day_name": "Day Name",
-    "day_value": "Day Value",
-    "week_name": "Week Name",
-    "week_value": "Week Value",
-    "objective_level": "Objective Level",
-    "objective": "Objective",
-    "objective_plain_text": "Objective Plain Text",
-    "endpoint_level": "Endpoint Level",
-    "endpoint_sub_level": "Endpoint Sub-level",
-    "endpoint_plain": "Endpoint",
-    "endpoint_plain_text": "Endpoint Plain Text",
-    "unit_definition": "Unit Definition",
-    "unit": "Unit",
-    "time_frame": "Time Frame",
-    "time_frame_plain_text": "Time Frame Plain Text",
-    "related_activity_groups": "Related Activity Groups",
-    "related_activity_subgroups": "Related Activity Subgroups",
-    "related_activities": "Related Activities",
-    "related_activity_instances": "Related Activity Instances"
+    "study_id": "研究标识符",
+    "visit_type_name": "访视类型名称",
+    "visit_num": "访视编号",
+    "visit_name": "访视名称",
+    "visit_short_label": "访视短标签",
+    "day_name": "天名称",
+    "day_value": "天数值",
+    "week_name": "周名称",
+    "week_value": "周数值",
+    "objective_level": "目标级别",
+    "objective": "目标",
+    "objective_plain_text": "目标纯文本",
+    "endpoint_level": "终点级别",
+    "endpoint_sub_level": "终点子级",
+    "endpoint_plain": "终点",
+    "endpoint_plain_text": "终点纯文本",
+    "unit_definition": "单位定义",
+    "unit": "单位",
+    "time_frame": "时间范围",
+    "time_frame_plain_text": "时间范围纯文本",
+    "related_activity_groups": "相关活动组",
+    "related_activity_subgroups": "相关活动子组",
+    "related_activities": "相关活动",
+    "related_activity_instances": "相关活动实例"
   },
   "ActivitiesTable": {
     "inactivate_activities_success": "Activity inactivated",
@@ -4175,11 +4175,11 @@
     "dataCollection": "Data collection"
   },
   "YamlViewer": {
-    "search_content": "Search for content",
-    "expand_all": "Expand all",
-    "collapse_all": "Collapse all",
-    "download": "Download YAML content",
-    "close_tab": "Close YAML viewer"
+    "search_content": "搜索内容",
+    "expand_all": "全部展开",
+    "collapse_all": "全部折叠",
+    "download": "下载 YAML 内容",
+    "close_tab": "关闭 YAML 查看器"
   },
   "ActivityInstructionsView": {
     "title": "Activity Instructions"
@@ -4336,25 +4336,25 @@
     "name": "Name"
   },
   "ProjectsView": {
-    "title": "Projects"
+    "title": "项目"
   },
   "Projects": {
-    "name": "Name",
-    "project_number": "Project ID",
-    "description": "Description",
-    "clinical_programme": "Clinical programme",
-    "add_success": "Project added",
-    "update_success": "Project updated",
-    "confirm_delete": "The project '{project}' will be deleted",
-    "delete_success": "Project deleted"
+    "name": "名称",
+    "project_number": "项目 ID",
+    "description": "描述",
+    "clinical_programme": "临床计划",
+    "add_success": "项目已添加",
+    "update_success": "项目已更新",
+    "confirm_delete": "项目 '{project}' 将被删除",
+    "delete_success": "项目已删除"
   },
   "ProjectForm": {
-    "add_title": "Add project",
-    "edit_title": "Edit project",
-    "name": "Name",
-    "project_number": "Project ID",
-    "description": "Description",
-    "clinical_programme": "Clinical programme"
+    "add_title": "添加项目",
+    "edit_title": "编辑项目",
+    "name": "名称",
+    "project_number": "项目 ID",
+    "description": "描述",
+    "clinical_programme": "临床计划"
   },
   "StudySubparts": {
     "study_id": "Study ID",
