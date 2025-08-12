@@ -533,10 +533,10 @@
             "general": "Use el botón Agregar (en el menú) para agregar el objetivo necesario. "
         },
         "StudyArmsForm": {
-            "arm_name": "Etiqueta larga del arm, p. ej., Placebo",
+            "arm_name": "Etiqueta completa del arm, p. ej., Placebo",
             "arm_short_name": "Nombre abreviado del arm, p. ej., PBO",
-            "arm_type": "Investigational - intervención que se está investigando, Comparator - intervención contra la cual se compara la intervención investigadora, Placebo - si el comparador es Placebo seleccione esta opción, Observational - no se realiza intervención",
-            "arm_code": "Un código abreviado de las intervenciones en el arm, p. ej., AB para un estudio cruzado con Drug A seguido de Drug B, o PBO para un arm Placebo",
+            "arm_type": "Investigational - intervención que se está investigando; Comparator - intervención contra la cual se compara la intervención investigadora; Placebo - seleccione cuando el comparador es placebo; Observational - no se realiza intervención.",
+            "arm_code": "Un código abreviado de las intervenciones en el arm, p. ej., AB para un estudio cruzado con Drug A seguido de Drug B o PBO para un arm placebo",
             "randomisation_group": "El grupo asignado en la lista de aleatorización, p. ej., A=AB y B=BA de la lista de aleatorización.",
             "planned_number": "El número planificado de sujetos en el arm.",
             "description": "(Opcional) Una descripción del arm."
