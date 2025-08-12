@@ -409,7 +409,7 @@
       "catalogue": "新的代码列表将在此目录中创建"
     },
     "CodelistSponsorValuesForm": {
-      "pref_name": "Sponsor 首选名称将被 StudyBuilder 用作代码列表的默认显示名称",
+      "pref_name": "申办方首选名称将被 StudyBuilder 用作代码列表的默认显示名称",
       "tpl_parameter": "如果设置或激活，该代码列表将在创建模板时用作参数"
     },
     "CodelistAttributesForm": {
@@ -420,8 +420,8 @@
       "definition": "提供代码列表的完整定义"
     },
     "CodelistTermCreationForm": {
-      "sponsor_pref_name": "术语的 Sponsor 首选名称",
-      "sponsor_sentence_case_name": "Sponsor 句式名称应与 Sponsor 首选名称相同，但不含大写字母",
+      "sponsor_pref_name": "术语的申办方首选名称",
+      "sponsor_sentence_case_name": "申办方句式名称应与申办方首选名称相同，但不含大写字母",
       "term_name": "提供术语名称，该名称表示数据项唯一允许的回答",
       "submission_value": "提供唯一的提交值。如果存在重复，则应用程序将使用该值",
       "nci_pref_name": "如适用，提供首选的 NCI 名称",
@@ -2294,17 +2294,17 @@
   },
   "CodeListDetail": {
     "concept_id": "概念 ID",
-    "sponsor_title": "代码列表的 Sponsor values",
+    "sponsor_title": "代码列表的申办方值",
     "ct_identifiers": "CT 标识符",
     "selected_values": "已选择的值",
-    "sponsor_pref_name": "Sponsor 首选名称",
+    "sponsor_pref_name": "申办方首选名称",
     "tpl_parameter": "模板参数",
-    "new_version": "创建新的 Sponsor values 版本",
-    "new_version_success": "已创建 Sponsor values 的新版本",
+    "new_version": "创建新的申办方值版本",
+    "new_version_success": "已创建申办方值的新版本",
     "history": "打开历史记录",
-    "edit_sponsor_values": "编辑 Sponsor values",
+    "edit_sponsor_values": "编辑申办方值",
     "approve_sponsor_values_version": "将状态更改为最终",
-    "sponsor_values_approve_success": "Sponsor values 现处于最终状态",
+    "sponsor_values_approve_success": "申办方值现处于最终状态",
     "code_list": "代码列表",
     "attributes_title": "代码列表属性值",
     "codelist_name": "代码列表名称",
@@ -2316,19 +2316,19 @@
     "new_attributes_version_success": "已创建属性的新版本",
     "approve_attributes_version": "将状态更改为最终",
     "attributes_approve_success": "属性现处于最终状态",
-    "names_history_title": "代码列表 [{codelist}] 的 Sponsor values 历史记录",
+    "names_history_title": "代码列表 [{codelist}] 的申办方值历史记录",
     "attributes_history_title": "代码列表 [{codelist}] 的属性值历史记录",
     "terms_listing": "术语列表",
     "open_ct": "打开 CT"
   },
   "CodelistSponsorValuesForm": {
-    "title": "编辑 Sponsor 代码列表",
-    "pref_name": "Sponsor 首选名称",
+    "title": "编辑申办方代码列表",
+    "pref_name": "申办方首选名称",
     "tpl_parameter": "模板参数？",
-    "update_success": "Sponsor values 已更新"
+    "update_success": "申办方值已更新"
   },
   "CodelistTable": {
-    "history_title": "代码列表 [{codelist}] 的 Sponsor values 历史记录",
+    "history_title": "代码列表 [{codelist}] 的申办方值历史记录",
     "show_terms": "显示术语",
     "search_with_terms": "使用术语搜索"
   },
@@ -2346,9 +2346,9 @@
     "definition_hint": "提供代码列表的完整定义"
   },
   "CodelistCreationForm": {
-    "title": "添加 Sponsor 代码列表",
+    "title": "添加申办方代码列表",
     "step1_title": "选择目录",
-    "step2_title": "管理 Sponsor 首选名称",
+    "step2_title": "管理申办方首选名称",
     "step3_title": "管理代码列表属性值",
     "catalogue": "目录",
     "add_success": "已添加代码列表"
@@ -2357,7 +2357,7 @@
     "codelist": "代码列表",
     "terms_listing": "术语列表",
     "submission_value": "提交值",
-    "sponsor_name": "Sponsor 名称",
+    "sponsor_name": "申办方名称",
     "add_term": "添加新术语",
     "terms": "术语",
     "name_status": "名称状态",
@@ -2369,9 +2369,9 @@
     "subject_trial_status": "受试者试验状态"
   },
   "CodelistTermTable": {
-    "open_sponsor_history": "Sponsor values 历史记录",
+    "open_sponsor_history": "申办方值历史记录",
     "open_ct_history": "CT 值历史记录",
-    "history_label_name": "术语 [{term}] 的 Sponsor values 历史记录",
+    "history_label_name": "术语 [{term}] 的申办方值历史记录",
     "history_label_attributes": "术语 [{term}] 的 CT 值历史记录"
   },
   "CodelistTermDetail": {
@@ -2379,7 +2379,7 @@
     "add_term": "添加术语",
     "term_detail": "术语详情",
     "concept_id": "概念 ID",
-    "sponsor_title": "术语的 Sponsor values",
+    "sponsor_title": "术语的申办方值",
     "name_submission_value": "名称提交值",
     "code_submission_value": "代码提交值",
     "nci_pref_name": "NCI 首选名称",
@@ -2414,9 +2414,9 @@
     "creation_mode_label": "如何添加新术语",
     "select_mode": "选择现有术语",
     "create_mode": "创建新术语",
-    "create_sponsor_name": "管理 Sponsor 术语首选名称",
-    "sponsor_pref_name": "Sponsor 首选名称",
-    "sponsor_sentence_case_name": "Sponsor 句式名称",
+    "create_sponsor_name": "管理申办方术语首选名称",
+    "sponsor_pref_name": "申办方首选名称",
+    "sponsor_sentence_case_name": "申办方句式名称",
     "create_term_attributes": "管理术语属性值",
     "name_submission_value": "名称提交值",
     "code_submission_value": "代码提交值",
@@ -2428,12 +2428,12 @@
     "remove_success": "已移除术语",
     "select_term_label": "选择现有术语",
     "concept_id": "概念 ID",
-    "sponsor_name": "Sponsor 名称",
+    "sponsor_name": "申办方名称",
     "no_selection": "必须至少选择一个术语才能添加",
     "submission_value": "提交值"
   },
   "CodelistTermNamesForm": {
-    "title": "编辑 Sponsor 术语",
+    "title": "编辑申办方术语",
     "update_success": "术语已更新"
   },
   "CodelistSummary": {
