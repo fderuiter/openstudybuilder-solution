@@ -682,49 +682,49 @@
       "general": "You can choose from 3 different options:<br><b> Select from studies: </b> Selection of activities from existing studies.<br><b>Select from library: </b>Selection of activities from the library<br><b>Create a placeholder for new activity Request: </b> If your activity is not available within the library you can create a placeholder for your missing activity and request it later."
     },
     "CTDashboard": {
-      "general": "The dashboard provides an overview of the activities (Added/Updated/Deleted) performed on code lists and their terms. The latests code lists being added is listed in the bottom table."
+      "general": "仪表板提供对代码列表及其术语的操作概览（新增/更新/删除）。最新添加的代码列表列在底部表格中。"
     },
     "CtCataloguesTable": {
-      "general": "The CT Catalogues displays latest version of all CDISC and Sponsor code lists and terms. Navigate using the tabs in the top of the page to show specific subsets of terminology. Use All to display all code lists. Tip: right-click on the tabs to open the CT in a new window/tab.",
-      "ADAM_CT": "Analysis Data Model Controlled Terminology. Controlled terminology used for Statistical Analysis Data.",
-      "CDASH_CT": "Clinical Data Acquisition Standards Harmonization Controlled Terminology. Controlled terminology used for data collection, e.g. eCRF/Forms.",
-      "COA CT": "Clinical Outcome Assessment Controlled Terminology. COA is a measure that describes or reflects how a patient feels, functions, or survives. COAs include the following types of analytical instruments: Clinician-reported outcome (ClinRO), Observer-reported outcome (ObsRO), Patient-reported outcome (PRO), Performance outcome (PerfO)",
-      "DEFINE_XML": "Define.xml Controlled Terminology. Define.xml is a data definition document, describing the structure and content of the SDTM or ADaM datasets.",
-      "GLOSSARY_CT": "Glossary Controlled Terminology. A list of definitions that support other CDISC standards by clarifying and disambiguating key concepts in clinical research",
+      "general": "CT 目录显示所有 CDISC 和赞助方代码列表及术语的最新版本。使用页面顶部的选项卡在术语集之间切换。使用“全部”显示所有代码列表。提示：右键单击选项卡在新窗口/标签页中打开 CT。",
+      "ADAM_CT": "分析数据模型受控术语，用于统计分析数据。",
+      "CDASH_CT": "临床数据采集标准协调受控术语，用于数据收集，例如 eCRF/表单。",
+      "COA CT": "临床结局评估受控术语。COA 是描述或反映患者感受、功能或存活状况的测量。COA 包括以下类型的评估工具：临床医生报告结局 (ClinRO)、观察者报告结局 (ObsRO)、患者报告结局 (PRO)、表现结局 (PerfO)。",
+      "DEFINE_XML": "Define.xml 受控术语。Define.xml 是一份描述 SDTM 或 ADaM 数据集结构和内容的数据定义文档。",
+      "GLOSSARY_CT": "术语表受控术语。提供一系列定义，通过澄清和消除临床研究中关键概念的歧义来支持其他 CDISC 标准。",
       "PROTOCOL_CT": "方案受控术语。用于支持 CDISC 方案标准的术语",
-      "QRS_CT": "Questionnaires, Ratings and Scales Controlled Terminology. Each QRS instrument is a series of questions, tasks or assessments used in clinical research to provide a qualitative or quantitative assessment of a clinical concept or task-based observation.",
-      "QS_FT_CT": "Questionnaire and Functional Test Controlled Terminology. With the December 19th 2014 release of the CDISC terminologies, the standalone Questionnaire and Functional Test (QS-FT) Terminology was deprecated and its content subsumed into the Clinical Outcome Assessments (COA) Terminology",
-      "SDTM_CT": "Study Data Tabulation Controlled Terminology. Terminology to support the tabulation of the collected data. SDTM is one of the required standards for data submission to FDA (U.S.) and PMDA (Japan).",
-      "SEND_CT": "Standard for the Exchange of Nonclinical Data Controlled Terminology. SEND is an implementation of the SDTM standard for nonclinical studies. SEND is one of the required standards for data submission to FDA."
+      "QRS_CT": "问卷、评分和量表受控术语。每个 QRS 工具由一系列问题、任务或评估组成，用于在临床研究中对临床概念或任务观察进行定性或定量评估。",
+      "QS_FT_CT": "问卷和功能测试受控术语。自 2014 年 12 月 19 日发布 CDISC 术语后，独立的问卷和功能测试 (QS-FT) 术语已弃用，其内容并入临床结局评估 (COA) 术语。",
+      "SDTM_CT": "研究数据列示受控术语，用于支持收集数据的列示。SDTM 是向 FDA（美国）和 PMDA（日本）提交数据所需的标准之一。",
+      "SEND_CT": "非临床数据交换标准受控术语。SEND 是 SDTM 标准在非临床研究中的实现，是向 FDA 提交数据所需的标准之一。"
     },
     "CtPackagesTable": {
-      "general": "The CT Packages displays all version of the of all CDISC and Sponsor code lists and terms. Navigate using the tabs in the top of the page to show specific subsets of terminology. Tip: right-click on the tabs to open the CT in a new window/tab. To view a specific package version, click on the date in the menu to the left. To compare versions click on the calendar icon in the menu.",
-      "ADAM_CT": "Analysis Data Model Controlled Terminology. Controlled terminology used for Statistical Analysis Data.",
-      "CDASH_CT": "Clinical Data Acquisition Standards Harmonization Controlled Terminology. Controlled terminology used for data collection, e.g. eCRF/Forms.",
-      "COA CT": "Clinical Outcome Assessment Controlled Terminology. COA is a measure that describes or reflects how a patient feels, functions, or survives. COAs include the following types of analytical instruments: Clinician-reported outcome (ClinRO), Observer-reported outcome (ObsRO), Patient-reported outcome (PRO), Performance outcome (PerfO)",
-      "DEFINE_XML": "Define.xml Controlled Terminology. Define.xml is a data definition document, describing the structure and content of the SDTM or ADaM datasets.",
-      "GLOSSARY_CT": "Glossary Controlled Terminology. A list of definitions that support other CDISC standards by clarifying and disambiguating key concepts in clinical research",
+      "general": "CT 包显示所有 CDISC 和赞助方代码列表及术语的所有版本。使用页面顶部的选项卡在术语集之间切换。提示：右键单击选项卡在新窗口/标签页中打开 CT。要查看特定包版本，请点击左侧菜单中的日期。要比较版本，请点击菜单中的日历图标。",
+      "ADAM_CT": "分析数据模型受控术语，用于统计分析数据。",
+      "CDASH_CT": "临床数据采集标准协调受控术语，用于数据收集，例如 eCRF/表单。",
+      "COA CT": "临床结局评估受控术语。COA 是描述或反映患者感受、功能或存活状况的测量。COA 包括以下类型的评估工具：临床医生报告结局 (ClinRO)、观察者报告结局 (ObsRO)、患者报告结局 (PRO)、表现结局 (PerfO)。",
+      "DEFINE_XML": "Define.xml 受控术语。Define.xml 是一份描述 SDTM 或 ADaM 数据集结构和内容的数据定义文档。",
+      "GLOSSARY_CT": "术语表受控术语。提供一系列定义，通过澄清和消除临床研究中关键概念的歧义来支持其他 CDISC 标准。",
       "PROTOCOL_CT": "方案受控术语。用于支持 CDISC 方案标准的术语",
-      "QRS_CT": "Questionnaires, Ratings and Scales Controlled Terminology. Each QRS instrument is a series of questions, tasks or assessments used in clinical research to provide a qualitative or quantitative assessment of a clinical concept or task-based observation.",
-      "QS_FT_CT": "Questionnaire and Functional Test Controlled Terminology. With the December 19th 2014 release of the CDISC terminologies, the standalone Questionnaire and Functional Test (QS-FT) Terminology was deprecated and its content subsumed into the Clinical Outcome Assessments (COA) Terminology",
-      "SDTM_CT": "Study Data Tabulation Controlled Terminology. Terminology to support the tabulation of the collected data. SDTM is one of the required standards for data submission to FDA (U.S.) and PMDA (Japan).",
-      "SEND_CT": "Standard for the Exchange of Nonclinical Data Controlled Terminology. SEND is an implementation of the SDTM standard for nonclinical studies. SEND is one of the required standards for data submission to FDA."
+      "QRS_CT": "问卷、评分和量表受控术语。每个 QRS 工具由一系列问题、任务或评估组成，用于在临床研究中对临床概念或任务观察进行定性或定量评估。",
+      "QS_FT_CT": "问卷和功能测试受控术语。自 2014 年 12 月 19 日发布 CDISC 术语后，独立的问卷和功能测试 (QS-FT) 术语已弃用，其内容并入临床结局评估 (COA) 术语。",
+      "SDTM_CT": "研究数据列示受控术语，用于支持收集数据的列示。SDTM 是向 FDA（美国）和 PMDA（日本）提交数据所需的标准之一。",
+      "SEND_CT": "非临床数据交换标准受控术语。SEND 是 SDTM 标准在非临床研究中的实现，是向 FDA 提交数据所需的标准之一。"
     },
     "CtSponsorTable": {
-      "general": "An overview of the latests version of the sponsor's code lists. Navigate using the tabs in the top of the page to show specific subsets of terminology. Use All to display all code lists. Tip: right-click on the tabs to open the CT in a new window/tab.",
-      "ADAM_CT": "Analysis Data Model Controlled Terminology. Controlled terminology used for Statistical Analysis Data.",
-      "CDASH_CT": "Clinical Data Acquisition Standards Harmonization Controlled Terminology. Controlled terminology used for data collection, e.g. eCRF/Forms.",
-      "COA CT": "Clinical Outcome Assessment Controlled Terminology. COA is a measure that describes or reflects how a patient feels, functions, or survives. COAs include the following types of analytical instruments: Clinician-reported outcome (ClinRO), Observer-reported outcome (ObsRO), Patient-reported outcome (PRO), Performance outcome (PerfO)",
-      "DEFINE_XML": "Define.xml Controlled Terminology. Define.xml is a data definition document, describing the structure and content of the SDTM or ADaM datasets.",
-      "GLOSSARY_CT": "Glossary Controlled Terminology. A list of definitions that support other CDISC standards by clarifying and disambiguating key concepts in clinical research",
+      "general": "显示赞助方代码列表的最新版本概览。使用页面顶部的选项卡显示特定术语子集。使用“全部”显示所有代码列表。提示：右键单击选项卡在新窗口/标签页中打开 CT。",
+      "ADAM_CT": "分析数据模型受控术语，用于统计分析数据。",
+      "CDASH_CT": "临床数据采集标准协调受控术语，用于数据收集，例如 eCRF/表单。",
+      "COA CT": "临床结局评估受控术语。COA 是描述或反映患者感受、功能或存活状况的测量。COA 包括以下类型的评估工具：临床医生报告结局 (ClinRO)、观察者报告结局 (ObsRO)、患者报告结局 (PRO)、表现结局 (PerfO)。",
+      "DEFINE_XML": "Define.xml 受控术语。Define.xml 是一份描述 SDTM 或 ADaM 数据集结构和内容的数据定义文档。",
+      "GLOSSARY_CT": "术语表受控术语。提供一系列定义，通过澄清和消除临床研究中关键概念的歧义来支持其他 CDISC 标准。",
       "PROTOCOL_CT": "方案受控术语。用于支持 CDISC 方案标准的术语",
-      "QRS_CT": "Questionnaires, Ratings and Scales Controlled Terminology. Each QRS instrument is a series of questions, tasks or assessments used in clinical research to provide a qualitative or quantitative assessment of a clinical concept or task-based observation.",
-      "QS_FT_CT": "Questionnaire and Functional Test Controlled Terminology. With the December 19th 2014 release of the CDISC terminologies, the standalone Questionnaire and Functional Test (QS-FT) Terminology was deprecated and its content subsumed into the Clinical Outcome Assessments (COA) Terminology",
-      "SDTM_CT": "Study Data Tabulation Controlled Terminology. Terminology to support the tabulation of the collected data. SDTM is one of the required standards for data submission to FDA (U.S.) and PMDA (Japan).",
-      "SEND_CT": "Standard for the Exchange of Nonclinical Data Controlled Terminology. SEND is an implementation of the SDTM standard for nonclinical studies. SEND is one of the required standards for data submission to FDA."
+      "QRS_CT": "问卷、评分和量表受控术语。每个 QRS 工具由一系列问题、任务或评估组成，用于在临床研究中对临床概念或任务观察进行定性或定量评估。",
+      "QS_FT_CT": "问卷和功能测试受控术语。自 2014 年 12 月 19 日发布 CDISC 术语后，独立的问卷和功能测试 (QS-FT) 术语已弃用，其内容并入临床结局评估 (COA) 术语。",
+      "SDTM_CT": "研究数据列示受控术语，用于支持收集数据的列示。SDTM 是向 FDA（美国）和 PMDA（日本）提交数据所需的标准之一。",
+      "SEND_CT": "非临床数据交换标准受控术语。SEND 是 SDTM 标准在非临床研究中的实现，是向 FDA 提交数据所需的标准之一。"
     },
     "CtSponsorPackagesTable": {
-      "general": "The CT Sponsor Packages displays all version of both CDISC and Sponsor code lists and terms. Navigate using the CT Sponsor package date to show specific subsets of terminology."
+      "general": "CT 赞助方包显示 CDISC 和赞助方代码列表及术语的所有版本。通过选择 CT 赞助方包日期查看特定术语子集。"
     },
     "SnomedTable": {
       "general": "SNOMED CT (Systematized Nomenclature of Medicine -- Clinical Terms) is a standardized, multilingual vocabulary of clinical terminology that is used by physicians and other health care providers for the electronic exchange of clinical health information."
@@ -1235,20 +1235,20 @@
     "reactivate_pre_instance_success": "预实例已重新激活"
   },
   "CtCataloguesTable": {
-    "title": "Objective templates",
-    "singular_title": "CT Catalogue",
-    "rot_uri": "Root objective",
-    "actions": "Actions",
-    "approve_success": "Template is now in Final state",
-    "new_version_success": "New version created",
-    "inactivate_success": "Template inactivated",
-    "reactivate_success": "Template reactivated",
-    "history": "Show template history",
+    "title": "CT 目录",
+    "singular_title": "CT 目录",
+    "rot_uri": "根目标",
+    "actions": "操作",
+    "approve_success": "模板现已处于最终状态",
+    "new_version_success": "已创建新版本",
+    "inactivate_success": "模板已停用",
+    "reactivate_success": "模板已重新激活",
+    "history": "显示模板历史",
     "add_objective_template": "添加新的 CT 目录",
-    "new_version_default_description": "New version"
+    "new_version_default_description": "新版本"
   },
   "CTTermDisplay": {
-    "conflict_title": "This Controlled Terminology Term doesn't contain a FINAL version on the Effective Date of the CTPackage selected by the Data Standard Versions"
+    "conflict_title": "数据标准版本所选的 CT 包在生效日期内不包含该受控术语的最终版本"
   },
   "TimeframeTemplateTable": {
     "title": "时间范围模板",
@@ -1347,13 +1347,13 @@
     "update_success": "已更新脚注模板预实例"
   },
   "CtCataloguesForm": {
-    "add_title": "Add a new CT Catalogue",
-    "edit_title": "Edit CT Catalogue",
-    "library_label": "Library",
-    "name_label": "Template",
-    "name_hint": "Add parameters enclosed in square brackets [ and ]. I.e. 'To document the safety profile of [StudyIntervention].'",
-    "add_success": "Objective template added",
-    "update_success": "Objective template updated"
+    "add_title": "添加新的 CT 目录",
+    "edit_title": "编辑 CT 目录",
+    "library_label": "库",
+    "name_label": "模板",
+    "name_hint": "添加用方括号 [ 和 ] 括起来的参数，例如“记录 [StudyIntervention] 的安全性概况”。",
+    "add_success": "CT 目录已添加",
+    "update_success": "CT 目录已更新"
   },
   "TimeframeTemplateForm": {
     "add_title": "添加时间范围模板",
@@ -1759,7 +1759,7 @@
     "title": "目标模板"
   },
   "CtCataloguesView": {
-    "title": "CT Catalogues"
+    "title": "CT 目录"
   },
   "StudyEndpointsTable": {
     "endpoint_title": "Endpoint title",
@@ -2010,18 +2010,18 @@
     "table_caption": "研究干预概览表"
   },
   "CtCatalogueTable": {
-    "concept_id": "Concept ID",
-    "sponsor_pref_name": "Sponsor preferred name",
-    "template_parameter": "Template parameter",
-    "cd_status": "Code list status",
-    "cd_name": "Code list name",
-    "submission_value": "Submission value",
-    "nci_pref_name": "NCI Preferred name",
-    "extensible": "Extensible",
-    "attr_status": "Attributes status",
-    "modified_name": "Name modified",
-    "modified_attributes": "Attributes modified",
-    "remove_term": "Remove term"
+    "concept_id": "概念 ID",
+    "sponsor_pref_name": "赞助方首选名称",
+    "template_parameter": "模板参数",
+    "cd_status": "代码列表状态",
+    "cd_name": "代码列表名称",
+    "submission_value": "提交值",
+    "nci_pref_name": "NCI 首选名称",
+    "extensible": "可扩展",
+    "attr_status": "属性状态",
+    "modified_name": "名称已修改",
+    "modified_attributes": "属性已修改",
+    "remove_term": "移除术语"
   },
   "ActivityTable": {
     "sentence_case_name": "首字母大写名称",
@@ -2196,24 +2196,24 @@
     "tab3_title": "Data Exchange"
   },
   "CTStandardVersionsTable": {
-    "ct_catalogue": "CT Catalogue",
-    "cdisc_ct_package": "CDISC CT Package",
-    "sponsor_ct_package": "Sponsor CT Package",
-    "automatically_created": "Automatically created",
-    "confirm_delete": "Sponsor CT package selection ({package}) will be deleted",
-    "delete_success": "Sponsor CT package selection has been deleted",
-    "history_title": "Standard version selections history ({study})",
-    "item_history_title": "History for standard version selection ({item})"
+    "ct_catalogue": "CT 目录",
+    "cdisc_ct_package": "CDISC CT 包",
+    "sponsor_ct_package": "赞助方 CT 包",
+    "automatically_created": "自动创建",
+    "confirm_delete": "将删除赞助方 CT 包选择 ({package})",
+    "delete_success": "已删除赞助方 CT 包选择",
+    "history_title": "标准版本选择历史 ({study})",
+    "item_history_title": "标准版本选择 [{item}] 的历史记录"
   },
   "CTStandardVersionsForm": {
-    "create_package": "Create CT package",
-    "select_package": "Select CT package",
-    "mode_create": "Create a new Sponsor CT Package",
-    "mode_select": "Select existing Sponsor CT Package",
-    "add_title": "Add a sponsor CT Package for the study",
-    "edit_title": "Edit sponsor CT Package",
-    "add_success": "Sponsor CT package selection added",
-    "update_success": "Sponsor CT package selection updated"
+    "create_package": "创建 CT 包",
+    "select_package": "选择 CT 包",
+    "mode_create": "创建新的赞助方 CT 包",
+    "mode_select": "选择已有的赞助方 CT 包",
+    "add_title": "为该研究添加赞助方 CT 包",
+    "edit_title": "编辑赞助方 CT 包",
+    "add_success": "已添加赞助方 CT 包选择",
+    "update_success": "已更新赞助方 CT 包选择"
   },
   "StudyIdentificationSummary": {
     "core_attribute": "核心属性"
@@ -2672,20 +2672,20 @@
         "delete_success": "已删除标准模板"
     },
   "CtPackagesView": {
-    "title": "CT Packages"
+    "title": "CT 包"
   },
   "SponsorCtPackages": {
-    "title": "Sponsor CT Packages"
+    "title": "赞助方 CT 包"
   },
   "SponsorCTPackagesTable": {
-    "no_package_yet": "There is no Sponsor CT package defined yet.",
-    "create_first_one": "Create first one"
+    "no_package_yet": "尚未定义赞助方 CT 包。",
+    "create_first_one": "创建第一个"
   },
   "SponsorCTPackageForm": {
-    "title": "Sponsor CT Package creation",
-    "catalogue_label": "Select a CDISC CT catalogue",
-    "package_label": "Select a CDISC CT package",
-    "creation_success": "Sponsor CT package created"
+    "title": "创建赞助方 CT 包",
+    "catalogue_label": "选择 CDISC CT 目录",
+    "package_label": "选择 CDISC CT 包",
+    "creation_success": "已创建赞助方 CT 包"
   },
   "PackageTimeline": {
     "add_label": "Add package"
@@ -2786,17 +2786,17 @@
         "update_success": "研究标准已更新"
     },
   "CtPackagesHistoryView": {
-    "title": "Controlled Terminology Packages History"
+    "title": "受控术语包历史"
   },
   "CtPackageHistory": {
-    "new_codelist": "New code list | New code lists",
-    "updated_codelist": "Changed code list | Changed code lists",
-    "deleted_codelist": "Deleted code list | Deleted code lists",
-    "submission_value_choice": "Submission value (default)",
-    "codelist_code_choice": "Code list code",
-    "sponsor_name_choice": "Sponsor name",
-    "show": "Show:",
-    "ct_packages_history": "CT packages history"
+    "new_codelist": "新增代码列表 | 新增代码列表",
+    "updated_codelist": "修改的代码列表 | 修改的代码列表",
+    "deleted_codelist": "删除的代码列表 | 删除的代码列表",
+    "submission_value_choice": "提交值（默认）",
+    "codelist_code_choice": "代码列表代码",
+    "sponsor_name_choice": "赞助方名称",
+    "show": "显示：",
+    "ct_packages_history": "CT 包历史"
   },
   "FilterAutocomplete": {
     "search": "Search",
@@ -3176,29 +3176,29 @@
     "release_description": "Release description"
   },
   "CTDashboardView": {
-    "title": "Code Lists and Terms Dashboard",
-    "catalogue_count": "# of catalogues:",
-    "package_count": "# of packages:",
-    "cdisc_codelist_count": "# of code lists in CDISC library:",
-    "sponsor_codelist_count": "# of code lists in Sponsor library:",
-    "cdisc_term_count": "# of terms in CDISC library:",
-    "sponsor_term_count": "# of terms in Sponsor library:",
-    "codelist_mean_count": "Code list evolution / code lists:",
-    "term_mean_count": "Mean # of evolution / terms:",
-    "codelist_chart_title": "Evolution of code lists over time",
-    "term_chart_title": "Term evolutions / terms:",
-    "added": "Added",
-    "updated": "Updated",
-    "deleted": "Deleted",
-    "concept_id": "Concept ID",
-    "sponsor_pref_name": "Sponsor preferred name",
-    "template_parameter": "Template parameter",
-    "name_status": "Name status",
-    "codelist_name": "Code list name",
-    "subm_value": "Submission value",
-    "extensible": "Extensible",
-    "codelist_status": "Code list status",
-    "table_title": "Latest added code lists"
+    "title": "代码列表和术语仪表板",
+    "catalogue_count": "目录数量：",
+    "package_count": "包数量：",
+    "cdisc_codelist_count": "CDISC 库中的代码列表数量：",
+    "sponsor_codelist_count": "赞助方库中的代码列表数量：",
+    "cdisc_term_count": "CDISC 库中的术语数量：",
+    "sponsor_term_count": "赞助方库中的术语数量：",
+    "codelist_mean_count": "代码列表演化/代码列表数量：",
+    "term_mean_count": "平均演化次数/术语：",
+    "codelist_chart_title": "代码列表随时间的演化",
+    "term_chart_title": "术语演化/术语：",
+    "added": "新增",
+    "updated": "更新",
+    "deleted": "删除",
+    "concept_id": "概念 ID",
+    "sponsor_pref_name": "赞助方首选名称",
+    "template_parameter": "模板参数",
+    "name_status": "名称状态",
+    "codelist_name": "代码列表名称",
+    "subm_value": "提交值",
+    "extensible": "可扩展",
+    "codelist_status": "代码列表状态",
+    "table_title": "最新新增的代码列表"
   },
   "UCUM": {
     "code": "UCUM code",
