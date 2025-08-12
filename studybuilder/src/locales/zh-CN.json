@@ -201,41 +201,41 @@
       "context": "Context 属性指定该附加名称相关的应用领域。例如，可使用 'CDASH/SDTM'，其 'Name' = 'DM:Demographics|DS:Disposition'，则 ODM-XML 视图将其显示为两个 SDTM 域的注释。"
     },
     "CRFItems": {
-      "name": "Provide the name of the Item. An ItemDef describes a type of item that can occur within a study. Item properties include name, datatype, measurement units, range or codelist restrictions, and several other properties. This will be used as the /ODM/ItemDef/@name attribute in the ODM-XML file (Mandatory field).",
-      "oid": "Specify an 'Object Identifier' as a unique ID in the application. As we are defining an Item, it could starts with I.XXX. This will be used as the /ODM/ItemDef/@OID attribute in the ODM-XML file (Mandatory field, but it can be auto-populated if left blank).",
-      "data_type": "The DataType attribute specifies how the corresponding value elements are to be interpreted for comparison and storage. The Length attribute is required when DataType is text or string, optional when DataType is integer or float, and should not be given for the other datatypes. The SignificantDigits attribute is optional when DataType is float, and should not be given for the other datatypes. When DataType is float both Length and SignificantDigits must be given or both be absent.",
-      "length": "If DataType=integer, Length=N is a requirement that the receiving system be able to process and store all whole number values of magnitude less than 10N. Larger values may be rejected. If DataType=float, Length=N and SignificantDigits=S is a requirement that the receiving system be able to process and store all numeric values of magnitude less than 10N-S that are multiples of 10-S. Larger values may be rejected. Intermediate values may be rounded to the nearest multiple of 10-S. If DataType=text, Length=N is a requirement that the receiving system be able to process and store all text string values of length less than or equal to N. All characters are allowed in text string values. Data of type Text should be transmitted in an ItemDataString element.",
-      "significant_digits": "Length and SignificantDigits are statements about an item's data values, not the number of characters used to represent these values in value elements. For example, the character '<' might be represented as '&lt;'. Data characters that are not included in the encoding character set for a particular ODM file must be represented using XML entities or character references. For example, Æ could be represented as '&#198;'.",
-      "sas_name": "The SAS Name could be used to store legacy variable reference.",
-      "sds_name": "The SDSVarName attribute carry submission information as described in the latest version of CDISC SDTM. It should use a SDTMIG variable reference.",
-      "origin": "Origin attribute carry submission information as described in the latest version of CDISC SDTM.",
-      "comment": "Comment attribute carry submission information as described in the latest version of CDISC SDTM.",
-      "impl_notes": "Provide here the text explaining the way this Item will be used in the application (as a Sponsor note). Note that here you can use the Rich Editor to add some html tag. This will be used as the /ODM/ItemDef[@osb:instruction] attribute in the ODM-XML file.",
-      "displayed_text": "Specify here the label of the Item (using the default language). This will be used as the /ODM/ItemDef/Description/TranslatedText/ tag in the ODM-XML file. When the multilingual is activated then, the stepper 'Translations' will allow the display text of the Form to be translated accordingly.",
-      "compl_instructions": "Provide here the help text that could be displayed in a CRF as an OnlineHelp. Note that here you can use the Rich Editor to add some html tag. This will be used as the /ODM/ItemDef[@osb:sponsorInstruction] attribute in the ODM-XML file.",
-      "vendor_extensions": "This stepper is dedicated to the extension of the Form by providing both Elements and / or Attributes. This will then be added to the ODM/ItemDef as a Vendor like for example osb:displayAsTable='Yes' or as an extension under this OMD level. XML namespaces are used for providing uniquely named elements and attributes in an XML document. Provide also the datatype for this Vendor Extension and note that the value can be verified against a dedicated list of accepted reply.",
-      "aliases": "An Alias provides an additional name for an element, here for the Item element. The Context attribute specifies the application domain in which this additional name is relevant. This will be used as the /ODM/ItemDef/Alias[@Context] name attribute in the ODM-XML file.",
-      "context": "The Context attribute specifies the application domain in which this additional name is relevant. You could use for example 'CDASH/SDTM' with a 'Name' = 'VS:VSORRES' and then the ODM-XML view will display it as an annotation for two SDTM Domain."
+      "name": "提供项目的名称。ItemDef 描述研究中可能出现的一种项目类型。项目属性包括名称、数据类型、计量单位、范围或代码列表限制以及其他属性。这将在 ODM-XML 文件中作为 /ODM/ItemDef/@name 属性（必填）。",
+      "oid": "指定一个“对象标识符”作为应用中的唯一 ID。由于我们正在定义一个项目，可使用 I.XXX 开头。这将在 ODM-XML 文件中作为 /ODM/ItemDef/@OID 属性（必填字段，若留空可自动填充）。",
+      "data_type": "DataType 属性指定如何解释相应的值元素以用于比较和存储。当 DataType 为 text 或 string 时必须提供 Length 属性；当 DataType 为 integer 或 float 时可选；其他数据类型不应提供。当 DataType 为 float 时，SignificantDigits 属性可选，但其他数据类型不应提供。若 DataType 为 float，则 Length 与 SignificantDigits 要么同时提供，要么同时省略。",
+      "length": "若 DataType=integer，Length=N 表示接收系统必须能够处理并存储绝对值小于 10^N 的所有整数，较大的值可能被拒收。若 DataType=float，Length=N 且 SignificantDigits=S 表示接收系统必须能够处理并存储绝对值小于 10^(N-S) 且为 10^-S 倍数的所有数值，较大的值可能被拒收，中间值可四舍五入到最接近的 10^-S 倍数。若 DataType=text，Length=N 表示接收系统必须能够处理并存储长度小于等于 N 的所有文本字符串，文本字符串允许所有字符。Text 类型的数据应在 ItemDataString 元素中传输。",
+      "significant_digits": "Length 和 SignificantDigits 描述的是项目的数据值，而不是在值元素中表示这些值所用的字符数量。例如，字符 '<' 可以表示为 '&lt;'。对于特定 ODM 文件编码字符集之外的字符，必须使用 XML 实体或字符引用表示，例如 Æ 可表示为 '&#198;'。",
+      "sas_name": "SAS Name 可用于存储传统变量引用。",
+      "sds_name": "SDSVarName 属性包含最新版本 CDISC SDTM 描述的提交信息，应该使用 SDTMIG 变量引用。",
+      "origin": "Origin 属性包含最新版本 CDISC SDTM 描述的提交信息。",
+      "comment": "Comment 属性包含最新版本 CDISC SDTM 描述的提交信息。",
+      "impl_notes": "在此提供说明该项目在应用中如何使用的文本（作为赞助商说明）。注意可使用富文本编辑器添加 HTML 标签。这将在 ODM-XML 文件中作为 /ODM/ItemDef[@osb:instruction] 属性。",
+      "displayed_text": "在此指定项目的标签（使用默认语言）。这将在 ODM-XML 文件的 /ODM/ItemDef/Description/TranslatedText/ 标签中使用。当启用多语言时，“翻译”步骤允许对表单的显示文本进行相应翻译。",
+      "compl_instructions": "在此提供可在 CRF 中作为在线帮助显示的帮助文本。注意可使用富文本编辑器添加 HTML 标签。这将在 ODM-XML 文件中作为 /ODM/ItemDef[@osb:sponsorInstruction] 属性。",
+      "vendor_extensions": "此步骤用于通过提供元素和/或属性扩展表单。它们将作为供应商内容添加到 ODM/ItemDef，例如 osb:displayAsTable='Yes'，或作为该 ODM 级别下的扩展。XML 命名空间用于在 XML 文档中提供唯一命名的元素和属性。还需提供此供应商扩展的数据类型，并注意其值可根据专用的可接受值列表进行验证。",
+      "aliases": "别名为元素提供附加名称，此处针对 Item 元素。Context 属性指定此附加名称所适用的应用领域。这将在 ODM-XML 文件中作为 /ODM/ItemDef/Alias[@Context] 的 name 属性。",
+      "context": "Context 属性指定该附加名称所适用的应用领域。例如，可使用 'CDASH/SDTM' 且 'Name' = 'VS:VSORRES'，则 ODM-XML 视图会将其显示为两个 SDTM 域的注释。"
     },
     "CrfAliases": {
-      "name": "An Alias provides an additional name for an element, here for the ItemGroup element. The Context attribute specifies the application domain in which this additional name is relevant. This will be used as the Alias[@Name] name attribute in the ODM-XML file.",
-      "context": "The Context attribute specifies the application domain in which this additional name is relevant. You could use for example 'CDASH/SDTM' with a 'Name' = 'DM:Demographics|DS:Disposition' and then the ODM-XML view will display it as an annotation for two SDTM Domain."
+      "name": "别名为元素提供附加名称，此处针对 ItemGroup 元素。Context 属性指定该附加名称适用的应用领域。这将在 ODM-XML 文件中作为 Alias[@Name] 属性。",
+      "context": "Context 属性指定该附加名称适用的应用领域。例如，可使用 'CDASH/SDTM' 且 'Name' = 'DM:Demographics|DS:Disposition'，则 ODM-XML 视图会将其显示为两个 SDTM 域的注释。"
     },
     "GenericTemplateForm": {
       "study_indication": "模板适用的适应症、情况、疾病或障碍。若模板是通用且不针对特定研究，请选择 NA（不适用）。",
       "study_phase": "模板适用的研究阶段。若模板是通用且不针对特定研究，请选择 NA（不适用）。"
     },
     "ObjectiveTemplateForm": {
-      "name": "Example of objective: 'To demonstrate superiority of [CompoundDosing] [NumericValue] [Dose Unit] versus [Comparator] [NumericValue] [Dose Unit] with respect to [ActivityInstance] at [TimePoint] in patients with [DiseaseDisorder]' or 'To document the safety profile of [StudyIntervention].' Add parameters enclosed in square brackets [ and ].",
-      "indication_disorder": "Select one or more indications from the drop-down for which this objective applies. Tick NA if not applicable.",
-      "objective_category": "Select one or more categories from the drop-down for which this objective applies. Tick NA if not applicable.",
-      "confirmatory_testing": "Use the radio-button to specify if the template is to be used to express an objective that is related to a confirmatory testing. For objectives that are related to confirmatory testing, it is essential that the objectives are precise and state if the purpose is to demonstrate superiority, non-inferiority, or bioequivalence. Also, it is essential that the endpoint (including time frame) associated with the confirmatory analysis is stated in the objective. Example of an objective related to confirmatory testing: To demonstrate superiority of [CompoundDosing] [NumericValue] [Dose Unit] versus [Comparator] [NumericValue] [Dose Unit] with respect to [ActivityInstance] at [TimePoint] in patients with [DiseaseDisorder]. Example of an objective not related to confirmatory testing: To compare the safety and efficacy with respect to glycemic control of [CompoundDosing] [NumericValue] [Dose Unit] versus [Comparator] [NumericValue] [Dose Unit] in patients with [DiseaseDisorder]"
+      "name": "目标示例：“在患有 [DiseaseDisorder] 的患者中，在 [TimePoint] 处，以 [ActivityInstance] 为依据，证明 [CompoundDosing] [NumericValue] [Dose Unit] 相较于 [Comparator] [NumericValue] [Dose Unit] 具有优势”或“记录 [StudyIntervention] 的安全性特征”。请添加用方括号 [ 和 ] 括起的参数。",
+      "indication_disorder": "从下拉菜单中选择一个或多个适用此目标的适应症。如不适用，请勾选 NA。",
+      "objective_category": "从下拉菜单中选择一个或多个适用此目标的类别。如不适用，请勾选 NA。",
+      "confirmatory_testing": "使用单选按钮指定该模板是否用于表达与确证性测试相关的目标。对于与确证性测试相关的目标，必须明确目标，并说明其目的是证明优效、非劣或生物等效性。同时必须在目标中说明与确证性分析相关的终点（包括时间框架）。与确证性测试相关的目标示例：在患有 [DiseaseDisorder] 的患者中，在 [TimePoint] 处，以 [ActivityInstance] 为依据，证明 [CompoundDosing] [NumericValue] [Dose Unit] 相较于 [Comparator] [NumericValue] [Dose Unit] 具有优势。与确证性测试无关的目标示例：比较 [CompoundDosing] [NumericValue] [Dose Unit] 与 [Comparator] [NumericValue] [Dose Unit] 在患有 [DiseaseDisorder] 的患者中对血糖控制的安全性和有效性。"
     },
     "ActivityInstructionTemplateForm": {
-      "indications": "Indications, conditions, diseases or disorders in scope for the template. Select NA (not applicable), if template is generic not targeted specific indication.",
+      "indications": "模板适用的适应症、情况、疾病或障碍。若模板是通用且不针对特定适应症，请选择 NA（不适用）。",
       "group": "选择该活动所属的默认组（分组用于例如方案 SoA 显示）。如有需要，可在研究层面更改。",
       "sub_group": "选择该活动所属的一个或多个默认子组（子分组用于例如方案 SoA 显示）。如有需要，可在研究层面更改。",
-      "activity": "Select NA (not applicable), if template not targeting specific activities."
+      "activity": "若模板不针对特定活动，请选择 NA（不适用）。"
     },
     "ActivityInstructionTable": {
       "general": "A list of Activity instructions used on studies."
