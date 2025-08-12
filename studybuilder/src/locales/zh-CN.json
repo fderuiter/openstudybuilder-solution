@@ -400,10 +400,10 @@
       "name": "A timeframe can be referenced as part of an endpoint. Example: from from baseline (week 0) to Week 28. A template for this could be 'from from [Time Point Reference] ([VisitName]) to [VisitName]'. Add parameters enclosed in square brackets [ and ]."
     },
     "CriteriaTemplateForm": {
-      "guidance_text": "Depending on type of criteria a generic template can be defined. Example: Age ≥ 18 years at the time of signing informed consent can be parameterized to 'Age [Operator] [NumericValue] [Age Unit] at the time of signing informed consent'.",
-      "indication": "Select the indication for which this template applies (select multiple if needed). Select NA if not applicable.",
-      "criterion_cat": "Select one or more categories for which the criterion applies. The Age example could apply to Demography. Tick NA if not applicable. The categorisation is used for searching when selecting criteria template for a study.",
-      "criterion_sub_cat": "Select one or more sub-category that applies to the criterion. Tick NA if not applicable. The categorisation is used for searching when selecting criteria template for a study."
+      "guidance_text": "根据标准类型可以定义通用模板。例如：在签署知情同意书时年龄≥18岁可参数化为“在签署知情同意书时年龄[Operator][NumericValue][Age Unit]”。",
+      "indication": "选择此模板适用的适应症（如需要可选择多个）。如不适用请选择 NA。",
+      "criterion_cat": "选择该标准适用的一个或多个类别。年龄示例可适用于人口统计。若不适用请勾选 NA。此分类用于在为研究选择标准模板时进行搜索。",
+      "criterion_sub_cat": "选择适用于该标准的一个或多个子类别。若不适用请勾选 NA。此分类用于在为研究选择标准模板时进行搜索。"
     },
     "CodelistCreationForm": {
       "catalogue": "新的代码列表将在此目录中创建"
@@ -605,14 +605,14 @@
       "study_criteria": "Follow the tabs to define the different criteria applicable for the study"
     },
     "EligibilityCriteriaForm": {
-      "add_criteria": "The criteria can be based on standard templates, selected from other studies, or created from scratch",
-      "select_from_studies": "Copy a criteria from a previous study",
-      "create_from_template": "Criteria made from a pre-defined template. Some criteria contain parameters highlighted with orange text (parameter labels) or green text (parameter values) for which new values can be selected, or the parameter omitted.",
-      "create_from_scratch": "Write your own criteria from scratch",
-      "select_criteria_templates": "Copy criteria from the list of templates using the copy icon. Once all criteria templates have been saved then press Save. You are returned to the criteria list from where you can use the Edit button next to each editable criterion in the table to fill in the template."
+      "add_criteria": "标准可以基于通用模板、从其他研究中选择或从头创建",
+      "select_from_studies": "从以往研究复制标准",
+      "create_from_template": "基于预定义模板的标准。有些标准包含以橙色文本（参数标签）或绿色文本（参数值）突出显示的参数，可选择新的值，或省略该参数。",
+      "create_from_scratch": "从头编写你自己的标准",
+      "select_criteria_templates": "使用复制图标从模板列表中复制标准。保存所有标准模板后按“保存”。系统将返回到标准列表，在表中可使用每个可编辑标准旁的“编辑”按钮来填写模板。"
     },
     "EligibilityCriteriaEditForm": {
-      "title": "For template based criteria, replace the parameters with actual values selecting from the drop-down list(s)."
+      "title": "对于基于模板的标准，从下拉列表中选择实际值以替换参数。"
     },
     "StudyProperties": {
       "general": "在每个选项卡（研究类型和研究属性）中，按照方案描述填写研究的详细信息。",
@@ -755,7 +755,7 @@
       "general": "Generic templates for Time Frames are defined here. Click on the + button to add a new template. In the User Defined Templates you can view templates being defined on different studies. To make a template accessible for use it must be approved. Use the Approve in the left context-menu (3 vertical dots to the left of the template). To set default values for parameters use the 'Default' values in the context menu."
     },
     "CriteriaTemplatesTable": {
-      "general": "Generic templates for different types of criteria are defined here. Click on the + button to add a new template. In the User Defined Templates you can view templates being defined on different studies. To make a template accessible for use it must be approved. Use the Approve in the left context-menu (3 vertical dots to the left of the template). To set default values for parameters use the 'Default' values in the context menu."
+      "general": "此处定义各种标准的通用模板。点击 + 按钮添加新模板。在“用户定义模板”中可以查看在不同研究中定义的模板。要使模板可用，必须先批准。请使用左侧上下文菜单中的“批准”（模板左侧的三个竖点）。要为参数设置默认值，请在上下文菜单中使用“默认值”选项。"
     },
     "ActivityTemplatesTable": {
       "general": "此处定义活动的通用模板。活动指与受试者健康相关的测量或记录，例如血液测量、检查、不良事件、干预等。点击 + 按钮可添加新模板。在“用户定义模板”中可查看在不同研究中定义的模板。要使模板可用，必须先审批；请在左侧上下文菜单（三个竖点）中选择“批准”。如需设置参数的默认值，请在上下文菜单中使用“默认值”。"
@@ -1500,8 +1500,8 @@
     "title": "Time Frames"
   },
   "CriteriaView": {
-    "title": "Criteria"
-  },
+      "title": "标准"
+    },
   "ManageStudiesView": {
     "title": "Manage Studies"
   },
@@ -2631,46 +2631,46 @@
     "add_success": "化合物别名已添加",
     "update_success": "化合物别名已更新"
   },
-  "CriteriaTemplatesView": {
-    "title": "Criteria Templates"
-  },
-  "CriteriaTemplateTable": {
-    "health_status": "Health status",
-    "indications": "Indication or disorder",
-    "study_phases": "Study phase(s)",
-    "criterion_cat": "Criterion category",
-    "criterion_sub_cat": "Criterion sub-category",
-    "criterion_tpl": "Template",
-    "guidance_text": "Guidance text",
-    "add": "Add",
-    "edit": "Edit",
-    "approve": "Approve",
-    "delete": "Delete",
-    "new_version_default_description": "New version",
-    "approve_success": "Template is now in Final state",
-    "approve_pre_instance_success": "Pre-instance is now in Final state",
-    "new_version_success": "New version created",
-    "inactivate_success": "Template inactivated",
-    "reactivate_success": "Template reactivated",
-    "delete_success": "Template deleted",
-    "delete_pre_instance_success": "Pre-instance deleted",
-    "duplicate_success": "Pre-instance duplicated",
-    "inactivate_pre_instance_success": "Pre-Instance inactivated",
-    "reactivate_pre_instance_success": "Pre-Instance reactivated",
-    "singular_title": "Criteria Template"
-  },
-  "CriteriaTemplateForm": {
-    "add_title": "Add {type} criteria template",
-    "edit_title": "Edit criteria template",
-    "indication": "Indication or disorder",
-    "criterion_cat": "Criterion category",
-    "criterion_sub_cat": "Criterion sub-category",
-    "name": "Template text",
-    "guidance_text": "Guidance text",
-    "add_success": "Criteria template added",
-    "update_success": "Criteria template updated",
-    "delete_success": "Criteria template deleted"
-  },
+    "CriteriaTemplatesView": {
+        "title": "标准模板"
+    },
+    "CriteriaTemplateTable": {
+        "health_status": "健康状况",
+        "indications": "适应症或疾病",
+        "study_phases": "研究阶段",
+        "criterion_cat": "标准类别",
+        "criterion_sub_cat": "标准子类别",
+        "criterion_tpl": "模板",
+        "guidance_text": "指导文本",
+        "add": "添加",
+        "edit": "编辑",
+        "approve": "批准",
+        "delete": "删除",
+        "new_version_default_description": "新版本",
+        "approve_success": "模板已进入最终状态",
+        "approve_pre_instance_success": "预实例已进入最终状态",
+        "new_version_success": "已创建新版本",
+        "inactivate_success": "模板已停用",
+        "reactivate_success": "模板已重新激活",
+        "delete_success": "模板已删除",
+        "delete_pre_instance_success": "预实例已删除",
+        "duplicate_success": "预实例已复制",
+        "inactivate_pre_instance_success": "预实例已停用",
+        "reactivate_pre_instance_success": "预实例已重新激活",
+        "singular_title": "标准模板"
+    },
+    "CriteriaTemplateForm": {
+        "add_title": "添加{type}标准模板",
+        "edit_title": "编辑标准模板",
+        "indication": "适应症或疾病",
+        "criterion_cat": "标准类别",
+        "criterion_sub_cat": "标准子类别",
+        "name": "模板文本",
+        "guidance_text": "指导文本",
+        "add_success": "已添加标准模板",
+        "update_success": "已更新标准模板",
+        "delete_success": "已删除标准模板"
+    },
   "CtPackagesView": {
     "title": "CT Packages"
   },
@@ -2727,64 +2727,64 @@
     "copy_from_study": "Copy from study",
     "clear_filters_content": "Clear all"
   },
-  "EligibilityCriteriaTable": {
-    "criteria_text": "Criteria text",
-    "guidance_text": "Guidance text",
-    "key_criteria": "Key criteria",
-    "inclusion_criteria": "Inclusion criteria",
-    "exclusion_criteria": "Exclusion criteria",
-    "add_criteria": "Add criteria",
-    "criteria": "criteria",
-    "confirm_delete": "The criterion: '{criterion}' will be deleted",
-    "delete_success": "Study criteria deleted",
-    "global_history_title": "Study criteria history",
-    "study_criteria_history_title": "History for study criteria [{studyCriteriaUid}]",
-    "update_version_tooltip": "Update template",
-    "update_version_retired_tooltip": "Template retired",
-    "keep_old_version": "Keep old version",
-    "use_new_version": "Use new version",
-    "update_version_alert": "The underlying template has been updated",
-    "previous_version": "Old version:",
-    "new_version": "New version:",
-    "update_version_successful": "criteria version updated",
-    "criteria_length_warning": "Only first 200 characters of the criteria can be submitted in a dataset. Please make sure that the first 200 characters are not the same across 2 or more criterias."
-  },
-  "EligibilityCriteriaForm": {
-    "add_inclusion_criteria": "Add inclusion criteria",
-    "add_exclusion_criteria": "Add exclusion criteria",
-    "add_randomisation_criteria": "Add randomisation criteria",
-    "add_dosing_criteria": "Add dosing criteria",
-    "add_withdrawal_criteria": "Add withdrawal criteria",
-    "add_runin_criteria": "Add run-in criteria",
-    "creation_mode_label": "Select method",
-    "select_from_studies": "Select from studies",
-    "create_from_template": "Select from standards",
-    "create_from_scratch": "Create from scratch",
-    "create_criteria": "Define criteria details",
-    "select_from": "Select from",
-    "templates_choice": "Templates",
-    "studies_choice": "Studies",
-    "criterion_cat": "Criterion category",
-    "criterion_sub_cat": "Criterion sub-category",
-    "criteria_template": "Criteria template",
-    "criteria_text": "Criteria text",
-    "guidance_text": "Guidance text",
-    "selected_criteria": "Selected criteria",
-    "selected_criteria_templates": "Selected criteria templates",
-    "select_criteria_templates": "Select criteria templates",
-    "select_criteria": "Select criteria",
-    "copy_instructions": "Find and copy criteria from the table. Use free-text search or the filters.",
-    "select_studies": "Select studies",
-    "add_success": "Study criteria added",
-    "add_criteria": "Add criteria",
-    "no_template_error": "No criteria template selected",
-    "no_criteria_error": "No criteria selected"
-  },
-  "EligibilityCriteriaEditForm": {
-    "title": "Edit Study Criteria",
-    "key_criteria": "Key criteria",
-    "update_success": "Study criteria updated"
-  },
+    "EligibilityCriteriaTable": {
+        "criteria_text": "标准文本",
+        "guidance_text": "指导文本",
+        "key_criteria": "关键标准",
+        "inclusion_criteria": "入选标准",
+        "exclusion_criteria": "排除标准",
+        "add_criteria": "添加标准",
+        "criteria": "标准",
+        "confirm_delete": "将删除标准：“{criterion}”",
+        "delete_success": "研究标准已删除",
+        "global_history_title": "研究标准历史",
+        "study_criteria_history_title": "研究标准[{studyCriteriaUid}]的历史",
+        "update_version_tooltip": "更新模板",
+        "update_version_retired_tooltip": "模板已退役",
+        "keep_old_version": "保留旧版本",
+        "use_new_version": "使用新版本",
+        "update_version_alert": "底层模板已更新",
+        "previous_version": "旧版本：",
+        "new_version": "新版本：",
+        "update_version_successful": "标准版本已更新",
+        "criteria_length_warning": "数据集中只能提交标准的前200个字符。请确保前200个字符在两个或多个标准中不相同。"
+    },
+    "EligibilityCriteriaForm": {
+        "add_inclusion_criteria": "添加入选标准",
+        "add_exclusion_criteria": "添加排除标准",
+        "add_randomisation_criteria": "添加随机化标准",
+        "add_dosing_criteria": "添加给药标准",
+        "add_withdrawal_criteria": "添加停药标准",
+        "add_runin_criteria": "添加导入期标准",
+        "creation_mode_label": "选择方式",
+        "select_from_studies": "从研究中选择",
+        "create_from_template": "从标准中选择",
+        "create_from_scratch": "从头创建",
+        "create_criteria": "定义标准细节",
+        "select_from": "选择来源",
+        "templates_choice": "模板",
+        "studies_choice": "研究",
+        "criterion_cat": "标准类别",
+        "criterion_sub_cat": "标准子类别",
+        "criteria_template": "标准模板",
+        "criteria_text": "标准文本",
+        "guidance_text": "指导文本",
+        "selected_criteria": "已选标准",
+        "selected_criteria_templates": "已选标准模板",
+        "select_criteria_templates": "选择标准模板",
+        "select_criteria": "选择标准",
+        "copy_instructions": "在表中查找并复制标准。使用自由文本搜索或筛选器。",
+        "select_studies": "选择研究",
+        "add_success": "研究标准已添加",
+        "add_criteria": "添加标准",
+        "no_template_error": "未选择标准模板",
+        "no_criteria_error": "未选择标准"
+    },
+    "EligibilityCriteriaEditForm": {
+        "title": "编辑研究标准",
+        "key_criteria": "关键标准",
+        "update_success": "研究标准已更新"
+    },
   "CtPackagesHistoryView": {
     "title": "Controlled Terminology Packages History"
   },
