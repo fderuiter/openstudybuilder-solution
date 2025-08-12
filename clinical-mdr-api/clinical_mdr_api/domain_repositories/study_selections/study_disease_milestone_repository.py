@@ -147,7 +147,15 @@ class StudyDiseaseMilestoneRepository:
         ]
         return all_disease_milestones
 
-    def find_by_uid(self, uid: str) -> StudyDiseaseMilestoneVO:
+    def find_by_uid(
+        self, uid: str, study_uid: str, study_value_version: str | None = None
+    ) -> StudyDiseaseMilestoneVO:
+        filters: dict[str, Any] = {"uid": uid}
+        if study_value_version:
+            filters["study_value__has_version__uid"] = study_uid
+            filters["study_value__has_version|version"] = study_value_version
+        else:
+            filters["study_value__latest_value__uid"] = study_uid
         disease_milestone_node = ListDistinct(
             StudyDiseaseMilestone.nodes.fetch_relations(
                 "has_after__audit_trail",
@@ -155,7 +163,7 @@ class StudyDiseaseMilestoneRepository:
                 "has_disease_milestone_type__has_name_root__latest_final",
                 "has_disease_milestone_type__has_attributes_root__latest_final",
             )
-            .filter(uid=uid)
+            .filter(**filters)
             .resolve_subgraph()
         ).distinct()
 
@@ -335,6 +343,8 @@ class StudyDiseaseMilestoneRepository:
     def get_distinct_headers(
         self,
         field_name: str,
+        study_uid: str | None = None,
+        study_value_version: str | None = None,
         search_string: str | None = "",
         filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
@@ -359,6 +369,14 @@ class StudyDiseaseMilestoneRepository:
         q_filters = transform_filters_into_neomodel(
             filter_by=filter_by, model=StudyDiseaseMilestoneOGM
         )
+        if study_uid:
+            if study_value_version:
+                q_filters.append(Q(study_value__has_version__uid=study_uid))
+                q_filters.append(
+                    Q(**{"study_value__has_version|version": study_value_version})
+                )
+            else:
+                q_filters.append(Q(study_value__latest_value__uid=study_uid))
         q_filters = merge_q_query_filters(q_filters, filter_operator=filter_operator)
         field = get_field(prop=field_name, model=StudyDiseaseMilestoneOGM)
         field_path = get_field_path(prop=field_name, field=field)

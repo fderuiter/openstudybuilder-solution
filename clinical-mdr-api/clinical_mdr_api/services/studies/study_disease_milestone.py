@@ -146,10 +146,17 @@ class StudyDiseaseMilestoneService:
         return study_disease_milestones
 
     @db.transaction
-    def find_by_uid(self, uid: str) -> StudyDiseaseMilestone:
+    def find_by_uid(
+        self,
+        study_uid: str,
+        uid: str,
+        study_value_version: str | None = None,
+    ) -> StudyDiseaseMilestone:
         repos = self._repos
         try:
-            study_disease_milestone = self.repo.find_by_uid(uid=uid)
+            study_disease_milestone = self.repo.find_by_uid(
+                uid=uid, study_uid=study_uid, study_value_version=study_value_version
+            )
 
             return self._transform_all_to_response_model(study_disease_milestone)
         except ValueError as e:
@@ -294,10 +301,13 @@ class StudyDiseaseMilestoneService:
     @db.transaction
     def edit(
         self,
+        study_uid: str,
         study_disease_milestone_uid: str,
         study_disease_milestone_input: StudyDiseaseMilestoneEditInput,
     ):
-        study_disease_milestone = self.repo.find_by_uid(study_disease_milestone_uid)
+        study_disease_milestone = self.repo.find_by_uid(
+            uid=study_disease_milestone_uid, study_uid=study_uid
+        )
         self._validate_update(study_disease_milestone_input, study_disease_milestone)
         fill_missing_values_in_base_model_from_reference_base_model(
             base_model_with_missing_values=study_disease_milestone_input,
@@ -315,11 +325,15 @@ class StudyDiseaseMilestoneService:
         return self._transform_all_to_response_model(updated_item)
 
     @db.transaction
-    def reorder(self, study_disease_milestone_uid: str, new_order: int):
+    def reorder(
+        self, study_uid: str, study_disease_milestone_uid: str, new_order: int
+    ):
         new_order -= 1
-        disease_milestone = self.repo.find_by_uid(study_disease_milestone_uid)
+        disease_milestone = self.repo.find_by_uid(
+            uid=study_disease_milestone_uid, study_uid=study_uid
+        )
         study_disease_milestones = self.repo.find_all_disease_milestones_by_study(
-            disease_milestone.study_uid
+            study_uid
         )
         old_order = 0
         for i, disease_milestone_checked in enumerate(study_disease_milestones):
@@ -352,14 +366,14 @@ class StudyDiseaseMilestoneService:
         return self._transform_all_to_response_model(disease_milestone)
 
     @db.transaction
-    def delete(self, study_disease_milestone_uid: str):
-        study_disease_milestone = self.repo.find_by_uid(study_disease_milestone_uid)
+    def delete(self, study_uid: str, study_disease_milestone_uid: str):
+        study_disease_milestone = self.repo.find_by_uid(
+            uid=study_disease_milestone_uid, study_uid=study_uid
+        )
 
         self.repo.save(study_disease_milestone, delete_flag=True)
         all_disease_milestones_in_study = (
-            self.repo.find_all_disease_milestones_by_study(
-                study_disease_milestone.study_uid
-            )
+            self.repo.find_all_disease_milestones_by_study(study_uid)
         )
         for disease_milestone in all_disease_milestones_in_study[
             study_disease_milestone.order - 1 :
@@ -399,19 +413,23 @@ class StudyDiseaseMilestoneService:
 
     def get_distinct_values_for_header(
         self,
+        study_uid: str,
         field_name: str,
         search_string: str | None = "",
         filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator | None = FilterOperator.AND,
         page_size: int = 10,
+        study_value_version: str | None = None,
         **kwargs,
     ):
         header_values = self.repo.get_distinct_headers(
+            study_uid=study_uid,
             field_name=field_name,
             search_string=search_string,
             filter_by=filter_by,
             filter_operator=filter_operator,
             page_size=page_size,
+            study_value_version=study_value_version,
             **kwargs,
         )
         return header_values
