@@ -172,33 +172,33 @@
   },
   "_help": {
     "CrfTemplates": {
-      "name": "Provide the name of the Template that will be displayed in the different part of the application (Mandatory field).",
-      "oid": "Specify an 'Object Identifier' as a unique ID in the application. As we are defining a Template, it could starts with T.XXX. This is not an ODM element but we are using it here to group Forms, ItemGroups and Items to be re-used after at the Study Level of the application (Mandatory field, but it can be auto-populated if left blank).",
-      "effective_date": "Provide an effective start date, when this Template will be applicable (Select a date in the datepicker).",
-      "retired_date": "Provide an obsolete stop date (a retired date), when this Template will be deprecated (Select a date in the datepicker)."
+      "name": "提供模板的名称，该名称将在应用程序的不同部分显示（必填字段）。",
+      "oid": "在应用程序中指定一个“对象标识符”作为唯一 ID。由于我们定义的是模板，它可以以 T.XXX 开头。这不是 ODM 元素，但我们在此使用它来将表单、项目组和项目分组，以便在研究级别重复使用（必填字段，可留空自动生成）。",
+      "effective_date": "提供此模板适用的生效开始日期（在日期选择器中选择日期）。",
+      "retired_date": "提供此模板停用的结束日期（退役日期），即模板将被弃用的时间（在日期选择器中选择日期）。"
     },
     "CRFForms": {
-      "name": "Provide the name of the Form. This will be used as the /ODM/FormDef/@name attribute in the ODM-XML file (Mandatory field).",
-      "oid": "Specify an 'Object Identifier' as a unique ID in the application. As we are defining a Form, it could starts with F.XXX. This will be used as the /ODM/FormDef/@OID attribute in the ODM-XML file (Mandatory field, but it can be auto-populated if left blank).",
-      "repeating": "Specify if the Form is repeating over time or not. This will be used as the /ODM/FormDef/@Repeating with a Yes/No answer.",
-      "description": "A free-text description of the containing study metadata component. This information will be used as the /ODM/FormDef/Description/TranslatedText.",
-      "impl_notes": "Provide here the text explaining the way this Form will be used in the application (as a Sponsor note). Note that here you can use the Rich Editor to add some html tag. This will be used as the /ODM/FormDef[@ImplementationNotes] attribute in the ODM-XML file.",
-      "displayed_text": "Specify here the label of the Form (using the default language). This will be used as the /ODM/FormDef/Description/TranslatedText/ tag in the ODM-XML file. When the multilingual is activated then, the stepper 'Translations' will allow the display text of the Form to be translated accordingly.",
-      "compl_instructions": "Provide here the help text that could be displayed in a CRF as an OnlineHelp. Note that here you can use the Rich Editor to add some html tag. This will be used as the /ODM/FormDef/[@CompletionInstructions] name attribute in the ODM-XML file.",
-      "vendor_extensions": "This stepper is dedicated to the extension of the Form by providing both Elements and / or Attributes. This will then be added to the ODM/FormDef as a Vendor like for example osb:displayAsTable='Yes' or as an extension under this OMD level. XML namespaces are used for providing uniquely named elements and attributes in an XML document. Provide also the datatype for this Vendor Extension and note that the value can be verified against a dedicated list of accepted reply.",
-      "aliases": "An Alias provides an additional name for an element, here for the Form element. The Context attribute specifies the application domain in which this additional name is relevant. This will be used as the /ODM/FormDef/Alias[@Context] name attribute in the ODM-XML file.",
-      "context": "The Context attribute specifies the application domain in which this additional name is relevant. You could use for example 'CDASH/SDTM' with a 'Name' = 'DM:Demographics' and then the ODM-XML view will display it as an annotation."
+      "name": "提供表单的名称。这将作为 ODM-XML 文件中 /ODM/FormDef/@name 属性（必填字段）。",
+      "oid": "在应用程序中指定一个“对象标识符”作为唯一 ID。由于我们定义的是表单，它可以以 F.XXX 开头。这将用作 ODM-XML 文件中的 /ODM/FormDef/@OID 属性（必填字段，可留空自动生成）。",
+      "repeating": "指定表单是否随时间重复。这将作为 /ODM/FormDef/@Repeating 属性，以是/否作答。",
+      "description": "对所含研究元数据组件的自由文本描述。此信息将作为 /ODM/FormDef/Description/TranslatedText 使用。",
+      "impl_notes": "在此提供说明该表单在应用程序中如何使用的文本（作为赞助方注释）。注意此处可使用富文本编辑器添加 HTML 标签。这将在 ODM-XML 文件中作为 /ODM/FormDef[@ImplementationNotes] 属性使用。",
+      "displayed_text": "在此指定表单的标签（使用默认语言）。这将在 ODM-XML 文件中作为 /ODM/FormDef/Description/TranslatedText/ 标签使用。启用多语言后，“Translations” 步骤器将允许将表单的显示文本翻译为相应语言。",
+      "compl_instructions": "在此提供可在 CRF 中显示为在线帮助的帮助文本。注意可使用富文本编辑器添加 HTML 标签。这将在 ODM-XML 文件中作为 /ODM/FormDef/[@CompletionInstructions] 属性使用。",
+      "vendor_extensions": "该步骤用于通过提供元素和/或属性来扩展表单。它将作为供应商扩展添加到 ODM/FormDef，例如 osb:displayAsTable='Yes'，或作为该 ODM 级别下的扩展。XML 命名空间用于在 XML 文档中提供唯一命名的元素和属性。还需提供此供应商扩展的数据类型，并注意该值可根据专用的允许值列表进行验证。",
+      "aliases": "别名为元素提供附加名称，此处针对表单元素。Context 属性指定该附加名称相关的应用领域。这将在 ODM-XML 文件中作为 /ODM/FormDef/Alias[@Context] 属性使用。",
+      "context": "Context 属性指定该附加名称相关的应用领域。例如，可使用 'CDASH/SDTM'，其 'Name' = 'DM:Demographics'，则 ODM-XML 视图将其显示为注释。"
     },
     "CRFItemGroups": {
-      "name": "Provide the name of the ItemGroup. An ItemGroup describes a type of item group (a group of clinical questions that are meaningful together) that can occur within a study. This will be used as the /ODM/ItemGroupDef/@name attribute in the ODM-XML file (Mandatory field).",
-      "oid": "Specify an 'Object Identifier' as a unique ID in the application. As we are defining an ItemGroup, it could starts with G.XXX. This will be used as the /ODM/ItemGroupDef/@OID attribute in the ODM-XML file (Mandatory field, but it can be auto-populated if left blank).",
-      "repeating": "Specify if the ItemGroup is repeating over time or not. This will be used as the /ODM/ItemGroupDef/@Repeating with a Yes/No answer.",
-      "description": "A free-text description of the containing study metadata component. This information will be used as the /ODM/ItemGroupDef/Description/TranslatedText.",
-      "impl_notes": "Provide here the text explaining the way this Item Group will be used in the application (as a Sponsor note). Note that here you can use the Rich Editor to add some html tag. This will be used as the /ODM/ItemGroupDef[@osb:instruction] attribute in the ODM-XML file.",
-      "displayed_text": "Specify here the label of the Item Group (using the default language). This will be used as the /ODM/ItemGroupDef/Description/TranslatedText/ tag in the ODM-XML file. When the multilingual is activated then, the stepper 'Translations' will allow the display text of the Form to be translated accordingly.",
-      "compl_instructions": "Provide here the help text that could be displayed in a CRF as an OnlineHelp. Note that here you can use the Rich Editor to add some html tag. This will be used as the /ODM/ItemGroupDef[@osb:sponsorInstruction] attribute in the ODM-XML file.",
-      "aliases": "An Alias provides an additional name for an element, here for the ItemGroup element. The Context attribute specifies the application domain in which this additional name is relevant. This will be used as the /ODM/ItemGroupDef/Alias[@Context] name attribute in the ODM-XML file.",
-      "context": "The Context attribute specifies the application domain in which this additional name is relevant. You could use for example 'CDASH/SDTM' with a 'Name' = 'DM:Demographics|DS:Disposition' and then the ODM-XML view will display it as an annotation for two SDTM Domain."
+      "name": "提供项目组名称。ItemGroup 描述在研究中可能出现的一种项目组（将相关的临床问题组合在一起）。这将在 ODM-XML 文件中用作 /ODM/ItemGroupDef/@name 属性（必填字段）。",
+      "oid": "在应用程序中指定一个“对象标识符”作为唯一 ID。由于我们定义的是项目组，它可以以 G.XXX 开头。这将作为 ODM-XML 文件中 /ODM/ItemGroupDef/@OID 属性（必填字段，可留空自动生成）。",
+      "repeating": "指定项目组是否随时间重复。这将作为 /ODM/ItemGroupDef/@Repeating 属性，以是/否作答。",
+      "description": "对所含研究元数据组件的自由文本描述。此信息将作为 /ODM/ItemGroupDef/Description/TranslatedText 使用。",
+      "impl_notes": "在此提供说明该项目组在应用程序中如何使用的文本（作为赞助方注释）。注意可使用富文本编辑器添加 HTML 标签。这将在 ODM-XML 文件中作为 /ODM/ItemGroupDef[@osb:instruction] 属性使用。",
+      "displayed_text": "在此指定项目组的标签（使用默认语言）。这将在 ODM-XML 文件中作为 /ODM/ItemGroupDef/Description/TranslatedText/ 标签使用。启用多语言后，“Translations” 步骤器将允许将表单的显示文本翻译为相应语言。",
+      "compl_instructions": "在此提供可在 CRF 中显示为在线帮助的帮助文本。注意可使用富文本编辑器添加 HTML 标签。这将在 ODM-XML 文件中作为 /ODM/ItemGroupDef[@osb:sponsorInstruction] 属性使用。",
+      "aliases": "别名为元素提供附加名称，此处针对项目组元素。Context 属性指定该附加名称相关的应用领域。这将在 ODM-XML 文件中作为 /ODM/ItemGroupDef/Alias[@Context] 属性使用。",
+      "context": "Context 属性指定该附加名称相关的应用领域。例如，可使用 'CDASH/SDTM'，其 'Name' = 'DM:Demographics|DS:Disposition'，则 ODM-XML 视图将其显示为两个 SDTM 域的注释。"
     },
     "CRFItems": {
       "name": "Provide the name of the Item. An ItemDef describes a type of item that can occur within a study. Item properties include name, datatype, measurement units, range or codelist restrictions, and several other properties. This will be used as the /ODM/ItemDef/@name attribute in the ODM-XML file (Mandatory field).",
