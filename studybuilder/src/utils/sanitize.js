@@ -5,7 +5,8 @@ export function sanitizeHTML(dirtyHTML) {
 }
 
 export function escapeHTML(htmlText) {
-  return htmlText
+  const safe = typeof htmlText === 'string' ? htmlText : ''
+  return safe
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
