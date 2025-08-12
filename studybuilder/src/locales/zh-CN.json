@@ -222,8 +222,8 @@
       "context": "The Context attribute specifies the application domain in which this additional name is relevant. You could use for example 'CDASH/SDTM' with a 'Name' = 'DM:Demographics|DS:Disposition' and then the ODM-XML view will display it as an annotation for two SDTM Domain."
     },
     "GenericTemplateForm": {
-      "study_indication": "Indications, conditions, diseases or disorders in scope for the template. Select NA (not applicable), if template is generic not targeted specific studies.",
-      "study_phase": "Study phases in scope for the template. Select NA (not applicable), if template is generic not targeted specific studies."
+      "study_indication": "模板适用的适应症、情况、疾病或障碍。若模板是通用且不针对特定研究，请选择 NA（不适用）。",
+      "study_phase": "模板适用的研究阶段。若模板是通用且不针对特定研究，请选择 NA（不适用）。"
     },
     "ObjectiveTemplateForm": {
       "name": "Example of objective: 'To demonstrate superiority of [CompoundDosing] [NumericValue] [Dose Unit] versus [Comparator] [NumericValue] [Dose Unit] with respect to [ActivityInstance] at [TimePoint] in patients with [DiseaseDisorder]' or 'To document the safety profile of [StudyIntervention].' Add parameters enclosed in square brackets [ and ].",
@@ -1189,22 +1189,22 @@
     "integrate_text2": "via open API"
   },
   "GenericTemplateTable": {
-    "sponsor_tab": "Parent",
-    "pre_instances_tab": "Pre-instance",
-    "user_tab": "User Defined",
-    "confirm_parameter_values_delete": "You are about to delete default parameter values",
-    "template_history_title": "History for template [{templateUid}]"
+    "sponsor_tab": "父模板",
+    "pre_instances_tab": "预实例",
+    "user_tab": "用户自定义",
+    "confirm_parameter_values_delete": "您即将删除默认参数值",
+    "template_history_title": "模板 [{templateUid}] 的历史记录"
   },
   "GenericTemplateForm": {
-    "study_indication": "Indication or disorder",
-    "study_phase": "Study phase",
-    "template_properties": "Template properties",
-    "step1_add_title": "Create template",
-    "step1_edit_title": "Edit template",
-    "step2_title": "Test template",
-    "step3_title": "Index template",
-    "step4_title": "Change description",
-    "parameter_values_title": "Edit parameter values"
+    "study_indication": "适应症或疾病",
+    "study_phase": "研究阶段",
+    "template_properties": "模板属性",
+    "step1_add_title": "创建模板",
+    "step1_edit_title": "编辑模板",
+    "step2_title": "测试模板",
+    "step3_title": "索引模板",
+    "step4_title": "变更描述",
+    "parameter_values_title": "编辑参数值"
   },
   "EndpointTemplatesView": {
     "title": "Endpoint Templates",
@@ -1313,38 +1313,38 @@
     "confirmatory_testing": "Related to confirmatory testing"
   },
   "PreInstanceForm": {
-    "step1_title": "Set template parameter values",
-    "step2_title": "Index template"
+    "step1_title": "设置模板参数值",
+    "step2_title": "索引模板"
   },
   "ObjectiveTemplatesPreInstanceForm": {
-    "add_title": "Add objective template pre-instantiation",
-    "edit_title": "Edit objective template pre-instantiation",
-    "add_success": "Objective template pre-instantiation added",
-    "update_success": "Objective template pre-instantiation updated"
+    "add_title": "添加目标模板预实例化",
+    "edit_title": "编辑目标模板预实例化",
+    "add_success": "目标模板预实例化已添加",
+    "update_success": "目标模板预实例化已更新"
   },
   "EndpointTemplatesPreInstanceForm": {
-    "add_title": "Add endpoint template pre-instantiation",
-    "edit_title": "Edit endpoint template pre-instantiation",
-    "add_success": "Endpoint template pre-instantiation added",
-    "update_success": "Endpoint template pre-instantiation updated"
+    "add_title": "添加终点模板预实例化",
+    "edit_title": "编辑终点模板预实例化",
+    "add_success": "终点模板预实例化已添加",
+    "update_success": "终点模板预实例化已更新"
   },
   "CriteriaTemplatesPreInstanceForm": {
-    "add_title": "Add criteria template pre-instantiation",
-    "edit_title": "Edit criteria template pre-instantiation",
-    "add_success": "Criteria template pre-instantiation added",
-    "update_success": "Criteria template pre-instantiation updated"
+    "add_title": "添加标准模板预实例化",
+    "edit_title": "编辑标准模板预实例化",
+    "add_success": "标准模板预实例化已添加",
+    "update_success": "标准模板预实例化已更新"
   },
   "ActivityTemplatesPreInstanceForm": {
-    "add_title": "Add activity template pre-instantiation",
-    "edit_title": "Edit activity template pre-instantiation",
-    "add_success": "Activity template pre-instantiation added",
-    "update_success": "Activity template pre-instantiation updated"
+    "add_title": "添加活动模板预实例化",
+    "edit_title": "编辑活动模板预实例化",
+    "add_success": "活动模板预实例化已添加",
+    "update_success": "活动模板预实例化已更新"
   },
   "FootnoteTemplatesPreInstanceForm": {
-    "add_title": "Add footnote template pre-instantiation",
-    "edit_title": "Edit footnote template pre-instantiation",
-    "add_success": "Footnote template pre-instantiation added",
-    "update_success": "Footnote template pre-instantiation updated"
+    "add_title": "添加脚注模板预实例化",
+    "edit_title": "编辑脚注模板预实例化",
+    "add_success": "脚注模板预实例化已添加",
+    "update_success": "脚注模板预实例化已更新"
   },
   "CtCataloguesForm": {
     "add_title": "Add a new CT Catalogue",
@@ -1745,10 +1745,10 @@
     "objective_updated": "Study objective updated"
   },
   "ParameterValueSelector": {
-    "separator": "Separator",
-    "title": "Select values",
-    "preview": "Preview with selected values",
-    "na_tooltip": "Show/hide parameter in the sentence"
+    "separator": "分隔符",
+    "title": "选择值",
+    "preview": "使用所选值预览",
+    "na_tooltip": "在句子中显示/隐藏参数"
   },
   "StudyManageView": {
     "title": "Study List"
@@ -3914,8 +3914,8 @@
     "format": "格式"
   },
   "TemplateIndexingDialog": {
-    "title": "Edit indexing properties",
-    "update_success": "Indexing properties updated"
+    "title": "编辑索引属性",
+    "update_success": "索引属性已更新"
   },
   "CrfDuplicationForm": {
     "duplicate": "Duplicate element",
