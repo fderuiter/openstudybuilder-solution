@@ -438,16 +438,16 @@
     },
     "UnitForm": {
       "ct_term": "选择表示此单位的受控术语项。",
-      "convertible_unit": "Slide if the unit can be converted. e.g. mm is convertible to cm or meter, but the unit pH is not convertible.",
-      "ucum_unit": "Select the equivalent unit in UCUM from the drop-down. For syntax rules see <a href='https://ucum.org/ucum.html.' target='_blank'>[Syntax Rules]<a>",
-      "display_unit": "Slide if this unit is be used as a display unit, e.g. units used should be displayed in the output.",
-      "master_unit": "Slide if this unit is the master unit of a unit dimension. All units are converted through the master unit. E.g the master unit for Length is m (meter)and if cm is to be converted to mm, then cm is first converted to meter, using the 'conversion factor to master' and then to mm. This is often the first unit created for a unit dimension and there can only be one master unit.It does not matter which unit is the Master Unit.",
-      "si_unit": "Slide to indicate whether a unit is a SI unit.",
-      "us_unit": "Slide to indicate whether a unit is a US unit.",
-      "dimension": "Selection of the Unit Dimension, that the unit belongs to, which means the unit can be converted to the other units in the same Unit Dimension, using the conversion factors defined (except when convertible unit flag is unticked) E.g. cm and mm are in the unit dimension 'length' and can be converted to each other. The naming of these are not used but should be meaningful.",
-      "legacy_code": "Reference to the name of the code in the legacy system.",
-      "molecular_weight": "Type either 0 or 1. Molecular weight is needed for the conversion if a unit contains 'mol'(e.g. mmol/L) as part of the unit then this field=1 otherwise this field=0",
-      "conversion_factor": "Conversion factor from unit defined to the master unit. All simple unit conversions are converted through the master unit."
+      "convertible_unit": "若该单位可转换，请滑动。例如，mm 可转换为 cm 或米，但 pH 无法转换。",
+      "ucum_unit": "从下拉列表中选择对应的 UCUM 单位。语法规则参见 <a href='https://ucum.org/ucum.html.' target='_blank'>[语法规则]</a>",
+      "display_unit": "如果此单位将用作显示单位，请滑动，例如输出中应显示使用的单位。",
+      "master_unit": "若该单位是某单位维度的主单位，请滑动。所有单位都通过主单位转换。例如长度的主单位为 m（米），若要将 cm 转换为 mm，则先使用“转换系数到主单位”将 cm 转换为米，再转换为 mm。这通常是为单位维度创建的第一个单位，仅能有一个主单位。哪个单位作为主单位无关紧要。",
+      "si_unit": "滑动以指示该单位是否为 SI 单位。",
+      "us_unit": "滑动以指示该单位是否为美国单位。",
+      "dimension": "选择该单位所属的单位维度，这意味着该单位可使用定义的转换因子转换为同一维度中的其他单位（除非取消可转换单位标志）。例如 cm 和 mm 位于“长度”维度，可相互转换。这些名称不会被使用，但应具有意义。",
+      "legacy_code": "引用旧系统中的代码名称。",
+      "molecular_weight": "输入 0 或 1。若单位包含“mol”（例如 mmol/L），则该字段=1，否则为 0。",
+      "conversion_factor": "定义的单位到主单位的转换系数。所有简单单位转换都通过主单位完成。"
     },
     "TimeframeForm": {
       "select_template": "要创建时间范围实例，请从相关库及其列出的模板中选择。"
@@ -658,11 +658,11 @@
       "general": "The description of drug, device, therapy, or process under investigation in a clinical study. Follow the tabs to fill in the details on the compounds/other interventions for the study. The Overview tab will provide a tabular overview of the compounds specified."
     },
     "StudyTitleView": {
-      "general": "Click on the pencil to add a study title or copy from an existing study.",
+      "general": "点击铅笔以添加研究标题或从现有研究复制。",
       "title": "临床研究的标题，应与方案标题一致。"
     },
     "StudyTitleForm": {
-      "general": "Fill in the study title and short title or re-use from similar study from the table. Use the copy icon to copy from a study.",
+      "general": "填写研究标题和短标题，或从表格中的类似研究复制。使用复制图标从研究中复制。",
       "study_title": "方案的完整标题。",
       "short_title": "方案的短标题。"
     },
@@ -670,16 +670,16 @@
       "general": "要添加新研究，请点击 +- 按钮。要从列表中选择或编辑研究，请使用表格中行左侧的纵向点菜单。"
     },
     "RegistryIdentifiersTable": {
-      "general": "Specify the relevant study identifiers. Click on the pencil to add value. Tick NA if not relevant"
+      "general": "指定相关的研究标识符。点击铅笔以添加值。如不适用请勾选 NA"
     },
     "ProtocolElementsTable": {
-      "general": "Help text to be added."
+      "general": "帮助文本待补充。"
     },
     "SdtmSpecificationTable": {
-      "general": "Help text to be added."
+      "general": "帮助文本待补充。"
     },
     "StudyActivityTable": {
-      "general": "You can choose from 3 different options:<br><b> Select from studies: </b> Selection of activities from existing studies.<br><b>Select from library: </b>Selection of activities from the library<br><b>Create a placeholder for new activity Request: </b> If your activity is not available within the library you can create a placeholder for your missing activity and request it later."
+      "general": "您可以从三种选项中选择：<br><b>从研究中选择：</b> 从现有研究中选择活动。<br><b>从库中选择：</b> 从库中选择活动。<br><b>为新活动请求创建占位符：</b> 如果库中没有所需活动，可创建占位符并稍后发起请求。"
     },
     "CTDashboard": {
       "general": "仪表板提供对代码列表及其术语的操作概览（新增/更新/删除）。最新添加的代码列表列在底部表格中。"
@@ -736,11 +736,11 @@
       "general": "Unique Ingredient Identifier.FDA's Global Substance Registration System."
     },
     "UcumTable": {
-      "general": "Code system intended to include all units of measures. UCUM is used in healthcare to populate electronic health records, such as laboratory records in LOINC, and in the ISO IDMP standard (Identification of Medicinal Products)."
+      "general": "旨在涵盖所有计量单位的代码系统。UCUM 用于医疗保健中填充电子健康记录，如 LOINC 中的实验室记录，以及 ISO IDMP 标准（药品识别）中。"
     },
     "UCUM": {
-      "code": "Add the code for the new UCUM. For syntax rules see <a href='https://ucum.org/ucum.html.' target='_blank'>[UCUM]<a>",
-      "description": "Add an description of the UCUM code."
+      "code": "为新的 UCUM 添加代码。语法规则参见 <a href='https://ucum.org/ucum.html.' target='_blank'>[UCUM]</a>",
+      "description": "添加 UCUM 代码的描述。"
     },
     "ActivitiesTable": {
       "general": "活动是临床研究中在受试者身上执行的测量或操作的定义。"
@@ -817,39 +817,39 @@
     },
     "StudyActivity": {
       "general": "“研究活动”是在临床研究中对受试者执行的评估或程序。“研究活动”菜单是管理/选择研究所需活动并对其分组、分配到相关访视，以及在方案视图的活动安排表（SoA）中设置显示方式的地方。您还可以为 SoA 添加脚注、控制 SoA 标题行并预览不同详细程度的 SoA。",
-      "settings": "The 'Settings' option allow you to control the time unit (days/weeks) for the SoA and whether or not you need baseline visit (eg. randomisation) shown as time 0",
-      "study_activities": "The activities can be selected from the library, from other studies or activity placeholders can be created for requesting new activities.",
+      "settings": "“设置”选项允许您控制 SoA 的时间单位（天/周）以及是否需要将基线访视（如随机化）显示为时间 0",
+      "study_activities": "活动可以从库、其他研究中选择，或创建活动占位符以请求新活动。",
       "detailed_soa": "详细 SoA 用于定义某项活动需要在哪些访视执行。SoA 共有四个层级：<br /> 1）SoA 组<br /> 2）活动组<br /> 3）活动子组<br /> 4）活动<br /> 点击圆圈可选择或取消某访视的活动。点击眼睛图标可在方案 SoA 中切换某活动层级的可见性。如果某一层级被隐藏，所勾选的时间点会“向上继承”，因此您可以隐藏活动和活动子组层级，仅在方案 SoA 中包含活动组（例如您可能希望隐藏“身高”和“体重”，仅在方案 SoA 中显示“身体测量”）。",
-      "detailed_soa_actions": "Use the ellipsis (three dots) to the left of an activity to access these: <br /><b> Edit Activity: </b> Adjust details in an activity. <br /><b> Add Activity: </b>Add an activity above the selected activity (you can change the order of activities from the 'Study Activities' tab). <br /><b> Exchange Activity: </b> Replace an activity with a new activity while keeping visits and footnotes in the detailed SoA. <br /><b> Remove Activity: </b> Remove the activity, any visits and references to footnotes that have been added to this activity. A removed activity can be added again under the ‘Study Activities’ tab. Footnotes will not be removed, so can be linked to again.",
-      "detailed_soa_reordering": "You can use drag-and-drop for easy reordering of rows in the detailed SoA. To enable, click the 3 dots to the left of a row title and select 'Reorder' in the menu. Now you can reorder rows using your mouse - simply drag-and-drop on the arrow-icon to the left of the row. Reordering is done within a context - so if you select 'Reorder' on a SoA group, then you can reorder only SoA groups, whereas if you select 'Reorder' on an activity, then you can reorder only within that group. When you are done, click the 'Finish reordering' button to exit the reordering mode.",
+      "detailed_soa_actions": "使用活动左侧的省略号（三个点）可执行以下操作：<br /><b>编辑活动：</b> 调整活动的详细信息。<br /><b>添加活动：</b> 在所选活动上方添加活动（可在“研究活动”选项卡中更改活动顺序）。<br /><b>替换活动：</b> 用新活动替换现有活动，同时保留详细 SoA 中的访视和脚注。<br /><b>移除活动：</b> 移除该活动以及为其添加的所有访视和脚注引用。被移除的活动可在“研究活动”选项卡中再次添加。脚注不会被删除，可再次链接。",
+      "detailed_soa_reordering": "可以通过拖放轻松重新排序详细 SoA 中的行。要启用此功能，请单击行标题左侧的三个点，在菜单中选择“重新排序”。然后使用鼠标拖放行左侧的箭头图标即可重新排序。重新排序在特定上下文中进行——如果在 SoA 组上选择“重新排序”，则只能在组之间重新排序；如果在活动上选择，则只能在该组内重新排序。完成后，单击“完成重新排序”按钮退出此模式。",
       "study_footnotes": "选择或创建用于方案 SoA 的脚注。脚注可以从库、其他研究中选择或从头创建。脚注将在 SoA 中按出现顺序自动排序。",
       "hidden_activity_footnotes": "如果您链接到被隐藏的活动，脚注不会“向上继承”到上方可见层级。相反，“链接到”下会显示警告，必须处理以确保脚注在方案 SoA 中正确显示。",
       "protocol_soa": "方案 SoA 是“详细 SoA”部分设置/选择的预览。该视图将通过 Word 外接程序导入方案模板。您还可以在详细和数据规范的操作层级预览 SoA。",
       "instructions": "注意：此功能尚未启用。启用后，它会将 SoA 中选择的活动链接到方案第 8 章“研究评估和程序”的相关说明文本"
     },
     "StudyActivityForm": {
-      "general": "Select the activities for the study. ",
-      "select_from_studies": "Select activities from a previous study",
-      "select_from_library": "Select from predefined activities in the library",
-      "create_placeholder": "Create a placeholder (if activity doesn't exists in library. Should be requested as new activity)",
-      "select_studies": "Select studies from where you want to copy activities. Press 'CONTINUE' and copy activities as needed using the copy icon ",
-      "flowchart_group": "Template and Placeholder: Specify the high level SoA group the activity should belong to",
-      "copy_activity_instructions": "Select the activities to copy using the copy icon. Press SAVE. NOTE: if search or filtering has been applied then the copy symbol on the table header (next to Activity Group) will copy all displayed activities."
+      "general": "为该研究选择活动。",
+      "select_from_studies": "从以往研究中选择活动",
+      "select_from_library": "从库中的预定义活动中选择",
+      "create_placeholder": "创建占位符（若库中不存在该活动，应请求为新活动）",
+      "select_studies": "选择要复制活动的研究。点击“继续”并使用复制图标按需复制活动",
+      "flowchart_group": "模板和占位符：指定该活动应归属的高级 SoA 组",
+      "copy_activity_instructions": "使用复制图标选择要复制的活动并点击“保存”。注意：如果已应用搜索或筛选，表头（活动组旁）的复制符号将复制所有显示的活动。"
     },
     "StudyActivityBatchEditForm": {
-      "general": "Select the visits where the activities are to be collected."
+      "general": "选择需要收集这些活动的访视。"
     },
     "ProtocolFlowchart": {
       "update_flowchart": "点击“更新 SoA”以查看方案 SoA 的呈现。按按钮可查看在详细 SoA 视图中所做的更改",
-      "download_docx": "Press DOWNLOAD DOCX to download the WORD version of the SoA"
+      "download_docx": "点击“下载 DOCX”以下载 SoA 的 Word 版本"
     },
     "StudyActivityInstructionBatchForm": {
-      "general": "To add an instruction to the activities selected, then add from a study, from a template or from scratch"
+      "general": "要为所选活动添加说明，可从研究、模板或从头开始添加"
     },
     "StudyActivityEditForm": {
-      "general": "Adjust details in a specific activity here.<br>It is only possible to change to another value if this is already defined in the library (e.g. HbA1c is allowed in both Efficacy and Safety).",
-      "drafted_general": "Adjust details in a specific placeholder activity here.<br>It is only possible to change the content if the placeholder has not been submitted for approval.",
-      "flowchart_group": "Select the SoA group the activity/activities should be assigned to"
+      "general": "在此调整特定活动的详细信息。<br>仅当库中已定义该值时才能更改为其他值（例如 HbA1c 允许用于疗效和安全性）。",
+      "drafted_general": "在此调整特定占位符活动的详细信息。<br>只有在占位符尚未提交审批时才能更改内容。",
+      "flowchart_group": "选择该活动所属的 SoA 组"
     },
     "StudyStatus": {
       "core_attributes": "Study Core Attributes",
@@ -2441,45 +2441,45 @@
     "concept_id": "概念 ID"
   },
   "UnitsView": {
-    "title": "Units"
+    "title": "单位"
   },
   "UnitTable": {
-    "master_unit": "Master unit",
-    "display_unit": "Display unit",
-    "convertible_unit": "Convertible unit",
-    "si_unit": "SI unit",
-    "us_conventional_unit": "US conventional unit",
-    "unit_dimension": "Unit dimension",
-    "legacy_code": "Legacy code",
-    "molecular_weight": "Use molecular weight",
-    "conversion_factor": "Conversion factor to master",
-    "ucum_unit": "UCUM unit",
-    "unit_subsets": "Unit subsets",
-    "ct_units": "CT Unit terms",
-    "mandatory": "Mandatory",
-    "history_title": "History for unit [{name}]",
-    "complex_conversion": "Use complex unit conversion"
+    "master_unit": "主单位",
+    "display_unit": "显示单位",
+    "convertible_unit": "可转换单位",
+    "si_unit": "SI 单位",
+    "us_conventional_unit": "美国惯用单位",
+    "unit_dimension": "单位维度",
+    "legacy_code": "旧系统代码",
+    "molecular_weight": "使用分子量",
+    "conversion_factor": "转换到主单位的系数",
+    "ucum_unit": "UCUM 单位",
+    "unit_subsets": "单位子集",
+    "ct_units": "CT 单位术语",
+    "mandatory": "必填",
+    "history_title": "单位 [{name}] 的历史记录",
+    "complex_conversion": "使用复杂单位转换"
   },
   "UnitForm": {
-    "add_title": "Add unit",
-    "edit_title": "Edit unit",
-    "ct_term": "Unit code list term",
-    "convertible_unit": "Convertible unit",
-    "display_unit": "Display unit",
-    "master_unit": "Master unit",
-    "si_unit": "SI unit",
-    "us_unit": "US conventional unit",
-    "dimension": "Dimension",
-    "legacy_code": "Legacy code",
-    "add_success": "Unit added",
-    "update_success": "Unit updated",
-    "molecular_weight": "Use molecular weight",
-    "conversion_factor": "Conversion factor to master",
-    "reason_for_change": "Reason for change",
-    "complex_conversion": "Use complex unit conversion"
+    "add_title": "添加单位",
+    "edit_title": "编辑单位",
+    "ct_term": "单位代码列表项",
+    "convertible_unit": "可转换单位",
+    "display_unit": "显示单位",
+    "master_unit": "主单位",
+    "si_unit": "SI 单位",
+    "us_unit": "美国惯用单位",
+    "dimension": "维度",
+    "legacy_code": "旧系统代码",
+    "add_success": "单位已添加",
+    "update_success": "单位已更新",
+    "molecular_weight": "使用分子量",
+    "conversion_factor": "转换到主单位的系数",
+    "reason_for_change": "更改原因",
+    "complex_conversion": "使用复杂单位转换"
   },
   "UCUMUnitField": {
-    "label": "UCUM unit"
+    "label": "UCUM 单位"
   },
   "CrfsView": {
     "title": "CRF（病例报告表）",
@@ -2799,24 +2799,24 @@
     "ct_packages_history": "CT 包历史"
   },
   "FilterAutocomplete": {
-    "search": "Search",
-    "clear": "Clear",
-    "day_picker": "Day Picker",
-    "month_picker": "Month Picker",
-    "range_selected": "Range Selected"
+    "search": "搜索",
+    "clear": "清除",
+    "day_picker": "日选择器",
+    "month_picker": "月选择器",
+    "range_selected": "已选范围"
   },
   "StudyVisitsTimeline": {
-    "intro1": "Click down on the visit and use the visit buttons to add, duplicate, edit, view or remove a visit.",
-    "switch_on": "Switch on",
-    "reorder_visits": "re-order visits",
-    "intro2": "to change the visit order and the corresponding visit numbers by drag-and-drop.",
-    "period": "Period",
-    "visit_number": "Visit number",
-    "visit_type": "Visit type",
-    "timing": "Timing",
-    "reorder_title": "Reorder visits",
-    "add_visit": "Add a new visit",
-    "history_title": "Stucy Epoch"
+    "intro1": "按住访视并使用访视按钮添加、复制、编辑、查看或删除访视。",
+    "switch_on": "开启",
+    "reorder_visits": "重新排序访视",
+    "intro2": "通过拖放更改访视顺序及相应编号。",
+    "period": "时期",
+    "visit_number": "访视编号",
+    "visit_type": "访视类型",
+    "timing": "时间安排",
+    "reorder_title": "重新排序访视",
+    "add_visit": "添加新访视",
+    "history_title": "研究时期"
   },
   "StudyVisitForm": {
     "soa_milestone": "SoA Milestone",
@@ -3201,12 +3201,12 @@
     "table_title": "最新新增的代码列表"
   },
   "UCUM": {
-    "code": "UCUM code",
-    "description": "UCUM description"
+    "code": "UCUM 代码",
+    "description": "UCUM 描述"
   },
   "UCUMCodeForm": {
-    "add_title": "Add UCUM code",
-    "edit_title": "Edit UCUM code"
+    "add_title": "添加 UCUM 代码",
+    "edit_title": "编辑 UCUM 代码"
   },
   "ProtocolTitlePage": {
     "title_page_elements": "Title page elements",
@@ -3351,32 +3351,32 @@
     "standard_unit": "标准单位"
   },
   "StudyActivityForm": {
-    "add_title": "Add study activities",
-    "creation_mode_title": "Select method",
-    "select_from_studies_title": "Select activities",
-    "select_from_library_title": "Select activities",
-    "flowchart_group_title": "Select SoA group",
-    "select_from_studies": "Select from studies",
-    "select_from_library": "Select from library",
-    "create_placeholder_for_activity": "Create placeholder for new Activity Request",
-    "flowchart_group": "SoA group",
-    "selected_activities": "Selected activities",
-    "copy_activity_instructions": "Find and copy activities from the table. Use free-text search or filters.",
-    "add_success": "Study activity added",
-    "study_id": "Study ID",
-    "select_studies": "Select studies",
-    "copy_activity": "Copy activity",
-    "copy_all_activities": "Copy all displayed activities",
-    "create_placeholder": "Create Placeholder",
-    "select_activities_info": "You need to select Activities",
-    "is_data_collected": "Data collection",
-    "show_selected": "Show selected Activities",
-    "request_radio_title": "Request activity",
-    "request_radio_text": "Request and submit for approval",
-    "placeholder_radio_title": "Create a placeholder activity",
-    "placeholder_radio_text": "Create a placeholder activity without submitting for approval",
-    "soa_group_required_info": "Every selected Activity needs SoA Group",
-    "use_the_same_group": "Use the same SoA group for all"
+    "add_title": "添加研究活动",
+    "creation_mode_title": "选择方式",
+    "select_from_studies_title": "选择活动",
+    "select_from_library_title": "选择活动",
+    "flowchart_group_title": "选择 SoA 组",
+    "select_from_studies": "从研究中选择",
+    "select_from_library": "从库中选择",
+    "create_placeholder_for_activity": "为新的活动请求创建占位符",
+    "flowchart_group": "SoA 组",
+    "selected_activities": "已选活动",
+    "copy_activity_instructions": "在表格中查找并复制活动。使用自由文本搜索或筛选。",
+    "add_success": "研究活动已添加",
+    "study_id": "研究 ID",
+    "select_studies": "选择研究",
+    "copy_activity": "复制活动",
+    "copy_all_activities": "复制所有显示的活动",
+    "create_placeholder": "创建占位符",
+    "select_activities_info": "需要选择活动",
+    "is_data_collected": "数据收集",
+    "show_selected": "显示选定的活动",
+    "request_radio_title": "请求活动",
+    "request_radio_text": "请求并提交审批",
+    "placeholder_radio_title": "创建占位符活动",
+    "placeholder_radio_text": "创建占位符活动但不提交审批",
+    "soa_group_required_info": "每个选定活动都需要 SoA 组",
+    "use_the_same_group": "为所有活动使用相同的 SoA 组"
   },
   "StudyActivityEditForm": {
     "title": "Edit study activity",
@@ -4051,39 +4051,39 @@
     "activity_instance": "活动实例"
   },
   "DataModels": {
-    "status": "Status",
-    "effective_date": "Effective date",
-    "implemented_by": "Implemented By",
-    "classes": "Classes",
+    "status": "状态",
+    "effective_date": "生效日期",
+    "implemented_by": "实施者",
+    "classes": "类别",
     "cdash": "CDASH/CDASHIG",
     "sdtm": "SDTM/SDTMIG",
-    "cdash_models": "CDASH Models",
-    "cdash_ig": "CDASH Implementation Guide",
-    "sdtm_models": "SDTM Models",
-    "sdtm_ig": "SDTM Implementation Guide",
-    "ordinal": "Ordinal",
-    "label": "Label",
-    "definition": "Definition",
-    "question_text": "Question Text",
-    "prompt": "Prompt",
-    "data_type": "Data Type",
-    "impl_notes": "Implementation Notes",
-    "mapping_inst": "Mapping Instructions",
-    "mapping_targets": "Mapping Targets",
-    "code_list": "Code List",
-    "role": "Role",
-    "quali_variables": "Qualifies Variables",
-    "desc_value": "Described Value Domain",
-    "implements": "Implements",
-    "core": "Core",
-    "qualifies_variable": "Qualifiers variables",
-    "described_value_domain": "Describe value domain",
-    "notes": "Notes",
-    "usage_restrictions": "Usage restrictions",
-    "examples": "Examples",
-    "c_code": "Variable C-Code",
-    "codelist": "Codelist",
-    "value_list": "Value List",
+    "cdash_models": "CDASH 模型",
+    "cdash_ig": "CDASH 实施指南",
+    "sdtm_models": "SDTM 模型",
+    "sdtm_ig": "SDTM 实施指南",
+    "ordinal": "序数",
+    "label": "标签",
+    "definition": "定义",
+    "question_text": "问题文本",
+    "prompt": "提示",
+    "data_type": "数据类型",
+    "impl_notes": "实施说明",
+    "mapping_inst": "映射说明",
+    "mapping_targets": "映射目标",
+    "code_list": "代码列表",
+    "role": "角色",
+    "quali_variables": "限定变量",
+    "desc_value": "描述值域",
+    "implements": "实现",
+    "core": "核心",
+    "qualifies_variable": "限定变量",
+    "described_value_domain": "描述的值域",
+    "notes": "备注",
+    "usage_restrictions": "使用限制",
+    "examples": "示例",
+    "c_code": "变量 C-Code",
+    "codelist": "代码列表",
+    "value_list": "值列表",
     "sdtmig_ap": "SDTMIG AP",
     "sdtmig_md": "SDTMIG MD",
     "sendig": "SENDIG",
