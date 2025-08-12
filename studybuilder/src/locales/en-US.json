@@ -359,7 +359,7 @@
             "general": "Definitions of compounds are created from the Compounds tab. If an alias name for a compound is needed, then this can be defined in the compound aliases tab."
         },
         "CompoundForm": {
-            "sponsor_compound": "Indicate if this is a sponsor compound. Tick yes if sponsor is the authorisation holder/or future authorisation holder of the compound.",
+            "sponsor_compound": "Indicate if this is a sponsor compound. Tick yes if sponsor is the authorization holder or future authorization holder of the compound.",
             "analyte_number": "Analyte number (Non-clinical), example is AN000028 (The analyte number for semaglutide).",
             "long_number": "Compound number (long). Example NNC0113-0000-0217. Only applicable for Novo Nordisk compound. Leave blank for other compounds.",
             "short_number": "Compound number (short). Example NNC0113-0217. Only applicable for Novo Nordisk compound. Leave blank for other compounds. ",
@@ -402,7 +402,7 @@
         "CriteriaTemplateForm": {
             "guidance_text": "Depending on type of criteria a generic template can be defined. Example: Age ≥ 18 years at the time of signing informed consent can be parameterized to 'Age [Operator] [NumericValue] [Age Unit] at the time of signing informed consent'.",
             "indication": "Select the indication for which this template applies (select multiple if needed). Select NA if not applicable.",
-            "criterion_cat": "Select one or more categories for which the criterion applies. The Age example could apply to Demography. Tick NA if not applicable. The categorisation is used for searching when selecting criteria template for a study.",
+            "criterion_cat": "Select one or more categories for which the criterion applies. The Age example could apply to Demography. Tick NA if not applicable. The categorization is used for searching when selecting criteria template for a study.",
             "criterion_sub_cat": "Select one or more sub-category that applies to the criterion. Tick NA if not applicable. The categorisation is used for searching when selecting criteria template for a study."
         },
         "CodelistCreationForm": {
@@ -490,9 +490,9 @@
             "healthy_subjects": "Indicate if persons who have not had the condition(s) being studied or otherwise related conditions or symptoms, as specified in the eligibility requirements, may participate in the study",
             "planned_min_max_age": "The anticipated minimum and maximum ages of the subjects to be entered into the study",
             "pinf": "Positive infinity. Fx. Planned Maximum Age of Subjects, there is no value if a study does not specify a maximum age. In this case, the appropriate null flavor is 'PINF'",
-            "pediatric_study_indicator": "Indicate whether the study is a paediatric study, i.e. study in children",
-            "pediatric_postmarket_study_indicator": "Indicate whether the study is a paediatric post-market study, i.e. study in children done after initial approval of the compound being studied",
-            "pediatric_investigation_plan_indicator": "Indicate whether the study is part of a paediatric investigation plan (PIP), i.e. study in children",
+            "pediatric_study_indicator": "Indicate whether the study is a pediatric study, i.e. study in children",
+            "pediatric_postmarket_study_indicator": "Indicate whether the study is a pediatric post-market study, i.e. study in children done after initial approval of the compound being studied",
+            "pediatric_investigation_plan_indicator": "Indicate whether the study is part of a pediatric investigation plan (PIP), i.e. study in children",
             "stable_disease_min_duration": "The protocol specified minimum amount of time needed to meet the definition of stable disease",
             "relapse_criteria": "A standard from which a judgment concerning a disease relapse can be established. Ex. the NCI/Rome criteria is a standard for relapse in Acute Lymphoblastic Leukaemia",
             "number_of_expected_subjects": "The total number of subjects expected to be screened",
@@ -556,7 +556,7 @@
             "expected_epoch_duration": "Pending implementation. Derived based on time from first visit in this epoch to first visit in the following epoch"
         },
         "StudyElements": {
-            "el_name": "Long-label of the element, e.g. Standardised Meal",
+            "el_name": "Long-label of the element, e.g. Standardized Meal.",
             "el_short_name": "Abbreviated/short name for the element, e.g. STD MEAL",
             "el_sub_type": "From the drop-down select the type of element",
             "el_type": "Select element type (treatment/no treatment), will subset based on element sub-type selected.",
@@ -585,7 +585,7 @@
             "visit_window_max": "Enter the latest, allowable per protocol, number of days/weeks/years when the visit may occur after planned time point.",
             "visit_win_unit": "Select unit for visit window.",
             "visit_description": "Text field to add description of the visit.",
-            "epoch_allocation": "Observations at a visit might be affected by treatment administered in a previous epoch. Example: Baseline visit (in treatment epoch) where subjects are instructed to take first medication the next day will have measurements taken that represents 'Pre Treatment' epoch treatment, i.e. No treatment. In this case the Epoch Allocation Rule should be Previous Visit. In most cases the rule is Current Visit, i.e. measurements at this visit is measurements of the treatment (element) given in the epoch. The corresponding rules with Date is to be used for Non-visits and unscheduled visits. The Actual Treatment is used if the actual treatment of the subject at the visit is to be used instead of the planned treatment. Reach out to the study SDTM programr for further information.",
+            "epoch_allocation": "Observations at a visit might be affected by treatment administered in a previous epoch. Example: Baseline visit (in treatment epoch) where subjects are instructed to take first medication the next day will have measurements taken that represents 'Pre Treatment' epoch treatment, i.e. No treatment. In this case the Epoch Allocation Rule should be Previous Visit. In most cases the rule is Current Visit, i.e. measurements at this visit is measurements of the treatment (element) given in the epoch. The corresponding rules with Date is to be used for Non-visits and unscheduled visits. The Actual Treatment is used if the actual treatment of the subject at the visit is to be used instead of the planned treatment. Reach out to the study SDTM programmer for further information.",
             "visit_start_rule": "Enter visit start rule. Describe when the visit starts, in relation to the sequence of elements, e.g. 2 weeks after start of Treatment Epoch",
             "visit_stop_rule": "Enter visit stop rule. Describe when the visit ends, in relation to the sequence of elements e.g. At End of Trial",
             "duplicate_visit": "To create new visit that will be a copy of the previously defined visit, click on 3 dots next to the row of the visit that you want to copy and select Duplicate. Specify the timing and timing unit for newly created visit. The time reference is the same as for the visit being copied from. E.g. if for the visit 7 that you are copying the Time reference is Global anchor visit and timing set to 7 days, then new visit, visit 8, with timing selected as 8 days is taking place 8 days after global anchor visit. Note, you cannot duplicate global anchor visit (e.g. very often this is randomization visit)."
@@ -685,7 +685,7 @@
             "general": "The dashboard provides an overview of the activities (Added/Updated/Deleted) performed on code lists and their terms. The latests code lists being added is listed in the bottom table."
         },
         "CtCataloguesTable": {
-            "general": "The CT Catalogs displays latest version of all CDISC and Sponsor code lists and terms. Navigate using the tabs in the top of the page to show specific subsets of terminology. Use All to display all code lists. Tip: right-click on the tabs to open the CT in a new window/tab.",
+            "general": "The CT Catalogs display the latest version of all CDISC and Sponsor code lists and terms. Navigate using the tabs in the top of the page to show specific subsets of terminology. Use All to display all code lists. Tip: right-click on the tabs to open the CT in a new window/tab.",
             "ADAM_CT": "Analysis Data Model Controlled Terminology. Controlled terminology used for Statistical Analysis Data.",
             "CDASH_CT": "Clinical Data Acquisition Standards Harmonization Controlled Terminology. Controlled terminology used for data collection, e.g. eCRF/Forms.",
             "COA CT": "Clinical Outcome Assessment Controlled Terminology. COA is a measure that describes or reflects how a patient feels, functions, or survives. COAs include the following types of analytical instruments: Clinician-reported outcome (ClinRO), Observer-reported outcome (ObsRO), Patient-reported outcome (PRO), Performance outcome (PerfO)",
@@ -1104,7 +1104,7 @@
             "who_ictrp": "WHO ICTRP",
             "trial_supplies_spec": "Trial Supplies Specifications",
             "randomisation_criteria": "Randomization Criteria",
-            "standarisation_plan": "Standarisation Plan",
+            "standarisation_plan": "Standardization Plan.",
             "protocol_elements": "Protocol Elements",
             "flow_chart": "SoA",
             "objective_endpoints_estimands": "Objectives and Endpoints",
@@ -1625,9 +1625,9 @@
         "planned_min_max_age": "Minimum and maximum age of study participants",
         "planned_min_age": "Planned minimum age of study participants",
         "planned_max_age": "Planned maximum age of study participants",
-        "pediatric_study_indicator": "Paediatric study indicator",
-        "pediatric_postmarket_study_indicator": "Paediatric post-market study indicator",
-        "pediatric_investigation_plan_indicator": "Paediatric investigation plan indicator",
+        "pediatric_study_indicator": "Pediatric study indicator",
+        "pediatric_postmarket_study_indicator": "Pediatric post-market study indicator",
+        "pediatric_investigation_plan_indicator": "Pediatric investigation plan indicator",
         "update_success": "Study population updated",
         "stable_disease_min_duration": "Stable disease minimum duration",
         "relapse_criteria": "Relapse criteria",
@@ -3599,7 +3599,7 @@
         "activities_no_instructions": "Activities with no instructions:",
         "specification_tab": "Specification tabs:",
         "completed": "Completed:",
-        "in_progres": "In progres:",
+        "in_progres": "In progress:",
         "not_started": "Not started:",
         "not_applicable": "Not applicable:",
         "subject_info": "SUBJECT",
