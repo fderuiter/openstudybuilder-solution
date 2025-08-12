@@ -403,7 +403,7 @@
             "guidance_text": "Depending on type of criteria a generic template can be defined. Example: Age ≥ 18 years at the time of signing informed consent can be parameterized to 'Age [Operator] [NumericValue] [Age Unit] at the time of signing informed consent'.",
             "indication": "Select the indication for which this template applies (select multiple if needed). Select NA if not applicable.",
             "criterion_cat": "Select one or more categories for which the criterion applies. The Age example could apply to Demography. Tick NA if not applicable. The categorisation is used for searching when selecting criteria template for a study.",
-            "criterion_sub_cat": "Select one or more sub-category that applies to the criterion. Tick NA if not applicable. The categorisation is used for searching when selecting criteria template for a study."
+            "criterion_sub_cat": "Select one or more sub-category that applies to the criterion. Tick NA if not applicable. The categorization is used for searching when selecting criteria template for a study."
         },
         "CodelistCreationForm": {
             "catalogue": "The new code list will be created in this catalog"
