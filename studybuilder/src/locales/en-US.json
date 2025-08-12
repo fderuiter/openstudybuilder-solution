@@ -685,7 +685,7 @@
             "general": "The dashboard provides an overview of the activities (Added/Updated/Deleted) performed on code lists and their terms. The latests code lists being added is listed in the bottom table."
         },
         "CtCataloguesTable": {
-            "general": "The CT Catalogs displays latest version of all CDISC and Sponsor code lists and terms. Navigate using the tabs in the top of the page to show specific subsets of terminology. Use All to display all code lists. Tip: right-click on the tabs to open the CT in a new window/tab.",
+            "general": "The CT Catalogs display the latest version of all CDISC and Sponsor code lists and terms. Navigate using the tabs in the top of the page to show specific subsets of terminology. Use All to display all code lists. Tip: right-click on the tabs to open the CT in a new window/tab.",
             "ADAM_CT": "Analysis Data Model Controlled Terminology. Controlled terminology used for Statistical Analysis Data.",
             "CDASH_CT": "Clinical Data Acquisition Standards Harmonization Controlled Terminology. Controlled terminology used for data collection, e.g. eCRF/Forms.",
             "COA CT": "Clinical Outcome Assessment Controlled Terminology. COA is a measure that describes or reflects how a patient feels, functions, or survives. COAs include the following types of analytical instruments: Clinician-reported outcome (ClinRO), Observer-reported outcome (ObsRO), Patient-reported outcome (PRO), Performance outcome (PerfO)",
