@@ -222,8 +222,8 @@
             "context": "El atributo de contexto especifica el dominio de la aplicación en el que este nombre adicional es relevante. "
         },
         "GenericTemplateForm": {
-            "study_indication": "Indicaciones, condiciones, enfermedades o trastornos en el alcance de la plantilla. ",
-            "study_phase": "Fases de estudio en el alcance de la plantilla. "
+            "study_indication": "Indicaciones, condiciones, enfermedades o trastornos que abarca la plantilla. Seleccione NA (no aplica) si la plantilla es genérica y no está dirigida a estudios específicos.",
+            "study_phase": "Fases del estudio que abarca la plantilla. Seleccione NA (no aplica) si la plantilla es genérica y no está dirigida a estudios específicos."
         },
         "ObjectiveTemplateForm": {
             "name": "Ejemplo de objetivo: 'Demostrar superioridad de [compuesto -doste] [numericvalue] [unidad de dosis] versus [comparador] [NumericValue] [Unidad de dosis] con respecto a [Activity Instance] en [TimePoint] en pacientes con [EnfermateSorder]' o 'Documentar el perfil de seguridad de [Studyervention]. ",
@@ -1189,20 +1189,20 @@
         "integrate_text2": "a través de API abierta"
     },
     "GenericTemplateTable": {
-        "sponsor_tab": "Padre",
-        "pre_instances_tab": "Previa",
-        "user_tab": "Usuario definido",
-        "confirm_parameter_values_delete": "Está a punto de eliminar los valores de parámetros predeterminados",
-        "template_history_title": "Historia para la plantilla [__ph_0__]"
+        "sponsor_tab": "Principal",
+        "pre_instances_tab": "Preinstancia",
+        "user_tab": "Definido por el usuario",
+        "confirm_parameter_values_delete": "Está a punto de eliminar los valores de parámetro predeterminados",
+        "template_history_title": "Historial de la plantilla [{templateUid}]"
     },
     "GenericTemplateForm": {
-        "study_indication": "Indicación o desorden",
-        "study_phase": "Fase de estudio",
-        "template_properties": "Propiedades de plantilla",
+        "study_indication": "Indicación o trastorno",
+        "study_phase": "Fase del estudio",
+        "template_properties": "Propiedades de la plantilla",
         "step1_add_title": "Crear plantilla",
-        "step1_edit_title": "Plantilla de edición",
-        "step2_title": "Plantilla de prueba",
-        "step3_title": "Plantilla de índice",
+        "step1_edit_title": "Editar plantilla",
+        "step2_title": "Probar plantilla",
+        "step3_title": "Indexar plantilla",
         "step4_title": "Descripción del cambio",
         "parameter_values_title": "Editar valores de parámetros"
     },
@@ -1313,38 +1313,38 @@
         "confirmatory_testing": "Relacionado con las pruebas confirmatorias"
     },
     "PreInstanceForm": {
-        "step1_title": "Establecer valores de parámetros de plantilla",
-        "step2_title": "Plantilla de índice"
+        "step1_title": "Definir valores de parámetros de la plantilla",
+        "step2_title": "Indexar plantilla"
     },
     "ObjectiveTemplatesPreInstanceForm": {
-        "add_title": "Agregar plantilla de objetivos preinstanciación",
-        "edit_title": "Editar plantilla de objetivos preinstanciación",
-        "add_success": "Plantilla de objetivos Precinstanciación agregada",
-        "update_success": "Plantilla de objetivos Precinstanciación actualizada"
+        "add_title": "Agregar preinstancia de plantilla de objetivo",
+        "edit_title": "Editar preinstancia de plantilla de objetivo",
+        "add_success": "Preinstancia de plantilla de objetivo agregada",
+        "update_success": "Preinstancia de plantilla de objetivo actualizada"
     },
     "EndpointTemplatesPreInstanceForm": {
-        "add_title": "Agregar plantilla de punto final preinstanciación",
-        "edit_title": "Editar plantilla de punto final preinstanciación",
-        "add_success": "Plantilla de punto final preinstanciación agregada",
-        "update_success": "Plantilla de punto final preinstanciación actualizada"
+        "add_title": "Agregar preinstancia de plantilla de criterio de valoración",
+        "edit_title": "Editar preinstancia de plantilla de criterio de valoración",
+        "add_success": "Preinstancia de plantilla de criterio de valoración agregada",
+        "update_success": "Preinstancia de plantilla de criterio de valoración actualizada"
     },
     "CriteriaTemplatesPreInstanceForm": {
-        "add_title": "Agregar plantilla de criterios preinstanciación",
-        "edit_title": "Editar plantilla de criterios preinstanciación",
-        "add_success": "Plantilla de criterios Precinstanciación agregada",
-        "update_success": "Plantilla de criterios preinstanciación actualizada"
+        "add_title": "Agregar preinstancia de plantilla de criterio",
+        "edit_title": "Editar preinstancia de plantilla de criterio",
+        "add_success": "Preinstancia de plantilla de criterio agregada",
+        "update_success": "Preinstancia de plantilla de criterio actualizada"
     },
     "ActivityTemplatesPreInstanceForm": {
-        "add_title": "Agregar plantilla de actividad preinstanciación",
-        "edit_title": "Editar plantilla de actividad preinstanciación",
-        "add_success": "Plantilla de actividad previa a la instanciación agregada",
-        "update_success": "Plantilla de actividad preinstanciación actualizada"
+        "add_title": "Agregar preinstancia de plantilla de actividad",
+        "edit_title": "Editar preinstancia de plantilla de actividad",
+        "add_success": "Preinstancia de plantilla de actividad agregada",
+        "update_success": "Preinstancia de plantilla de actividad actualizada"
     },
     "FootnoteTemplatesPreInstanceForm": {
-        "add_title": "Agregar plantilla de nota al pie Precinstanciación",
-        "edit_title": "Editar plantilla de nota al pie de la preinstanciación",
-        "add_success": "Plantilla de nota al pie preinstanciación agregada",
-        "update_success": "Plantilla de nota al pie Precinstanciación actualizada"
+        "add_title": "Agregar preinstancia de plantilla de nota al pie",
+        "edit_title": "Editar preinstancia de plantilla de nota al pie",
+        "add_success": "Preinstancia de plantilla de nota al pie agregada",
+        "update_success": "Preinstancia de plantilla de nota al pie actualizada"
     },
     "CtCataloguesForm": {
         "add_title": "Agregue un nuevo catálogo de CT",
@@ -1747,7 +1747,7 @@
     "ParameterValueSelector": {
         "separator": "Separador",
         "title": "Seleccionar valores",
-        "preview": "Vista previa con valores seleccionados",
+        "preview": "Vista previa con los valores seleccionados",
         "na_tooltip": "Mostrar/ocultar el parámetro en la oración"
     },
     "StudyManageView": {

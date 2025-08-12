@@ -222,8 +222,8 @@
             "context": "The Context attribute specifies the application domain in which this additional name is relevant. You could use for example 'CDASH/SDTM' with a 'Name' = 'DM:Demographics|DS:Disposition' and then the ODM-XML view will display it as an annotation for two SDTM Domain."
         },
         "GenericTemplateForm": {
-            "study_indication": "Indications, conditions, diseases or disorders in scope for the template. Select NA (not applicable), if template is generic not targeted specific studies.",
-            "study_phase": "Study phases in scope for the template. Select NA (not applicable), if template is generic not targeted specific studies."
+            "study_indication": "템플릿이 적용되는 적응증, 상태, 질병 또는 장애. 템플릿이 특정 연구를 대상으로 하지 않는 일반 템플릿인 경우 NA(해당 없음)를 선택하세요.",
+            "study_phase": "템플릿이 적용되는 연구 단계. 템플릿이 특정 연구를 대상으로 하지 않는 일반 템플릿인 경우 NA(해당 없음)를 선택하세요."
         },
         "ObjectiveTemplateForm": {
             "name": "Example of objective: 'To demonstrate superiority of [CompoundDosing] [NumericValue] [Dose Unit] versus [Comparator] [NumericValue] [Dose Unit] with respect to [ActivityInstance] at [TimePoint] in patients with [DiseaseDisorder]' or 'To document the safety profile of [StudyIntervention].' Add parameters enclosed in square brackets [ and ].",
@@ -1189,22 +1189,22 @@
         "integrate_text2": "via open API"
     },
     "GenericTemplateTable": {
-        "sponsor_tab": "Parent",
-        "pre_instances_tab": "Pre-instance",
-        "user_tab": "User Defined",
-        "confirm_parameter_values_delete": "You are about to delete default parameter values",
-        "template_history_title": "History for template [{templateUid}]"
+        "sponsor_tab": "상위",
+        "pre_instances_tab": "사전 인스턴스",
+        "user_tab": "사용자 정의",
+        "confirm_parameter_values_delete": "기본 매개변수 값을 삭제하려고 합니다",
+        "template_history_title": "템플릿 [{templateUid}]의 기록"
     },
     "GenericTemplateForm": {
-        "study_indication": "Indication or disorder",
-        "study_phase": "Study phase",
-        "template_properties": "Template properties",
-        "step1_add_title": "Create template",
-        "step1_edit_title": "Edit template",
-        "step2_title": "Test template",
-        "step3_title": "Index template",
-        "step4_title": "Change description",
-        "parameter_values_title": "Edit parameter values"
+        "study_indication": "적응증 또는 장애",
+        "study_phase": "연구 단계",
+        "template_properties": "템플릿 속성",
+        "step1_add_title": "템플릿 생성",
+        "step1_edit_title": "템플릿 편집",
+        "step2_title": "템플릿 테스트",
+        "step3_title": "템플릿 인덱싱",
+        "step4_title": "변경 설명",
+        "parameter_values_title": "매개변수 값 편집"
     },
     "EndpointTemplatesView": {
         "title": "Endpoint Templates",
@@ -1313,38 +1313,38 @@
         "confirmatory_testing": "Related to confirmatory testing"
     },
     "PreInstanceForm": {
-        "step1_title": "Set template parameter values",
-        "step2_title": "Index template"
+        "step1_title": "템플릿 매개변수 값 설정",
+        "step2_title": "템플릿 인덱싱"
     },
     "ObjectiveTemplatesPreInstanceForm": {
-        "add_title": "Add objective template pre-instantiation",
-        "edit_title": "Edit objective template pre-instantiation",
-        "add_success": "Objective template pre-instantiation added",
-        "update_success": "Objective template pre-instantiation updated"
+        "add_title": "목표 템플릿 사전 인스턴스 추가",
+        "edit_title": "목표 템플릿 사전 인스턴스 편집",
+        "add_success": "목표 템플릿 사전 인스턴스가 추가되었습니다",
+        "update_success": "목표 템플릿 사전 인스턴스가 업데이트되었습니다"
     },
     "EndpointTemplatesPreInstanceForm": {
-        "add_title": "Add endpoint template pre-instantiation",
-        "edit_title": "Edit endpoint template pre-instantiation",
-        "add_success": "Endpoint template pre-instantiation added",
-        "update_success": "Endpoint template pre-instantiation updated"
+        "add_title": "엔드포인트 템플릿 사전 인스턴스 추가",
+        "edit_title": "엔드포인트 템플릿 사전 인스턴스 편집",
+        "add_success": "엔드포인트 템플릿 사전 인스턴스가 추가되었습니다",
+        "update_success": "엔드포인트 템플릿 사전 인스턴스가 업데이트되었습니다"
     },
     "CriteriaTemplatesPreInstanceForm": {
-        "add_title": "Add criteria template pre-instantiation",
-        "edit_title": "Edit criteria template pre-instantiation",
-        "add_success": "Criteria template pre-instantiation added",
-        "update_success": "Criteria template pre-instantiation updated"
+        "add_title": "기준 템플릿 사전 인스턴스 추가",
+        "edit_title": "기준 템플릿 사전 인스턴스 편집",
+        "add_success": "기준 템플릿 사전 인스턴스가 추가되었습니다",
+        "update_success": "기준 템플릿 사전 인스턴스가 업데이트되었습니다"
     },
     "ActivityTemplatesPreInstanceForm": {
-        "add_title": "Add activity template pre-instantiation",
-        "edit_title": "Edit activity template pre-instantiation",
-        "add_success": "Activity template pre-instantiation added",
-        "update_success": "Activity template pre-instantiation updated"
+        "add_title": "활동 템플릿 사전 인스턴스 추가",
+        "edit_title": "활동 템플릿 사전 인스턴스 편집",
+        "add_success": "활동 템플릿 사전 인스턴스가 추가되었습니다",
+        "update_success": "활동 템플릿 사전 인스턴스가 업데이트되었습니다"
     },
     "FootnoteTemplatesPreInstanceForm": {
-        "add_title": "Add footnote template pre-instantiation",
-        "edit_title": "Edit footnote template pre-instantiation",
-        "add_success": "Footnote template pre-instantiation added",
-        "update_success": "Footnote template pre-instantiation updated"
+        "add_title": "각주 템플릿 사전 인스턴스 추가",
+        "edit_title": "각주 템플릿 사전 인스턴스 편집",
+        "add_success": "각주 템플릿 사전 인스턴스가 추가되었습니다",
+        "update_success": "각주 템플릿 사전 인스턴스가 업데이트되었습니다"
     },
     "CtCataloguesForm": {
         "add_title": "Add a new CT Catalogue",
@@ -1745,10 +1745,10 @@
         "objective_updated": "Study objective updated"
     },
     "ParameterValueSelector": {
-        "separator": "Separator",
-        "title": "Select values",
-        "preview": "Preview with selected values",
-        "na_tooltip": "Show/hide parameter in the sentence"
+        "separator": "구분자",
+        "title": "값 선택",
+        "preview": "선택한 값으로 미리보기",
+        "na_tooltip": "문장에서 매개변수 표시/숨기기"
     },
     "StudyManageView": {
         "title": "Study List"
@@ -3914,8 +3914,8 @@
         "format": "Format"
     },
     "TemplateIndexingDialog": {
-        "title": "Edit indexing properties",
-        "update_success": "Indexing properties updated"
+        "title": "인덱싱 속성 편집",
+        "update_success": "인덱싱 속성이 업데이트되었습니다"
     },
     "CrfDuplicationForm": {
         "duplicate": "Duplicate element",

@@ -222,8 +222,8 @@
             "context": "The Context attribute specifies the application domain in which this additional name is relevant. You could use for example 'CDASH/SDTM' with a 'Name' = 'DM:Demographics|DS:Disposition' and then the ODM-XML view will display it as an annotation for two SDTM Domain."
         },
         "GenericTemplateForm": {
-            "study_indication": "Indications, conditions, diseases or disorders in scope for the template. Select NA (not applicable), if template is generic not targeted specific studies.",
-            "study_phase": "Study phases in scope for the template. Select NA (not applicable), if template is generic not targeted specific studies."
+            "study_indication": "Indicações, condições, doenças ou distúrbios abrangidos pelo modelo. Selecione NA (não aplicável) se o modelo for genérico e não direcionado a estudos específicos.",
+            "study_phase": "Fases do estudo abrangidas pelo modelo. Selecione NA (não aplicável) se o modelo for genérico e não direcionado a estudos específicos."
         },
         "ObjectiveTemplateForm": {
             "name": "Example of objective: 'To demonstrate superiority of [CompoundDosing] [NumericValue] [Dose Unit] versus [Comparator] [NumericValue] [Dose Unit] with respect to [ActivityInstance] at [TimePoint] in patients with [DiseaseDisorder]' or 'To document the safety profile of [StudyIntervention].' Add parameters enclosed in square brackets [ and ].",
@@ -1189,22 +1189,22 @@
         "integrate_text2": "via open API"
     },
     "GenericTemplateTable": {
-        "sponsor_tab": "Parent",
-        "pre_instances_tab": "Pre-instance",
-        "user_tab": "User Defined",
-        "confirm_parameter_values_delete": "You are about to delete default parameter values",
-        "template_history_title": "History for template [{templateUid}]"
+        "sponsor_tab": "Pai",
+        "pre_instances_tab": "Pré-instância",
+        "user_tab": "Definido pelo usuário",
+        "confirm_parameter_values_delete": "Você está prestes a excluir os valores padrão de parâmetros",
+        "template_history_title": "Histórico do modelo [{templateUid}]"
     },
     "GenericTemplateForm": {
-        "study_indication": "Indication or disorder",
-        "study_phase": "Study phase",
-        "template_properties": "Template properties",
-        "step1_add_title": "Create template",
-        "step1_edit_title": "Edit template",
-        "step2_title": "Test template",
-        "step3_title": "Index template",
-        "step4_title": "Change description",
-        "parameter_values_title": "Edit parameter values"
+        "study_indication": "Indicação ou distúrbio",
+        "study_phase": "Fase do estudo",
+        "template_properties": "Propriedades do modelo",
+        "step1_add_title": "Criar modelo",
+        "step1_edit_title": "Editar modelo",
+        "step2_title": "Testar modelo",
+        "step3_title": "Indexar modelo",
+        "step4_title": "Descrição da alteração",
+        "parameter_values_title": "Editar valores de parâmetros"
     },
     "EndpointTemplatesView": {
         "title": "Endpoint Templates",
@@ -1313,38 +1313,38 @@
         "confirmatory_testing": "Related to confirmatory testing"
     },
     "PreInstanceForm": {
-        "step1_title": "Set template parameter values",
-        "step2_title": "Index template"
+        "step1_title": "Definir valores de parâmetro do modelo",
+        "step2_title": "Indexar modelo"
     },
     "ObjectiveTemplatesPreInstanceForm": {
-        "add_title": "Add objective template pre-instantiation",
-        "edit_title": "Edit objective template pre-instantiation",
-        "add_success": "Objective template pre-instantiation added",
-        "update_success": "Objective template pre-instantiation updated"
+        "add_title": "Adicionar pré-instância de modelo de objetivo",
+        "edit_title": "Editar pré-instância de modelo de objetivo",
+        "add_success": "Pré-instância de modelo de objetivo adicionada",
+        "update_success": "Pré-instância de modelo de objetivo atualizada"
     },
     "EndpointTemplatesPreInstanceForm": {
-        "add_title": "Add endpoint template pre-instantiation",
-        "edit_title": "Edit endpoint template pre-instantiation",
-        "add_success": "Endpoint template pre-instantiation added",
-        "update_success": "Endpoint template pre-instantiation updated"
+        "add_title": "Adicionar pré-instância de modelo de desfecho",
+        "edit_title": "Editar pré-instância de modelo de desfecho",
+        "add_success": "Pré-instância de modelo de desfecho adicionada",
+        "update_success": "Pré-instância de modelo de desfecho atualizada"
     },
     "CriteriaTemplatesPreInstanceForm": {
-        "add_title": "Add criteria template pre-instantiation",
-        "edit_title": "Edit criteria template pre-instantiation",
-        "add_success": "Criteria template pre-instantiation added",
-        "update_success": "Criteria template pre-instantiation updated"
+        "add_title": "Adicionar pré-instância de modelo de critério",
+        "edit_title": "Editar pré-instância de modelo de critério",
+        "add_success": "Pré-instância de modelo de critério adicionada",
+        "update_success": "Pré-instância de modelo de critério atualizada"
     },
     "ActivityTemplatesPreInstanceForm": {
-        "add_title": "Add activity template pre-instantiation",
-        "edit_title": "Edit activity template pre-instantiation",
-        "add_success": "Activity template pre-instantiation added",
-        "update_success": "Activity template pre-instantiation updated"
+        "add_title": "Adicionar pré-instância de modelo de atividade",
+        "edit_title": "Editar pré-instância de modelo de atividade",
+        "add_success": "Pré-instância de modelo de atividade adicionada",
+        "update_success": "Pré-instância de modelo de atividade atualizada"
     },
     "FootnoteTemplatesPreInstanceForm": {
-        "add_title": "Add footnote template pre-instantiation",
-        "edit_title": "Edit footnote template pre-instantiation",
-        "add_success": "Footnote template pre-instantiation added",
-        "update_success": "Footnote template pre-instantiation updated"
+        "add_title": "Adicionar pré-instância de modelo de nota de rodapé",
+        "edit_title": "Editar pré-instância de modelo de nota de rodapé",
+        "add_success": "Pré-instância de modelo de nota de rodapé adicionada",
+        "update_success": "Pré-instância de modelo de nota de rodapé atualizada"
     },
     "CtCataloguesForm": {
         "add_title": "Add a new CT Catalogue",
@@ -1745,10 +1745,10 @@
         "objective_updated": "Study objective updated"
     },
     "ParameterValueSelector": {
-        "separator": "Separator",
-        "title": "Select values",
-        "preview": "Preview with selected values",
-        "na_tooltip": "Show/hide parameter in the sentence"
+        "separator": "Separador",
+        "title": "Selecionar valores",
+        "preview": "Pré-visualizar com os valores selecionados",
+        "na_tooltip": "Mostrar/ocultar o parâmetro na frase"
     },
     "StudyManageView": {
         "title": "Study List"
@@ -3914,8 +3914,8 @@
         "format": "Format"
     },
     "TemplateIndexingDialog": {
-        "title": "Edit indexing properties",
-        "update_success": "Indexing properties updated"
+        "title": "Editar propriedades de indexação",
+        "update_success": "Propriedades de indexação atualizadas"
     },
     "CrfDuplicationForm": {
         "duplicate": "Duplicate element",
