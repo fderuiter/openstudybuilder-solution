@@ -233,8 +233,8 @@
     },
     "ActivityInstructionTemplateForm": {
       "indications": "Indications, conditions, diseases or disorders in scope for the template. Select NA (not applicable), if template is generic not targeted specific indication.",
-      "group": "Select the default group the activity belongs to (grouping is used e.g. in protocol SoA display). It can ben changed on study level if needed.",
-      "sub_group": "Select one (or more) default subgroup(s) the activity belongs to (gub-grouping is used e.g. in protocol SoA display) . It can ben changed on study level if needed.",
+      "group": "选择该活动所属的默认组（分组用于例如方案 SoA 显示）。如有需要，可在研究层面更改。",
+      "sub_group": "选择该活动所属的一个或多个默认子组（子分组用于例如方案 SoA 显示）。如有需要，可在研究层面更改。",
       "activity": "Select NA (not applicable), if template not targeting specific activities."
     },
     "ActivityInstructionTable": {
@@ -294,11 +294,11 @@
       "rationale_for_request": "A written note on why the request is needed."
     },
     "ActivityOverview": {
-      "general": "An Activity is a definition of an activity performed on a subject. The Activity is the overall name of the activity used in the protocol SoA.",
+      "general": "活动是在受试者身上执行的操作的定义。该活动名称是方案 SoA 中使用的总体名称。",
       "cosmos_yaml": "The tab displays the content in a YAML file structure. The naming complies with the CDISC COSMoS Biomedical Concept structure.",
       "osb_yaml": "OSB YAML",
-      "activity_groups": "The overall group(s) that the activity belongs to. The grouping is also used for protocol SoA display and for searching in the List of Activities.",
-      "activity_subgroups": "This is a sub-grouping within a group. The sub-grouping is also used for protocol SoA display and for searching in the List of Activities.",
+      "activity_groups": "活动所属的总体组。该分组也用于方案 SoA 显示以及在活动列表中搜索。",
+      "activity_subgroups": "这是组内的子分组。该子分组也用于方案 SoA 显示以及在活动列表中搜索。",
       "activity_group": "Activity group",
       "activity_subgroup": "Activity subgroup",
       "adam_code": "The code used as the PARAM code in the ADaM data.",
@@ -350,10 +350,10 @@
       "item_class": "The class that the item belongs to. The class determines where the information will mapped to in SDTM/CDASH."
     },
     "SubgroupOverview": {
-      "general": "An activity subgroup is a subgrouping of activities within an activity group. The subgrouping is used for protocol SoA display and for searching in the List of Activities."
+      "general": "活动子组是在活动组内的进一步分组。该分组用于方案 SoA 显示以及在活动列表中搜索。"
     },
     "GroupOverview": {
-      "general": "An activity group is a grouping of related activities. Activity groups are used for protocol SoA display and for searching in the List of Activities."
+      "general": "活动组是相关活动的集合。活动组用于方案 SoA 显示以及在活动列表中搜索。"
     },
     "CompoundsView": {
       "general": "Definitions of compounds are created from the Compounds tab. If an alias name for a compound is needed, then this can be defined in the compound aliases tab."
@@ -476,11 +476,11 @@
       "studyintent": "Select the values that reflect the planned purposes of the therapy or device being investigated in the study",
       "trialtype": "Select the values that reflect the trial type(s) that is within the study purpose. For definition of the trial types see <a href='{url}' target='_blank'>[Trial Type Response]<a>",
       "trialphase": "Select relevant phase or stage, of the study",
-      "studystoprule": "The rule(s), regulation(s) and/or condition(s) that determines the point in time when a clinical trial will be terminated. Stopping rule as specified in Protocol. If there is no stopping rule record 'NONE' in this field",
+      "studystoprule": "决定临床试验终止时间点的规则、法规和/或条件。根据方案规定的停止规则。如果没有停止规则，请在此字段中记录“NONE”。",
       "extensiontrial": "Indicate whether the study is an extension trial",
       "adaptivedesign": "Indicate if the study includes a prospectively planned opportunity for modification of one or more specified aspects of the study design and hypotheses based on analysis of data (usually interim data) from subjects in the study",
       "post_auth_safety_indicator": "An indication as to whether the clinical study is a post authorization safety study",
-      "confirmed_resp_min_duration": "The protocol specified minimum amount of time needed to meet the definition of a confirmed response to treatment. Write value and unit or select NA"
+      "confirmed_resp_min_duration": "方案规定达到治疗确认反应定义所需的最短时间。填写数值和单位，或选择 NA"
     },
     "StudyPopulationForm": {
       "therapeuticarea": "The overall research or development area to which the study belongs (cover investigation of specific treatments for diseases and pathologic findings, as well as prevention of conditions that negatively impact the health of an individual)",
@@ -493,7 +493,7 @@
       "pediatric_study_indicator": "Indicate whether the study is a paediatric study, i.e. study in children",
       "pediatric_postmarket_study_indicator": "Indicate whether the study is a paediatric post-market study, i.e. study in children done after initial approval of the compound being studied",
       "pediatric_investigation_plan_indicator": "Indicate whether the study is part of a paediatric investigation plan (PIP), i.e. study in children",
-      "stable_disease_min_duration": "The protocol specified minimum amount of time needed to meet the definition of stable disease",
+      "stable_disease_min_duration": "方案规定达到疾病稳定定义所需的最短时间",
       "relapse_criteria": "A standard from which a judgment concerning a disease relapse can be established. Ex. the NCI/Rome criteria is a standard for relapse in Acute Lymphoblastic Leukaemia",
       "number_of_expected_subjects": "The total number of subjects expected to be screened",
       "sex_of_study_participants": "The specific sex, either male, female, or mixed of the subject group being studied.",
@@ -513,7 +513,7 @@
     },
     "StudyCompoundForm": {
       "general": "Compounds are defined in the Study Builder Library. If a new compound or additional information to an existing compound is needed it must be defined in the library.",
-      "type_of_treatment": "Each Type of Treatment will be classified into IMP (Investigational Medical Product) or NIMP (Non-investigational Medical Product) - this will be used when generating the study interventions table for the protocol. Choose type of intervention from drop-down. Investigational Product (IMP):Following Study Compound will be linked to TSPARM 'TRT' (Investigational Therapy or Treatment) and SDTM.EX, Comparative Treatment (IMP): Following Study Compound will be linked to TSPARM 'COMPTRT' (Comparative Treatment Name) and SDTM.EX, Placebo Treatment (IMP): Following Study Compound will not be linked to TSPARM - but info used for SDTM.EX, Current Treatment (NIMP): Following Study Compound will be linked to TSPARM 'CURTRT' (Current Therapy or Treatment) and SDTM.EX. if Type of treatment is  either 'Investigational Product', 'Comparative Treatment' or 'Current Treatment' then NA can be ticked. This implies that no details for the compound will be/is provided (the next steps in this edit menu (select alias and details for the compound) will disappear. A reason for NA should be provided.",
+      "type_of_treatment": "每种治疗类型将被分类为 IMP（研究用药品）或 NIMP（非研究用药品），该分类将在为方案生成研究干预表时使用。请从下拉菜单中选择干预类型。研究用产品（IMP）：所选研究化合物将关联到 TSPARM “TRT”（研究治疗）并映射到 SDTM.EX。比较治疗（IMP）：所选研究化合物将关联到 TSPARM “COMPTRT”（比较治疗名称）并映射到 SDTM.EX。安慰剂治疗（IMP）：所选研究化合物不会关联到 TSPARM，但信息会用于 SDTM.EX。当前治疗（NIMP）：所选研究化合物将关联到 TSPARM “CURTRT”（当前治疗）并映射到 SDTM.EX。如果治疗类型为“研究用产品”“比较治疗”或“当前治疗”，可勾选 NA。这意味着不会提供该化合物的详细信息（本编辑菜单中的下一步，即选择别名和化合物详情，将消失）。应提供选择 NA 的原因。",
       "compound": "Choose compound from drop-down.",
       "compound_alias": "Choose compound alias from drop-down",
       "dosage_form": "Choose from drop-down, which dosage form is used for the study.",
@@ -567,7 +567,7 @@
       "general": "Use the add button (under the menu) to add the endpoint needed. The endpoint can be based on standard templates, selected from other studies or created from scratch. Some criteria contain parameters highlighted with orange text (parameter labels) or green text (parameter values) for which new values can be selected, or the parameter omitted, by using the Edit button next to each editable endpoint in the table."
     },
     "StudyVisitForm": {
-      "vtype_step_label": "Select the type of visit: Scheduled visit is a planned visit as per protocol. Unscheduled visit is an additional visit to capture activities that may happen outside of normal schedule, e.g. extra lab samples. Non Visit is for study activities not related to any visits, e.g. for self-measured plasma glucose results. The Unscheduled Visit and Non Visit are placeholders required for most of the studies for proper SDTM mapping. Special visit is a visit without specific timing but related to data collection. Special visits are always connected to another visit and are shown in the schedule of activities as visits VxxA, VxxB, etc. (where 'xx' is the number of the related visit). This type of visit can also be used as an “Early Discontinuation Visit,” during which specific data are collected, but not at the time of the originally planned End of Treatment visit. In this case, the Special Visit will be named VxxX. There may be more than one early discontinuation visit in the trial, and any additional early discontinuation visits will be named VxxY and VxxZ. If after first participant enrolled on study (FPFV) adding new visit as per protocol amendment is needed, then Manually defined visit has to be used. After FPFV changing names or numbering of visits that were initially implemented may have serious consequences, while adding Manually Defined visit is not impacting on data that were already collected.",
+      "vtype_step_label": "选择访视类型：按方案计划的访视为计划访视。非计划访视是为捕捉可能发生在正常时间表之外的活动（如额外的实验室样本）而增加的访视。非访视用于与任何访视无关的研究活动，例如自测血糖结果。非计划访视和非访视是大多数研究中进行正确 SDTM 映射所需的占位符。特殊访视是没有具体时间但与数据收集相关的访视。特殊访视始终与另一访视相关，并在活动时间表中显示为 VxxA、VxxB 等（其中“xx”为相关访视的编号）。此类访视还可用作“提前停药访视”，在计划的治疗结束访视之外采集特定数据。此时，特殊访视将命名为 VxxX。试验中可能存在多个提前停药访视，额外的提前停药访视将命名为 VxxY 和 VxxZ。如果在研究首例受试者入组（FPFV）后因方案修订需要新增访视，则必须使用手动定义访视。FPFV 之后更改已实现访视的名称或编号可能产生严重后果，而添加手动定义访视不会影响已收集的数据。",
       "period": "Select the study period (epoch) applicable for the visit. The epoch types correspond to the epochs defined in the Study Epochs tab.",
       "single_anchor_addtional": "Selection is applicable only if visit scheduling type is scheduled. For newly created visits by default the Single Visit radiobutton is selected. If visits need subgrouping, e.g. a set of days (Day 1, Day 2, Day 3) to be grouped into a one visit (Visit 3), then select Anchor visit in visit group. It will allow to create Visit 3 Day 1, which will be the local anchor visit for subsequent sub-visits. To add subsequent visits (Visit 3 Day 2, Visit 3 Day 3) then, while creating them, select Additional sub-visit radiobutton and appropriate anchor visit from the time reference drop-down. Repeating visits can typically be used for non-interventional studies, where participants return for the same visit multiple times during the study according to their individual needs (for example, one participant may come to visit 3 five times, while another may have 10 visits as visit 3). If there are any requirements about the repetition of such visits (daily, weekly, monthly), then it can be defined via the Repeating frequency item. If visits require a different frequency than those present on the pull-down list, then leave Repeating frequency item blank and provide the proper frequency by entering the details into the Visit description item.",
       "visit_type": "For definition of visit types see: Library, Code Lists, Sponsor, and filter Sponsor Preferred name=VisitType or Concept ID CTCodelist_000002 to review the terms. Additional Visit types can be requested via the Study Standards Developer. To create an information visit as Visit 0, use the Visit type=Information and set negative timing towards Global anchor visit. Visit types can be marked as SoA milestones in a study.",
@@ -581,8 +581,8 @@
       "visit_short_name": "To be selected manually for Manually defined visits. Auto-populated for other visit types.",
       "study_day_label": "Auto-populated",
       "study_week_label": "Auto-populated",
-      "visit_window_min": "Enter the earliest, allowable per protocol, number of days/weeks/years when the visit may occur prior planned time point.",
-      "visit_window_max": "Enter the latest, allowable per protocol, number of days/weeks/years when the visit may occur after planned time point.",
+      "visit_window_min": "输入按方案允许的最早访视时间（天/周/年），即访视可在计划时间点之前发生的时间。",
+      "visit_window_max": "输入按方案允许的最晚访视时间（天/周/年），即访视可在计划时间点之后发生的时间。",
       "visit_win_unit": "Select unit for visit window.",
       "visit_description": "Text field to add description of the visit.",
       "epoch_allocation": "Observations at a visit might be affected by treatment administered in a previous epoch. Example: Baseline visit (in treatment epoch) where subjects are instructed to take first medication the next day will have measurements taken that represents 'Pre Treatment' epoch treatment, i.e. No treatment. In this case the Epoch Allocation Rule should be Previous Visit. In most cases the rule is Current Visit, i.e. measurements at this visit is measurements of the treatment (element) given in the epoch. The corresponding rules with Date is to be used for Non-visits and unscheduled visits. The Actual Treatment is used if the actual treatment of the subject at the visit is to be used instead of the planned treatment. Reach out to the study SDTM programmer for further information.",
@@ -601,7 +601,7 @@
       "multilingual_crf": "Slide if you require CRF to handle multiple languages."
     },
     "StudyCriteriaTable": {
-      "general": "Study eligibility criteria as would be described in the protocol",
+      "general": "研究的受试者资格标准，如方案中所述",
       "study_criteria": "Follow the tabs to define the different criteria applicable for the study"
     },
     "EligibilityCriteriaForm": {
@@ -615,7 +615,7 @@
       "title": "For template based criteria, replace the parameters with actual values selecting from the drop-down list(s)."
     },
     "StudyProperties": {
-      "general": "For each tab (Study Type and Study Attributes) fill in the details for the study as described in the protocol.",
+      "general": "在每个选项卡（研究类型和研究属性）中，按照方案描述填写研究的详细信息。",
       "study_type": "Overall description of the study by selection of prespecified controlled terms. This information is part of the mandatory SDTM.TS domain (Trial Summary).",
       "study_attributes": "Overall description of the study design and interventions/intervention model. This information is part of the mandatory SDTM.TS domain (Trial Summary)."
     },
@@ -659,12 +659,12 @@
     },
     "StudyTitleView": {
       "general": "Click on the pencil to add a study title or copy from an existing study.",
-      "title": "The title of the clinical study, corresponding to the title of the protocol."
+      "title": "临床研究的标题，应与方案标题一致。"
     },
     "StudyTitleForm": {
       "general": "Fill in the study title and short title or re-use from similar study from the table. Use the copy icon to copy from a study.",
-      "study_title": "The full title of the protocol.",
-      "short_title": "The short title of the protocol."
+      "study_title": "方案的完整标题。",
+      "short_title": "方案的短标题。"
     },
     "SelectOrAddStudyTable": {
       "general": "To add a new study, click on the +-button. To select or edit a study from the list use the vertical dot-menu to the left of the row in the table."
@@ -691,7 +691,7 @@
       "COA CT": "Clinical Outcome Assessment Controlled Terminology. COA is a measure that describes or reflects how a patient feels, functions, or survives. COAs include the following types of analytical instruments: Clinician-reported outcome (ClinRO), Observer-reported outcome (ObsRO), Patient-reported outcome (PRO), Performance outcome (PerfO)",
       "DEFINE_XML": "Define.xml Controlled Terminology. Define.xml is a data definition document, describing the structure and content of the SDTM or ADaM datasets.",
       "GLOSSARY_CT": "Glossary Controlled Terminology. A list of definitions that support other CDISC standards by clarifying and disambiguating key concepts in clinical research",
-      "PROTOCOL_CT": "Protocol Controlled Terminology. Terminology used to support the CDISC protocol standards",
+      "PROTOCOL_CT": "方案受控术语。用于支持 CDISC 方案标准的术语",
       "QRS_CT": "Questionnaires, Ratings and Scales Controlled Terminology. Each QRS instrument is a series of questions, tasks or assessments used in clinical research to provide a qualitative or quantitative assessment of a clinical concept or task-based observation.",
       "QS_FT_CT": "Questionnaire and Functional Test Controlled Terminology. With the December 19th 2014 release of the CDISC terminologies, the standalone Questionnaire and Functional Test (QS-FT) Terminology was deprecated and its content subsumed into the Clinical Outcome Assessments (COA) Terminology",
       "SDTM_CT": "Study Data Tabulation Controlled Terminology. Terminology to support the tabulation of the collected data. SDTM is one of the required standards for data submission to FDA (U.S.) and PMDA (Japan).",
@@ -704,7 +704,7 @@
       "COA CT": "Clinical Outcome Assessment Controlled Terminology. COA is a measure that describes or reflects how a patient feels, functions, or survives. COAs include the following types of analytical instruments: Clinician-reported outcome (ClinRO), Observer-reported outcome (ObsRO), Patient-reported outcome (PRO), Performance outcome (PerfO)",
       "DEFINE_XML": "Define.xml Controlled Terminology. Define.xml is a data definition document, describing the structure and content of the SDTM or ADaM datasets.",
       "GLOSSARY_CT": "Glossary Controlled Terminology. A list of definitions that support other CDISC standards by clarifying and disambiguating key concepts in clinical research",
-      "PROTOCOL_CT": "Protocol Controlled Terminology. Terminology used to support the CDISC protocol standards",
+      "PROTOCOL_CT": "方案受控术语。用于支持 CDISC 方案标准的术语",
       "QRS_CT": "Questionnaires, Ratings and Scales Controlled Terminology. Each QRS instrument is a series of questions, tasks or assessments used in clinical research to provide a qualitative or quantitative assessment of a clinical concept or task-based observation.",
       "QS_FT_CT": "Questionnaire and Functional Test Controlled Terminology. With the December 19th 2014 release of the CDISC terminologies, the standalone Questionnaire and Functional Test (QS-FT) Terminology was deprecated and its content subsumed into the Clinical Outcome Assessments (COA) Terminology",
       "SDTM_CT": "Study Data Tabulation Controlled Terminology. Terminology to support the tabulation of the collected data. SDTM is one of the required standards for data submission to FDA (U.S.) and PMDA (Japan).",
@@ -717,7 +717,7 @@
       "COA CT": "Clinical Outcome Assessment Controlled Terminology. COA is a measure that describes or reflects how a patient feels, functions, or survives. COAs include the following types of analytical instruments: Clinician-reported outcome (ClinRO), Observer-reported outcome (ObsRO), Patient-reported outcome (PRO), Performance outcome (PerfO)",
       "DEFINE_XML": "Define.xml Controlled Terminology. Define.xml is a data definition document, describing the structure and content of the SDTM or ADaM datasets.",
       "GLOSSARY_CT": "Glossary Controlled Terminology. A list of definitions that support other CDISC standards by clarifying and disambiguating key concepts in clinical research",
-      "PROTOCOL_CT": "Protocol Controlled Terminology. Terminology used to support the CDISC protocol standards",
+      "PROTOCOL_CT": "方案受控术语。用于支持 CDISC 方案标准的术语",
       "QRS_CT": "Questionnaires, Ratings and Scales Controlled Terminology. Each QRS instrument is a series of questions, tasks or assessments used in clinical research to provide a qualitative or quantitative assessment of a clinical concept or task-based observation.",
       "QS_FT_CT": "Questionnaire and Functional Test Controlled Terminology. With the December 19th 2014 release of the CDISC terminologies, the standalone Questionnaire and Functional Test (QS-FT) Terminology was deprecated and its content subsumed into the Clinical Outcome Assessments (COA) Terminology",
       "SDTM_CT": "Study Data Tabulation Controlled Terminology. Terminology to support the tabulation of the collected data. SDTM is one of the required standards for data submission to FDA (U.S.) and PMDA (Japan).",
@@ -778,7 +778,7 @@
     "StudyObjectivesTable": {
       "objective_level": "Specifies if the objective is Primary or Secondary. The primary objective(s) is the main question to be answered and drives any statistical planning for the trial (e.g. calculation of the sample size to provide the appropriate power for statistical testing). Secondary objectives are goals of a trial that will provide further information to support the primary objective",
       "endpoint_count": "Objectives and endpoints are linked together. This shows the number of endpoints linked to the objective",
-      "objective": "The objective text as it is stated in the protocol"
+      "objective": "与方案中所述一致的目标文本"
     },
     "StudyObjectiveForm": {
       "add_title": "The objective can be based on standard templates, selected from other studies, or created from scratch",
@@ -789,7 +789,7 @@
       "select_tpl_parameters_label": "Fill in the template by selecting values from the dropdown list. Use the eye-icon to hide a parameter from the objective text",
       "select_studies": "Select studies (one or more) where objectives should be copied from. It will create a combined list of objectives to choose from",
       "study_objective": "Copy objective(s) from the list of study objectives using the copy icon and press Save.",
-      "objective_level": "Select if the objective is Primary or Secondary as specified in the protocol",
+      "objective_level": "根据方案规定选择该目标是主要还是次要",
       "step_edit_title": "For template-based objective change the parameter(s) using the drop-down list"
     },
     "StudyEndpointsTable": {
@@ -806,26 +806,26 @@
       "step2_title": "Copy endpoint(s) from the list of templates using the copy icon and press Continue",
       "timeframe_template": "Time point(s) at which the measurement is assessed for the specific metric used. Select Time frame template from the dropdown-list",
       "step3_title": "Finish the endpoint by selecting the parameters from the drop-down lists",
-      "endpoint_level": "Primary: endpoint of greatest importance specified in the protocol, usually the one(s) used in the power calculation. Most clinical studies have one primary endpoint, but a clinical study may have more than one. Secondary: endpoint that is of lesser importance than a primary endpoint, but is part of a pre-specified analysis plan for evaluating the effects of the intervention or interventions under investigation in a clinical study and is not specified as an exploratory or endpoint. A clinical study may have more than one secondary endpoint, Exploratory:  Planned endpoint but of more exploratory nature, Additional: Any other endpoints, excluding post-hoc endpoints, that will be used to evaluate the intervention(s) or, for observational studies, that are a focus of the study "
+      "endpoint_level": "主要：方案中规定的最重要终点，通常用于统计效能计算。大多数临床研究只有一个主要终点，但也可能有多个。次要：重要性低于主要终点，但作为预先指定分析计划的一部分，用于评估研究中干预措施的影响，并且未被指定为探索性终点。临床研究可能有多个次要终点。探索性：计划中的终点，但更具探索性质。附加：除事后终点外的其他终点，用于评估干预措施或（对观察性研究而言）研究关注的其他方面。"
     },
     "ActivitiesView": {
       "general": "Studies Activities specifies what to be administered, measured and collected during a study at the different visits",
       "activity_list": "From this tab add the activities for the study. To add an activity use the + button",
       "detailed_flowchart": "Once activities are added, go to detailed SoA to select which visits the activities occur.",
-      "protocol_flowchart": "Displays the rendered SoA as it will look in the protocol",
+      "protocol_flowchart": "显示渲染后的 SoA，其外观与方案中的一致",
       "activity_instructions": "Tab for specification of instructions for an activity. E.g. Study drug must be given the next day after randomisation"
     },
     "StudyActivity": {
-      "general": "A 'Study Activity' is an assessment or procedure performed on a subject in a clinical study. The menu option 'Study Activities' is where you administer/select the activities needed for your study and the group them, you assign them to relevant visits, and specify how it should be in the protocol view of the Schedule of Activity (SoA). You can also attach footnotes to the SoA, control the SoA header row and preview different detail levels of the SoA.",
+      "general": "“研究活动”是在临床研究中对受试者执行的评估或程序。“研究活动”菜单是管理/选择研究所需活动并对其分组、分配到相关访视，以及在方案视图的活动安排表（SoA）中设置显示方式的地方。您还可以为 SoA 添加脚注、控制 SoA 标题行并预览不同详细程度的 SoA。",
       "settings": "The 'Settings' option allow you to control the time unit (days/weeks) for the SoA and whether or not you need baseline visit (eg. randomisation) shown as time 0",
       "study_activities": "The activities can be selected from the library, from other studies or activity placeholders can be created for requesting new activities.",
-      "detailed_soa": "The Detailed SoA is where you define at what visit(s) an activity is needed. The SoA has four levels: <br /> 1) SoA group <br /> 2) Activity group <br /> 3) Activity subgroup <br /> 4) Activity <br /> Click the circle to select or unselect that an activity should be done at that visit. Click the eye icon to toggle the visibility of an activity level in the Protocol SoA. If an activity level is hidden, the timings ticked will 'inherit up' a level, so you can hide the Activity and Activity subgroup level to just include the Activity group in the Protocol SoA (for example you might want to hide e.g. 'Height' and 'Weight' and just include 'Body measurements' in the Protocol SoA).",
+      "detailed_soa": "详细 SoA 用于定义某项活动需要在哪些访视执行。SoA 共有四个层级：<br /> 1）SoA 组<br /> 2）活动组<br /> 3）活动子组<br /> 4）活动<br /> 点击圆圈可选择或取消某访视的活动。点击眼睛图标可在方案 SoA 中切换某活动层级的可见性。如果某一层级被隐藏，所勾选的时间点会“向上继承”，因此您可以隐藏活动和活动子组层级，仅在方案 SoA 中包含活动组（例如您可能希望隐藏“身高”和“体重”，仅在方案 SoA 中显示“身体测量”）。",
       "detailed_soa_actions": "Use the ellipsis (three dots) to the left of an activity to access these: <br /><b> Edit Activity: </b> Adjust details in an activity. <br /><b> Add Activity: </b>Add an activity above the selected activity (you can change the order of activities from the 'Study Activities' tab). <br /><b> Exchange Activity: </b> Replace an activity with a new activity while keeping visits and footnotes in the detailed SoA. <br /><b> Remove Activity: </b> Remove the activity, any visits and references to footnotes that have been added to this activity. A removed activity can be added again under the ‘Study Activities’ tab. Footnotes will not be removed, so can be linked to again.",
       "detailed_soa_reordering": "You can use drag-and-drop for easy reordering of rows in the detailed SoA. To enable, click the 3 dots to the left of a row title and select 'Reorder' in the menu. Now you can reorder rows using your mouse - simply drag-and-drop on the arrow-icon to the left of the row. Reordering is done within a context - so if you select 'Reorder' on a SoA group, then you can reorder only SoA groups, whereas if you select 'Reorder' on an activity, then you can reorder only within that group. When you are done, click the 'Finish reordering' button to exit the reordering mode.",
-      "study_footnotes": "Select or create footnotes to be used in the  protocol SoA. Footnotes can be selected from library, other studies or created from scratch. The footnotes will automatically be ordered by occurrence in the SoA.",
-      "hidden_activity_footnotes": "If you link to an activity that is hidden, the footnote will not 'inherit up' to a visible level above. Instead a warning will be shown under 'Linked to' and this must then be addressed to ensure proper display of footnotes in the Protocol SoA.",
-      "protocol_soa": "The Protocol SoA is a preview of the settings/selections in the 'Detailed SoA' section. The view is what will be pulled into the protocol template via the Word add-in. You can also preview the SoA at the detailed and data specification operational level.",
-      "instructions": "NOTE: This functionality is not in use yet. When in use, it will link selected activities from the SoA to the applicable instruction text for section 8 of the protocol 'Study assessments and procedures'"
+      "study_footnotes": "选择或创建用于方案 SoA 的脚注。脚注可以从库、其他研究中选择或从头创建。脚注将在 SoA 中按出现顺序自动排序。",
+      "hidden_activity_footnotes": "如果您链接到被隐藏的活动，脚注不会“向上继承”到上方可见层级。相反，“链接到”下会显示警告，必须处理以确保脚注在方案 SoA 中正确显示。",
+      "protocol_soa": "方案 SoA 是“详细 SoA”部分设置/选择的预览。该视图将通过 Word 外接程序导入方案模板。您还可以在详细和数据规范的操作层级预览 SoA。",
+      "instructions": "注意：此功能尚未启用。启用后，它会将 SoA 中选择的活动链接到方案第 8 章“研究评估和程序”的相关说明文本"
     },
     "StudyActivityForm": {
       "general": "Select the activities for the study. ",
@@ -840,7 +840,7 @@
       "general": "Select the visits where the activities are to be collected."
     },
     "ProtocolFlowchart": {
-      "update_flowchart": "Press UPDATE SOA to view the protocol SoA rendering. Press button to view changes made in the detailed SoA view",
+      "update_flowchart": "点击“更新 SoA”以查看方案 SoA 的呈现。按按钮可查看在详细 SoA 视图中所做的更改",
       "download_docx": "Press DOWNLOAD DOCX to download the WORD version of the SoA"
     },
     "StudyActivityInstructionBatchForm": {
@@ -855,7 +855,7 @@
       "core_attributes": "Study Core Attributes",
       "study_status": "Study Status",
       "study_sub_parts": "Study Sub-parts",
-      "protocol_version": "Protocol Version",
+      "protocol_version": "方案版本",
       "core_attributes_body": "Specification of the core attributes for a study, being relationship to clinical programme and project, study number (will be linked to the Study ID) and the Study Acronym.<br><br>When a study have not yet been locked it can be deleted from this page, this will be a soft delete and the study will be listed under Deleted studies on the Study List menu.<br> Note the history displayed from this page is actually the overall history for the study definition.",
       "content_line_1": "A study definition instance can have the following status:",
       "content_line_2": "<strong>Draft</strong>, refer to the current instance that can be edited.",
@@ -869,8 +869,8 @@
       "content_line_10": "This will create a versioned stable persistent study instance that can be referred to from downstream usage, as a data snapshot reference in the repository. The study will change status to ‘Locked’ and can no longer be edited. To continue to edit, an un-lock action must be done starting up a new version.<br>A concurrent major version number will automatically be assigned (1.0, 2.0, 3.0, …).<br>The locking process will also make a study release instance to ensure the latest release instance never is older than the latest locked instance.<br>Lock and Release is like creating a final approved version in a document management system or a merging a pull request into main in a Git repository.",
       "content_line_11": "When study is in <strong>Locked</strong> status the Un-lock action is enabled",
       "content_line_12": "This will bring the study back into the ‘Draft’ status where the study again can be edited.",
-      "study_sub_parts_body": "Specification for the study definition as a parent definition for several sub-study definitions, or as a sub-study definition under a parent. This is the approach for making a study specification for protocols holding multiple sub-study parts.",
-      "protocol_version_body": "Specification of the relationship between versions of study definition instances and the corresponding protocol document versions."
+      "study_sub_parts_body": "将研究定义指定为多个子研究定义的父定义，或作为父定义下的子研究定义的规范。这是针对包含多个子研究部分的方案制定研究规范的方法。",
+      "protocol_version_body": "研究定义实例版本与相应方案文档版本之间关系的说明。"
     },
     "FootnotesTemplatesTable": {
       "general": "Select from the table of templates. Either from generic templates or pre-specified templates, by using the 'Select from pre-instance'-slide in the top of the table."
@@ -896,10 +896,10 @@
     },
     "UsdmPage": {
       "general": "This page display the JSON file generated based on the  Digital Data Flow (DDF) CDISC / TransCelerate Unified Study Definitions Model (USDM). The data available here are extracted and converted into the USDM model, based on mapping rules defined within the StudyBuilder team: Be aware about that.",
-      "official_protocol_title": "The formal descriptive name for the protocol.",
+      "official_protocol_title": "方案的正式描述性名称。",
       "clinical_study_def": "A clinical study involves research using human volunteers (also called participants) that is intended to add to medical knowledge. There are two main types of clinical studies: clinical trials (also called interventional studies) and observational studies. [[http://ClinicalTrials.gov]](CDISC Glossary)",
-      "study_protocol_version": "A plan at a particular point in time for a formal investigation to assess the utility, impact, pharmacological, physiological, and/or psychological effects of a particular treatment, procedure, drug, device, biologic, food product, cosmetic, care plan, or subject characteristic. (BRIDG)",
-      "protocol_status": "A condition of the protocol at a point in time with respect to its state of readiness for implementation. See [<a href='/library/ct_catalogues/All/C188723/terms'>C188723-CDISC DDF Protocol Status Value Set Terminology</a>]",
+      "study_protocol_version": "在特定时间点进行正式研究的计划，用于评估特定治疗、程序、药物、器械、生物制品、食品、化妆品、护理方案或受试者特征的效用、影响以及药理、生理和/或心理效应。（BRIDG）",
+      "protocol_status": "某一时间点上方案的状态，体现其实施准备程度。参见 [<a href='/library/ct_catalogues/All/C188723/terms'>C188723-CDISC DDF Protocol Status Value Set Terminology</a>]",
       "study_design": "A plan detailing how a study will be performed in order to represent the phenomenon under examination, to answer the research questions that have been asked, and informing the statistical approach.",
       "organization_type": "A characterization or classification of the formalized group of persons or other organizations collected together for a common purpose (such as administrative, legal, political) and the infrastructure to carry out that purpose. See [<a href='/library/ct_catalogues/All/C188724/terms'>C188724-CDISC DDF Organization Type Value Set Terminology</a>]",
       "trial_type": "The nature of the interventional study for which information is being collected. See [<a href='/library/ct_catalogues/All/C66739/terms'>C66739-CDISC SDTM Trial Type Terminology</a>]",
@@ -959,7 +959,7 @@
     "manage_description": "Register new studies in the application and manage the life-cycle of these.",
     "dashboard_description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud",
     "define_description": "Specify the design, interventions, study population, objectives, visit structure, schedule of activities and activity, etc. by using controlled terminology and syntax templates or by reusing content from other studies.",
-    "build_description": "Preview the study information (entered e.g. under Define Study), but compiled for different downstream usages, e.g. for import into the protocol template, for upload to external registries, for population of the SDTM study design datasets, for CRF design, etc. ",
+    "build_description": "预览研究信息（例如在“定义研究”中输入的内容），并为不同的下游用途进行汇总，例如导入方案模板、上传至外部注册库、生成 SDTM 研究设计数据集、CRF 设计等。",
     "select_description": "Find, edit and add studies.",
     "list_description": "Various kinds of listings of the study specification data defined for your study.",
     "process_overview_description": "Find schematic overviews of the activities covered under Studies. You can use these to navigate to the relevant pages to enter or look up information."
@@ -1090,14 +1090,14 @@
       "compounds": "Study Compounds",
       "compound_dosings": "Study Compound Dosings",
       "other_interventions": "Other Interventions",
-      "protocol_interventions_table": "Protocol Interventions table",
+      "protocol_interventions_table": "方案干预表",
       "objectives": "Study Objectives",
       "estimands": "Study Estimands",
       "study_endpoints": "Study Endpoints",
       "study_criteria": "Study Criteria",
       "study_interventions": "Study Interventions",
       "eligibility_criteria": "Eligibility Criteria",
-      "study_disclosure": "Clinical Transparency",
+      "study_disclosure": "临床透明度",
       "cdisc_ctr": "CDISC CTR",
       "clinical_trials_gov": "ClinicalTrials.gov",
       "eudra_ct": "EudraCT",
@@ -1105,7 +1105,7 @@
       "trial_supplies_spec": "Trial Supplies Specifications",
       "randomisation_criteria": "Randomisation Criteria",
       "standarisation_plan": "Standarisation Plan",
-      "protocol_elements": "Protocol Elements",
+      "protocol_elements": "方案要素",
       "flow_chart": "SoA",
       "objective_endpoints_estimands": "Objectives and Endpoints",
       "study_design": "Study Design",
@@ -1151,8 +1151,8 @@
       "time_profiles": "Time Profiles",
       "study_timeline": "Timeline",
       "process_overview": "Process Overview",
-      "protocol_process": "Protocol Process",
-      "protocol_title": "Title Page",
+      "protocol_process": "方案流程",
+      "protocol_title": "标题页",
       "activities": "Study Activities",
       "purpose": "Study Purpose",
       "progress_tracking": "Progress Tracking",
@@ -2178,14 +2178,14 @@
     "title_hint": "The Title must include the name of the study intervention(s) under clinical investigation, the condition being studied, the participants included and the primary purpose, and should not be longer than 600 characters, including spaces. Two studies must not have identical titles.",
     "update_success": "Study title updated",
     "copy_title": "Use this study's title as a template",
-    "short_title_hint": "The short title is used for the front page of the protocol, for participant information/informed consent forms (PI/IC) and protocol synopsis in lay language (PSLL), if applicable. The short title should be in lay language and be a maximum of 300 characters. For guidance on lay language titles please refer to the User Guide on Lay Language Titles in the PI/IC toolbox on Sharepoint."
+    "short_title_hint": "短标题用于方案封面、受试者信息/知情同意书（PI/IC）以及（如适用）通俗语言的方案摘要（PSLL）。短标题应使用通俗语言，最长不超过 300 个字符。关于通俗语言标题的指导，请参阅 SharePoint 上 PI/IC 工具箱中的《通俗语言标题用户指南》。"
   },
   "StudyStatusView": {
     "title": "Study",
     "tab1_title": "Study Core Attributes",
     "tab2_title": "Study Status",
     "tab3_title": "Study Subparts",
-    "tab4_title": "Protocol Version"
+    "tab4_title": "方案版本"
   },
   "StudyDataStandardVersionsView": {
     "title": "Data Standard Versions",
@@ -2230,16 +2230,16 @@
     "release_success": "Study has been released"
   },
   "StudyProtocolElementsView": {
-    "title": "Protocol Elements",
+    "title": "方案要素",
     "title_page": "Title Page Information",
-    "protocol_flowchart": "Protocol SoA",
+    "protocol_flowchart": "方案 SoA",
     "study_interventions": "Study Interventions",
     "procedures_and_activities": "Procedures and Activities",
     "study_design": "Study Design",
     "download": "Download",
     "loading": "Loading...",
     "downloading": "Downloading...",
-    "protocol_soa": "Protocol SoA"
+    "protocol_soa": "方案 SoA"
   },
   "CtrOdmXmlVue": {
     "title": "CTR ODM XML",
@@ -3049,7 +3049,7 @@
     "incl_excl_cat": "Inclusion/Exclusion Category",
     "incl_excl_subcat": "Inclusion/Exclusion Subcategory",
     "incl_excl_criterion_rule": "Inclusion/Exclusion Criterion Rule",
-    "protocol_criteria_versions": "Protocol Criteria Versions",
+    "protocol_criteria_versions": "方案标准版本",
     "sequence_number": "Sequence Number",
     "group_id": "Group ID",
     "trial_summary_short_name": "Trial Summary Parameter Short Name",
@@ -3064,12 +3064,12 @@
     "disease_milestone_rep_ind": "Disease Milestone Repetition Indicator"
   },
   "UsdmPage": {
-    "title": "USDM version of the Protocol / USDM version: {version}",
+    "title": "方案的 USDM 版本 / USDM 版本：{version}",
     "general": "General",
     "clinical_study_def": "Clinical study [C15206]",
-    "official_protocol_title": "Official Protocol Title [C132346]",
-    "study_protocol_version": "Study Protocol Version [C93490]",
-    "protocol_status": "Protocol Status [C188818]",
+    "official_protocol_title": "正式方案标题 [C132346]",
+    "study_protocol_version": "研究方案版本 [C93490]",
+    "protocol_status": "方案状态 [C188818]",
     "study_design": "Study Design [C15320]",
     "organization_type": "Organization Type [C188820]",
     "trial_type": "Trial Type [C49660]",
@@ -3079,7 +3079,7 @@
     "target_study_population": "Target Study Population [C142728]"
   },
   "IchM11Page": {
-    "title": "ICH M11 version of the protocol"
+    "title": "方案的 ICH M11 版本"
   },
   "CtPackageCodelistHistoryView": {
     "title": "CT packages history for one code list"
@@ -3112,8 +3112,8 @@
     "history_title": "Study visit"
   },
   "ProtocolProcessView": {
-    "title": "Protocol Process",
-    "sub_title": "Overview of protocol elements",
+    "title": "方案流程",
+    "sub_title": "方案要素概览",
     "description": "The process map provides links to where you specify each element",
     "select_study": "Select study",
     "add_new_study": "Add New Study",
@@ -3147,7 +3147,7 @@
     "time_profiles": "Time Profiles",
     "activity_list": "Study Activities",
     "detailed_flowchart": "Detailed SoA",
-    "protocol_flowchart": "Protocol SoA",
+    "protocol_flowchart": "方案 SoA",
     "activity_instructions": "Activity Instructions",
     "study_structure": "Study Structure",
     "overview": "Overview",
@@ -3209,8 +3209,8 @@
   "ProtocolTitlePage": {
     "title_page_elements": "Title page elements",
     "values": "Values",
-    "protocol_title": "Protocol title",
-    "protocol_short_title": "Protocol short title",
+    "protocol_title": "方案标题",
+    "protocol_short_title": "方案短标题",
     "substance_name": "Substance name",
     "utn": "Universal Trial Number",
     "eudract_number": "EudraCT number",
@@ -3224,10 +3224,10 @@
     "tab2_title": "Study Activities"
   },
   "ProtocolFlowchart": {
-    "protocol": "Protocol SoA",
+    "protocol": "方案 SoA",
     "detailed": "Detailed SoA",
     "operational": "Operational SoA",
-    "title": "Protocol SoA",
+    "title": "方案 SoA",
     "update_flowchart": "Update SoA",
     "downloading": "Downloading SoA...",
     "layout": "SoA layout",
@@ -3239,10 +3239,10 @@
     "show_epochs": "Show epochs",
     "show_milestones": "Show milestones",
     "soa_settings": "SoA Settings",
-    "soa_settings_message": "Changes made here will apply to the Detailed, Protocol and Operational Schedule of Activities."
+    "soa_settings_message": "此处的更改将应用于详细、方案及操作层级的活动安排表。"
   },
   "ProtocolInterventionsTable": {
-    "title": "Protocol Interventions",
+    "title": "方案干预",
     "update_flowchart": "Update table",
     "downloading": "Download in progress...",
     "loading": "Table is reloading..."
@@ -3265,7 +3265,7 @@
   },
   "StudyActivityTable": {
     "confirm_delete": "The study activity '{activity}' will be removed",
-    "confirm_delete_side_effect": "Removing this study activity will impact protocol SoA display",
+    "confirm_delete_side_effect": "删除此研究活动将影响方案 SoA 的显示",
     "delete_success": "Study activity deleted",
     "batch_edit_no_selection": "Select the items (rows) in scope for Batch Editing. Use the Select rows switch button to activate the row-selection boxes. Then select the rows in scope for the editing. You can batch select rows by using search or filters to zoom in on the relevant rows and then select all by using the tick-box in the header row.",
     "edit_activity_selection": "Batch edit selected rows",
@@ -3291,12 +3291,12 @@
     "flowchart_group": "SoA group",
     "footnote": "Footnote",
     "detailed_flowchart": "Detailed SoA",
-    "protocol_flowchart": "Protocol SoA",
+    "protocol_flowchart": "方案 SoA",
     "data_collection": "Data collection",
     "expand_all": "Expand table",
     "collapse_all": "Collapse table",
-    "hide_activity_selection": "Hide activity in protocol SoA",
-    "show_activity_selection": "Show activity in protocol SoA",
+    "hide_activity_selection": "在方案 SoA 中隐藏活动",
+    "show_activity_selection": "在方案 SoA 中显示活动",
     "hide_flowchart_groups": "Hide SoA groups",
     "edit_dialog_title": "Edit",
     "download_docx": "Download DOCX",
@@ -3310,7 +3310,7 @@
     "detailed_soa_reordering": "Drag-and-drop reordering",
     "study_footnotes": "Study Footnotes",
     "hidden_activity_footnotes": "Hidden Activity Footnotes",
-    "protocol_soa": "Protocol SoA"
+    "protocol_soa": "方案 SoA"
   },
   "StudyDataSpecifications": {
     "title": "Study Data Specifications",
@@ -3383,7 +3383,7 @@
   },
   "DetailedFlowchart": {
     "activities": "Activities",
-    "include_in_protocol_flowchart": "Include in protocol SoA",
+    "include_in_protocol_flowchart": "包含在方案 SoA 中",
     "include_in_design_figure": "Include in design figure",
     "study_epoch": "Epoch",
     "study_milestone": "Milestone",
@@ -3392,12 +3392,12 @@
     "visit_window": "Window",
     "expand_all": "Expand table",
     "collapse_all": "Collapse table",
-    "toggle_soa_group_display": "Show/hide SoA group in the protocol SoA",
-    "toggle_group_display": "Show/hide activity group in the protocol SoA",
-    "toggle_subgroup_display": "Show/hide activity subgroup in the protocol SoA",
-    "toggle_activity_display": "Show/hide activity in the protocol SoA",
-    "hide_activity_selection": "Hide activity in protocol SoA",
-    "show_activity_selection": "Show activity in protocol SoA",
+    "toggle_soa_group_display": "在方案 SoA 中显示/隐藏 SoA 组",
+    "toggle_group_display": "在方案 SoA 中显示/隐藏活动组",
+    "toggle_subgroup_display": "在方案 SoA 中显示/隐藏活动子组",
+    "toggle_activity_display": "在方案 SoA 中显示/隐藏活动",
+    "hide_activity_selection": "在方案 SoA 中隐藏活动",
+    "show_activity_selection": "在方案 SoA 中显示活动",
     "edit_activity_selection": "Edit current activity selection",
     "update_success": "Selection updated",
     "batch_update_success": "{number} Study Activities has been updated.",
@@ -3418,7 +3418,7 @@
     "history_object_type": "Object type",
     "history_title": "Detailed SoA history for study [{study}]",
     "detailed": "Detailed",
-    "protocol": "Protocol",
+    "protocol": "方案",
     "operational": "Operational",
     "remove_activity": "Remove Activity",
     "remove_activity_msg": "Do you want to remove Activity?",
@@ -4407,62 +4407,62 @@
     "update_success": "System announcement updated"
   },
   "StudyDisclosure": {
-    "study_disclosure": "Clinical Transparency",
-    "table_1": "Identification",
-    "table_2": "Secondary IDs",
-    "table_3": "Study Status",
-    "table_4": "Design",
-    "table_5": "Interventions",
-    "table_6": "Outcome Measures",
-    "table_7": "Eligibility",
-    "table_8": "Conditions",
-    "intervention_type": "Intervention Type",
-    "sb_term": "StudyBuilder term",
-    "pharma_term": "PharmaCM term",
-    "secondary_id": "Secondary ID",
-    "secondary_id_type": "Secondary ID Type",
-    "registry_id": "Registry Identifier",
-    "timeframe": "Time Frame",
-    "study_id": "Study ID",
-    "unique_id": "Unique Study ID",
-    "short_title": "Study Short Title",
-    "brief_title": "Brief Title",
-    "study_title": "Study Title",
-    "official_title": "Official Title",
-    "study_acronym": "Study Acronym",
-    "acronym": "Acronym",
-    "study_type_resp": "Study Type Response",
-    "not_available_in_sb": "Not available in StudyBuilder. Data available in COSMOS",
-    "record_verification_date": "Record Verification Date",
-    "overall_recruitment_status": "Overall Recruitment Status",
-    "study_start_date": "Study Start Date",
-    "primary_completion_date": "Primary Completion Date",
-    "study_completion_date": "Study Completion Date",
-    "study_type": "Study Type",
-    "indication_dict": "Indication SNOMED dictionary",
-    "studied_trial": "Primary Disease or Condition Being Studied in the Trial, or the Focus of the Study",
-    "trial_type": "Trial Intent Type Response",
-    "primary_purpose": "Primary Purpose",
-    "trial_phase_resp": "Trial Phase Response",
-    "study_phase": "Study Phase",
-    "study_phase_class": "Study Phase Classification",
-    "intervention_study_model": "Interventional Study Model",
-    "intervention_model": "Intervention Model",
-    "arms_num": "Number of Arms",
-    "study_attrs": "Study Attributes",
-    "allocation": "Allocation",
-    "total_subjects_num": "Total planned number of subjects",
-    "subjects_num": "Number of Subjects",
-    "min_age": "Minimum Age",
-    "max_age": "Maximum Age",
-    "healthy_volunteers": "Accepts Healthy Volunteers",
-    "inc_criteria": "Inclusion Criteria",
-    "exc_criteria": "Exclusion Criteria",
-    "download_xml": "Download .XML",
-    "intent_type": "Study Intent Type",
-    "study_randomised": "Study is randomised",
-    "arm_title": "Arm Title",
-    "outcome_measure": "Outcome Measure"
+    "study_disclosure": "临床透明度",
+    "table_1": "标识",
+    "table_2": "次要 ID",
+    "table_3": "研究状态",
+    "table_4": "设计",
+    "table_5": "干预",
+    "table_6": "结果测量",
+    "table_7": "资格",
+    "table_8": "病况",
+    "intervention_type": "干预类型",
+    "sb_term": "StudyBuilder 术语",
+    "pharma_term": "PharmaCM 术语",
+    "secondary_id": "次要 ID",
+    "secondary_id_type": "次要 ID 类型",
+    "registry_id": "注册标识符",
+    "timeframe": "时间范围",
+    "study_id": "研究 ID",
+    "unique_id": "唯一研究 ID",
+    "short_title": "研究短标题",
+    "brief_title": "简短标题",
+    "study_title": "研究标题",
+    "official_title": "正式标题",
+    "study_acronym": "研究首字母缩略词",
+    "acronym": "缩写",
+    "study_type_resp": "研究类型响应",
+    "not_available_in_sb": "StudyBuilder 中不可用。数据可在 COSMOS 中获取",
+    "record_verification_date": "记录验证日期",
+    "overall_recruitment_status": "整体招募状态",
+    "study_start_date": "研究开始日期",
+    "primary_completion_date": "主要完成日期",
+    "study_completion_date": "研究完成日期",
+    "study_type": "研究类型",
+    "indication_dict": "指征 SNOMED 字典",
+    "studied_trial": "试验中研究的主要疾病或病况，或研究的重点",
+    "trial_type": "试验意图类型响应",
+    "primary_purpose": "主要目的",
+    "trial_phase_resp": "试验阶段响应",
+    "study_phase": "研究阶段",
+    "study_phase_class": "研究阶段分类",
+    "intervention_study_model": "干预研究模型",
+    "intervention_model": "干预模型",
+    "arms_num": "臂数",
+    "study_attrs": "研究属性",
+    "allocation": "分配",
+    "total_subjects_num": "计划受试者总数",
+    "subjects_num": "受试者数量",
+    "min_age": "最小年龄",
+    "max_age": "最大年龄",
+    "healthy_volunteers": "接受健康志愿者",
+    "inc_criteria": "纳入标准",
+    "exc_criteria": "排除标准",
+    "download_xml": "下载 .XML",
+    "intent_type": "研究意图类型",
+    "study_randomised": "研究已随机化",
+    "arm_title": "臂标题",
+    "outcome_measure": "结果测量"
   },
   "StudyStructuresOverview": {
     "title": "Study Structures",
