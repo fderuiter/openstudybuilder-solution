@@ -556,7 +556,7 @@
             "expected_epoch_duration": "Pending implementation. Derived based on time from first visit in this epoch to first visit in the following epoch"
         },
         "StudyElements": {
-            "el_name": "Long-label of the element, e.g. Standardised Meal",
+            "el_name": "Long-label of the element, e.g. Standardized Meal.",
             "el_short_name": "Abbreviated/short name for the element, e.g. STD MEAL",
             "el_sub_type": "From the drop-down select the type of element",
             "el_type": "Select element type (treatment/no treatment), will subset based on element sub-type selected.",
