@@ -159,16 +159,16 @@
     },
     "_errors": {
         "exclusive_select": "Campo e valor nulo não podem ser selecionados ao mesmo tempo.",
-        "numeric": "Este campo deve conter apenas números",
-        "required": "Este campo é obrigatório",
-        "max_length_reached": "Este campo não deve exceder {length} caracteres",
-        "max_value_reached": "O valor deve ser menor que {max}",
-        "min_value_reached": "O valor não pode ser menor que {min}",
-        "duration_incomplete": "Você deve selecionar um valor e uma unidade",
+        "numeric": "Este campo deve conter apenas números.",
+        "required": "Este campo é obrigatório.",
+        "max_length_reached": "Este campo não pode exceder {length} caracteres.",
+        "max_value_reached": "O valor deve ser menor que {max}.",
+        "min_value_reached": "O valor não pode ser menor que {min}.",
+        "duration_incomplete": "Você deve selecionar um valor e uma unidade.",
         "validation_error": "Erro de validação de dados:",
-        "select_at_least_one": "Selecione um valor ou um motivo para ausência",
-        "no_parameter_values_selected": "Nenhum valor selecionado",
-        "identical_name": "O valor de nome em caixa de frase deve ser idêntico ao valor de nome"
+        "select_at_least_one": "Selecione um valor ou um motivo de ausência.",
+        "no_parameter_values_selected": "Nenhum valor selecionado.",
+        "identical_name": "O nome em formato de frase deve ser idêntico ao nome."
     },
     "_help": {
         "CrfTemplates": {
