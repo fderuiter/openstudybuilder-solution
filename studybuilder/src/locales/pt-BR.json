@@ -172,22 +172,22 @@
     },
     "_help": {
         "CrfTemplates": {
-            "name": "Provide the name of the Template that will be displayed in the different part of the application (Mandatory field).",
-            "oid": "Specify an 'Object Identifier' as a unique ID in the application. As we are defining a Template, it could starts with T.XXX. This is not an ODM element but we are using it here to group Forms, ItemGroups and Items to be re-used after at the Study Level of the application (Mandatory field, but it can be auto-populated if left blank).",
-            "effective_date": "Provide an effective start date, when this Template will be applicable (Select a date in the datepicker).",
-            "retired_date": "Provide an obsolete stop date (a retired date), when this Template will be deprecated (Select a date in the datepicker)."
+            "name": "Forneça o nome do Modelo que será exibido nas diferentes partes do aplicativo (campo obrigatório).",
+            "oid": "Especifique um 'Identificador de Objeto' como ID exclusivo no aplicativo. Como estamos definindo um Modelo, ele pode começar com T.XXX. Isso não é um elemento ODM, mas é usado aqui para agrupar Formulários, Grupos de Itens e Itens para reutilização posteriormente no nível do Estudo do aplicativo (campo obrigatório, mas pode ser preenchido automaticamente se deixado em branco).",
+            "effective_date": "Forneça a data de início efetiva, quando este Modelo será aplicável (selecione uma data no seletor de datas).",
+            "retired_date": "Forneça a data de término obsoleta (data de desativação) quando este Modelo for descontinuado (selecione uma data no seletor de datas)."
         },
         "CRFForms": {
-            "name": "Provide the name of the Form. This will be used as the /ODM/FormDef/@name attribute in the ODM-XML file (Mandatory field).",
-            "oid": "Specify an 'Object Identifier' as a unique ID in the application. As we are defining a Form, it could starts with F.XXX. This will be used as the /ODM/FormDef/@OID attribute in the ODM-XML file (Mandatory field, but it can be auto-populated if left blank).",
-            "repeating": "Specify if the Form is repeating over time or not. This will be used as the /ODM/FormDef/@Repeating with a Yes/No answer.",
-            "description": "A free-text description of the containing study metadata component. This information will be used as the /ODM/FormDef/Description/TranslatedText.",
-            "impl_notes": "Provide here the text explaining the way this Form will be used in the application (as a Sponsor note). Note that here you can use the Rich Editor to add some html tag. This will be used as the /ODM/FormDef[@ImplementationNotes] attribute in the ODM-XML file.",
-            "displayed_text": "Specify here the label of the Form (using the default language). This will be used as the /ODM/FormDef/Description/TranslatedText/ tag in the ODM-XML file. When the multilingual is activated then, the stepper 'Translations' will allow the display text of the Form to be translated accordingly.",
-            "compl_instructions": "Provide here the help text that could be displayed in a CRF as an OnlineHelp. Note that here you can use the Rich Editor to add some html tag. This will be used as the /ODM/FormDef/[@CompletionInstructions] name attribute in the ODM-XML file.",
-            "vendor_extensions": "This stepper is dedicated to the extension of the Form by providing both Elements and / or Attributes. This will then be added to the ODM/FormDef as a Vendor like for example osb:displayAsTable='Yes' or as an extension under this OMD level. XML namespaces are used for providing uniquely named elements and attributes in an XML document. Provide also the datatype for this Vendor Extension and note that the value can be verified against a dedicated list of accepted reply.",
-            "aliases": "An Alias provides an additional name for an element, here for the Form element. The Context attribute specifies the application domain in which this additional name is relevant. This will be used as the /ODM/FormDef/Alias[@Context] name attribute in the ODM-XML file.",
-            "context": "The Context attribute specifies the application domain in which this additional name is relevant. You could use for example 'CDASH/SDTM' with a 'Name' = 'DM:Demographics' and then the ODM-XML view will display it as an annotation."
+            "name": "Forneça o nome do Formulário. Ele será usado como o atributo /ODM/FormDef/@name no arquivo ODM-XML (campo obrigatório).",
+            "oid": "Especifique um 'Identificador de Objeto' como ID exclusivo no aplicativo. Como estamos definindo um Formulário, ele pode começar com F.XXX. Isso será usado como o atributo /ODM/FormDef/@OID no arquivo ODM-XML (campo obrigatório, mas pode ser preenchido automaticamente se deixado em branco).",
+            "repeating": "Indique se o Formulário se repete ao longo do tempo. Isso será usado como /ODM/FormDef/@Repeating com resposta Sim/Não.",
+            "description": "Descrição em texto livre do componente de metadados do estudo. Essa informação será usada como /ODM/FormDef/Description/TranslatedText.",
+            "impl_notes": "Informe o texto que explica como este Formulário será utilizado no aplicativo (nota do patrocinador). O Editor Avançado permite adicionar tags HTML. Isso será usado como o atributo /ODM/FormDef[@ImplementationNotes] no arquivo ODM-XML.",
+            "displayed_text": "Informe o rótulo do Formulário (no idioma padrão). Isso será usado como a tag /ODM/FormDef/Description/TranslatedText/ no arquivo ODM-XML. Quando o recurso multilíngue estiver ativado, o passo 'Traduções' permitirá traduzir o texto exibido do Formulário.",
+            "compl_instructions": "Forneça o texto de ajuda que pode ser exibido em um CRF como Ajuda Online. O Editor Avançado permite adicionar tags HTML. Isso será usado como o atributo /ODM/FormDef/[@CompletionInstructions] no arquivo ODM-XML.",
+            "vendor_extensions": "Este passo permite estender o Formulário fornecendo Elementos e/ou Atributos. Eles serão adicionados ao ODM/FormDef como, por exemplo, osb:displayAsTable='Yes' ou como uma extensão neste nível do ODM. Namespaces XML fornecem elementos e atributos com nomes exclusivos em um documento XML. Forneça também o tipo de dados para esta Extensão do Fornecedor e observe que o valor pode ser verificado em uma lista dedicada de respostas aceitas.",
+            "aliases": "Um Alias fornece um nome adicional para um elemento, aqui para o elemento Formulário. O atributo Context especifica o domínio de aplicação no qual esse nome adicional é relevante. Será usado como o atributo /ODM/FormDef/Alias[@Context] no arquivo ODM-XML.",
+            "context": "O atributo Context especifica o domínio de aplicação no qual esse nome adicional é relevante. Você pode usar, por exemplo, 'CDASH/SDTM' com 'Name' = 'DM:Demographics' e então a visualização ODM-XML o exibirá como anotação."
         },
         "CRFItemGroups": {
             "name": "Informe o nome do Grupo de Itens. Um Grupo de Itens descreve um tipo de agrupamento de itens (um conjunto de perguntas clínicas que fazem sentido juntas) que pode ocorrer em um estudo. Isso será usado como o atributo /ODM/ItemGroupDef/@name no arquivo ODM-XML (campo obrigatório).",
