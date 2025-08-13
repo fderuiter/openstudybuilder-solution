@@ -595,10 +595,10 @@
             "time_unit": "The time unit for the timing of the visit"
         },
         "Settings": {
-            "rows": "The default number of rows displayed per page in tables throughout the user interface.",
-            "study_number_length": "The number of digits in the study id, e.g. 4 if study id is of type e.g PROT-2739. This is for verifying correct study ids.",
-            "toggle": "Slide to change either dark of light theme of the user interface.",
-            "multilingual_crf": "Slide if you require CRF to handle multiple languages."
+            "rows": "UI全体のテーブルでページごとに表示する行数のデフォルト値です。",
+            "study_number_length": "スタディIDの桁数。例: PROT-2739 の場合は4桁。正しいスタディIDを確認するために使用します。",
+            "toggle": "ユーザーインターフェースのテーマをダークまたはライトに切り替えます。",
+            "multilingual_crf": "CRFで複数言語を扱う必要がある場合にオンにします。"
         },
         "StudyCriteriaTable": {
             "general": "プロトコルに記載されるスタディの適格基準",
@@ -920,18 +920,18 @@
         }
     },
     "Topbar": {
-        "app_selector_title": "Choose a section",
-        "admin": "Admin",
-        "help": "Help",
-        "documentation_portal": "Technical documentation",
-        "user_guide": "User guides",
-        "about": "About",
-        "need_help": "Need Help?",
-        "enable_dark_theme": "Enable dark theme",
-        "enable_light_theme": "Enable light theme",
-        "settings": "Settings",
-        "add_study": "ADD NEW STUDY",
-        "select_study": "SELECT STUDY"
+        "app_selector_title": "セクションを選択",
+        "admin": "管理",
+        "help": "ヘルプ",
+        "documentation_portal": "技術ドキュメント",
+        "user_guide": "ユーザーガイド",
+        "about": "情報",
+        "need_help": "ヘルプが必要ですか？",
+        "enable_dark_theme": "ダークテーマを有効化",
+        "enable_light_theme": "ライトテーマを有効化",
+        "settings": "設定",
+        "add_study": "新しいスタディを追加",
+        "select_study": "スタディを選択"
     },
     "Library": {
         "description_top_before": "この",
@@ -2927,7 +2927,7 @@
     "HelpMessages": {
         "units": "この表はUCUMツールを提供し、エンドユーザーがUCUM参照システム内の既存の単位を検証してリンクできます。数文字入力するとUCUMエンジンが候補を提示し、リストでクリックするとその単位が選択されます。",
         "crfs": "症例報告書（CRF）は臨床試験のスポンサーが各参加患者からデータを収集するために使用するツールです。臨床試験に参加するすべての患者のデータは、有害事象を含めCRFに記録されます（Wikipedia）。",
-        "compounds": "定義するためのヘルプメッセージ"
+        "compounds": "化合物の定義に関するヘルプメッセージ"
     },
     "StudyEpochTable": {
         "number": "#",
@@ -3295,22 +3295,22 @@
         "data_collection": "Data collection",
         "expand_all": "Expand table",
         "collapse_all": "Collapse table",
-        "hide_activity_selection": "Hide activity in protocol SoA",
-        "show_activity_selection": "Show activity in protocol SoA",
-        "hide_flowchart_groups": "Hide SoA groups",
-        "edit_dialog_title": "Edit",
-        "download_docx": "Download DOCX",
-        "instructions": "Instructions",
-        "other_groupings": "Other activity groupings",
-        "general": "General",
-        "settings": "Settings",
-        "study_activities": "Study Activities",
-        "detailed_soa": "Detailed SoA",
-        "detailed_soa_actions": "Detailed SoA: Edit, Add, Exchange or Remove an activity ",
-        "detailed_soa_reordering": "Drag-and-drop reordering",
-        "study_footnotes": "Study Footnotes",
-        "hidden_activity_footnotes": "Hidden Activity Footnotes",
-        "protocol_soa": "Protocol SoA"
+        "hide_activity_selection": "プロトコルSoAでアクティビティを非表示",
+        "show_activity_selection": "プロトコルSoAでアクティビティを表示",
+        "hide_flowchart_groups": "SoAグループを非表示",
+        "edit_dialog_title": "編集",
+        "download_docx": "DOCXをダウンロード",
+        "instructions": "指示",
+        "other_groupings": "その他のアクティビティグループ",
+        "general": "一般",
+        "settings": "設定",
+        "study_activities": "スタディアクティビティ",
+        "detailed_soa": "詳細SoA",
+        "detailed_soa_actions": "詳細SoA: アクティビティを編集・追加・交換または削除",
+        "detailed_soa_reordering": "ドラッグ＆ドロップで並べ替え",
+        "study_footnotes": "スタディ脚注",
+        "hidden_activity_footnotes": "非表示アクティビティ脚注",
+        "protocol_soa": "プロトコルSoA"
     },
     "StudyDataSpecifications": {
         "title": "Study Data Specifications",
