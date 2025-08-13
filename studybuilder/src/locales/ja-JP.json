@@ -356,54 +356,54 @@
             "general": "An activity group is a grouping of related activities. Activity groups are used for protocol SoA display and for searching in the List of Activities."
         },
         "CompoundsView": {
-            "general": "Definitions of compounds are created from the Compounds tab. If an alias name for a compound is needed, then this can be defined in the compound aliases tab."
+            "general": "化合物の定義は「化合物」タブで作成します。化合物の別名が必要な場合は「化合物別名」タブで定義できます。"
         },
         "CompoundForm": {
-            "sponsor_compound": "Indicate if this is a sponsor compound. Tick yes if sponsor is the authorisation holder/or future authorisation holder of the compound.",
-            "analyte_number": "Analyte number (Non-clinical), example is AN000028 (The analyte number for semaglutide).",
-            "long_number": "Compound number (long). Example NNC0113-0000-0217. Only applicable for Novo Nordisk compound. Leave blank for other compounds.",
-            "short_number": "Compound number (short). Example NNC0113-0217. Only applicable for Novo Nordisk compound. Leave blank for other compounds. ",
-            "name": "The international nonproprietary name (INN) being the official generic and non-proprietary name given to a pharmaceutical drug or an active ingredient. Example: semaglutide.",
-            "is_inn": "Tick No if INN hasn't been approved/published.",
-            "definition": "A definition/description of the compound.",
-            "brand_name": " This is chosen by the company that makes it. Several companies may make the same generic medicine, each with their own brand name. The name is often chosen to be memorable for advertising, or to be easier to say or spell than the generic name. For example, paracetamol is a generic name. There are several companies that make this with brand names such as Panadol®, Calpol®, etc.",
-            "substance_name": "Add one or more substances by using the + button. A compound can consist of one or more substances.",
-            "pharmacological_class": "Pharmacological class (Auto-populated)",
-            "medrt": "Medication Reference Terminology (Auto-populated)",
-            "dose": "Specify dose of the drug. Example 0.25 mg of semalgutide. If more are applicable then click + to add more.",
-            "strength": "Specify the strength of the drug. Example 1.34 mg/nL of semaglutide. If more are applicable then click + to add more.",
-            "dosing_frequency": "Select frequency from the drop-down. Example for semaglutide is Once Weekly.",
-            "route_of_administration": "Select route of administration from the drop-down. Example for semaglutide is Subcutaneous Route.",
-            "dosage_form": "Select pharmaceutical dosage form from the drop-down. Example for semaglutide is Concentrated Injectable Solution.",
-            "dispensed_in": "Select Dispensed in from the drop-down. Example for semaglutide is Pre-filled Pen.",
-            "device": "Select Device from the drop-down. Example for semaglutide is Pre-filled Pen.",
-            "formulation": "Short description of the Formulation (if relevant).",
-            "formulation_details": "Detailed description of the Formulation(if relevant).",
-            "manufacturing_place": "Manufacturing place, e.g. for semaglutide Novo Nordisk A/S, Hallas Allé, DK-4400 Kalundborg, Denmark. Information in ANNEX of Product labeling",
-            "manufacturing_process": "Specify the manufacturing process, if relevant.",
-            "half_life": "Specify the number and unit for the Half-life. Example for semaglutide is 1 week.",
-            "lag_time": "Lag-time the number of days after end of treatment an observation is regarded as being influenced by the drug. E.g. for Adverse Events for semalgutide, with an elimination half-life of approximately 1 week, semaglutide will be present in the circulation for about 5 weeks after the last dose (ref. product information), i.e. lag-time is 5 weeks.",
-            "sdtm_domain": "Specify the domain where the lag-time will apply. E.g. AE "
+            "sponsor_compound": "スポンサー化合物かどうかを指定します。スポンサーが化合物の承認保有者／将来の承認保有者である場合は『はい』を選択します。",
+            "analyte_number": "分析物番号（非臨床）。例：セマグルチドの AN000028。",
+            "long_number": "化合物番号（長い形式）。例：NNC0113-0000-0217。ノボ ノルディスクの化合物にのみ適用します。他の化合物は空欄にしてください。",
+            "short_number": "化合物番号（短い形式）。例：NNC0113-0217。ノボ ノルディスクの化合物にのみ適用します。他の化合物は空欄にしてください。",
+            "name": "国際一般名（INN）。医薬品または有効成分に付与される公式の一般名です。例：セマグルチド。",
+            "is_inn": "INN が承認／公表されていない場合は『いいえ』を選択します。",
+            "definition": "化合物の定義／説明。",
+            "brand_name": "製造会社が選択するブランド名。同じ一般薬でも複数の企業が各自のブランド名で製造する場合があります。例：アセトアミノフェンには Panadol® や Calpol® などがあります。",
+            "substance_name": "＋ボタンを使用して1つ以上の成分を追加します。化合物は複数の成分で構成される場合があります。",
+            "pharmacological_class": "薬理学的分類（自動入力）",
+            "medrt": "Medication Reference Terminology（自動入力）",
+            "dose": "薬剤の用量を指定します。例：セマグルチド0.25 mg。複数追加する場合は＋をクリックします。",
+            "strength": "薬剤の強度を指定します。例：セマグルチド1.34 mg/nL。複数追加する場合は＋をクリックします。",
+            "dosing_frequency": "投与頻度をドロップダウンから選択します。例：セマグルチドは週1回。",
+            "route_of_administration": "投与経路をドロップダウンから選択します。例：セマグルチドは皮下投与。",
+            "dosage_form": "剤形をドロップダウンから選択します。例：セマグルチドは濃縮注射液。",
+            "dispensed_in": "分包形態をドロップダウンから選択します。例：セマグルチドはプレフィルドペン。",
+            "device": "デバイスをドロップダウンから選択します。例：セマグルチドはプレフィルドペン。",
+            "formulation": "製剤の簡単な説明（必要に応じて）。",
+            "formulation_details": "製剤の詳細な説明（必要に応じて）。",
+            "manufacturing_place": "製造場所。例：セマグルチドの場合 Novo Nordisk A/S, Hallas Allé, DK-4400 Kalundborg, Denmark。製品ラベリング添付文書情報。",
+            "manufacturing_process": "該当する場合は製造工程を記載します。",
+            "half_life": "半減期の数値と単位を指定します。例：セマグルチドは1週間。",
+            "lag_time": "ラグタイム：治療終了後に観察が薬剤の影響下にあると見なされる日数。例：セマグルチドでは半減期が約1週間のため、最後の投与後約5週間血中に存在します（製品情報参照）。すなわちラグタイムは5週間です。",
+            "sdtm_domain": "ラグタイムが適用されるドメインを指定します。例：AE"
         },
         "CompoundAliasForm": {
-            "step1_title": "Select compound for which you want to create an alias/nickname",
-            "name": "Specify the new name/alias for the compound, e.g. MyNewDrug",
-            "sentence_case_name": "Sentence case name will be auto-populated based on the name/alias specified, e.g. mynewdrug",
-            "is_preferred_synonym": "Tick yes if this is the preferred synonym in your organisation."
+            "step1_title": "別名／ニックネームを作成する化合物を選択",
+            "name": "化合物の新しい名前／別名を指定します（例：MyNewDrug）",
+            "sentence_case_name": "指定した名前／別名に基づいてセンテンスケース名が自動入力されます（例：mynewdrug）",
+            "is_preferred_synonym": "組織内での優先同義語である場合はチェックします。"
         },
         "EndpointTemplateForm": {
-            "name": "An endpoint consists of a title, timeframe and unit. Example: title: Change in systolic blood pressure, timeframe: from baseline to week 20, unit: mmHg. So put together 'Change in systolic blood pressure from baseline to week 20 (mmHg)'. A generic template could be defined as: Change in [ActivityInstance] from [Time Point Reference] to [Time Point Reference] ([Unit]). Add parameters enclosed in square brackets [ and ].",
-            "endpoint_category": "Select one or more categories from the drop-down for which this endpoint applies. Tick NA if not applicable.",
-            "endpoint_sub_category": "Select one or more categories from the drop-down for which this endpoint applies. Tick NA if not applicable. For a detailed description of the categories see the 'Objectives and endpoints library guidance' document. For the systolic BP example the category is 'Continuous (relative change)'"
+            "name": "エンドポイントはタイトル、タイムフレーム、単位で構成されます。例：タイトル『収縮期血圧の変化』、タイムフレーム『ベースラインから20週』、単位『mmHg』。これらを組み合わせて『収縮期血圧のベースラインから20週までの変化（mmHg）』となります。汎用テンプレートは『[ActivityInstance]の[Time Point Reference]から[Time Point Reference]までの変化（[Unit]）』のように定義できます。パラメータは角括弧 [ ] で囲みます。",
+            "endpoint_category": "このエンドポイントが適用されるカテゴリをドロップダウンから1つ以上選択します。該当しない場合はNAを選択します。",
+            "endpoint_sub_category": "このエンドポイントが適用されるサブカテゴリをドロップダウンから1つ以上選択します。該当しない場合はNAを選択します。カテゴリの詳細については『Objectives and endpoints library guidance』文書を参照してください。例：収縮期血圧ではカテゴリは『連続（相対変化）』です。"
         },
         "TimeframeTemplateForm": {
-            "name": "A timeframe can be referenced as part of an endpoint. Example: from from baseline (week 0) to Week 28. A template for this could be 'from from [Time Point Reference] ([VisitName]) to [VisitName]'. Add parameters enclosed in square brackets [ and ]."
+            "name": "タイムフレームはエンドポイントの一部として参照されます。例：ベースライン（週0）から週28まで。テンプレート例：『[Time Point Reference]（[VisitName]）から[VisitName]の[Time Point Reference]まで』。パラメータは角括弧 [ ] で囲みます。"
         },
         "CriteriaTemplateForm": {
-            "guidance_text": "Depending on type of criteria a generic template can be defined. Example: Age ≥ 18 years at the time of signing informed consent can be parameterized to 'Age [Operator] [NumericValue] [Age Unit] at the time of signing informed consent'.",
-            "indication": "Select the indication for which this template applies (select multiple if needed). Select NA if not applicable.",
-            "criterion_cat": "Select one or more categories for which the criterion applies. The Age example could apply to Demography. Tick NA if not applicable. The categorisation is used for searching when selecting criteria template for a study.",
-            "criterion_sub_cat": "Select one or more sub-category that applies to the criterion. Tick NA if not applicable. The categorisation is used for searching when selecting criteria template for a study."
+            "guidance_text": "基準の種類に応じて汎用テンプレートを定義できます。例：『同意取得時の年齢が18歳以上』は『同意取得時の年齢 [Operator] [NumericValue] [Age Unit]』のようにパラメータ化できます。",
+            "indication": "このテンプレートが適用される適応症を選択します（必要に応じて複数選択）。該当しない場合はNAを選択します。",
+            "criterion_cat": "この基準が適用されるカテゴリを1つ以上選択します。年齢の例では人口統計に該当します。該当しない場合はNAを選択します。カテゴリ分けはスタディで基準テンプレートを選択する際の検索に使用されます。",
+            "criterion_sub_cat": "この基準に適用されるサブカテゴリを1つ以上選択します。該当しない場合はNAを選択します。カテゴリ分けはスタディで基準テンプレートを選択する際の検索に使用されます。"
         },
         "CodelistCreationForm": {
             "catalogue": "The new code list will be created in this catalogue"
@@ -601,18 +601,18 @@
             "multilingual_crf": "Slide if you require CRF to handle multiple languages."
         },
         "StudyCriteriaTable": {
-            "general": "Study eligibility criteria as would be described in the protocol",
-            "study_criteria": "Follow the tabs to define the different criteria applicable for the study"
+            "general": "プロトコルに記載されるスタディの適格基準",
+            "study_criteria": "各タブを使用してスタディに適用されるさまざまな基準を定義します"
         },
         "EligibilityCriteriaForm": {
-            "add_criteria": "The criteria can be based on standard templates, selected from other studies, or created from scratch",
-            "select_from_studies": "Copy a criteria from a previous study",
-            "create_from_template": "Criteria made from a pre-defined template. Some criteria contain parameters highlighted with orange text (parameter labels) or green text (parameter values) for which new values can be selected, or the parameter omitted.",
-            "create_from_scratch": "Write your own criteria from scratch",
-            "select_criteria_templates": "Copy criteria from the list of templates using the copy icon. Once all criteria templates have been saved then press Save. You are returned to the criteria list from where you can use the Edit button next to each editable criterion in the table to fill in the template."
+            "add_criteria": "基準は標準テンプレートを基にするか、他のスタディから選択するか、またはゼロから作成できます",
+            "select_from_studies": "過去のスタディから基準をコピーします",
+            "create_from_template": "事前定義されたテンプレートから基準を作成します。一部の基準にはパラメータが含まれており、オレンジ色（パラメータ名）または緑色（パラメータ値）のテキストで表示され、新しい値を選択するか、パラメータを省略できます。",
+            "create_from_scratch": "基準を一から作成します",
+            "select_criteria_templates": "テンプレート一覧のコピーアイコンを使用して基準テンプレートをコピーします。すべてのテンプレートを保存したら［保存］を押します。基準リストに戻り、テーブル内の各編集可能な基準の横にある［編集］ボタンでテンプレートを入力します。"
         },
         "EligibilityCriteriaEditForm": {
-            "title": "For template based criteria, replace the parameters with actual values selecting from the drop-down list(s)."
+            "title": "テンプレートに基づく基準では、ドロップダウンリストから実際の値を選択してパラメータを置き換えます"
         },
         "StudyProperties": {
             "general": "For each tab (Study Type and Study Attributes) fill in the details for the study as described in the protocol.",
@@ -743,31 +743,31 @@
             "description": "Add an description of the UCUM code."
         },
         "ActivitiesTable": {
-            "general": "Activities are definitions of measurements or activities performed as part of a clinical study on a study subject."
+            "general": "アクティビティは、臨床試験の被験者に対して行われる測定または活動の定義です。"
         },
         "ObjectiveTemplatesTable": {
-            "general": "Generic templates for objectives are defined here. Click on the + button to add a new template. In the User Defined Templates you can view templates being defined on different studies. To make a template accessible for use it must be approved. Use the Approve in the left context-menu (3 vertical dots to the left of the template). To set default values for parameters use the 'Default' values in the context menu."
+            "general": "目的の汎用テンプレートはここで定義します。新しいテンプレートを追加するには＋ボタンをクリックします。ユーザー定義テンプレートでは他のスタディで定義されたテンプレートを確認できます。テンプレートを使用可能にするには承認が必要です。テンプレート左側のコンテキストメニュー（縦の三点）から[承認]を使用します。パラメータの既定値を設定するにはコンテキストメニューの[既定]を使用します。"
         },
         "EndpointTemplatesTable": {
-            "general": "Generic templates for endpoints are defined here. Click on the + button to add a new template. In the User Defined Templates you can view templates being defined on different studies. To make a template accessible for use it must be approved. Use the Approve in the left context-menu (3 vertical dots to the left of the template). To set default values for parameters use the 'Default' values in the context menu."
+            "general": "エンドポイントの汎用テンプレートはここで定義します。新しいテンプレートを追加するには＋ボタンをクリックします。ユーザー定義テンプレートでは他のスタディで定義されたテンプレートを確認できます。テンプレートを利用可能にするには承認が必要です。テンプレート左側のコンテキストメニュー（縦の三点）から[承認]を使用します。パラメータの既定値を設定するにはコンテキストメニューの[既定]を使用します。"
         },
         "TimeframeTemplatesTable": {
-            "general": "Generic templates for Time Frames are defined here. Click on the + button to add a new template. In the User Defined Templates you can view templates being defined on different studies. To make a template accessible for use it must be approved. Use the Approve in the left context-menu (3 vertical dots to the left of the template). To set default values for parameters use the 'Default' values in the context menu."
+            "general": "タイムフレームの汎用テンプレートはここで定義します。新しいテンプレートを追加するには＋ボタンをクリックします。ユーザー定義テンプレートでは他のスタディで定義されたテンプレートを確認できます。テンプレートを利用可能にするには承認が必要です。テンプレート左側のコンテキストメニュー（縦の三点）から[承認]を使用します。パラメータの既定値を設定するにはコンテキストメニューの[既定]を使用します。"
         },
         "CriteriaTemplatesTable": {
-            "general": "Generic templates for different types of criteria are defined here. Click on the + button to add a new template. In the User Defined Templates you can view templates being defined on different studies. To make a template accessible for use it must be approved. Use the Approve in the left context-menu (3 vertical dots to the left of the template). To set default values for parameters use the 'Default' values in the context menu."
+            "general": "各種基準の汎用テンプレートはここで定義します。新しいテンプレートを追加するには＋ボタンをクリックします。ユーザー定義テンプレートでは他のスタディで定義されたテンプレートを確認できます。テンプレートを利用可能にするには承認が必要です。テンプレート左側のコンテキストメニュー（縦の三点）から[承認]を使用します。パラメータの既定値を設定するにはコンテキストメニューの[既定]を使用します。"
         },
         "ActivityTemplatesTable": {
-            "general": "Generic templates for activities are defined here. An activity is something measured/recorded on a study subject in relation to the subject's health, e.g. blood measurements, examinations, AEs, interventions. Click on the + button to add a new template. In the User Defined Templates you can view templates being defined on different studies. To make a template accessible for use it must be approved. Use the Approve in the left context-menu (3 vertical dots to the left of the template). To set default values for parameters use the 'Default' values in the context menu."
+            "general": "アクティビティの汎用テンプレートはここで定義します。アクティビティとは、被験者の健康に関連して測定／記録される項目です（例：血液測定、検査、有害事象、介入など）。新しいテンプレートを追加するには＋ボタンをクリックします。ユーザー定義テンプレートでは他のスタディで定義されたテンプレートを確認できます。テンプレートを利用可能にするには承認が必要です。テンプレート左側のコンテキストメニュー（縦の三点）から[承認]を使用します。パラメータの既定値を設定するにはコンテキストメニューの[既定]を使用します。"
         },
         "ObjectivesTable": {
-            "general": "The list of objectives and which template they are based on, and the number of studies using the objective. To view the studies, then select the 'Display studies using this objective' in the context menu of the objective."
+            "general": "目的の一覧と、それが基づくテンプレート、およびその目的を使用しているスタディの数が表示されます。対象スタディを表示するには、目的のコンテキストメニューから『この目的を使用するスタディを表示』を選択します。"
         },
         "EndpointsTable": {
-            "general": "The list of endpoints and which template they are based on, and the number of studies using the endpoint. To create specific endpoint from a template, click on the +-button in the top right side of the table."
+            "general": "エンドポイントの一覧と、それが基づくテンプレート、およびそのエンドポイントを使用しているスタディの数が表示されます。テンプレートから特定のエンドポイントを作成するには、テーブル右上の＋ボタンをクリックします。"
         },
         "TimeframesTable": {
-            "general": "The list of Time Frames and which template they are based on, and the number of studies using the Time Frame. To create specific time rame from a template, click on the +-button in the top right side of the table."
+            "general": "タイムフレームの一覧と、それが基づくテンプレート、およびそのタイムフレームを使用しているスタディの数が表示されます。テンプレートから特定のタイムフレームを作成するには、テーブル右上の＋ボタンをクリックします。"
         },
         "StudyPurposeView": {
             "general": "A statement describing the overall rationale of the study. It describes the contribution of this study to product development, i.e., what knowledge is being contributed from the conduct of this study. Follow the tabs to define objectives, endpoints and estimands (if applicable).",
@@ -809,23 +809,23 @@
             "endpoint_level": "Primary: endpoint of greatest importance specified in the protocol, usually the one(s) used in the power calculation. Most clinical studies have one primary endpoint, but a clinical study may have more than one. Secondary: endpoint that is of lesser importance than a primary endpoint, but is part of a pre-specified analysis plan for evaluating the effects of the intervention or interventions under investigation in a clinical study and is not specified as an exploratory or endpoint. A clinical study may have more than one secondary endpoint, Exploratory:  Planned endpoint but of more exploratory nature, Additional: Any other endpoints, excluding post-hoc endpoints, that will be used to evaluate the intervention(s) or, for observational studies, that are a focus of the study "
         },
         "ActivitiesView": {
-            "general": "Studies Activities specifies what to be administered, measured and collected during a study at the different visits",
-            "activity_list": "From this tab add the activities for the study. To add an activity use the + button",
-            "detailed_flowchart": "Once activities are added, go to detailed SoA to select which visits the activities occur.",
-            "protocol_flowchart": "Displays the rendered SoA as it will look in the protocol",
-            "activity_instructions": "Tab for specification of instructions for an activity. E.g. Study drug must be given the next day after randomisation"
+            "general": "スタディアクティビティでは、各訪問で投与、測定、収集する内容を指定します",
+            "activity_list": "このタブからスタディのアクティビティを追加します。追加には＋ボタンを使用します",
+            "detailed_flowchart": "アクティビティを追加したら、詳細SoAで実施される訪問を選択します。",
+            "protocol_flowchart": "プロトコルに表示される SoA のレンダリングを表示します",
+            "activity_instructions": "アクティビティに対する指示を設定するタブです。例：試験薬はランダム化の翌日に投与する。"
         },
         "StudyActivity": {
-            "general": "A 'Study Activity' is an assessment or procedure performed on a subject in a clinical study. The menu option 'Study Activities' is where you administer/select the activities needed for your study and the group them, you assign them to relevant visits, and specify how it should be in the protocol view of the Schedule of Activity (SoA). You can also attach footnotes to the SoA, control the SoA header row and preview different detail levels of the SoA.",
-            "settings": "The 'Settings' option allow you to control the time unit (days/weeks) for the SoA and whether or not you need baseline visit (eg. randomisation) shown as time 0",
-            "study_activities": "The activities can be selected from the library, from other studies or activity placeholders can be created for requesting new activities.",
-            "detailed_soa": "The Detailed SoA is where you define at what visit(s) an activity is needed. The SoA has four levels: <br /> 1) SoA group <br /> 2) Activity group <br /> 3) Activity subgroup <br /> 4) Activity <br /> Click the circle to select or unselect that an activity should be done at that visit. Click the eye icon to toggle the visibility of an activity level in the Protocol SoA. If an activity level is hidden, the timings ticked will 'inherit up' a level, so you can hide the Activity and Activity subgroup level to just include the Activity group in the Protocol SoA (for example you might want to hide e.g. 'Height' and 'Weight' and just include 'Body measurements' in the Protocol SoA).",
-            "detailed_soa_actions": "Use the ellipsis (three dots) to the left of an activity to access these: <br /><b> Edit Activity: </b> Adjust details in an activity. <br /><b> Add Activity: </b>Add an activity above the selected activity (you can change the order of activities from the 'Study Activities' tab). <br /><b> Exchange Activity: </b> Replace an activity with a new activity while keeping visits and footnotes in the detailed SoA. <br /><b> Remove Activity: </b> Remove the activity, any visits and references to footnotes that have been added to this activity. A removed activity can be added again under the ‘Study Activities’ tab. Footnotes will not be removed, so can be linked to again.",
-            "detailed_soa_reordering": "You can use drag-and-drop for easy reordering of rows in the detailed SoA. To enable, click the 3 dots to the left of a row title and select 'Reorder' in the menu. Now you can reorder rows using your mouse - simply drag-and-drop on the arrow-icon to the left of the row. Reordering is done within a context - so if you select 'Reorder' on a SoA group, then you can reorder only SoA groups, whereas if you select 'Reorder' on an activity, then you can reorder only within that group. When you are done, click the 'Finish reordering' button to exit the reordering mode.",
-            "study_footnotes": "Select or create footnotes to be used in the  protocol SoA. Footnotes can be selected from library, other studies or created from scratch. The footnotes will automatically be ordered by occurrence in the SoA.",
-            "hidden_activity_footnotes": "If you link to an activity that is hidden, the footnote will not 'inherit up' to a visible level above. Instead a warning will be shown under 'Linked to' and this must then be addressed to ensure proper display of footnotes in the Protocol SoA.",
-            "protocol_soa": "The Protocol SoA is a preview of the settings/selections in the 'Detailed SoA' section. The view is what will be pulled into the protocol template via the Word add-in. You can also preview the SoA at the detailed and data specification operational level.",
-            "instructions": "NOTE: This functionality is not in use yet. When in use, it will link selected activities from the SoA to the applicable instruction text for section 8 of the protocol 'Study assessments and procedures'"
+            "general": "『スタディアクティビティ』は臨床試験で被験者に実施される評価または手順です。このメニューではスタディに必要なアクティビティを管理・選択し、グループ化して関連する訪問に割り当て、プロトコルのSoA表示方法を指定できます。さらにフットノートの追加、SoAヘッダー行の制御、さまざまな詳細レベルでのSoAプレビューも可能です。",
+            "settings": "『設定』オプションでは、SoAの時間単位（日/週）やベースライン訪問（例：ランダム化）を時点0として表示するかどうかを制御できます",
+            "study_activities": "アクティビティはライブラリ、他のスタディから選択するか、新しいアクティビティを依頼するためのプレースホルダーを作成できます。",
+            "detailed_soa": "詳細SoAでは、各訪問で必要なアクティビティを定義します。SoAには4つのレベルがあります: <br /> 1) SoAグループ <br /> 2) アクティビティグループ <br /> 3) アクティビティサブグループ <br /> 4) アクティビティ <br /> 円をクリックしてその訪問でアクティビティを実施するかどうかを選択します。目のアイコンでプロトコルSoAでのレベル表示を切り替えます。レベルを非表示にすると、タイミングは上位レベルに継承されます。例えば『身長』『体重』を非表示にして『身体測定』のみをプロトコルSoAに含めることができます。",
+            "detailed_soa_actions": "アクティビティ左側の三点リーダーから次の操作にアクセスできます:<br /><b>アクティビティを編集:</b> アクティビティの詳細を調整します。<br /><b>アクティビティを追加:</b> 選択したアクティビティの上にアクティビティを追加します（アクティビティの順序は『スタディアクティビティ』タブで変更できます）。<br /><b>アクティビティを置換:</b> 訪問やフットノートを保持したまま新しいアクティビティに置き換えます。<br /><b>アクティビティを削除:</b> アクティビティと、そのアクティビティに追加された訪問およびフットノートへの参照を削除します。削除したアクティビティは『スタディアクティビティ』タブから再追加できます。フットノートは削除されないため、再度リンク可能です。",
+            "detailed_soa_reordering": "詳細SoAの行はドラッグ＆ドロップで並べ替えできます。行タイトル左の三点をクリックしメニューで『並べ替え』を選択すると有効になります。矢印アイコンをドラッグ＆ドロップして並べ替えます。選択したコンテキスト内でのみ並べ替えが可能です。終了したら『並べ替え終了』ボタンをクリックしてモードを終了します。",
+            "study_footnotes": "プロトコルSoAで使用するフットノートを選択または作成します。フットノートはライブラリ、他のスタディから選択するか、新規に作成できます。フットノートはSoA内での出現順に自動で並び替えられます。",
+            "hidden_activity_footnotes": "非表示のアクティビティにリンクした場合、フットノートは上位の可視レベルには継承されません。代わりに『リンク先』の下に警告が表示されるため、プロトコルSoAで適切に表示されるよう対処してください。",
+            "protocol_soa": "プロトコルSoAは『詳細SoA』セクションでの設定／選択のプレビューです。このビューはWordアドインを通じてプロトコルテンプレートに取り込まれます。また詳細レベルやデータ仕様レベルでSoAをプレビューすることもできます。",
+            "instructions": "注：この機能はまだ使用されていません。使用可能になった際には、SoAで選択したアクティビティをプロトコル第8章『試験評価と手順』の該当する指示文にリンクします"
         },
         "StudyActivityForm": {
             "general": "Select the activities for the study. ",
@@ -873,15 +873,15 @@
             "protocol_version_body": "Specification of the relationship between versions of study definition instances and the corresponding protocol document versions."
         },
         "FootnotesTemplatesTable": {
-            "general": "Select from the table of templates. Either from generic templates or pre-specified templates, by using the 'Select from pre-instance'-slide in the top of the table."
+            "general": "テンプレートの表から選択します。汎用テンプレートまたは事前指定テンプレートを、テーブル上部の『プレインスタンスから選択』スライドで切り替えて利用できます。"
         },
         "FootnotesTable": {
-            "general": "List of footnotes applicable for the Schedule of Activities (SoA).",
-            "covered_items": "The itmes in the SoA that the footnote is related to, e.g. a visits or an Activity."
+            "general": "SoA に適用されるフットノートの一覧です。",
+            "covered_items": "フットノートが関連する SoA の項目（例：訪問やアクティビティ）。"
         },
         "StudyFootnoteForm": {
-            "general": "Footnotes are additional information pertaining to elements of the SoA. For instruction related to Activities, The Activity Instruction tab should be used.",
-            "creation_mode_label": "Select the type of method for creating a footnote: use a standard, from an existing study, or make one form scratch."
+            "general": "フットノートは SoA の要素に関する追加情報です。アクティビティに関する指示は『アクティビティ指示』タブを使用してください。",
+            "creation_mode_label": "フットノート作成方法を選択します：標準を使用、既存スタディからコピー、または新規作成。"
         },
         "ProjectForm": {
             "general": "Add a new project to a clinical programme.",
@@ -1214,28 +1214,28 @@
         "title": "Time Frame Templates"
     },
     "ObjectiveTemplateTable": {
-        "title": "Objective templates",
-        "singular_title": "Objective template",
-        "rot_uri": "Root objective",
-        "actions": "Actions",
-        "add": "Add template",
-        "approve_success": "Template is now in Final state",
-        "approve_pre_instance_success": "Pre-instance is now in Final state",
-        "new_version_success": "New version created",
-        "inactivate_success": "Template inactivated",
-        "reactivate_success": "Template reactivated",
-        "delete_success": "Template deleted",
-        "delete_pre_instance_success": "Pre-instance deleted",
-        "history": "Show template history",
-        "new_version_default_description": "New version",
-        "objective_cat": "Objective category",
-        "confirmatory_testing": "Confirmatory testing",
-        "duplicate_success": "Pre-instance duplicated",
-        "inactivate_pre_instance_success": "Pre-Instance inactivated",
-        "reactivate_pre_instance_success": "Pre-Instance reactivated"
+        "title": "目的テンプレート",
+        "singular_title": "目的テンプレート",
+        "rot_uri": "ルート目的",
+        "actions": "操作",
+        "add": "テンプレートを追加",
+        "approve_success": "テンプレートは最終状態になりました",
+        "approve_pre_instance_success": "プレインスタンスは最終状態になりました",
+        "new_version_success": "新バージョンを作成しました",
+        "inactivate_success": "テンプレートを無効化しました",
+        "reactivate_success": "テンプレートを再有効化しました",
+        "delete_success": "テンプレートを削除しました",
+        "delete_pre_instance_success": "プレインスタンスを削除しました",
+        "history": "テンプレート履歴を表示",
+        "new_version_default_description": "新バージョン",
+        "objective_cat": "目的カテゴリ",
+        "confirmatory_testing": "検証試験",
+        "duplicate_success": "プレインスタンスを複製しました",
+        "inactivate_pre_instance_success": "プレインスタンスを無効化しました",
+        "reactivate_pre_instance_success": "プレインスタンスを再有効化しました"
     },
     "CtCataloguesTable": {
-        "title": "Objective templates",
+        "title": "目的テンプレート",
         "singular_title": "CT Catalogue",
         "rot_uri": "Root objective",
         "actions": "Actions",
@@ -1754,114 +1754,114 @@
         "title": "Study List"
     },
     "ObjectiveTemplatesView": {
-        "title": "Objective Templates"
+        "title": "目的テンプレート"
     },
     "CtCataloguesView": {
         "title": "CT Catalogues"
     },
     "StudyEndpointsTable": {
-        "endpoint_title": "Endpoint title",
-        "objective": "Objective",
-        "time_frame": "Time frame",
-        "units": "Unit",
-        "endpoint_level": "Endpoint level",
-        "endpoint_sub_level": "Endpoint sub-level",
-        "objective_level": "Objective level",
-        "add_endpoint": "Add new study endpoint",
-        "delete_endpoint": "Delete study endpoint",
-        "delete_success": "Study endpoint deleted",
-        "edit_endpoint": "Edit study endpoint",
-        "orphan_endpoints": "Study endpoints without study objective",
-        "update_version_successful": "objective version updated",
-        "update_version_alert": "you are going to replace objective version:",
-        "update_version_alert_cont": "with:",
-        "update_version_alert_cont2": "are you sure?",
-        "previous_version": "Previous version",
-        "new_version": "New version",
-        "update_timeframe_version_retired": "Updated timeframe version is retired",
-        "update_endpoint_version_retired": "Updated endpoint version is retired",
-        "update_timeframe_version": "Update timeframe version",
-        "update_endpoint_version": "Update endpoint version",
-        "update_timeframe_version_alert": "You  are going to replace timeframe version:",
-        "update_endpoint_version_alert": "You  are going to replace endpoint version:",
-        "study_objective_label": "Study objective:",
-        "objective_level_label": "Objective level:",
-        "sort_endpoints": "Sort endpoints",
+        "endpoint_title": "エンドポイント名",
+        "objective": "目的",
+        "time_frame": "タイムフレーム",
+        "units": "単位",
+        "endpoint_level": "エンドポイントレベル",
+        "endpoint_sub_level": "エンドポイントサブレベル",
+        "objective_level": "目的レベル",
+        "add_endpoint": "スタディエンドポイントを追加",
+        "delete_endpoint": "スタディエンドポイントを削除",
+        "delete_success": "スタディエンドポイントを削除しました",
+        "edit_endpoint": "スタディエンドポイントを編集",
+        "orphan_endpoints": "目的にリンクされていないスタディエンドポイント",
+        "update_version_successful": "目的のバージョンを更新しました",
+        "update_version_alert": "目的のバージョンを次のものに置き換えようとしています:",
+        "update_version_alert_cont": "置き換え先:",
+        "update_version_alert_cont2": "よろしいですか?",
+        "previous_version": "旧バージョン",
+        "new_version": "新バージョン",
+        "update_timeframe_version_retired": "更新されたタイムフレームバージョンは廃止されています",
+        "update_endpoint_version_retired": "更新されたエンドポイントバージョンは廃止されています",
+        "update_timeframe_version": "タイムフレームバージョンを更新",
+        "update_endpoint_version": "エンドポイントバージョンを更新",
+        "update_timeframe_version_alert": "タイムフレームバージョンを次のものに置き換えようとしています:",
+        "update_endpoint_version_alert": "エンドポイントバージョンを次のものに置き換えようとしています:",
+        "study_objective_label": "スタディ目的:",
+        "objective_level_label": "目的レベル:",
+        "sort_endpoints": "エンドポイントを並べ替え",
         "order": "#",
-        "history_title": "Study Endpoint",
-        "history": "Show study endpoint history",
-        "confirm_delete": "The endpoint '{endpoint}' will be deleted",
-        "sort_help_msg": "You can only sort study endpoints of the same level",
-        "edit_template_text": "Edit template text",
-        "global_history_title": "Study endpoints history",
-        "study_endpoint_history_title": "History for study endpoint [{studyEndpointUid}]"
+        "history_title": "スタディエンドポイント",
+        "history": "スタディエンドポイントの履歴を表示",
+        "confirm_delete": "エンドポイント '{endpoint}' を削除します",
+        "sort_help_msg": "同じレベルのスタディエンドポイントのみ並べ替えできます",
+        "edit_template_text": "テンプレートテキストを編集",
+        "global_history_title": "スタディエンドポイントの履歴",
+        "study_endpoint_history_title": "スタディエンドポイント [{studyEndpointUid}] の履歴"
     },
     "StudyEndpointForm": {
-        "add_title": "Add new study endpoint",
-        "edit_title": "Edit study endpoint",
-        "select_mode": "Select from studies",
-        "template_mode": "Select from standards",
-        "scratch_mode": "Create from scratch",
-        "creation_mode_title": "Select method",
-        "select_studies": "Select studies",
-        "select_endpoint": "Select endpoint",
-        "select_objective_title": "Select objective",
-        "select_timeframe_title": "Select time frame template",
-        "step2_title": "Select endpoint template",
-        "step3_title": "Define endpoint details",
-        "step4_title": "Create time frame",
-        "create_tpl_title": "Create endpoint title template",
-        "edit_tpl_title": "Edit endpoint title template",
-        "endpoint_level_title": "Select endpoint level",
-        "selected_endpoint": "Selected endpoint title",
-        "selected_endpoint_template": "Selected endpoint title template",
-        "selected_timeframe_template": "Selected endpoint timeframe template",
-        "selected_endpoint_units": "Unit(s)",
-        "selected_timeframe": "Time frame",
-        "copy_endpoint_instructions": "Copy from table",
-        "objective": "Objective",
-        "objective_level": "Objective level",
-        "select_template": "Select template",
-        "units": "Unit(s)",
-        "endpoint_level": "Endpoint level",
-        "endpoint_sub_level": "Endpoint sub-level",
-        "separator": "Separator",
-        "endpoint_added": "Endpoint added",
-        "brand_name": "Brand name",
-        "project_name": "Project name",
-        "project_number": "Project ID",
-        "study_id": "Study ID",
-        "unit": "Unit",
-        "endpoint_title": "Endpoint title",
-        "timeframe": "Time frame",
-        "endpoint_subtitle_1": "Endpoint title and unit(s)",
-        "create_template": "Create endpoint title template",
-        "select_later": "Select later",
-        "no_endpoint_template": "You must select an endpoint template",
-        "timeframe_template": "Time frame template",
-        "endpoint_title_warning": "Clinicaltrials.gov does only allow 254 characters in the Endpoint Title.",
-        "select_objective": "Select a study objective or check the Select later box",
-        "copy_objective": "Select study objective",
-        "selected_endpoints": "Selected study endpoints",
-        "study_endpoint": "Study endpoint",
-        "no_objective_available": "No objective is available yet. Click Select later and continue or cancel."
+        "add_title": "スタディエンドポイントを追加",
+        "edit_title": "スタディエンドポイントを編集",
+        "select_mode": "スタディから選択",
+        "template_mode": "標準から選択",
+        "scratch_mode": "新規作成",
+        "creation_mode_title": "方法を選択",
+        "select_studies": "スタディを選択",
+        "select_endpoint": "エンドポイントを選択",
+        "select_objective_title": "目的を選択",
+        "select_timeframe_title": "タイムフレームテンプレートを選択",
+        "step2_title": "エンドポイントテンプレートを選択",
+        "step3_title": "エンドポイントの詳細を定義",
+        "step4_title": "タイムフレームを作成",
+        "create_tpl_title": "エンドポイントタイトルテンプレートを作成",
+        "edit_tpl_title": "エンドポイントタイトルテンプレートを編集",
+        "endpoint_level_title": "エンドポイントレベルを選択",
+        "selected_endpoint": "選択したエンドポイント名",
+        "selected_endpoint_template": "選択したエンドポイントタイトルテンプレート",
+        "selected_timeframe_template": "選択したエンドポイントタイムフレームテンプレート",
+        "selected_endpoint_units": "単位",
+        "selected_timeframe": "タイムフレーム",
+        "copy_endpoint_instructions": "テーブルからコピー",
+        "objective": "目的",
+        "objective_level": "目的レベル",
+        "select_template": "テンプレートを選択",
+        "units": "単位",
+        "endpoint_level": "エンドポイントレベル",
+        "endpoint_sub_level": "エンドポイントサブレベル",
+        "separator": "区切り",
+        "endpoint_added": "エンドポイントを追加しました",
+        "brand_name": "ブランド名",
+        "project_name": "プロジェクト名",
+        "project_number": "プロジェクトID",
+        "study_id": "スタディID",
+        "unit": "単位",
+        "endpoint_title": "エンドポイント名",
+        "timeframe": "タイムフレーム",
+        "endpoint_subtitle_1": "エンドポイント名と単位",
+        "create_template": "エンドポイントタイトルテンプレートを作成",
+        "select_later": "後で選択",
+        "no_endpoint_template": "エンドポイントテンプレートを選択する必要があります",
+        "timeframe_template": "タイムフレームテンプレート",
+        "endpoint_title_warning": "clinicaltrials.gov ではエンドポイント名は254文字以内です。",
+        "select_objective": "スタディ目的を選択するか『後で選択』にチェックしてください",
+        "copy_objective": "スタディ目的を選択",
+        "selected_endpoints": "選択したスタディエンドポイント",
+        "study_endpoint": "スタディエンドポイント",
+        "no_objective_available": "利用可能な目的がまだありません。『後で選択』をチェックして続行するか、キャンセルしてください。"
     },
     "StudyEndpointEditForm": {
-        "title": "Edit study endpoint",
-        "units_section": "Unit(s)",
-        "unit": "Unit",
-        "timeframe_section": "Timeframe assigned",
-        "timeframe": "Time frame",
-        "unformatted_preview_section": "Unformatted text preview of study endpoint",
-        "level_section": "Endpoint level",
-        "objective_section": "Objective addressed",
-        "endpoint_updated": "Study endpoint updated"
+        "title": "スタディエンドポイントを編集",
+        "units_section": "単位",
+        "unit": "単位",
+        "timeframe_section": "割り当てられたタイムフレーム",
+        "timeframe": "タイムフレーム",
+        "unformatted_preview_section": "スタディエンドポイントの書式なしプレビュー",
+        "level_section": "エンドポイントレベル",
+        "objective_section": "対応する目的",
+        "endpoint_updated": "スタディエンドポイントを更新しました"
     },
     "StudyInterventionTypeView": {
-        "title": "Study Intervention Type"
+        "title": "スタディ介入タイプ"
     },
     "StudyInterventionTypeSummary": {
-        "intervention_type_info": "Study intervention type information"
+        "intervention_type_info": "スタディ介入タイプ情報"
     },
     "StudyRegistryIdentifiersView": {
         "title": "Registry Identifiers"
@@ -1890,7 +1890,7 @@
         "reason_for_missing": "Reason for missing"
     },
     "StudyCompoundsView": {
-        "title": "Study Compounds"
+        "title": "スタディ化合物"
     },
     "StudyCompoundTable": {
         "study_compound": "Study Compound",
@@ -2499,20 +2499,20 @@
         "add_title": "Add CRF Template"
     },
     "CompoundsView": {
-        "title": "Compounds",
-        "tab1_title": "Compounds",
-        "tab2_title": "Compound Aliases"
+        "title": "化合物",
+        "tab1_title": "化合物",
+        "tab2_title": "化合物別名"
     },
     "CompoundTable": {
-        "compound_name": "Compound Name",
-        "sponsor_compound": "Sponsor Compound",
-        "substance_name": "Substance Name (UNII)",
-        "pharmacological_class": "Pharmacological Class (MED-RT)",
-        "is_name_inn": "Is INN",
-        "dose": "Doses",
-        "strength": "Strength",
-        "dosage_form": "Pharmaceutical Dosage Form",
-        "route_of_admin": "Route of Administration",
+        "compound_name": "化合物名",
+        "sponsor_compound": "スポンサー化合物",
+        "substance_name": "成分名 (UNII)",
+        "pharmacological_class": "薬理学的分類 (MED-RT)",
+        "is_name_inn": "INN かどうか",
+        "dose": "用量",
+        "strength": "強度",
+        "dosage_form": "剤形",
+        "route_of_admin": "投与経路",
         "dose_frequency": "Dose Frequency",
         "dispensed_in": "Dispensed In",
         "delivery_device": "Delivery Device",
@@ -2726,62 +2726,62 @@
         "clear_filters_content": "Clear all"
     },
     "EligibilityCriteriaTable": {
-        "criteria_text": "Criteria text",
-        "guidance_text": "Guidance text",
-        "key_criteria": "Key criteria",
-        "inclusion_criteria": "Inclusion criteria",
-        "exclusion_criteria": "Exclusion criteria",
-        "add_criteria": "Add criteria",
-        "criteria": "criteria",
-        "confirm_delete": "The criterion: '{criterion}' will be deleted",
-        "delete_success": "Study criteria deleted",
-        "global_history_title": "Study criteria history",
-        "study_criteria_history_title": "History for study criteria [{studyCriteriaUid}]",
-        "update_version_tooltip": "Update template",
-        "update_version_retired_tooltip": "Template retired",
-        "keep_old_version": "Keep old version",
-        "use_new_version": "Use new version",
-        "update_version_alert": "The underlying template has been updated",
-        "previous_version": "Old version:",
-        "new_version": "New version:",
-        "update_version_successful": "criteria version updated",
-        "criteria_length_warning": "Only first 200 characters of the criteria can be submitted in a dataset. Please make sure that the first 200 characters are not the same across 2 or more criterias."
+        "criteria_text": "基準テキスト",
+        "guidance_text": "ガイダンステキスト",
+        "key_criteria": "主要基準",
+        "inclusion_criteria": "組入基準",
+        "exclusion_criteria": "除外基準",
+        "add_criteria": "基準を追加",
+        "criteria": "基準",
+        "confirm_delete": "基準 '{criterion}' を削除します",
+        "delete_success": "スタディ基準を削除しました",
+        "global_history_title": "スタディ基準の履歴",
+        "study_criteria_history_title": "スタディ基準 [{studyCriteriaUid}] の履歴",
+        "update_version_tooltip": "テンプレートを更新",
+        "update_version_retired_tooltip": "テンプレートは廃止済み",
+        "keep_old_version": "旧バージョンを保持",
+        "use_new_version": "新バージョンを使用",
+        "update_version_alert": "基となるテンプレートが更新されました",
+        "previous_version": "旧バージョン:",
+        "new_version": "新バージョン:",
+        "update_version_successful": "基準のバージョンを更新しました",
+        "criteria_length_warning": "基準の最初の200文字のみがデータセットに送信されます。最初の200文字が2つ以上の基準で同一にならないようにしてください。"
     },
     "EligibilityCriteriaForm": {
-        "add_inclusion_criteria": "Add inclusion criteria",
-        "add_exclusion_criteria": "Add exclusion criteria",
-        "add_randomisation_criteria": "Add randomisation criteria",
-        "add_dosing_criteria": "Add dosing criteria",
-        "add_withdrawal_criteria": "Add withdrawal criteria",
-        "add_runin_criteria": "Add run-in criteria",
-        "creation_mode_label": "Select method",
-        "select_from_studies": "Select from studies",
-        "create_from_template": "Select from standards",
-        "create_from_scratch": "Create from scratch",
-        "create_criteria": "Define criteria details",
-        "select_from": "Select from",
-        "templates_choice": "Templates",
-        "studies_choice": "Studies",
-        "criterion_cat": "Criterion category",
-        "criterion_sub_cat": "Criterion sub-category",
-        "criteria_template": "Criteria template",
-        "criteria_text": "Criteria text",
-        "guidance_text": "Guidance text",
-        "selected_criteria": "Selected criteria",
-        "selected_criteria_templates": "Selected criteria templates",
-        "select_criteria_templates": "Select criteria templates",
-        "select_criteria": "Select criteria",
-        "copy_instructions": "Find and copy criteria from the table. Use free-text search or the filters.",
-        "select_studies": "Select studies",
-        "add_success": "Study criteria added",
-        "add_criteria": "Add criteria",
-        "no_template_error": "No criteria template selected",
-        "no_criteria_error": "No criteria selected"
+        "add_inclusion_criteria": "組入基準を追加",
+        "add_exclusion_criteria": "除外基準を追加",
+        "add_randomisation_criteria": "ランダム化基準を追加",
+        "add_dosing_criteria": "投与基準を追加",
+        "add_withdrawal_criteria": "中止基準を追加",
+        "add_runin_criteria": "導入期基準を追加",
+        "creation_mode_label": "方法を選択",
+        "select_from_studies": "スタディから選択",
+        "create_from_template": "標準から選択",
+        "create_from_scratch": "新規作成",
+        "create_criteria": "基準の詳細を定義",
+        "select_from": "選択元",
+        "templates_choice": "テンプレート",
+        "studies_choice": "スタディ",
+        "criterion_cat": "基準カテゴリ",
+        "criterion_sub_cat": "基準サブカテゴリ",
+        "criteria_template": "基準テンプレート",
+        "criteria_text": "基準テキスト",
+        "guidance_text": "ガイダンステキスト",
+        "selected_criteria": "選択した基準",
+        "selected_criteria_templates": "選択した基準テンプレート",
+        "select_criteria_templates": "基準テンプレートを選択",
+        "select_criteria": "基準を選択",
+        "copy_instructions": "テーブルから基準を検索してコピーします。フリーテキスト検索またはフィルターを使用してください。",
+        "select_studies": "スタディを選択",
+        "add_success": "スタディ基準を追加しました",
+        "add_criteria": "基準を追加",
+        "no_template_error": "基準テンプレートが選択されていません",
+        "no_criteria_error": "基準が選択されていません"
     },
     "EligibilityCriteriaEditForm": {
-        "title": "Edit Study Criteria",
-        "key_criteria": "Key criteria",
-        "update_success": "Study criteria updated"
+        "title": "スタディ基準を編集",
+        "key_criteria": "主要基準",
+        "update_success": "スタディ基準を更新しました"
     },
     "CtPackagesHistoryView": {
         "title": "Controlled Terminology Packages History"
@@ -3614,39 +3614,39 @@
         "tab_completion": "タブの完了状況概要"
     },
     "StudyElements": {
-        "add_element": "Add study element",
-        "el_name": "Element name",
-        "el_short_name": "Element short name",
-        "el_sub_type": "Element subtype",
-        "el_type": "Element type",
-        "el_start_rule": "Element Start Rule",
-        "el_end_rule": "Element End Rule",
-        "study_element": "Study Element",
-        "el_deleted": "Study element deleted",
-        "colour": "Colour",
-        "add_el": "Add study element",
-        "edit_el": "Edit study element",
-        "el_created": "Study element created",
-        "el_edited": "Study element edited",
-        "body_measurements": "Body Measurements",
-        "confirm_delete": "The study element '{element}' will be removed",
-        "confirm_delete_cascade": "The study element '{element}' and {compoundDosings} study compound dosing(s) will be removed",
-        "global_history_title": "Study elements history",
-        "study_element_history_title": "History for study element [{elementUid}]",
-        "planned_duration": "Planned duration",
-        "description": "Description",
-        "planned_duration_time": "Planned study duration time"
+        "add_element": "スタディ要素を追加",
+        "el_name": "要素名",
+        "el_short_name": "要素短縮名",
+        "el_sub_type": "要素サブタイプ",
+        "el_type": "要素タイプ",
+        "el_start_rule": "要素開始ルール",
+        "el_end_rule": "要素終了ルール",
+        "study_element": "スタディ要素",
+        "el_deleted": "スタディ要素を削除しました",
+        "colour": "色",
+        "add_el": "スタディ要素を追加",
+        "edit_el": "スタディ要素を編集",
+        "el_created": "スタディ要素を作成しました",
+        "el_edited": "スタディ要素を編集しました",
+        "body_measurements": "身体測定",
+        "confirm_delete": "スタディ要素 '{element}' を削除します",
+        "confirm_delete_cascade": "スタディ要素 '{element}' と {compoundDosings} 件の化合物投与を削除します",
+        "global_history_title": "スタディ要素の履歴",
+        "study_element_history_title": "スタディ要素 [{elementUid}] の履歴",
+        "planned_duration": "予定期間",
+        "description": "説明",
+        "planned_duration_time": "予定スタディ期間"
     },
     "DesignMatrix": {
-        "global_help": "For each of the Study Arms, select the relevant elements in the given epochs. If a study element is missing then go back to the Study Elements tab to create/update the elments",
-        "study_arm": "Study Arm",
-        "element": "Element",
-        "cell_updated": "Cell updated",
-        "cell_created": "Cell created",
-        "cell_deleted": "Cell deleted",
-        "branches": "Branches",
-        "matrix_updated": "Design Matrix updated",
-        "matrix_guide": "To complete study design, please assign elements to all epochs per arm/branch."
+        "global_help": "各スタディアームについて、指定されたエポックで関連する要素を選択します。要素が不足している場合はスタディ要素タブに戻り、要素を作成／更新してください",
+        "study_arm": "スタディアーム",
+        "element": "要素",
+        "cell_updated": "セルを更新しました",
+        "cell_created": "セルを作成しました",
+        "cell_deleted": "セルを削除しました",
+        "branches": "枝分かれ",
+        "matrix_updated": "デザインマトリックスを更新しました",
+        "matrix_guide": "スタディデザインを完了するために、各アーム／分岐のすべてのエポックに要素を割り当ててください。"
     },
     "CRFForms": {
         "add_form": "Add CRF Form",
@@ -4026,27 +4026,27 @@
         "related_activity_instances": "Related Activity Instances"
     },
     "ActivitiesTable": {
-        "inactivate_activities_success": "Activity inactivated",
-        "reactivate_activities_success": "Activity reactivated",
-        "delete_activities_success": "Activity deleted",
-        "approve_activities_success": "Activity is now in Final state",
-        "inactivate_activity-instances_success": "Activity instance inactivated",
-        "reactivate_activity-instances_success": "Activity instance reactivated",
-        "delete_activity-instances_success": "Activity instance deleted",
-        "approve_activity-instances_success": "Activity instance is now in Final state",
-        "inactivate_activity-groups_success": "Activity group inactivated",
-        "reactivate_activity-groups_success": "Activity group reactivated",
-        "delete_activity-groups_success": "Activity group deleted",
-        "approve_activity-groups_success": "Activity group is now in Final state",
-        "inactivate_activity-sub-groups_success": "Activity subgroup inactivated",
-        "reactivate_activity-sub-groups_success": "Activity subgroup reactivated",
-        "delete_activity-sub-groups_success": "Activity subgroup deleted",
-        "approve_activity-sub-groups_success": "Activity subgroup is now in Final state",
-        "item_history_title": "History for {type} [{uid}]",
-        "activity": "Activity",
-        "activity_group": "Activity Group",
-        "activity_subgroup": "Activity Subgroup",
-        "activity_instance": "Activity Instance"
+        "inactivate_activities_success": "アクティビティを無効化しました",
+        "reactivate_activities_success": "アクティビティを再有効化しました",
+        "delete_activities_success": "アクティビティを削除しました",
+        "approve_activities_success": "アクティビティは最終状態になりました",
+        "inactivate_activity-instances_success": "アクティビティインスタンスを無効化しました",
+        "reactivate_activity-instances_success": "アクティビティインスタンスを再有効化しました",
+        "delete_activity-instances_success": "アクティビティインスタンスを削除しました",
+        "approve_activity-instances_success": "アクティビティインスタンスは最終状態になりました",
+        "inactivate_activity-groups_success": "アクティビティグループを無効化しました",
+        "reactivate_activity-groups_success": "アクティビティグループを再有効化しました",
+        "delete_activity-groups_success": "アクティビティグループを削除しました",
+        "approve_activity-groups_success": "アクティビティグループは最終状態になりました",
+        "inactivate_activity-sub-groups_success": "アクティビティサブグループを無効化しました",
+        "reactivate_activity-sub-groups_success": "アクティビティサブグループを再有効化しました",
+        "delete_activity-sub-groups_success": "アクティビティサブグループを削除しました",
+        "approve_activity-sub-groups_success": "アクティビティサブグループは最終状態になりました",
+        "item_history_title": "{type} [{uid}] の履歴",
+        "activity": "アクティビティ",
+        "activity_group": "アクティビティグループ",
+        "activity_subgroup": "アクティビティサブグループ",
+        "activity_instance": "アクティビティインスタンス"
     },
     "DataModels": {
         "status": "Status",
@@ -4185,40 +4185,40 @@
         "title": "Activity Instructions"
     },
     "FootnoteTemplatesView": {
-        "title": "Footnote Templates"
+        "title": "フットノートテンプレート"
     },
     "FootnoteTemplateTable": {
-        "indications": "Indication or disorder",
-        "criterion_cat": "Footnote category",
-        "criterion_sub_cat": "Footnote sub-category",
-        "criterion_tpl": "Template",
-        "add": "Add",
-        "edit": "Edit",
-        "approve": "Approve",
-        "delete": "Delete",
-        "new_version_default_description": "New version",
-        "approve_success": "Template is now in Final state",
-        "approve_pre_instance_success": "Pre-instance is now in Final state",
-        "new_version_success": "New version created",
-        "inactivate_success": "Template inactivated",
-        "reactivate_success": "Template reactivated",
-        "delete_success": "Template deleted",
-        "delete_pre_instance_success": "Pre-instance deleted",
-        "duplicate_success": "Pre-instance duplicated",
-        "inactivate_pre_instance_success": "Pre-Instance inactivated",
-        "reactivate_pre_instance_success": "Pre-Instance reactivated"
+        "indications": "適応症または障害",
+        "criterion_cat": "フットノートカテゴリ",
+        "criterion_sub_cat": "フットノートサブカテゴリ",
+        "criterion_tpl": "テンプレート",
+        "add": "追加",
+        "edit": "編集",
+        "approve": "承認",
+        "delete": "削除",
+        "new_version_default_description": "新バージョン",
+        "approve_success": "テンプレートは最終状態になりました",
+        "approve_pre_instance_success": "プレインスタンスは最終状態になりました",
+        "new_version_success": "新バージョンを作成しました",
+        "inactivate_success": "テンプレートを無効化しました",
+        "reactivate_success": "テンプレートを再有効化しました",
+        "delete_success": "テンプレートを削除しました",
+        "delete_pre_instance_success": "プレインスタンスを削除しました",
+        "duplicate_success": "プレインスタンスを複製しました",
+        "inactivate_pre_instance_success": "プレインスタンスを無効化しました",
+        "reactivate_pre_instance_success": "プレインスタンスを再有効化しました"
     },
     "FootnoteTemplateForm": {
-        "add_title": "Add {type} footnote template",
-        "edit_title": "Edit footnote template",
-        "indication": "Indication or disorder",
-        "group": "Activity group",
-        "sub_group": "Activity subgroup",
-        "activity": "Activity",
-        "name": "Template text",
-        "add_success": "Footnote template added",
-        "update_success": "Footnote template updated",
-        "delete_success": "Footnote template deleted"
+        "add_title": "{type} フットノートテンプレートを追加",
+        "edit_title": "フットノートテンプレートを編集",
+        "indication": "適応症または障害",
+        "group": "アクティビティグループ",
+        "sub_group": "アクティビティサブグループ",
+        "activity": "アクティビティ",
+        "name": "テンプレートテキスト",
+        "add_success": "フットノートテンプレートを追加しました",
+        "update_success": "フットノートテンプレートを更新しました",
+        "delete_success": "フットノートテンプレートを削除しました"
     },
     "FootnotesView": {
         "title": "Footnote instantiations"
