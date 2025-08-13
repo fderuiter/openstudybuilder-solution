@@ -56,7 +56,7 @@
         "previous": "Previous",
         "all": "All",
         "warning": "Warning",
-        "default_description": "No description provided.",
+        "default_description": "No description provided",
         "study_required_redirection": "The page requires a selected study",
         "no_study_selected": "The page requires a selected study",
         "ok": "OK",
@@ -226,7 +226,7 @@
             "study_phase": "Study phases in scope for the template. Select NA (not applicable), if template is generic not targeted specific studies."
         },
         "ObjectiveTemplateForm": {
-            "name": "Example of objective: 'To demonstrate superiority of [CompoundDosing] [NumericValue] [Dose Unit] versus [Comparator] [NumericValue] [Dose Unit] with respect to [ActivityInstance] at [TimePoint] in patients with [DiseaseDisorder]' or 'To document the safety profile of [StudyIntervention].' Add parameters enclosed in square brackets [ and ].",
+            "name": "Example of objective: 'To demonstrate superiority of [CompoundDosing] [NumericValue] [Dose Unit] versus [Comparator] [NumericValue] [Dose Unit] with respect to [ActivityInstance] at [TimePoint] in patients with [DiseaseDisorder]' or 'To document the safety profile of [StudyIntervention].' Add parameters enclosed in square brackets [ ].",
             "indication_disorder": "Select one or more indications from the drop-down for which this objective applies. Tick NA if not applicable.",
             "objective_category": "Select one or more categories from the drop-down for which this objective applies. Tick NA if not applicable.",
             "confirmatory_testing": "Use the radio-button to specify if the template is to be used to express an objective that is related to a confirmatory testing. For objectives that are related to confirmatory testing, it is essential that the objectives are precise and state if the purpose is to demonstrate superiority, non-inferiority, or bioequivalence. Also, it is essential that the endpoint (including time frame) associated with the confirmatory analysis is stated in the objective. Example of an objective related to confirmatory testing: To demonstrate superiority of [CompoundDosing] [NumericValue] [Dose Unit] versus [Comparator] [NumericValue] [Dose Unit] with respect to [ActivityInstance] at [TimePoint] in patients with [DiseaseDisorder]. Example of an objective not related to confirmatory testing: To compare the safety and efficacy with respect to glycemic control of [CompoundDosing] [NumericValue] [Dose Unit] versus [Comparator] [NumericValue] [Dose Unit] in patients with [DiseaseDisorder]"
@@ -294,40 +294,40 @@
             "rationale_for_request": "A written note on why the request is needed."
         },
         "ActivityOverview": {
-          "general": "An Activity is a definition of an activity performed on a subject. The Activity is the overall name of the activity used in the protocol SoA.",
-          "cosmos_yaml": "The tab displays the content in a YAML file structure. The naming complies with the CDISC COSMoS Biomedical Concept structure.",
-          "osb_yaml": "OSB YAML",
-          "activity_groups": "The overall group(s) that the activity belongs to. The grouping is also used for protocol SoA display and for searching in the List of Activities.",
-          "activity_subgroups": "This is a sub-grouping within a group. The sub-grouping is also used for protocol SoA display and for searching in the List of Activities.",
-          "activity_group": "Activity group",
-          "activity_subgroup": "Activity subgroup",
-          "adam_code": "The code used as the PARAM code in the ADaM data.",
-          "topic_code": "The CDW Topic Code",
-          "is_data_collected": "Specifies if the activity involves data collection.",
-          "class": "The class in which the Activity Instance belongs to.",
-          "instances": "The list of Activity Instances. An Activity Instance is a detailed definition of the activity specifying e.g. unit, specimen, location etc.",
-          "no_instances": "No activity instances available for this activity.",
-          "activity_groupings": "The list of groups and sub-groups assigned.",
-          "history_title": "History for activity [{uid}]",
-          "name": "Name",
-          "sentence_case_name": "Sentence case name",
-          "version": "Version",
-          "status": "Status",
-          "start_date": "Date when this version became active",
-          "end_date": "Date when this version became inactive",
-          "library": "Library where defined",
-          "author": "User who created or last modified",
-          "definition": "Definition",
-          "activities": "List of Activities",
-          "is_required_for_activity": "Required for activity",
-          "is_default_selected_for_activity": "Default selected for activity",
-          "is_data_sharing": "Data sharing",
-          "is_legacy_usage": "Legacy usage",
-          "item_type": "Item type",
-          "items": "Items",
-          "ct_term_name": "CT term name",
-          "unit_def_name": "Unit definition",
-          "item_class": "Item class"
+            "general": "An Activity is a definition of an activity performed on a subject. The Activity is the overall name of the activity used in the protocol SoA.",
+            "cosmos_yaml": "The tab displays the content in a YAML file structure. The naming complies with the CDISC COSMoS Biomedical Concept structure.",
+            "osb_yaml": "OSB YAML",
+            "activity_groups": "The overall group(s) that the activity belongs to. The grouping is also used for protocol SoA display and for searching in the List of Activities.",
+            "activity_subgroups": "This is a sub-grouping within a group. The sub-grouping is also used for protocol SoA display and for searching in the List of Activities.",
+            "activity_group": "Activity group",
+            "activity_subgroup": "Activity subgroup",
+            "adam_code": "The code used as the PARAM code in the ADaM data.",
+            "topic_code": "The CDW Topic Code",
+            "is_data_collected": "Specifies if the activity involves data collection.",
+            "class": "The class in which the Activity Instance belongs to.",
+            "instances": "The list of Activity Instances. An Activity Instance is a detailed definition of the activity specifying e.g. unit, specimen, location etc.",
+            "no_instances": "No activity instances available for this activity.",
+            "activity_groupings": "The list of groups and sub-groups assigned.",
+            "history_title": "History for activity [{uid}]",
+            "name": "Name",
+            "sentence_case_name": "Sentence case name",
+            "version": "Version",
+            "status": "Status",
+            "start_date": "Date when this version became active",
+            "end_date": "Date when this version became inactive",
+            "library": "Library where defined",
+            "author": "User who created or last modified",
+            "definition": "Definition",
+            "activities": "List of Activities",
+            "is_required_for_activity": "Required for activity",
+            "is_default_selected_for_activity": "Default selected for activity",
+            "is_data_sharing": "Data sharing",
+            "is_legacy_usage": "Legacy usage",
+            "item_type": "Item type",
+            "items": "Items",
+            "ct_term_name": "CT term name",
+            "unit_def_name": "Unit definition",
+            "item_class": "Item class"
         },
         "ActivityInstanceOverview": {
             "general": "An Activity Instance is detailed definition of an activity, showing the relevant qualifiers/items, e.g. unit, location, specimen, dose regimen.",
@@ -359,7 +359,7 @@
             "general": "Definitions of compounds are created from the Compounds tab. If an alias name for a compound is needed, then this can be defined in the compound aliases tab."
         },
         "CompoundForm": {
-            "sponsor_compound": "Indicate if this is a sponsor compound. Tick yes if sponsor is the authorisation holder/or future authorisation holder of the compound.",
+            "sponsor_compound": "Indicate if this is a sponsor compound. Tick yes if sponsor is the authorization holder or future authorization holder of the compound.",
             "analyte_number": "Analyte number (Non-clinical), example is AN000028 (The analyte number for semaglutide).",
             "long_number": "Compound number (long). Example NNC0113-0000-0217. Only applicable for Novo Nordisk compound. Leave blank for other compounds.",
             "short_number": "Compound number (short). Example NNC0113-0217. Only applicable for Novo Nordisk compound. Leave blank for other compounds. ",
@@ -389,24 +389,24 @@
             "step1_title": "Select compound for which you want to create an alias/nickname",
             "name": "Specify the new name/alias for the compound, e.g. MyNewDrug",
             "sentence_case_name": "Sentence case name will be auto-populated based on the name/alias specified, e.g. mynewdrug",
-            "is_preferred_synonym": "Tick yes if this is the preferred synonym in your organisation."
+            "is_preferred_synonym": "Tick yes if this is the preferred synonym in your organization."
         },
         "EndpointTemplateForm": {
-            "name": "An endpoint consists of a title, timeframe and unit. Example: title: Change in systolic blood pressure, timeframe: from baseline to week 20, unit: mmHg. So put together 'Change in systolic blood pressure from baseline to week 20 (mmHg)'. A generic template could be defined as: Change in [ActivityInstance] from [Time Point Reference] to [Time Point Reference] ([Unit]). Add parameters enclosed in square brackets [ and ].",
+            "name": "An endpoint consists of a title, timeframe and unit. Example: title: Change in systolic blood pressure, timeframe: from baseline to week 20, unit: mmHg. So put together 'Change in systolic blood pressure from baseline to week 20 (mmHg)'. A generic template could be defined as: Change in [ActivityInstance] from [Time Point Reference] to [Time Point Reference] ([Unit]). Add parameters enclosed in square brackets [ ].",
             "endpoint_category": "Select one or more categories from the drop-down for which this endpoint applies. Tick NA if not applicable.",
             "endpoint_sub_category": "Select one or more categories from the drop-down for which this endpoint applies. Tick NA if not applicable. For a detailed description of the categories see the 'Objectives and endpoints library guidance' document. For the systolic BP example the category is 'Continuous (relative change)'"
         },
         "TimeframeTemplateForm": {
-            "name": "A timeframe can be referenced as part of an endpoint. Example: from from baseline (week 0) to Week 28. A template for this could be 'from from [Time Point Reference] ([VisitName]) to [VisitName]'. Add parameters enclosed in square brackets [ and ]."
+            "name": "A timeframe can be referenced as part of an endpoint. Example: from baseline (week 0) to Week 28. A template for this could be 'from [Time Point Reference] ([VisitName]) to [VisitName]'. Add parameters enclosed in square brackets [ ]."
         },
         "CriteriaTemplateForm": {
             "guidance_text": "Depending on type of criteria a generic template can be defined. Example: Age ≥ 18 years at the time of signing informed consent can be parameterized to 'Age [Operator] [NumericValue] [Age Unit] at the time of signing informed consent'.",
             "indication": "Select the indication for which this template applies (select multiple if needed). Select NA if not applicable.",
-            "criterion_cat": "Select one or more categories for which the criterion applies. The Age example could apply to Demography. Tick NA if not applicable. The categorisation is used for searching when selecting criteria template for a study.",
+            "criterion_cat": "Select one or more categories for which the criterion applies. The Age example could apply to Demography. Tick NA if not applicable. The categorization is used for searching when selecting criteria template for a study.",
             "criterion_sub_cat": "Select one or more sub-category that applies to the criterion. Tick NA if not applicable. The categorisation is used for searching when selecting criteria template for a study."
         },
         "CodelistCreationForm": {
-            "catalogue": "The new code list will be created in this catalogue"
+            "catalogue": "The new code list will be created in this catalog"
         },
         "CodelistSponsorValuesForm": {
             "pref_name": "The sponsor preferred name is used by the StudyBuilder as the default display name for the code list",
@@ -438,22 +438,22 @@
         },
         "UnitForm": {
             "ct_term": "Select the controlled terminology term representing this unit.",
-            "convertible_unit": "Slide if the unit can be converted. For example, mm is convertible to cm or metre, but the unit pH is not convertible.",
+            "convertible_unit": "For example, mm is convertible to cm or meter, but the unit pH is not convertible. Slide if the unit can be converted.",
             "ucum_unit": "Select the equivalent unit in UCUM from the drop-down. For syntax rules see <a href='https://ucum.org/ucum.html' target='_blank'>[Syntax Rules]</a>.",
-            "display_unit": "Slide if this unit is to be used as a display unit.",
-            "master_unit": "Slide if this unit is the master unit of a unit dimension. All units are converted through the master unit. For example, the master unit for length is m (metre). If cm is converted to mm, it is first converted to metre using the 'conversion factor to master' and then to mm. This is often the first unit created for a unit dimension. There can only be one master unit, but it does not matter which unit is chosen.",
+            "display_unit": "Slide if this unit is to be used as a display unit, e.g., units used should be displayed in the output.",
+            "master_unit": "Slide if this unit is the master unit of a unit dimension. All conversions go through the master unit. For example, the master unit for length is m (meter). To convert cm to mm, first convert cm to meter using the 'conversion factor to master', then convert to mm. This is often the first unit created for a dimension. There can only be one master unit, and any unit can serve as the master.",
             "si_unit": "Slide to indicate whether a unit is a SI unit.",
             "us_unit": "Slide to indicate whether a unit is a US unit.",
-            "dimension": "Selection of the Unit Dimension, that the unit belongs to, which means the unit can be converted to the other units in the same Unit Dimension, using the conversion factors defined (except when convertible unit flag is unticked) E.g. cm and mm are in the unit dimension 'length' and can be converted to each other. The naming of these are not used but should be meaningful.",
+            "dimension": "Select the unit dimension the unit belongs to. Units in the same dimension can be converted using the defined conversion factors, unless the convertible unit flag is unticked. For example, cm and mm are in the 'length' dimension and can be converted to each other. The dimension name is not used but should be meaningful.",
             "legacy_code": "Reference to the name of the code in the legacy system.",
-            "molecular_weight": "Type either 0 or 1. Molecular weight is needed for the conversion if a unit contains 'mol'(e.g. mmol/L) as part of the unit then this field=1 otherwise this field=0",
+            "molecular_weight": "Type either 0 or 1. Molecular weight is needed for conversion if a unit contains 'mol' (e.g., mmol/L) as part of the unit. In that case, set this field to 1. Otherwise, set it to 0.",
             "conversion_factor": "Conversion factor from unit defined to the master unit. All simple unit conversions are converted through the master unit."
         },
         "TimeframeForm": {
             "select_template": "To create an instantiation of a Time Frame, select from the relevant library and it's listed templates."
         },
         "StudyForm": {
-            "project_id": "Select the project ID from the drop-down list. For details on project see <a href='https://novonordisk.sharepoint.com/sites/ProjectToolbox' target='_blank'>[Project Toolbox]</a> ",
+            "project_id": "Select the project ID from the drop-down list. For details on project see <a href='https://novonordisk.sharepoint.com/sites/ProjectToolbox' target='_blank'>[Project Toolbox]</a>.",
             "project_name": "Auto-populated based on selected project",
             "brand_name": "Auto-populated based on selected project (only populated if brand name exists)",
             "study_id": "ID that will be generated for this study",
@@ -472,14 +472,14 @@
         },
         "StudyDefineForm": {
             "general": "This section is for defining the Study. For requesting a term/value added to drop-down list, please refer to SharePoint",
-            "studytype": "Select value that reflects the overall study type. For definition of study types see <a href='{url}' target='_blank'>[Study Type]</a>",
+            "studytype": "Select value that reflects the overall study type. For definition of study types see <a href='{url}' target='_blank'>[Study Type]</a>.",
             "studyintent": "Select the values that reflect the planned purposes of the therapy or device being investigated in the study",
-            "trialtype": "Select the values that reflect the trial type(s) that is within the study purpose. For definition of the trial types see <a href='{url}' target='_blank'>[Trial Type Response]</a>",
+            "trialtype": "Select the values that reflect the trial type(s) that is within the study purpose. For definition of the trial types see <a href='{url}' target='_blank'>[Trial Type Response]</a>.",
             "trialphase": "Select relevant phase or stage, of the study",
             "studystoprule": "The rule(s), regulation(s) and/or condition(s) that determines the point in time when a clinical trial will be terminated. Stopping rule as specified in Protocol. If there is no stopping rule record 'NONE' in this field",
             "extensiontrial": "Indicate whether the study is an extension trial",
             "adaptivedesign": "Indicate if the study includes a prospectively planned opportunity for modification of one or more specified aspects of the study design and hypotheses based on analysis of data (usually interim data) from subjects in the study",
-            "post_auth_safety_indicator": "An indication as to whether the clinical study is a post authorisation safety study",
+            "post_auth_safety_indicator": "An indication as to whether the clinical study is a post authorization safety study",
             "confirmed_resp_min_duration": "The protocol specified minimum amount of time needed to meet the definition of a confirmed response to treatment. Write value and unit or select NA"
         },
         "StudyPopulationForm": {
@@ -490,9 +490,9 @@
             "healthy_subjects": "Indicate if persons who have not had the condition(s) being studied or otherwise related conditions or symptoms, as specified in the eligibility requirements, may participate in the study",
             "planned_min_max_age": "The anticipated minimum and maximum ages of the subjects to be entered into the study",
             "pinf": "Positive infinity. Fx. Planned Maximum Age of Subjects, there is no value if a study does not specify a maximum age. In this case, the appropriate null flavor is 'PINF'",
-            "pediatric_study_indicator": "Indicate whether the study is a paediatric study, i.e. study in children",
-            "pediatric_postmarket_study_indicator": "Indicate whether the study is a paediatric post-market study, i.e. study in children done after initial approval of the compound being studied",
-            "pediatric_investigation_plan_indicator": "Indicate whether the study is part of a paediatric investigation plan (PIP), i.e. study in children",
+            "pediatric_study_indicator": "Indicate whether the study is a pediatric study, i.e. study in children",
+            "pediatric_postmarket_study_indicator": "Indicate whether the study is a pediatric post-market study, i.e. study in children done after initial approval of the compound being studied",
+            "pediatric_investigation_plan_indicator": "Indicate whether the study is part of a pediatric investigation plan (PIP), i.e. study in children",
             "stable_disease_min_duration": "The protocol specified minimum amount of time needed to meet the definition of stable disease",
             "relapse_criteria": "A standard from which a judgment concerning a disease relapse can be established. Ex. the NCI/Rome criteria is a standard for relapse in Acute Lymphoblastic Leukaemia",
             "number_of_expected_subjects": "The total number of subjects expected to be screened",
@@ -505,8 +505,8 @@
             "study_intent_type": "The planned purpose of the therapy, device, or agent under study in the clinical trial.",
             "intervention_model": "The general design of the strategy for assigning interventions to participants in a clinical study, e.g. Single Group: Clinical trials with a single arm, Parallel: Participants are assigned to one of two or more groups in parallel for the duration of the study, Crossover: Participants receive one of two (or more) alternative interventions during the initial phase of the study and receive the other intervention during the second phase of the study, Factorial: Two or more interventions, each alone and in combination, are evaluated in parallel against a control group, Group Sequential: Groups of participants are assigned to receive interventions based on prior milestones being reached in the study, such as in some dose escalation and adaptive design studies, ",
             "control_type": "Comparator against which the study treatment is evaluated. Active Control: A type of control, which has a demonstrated effect, administered as a comparator to subjects in a clinical trial, Dose Response Control: A type of control using different doses or regimens of the same treatment across the treatment arms, Placebo Control: An inactive, identical-appearing drug or treatment that does not contain the test product. ",
-            "randomised": "Indicate whether assignment of study participants to treatment or control groups was done by randomisation. Blinding is the process of assigning trial subjects to treatment or control groups using an element of chance to determine the assignments in order to reduce bias. NOTE: Unequal randomisation is used to allocate subjects into groups at a differential rate; for example, three subjects may be assigned to a treatment group for every one assigned to the control group.",
-            "strfactor": "Selected factors that are used during randomisation to ensure there is balance of these factors across all subjects within each arm of a study. The subject level values of these factors may be used as fixed effects in statistical models and for sensitivity analyses.  If applicable. Use as many rows as needed, one for each factor.",
+            "randomised": "Indicate whether assignment of study participants to treatment or control groups was done by randomization. Blinding is the process of assigning trial subjects to treatment or control groups using an element of chance to determine the assignments in order to reduce bias. NOTE: Unequal randomization is used to allocate subjects into groups at a differential rate; for example, three subjects may be assigned to a treatment group for every one assigned to the control group.",
+            "strfactor": "Selected factors that are used during randomization to ensure there is balance of these factors across all subjects within each arm of a study. The subject level values of these factors may be used as fixed effects in statistical models and for sensitivity analyses.  If applicable. Use as many rows as needed, one for each factor.",
             "blinding_schema": "The type of design used to describe the level of awareness of the study participants and/or investigators of the intervention(s) that they are receiving and/or administering. Double Blind: A study in which neither the subject nor the investigator nor the research team interacting with the subject or data during the trial knows what treatment a subject is receiving. Open Label: A trial in which subjects and investigators know which product each subject is receiving; opposite of a blinded or double-blind study, Open Label for Treatment And Double Blind to Dose: A study in which the therapeutic treatment is open label but the dosing information of the investigational medicinal product (IMP) is double-blinded, Single Blind: A study in which one party, either the investigator or the subject, does not know which medication or placebo is administered to the subject; also called single-masked study. ",
             "planned_st_length": "Planned length of observation for a single subject",
             "added_to_et": "The addition of a therapeutic product to the existing regimen in a clinical study, where both entities remain as discrete products"
@@ -536,8 +536,8 @@
             "arm_name": "Full label of the arm, e.g., Placebo.",
             "arm_short_name": "Abbreviated name of the arm, e.g., PBO",
             "arm_type": "Investigational: intervention being investigated; Comparator: intervention the investigational intervention is compared against; Placebo: choose when the comparator is placebo; Observational: no intervention is made.",
-            "arm_code": "An abbreviated code for the arm's interventions, e.g., AB for a crossover study with Drug A followed by Drug B; or PBO for a placebo arm.",
-            "randomisation_group": "The group assigned in the randomisation list, e.g. A=AB and B=BA from the randomisation list.",
+            "arm_code": "An abbreviated code for the arm's interventions, e.g., AB for a crossover study with Drug A followed by Drug B; PBO for a placebo arm.",
+            "randomisation_group": "The group assigned in the randomization list, e.g. A=AB and B=BA from the randomization list.",
             "planned_number": "The planned number of subjects in the arm.",
             "description": "(optional) A description of the arm."
         },
@@ -548,7 +548,7 @@
             "description": "Describe the overall purpose of the epoch",
             "start_rule": "Describe the rule for when the epoch is expected to start, e.g. a specific visit",
             "stop_rule": "Describe the rule for when the epoch is expected to end, e.g. a specific visit or when a certain goal is reached",
-            "color": "Choose a colour for the visualisation of the epoch on the study timeline view.",
+            "color": "Choose a color for the visualization of the epoch on the study timeline view.",
             "lag_ae": "Pending implementation",
             "adverse_event_lag": "Pending implementation",
             "epoch_duration_rule": "Pending implementation. ",
@@ -556,11 +556,11 @@
             "expected_epoch_duration": "Pending implementation. Derived based on time from first visit in this epoch to first visit in the following epoch"
         },
         "StudyElements": {
-            "el_name": "Long-label of the element, e.g. Standardised Meal",
+            "el_name": "Long-label of the element, e.g. Standardized Meal.",
             "el_short_name": "Abbreviated/short name for the element, e.g. STD MEAL",
             "el_sub_type": "From the drop-down select the type of element",
             "el_type": "Select element type (treatment/no treatment), will subset based on element sub-type selected.",
-            "colour": "Colour",
+            "colour": "Color",
             "description": "A description of the element"
         },
         "StudyEndpointTable": {
@@ -572,7 +572,7 @@
             "single_anchor_addtional": "Selection is applicable only if visit scheduling type is scheduled. For newly created visits by default the Single Visit radiobutton is selected. If visits need subgrouping, e.g. a set of days (Day 1, Day 2, Day 3) to be grouped into a one visit (Visit 3), then select Anchor visit in visit group. It will allow to create Visit 3 Day 1, which will be the local anchor visit for subsequent sub-visits. To add subsequent visits (Visit 3 Day 2, Visit 3 Day 3) then, while creating them, select Additional sub-visit radiobutton and appropriate anchor visit from the time reference drop-down. Repeating visits can typically be used for non-interventional studies, where participants return for the same visit multiple times during the study according to their individual needs (for example, one participant may come to visit 3 five times, while another may have 10 visits as visit 3). If there are any requirements about the repetition of such visits (daily, weekly, monthly), then it can be defined via the Repeating frequency item. If visits require a different frequency than those present on the pull-down list, then leave Repeating frequency item blank and provide the proper frequency by entering the details into the Visit description item.",
             "visit_type": "For definition of visit types see: Library, Code Lists, Sponsor, and filter Sponsor Preferred name=VisitType or Concept ID CTCodelist_000002 to review the terms. Additional Visit types can be requested via the Study Standards Developer. To create an information visit as Visit 0, use the Visit type=Information and set negative timing towards Global anchor visit. Visit types can be marked as SoA milestones in a study.",
             "contact_mode": "Specify how subject interacts with the study investigator at the visit.",
-            "anchor_visit": "If ticked, it will set visit timing to 0 days and define this visit as a global anchor (Day 1 of the study). Usually this refers to randomisation visit. There can be only one global anchor visit per study.",
+            "anchor_visit": "If ticked, it will set visit timing to 0 days and define this visit as a global anchor (Day 1 of the study). Usually this refers to randomization visit. There can be only one global anchor visit per study.",
             "current_anchor_visit": "It displays the visit that has been designated as Global anchor visit using the Anchor visit tick mark. If not set, then it will be left blank.",
             "time_reference": "Select the reference for the visit, e.g. reference to Global anchor visit or reference to the previous visit. For the first entered visit (e.g. Screening), the Global anchor visit can be selected as reference only. For Special Visit, time reference is indicating the visit name that the special visit is related to.",
             "time_value": "Please enter numeric value: negative or positive number to reflect how many days/weeks/years before/after the time reference does the visit occur. Time unit can bet set using the Time unit drop-down.",
@@ -588,7 +588,7 @@
             "epoch_allocation": "Observations at a visit might be affected by treatment administered in a previous epoch. Example: Baseline visit (in treatment epoch) where subjects are instructed to take first medication the next day will have measurements taken that represents 'Pre Treatment' epoch treatment, i.e. No treatment. In this case the Epoch Allocation Rule should be Previous Visit. In most cases the rule is Current Visit, i.e. measurements at this visit is measurements of the treatment (element) given in the epoch. The corresponding rules with Date is to be used for Non-visits and unscheduled visits. The Actual Treatment is used if the actual treatment of the subject at the visit is to be used instead of the planned treatment. Reach out to the study SDTM programmer for further information.",
             "visit_start_rule": "Enter visit start rule. Describe when the visit starts, in relation to the sequence of elements, e.g. 2 weeks after start of Treatment Epoch",
             "visit_stop_rule": "Enter visit stop rule. Describe when the visit ends, in relation to the sequence of elements e.g. At End of Trial",
-            "duplicate_visit": "To create new visit that will be a copy of the previously defined visit, click on 3 dots next to the row of the visit that you want to copy and select Duplicate. Specify the timing and timing unit for newly created visit. The time reference is the same as for the visit being copied from. E.g. if for the visit 7 that you are copying the Time reference is Global anchor visit and timing set to 7 days, then new visit, visit 8, with timing selected as 8 days is taking place 8 days after global anchor visit. Note, you cannot duplicate global anchor visit (e.g. very often this is randomisation visit)."
+            "duplicate_visit": "To create new visit that will be a copy of the previously defined visit, click on 3 dots next to the row of the visit that you want to copy and select Duplicate. Specify the timing and timing unit for newly created visit. The time reference is the same as for the visit being copied from. E.g. if for the visit 7 that you are copying the Time reference is Global anchor visit and timing set to 7 days, then new visit, visit 8, with timing selected as 8 days is taking place 8 days after global anchor visit. Note, you cannot duplicate global anchor visit (e.g. very often this is randomization visit)."
         },
         "StudyVisitDuplicate": {
             "time_value": "Numeric. Negative or Positive number of e.g. days before/after the time reference does the visit occur. Note: the reference is the same as the visit being copied from. Time unit can bet set using the Time Unit drop-down.",
@@ -622,8 +622,8 @@
         "StudyStructure": {
             "general": "The structure describes what kind of planned investigational intervention (e.g. drug treatment, surgery, exercise) will be done to subjects in the course of the trial. Follow the tabs to complete the definition of the Study Design. Note, you must define Epochs before study Visits can be made.",
             "study_arms": "Specification of the planned investigational treatment arms. An arm is a planned 'path' of interventions through the trial, e.g. arm AB is treatment A followed by treatment B.",
-            "study_branches": "The decision points where subjects are divided into separate treatment groups. For a simple parallel or cross-over design subject are branched into treatment arms at randomisation. i.e. have one branch decision point. A study can have more branching points if e.g. subjects are assigned to a recover treatment after initial randomisation. This second decision point could be based on a responsiveness to treatment. ",
-            "study_cohorts": "A group of individuals who share a common exposure, experience or characteristic or a group of individuals followed-up or traced over time in a cohort study. Example could be first human dose-escalation studies where increasing doses are given until stopping criteria are met. Some dose-escalation studies enroll a new cohort of subjects (a new group of subjects) for each new dose. Cohorts are also used for observational studies where no randomisation takes place or single arm randomised study. Then cohorts are being defined based on some characteristics and comparisons are made between the different cohorts, e.g. treatment of a drug in subjects with a liver disease compared to a group of healthy subjects. Cohorts are not the same as strata. Stratification is the process of dividing members of the population into homogeneous subgroups before sampling/randomisation. If the study with liver diseased and healthy subjects had to examine the effect of a drug compared to placebo then liver diseased/healthy would be a stratification factor, since it is expected that the treatment responses will be different in the two groups. Stratification is made to ensure homogeneity of the groups in which the treatments are being compared.",
+            "study_branches": "The decision points where subjects are divided into separate treatment groups. For a simple parallel or cross-over design subject are branched into treatment arms at randomization. i.e. have one branch decision point. A study can have more branching points if e.g. subjects are assigned to a recover treatment after initial randomization. This second decision point could be based on a responsiveness to treatment. ",
+            "study_cohorts": "A group of individuals who share a common exposure, experience or characteristic or a group of individuals followed-up or traced over time in a cohort study. Example could be first human dose-escalation studies where increasing doses are given until stopping criteria are met. Some dose-escalation studies enroll a new cohort of subjects (a new group of subjects) for each new dose. Cohorts are also used for observational studies where no randomization takes place or single arm randomized study. Then cohorts are being defined based on some characteristics and comparisons are made between the different cohorts, e.g. treatment of a drug in subjects with a liver disease compared to a group of healthy subjects. Cohorts are not the same as strata. Stratification is the process of dividing members of the population into homogeneous subgroups before sampling/randomization. If the study with liver diseased and healthy subjects had to examine the effect of a drug compared to placebo then liver diseased/healthy would be a stratification factor, since it is expected that the treatment responses will be different in the two groups. Stratification is made to ensure homogeneity of the groups in which the treatments are being compared.",
             "study_epochs": "The study epoch is a period of time that serves a purpose in the trial, e.g. Screening, Treatment, Follow-up. The purpose of ex. a Treatment epoch will be to expose subjects to a treatment.",
             "study_elements": "An element is the basic building block of intervention. It can be both a treatment (Drug A/ Placebo) or no treatment (Screening, Wash-out, Follow-up)",
             "study_visits": "A clinical encounter where the the subject interacts with the investigator. There can be one more visits in an Epoch. To edit visit(s) in the table view click on the pencil in the top-right menu.",
@@ -635,11 +635,11 @@
             "study_arm": "Select the study arm in which the branching applies.",
             "branch_arm_name": "Specify the long name of the branch, example: 'Responders' or 'Non-responders'",
             "branch_arm_short_name": "The short name of the branch arm, example: 'Resp' or 'Non-Resp'",
-            "randomisation_group": "Specify the randomisation group defined for this Arm/branch Arm combination.",
-            "code": "Auto-populated based on Randomisation group",
+            "randomisation_group": "Specify the randomization group defined for this Arm/branch Arm combination.",
+            "code": "Auto-populated based on Randomization group",
             "nuber_of_subjects": "The planned number of subjects in the branch. Note that cannot be larger than the number of subject defined for the arm. ",
             "description": "A description of the branch, e.g. for the responder: HbA1c < 45 mmol/L after 4 weeks",
-            "colour": "Select the colour for this branch (will be displayed in the design matrix)."
+            "colour": "Select the color for this branch (will be displayed in the design matrix)."
         },
         "StudyCohorts": {
             "study_arm": "Select the study arm in which the cohort applies.",
@@ -649,7 +649,7 @@
             "cohort_code": "A short code for the cohort.",
             "nuber_of_subjects": "The planned number of subjects in the cohort. Note that cannot be larger than the number of subject defined for the arm/branch arm.",
             "description": "A description of the cohort, e.g. Liver disease as defined by Child-Pugh score Class B+C",
-            "colour": "Select the colour for this cohort (will be displayed in the design matrix)."
+            "colour": "Select the color for this cohort (will be displayed in the design matrix)."
         },
         "StudyPopulationTable": {
             "general": "Overall specification of the participants that will be recruited to the study"
@@ -685,7 +685,7 @@
             "general": "The dashboard provides an overview of the activities (Added/Updated/Deleted) performed on code lists and their terms. The latests code lists being added is listed in the bottom table."
         },
         "CtCataloguesTable": {
-            "general": "The CT Catalogues displays latest version of all CDISC and Sponsor code lists and terms. Navigate using the tabs in the top of the page to show specific subsets of terminology. Use All to display all code lists. Tip: right-click on the tabs to open the CT in a new window/tab.",
+            "general": "The CT Catalogs display the latest version of all CDISC and Sponsor code lists and terms. Navigate using the tabs in the top of the page to show specific subsets of terminology. Use All to display all code lists. Tip: right-click on the tabs to open the CT in a new window/tab.",
             "ADAM_CT": "Analysis Data Model Controlled Terminology. Controlled terminology used for Statistical Analysis Data.",
             "CDASH_CT": "Clinical Data Acquisition Standards Harmonization Controlled Terminology. Controlled terminology used for data collection, e.g. eCRF/Forms.",
             "COA CT": "Clinical Outcome Assessment Controlled Terminology. COA is a measure that describes or reflects how a patient feels, functions, or survives. COAs include the following types of analytical instruments: Clinician-reported outcome (ClinRO), Observer-reported outcome (ObsRO), Patient-reported outcome (PRO), Performance outcome (PerfO)",
@@ -813,11 +813,11 @@
             "activity_list": "From this tab add the activities for the study. To add an activity use the + button",
             "detailed_flowchart": "Once activities are added, go to detailed SoA to select which visits the activities occur.",
             "protocol_flowchart": "Displays the rendered SoA as it will look in the protocol",
-            "activity_instructions": "Tab for specification of instructions for an activity. E.g. Study drug must be given the next day after randomisation"
+            "activity_instructions": "Tab for specification of instructions for an activity. E.g. Study drug must be given the next day after randomization"
         },
         "StudyActivity": {
             "general": "A 'Study Activity' is an assessment or procedure performed on a subject in a clinical study. The menu option 'Study Activities' is where you administer/select the activities needed for your study and the group them, you assign them to relevant visits, and specify how it should be in the protocol view of the Schedule of Activity (SoA). You can also attach footnotes to the SoA, control the SoA header row and preview different detail levels of the SoA.",
-            "settings": "The 'Settings' option allow you to control the time unit (days/weeks) for the SoA and whether or not you need baseline visit (eg. randomisation) shown as time 0",
+            "settings": "The 'Settings' option allow you to control the time unit (days/weeks) for the SoA and whether or not you need baseline visit (eg. randomization) shown as time 0",
             "study_activities": "The activities can be selected from the library, from other studies or activity placeholders can be created for requesting new activities.",
             "detailed_soa": "The Detailed SoA is where you define at what visit(s) an activity is needed. The SoA has four levels: <br /> 1) SoA group <br /> 2) Activity group <br /> 3) Activity subgroup <br /> 4) Activity <br /> Click the circle to select or unselect that an activity should be done at that visit. Click the eye icon to toggle the visibility of an activity level in the Protocol SoA. If an activity level is hidden, the timings ticked will 'inherit up' a level, so you can hide the Activity and Activity subgroup level to just include the Activity group in the Protocol SoA (for example you might want to hide e.g. 'Height' and 'Weight' and just include 'Body measurements' in the Protocol SoA).",
             "detailed_soa_actions": "Use the ellipsis (three dots) to the left of an activity to access these: <br /><b> Edit Activity: </b> Adjust details in an activity. <br /><b> Add Activity: </b>Add an activity above the selected activity (you can change the order of activities from the 'Study Activities' tab). <br /><b> Exchange Activity: </b> Replace an activity with a new activity while keeping visits and footnotes in the detailed SoA. <br /><b> Remove Activity: </b> Remove the activity, any visits and references to footnotes that have been added to this activity. A removed activity can be added again under the ‘Study Activities’ tab. Footnotes will not be removed, so can be linked to again.",
@@ -856,7 +856,7 @@
             "study_status": "Study Status",
             "study_sub_parts": "Study Sub-parts",
             "protocol_version": "Protocol Version",
-            "core_attributes_body": "Specification of the core attributes for a study, being relationship to clinical programme and project, study number (will be linked to the Study ID) and the Study Acronym.<br><br>When a study have not yet been locked it can be deleted from this page, this will be a soft delete and the study will be listed under Deleted studies on the Study List menu.<br> Note the history displayed from this page is actually the overall history for the study definition.",
+            "core_attributes_body": "Specification of the core attributes for a study, being relationship to clinical program and project, study number (will be linked to the Study ID) and the Study Acronym.<br><br>When a study have not yet been locked it can be deleted from this page, this will be a soft delete and the study will be listed under Deleted studies on the Study List menu.<br> Note the history displayed from this page is actually the overall history for the study definition.",
             "content_line_1": "A study definition instance can have the following status:",
             "content_line_2": "<strong>Draft</strong>, refer to the current instance that can be edited.",
             "content_line_3": "<strong>Released</strong>, refer to a minor version of a stable instance (snapshot) for downstream testing and review.",
@@ -884,28 +884,28 @@
             "creation_mode_label": "Select the type of method for creating a footnote: use a standard, from an existing study, or make one form scratch."
         },
         "ProjectForm": {
-            "general": "Add a new project to a clinical programme.",
+            "general": "Add a new project to a clinical program.",
             "name": "Name for the new project, example: 'Demo Project'.",
             "project_number": "Project ID for the new project, example: 'AB1234'.",
             "description": "Description of the project, example: 'Project for demonstration purposes'.",
-            "clinical_programme": "Clinical programme that the project belongs to."
+            "clinical_programme": "Clinical program that the project belongs to."
         },
         "ClinicalProgrammeForm": {
-            "general": "Add a new clinical programme.",
-            "name": "Name for the new clinical programme."
+            "general": "Add a new clinical program.",
+            "name": "Name for the new clinical program."
         },
         "UsdmPage": {
             "general": "This page display the JSON file generated based on the  Digital Data Flow (DDF) CDISC / TransCelerate Unified Study Definitions Model (USDM). The data available here are extracted and converted into the USDM model, based on mapping rules defined within the StudyBuilder team: Be aware about that.",
             "official_protocol_title": "The formal descriptive name for the protocol.",
             "clinical_study_def": "A clinical study involves research using human volunteers (also called participants) that is intended to add to medical knowledge. There are two main types of clinical studies: clinical trials (also called interventional studies) and observational studies. [[http://ClinicalTrials.gov]](CDISC Glossary)",
             "study_protocol_version": "A plan at a particular point in time for a formal investigation to assess the utility, impact, pharmacological, physiological, and/or psychological effects of a particular treatment, procedure, drug, device, biologic, food product, cosmetic, care plan, or subject characteristic. (BRIDG)",
-            "protocol_status": "A condition of the protocol at a point in time with respect to its state of readiness for implementation. See [<a href='/library/ct_catalogues/All/C188723/terms'>C188723-CDISC DDF Protocol Status Value Set Terminology</a>]",
+            "protocol_status": "A condition of the protocol at a point in time with respect to its state of readiness for implementation. See [<a href='/library/ct_catalogs/All/C188723/terms'>C188723-CDISC DDF Protocol Status Value Set Terminology</a>]",
             "study_design": "A plan detailing how a study will be performed in order to represent the phenomenon under examination, to answer the research questions that have been asked, and informing the statistical approach.",
-            "organization_type": "A characterisation or classification of the formalised group of persons or other organisations collected together for a common purpose (such as administrative, legal, political) and the infrastructure to carry out that purpose. See [<a href='/library/ct_catalogues/All/C188724/terms'>C188724-CDISC DDF Organization Type Value Set Terminology</a>]",
-            "trial_type": "The nature of the interventional study for which information is being collected. See [<a href='/library/ct_catalogues/All/C66739/terms'>C66739-CDISC SDTM Trial Type Terminology</a>]",
-            "intervention_model_type": "The general design of the strategy for assigning interventions to participants in a clinical study. (clinicaltrials.gov). See [<a href='/library/ct_catalogues/All/C99076/terms'>C99076-CDISC SDTM Intervention Model Terminology</a>]",
+            "organization_type": "A characterization or classification of the formalized group of persons or other organizations collected together for a common purpose (such as administrative, legal, political) and the infrastructure to carry out that purpose. See [<a href='/library/ct_catalogs/All/C188724/terms'>C188724-CDISC DDF Organization Type Value Set Terminology</a>]",
+            "trial_type": "The nature of the interventional study for which information is being collected. See [<a href='/library/ct_catalogs/All/C66739/terms'>C66739-CDISC SDTM Trial Type Terminology</a>]",
+            "intervention_model_type": "The general design of the strategy for assigning interventions to participants in a clinical study. (clinicaltrials.gov). See [<a href='/library/ct_catalogs/All/C99076/terms'>C99076-CDISC SDTM Intervention Model Terminology</a>]",
             "therapeutic_areas": "A categorization of a disease, disorder, or other condition based on common characteristics and often associated with a medical specialty focusing on research and development of specific therapeutic interventions for the purpose of treatment and prevention.",
-            "trial_blinding_schema": "The type of experimental design used to describe the level of awareness of the study subjects and/ or study personnel as it relates to the respective intervention(s) or assessments being observed, received or administered. See [<a href='/library/ct_catalogues/All/C66735/terms'>C66735-CDISC SDTM Trial Blinding Schema Terminology</a>]",
+            "trial_blinding_schema": "The type of experimental design used to describe the level of awareness of the study subjects and/ or study personnel as it relates to the respective intervention(s) or assessments being observed, received or administered. See [<a href='/library/ct_catalogs/All/C66735/terms'>C66735-CDISC SDTM Trial Blinding Schema Terminology</a>]",
             "target_study_population": "The population within the general population to which the study results can be generalized."
         },
         "StudyStructuresOverview": {
@@ -941,23 +941,23 @@
         "codelist_description": "Find the CDISC controlled terminology, including the code lists, the valid values and associated definitions for each code list and the evolution in packages and terms over time. Sponsor defined list and terms are also included.",
         "dictionaries_description": "Find relevant external dictionaries and thesaurus for clinical development such as SNOMED, MedDRA, MED-RT, UNII, LOINC, UCUM. Since some of these dictionaries are very large, only selected terms relevant for the Novo Nordisk pipeline are included.",
         "concepts_description": "Find controlled listings of the terms to use for generic concepts such as units, activities, compounds and CRFs.",
-        "syntax_templates_description": "View (or manage) the different syntax templates used for specifying the objectives, the endpoints, the eligibility, randomisation, dosing and other criteria for the individual studies. Only templates in status Final can be used under Studies.",
+        "syntax_templates_description": "View (or manage) the different syntax templates used for specifying the objectives, the endpoints, the eligibility, randomization, dosing and other criteria for the individual studies. Only templates in status Final can be used under Studies.",
         "template_instantiations_description": "See how the different templates are used in the studies, including number of studies using a specific syntax and which studies.",
         "template_collections_description": "Find relevant template collections for project templates, shared templates and supporting templates.",
         "data_exchange_standards_description": "See the complete master model for the following CDISC data exchange standards: CDASH, SDTM and ADaM.",
         "list_description": "Find listings of all codes list and terms for controlled terminology, dictionaries, concepts as well as the data exchange standards, in both new and legacy format.",
         "process_overview_description": "Find schematic overviews of the activities covered under the Library. You can use these to navigate to the relevant pages to enter or look up information.",
         "projects": "View or create projects.",
-        "clinical_programmes": "View or create clinical programmes.",
+        "clinical_programmes": "View or create clinical programs.",
         "administrative_definitions": "View or create administrative definitions.",
-        "overview_pages_description": ""
+        "overview_pages_description": "See high-level summaries of Library sections with quick navigation to detailed pages."
     },
     "Studies": {
         "description_top_before": "Under ",
         "description_top_after": " you create your study",
         "description_bottom": "and define all structured study design elements",
         "manage_description": "Register new studies in the application and manage the life-cycle of these.",
-        "dashboard_description": "Shows an overview of the study with status information and quick links to manage design elements.",
+        "dashboard_description": "Review key study details and quickly access actions to define, build, and monitor your studies from one convenient dashboard.",
         "define_description": "Specify the design, interventions, study population, objectives, visit structure, schedule of activities and activity, etc. by using controlled terminology and syntax templates or by reusing content from other studies.",
         "build_description": "Preview the study information (entered e.g. under Define Study), but compiled for different downstream usages, e.g. for import into the protocol template, for upload to external registries, for population of the SDTM study design datasets, for CRF design, etc. ",
         "select_description": "Find, edit and add studies.",
@@ -1021,7 +1021,7 @@
             "unii": "UNII",
             "loinc": "LOINC",
             "ucum": "UCUM",
-            "ct_catalogues": "CT Catalogues",
+            "ct_catalogues": "CT Catalogs",
             "ct_packages": "CT Packages",
             "objective_instances": "Objective Instances",
             "endpoint_instances": "Endpoint Instances",
@@ -1060,7 +1060,7 @@
             "adam_std_cst": "ADaM Standards (CST)",
             "adam_std_new": "ADaM Standards (New)",
             "process_overview": "Process Overview",
-            "clinical_programmes": "Clinical Programmes",
+            "clinical_programmes": "Clinical Programs",
             "projects": "Projects",
             "administrative_definitions": "Admin Definitions",
             "overview_pages": "Overview Pages",
@@ -1103,8 +1103,8 @@
             "eudra_ct": "EudraCT",
             "who_ictrp": "WHO ICTRP",
             "trial_supplies_spec": "Trial Supplies Specifications",
-            "randomisation_criteria": "Randomisation Criteria",
-            "standarisation_plan": "Standarisation Plan",
+            "randomisation_criteria": "Randomization Criteria",
+            "standarisation_plan": "Standardization Plan.",
             "protocol_elements": "Protocol Elements",
             "flow_chart": "SoA",
             "objective_endpoints_estimands": "Objectives and Endpoints",
@@ -1236,7 +1236,7 @@
     },
     "CtCataloguesTable": {
         "title": "Objective templates",
-        "singular_title": "CT Catalogue",
+        "singular_title": "CT Catalog",
         "rot_uri": "Root objective",
         "actions": "Actions",
         "approve_success": "Template is now in Final state",
@@ -1244,7 +1244,7 @@
         "inactivate_success": "Template inactivated",
         "reactivate_success": "Template reactivated",
         "history": "Show template history",
-        "add_objective_template": "Add a new CT Catalogue",
+        "add_objective_template": "Add a new CT Catalog",
         "new_version_default_description": "New version"
     },
     "CTTermDisplay": {
@@ -1347,11 +1347,11 @@
         "update_success": "Footnote template pre-instantiation updated"
     },
     "CtCataloguesForm": {
-        "add_title": "Add a new CT Catalogue",
-        "edit_title": "Edit CT Catalogue",
+        "add_title": "Add a new CT Catalog",
+        "edit_title": "Edit CT Catalog",
         "library_label": "Library",
         "name_label": "Template",
-        "name_hint": "Add parameters enclosed in square brackets [ and ]. I.e. 'To document the safety profile of [StudyIntervention].'",
+        "name_hint": "Add parameters enclosed in square brackets [ ]. I.e. 'To document the safety profile of [StudyIntervention].'",
         "add_success": "Objective template added",
         "update_success": "Objective template updated"
     },
@@ -1380,7 +1380,7 @@
         "arm_type": "Arm Type",
         "branch_code": "Branch Code",
         "planned_number": "Planned number of subjects in branch",
-        "rand_group": "Randomisation group",
+        "rand_group": "Randomization group",
         "element_subtype": "Element Subtype",
         "start_rule": "Start Rule",
         "end_rule": "End Rule",
@@ -1393,7 +1393,7 @@
         "planned_duration": "Planned duration",
         "for_study": "for Study",
         "history": "history",
-        "catalogue_name": "Catalogue Name",
+        "catalogue_name": "Catalog Name",
         "sponsor_pref_name": "Sponsored Preferred Name",
         "code_submission_value": "Code Submission Value",
         "name_submission_value": "Name Submission Value",
@@ -1506,7 +1506,7 @@
         "title": "Manage Studies"
     },
     "StudyTable": {
-        "clinical_programme": "Clinical Programme",
+        "clinical_programme": "Clinical Program",
         "project_id": "Project ID",
         "project_name": "Project name",
         "id": "Study ID",
@@ -1585,7 +1585,7 @@
         "update_success": "Study Type updated",
         "drug_study_indicator": "FDA-regulated drug study indicator",
         "device_study_indicator": "FDA-regulated device study indicator",
-        "post_auth_safety_indicator": "Post authorisation safety study indicator",
+        "post_auth_safety_indicator": "Post authorization safety study indicator",
         "confirmed_resp_min_duration": "Confirmed response minimum duration",
         "none": "NONE"
     },
@@ -1625,9 +1625,9 @@
         "planned_min_max_age": "Minimum and maximum age of study participants",
         "planned_min_age": "Planned minimum age of study participants",
         "planned_max_age": "Planned maximum age of study participants",
-        "pediatric_study_indicator": "Paediatric study indicator",
-        "pediatric_postmarket_study_indicator": "Paediatric post-market study indicator",
-        "pediatric_investigation_plan_indicator": "Paediatric investigation plan indicator",
+        "pediatric_study_indicator": "Pediatric study indicator",
+        "pediatric_postmarket_study_indicator": "Pediatric post-market study indicator",
+        "pediatric_investigation_plan_indicator": "Pediatric investigation plan indicator",
         "update_success": "Study population updated",
         "stable_disease_min_duration": "Stable disease minimum duration",
         "relapse_criteria": "Relapse criteria",
@@ -1643,9 +1643,9 @@
         "study_intent_type": "Study intent type",
         "intervention_model": "Intervention model",
         "control_type": "Control type",
-        "randomised": "Study is randomised",
+        "randomised": "Study is randomized",
         "strfactor": "Stratification factor",
-        "rdquotient": "Randomisation quotient",
+        "rdquotient": "Randomization quotient",
         "blinding_schema": "Study blinding schema",
         "planned_st_length": "Planned study length",
         "added_to_et": "Add-on to existing treatments",
@@ -1757,7 +1757,7 @@
         "title": "Objective Templates"
     },
     "CtCataloguesView": {
-        "title": "CT Catalogues"
+        "title": "CT Catalogs"
     },
     "StudyEndpointsTable": {
         "endpoint_title": "Endpoint title",
@@ -2194,7 +2194,7 @@
         "tab3_title": "Data Exchange"
     },
     "CTStandardVersionsTable": {
-        "ct_catalogue": "CT Catalogue",
+        "ct_catalogue": "CT Catalog",
         "cdisc_ct_package": "CDISC CT Package",
         "sponsor_ct_package": "Sponsor CT Package",
         "automatically_created": "Automatically created",
@@ -2345,10 +2345,10 @@
     },
     "CodelistCreationForm": {
         "title": "Add sponsor code list",
-        "step1_title": "Select catalogue",
+        "step1_title": "Select catalog",
         "step2_title": "Manage sponsor preferred name",
         "step3_title": "Manage code list attribute values",
-        "catalogue": "Catalogue",
+        "catalogue": "Catalog",
         "add_success": "Code list added"
     },
     "CodelistTermsView": {
@@ -2681,7 +2681,7 @@
     },
     "SponsorCTPackageForm": {
         "title": "Sponsor CT Package creation",
-        "catalogue_label": "Select a CDISC CT catalogue",
+        "catalogue_label": "Select a CDISC CT catalog",
         "package_label": "Select a CDISC CT package",
         "creation_success": "Sponsor CT package created"
     },
@@ -2750,7 +2750,7 @@
     "EligibilityCriteriaForm": {
         "add_inclusion_criteria": "Add inclusion criteria",
         "add_exclusion_criteria": "Add exclusion criteria",
-        "add_randomisation_criteria": "Add randomisation criteria",
+        "add_randomisation_criteria": "Add randomization criteria",
         "add_dosing_criteria": "Add dosing criteria",
         "add_withdrawal_criteria": "Add withdrawal criteria",
         "add_runin_criteria": "Add run-in criteria",
@@ -2939,7 +2939,7 @@
         "end_rule": "End rule",
         "visit_count": "Number of visits",
         "history_title": "Study Epoch",
-        "colour": "Assigned colour",
+        "colour": "Assigned color",
         "delete_success": "Epoch deleted",
         "epoch_linked_to_visits_warning": "Epoch '{epoch}' cannot be deleted since one or more visits have already been assigned to the epoch",
         "global_history_title": "Study epochs history",
@@ -2957,7 +2957,7 @@
         "order": "Order",
         "add_success": "Epoch added",
         "update_success": "Epoch updated",
-        "color": "Background colour (used in timeline view)",
+        "color": "Background color (used in timeline view)",
         "name": "Epoch name",
         "epoch_number": "Epoch number",
         "epoch_type": "Epoch type",
@@ -3071,7 +3071,7 @@
         "study_protocol_version": "Study Protocol Version [C93490]",
         "protocol_status": "Protocol Status [C188818]",
         "study_design": "Study Design [C15320]",
-        "organization_type": "Organisation Type [C188820]",
+        "organization_type": "Organization Type [C188820]",
         "trial_type": "Trial Type [C49660]",
         "intervention_model_type": "Intervention Model Type [C98746]",
         "therapeutic_areas": "Therapeutic Areas [C101302]",
@@ -3136,7 +3136,7 @@
         "inclusion_criteria": "Inclusion Criteria",
         "exclusion_criteria": "Exclusion Criteria",
         "runin_criteria": "Run-in Criteria",
-        "randomisation_criteria": "Randomisation Criteria",
+        "randomisation_criteria": "Randomization Criteria",
         "dosing_criteria": "Dosing Criteria",
         "withdrawal_criteria": "Withdrawal Criteria",
         "other_criteria": "Other Criteria",
@@ -3167,7 +3167,7 @@
         "study_id": "Study ID",
         "study_acronym": "Study acronym",
         "status": "Study status",
-        "clinical_programme": "Clinical programme",
+        "clinical_programme": "Clinical program",
         "project_id": "Project ID",
         "acronym": "Study acronym",
         "title": "Study title",
@@ -3175,7 +3175,7 @@
     },
     "CTDashboardView": {
         "title": "Code Lists and Terms Dashboard",
-        "catalogue_count": "# of catalogues:",
+        "catalogue_count": "# of catalogs:",
         "package_count": "# of packages:",
         "cdisc_codelist_count": "# of code lists in CDISC library:",
         "sponsor_codelist_count": "# of code lists in Sponsor library:",
@@ -3484,7 +3484,7 @@
         "name": "Arm name",
         "short_name": "Arm short name",
         "code": "Arm code",
-        "randomisation_group": "Randomisation group",
+        "randomisation_group": "Randomization group",
         "number_of_subjects": "Number of subjects",
         "connected_branches": "Connected Branches",
         "description": "Description",
@@ -3503,7 +3503,7 @@
         "arm_short_name": "Arm short name",
         "arm_type": "Study arm type",
         "arm_code": "Arm code",
-        "randomisation_group": "Randomisation group",
+        "randomisation_group": "Randomization group",
         "planned_number": "Planned number of subjects",
         "description": "Description",
         "arm_created": "Study Arm created",
@@ -3572,7 +3572,7 @@
         "inclusion_criteria_tab": "Inclusion Criteria tab",
         "exclusion_criteria_tab": "Exlusion Criteria tab",
         "runin_criteria_tab": "Run-in Criteria tab",
-        "randomisation_criteria_tab": "Randomisation Criteria tab",
+        "randomisation_criteria_tab": "Randomization Criteria tab",
         "dosing_criteria_tab": "Dosing Criteria tab",
         "withdrawal_criteria_tab": "Withdrawal Criteria tab",
         "criteria_defined": "Criteria defined:",
@@ -3599,7 +3599,7 @@
         "activities_no_instructions": "Activities with no instructions:",
         "specification_tab": "Specification tabs:",
         "completed": "Completed:",
-        "in_progres": "In progres:",
+        "in_progres": "In progress:",
         "not_started": "Not started:",
         "not_applicable": "Not applicable:",
         "subject_info": "SUBJECT",
@@ -3623,7 +3623,7 @@
         "el_end_rule": "Element End Rule",
         "study_element": "Study Element",
         "el_deleted": "Study element deleted",
-        "colour": "Colour",
+        "colour": "Color",
         "add_el": "Add study element",
         "edit_el": "Edit study element",
         "el_created": "Study element created",
@@ -3775,7 +3775,7 @@
         "short_name": "Branch arm short name",
         "arm_name": "Arm name",
         "code": "Branch Code",
-        "randomisation_group": "Randomisation group",
+        "randomisation_group": "Randomization group",
         "number_of_subjects": "Number of subjects",
         "description": "Description",
         "branch_deleted": "Branch Arm deleted",
@@ -3789,7 +3789,7 @@
         "branch_created": "Branch Arm created",
         "branch_updated": "Branch Arm updated",
         "add_arm": "Add study arm",
-        "colour": "Colour",
+        "colour": "Color",
         "study_branch_arm": "Study Branch Arm",
         "subjects_exceeded": "The total number of Subjects in branch Arms to the Study Arm is exceeding the number of subjects in the main Study Arm. Please adjust.",
         "value_less_then": "Value must be less than",
@@ -3801,7 +3801,7 @@
     "StudyCohorts": {
         "code": "Code",
         "number_of_subjects": "Number of subjects",
-        "colour": "Colour",
+        "colour": "Color",
         "cohort_deleted": "Cohort deleted",
         "cohort_updated": "Study Cohort updated",
         "cohort_created": "Study Cohort created",
@@ -4162,16 +4162,16 @@
         "headerActivityInstanceClass": "Activity Instance class",
         "headerTopicCode": "Topic code",
         "headerAdamParamCode": "Adam parameter code"
-  },
-  "activityItemsTable": {
+    },
+    "activityItemsTable": {
         "exportLabel": "Activity Items",
         "noItemsFound": "No activity items found",
         "noItemsAvailable": "No activity items available",
         "headerDataType": "Data type",
         "headerName": "Name",
         "headerActivityItemClass": "Activity Item Class"
-  },
-  "activitySummary": {
+    },
+    "activitySummary": {
         "dataCollection": "Data collection"
     },
     "YamlViewer": {
@@ -4321,18 +4321,18 @@
         "reply_delete_approve": "Are you sure you want to delete this reply?"
     },
     "ClinicalProgrammesView": {
-        "title": "Clinical Programmes"
+        "title": "Clinical Programs"
     },
     "ClinicalProgrammes": {
         "name": "Name",
-        "add_success": "Clinical programme added",
-        "update_success": "Clinical programme updated",
-        "confirm_delete": "The clinical programme '{programme}' will be deleted",
-        "delete_success": "Clinical programme deleted"
+        "add_success": "Clinical program added",
+        "update_success": "Clinical program updated",
+        "confirm_delete": "The clinical program '{program}' will be deleted",
+        "delete_success": "Clinical program deleted"
     },
     "ClinicalProgrammeForm": {
-        "add_title": "Add clinical programme",
-        "edit_title": "Edit clinical programme",
+        "add_title": "Add clinical program",
+        "edit_title": "Edit clinical program",
         "name": "Name"
     },
     "ProjectsView": {
@@ -4342,7 +4342,7 @@
         "name": "Name",
         "project_number": "Project ID",
         "description": "Description",
-        "clinical_programme": "Clinical programme",
+        "clinical_programme": "Clinical program",
         "add_success": "Project added",
         "update_success": "Project updated",
         "confirm_delete": "The project '{project}' will be deleted",
@@ -4354,7 +4354,7 @@
         "name": "Name",
         "project_number": "Project ID",
         "description": "Description",
-        "clinical_programme": "Clinical programme"
+        "clinical_programme": "Clinical program"
     },
     "StudySubparts": {
         "study_id": "Study ID",
@@ -4460,7 +4460,7 @@
         "exc_criteria": "Exclusion Criteria",
         "download_xml": "Download .XML",
         "intent_type": "Study Intent Type",
-        "study_randomised": "Study is randomised",
+        "study_randomised": "Study is randomized",
         "arm_title": "Arm Title",
         "outcome_measure": "Outcome Measure"
     },
