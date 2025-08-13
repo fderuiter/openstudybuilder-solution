@@ -595,10 +595,10 @@
             "time_unit": "The time unit for the timing of the visit"
         },
         "Settings": {
-            "rows": "The default number of rows displayed per page in tables throughout the user interface.",
-            "study_number_length": "The number of digits in the study id, e.g. 4 if study id is of type e.g PROT-2739. This is for verifying correct study ids.",
-            "toggle": "Slide to change either dark of light theme of the user interface.",
-            "multilingual_crf": "Slide if you require CRF to handle multiple languages."
+            "rows": "Die standardmäßige Anzahl von Zeilen, die pro Seite in Tabellen in der Benutzeroberfläche angezeigt werden.",
+            "study_number_length": "Die Anzahl der Ziffern in der Studien-ID, z. B. 4 bei einer Studien-ID vom Typ PROT-2739. Dies dient zur Überprüfung korrekter Studien-IDs.",
+            "toggle": "Schieberegler zum Wechseln zwischen dunklem und hellem Design der Benutzeroberfläche.",
+            "multilingual_crf": "Schieberegler, falls das CRF mehrere Sprachen unterstützen soll."
         },
         "StudyCriteriaTable": {
             "general": "Study eligibility criteria as would be described in the protocol",
@@ -673,10 +673,10 @@
             "general": "Specify the relevant study identifiers. Click on the pencil to add value. Tick NA if not relevant"
         },
         "ProtocolElementsTable": {
-            "general": "Help text to be added."
+            "general": "Hilfetext wird noch hinzugefügt."
         },
         "SdtmSpecificationTable": {
-            "general": "Help text to be added."
+            "general": "Hilfetext wird noch hinzugefügt."
         },
         "StudyActivityTable": {
             "general": "You can choose from 3 different options:<br><b> Select from studies: </b> Selection of activities from existing studies.<br><b>Select from library: </b>Selection of activities from the library<br><b>Create a placeholder for new activity Request: </b> If your activity is not available within the library you can create a placeholder for your missing activity and request it later."
@@ -817,7 +817,7 @@
         },
         "StudyActivity": {
             "general": "A 'Study Activity' is an assessment or procedure performed on a subject in a clinical study. The menu option 'Study Activities' is where you administer/select the activities needed for your study and the group them, you assign them to relevant visits, and specify how it should be in the protocol view of the Schedule of Activity (SoA). You can also attach footnotes to the SoA, control the SoA header row and preview different detail levels of the SoA.",
-            "settings": "The 'Settings' option allow you to control the time unit (days/weeks) for the SoA and whether or not you need baseline visit (eg. randomisation) shown as time 0",
+            "settings": "Die Option 'Einstellungen' ermöglicht die Steuerung der Zeiteinheit (Tage/Wochen) für das SoA und ob der Basisbesuch (z. B. Randomisierung) als Zeitpunkt 0 angezeigt werden soll",
             "study_activities": "The activities can be selected from the library, from other studies or activity placeholders can be created for requesting new activities.",
             "detailed_soa": "The Detailed SoA is where you define at what visit(s) an activity is needed. The SoA has four levels: <br /> 1) SoA group <br /> 2) Activity group <br /> 3) Activity subgroup <br /> 4) Activity <br /> Click the circle to select or unselect that an activity should be done at that visit. Click the eye icon to toggle the visibility of an activity level in the Protocol SoA. If an activity level is hidden, the timings ticked will 'inherit up' a level, so you can hide the Activity and Activity subgroup level to just include the Activity group in the Protocol SoA (for example you might want to hide e.g. 'Height' and 'Weight' and just include 'Body measurements' in the Protocol SoA).",
             "detailed_soa_actions": "Use the ellipsis (three dots) to the left of an activity to access these: <br /><b> Edit Activity: </b> Adjust details in an activity. <br /><b> Add Activity: </b>Add an activity above the selected activity (you can change the order of activities from the 'Study Activities' tab). <br /><b> Exchange Activity: </b> Replace an activity with a new activity while keeping visits and footnotes in the detailed SoA. <br /><b> Remove Activity: </b> Remove the activity, any visits and references to footnotes that have been added to this activity. A removed activity can be added again under the ‘Study Activities’ tab. Footnotes will not be removed, so can be linked to again.",
@@ -920,18 +920,18 @@
         }
     },
     "Topbar": {
-        "app_selector_title": "Choose a section",
+        "app_selector_title": "Bereich auswählen",
         "admin": "Admin",
-        "help": "Help",
-        "documentation_portal": "Technical documentation",
-        "user_guide": "User guides",
-        "about": "About",
-        "need_help": "Need Help?",
-        "enable_dark_theme": "Enable dark theme",
-        "enable_light_theme": "Enable light theme",
-        "settings": "Settings",
-        "add_study": "ADD NEW STUDY",
-        "select_study": "SELECT STUDY"
+        "help": "Hilfe",
+        "documentation_portal": "Technische Dokumentation",
+        "user_guide": "Benutzerhandbücher",
+        "about": "Über",
+        "need_help": "Benötigen Sie Hilfe?",
+        "enable_dark_theme": "Dunkles Design aktivieren",
+        "enable_light_theme": "Helles Design aktivieren",
+        "settings": "Einstellungen",
+        "add_study": "NEUE STUDIE HINZUFÜGEN",
+        "select_study": "STUDIE AUSWÄHLEN"
     },
     "Library": {
         "description_top_before": "The ",
@@ -965,39 +965,39 @@
         "process_overview_description": "Find schematic overviews of the activities covered under Studies. You can use these to navigate to the relevant pages to enter or look up information."
     },
     "Settings": {
-        "title": "Parameters Management",
-        "toggle": "Toggle dark theme",
-        "rows": "Rows per page",
-        "study_number_length": "Study number length (in digits)",
-        "multilingual_crf": "Multilingual CRFs"
+        "title": "Parameterverwaltung",
+        "toggle": "Dunkles Design umschalten",
+        "rows": "Zeilen pro Seite",
+        "study_number_length": "Länge der Studiennummer (in Ziffern)",
+        "multilingual_crf": "Mehrsprachige CRFs"
     },
     "About": {
-        "header": "We are using the following combination of components:",
-        "about_release_number": "StudyBuilder version:",
-        "components_list": "Clinical-MDR and StudyBuilder build number:",
-        "component": "Component",
-        "description": "Description",
-        "database": "Database",
-        "documentation-portal": "Documentation",
-        "documentation-portal_description": "Documentation portal using Vuepress",
-        "db_description": "Neo4J graph database",
+        "header": "Wir verwenden die folgende Kombination von Komponenten:",
+        "about_release_number": "StudyBuilder-Version:",
+        "components_list": "Clinical-MDR- und StudyBuilder-Build-Nummer:",
+        "component": "Komponente",
+        "description": "Beschreibung",
+        "database": "Datenbank",
+        "documentation-portal": "Dokumentation",
+        "documentation-portal_description": "Dokumentationsportal mit Vuepress",
+        "db_description": "Neo4J-Graphdatenbank",
         "clinical-mdr-api": "API",
-        "clinical-mdr-api_description": "Built using Python3 and FastAPI",
-        "studybuilder": "Frontend application",
-        "studybuilder_description": "Built using VueJS and Vuetify",
-        "studybuilder-export": "StudyBuilder Export",
-        "studybuilder-export_description": "Export of StudyBuilder data",
-        "build_number": "Build number",
-        "title": "About StudyBuilder",
-        "license": "Component License",
-        "sbom": "Software Bill of Materials",
-        "studybuilder-import": "StudyBuilder Import",
-        "studybuilder-import_description": "Dictionary and sponsor data import",
-        "mdr-standards-import": "Standards Import",
-        "mdr-standards-import_description": "CDISC Library Standards Import",
+        "clinical-mdr-api_description": "Erstellt mit Python3 und FastAPI",
+        "studybuilder": "Frontend-Anwendung",
+        "studybuilder_description": "Erstellt mit VueJS und Vuetify",
+        "studybuilder-export": "StudyBuilder-Export",
+        "studybuilder-export_description": "Export von StudyBuilder-Daten",
+        "build_number": "Build-Nummer",
+        "title": "Über StudyBuilder",
+        "license": "Komponentenlizenz",
+        "sbom": "Software-Stückliste",
+        "studybuilder-import": "StudyBuilder-Import",
+        "studybuilder-import_description": "Import von Wörterbüchern und Sponsorendaten",
+        "mdr-standards-import": "Standards-Import",
+        "mdr-standards-import_description": "Import der CDISC-Library-Standards",
         "neo4j-mdr-db": "Clinical MDR",
-        "neo4j-mdr-db_description": "Logical and physical data models",
-        "components": "Components"
+        "neo4j-mdr-db_description": "Logische und physische Datenmodelle",
+        "components": "Komponenten"
     },
     "Sidebar": {
         "dashboard": "Dashboard",
@@ -1437,9 +1437,9 @@
         "title": "Objective instantiations"
     },
     "UnderConstruction": {
-        "title": "Under Construction",
-        "back_home": "Return to Home page",
-        "not_supported": "Page Not Supported"
+        "title": "Im Aufbau",
+        "back_home": "Zur Startseite zurückkehren",
+        "not_supported": "Seite wird nicht unterstützt"
     },
     "EndpointsView": {
         "title": "Endpunkte"
@@ -2925,9 +2925,9 @@
         "time_unit": "Zeiteinheit"
     },
     "HelpMessages": {
-        "units": "Note that this table is providing the UCUM tool that allow the end user to verify and link a unit with one existing in the UCUM referential system. You just need to start entering few first letters and the UCUM engine will provide you with some suggestion. In order to keep the validated unit in the UCUM referential, just click on it in the list and the result will be kept with the corresponding unit.",
-        "crfs": "The case report form (CRF) is the tool used by the sponsor of the clinical trial to collect data from each participating patient. All data on each patient participating in a clinical trial are held and/or documented in the CRF, including adverse events (Wikipedia).",
-        "compounds": "Help message to define"
+        "units": "Beachten Sie, dass diese Tabelle das UCUM-Werkzeug bereitstellt, mit dem der Endbenutzer eine Einheit mit einer bestehenden im UCUM-Referenzsystem überprüfen und verknüpfen kann. Geben Sie einfach die ersten Buchstaben ein und die UCUM-Engine schlägt Ihnen Vorschläge vor. Um die verifizierte Einheit im UCUM-Referenzsystem zu behalten, klicken Sie in der Liste darauf; das Ergebnis wird mit der entsprechenden Einheit gespeichert.",
+        "crfs": "Das Case Report Form (CRF) ist das vom Sponsor einer klinischen Studie verwendete Werkzeug, um Daten von jedem teilnehmenden Patienten zu erfassen. Sämtliche Daten zu jedem Patienten, der an einer klinischen Studie teilnimmt, werden im CRF gespeichert und/oder dokumentiert, einschließlich unerwünschter Ereignisse (Wikipedia).",
+        "compounds": "Hilfetext noch zu definieren"
     },
     "StudyEpochTable": {
         "number": "#",
