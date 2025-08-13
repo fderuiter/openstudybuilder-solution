@@ -450,14 +450,14 @@
             "conversion_factor": "Conversion factor from unit defined to the master unit. All simple unit conversions are converted through the master unit."
         },
         "TimeframeForm": {
-            "select_template": "To create an instantiation of a Time Frame, select from the relevant library and it's listed templates."
+            "select_template": "To create an instantiation of a Time Frame, select from the relevant library and its listed templates."
         },
         "StudyForm": {
-            "project_id": "Select the project ID from the drop-down list. For details on project see <a href='https://novonordisk.sharepoint.com/sites/ProjectToolbox' target='_blank'>[Project Toolbox]<a> ",
+            "project_id": "Select the project ID from the drop-down list. For details on the project, see <a href='https://novonordisk.sharepoint.com/sites/ProjectToolbox' target='_blank'>[Project Toolbox]<a> ",
             "project_name": "Auto-populated based on selected project",
             "brand_name": "Auto-populated based on selected project (only populated if brand name exists)",
             "study_id": "ID that will be generated for this study",
-            "number": "Type {length}-digits study number",
+            "number": "Type {length}-digit study number",
             "acronym": "Optional free-text field (expect if used instead of study number in the early planning phase)"
         },
         "NullFlavorSelect": {
@@ -1562,7 +1562,7 @@
         "study_id": "Study ID",
         "study_id_hint": "ID that will be generated for this study",
         "number": "Study number",
-        "number_hint": "Type {length}-digits study number",
+        "number_hint": "Type {length}-digit study number",
         "acronym": "Study acronym",
         "subpart_acronym": "Study subpart acronym",
         "acronym_hint": "Optional free-text field (expect if used instead of study number in the early planning phase)",
