@@ -942,15 +942,15 @@
         "dictionaries_description": "Find relevant external dictionaries and thesaurus for clinical development such as SNOMED, MedDRA, MED-RT, UNII, LOINC, UCUM. Since some of these dictionaries are very large, only selected terms relevant for the Novo Nordisk pipeline are included.",
         "concepts_description": "Find controlled listings of the terms to use for generic concepts such as units, activities, compounds and CRFs.",
         "syntax_templates_description": "View (or manage) the different syntax templates used for specifying the objectives, the endpoints, the eligibility, randomisation, dosing and other criteria for the individual studies. Only templates in status Final can be used under Studies.",
-        "template_instantiations_description": "See how the different templates are used in the studies, including number of studies using a specific syntax and which studies.",
-        "template_collections_description": "Find relevant template collections for project templates, shared templates and supporting templates.",
+        "template_instantiations_description": "See how the different template instantiations are used in the studies, including number of studies using a specific syntax and which studies.",
+        "template_collections_description": "Find relevant Template Collections for project templates, shared templates and supporting templates.",
         "data_exchange_standards_description": "See the complete master model for the following CDISC data exchange standards: CDASH, SDTM and ADaM.",
         "list_description": "Find listings of all codes list and terms for controlled terminology, dictionaries, concepts as well as the data exchange standards, in both new and legacy format.",
         "process_overview_description": "Find schematic overviews of the activities covered under the Library. You can use these to navigate to the relevant pages to enter or look up information.",
         "projects": "View or create projects.",
         "clinical_programmes": "View or create clinical programmes.",
         "administrative_definitions": "View or create administrative definitions.",
-        "overview_pages_description": ""
+        "overview_pages_description": "See high-level summaries of Library sections with quick navigation to detailed pages."
     },
     "Studies": {
         "description_top_before": "Under ",

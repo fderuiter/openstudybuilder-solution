@@ -942,7 +942,7 @@
         "dictionaries_description": "SNOMED、MedDRA、MED-RT、UNII、LOINC、UCUMなど臨床開発で使用される関連辞書やシソーラスを検索します。これらの辞書の一部は非常に大きいため、Novo Nordiskのパイプラインに関連する選択された用語のみが含まれます。",
         "concepts_description": "単位、アクティビティ、化合物、CRFなどの汎用コンセプトで使用する用語の制御された一覧を検索します。",
         "syntax_templates_description": "個々のスタディで目的、エンドポイント、適格性、ランダム化、投与量などの基準を指定するために使用されるさまざまな構文テンプレートを表示（または管理）します。ステータスが最終のテンプレートのみがスタディで使用できます。",
-        "template_instantiations_description": "異なるテンプレートがスタディでどのように使用されているかを確認し、特定の構文を使用しているスタディ数やどのスタディかを含みます。",
+        "template_instantiations_description": "異なるテンプレートインスタンスがスタディでどのように使用されているかを確認し、特定の構文を使用しているスタディ数やどのスタディかを含みます。",
         "template_collections_description": "プロジェクトテンプレート、共有テンプレート、支援テンプレートの関連するテンプレートコレクションを見つけます。",
         "data_exchange_standards_description": "CDASH、SDTM、ADaMなどのCDISCデータ交換標準の完全なマスターモデルを表示します。",
         "list_description": "制御された用語、辞書、コンセプト、および新旧両方の形式でのデータ交換標準のすべてのコードリストと用語の一覧を見つけます。",
@@ -950,7 +950,7 @@
         "projects": "プロジェクトを表示または作成します。",
         "clinical_programmes": "臨床プログラムを表示または作成します。",
         "administrative_definitions": "管理上の定義を表示または作成します。",
-        "overview_pages_description": ""
+        "overview_pages_description": "ライブラリ各セクションの概要を高レベルで表示し、詳細ページへ素早く移動できます。"
     },
     "Studies": {
         "description_top_before": "「",
