@@ -1590,66 +1590,66 @@
         "none": "NONE"
     },
     "StudyProperties": {
-        "study_type": "Study Type"
+        "study_type": "연구 유형"
     },
     "StudyStructure": {
-        "study_arms": "Study Arms",
-        "study_branches": "Study Branches",
-        "study_cohorts": "Study Cohorts",
-        "study_epochs": "Study Epochs",
-        "study_elements": "Study Elements",
-        "study_visits": "Study Visits",
-        "design_matrix": "Design Matrix",
-        "edit_visit_tableview": "Tabular Study Visits edit"
+        "study_arms": "연구군",
+        "study_branches": "연구 분기",
+        "study_cohorts": "연구 코호트",
+        "study_epochs": "연구 에포크",
+        "study_elements": "연구 요소",
+        "study_visits": "연구 방문",
+        "design_matrix": "설계 매트릭스",
+        "edit_visit_tableview": "방문 테이블 뷰 편집"
     },
     "StudyStructureOverview": {
-        "arms": "Arms",
-        "branch_arms": "Branch arms",
-        "number_of_subjects": "Number of subjects",
-        "epochs": "Epochs",
-        "arms_number": "Number of arms:",
-        "planned_subjects": "Planned number of subjects:",
-        "study_design_class": "Study Design Class:",
-        "table_caption": "Study structure overview table"
+        "arms": "연구군",
+        "branch_arms": "분기군",
+        "number_of_subjects": "피험자 수",
+        "epochs": "에포크",
+        "arms_number": "연구군 수:",
+        "planned_subjects": "계획된 피험자 수:",
+        "study_design_class": "연구 설계 분류:",
+        "table_caption": "연구 구조 개요 표"
     },
     "NullFlavorSelect": {
         "label": "Reason for missing"
     },
     "StudyPopulationForm": {
-        "title": "Add or edit study population information",
-        "therapeuticarea": "Therapeutic area",
-        "disease_condition": "Study disease, condition or indication",
-        "diagnosis_group": "Diagnosis group",
-        "rare_disease_indicator": "Rare disease indicator",
-        "healthy_subjects": "Healthy subject indicator",
-        "planned_min_max_age": "Minimum and maximum age of study participants",
-        "planned_min_age": "Planned minimum age of study participants",
-        "planned_max_age": "Planned maximum age of study participants",
-        "pediatric_study_indicator": "Paediatric study indicator",
-        "pediatric_postmarket_study_indicator": "Paediatric post-market study indicator",
-        "pediatric_investigation_plan_indicator": "Paediatric investigation plan indicator",
-        "update_success": "Study population updated",
-        "stable_disease_min_duration": "Stable disease minimum duration",
-        "relapse_criteria": "Relapse criteria",
-        "number_of_expected_subjects_hint": "Total number of subjects expected to be screened",
-        "number_of_expected_subjects": "Total number of subjects",
-        "sex_of_study_participants": "Sex of study participants",
+        "title": "연구 모집단 정보 추가 또는 편집",
+        "therapeuticarea": "치료 영역",
+        "disease_condition": "연구 질병, 상태 또는 적응증",
+        "diagnosis_group": "진단 그룹",
+        "rare_disease_indicator": "희귀 질환 지표",
+        "healthy_subjects": "건강한 피험자 지표",
+        "planned_min_max_age": "연구 참가자의 최소 및 최대 연령",
+        "planned_min_age": "연구 참가자의 계획 최소 연령",
+        "planned_max_age": "연구 참가자의 계획 최대 연령",
+        "pediatric_study_indicator": "소아 연구 지표",
+        "pediatric_postmarket_study_indicator": "소아 시판 후 연구 지표",
+        "pediatric_investigation_plan_indicator": "소아 임상시험 계획 지표",
+        "update_success": "연구 모집단이 업데이트되었습니다",
+        "stable_disease_min_duration": "안정된 질병 최소 지속 기간",
+        "relapse_criteria": "재발 기준",
+        "number_of_expected_subjects_hint": "스크리닝이 예상되는 총 피험자 수",
+        "number_of_expected_subjects": "총 피험자 수",
+        "sex_of_study_participants": "연구 참가자의 성별",
         "na": "NA",
         "pinf": "PINF"
     },
     "StudyInterventionTypeForm": {
-        "title": "Add or edit study intervention type information",
-        "intervention_type": "Intervention type",
-        "study_intent_type": "Study intent type",
-        "intervention_model": "Intervention model",
-        "control_type": "Control type",
-        "randomised": "Study is randomised",
-        "strfactor": "Stratification factor",
-        "rdquotient": "Randomisation quotient",
-        "blinding_schema": "Study blinding schema",
-        "planned_st_length": "Planned study length",
-        "added_to_et": "Add-on to existing treatments",
-        "update_success": "Intervention type updated"
+        "title": "연구 중재 유형 정보 추가 또는 편집",
+        "intervention_type": "중재 유형",
+        "study_intent_type": "연구 목적 유형",
+        "intervention_model": "중재 모델",
+        "control_type": "대조 유형",
+        "randomised": "연구는 무작위 배정임",
+        "strfactor": "층화 요인",
+        "rdquotient": "무작위 배정 비율",
+        "blinding_schema": "연구 눈가림 방식",
+        "planned_st_length": "계획된 연구 기간",
+        "added_to_et": "기존 치료에 추가",
+        "update_success": "중재 유형이 업데이트되었습니다"
     },
     "RegistryIdentifiersForm": {
         "title": "Add or edit registry identifiers",
@@ -1858,10 +1858,10 @@
         "endpoint_updated": "Study endpoint updated"
     },
     "StudyInterventionTypeView": {
-        "title": "Study Intervention Type"
+        "title": "연구 중재 유형"
     },
     "StudyInterventionTypeSummary": {
-        "intervention_type_info": "Study intervention type information"
+        "intervention_type_info": "연구 중재 유형 정보"
     },
     "StudyRegistryIdentifiersView": {
         "title": "Registry Identifiers"
@@ -1872,12 +1872,12 @@
         "registry_identifiers": "Registry identifiers"
     },
     "StudyPopulationView": {
-        "title": "Study Population",
-        "show_all": "Show all criteria",
-        "hide_all": "Hide criteria details"
+        "title": "연구 모집단",
+        "show_all": "모든 기준 표시",
+        "hide_all": "기준 세부정보 숨기기"
     },
     "StudyPopulationSummary": {
-        "info_column": "Study population information"
+        "info_column": "연구 모집단 정보"
     },
     "StudyTypeView": {
         "title": "Study Type"
