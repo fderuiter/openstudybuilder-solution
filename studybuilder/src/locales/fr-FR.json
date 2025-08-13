@@ -620,16 +620,16 @@
             "study_attributes": "Overall description of the study design and interventions/intervention model. This information is part of the mandatory SDTM.TS domain (Trial Summary)."
         },
         "StudyStructure": {
-            "general": "The structure describes what kind of planned investigational intervention (e.g. drug treatment, surgery, exercise) will be done to subjects in the course of the trial. Follow the tabs to complete the definition of the Study Design. Note, you must define Epochs before study Visits can be made.",
-            "study_arms": "Specification of the planned investigational treatment arms. An arm is a planned 'path' of interventions through the trial, e.g. arm AB is treatment A followed by treatment B.",
-            "study_branches": "The decision points where subjects are divided into separate treatment groups. For a simple parallel or cross-over design subject are branched into treatment arms at randomization. i.e. have one branch decision point. A study can have more branching points if e.g. subjects are assigned to a recover treatment after initial randomization. This second decision point could be based on a responsiveness to treatment. ",
-            "study_cohorts": "A group of individuals who share a common exposure, experience or characteristic or a group of individuals followed-up or traced over time in a cohort study. Example could be first human dose-escalation studies where increasing doses are given until stopping criteria are met. Some dose-escalation studies enroll a new cohort of subjects (a new group of subjects) for each new dose. Cohorts are also used for observational studies where no randomization takes place or single arm randomized study. Then cohorts are being defined based on some characteristics and comparisons are made between the different cohorts, e.g. treatment of a drug in subjects with a liver disease compared to a group of healthy subjects. Cohorts are not the same as strata. Stratification is the process of dividing members of the population into homogeneous subgroups before sampling/randomization. If the study with liver diseased and healthy subjects had to examine the effect of a drug compared to placebo then liver diseased/healthy would be a stratification factor, since it is expected that the treatment responses will be different in the two groups. Stratification is made to ensure homogeneity of the groups in which the treatments are being compared.",
-            "study_epochs": "The study epoch is a period of time that serves a purpose in the trial, e.g. Screening, Treatment, Follow-up. The purpose of ex. a Treatment epoch will be to expose subjects to a treatment.",
-            "study_elements": "An element is the basic building block of intervention. It can be both a treatment (Drug A/ Placebo) or no treatment (Screening, Wash-out, Follow-up)",
-            "study_visits": "A clinical encounter where the the subject interacts with the investigator. There can be one more visits in an Epoch. To edit visit(s) in the table view click on the pencil in the top-right menu.",
-            "design_matrix": "The tabular (matrix) view of the study arms, epochs and elements. Click on the pencil to select the elements in the epochs for the different arms",
-            "edit_visit_tableview": "To edit visits in a tabular view (all visits displayed) then click on the pencil (top right menu of the table). Use the dropdowns to change information as needed. To save an edit for row (a visit) click on the context menu and press Save. This must be done for all visits edited to save the edits. If timing or time reference is changed then the visits timeline will be recalculated and the visit edited may change Visit name. Tip: Write the original Visits name/number in the Visit Description to track where the visit being edited has been placed on the visit timeline. Delete the note afterwards.",
-            "disease_milestones": "A disease milestone is an event or activity that can be anticipated in the course of a disease, and which trigger the collection of data, but whose timing is not controlled by the study schedule (Planned visits). A disease milestone may also be something that occurred pre-study. Example is DIAGNOSIS (activity typically occurred pre-study), or HYPOGLYCAEMIC EVENT (event anticipated during a diabetes study). A Disease Milestone can be marked for repetition for milestones expected more than once in a study. If a new milestone is need in the drop-down it must be added to the codelist MIDSTYPE in the StudyBuilder Library."
+            "general": "La structure décrit le type d'intervention expérimentale planifiée (par exemple traitement médicamenteux, chirurgie, exercice) qui sera appliquée aux sujets au cours de l'essai. Suivez les onglets pour compléter la définition du plan d'étude. Remarque : vous devez définir les périodes avant de pouvoir créer des visites d'étude.",
+            "study_arms": "Spécification des bras de traitement expérimental planifiés. Un bras est un « parcours » planifié d'interventions tout au long de l'essai, par exemple le bras AB correspond au traitement A suivi du traitement B.",
+            "study_branches": "Les points de décision où les sujets sont répartis en groupes de traitement distincts. Pour un plan parallèle ou croisé simple, les sujets sont répartis dans les bras de traitement lors de la randomisation, c'est‑à‑dire qu'il y a un point de décision. Une étude peut comporter d'autres points de ramification si, par exemple, des sujets reçoivent un traitement de reprise après la randomisation initiale. Ce second point de décision peut être fondé sur la réponse au traitement.",
+            "study_cohorts": "Un groupe d'individus partageant une exposition, une expérience ou une caractéristique commune, ou un groupe suivi au fil du temps dans une étude de cohorte. Par exemple, les premières études d'escalade de dose chez l'homme où des doses croissantes sont administrées jusqu'à atteindre les critères d'arrêt. Certaines études d'escalade de dose recrutent une nouvelle cohorte de sujets pour chaque nouvelle dose. Les cohortes sont également utilisées dans les études observationnelles sans randomisation ou dans les études à bras unique randomisées. Les cohortes sont alors définies en fonction de certaines caractéristiques et des comparaisons sont faites entre les différentes cohortes, par exemple un traitement médicamenteux chez des sujets atteints d'une maladie du foie comparé à un groupe de sujets sains. Les cohortes ne sont pas les mêmes que les strates. La stratification consiste à diviser la population en sous‑groupes homogènes avant l'échantillonnage/la randomisation. Si l'étude comparait l'effet d'un médicament au placebo chez des sujets atteints d'une maladie du foie et des sujets sains, alors l'état hépatique serait un facteur de stratification, car on s'attend à des réponses au traitement différentes dans les deux groupes. La stratification vise à assurer l'homogénéité des groupes dans lesquels les traitements sont comparés.",
+            "study_epochs": "La période d'étude est une phase du protocole qui remplit un objectif dans l'essai, par exemple dépistage, traitement ou suivi. L'objectif d'une période de traitement sera, par exemple, d'exposer les sujets à un traitement.",
+            "study_elements": "Un élément est le bloc de base de l'intervention. Il peut s'agir d'un traitement (médicament A/placebo) ou de l'absence de traitement (dépistage, période de wash‑out, suivi).",
+            "study_visits": "Rencontre clinique au cours de laquelle le sujet interagit avec l'investigateur. Il peut y avoir une ou plusieurs visites dans une période. Pour modifier une ou plusieurs visites dans la vue tabulaire, cliquez sur le crayon dans le menu en haut à droite.",
+            "design_matrix": "Vue tabulaire (matrice) des bras, des périodes et des éléments de l'étude. Cliquez sur le crayon pour sélectionner les éléments dans les périodes pour les différents bras.",
+            "edit_visit_tableview": "Pour modifier les visites dans une vue tabulaire (toutes les visites affichées), cliquez sur le crayon (menu en haut à droite du tableau). Utilisez les menus déroulants pour changer les informations selon les besoins. Pour enregistrer la modification d'une ligne (une visite), cliquez sur le menu contextuel et appuyez sur Enregistrer. Cette opération doit être répétée pour chaque visite modifiée afin de sauvegarder les changements. Si le calendrier ou la référence temporelle est modifié, la chronologie des visites sera recalculée et la visite modifiée pourra changer de nom. Astuce : écrivez le nom/numéro original de la visite dans la description de la visite pour suivre l'endroit où la visite modifiée a été placée sur la chronologie, puis supprimez la note.",
+            "disease_milestones": "Un jalon de maladie est un événement ou une activité qui peut être anticipé au cours d'une maladie et qui déclenche la collecte de données, mais dont le moment n'est pas contrôlé par le calendrier de l'étude (visites planifiées). Un jalon de maladie peut également correspondre à quelque chose survenu avant l'étude. Exemple : DIAGNOSTIC (activité survenant généralement avant l'étude) ou ÉVÉNEMENT HYPOGLYCÉMIQUE (événement attendu pendant une étude sur le diabète). Un jalon de maladie peut être marqué comme répétitif pour les jalons attendus plusieurs fois dans une étude. Si un nouveau jalon est requis dans la liste déroulante, il doit être ajouté à la liste de codes MIDSTYPE dans la bibliothèque StudyBuilder."
         },
         "StudyBranchArms": {
             "study_arm": "Sélectionner le bras d'étude auquel s'applique la ramification.",
@@ -652,19 +652,19 @@
             "colour": "Sélectionner la couleur de cette cohorte (affichée dans la matrice de conception)."
         },
         "StudyPopulationTable": {
-            "general": "Overall specification of the participants that will be recruited to the study"
+            "general": "Spécification générale des participants qui seront recrutés pour l'étude"
         },
         "StudyInterventionsTable": {
-            "general": "The description of drug, device, therapy, or process under investigation in a clinical study. Follow the tabs to fill in the details on the compounds/other interventions for the study. The Overview tab will provide a tabular overview of the compounds specified."
+            "general": "Description du médicament, du dispositif, de la thérapie ou du processus étudié dans le cadre de l'étude clinique. Suivez les onglets pour renseigner les détails sur les composés ou autres interventions de l'étude. L'onglet Aperçu fournit un tableau récapitulatif des composés spécifiés."
         },
         "StudyTitleView": {
-            "general": "Click on the pencil to add a study title or copy from an existing study.",
-            "title": "The title of the clinical study, corresponding to the title of the protocol."
+            "general": "Cliquez sur le crayon pour ajouter un titre d'étude ou copier un titre depuis une étude existante.",
+            "title": "Le titre de l'étude clinique, correspondant au titre du protocole."
         },
         "StudyTitleForm": {
-            "general": "Fill in the study title and short title or re-use from similar study from the table. Use the copy icon to copy from a study.",
-            "study_title": "The full title of the protocol.",
-            "short_title": "The short title of the protocol."
+            "general": "Renseignez le titre de l'étude et le titre abrégé ou réutilisez ceux d'une étude similaire à partir du tableau. Utilisez l'icône de copie pour importer un titre depuis une étude.",
+            "study_title": "Le titre complet du protocole.",
+            "short_title": "Le titre abrégé du protocole."
         },
         "SelectOrAddStudyTable": {
             "general": "Pour ajouter une nouvelle étude, cliquez sur le bouton +. Pour sélectionner ou modifier une étude dans la liste, utilisez le menu à points vertical situé à gauche de la ligne du tableau."
@@ -1593,14 +1593,14 @@
         "study_type": "Study Type"
     },
     "StudyStructure": {
-        "study_arms": "Study Arms",
-        "study_branches": "Study Branches",
-        "study_cohorts": "Study Cohorts",
-        "study_epochs": "Study Epochs",
-        "study_elements": "Study Elements",
-        "study_visits": "Study Visits",
-        "design_matrix": "Design Matrix",
-        "edit_visit_tableview": "Tabular Study Visits edit"
+        "study_arms": "Bras d'étude",
+        "study_branches": "Branches d'étude",
+        "study_cohorts": "Cohortes d'étude",
+        "study_epochs": "Périodes d'étude",
+        "study_elements": "Éléments d'étude",
+        "study_visits": "Visites d'étude",
+        "design_matrix": "Matrice de conception",
+        "edit_visit_tableview": "Modifier les visites (vue tabulaire)"
     },
     "StudyStructureOverview": {
         "arms": "Arms",
