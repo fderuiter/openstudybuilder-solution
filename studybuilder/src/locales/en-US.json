@@ -226,7 +226,7 @@
             "study_phase": "Study phases in scope for the template. Select NA (not applicable), if template is generic not targeted specific studies."
         },
         "ObjectiveTemplateForm": {
-            "name": "Example of objective: 'To demonstrate superiority of [CompoundDosing] [NumericValue] [Dose Unit] versus [Comparator] [NumericValue] [Dose Unit] with respect to [ActivityInstance] at [TimePoint] in patients with [DiseaseDisorder]' or 'To document the safety profile of [StudyIntervention].' Add parameters enclosed in square brackets [ and ].",
+            "name": "Example of objective: 'To demonstrate superiority of [CompoundDosing] [NumericValue] [Dose Unit] versus [Comparator] [NumericValue] [Dose Unit] with respect to [ActivityInstance] at [TimePoint] in patients with [DiseaseDisorder]' or 'To document the safety profile of [StudyIntervention].' Add parameters enclosed in square brackets [ ].",
             "indication_disorder": "Select one or more indications from the drop-down for which this objective applies. Tick NA if not applicable.",
             "objective_category": "Select one or more categories from the drop-down for which this objective applies. Tick NA if not applicable.",
             "confirmatory_testing": "Use the radio-button to specify if the template is to be used to express an objective that is related to a confirmatory testing. For objectives that are related to confirmatory testing, it is essential that the objectives are precise and state if the purpose is to demonstrate superiority, non-inferiority, or bioequivalence. Also, it is essential that the endpoint (including time frame) associated with the confirmatory analysis is stated in the objective. Example of an objective related to confirmatory testing: To demonstrate superiority of [CompoundDosing] [NumericValue] [Dose Unit] versus [Comparator] [NumericValue] [Dose Unit] with respect to [ActivityInstance] at [TimePoint] in patients with [DiseaseDisorder]. Example of an objective not related to confirmatory testing: To compare the safety and efficacy with respect to glycemic control of [CompoundDosing] [NumericValue] [Dose Unit] versus [Comparator] [NumericValue] [Dose Unit] in patients with [DiseaseDisorder]"
@@ -392,12 +392,12 @@
             "is_preferred_synonym": "Tick yes if this is the preferred synonym in your organization."
         },
         "EndpointTemplateForm": {
-            "name": "An endpoint consists of a title, timeframe and unit. Example: title: Change in systolic blood pressure, timeframe: from baseline to week 20, unit: mmHg. So put together 'Change in systolic blood pressure from baseline to week 20 (mmHg)'. A generic template could be defined as: Change in [ActivityInstance] from [Time Point Reference] to [Time Point Reference] ([Unit]). Add parameters enclosed in square brackets [ and ].",
+            "name": "An endpoint consists of a title, timeframe and unit. Example: title: Change in systolic blood pressure, timeframe: from baseline to week 20, unit: mmHg. So put together 'Change in systolic blood pressure from baseline to week 20 (mmHg)'. A generic template could be defined as: Change in [ActivityInstance] from [Time Point Reference] to [Time Point Reference] ([Unit]). Add parameters enclosed in square brackets [ ].",
             "endpoint_category": "Select one or more categories from the drop-down for which this endpoint applies. Tick NA if not applicable.",
             "endpoint_sub_category": "Select one or more categories from the drop-down for which this endpoint applies. Tick NA if not applicable. For a detailed description of the categories see the 'Objectives and endpoints library guidance' document. For the systolic BP example the category is 'Continuous (relative change)'"
         },
         "TimeframeTemplateForm": {
-            "name": "A timeframe can be referenced as part of an endpoint. Example: from from baseline (week 0) to Week 28. A template for this could be 'from from [Time Point Reference] ([VisitName]) to [VisitName]'. Add parameters enclosed in square brackets [ and ]."
+            "name": "A timeframe can be referenced as part of an endpoint. Example: from baseline (week 0) to Week 28. A template for this could be 'from [Time Point Reference] ([VisitName]) to [VisitName]'. Add parameters enclosed in square brackets [ ]."
         },
         "CriteriaTemplateForm": {
             "guidance_text": "Depending on type of criteria a generic template can be defined. Example: Age ≥ 18 years at the time of signing informed consent can be parameterized to 'Age [Operator] [NumericValue] [Age Unit] at the time of signing informed consent'.",
@@ -1351,7 +1351,7 @@
         "edit_title": "Edit CT Catalog",
         "library_label": "Library",
         "name_label": "Template",
-        "name_hint": "Add parameters enclosed in square brackets [ and ]. I.e. 'To document the safety profile of [StudyIntervention].'",
+        "name_hint": "Add parameters enclosed in square brackets [ ]. I.e. 'To document the safety profile of [StudyIntervention].'",
         "add_success": "Objective template added",
         "update_success": "Objective template updated"
     },
