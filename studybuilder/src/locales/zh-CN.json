@@ -453,15 +453,15 @@
       "select_template": "要创建时间范围实例，请从相关库及其列出的模板中选择。"
     },
     "StudyForm": {
-      "project_id": "Select the project ID from the drop-down list. For details on project see <a href='https://novonordisk.sharepoint.com/sites/ProjectToolbox' target='_blank'>[Project Toolbox]<a> ",
-      "project_name": "Auto-populated based on selected project",
-      "brand_name": "Auto-populated based on selected project (only populated if brand name exists)",
-      "study_id": "ID that will be generated for this study",
-      "number": "Type {length}-digits study number",
-      "acronym": "Optional free-text field (expect if used instead of study number in the early planning phase)"
+      "project_id": "从下拉列表中选择项目 ID。有关项目的详细信息，请参见 <a href='https://novonordisk.sharepoint.com/sites/ProjectToolbox' target='_blank'>[Project Toolbox]</a>",
+      "project_name": "根据所选项目自动填充",
+      "brand_name": "根据所选项目自动填充（仅在存在品牌名称时填充）",
+      "study_id": "为此研究生成的 ID",
+      "number": "输入 {length} 位研究编号",
+      "acronym": "可选的自由文本字段（如果在早期规划阶段用其代替研究编号）"
     },
     "NullFlavorSelect": {
-      "label": "If value is missing, select reason (null flavor)"
+      "label": "如果值缺失，请选择原因（null flavor）"
     },
     "RegistryIdentifiersForm": {
       "ct_gov_id": "在 ClinicalTrials.gov 注册的临床研究所分配的唯一识别代码。格式为“NCT”加上 8 位数字（如 NCT00000419）。",
@@ -471,33 +471,33 @@
       "investigational_new_drug_application_number_ind": "制药公司获 FDA 许可开始人体临床试验时提供的识别号。格式为 IND Number xxxxxx，其中 x 为数字（如 IND Number: 132371）。"
     },
     "StudyDefineForm": {
-      "general": "This section is for defining the Study. For requesting a term/value added to drop-down list, please refer to SharePoint",
-      "studytype": "Select value that reflects the overall study type. For definition of study types see <a href='{url}' target='_blank'>[Study Type]<a>",
-      "studyintent": "Select the values that reflect the planned purposes of the therapy or device being investigated in the study",
-      "trialtype": "Select the values that reflect the trial type(s) that is within the study purpose. For definition of the trial types see <a href='{url}' target='_blank'>[Trial Type Response]<a>",
-      "trialphase": "Select relevant phase or stage, of the study",
+      "general": "本节用于定义研究。如需请求将术语/数值添加到下拉列表，请参阅 SharePoint",
+      "studytype": "选择能够反映整体研究类型的值。有关研究类型的定义，请参阅 <a href='{url}' target='_blank'>[Study Type]</a>",
+      "studyintent": "选择反映研究中调查的治疗或器械计划目的的值",
+      "trialtype": "选择反映研究目的中试验类型的值。有关试验类型的定义，请参阅 <a href='{url}' target='_blank'>[Trial Type Response]</a>",
+      "trialphase": "选择研究的相关阶段或阶段",
       "studystoprule": "决定临床试验终止时间点的规则、法规和/或条件。根据方案规定的停止规则。如果没有停止规则，请在此字段中记录“NONE”。",
-      "extensiontrial": "Indicate whether the study is an extension trial",
-      "adaptivedesign": "Indicate if the study includes a prospectively planned opportunity for modification of one or more specified aspects of the study design and hypotheses based on analysis of data (usually interim data) from subjects in the study",
-      "post_auth_safety_indicator": "An indication as to whether the clinical study is a post authorization safety study",
+      "extensiontrial": "指明该研究是否为延伸试验",
+      "adaptivedesign": "指明该研究是否包含基于受试者数据（通常为中期数据）分析而对研究设计和假设的一个或多个特定方面进行修改的预先计划机会",
+      "post_auth_safety_indicator": "指明该临床研究是否为上市后安全性研究",
       "confirmed_resp_min_duration": "方案规定达到治疗确认反应定义所需的最短时间。填写数值和单位，或选择 NA"
     },
     "StudyPopulationForm": {
-      "therapeuticarea": "The overall research or development area to which the study belongs (cover investigation of specific treatments for diseases and pathologic findings, as well as prevention of conditions that negatively impact the health of an individual)",
-      "disease_condition": "The condition, disease or disorder that the study is intended to investigate or address. Ex. Retinopathy",
-      "diagnosis_group": "The grouping of individuals on the basis of a shared procedure or disease, or lack thereof. Ex. Diabetes mellitus type 2",
-      "rare_disease_indicator": "Indicate whether the condition under study is considered a rare disease. FDA:a disease or condition that affects less than 200.000 people in the United States. EU/WHO: A disease is considered to be rare when the number of people affected is less than 5 per 10.000",
-      "healthy_subjects": "Indicate if persons who have not had the condition(s) being studied or otherwise related conditions or symptoms, as specified in the eligibility requirements, may participate in the study",
-      "planned_min_max_age": "The anticipated minimum and maximum ages of the subjects to be entered into the study",
-      "pinf": "Positive infinity. Fx. Planned Maximum Age of Subjects, there is no value if a study does not specify a maximum age. In this case, the appropriate null flavor is 'PINF'",
-      "pediatric_study_indicator": "Indicate whether the study is a paediatric study, i.e. study in children",
-      "pediatric_postmarket_study_indicator": "Indicate whether the study is a paediatric post-market study, i.e. study in children done after initial approval of the compound being studied",
-      "pediatric_investigation_plan_indicator": "Indicate whether the study is part of a paediatric investigation plan (PIP), i.e. study in children",
+      "therapeuticarea": "该研究所属的总体研究或开发领域（涵盖针对疾病和病理发现的特定治疗的研究，以及防治对个体健康产生负面影响的情况）",
+      "disease_condition": "该研究旨在调查或解决的状况、疾病或障碍。例如：视网膜病变",
+      "diagnosis_group": "根据共同的程序或疾病（或缺失）进行分组。例如：2 型糖尿病",
+      "rare_disease_indicator": "指明研究中的病症是否被视为罕见病。FDA：在美国影响少于 200,000 人的疾病或病症。EU/WHO：当受影响人数少于每 10,000 人中 5 人时，被视为罕见病",
+      "healthy_subjects": "指明未患所研究病症或其他相关病症/症状的人（如入选条件中规定）是否可参与研究",
+      "planned_min_max_age": "拟纳入研究受试者的最小和最大年龄",
+      "pinf": "正无穷。例如计划的最大受试者年龄；如果研究未指定最大年龄，则无值，此时适当的空值原因为 'PINF'",
+      "pediatric_study_indicator": "指明该研究是否为儿科研究，即在儿童中进行的研究",
+      "pediatric_postmarket_study_indicator": "指明该研究是否为儿科上市后研究，即在被研究化合物初次获批后在儿童中进行的研究",
+      "pediatric_investigation_plan_indicator": "指明该研究是否属于儿科研究计划 (PIP) 的一部分，即在儿童中进行的研究",
       "stable_disease_min_duration": "方案规定达到疾病稳定定义所需的最短时间",
-      "relapse_criteria": "A standard from which a judgment concerning a disease relapse can be established. Ex. the NCI/Rome criteria is a standard for relapse in Acute Lymphoblastic Leukaemia",
-      "number_of_expected_subjects": "The total number of subjects expected to be screened",
-      "sex_of_study_participants": "The specific sex, either male, female, or mixed of the subject group being studied.",
-      "na": "Not Applicable. Fx. in a clinical pharmacology study conducted in healthy volunteers for a drug where indications are not yet established"
+      "relapse_criteria": "用于判断疾病复发的标准。例如 NCI/Rome 标准是急性淋巴细胞白血病复发的标准",
+      "number_of_expected_subjects": "预计筛选的受试者总人数",
+      "sex_of_study_participants": "研究对象的特定性别，男性、女性或混合",
+      "na": "不适用。例如在健康志愿者中进行的临床药理学研究，药物的适应症尚未确定"
     },
     "StudyInterventionTypeForm": {
       "general": "研究干预信息",
@@ -533,66 +533,66 @@
       "general": "使用菜单下的添加按钮添加所需目标。目标可以基于标准模板、从其他研究中选择或从头创建。某些目标包含以橙色文本（参数标签）或绿色文本（参数值）突出显示的参数，可通过表中每个可编辑目标旁的“编辑”按钮选择新值或省略该参数。"
     },
     "StudyArmsForm": {
-      "arm_name": "Full label of the arm, e.g., Placebo",
-      "arm_short_name": "Abbreviated name of the arm, e.g. PBO",
-      "arm_type": "Investigational - intervention being investigated; Comparator - intervention the investigational intervention is compared against; Placebo - choose when the comparator is placebo; Observational - no intervention is made.",
-      "arm_code": "An abbreviated code of the interventions in the arm, e.g., AB for a cross-over study with Drug A followed by Drug B or PBO for a placebo arm",
-      "randomisation_group": "The group assigned in the randomisation list, e.g. A=AB and B=BA from the randomisation list.",
-      "planned_number": "The planned number of subjects in the arm.",
-      "description": "(optional) A description of the arm."
+      "arm_name": "试验组的完整标签，例如 Placebo",
+      "arm_short_name": "试验组的缩写名称，例如 PBO",
+      "arm_type": "Investigational：正在研究的干预；Comparator：与研究干预比较的干预；Placebo：当比较对象为安慰剂时选择；Observational：未进行干预",
+      "arm_code": "试验组干预的缩写代码，例如交叉研究中先用药物 A 后用药物 B 的试验组可表示为 AB，安慰剂组为 PBO",
+      "randomisation_group": "随机化列表中分配的组，例如随机化列表中 A=AB，B=BA",
+      "planned_number": "试验组计划的受试者人数",
+      "description": "（可选）试验组的描述"
     },
     "StudyEpochForm": {
-      "epoch_type": "No Treatment: used for a period in a treatment when a treatment pause is made, e.g. a washout in a cross-over study. Post Treatment: period after treatment has ended, e.g. Follow-up. Treatment: the period where the treatment(s) is given. Pre Treatment: period before treatment has started, e.g. screening",
-      "epoch_subtype": "Epochs as defined by CDISC EPOCH controlled terminology with possible sponsor extensions. Basic: for non-visit events (e.g. AE) and unscheduled visits. ",
-      "name": "Auto-populated. Epoch name is describing the purpose of the period, e.g. Treatment Epoch.",
-      "description": "Describe the overall purpose of the epoch",
-      "start_rule": "Describe the rule for when the epoch is expected to start, e.g. a specific visit",
-      "stop_rule": "Describe the rule for when the epoch is expected to end, e.g. a specific visit or when a certain goal is reached",
-      "color": "Choose a colour for the visualisation of the epoch on the study timeline view.",
-      "lag_ae": "Pending implementation",
-      "adverse_event_lag": "Pending implementation",
-      "epoch_duration_rule": "Pending implementation. ",
-      "epoch_time_unit": "Pending implementation. The time unit in which the epoch duration is being measured.",
-      "expected_epoch_duration": "Pending implementation. Derived based on time from first visit in this epoch to first visit in the following epoch"
+      "epoch_type": "无治疗：用于治疗过程中暂停治疗的时间段，例如交叉研究中的洗脱期。治疗后：治疗结束后的时间段，例如随访。治疗：给予治疗的时间段。治疗前：治疗开始前的时间段，例如筛选",
+      "epoch_subtype": "由 CDISC EPOCH 受控术语定义并可能具有赞助方扩展的阶段类型。Basic：用于非访视事件（如 AE）和非计划访视。",
+      "name": "自动填充。阶段名称描述该时间段的目的，例如治疗阶段。",
+      "description": "描述该阶段的总体目的",
+      "start_rule": "描述该阶段预期开始的规则，例如某个特定访视",
+      "stop_rule": "描述该阶段预期结束的规则，例如特定访视或达到某个目标时",
+      "color": "选择该阶段在研究时间线视图中的颜色",
+      "lag_ae": "待实现",
+      "adverse_event_lag": "待实现",
+      "epoch_duration_rule": "待实现",
+      "epoch_time_unit": "待实现。阶段持续时间的测量单位",
+      "expected_epoch_duration": "待实现。基于从该阶段首访视到下一阶段首访视的时间推导"
     },
     "StudyElements": {
-      "el_name": "Long-label of the element, e.g. Standardised Meal",
-      "el_short_name": "Abbreviated/short name for the element, e.g. STD MEAL",
-      "el_sub_type": "From the drop-down select the type of element",
-      "el_type": "Select element type (treatment/no treatment), will subset based on element sub-type selected.",
+      "el_name": "要素的完整标签，例如 Standardised Meal",
+      "el_short_name": "要素的缩写/简称，例如 STD MEAL",
+      "el_sub_type": "从下拉列表中选择要素类型",
+      "el_type": "选择要素类型（治疗/不治疗），将根据选择的要素子类型进行筛选",
       "colour": "颜色",
-      "description": "A description of the element"
+      "description": "要素的描述"
     },
     "StudyEndpointTable": {
       "general": "使用菜单下方的添加按钮添加所需终点。终点可基于标准模板、从其他研究中选择或从头创建。某些终点包含以橙色文本（参数标签）或绿色文本（参数值）突出显示的参数，可通过表中每个可编辑终点旁的“编辑”按钮选择新值或省略该参数。"
     },
     "StudyVisitForm": {
       "vtype_step_label": "选择访视类型：按方案计划的访视为计划访视。非计划访视是为捕捉可能发生在正常时间表之外的活动（如额外的实验室样本）而增加的访视。非访视用于与任何访视无关的研究活动，例如自测血糖结果。非计划访视和非访视是大多数研究中进行正确 SDTM 映射所需的占位符。特殊访视是没有具体时间但与数据收集相关的访视。特殊访视始终与另一访视相关，并在活动时间表中显示为 VxxA、VxxB 等（其中“xx”为相关访视的编号）。此类访视还可用作“提前停药访视”，在计划的治疗结束访视之外采集特定数据。此时，特殊访视将命名为 VxxX。试验中可能存在多个提前停药访视，额外的提前停药访视将命名为 VxxY 和 VxxZ。如果在研究首例受试者入组（FPFV）后因方案修订需要新增访视，则必须使用手动定义访视。FPFV 之后更改已实现访视的名称或编号可能产生严重后果，而添加手动定义访视不会影响已收集的数据。",
-      "period": "Select the study period (epoch) applicable for the visit. The epoch types correspond to the epochs defined in the Study Epochs tab.",
-      "single_anchor_addtional": "Selection is applicable only if visit scheduling type is scheduled. For newly created visits by default the Single Visit radiobutton is selected. If visits need subgrouping, e.g. a set of days (Day 1, Day 2, Day 3) to be grouped into a one visit (Visit 3), then select Anchor visit in visit group. It will allow to create Visit 3 Day 1, which will be the local anchor visit for subsequent sub-visits. To add subsequent visits (Visit 3 Day 2, Visit 3 Day 3) then, while creating them, select Additional sub-visit radiobutton and appropriate anchor visit from the time reference drop-down. Repeating visits can typically be used for non-interventional studies, where participants return for the same visit multiple times during the study according to their individual needs (for example, one participant may come to visit 3 five times, while another may have 10 visits as visit 3). If there are any requirements about the repetition of such visits (daily, weekly, monthly), then it can be defined via the Repeating frequency item. If visits require a different frequency than those present on the pull-down list, then leave Repeating frequency item blank and provide the proper frequency by entering the details into the Visit description item.",
-      "visit_type": "For definition of visit types see: Library, Code Lists, Sponsor, and filter Sponsor Preferred name=VisitType or Concept ID CTCodelist_000002 to review the terms. Additional Visit types can be requested via the Study Standards Developer. To create an information visit as Visit 0, use the Visit type=Information and set negative timing towards Global anchor visit. Visit types can be marked as SoA milestones in a study.",
-      "contact_mode": "Specify how subject interacts with the study investigator at the visit.",
-      "anchor_visit": "If ticked, it will set visit timing to 0 days and define this visit as a global anchor (Day 1 of the study). Usually this refers to randomisation visit. There can be only one global anchor visit per study.",
-      "current_anchor_visit": "It displays the visit that has been designated as Global anchor visit using the Anchor visit tick mark. If not set, then it will be left blank.",
-      "time_reference": "Select the reference for the visit, e.g. reference to Global anchor visit or reference to the previous visit. For the first entered visit (e.g. Screening), the Global anchor visit can be selected as reference only. For Special Visit, time reference is indicating the visit name that the special visit is related to.",
-      "time_value": "Please enter numeric value: negative or positive number to reflect how many days/weeks/years before/after the time reference does the visit occur. Time unit can bet set using the Time unit drop-down.",
-      "time_unit": "The time unit for the timing of the visit",
-      "visit_name": "To be selected manually for Manually defined visits. Auto-populated for other visit types.",
-      "visit_short_name": "To be selected manually for Manually defined visits. Auto-populated for other visit types.",
-      "study_day_label": "Auto-populated",
-      "study_week_label": "Auto-populated",
+      "period": "选择适用于该访视的研究阶段（epoch）。阶段类型与“研究阶段”选项卡中定义的阶段对应。",
+      "single_anchor_addtional": "仅当访视时间安排类型为计划访视时可选择。新建访视时默认选择“单个访视”单选按钮。如需将多天（如第 1 天、第 2 天、第 3 天）归为一个访视（访视 3），请选择“访视组中的锚定访视”。这样将创建“访视 3 第 1 天”，作为后续子访视的本地锚定访视。要添加后续访视（访视 3 第 2 天、访视 3 第 3 天），在创建时选择“附加子访视”单选按钮，并在时间参考下拉列表中选择相应的锚定访视。重复访视通常用于非干预性研究，参与者可根据个人需要在研究期间多次返回同一访视（例如，一个参与者可能进行 5 次访视 3，另一个则可能进行 10 次访视 3）。如果对这类访视的重复有任何要求（每日、每周、每月），可通过“重复频率”项进行定义。如果所需频率不在下拉列表中，请将“重复频率”项留空，并在“访视描述”项中输入详细信息以提供适当频率。",
+      "visit_type": "访视类型的定义请参见：库 > 代码列表 > Sponsor，并筛选 Sponsor Preferred name=VisitType 或概念 ID CTCodelist_000002 以查看术语。可通过 Study Standards Developer 请求其他访视类型。要创建作为访视 0 的信息访视，请使用访视类型=Information，并设置相对于全局锚定访视的负时间。访视类型可以在研究中标记为 SoA 里程碑。",
+      "contact_mode": "指定受试者在该访视中如何与研究者互动。",
+      "anchor_visit": "若勾选，将把访视时间设为 0 天，并将此访视定义为全局锚定访视（研究第 1 天）。通常指随机化访视。每项研究仅能有一个全局锚定访视。",
+      "current_anchor_visit": "显示已通过勾选“锚定访视”标记为全局锚定访视的访视。如未设置则保持为空。",
+      "time_reference": "选择该访视的时间参考，例如参考全局锚定访视或前一访视。对于录入的第一访视（如筛选），只能选择全局锚定访视作为参考。对于特殊访视，时间参考指明该特殊访视所关联的访视名称。",
+      "time_value": "请输入数值：负数或正数，表示该访视在时间参考之前或之后多少天/周/年发生。可使用“时间单位”下拉菜单设置时间单位。",
+      "time_unit": "访视时间的单位",
+      "visit_name": "仅对手动定义的访视需手动选择。其他访视类型自动填充。",
+      "visit_short_name": "仅对手动定义的访视需手动选择。其他访视类型自动填充。",
+      "study_day_label": "自动填充",
+      "study_week_label": "自动填充",
       "visit_window_min": "输入按方案允许的最早访视时间（天/周/年），即访视可在计划时间点之前发生的时间。",
       "visit_window_max": "输入按方案允许的最晚访视时间（天/周/年），即访视可在计划时间点之后发生的时间。",
-      "visit_win_unit": "Select unit for visit window.",
-      "visit_description": "Text field to add description of the visit.",
-      "epoch_allocation": "Observations at a visit might be affected by treatment administered in a previous epoch. Example: Baseline visit (in treatment epoch) where subjects are instructed to take first medication the next day will have measurements taken that represents 'Pre Treatment' epoch treatment, i.e. No treatment. In this case the Epoch Allocation Rule should be Previous Visit. In most cases the rule is Current Visit, i.e. measurements at this visit is measurements of the treatment (element) given in the epoch. The corresponding rules with Date is to be used for Non-visits and unscheduled visits. The Actual Treatment is used if the actual treatment of the subject at the visit is to be used instead of the planned treatment. Reach out to the study SDTM programmer for further information.",
-      "visit_start_rule": "Enter visit start rule. Describe when the visit starts, in relation to the sequence of elements, e.g. 2 weeks after start of Treatment Epoch",
-      "visit_stop_rule": "Enter visit stop rule. Describe when the visit ends, in relation to the sequence of elements e.g. At End of Trial",
-      "duplicate_visit": "To create new visit that will be a copy of the previously defined visit, click on 3 dots next to the row of the visit that you want to copy and select Duplicate. Specify the timing and timing unit for newly created visit. The time reference is the same as for the visit being copied from. E.g. if for the visit 7 that you are copying the Time reference is Global anchor visit and timing set to 7 days, then new visit, visit 8, with timing selected as 8 days is taking place 8 days after global anchor visit. Note, you cannot duplicate global anchor visit (e.g. very often this is randomisation visit)."
+      "visit_win_unit": "选择访视窗口的单位。",
+      "visit_description": "用于添加访视描述的文本字段。",
+      "epoch_allocation": "访视时的观察可能受到上一阶段所给治疗的影响。例如：基线访视（处于治疗阶段），受试者被指示第二天开始首次用药，此时所采集的数据代表“治疗前”阶段的治疗，即无治疗。在这种情况下，阶段分配规则应为“前一访视”。在大多数情况下，规则为“当前访视”，即该访视的测量代表本阶段给予的治疗（要素）。带日期的对应规则用于非访视和非计划访视。如果需使用受试者在访视中的实际治疗而非计划治疗，请使用“实际治疗”。如需更多信息，请联系研究 SDTM 程序员。",
+      "visit_start_rule": "输入访视开始规则，描述该访视相对于要素序列何时开始，例如治疗阶段开始后 2 周。",
+      "visit_stop_rule": "输入访视结束规则，描述该访视相对于要素序列何时结束，例如试验结束时。",
+      "duplicate_visit": "如需创建先前定义访视的副本，请单击要复制的访视行旁的三个点并选择“复制”。为新建访视指定时间和时间单位。时间参考与被复制的访视相同。例如，如果复制的访视 7 的时间参考为全局锚定访视且时间设为 7 天，则新访视 8 的时间设为 8 天，表示在全局锚定访视后 8 天进行。注意，无法复制全局锚定访视（例如通常为随机化访视）。"
     },
     "StudyVisitDuplicate": {
-      "time_value": "Numeric. Negative or Positive number of e.g. days before/after the time reference does the visit occur. Note: the reference is the same as the visit being copied from. Time unit can bet set using the Time Unit drop-down.",
-      "time_unit": "The time unit for the timing of the visit"
+      "time_value": "数值。负数或正数，表示该访视在时间参考之前或之后多少天等。注意：时间参考与被复制的访视相同。可使用“时间单位”下拉菜单设置时间单位。",
+      "time_unit": "访视时间的单位"
     },
     "Settings": {
       "rows": "界面中各表格每页显示的默认行数。",
@@ -616,46 +616,46 @@
     },
     "StudyProperties": {
       "general": "在每个选项卡（研究类型和研究属性）中，按照方案描述填写研究的详细信息。",
-      "study_type": "Overall description of the study by selection of prespecified controlled terms. This information is part of the mandatory SDTM.TS domain (Trial Summary).",
-      "study_attributes": "Overall description of the study design and interventions/intervention model. This information is part of the mandatory SDTM.TS domain (Trial Summary)."
+      "study_type": "通过选择预先指定的受控术语对研究进行总体描述。此信息属于必需的 SDTM.TS 域（试验摘要）",
+      "study_attributes": "对研究设计和干预/干预模型的总体描述。此信息属于必需的 SDTM.TS 域（试验摘要）"
     },
     "StudyStructure": {
-      "general": "The structure describes what kind of planned investigational intervention (e.g. drug treatment, surgery, exercise) will be done to subjects in the course of the trial. Follow the tabs to complete the definition of the Study Design. Note, you must define Epochs before study Visits can be made.",
-      "study_arms": "Specification of the planned investigational treatment arms. An arm is a planned 'path' of interventions through the trial, e.g. arm AB is treatment A followed by treatment B.",
-      "study_branches": "The decision points where subjects are divided into separate treatment groups. For a simple parallel or cross-over design subject are branched into treatment arms at randomisation. i.e. have one branch decision point. A study can have more branching points if e.g. subjects are assigned to a recover treatment after initial randomisation. This second decision point could be based on a responsiveness to treatment. ",
-      "study_cohorts": "A group of individuals who share a common exposure, experience or characteristic or a group of individuals followed-up or traced over time in a cohort study. Example could be first human dose-escalation studies where increasing doses are given until stopping criteria are met. Some dose-escalation studies enroll a new cohort of subjects (a new group of subjects) for each new dose. Cohorts are also used for observational studies where no randomisation takes place or single arm randomised study. Then cohorts are being defined based on some characteristics and comparisons are made between the different cohorts, e.g. treatment of a drug in subjects with a liver disease compared to a group of healthy subjects. Cohorts are not the same as strata. Stratification is the process of dividing members of the population into homogeneous subgroups before sampling/randomisation. If the study with liver diseased and healthy subjects had to examine the effect of a drug compared to placebo then liver diseased/healthy would be a stratification factor, since it is expected that the treatment responses will be different in the two groups. Stratification is made to ensure homogeneity of the groups in which the treatments are being compared.",
-      "study_epochs": "The study epoch is a period of time that serves a purpose in the trial, e.g. Screening, Treatment, Follow-up. The purpose of ex. a Treatment epoch will be to expose subjects to a treatment.",
-      "study_elements": "An element is the basic building block of intervention. It can be both a treatment (Drug A/ Placebo) or no treatment (Screening, Wash-out, Follow-up)",
-      "study_visits": "A clinical encounter where the the subject interacts with the investigator. There can be one more visits in an Epoch. To edit visit(s) in the table view click on the pencil in the top-right menu.",
-      "design_matrix": "The tabular (matrix) view of the study arms, epochs and elements. Click on the pencil to select the elements in the epochs for the different arms",
-      "edit_visit_tableview": "To edit visits in a tabular view (all visits displayed) then click on the pencil (top right menu of the table). Use the dropdowns to change information as needed. To save an edit for row (a visit) click on the context menu and press Save. This must be done for all visits edited to save the edits. If timing or time reference is changed then the visits timeline will be recalculated and the visit edited may change Visit name. Tip: Write the original Visits name/number in the Visit Description to track where the visit being edited has been placed on the visit timeline. Delete the note afterwards.",
-      "disease_milestones": "A disease milestone is an event or activity that can be anticipated in the course of a disease, and which trigger the collection of data, but whose timing is not controlled by the study schedule (Planned visits). A disease milestone may also be something that occurred pre-study. Example is DIAGNOSIS (activity typically occurred pre-study), or HYPOGLYCAEMIC EVENT (event anticipated during a diabetes study). A Disease Milestone can be marked for repetition for milestones expected more than once in a study. If a new milestone is need in the drop-down it must be added to the codelist MIDSTYPE in the StudyBuilder Library."
+      "general": "该结构描述在试验过程中对受试者实施何种计划中的研究干预（例如药物治疗、手术、运动）。按照各选项卡完成研究设计的定义。注意：必须先定义阶段（Epoch）才能创建研究访视。",
+      "study_arms": "计划的研究治疗组的说明。一个试验组是在试验过程中安排的一条干预“路径”，例如试验组 AB 表示先给予治疗 A 再给予治疗 B。",
+      "study_branches": "将受试者分成不同治疗组的决策点。对于简单的平行或交叉设计，在随机化时受试者被分配到治疗组，即只有一个分支决策点。如果在初始随机化后受试者被分配到恢复治疗，则研究可能有更多的分支点。第二个决策点可能基于对治疗的反应。",
+      "study_cohorts": "具有共同暴露、经历或特征的一组个体，或在队列研究中随访或追踪的一组个体。例如首个人体剂量递增研究，在满足停止标准前逐步增加剂量。某些剂量递增研究在每个新剂量时招募新的受试者队列。队列也用于没有随机化的观察性研究或单臂随机化研究，此时根据某些特征定义队列，并在不同队列间进行比较，例如将患肝病受试者的药物治疗与健康受试者组进行比较。队列不同于分层。分层是在抽样/随机化前将总体成员划分为同质子组的过程。如果在患肝病和健康受试者中研究药物与安慰剂的效果，那么肝病/健康将是一个分层因素，因为预计两组的治疗反应不同。分层是为了确保比较治疗的各组具有同质性。",
+      "study_epochs": "研究阶段是在试验中具有特定目的的时间段，例如筛选、治疗、随访。例如，治疗阶段的目的是让受试者接受治疗。",
+      "study_elements": "要素是干预的基本构建块。它可以是治疗（药物 A/安慰剂），也可以是无治疗（筛选、洗脱、随访）",
+      "study_visits": "受试者与研究者交互的临床接触。在一个阶段中可以有一个或多个访视。要在表格视图中编辑访视，请点击右上角菜单中的铅笔图标。",
+      "design_matrix": "研究试验组、阶段和要素的表格（矩阵）视图。点击铅笔以在不同试验组的各阶段选择要素",
+      "edit_visit_tableview": "若要在表格视图中编辑访视（显示所有访视），请点击表格右上角菜单中的铅笔图标。根据需要使用下拉菜单更改信息。要保存某行（某访视）的编辑，请点击上下文菜单并按“保存”。对所有编辑过的访视都必须执行此操作以保存编辑。如果更改了时间或时间参考，访视时间线将重新计算，已编辑的访视可能会更改访视名称。提示：在“访视描述”中写下原始访视名称/编号，以跟踪该访视在时间线中的位置，之后删除该备注。",
+      "disease_milestones": "疾病里程碑是在疾病过程中可预期的事件或活动，会触发数据收集，但其时间不受研究计划（计划访视）控制。疾病里程碑也可能是研究前发生的事件。例如诊断（通常在研究前发生的活动）或低血糖事件（在糖尿病研究中预期发生的事件）。疾病里程碑可标记为重复，以针对研究中预计发生多次的里程碑。如果下拉列表中需要新的里程碑，必须在 StudyBuilder 库的 MIDSTYPE 代码列表中添加。"
     },
     "StudyBranchArms": {
-      "study_arm": "Select the study arm in which the branching applies.",
-      "branch_arm_name": "Specify the long name of the branch, example: 'Responders' or 'Non-responders'",
-      "branch_arm_short_name": "The short name of the branch arm, example: 'Resp' or 'Non-Resp'",
-      "randomisation_group": "Specify the randomisation group defined for this Arm/branch Arm combination.",
-      "code": "Auto-populated based on Randomisation group",
-      "nuber_of_subjects": "The planned number of subjects in the branch. Note that cannot be larger than the number of subject defined for the arm. ",
-      "description": "A description of the branch, e.g. for the responder: HbA1c < 45 mmol/L after 4 weeks",
-      "colour": "Select the colour for this branch (will be displayed in the design matrix)."
+      "study_arm": "选择适用该分支的研究试验组。",
+      "branch_arm_name": "指定分支的完整名称，例如“应答者”或“非应答者”",
+      "branch_arm_short_name": "分支试验组的简称，例如“Resp”或“Non-Resp”",
+      "randomisation_group": "指定该试验组/分支组合定义的随机化组。",
+      "code": "根据随机化组自动填充",
+      "nuber_of_subjects": "该分支计划的受试者人数。注意不得大于为试验组定义的受试者人数。",
+      "description": "分支的描述，例如对应答者：4 周后 HbA1c < 45 mmol/L",
+      "colour": "选择该分支的颜色（将在设计矩阵中显示）。"
     },
     "StudyCohorts": {
-      "study_arm": "Select the study arm in which the cohort applies.",
-      "study_branch_arm": "Select the study branch arm in which the cohort applies. Leave blank if no branching is used.",
-      "cohort_name": "Long name of the cohort, e.g. 'Liver disease' or 'Healthy Liver'",
-      "cohort_short_name": "The corresponding short name, e.g. LF or HL",
-      "cohort_code": "A short code for the cohort.",
-      "nuber_of_subjects": "The planned number of subjects in the cohort. Note that cannot be larger than the number of subject defined for the arm/branch arm.",
-      "description": "A description of the cohort, e.g. Liver disease as defined by Child-Pugh score Class B+C",
-      "colour": "Select the colour for this cohort (will be displayed in the design matrix)."
+      "study_arm": "选择适用该队列的研究试验组。",
+      "study_branch_arm": "选择适用该队列的研究分支试验组。如未使用分支则留空。",
+      "cohort_name": "队列的完整名称，例如“Liver disease”或“Healthy Liver”",
+      "cohort_short_name": "相应的简称，例如 LF 或 HL",
+      "cohort_code": "队列的简短代码",
+      "nuber_of_subjects": "该队列计划的受试者人数。注意不得大于为试验组/分支试验组定义的受试者人数。",
+      "description": "队列的描述，例如按 Child-Pugh 评分 B+C 定义的肝病",
+      "colour": "选择该队列的颜色（将在设计矩阵中显示）。"
     },
     "StudyPopulationTable": {
-      "general": "Overall specification of the participants that will be recruited to the study"
+      "general": "将要纳入研究的参与者的总体说明"
     },
     "StudyInterventionsTable": {
-      "general": "The description of drug, device, therapy, or process under investigation in a clinical study. Follow the tabs to fill in the details on the compounds/other interventions for the study. The Overview tab will provide a tabular overview of the compounds specified."
+      "general": "对临床研究中调查的药物、器械、治疗或过程的描述。按照各选项卡填写研究所需化合物/其他干预措施的详细信息。“概览”选项卡将提供已指定化合物的表格概览。"
     },
     "StudyTitleView": {
       "general": "点击铅笔以添加研究标题或从现有研究复制。",
@@ -727,13 +727,13 @@
       "general": "CT 赞助方包显示 CDISC 和赞助方代码列表及术语的所有版本。通过选择 CT 赞助方包日期查看特定术语子集。"
     },
     "SnomedTable": {
-      "general": "SNOMED CT (Systematized Nomenclature of Medicine -- Clinical Terms) is a standardized, multilingual vocabulary of clinical terminology that is used by physicians and other health care providers for the electronic exchange of clinical health information."
+      "general": "SNOMED CT（系统化的医学命名法——临床术语）是一种标准化的多语言临床术语词汇，由医生和其他医疗保健提供者用于临床健康信息的电子交换。"
     },
     "MedRtTable": {
-      "general": "Medication Reference Terminology. Dictionary used to identify the pharmacologic class(es) of all active investigational substances that are used in a study (either clinical or nonclinical)."
+      "general": "药物参考术语，用于识别研究中使用的所有活性试验物质（临床或非临床）的药理类别的词典。"
     },
     "UniiTable": {
-      "general": "Unique Ingredient Identifier.FDA's Global Substance Registration System."
+      "general": "唯一成分标识符。FDA 的全球物质注册系统。"
     },
     "UcumTable": {
       "general": "旨在涵盖所有计量单位的代码系统。UCUM 用于医疗保健中填充电子健康记录，如 LOINC 中的实验室记录，以及 ISO IDMP 标准（药品识别）中。"
@@ -746,7 +746,7 @@
       "general": "活动是临床研究中在受试者身上执行的测量或操作的定义。"
     },
     "ObjectiveTemplatesTable": {
-      "general": "Generic templates for objectives are defined here. Click on the + button to add a new template. In the User Defined Templates you can view templates being defined on different studies. To make a template accessible for use it must be approved. Use the Approve in the left context-menu (3 vertical dots to the left of the template). To set default values for parameters use the 'Default' values in the context menu."
+      "general": "此处定义目标的通用模板。点击 + 按钮可添加新模板。在“用户定义模板”中可查看在不同研究中定义的模板。要使模板可用，必须先批准，请在左侧上下文菜单（模板左侧的三个竖点）中选择“批准”。如需为参数设置默认值，请在上下文菜单中使用“默认值”选项。"
     },
     "EndpointTemplatesTable": {
       "general": "此处定义终点的通用模板。点击 + 按钮可添加新模板。在“用户定义模板”中可查看在不同研究中定义的模板。要使模板可用，必须先批准，请在左侧上下文菜单（模板左侧的三个竖点）中选择“批准”。如需为参数设置默认值，请在上下文菜单中使用“默认值”选项。"
@@ -761,7 +761,7 @@
       "general": "此处定义活动的通用模板。活动指与受试者健康相关的测量或记录，例如血液测量、检查、不良事件、干预等。点击 + 按钮可添加新模板。在“用户定义模板”中可查看在不同研究中定义的模板。要使模板可用，必须先审批；请在左侧上下文菜单（三个竖点）中选择“批准”。如需设置参数的默认值，请在上下文菜单中使用“默认值”。"
     },
     "ObjectivesTable": {
-      "general": "The list of objectives and which template they are based on, and the number of studies using the objective. To view the studies, then select the 'Display studies using this objective' in the context menu of the objective."
+      "general": "目标及其所基于的模板列表，以及使用该目标的研究数量。要查看相关研究，请在目标的上下文菜单中选择“显示使用此目标的研究”。"
     },
     "EndpointsTable": {
       "general": "列出终点及其所基于的模板，以及使用该终点的研究数量。要从模板创建特定终点，请点击表格右上角的 + 按钮。"
@@ -770,27 +770,27 @@
       "general": "列出时间范围及其所基于的模板，以及使用该时间范围的研究数量。要从模板创建特定的时间范围，请点击表格右上角的 + 按钮。"
     },
     "StudyPurposeView": {
-      "general": "A statement describing the overall rationale of the study. It describes the contribution of this study to product development, i.e., what knowledge is being contributed from the conduct of this study. Follow the tabs to define objectives, endpoints and estimands (if applicable).",
-      "study_objectives": "The Study Objective(s) is the question to be answered for the trial",
-      "study_endpoints": "The outcome variable(s) of interest in the trial. Differences between groups in the outcome variable(s) are believed to be the result of the differing interventions.",
-      "study_estimands": "An estimand (i.e. “what is to be estimated”) is a precise description of the treatment effect reflecting the clinical question posed by the trial objective. It summarises at a population level what the outcomes would be in the same patients under different treatment conditions being compared, cf.ICH E9 (R1) addendum "
+      "general": "描述研究总体原理的陈述。它说明此研究对产品开发的贡献，即该研究的实施将带来哪些知识。按照各选项卡定义目标、终点和估计量（如适用）。",
+      "study_objectives": "研究目标是试验需要回答的问题",
+      "study_endpoints": "试验中关注的结果变量。组间结果变量的差异被认为是不同干预导致的。",
+      "study_estimands": "估计量（即“要估计的内容”）是反映试验目标所提出临床问题的治疗效果的精确描述。它在总体水平上总结在不同治疗条件下同一受试者群体的结果，参见 ICH E9 (R1) 附录"
     },
     "StudyObjectivesTable": {
-      "objective_level": "Specifies if the objective is Primary or Secondary. The primary objective(s) is the main question to be answered and drives any statistical planning for the trial (e.g. calculation of the sample size to provide the appropriate power for statistical testing). Secondary objectives are goals of a trial that will provide further information to support the primary objective",
-      "endpoint_count": "Objectives and endpoints are linked together. This shows the number of endpoints linked to the objective",
+      "objective_level": "指定目标是主要还是次要。主要目标是需要回答的主要问题，并驱动试验的任何统计规划（例如为统计检验提供适当效能的样本量计算）。次要目标是试验的其他目的，将提供进一步信息以支持主要目标",
+      "endpoint_count": "目标与终点相互关联。此项显示与该目标关联的终点数量",
       "objective": "与方案中所述一致的目标文本"
     },
     "StudyObjectiveForm": {
-      "add_title": "The objective can be based on standard templates, selected from other studies, or created from scratch",
-      "select_mode": "Copy a criteria from a previous study",
-      "template_mode": "Objectives made from a pre-defined template. Some objectives contain parameters highlighted with orange text (parameter labels) or green text (parameter values) for which new values can be selected, or the parameter omitted.",
-      "scratch_mode": "Write your own criteria from scratch",
-      "select_objective_tpl": "Copy objective(s) from the list of templates using the copy icon and press Continue",
-      "select_tpl_parameters_label": "Fill in the template by selecting values from the dropdown list. Use the eye-icon to hide a parameter from the objective text",
-      "select_studies": "Select studies (one or more) where objectives should be copied from. It will create a combined list of objectives to choose from",
-      "study_objective": "Copy objective(s) from the list of study objectives using the copy icon and press Save.",
+      "add_title": "目标可以基于标准模板、从其他研究中选择或从头创建",
+      "select_mode": "从以往研究复制目标",
+      "template_mode": "基于预定义模板的目标。某些目标包含以橙色文本（参数标签）或绿色文本（参数值）突出显示的参数，可选择新值或省略该参数。",
+      "scratch_mode": "从头编写自己的目标",
+      "select_objective_tpl": "使用复制图标从模板列表中复制目标，并点击“继续”",
+      "select_tpl_parameters_label": "通过从下拉列表中选择值来填写模板。使用眼睛图标可在目标文本中隐藏某个参数",
+      "select_studies": "选择需要从中复制目标的研究（一个或多个）。这将创建一个合并的目标列表供选择",
+      "study_objective": "使用复制图标从研究目标列表中复制目标并点击“保存”。",
       "objective_level": "根据方案规定选择该目标是主要还是次要",
-      "step_edit_title": "For template-based objective change the parameter(s) using the drop-down list"
+      "step_edit_title": "对于基于模板的目标，请使用下拉列表更改参数"
     },
     "StudyEndpointsTable": {
       "endpoint_title": "终点文本",
@@ -852,32 +852,32 @@
       "flowchart_group": "选择该活动所属的 SoA 组"
     },
     "StudyStatus": {
-      "core_attributes": "Study Core Attributes",
-      "study_status": "Study Status",
-      "study_sub_parts": "Study Sub-parts",
+      "core_attributes": "研究核心属性",
+      "study_status": "研究状态",
+      "study_sub_parts": "研究子部分",
       "protocol_version": "方案版本",
-      "core_attributes_body": "Specification of the core attributes for a study, being relationship to clinical programme and project, study number (will be linked to the Study ID) and the Study Acronym.<br><br>When a study have not yet been locked it can be deleted from this page, this will be a soft delete and the study will be listed under Deleted studies on the Study List menu.<br> Note the history displayed from this page is actually the overall history for the study definition.",
-      "content_line_1": "A study definition instance can have the following status:",
-      "content_line_2": "<strong>Draft</strong>, refer to the current instance that can be edited.",
-      "content_line_3": "<strong>Released</strong>, refer to a minor version of a stable instance (snapshot) for downstream testing and review.",
-      "content_line_4": "<strong>Locked</strong>, refer to a major version of a stable instance (snapshot) for downstream usage in final deliverables. As this is a major version several constraint checks must be fulfilled for a study definition instance can be locked. Both a locked version instance and a released instance is made when the study is locked to avoid the latest released is older than the latest locked.",
-      "content_line_5": "The page will list the available study definition instances and their status.",
-      "content_line_6": "The possible actions depend on the current state and status of the study.",
-      "content_line_7": "When study is in <strong>Draft</strong> status the Release action is enabled",
-      "content_line_8": "The possible actions depend on the current state and status of the study.<br>This will create a stable persistent study instance that can be referred to for downstream usage, as a data snapshot reference in the repository.<br>A concurrent minor version number will automatically be assigned (0.1, 0.2, …, 1.1, 1.2, …).<br>The study will continue to be in ‘Draft’ status.<br>Release is like check-in in a document management system or a commit and push in a Git repository.",
-      "content_line_9": "When study is in <strong>Draft</strong> status the Lock action is enabled",
-      "content_line_10": "This will create a versioned stable persistent study instance that can be referred to from downstream usage, as a data snapshot reference in the repository. The study will change status to ‘Locked’ and can no longer be edited. To continue to edit, an un-lock action must be done starting up a new version.<br>A concurrent major version number will automatically be assigned (1.0, 2.0, 3.0, …).<br>The locking process will also make a study release instance to ensure the latest release instance never is older than the latest locked instance.<br>Lock and Release is like creating a final approved version in a document management system or a merging a pull request into main in a Git repository.",
-      "content_line_11": "When study is in <strong>Locked</strong> status the Un-lock action is enabled",
-      "content_line_12": "This will bring the study back into the ‘Draft’ status where the study again can be edited.",
+      "core_attributes_body": "指定研究的核心属性，包括与临床项目和项目的关系、研究编号（将链接到研究 ID）以及研究缩写。<br><br>当研究尚未锁定时，可在此页面删除，将执行软删除，研究将在研究列表菜单的“已删除研究”下列出。<br>注意，此页面显示的历史实际上是研究定义的整体历史。",
+      "content_line_1": "研究定义实例可具有以下状态：",
+      "content_line_2": "<strong>草稿</strong>：指当前可编辑的实例。",
+      "content_line_3": "<strong>已发布</strong>：指用于下游测试和审查的稳定实例（快照）的小版本。",
+      "content_line_4": "<strong>已锁定</strong>：指用于最终交付物的稳定实例（快照）的大版本。由于这是大版本，锁定研究定义实例前必须满足多个约束检查。为确保最新发布版本不早于最新锁定版本，锁定研究时会同时创建已锁定版本和已发布版本。",
+      "content_line_5": "该页面将列出可用的研究定义实例及其状态。",
+      "content_line_6": "可执行的操作取决于研究的当前状态。",
+      "content_line_7": "当研究处于<strong>草稿</strong>状态时，可执行“发布”操作",
+      "content_line_8": "可执行的操作取决于研究的当前状态。<br>这将创建一个稳定持久的研究实例，可作为存储库中的数据快照供后续使用。<br>系统将自动分配并行的小版本号（0.1、0.2、…、1.1、1.2、…）。<br>研究将继续保持“草稿”状态。<br>“发布”类似于文档管理系统中的签入或 Git 仓库中的提交并推送。",
+      "content_line_9": "当研究处于<strong>草稿</strong>状态时，可执行“锁定”操作",
+      "content_line_10": "这将创建一个带版本的稳定持久研究实例，可作为存储库中的数据快照供后续使用。研究状态将变为“已锁定”，无法再编辑。如需继续编辑，必须执行解锁操作并开始新版本。<br>系统将自动分配并行的大版本号（1.0、2.0、3.0…）。<br>锁定过程还将创建一个研究发布实例，以确保最新发布实例不早于最新锁定实例。<br>“锁定”和“发布”类似于在文档管理系统中创建最终批准版本或将拉取请求合并到 Git 仓库的主分支。",
+      "content_line_11": "当研究处于<strong>已锁定</strong>状态时，可执行“解锁”操作",
+      "content_line_12": "这将使研究返回到“草稿”状态，从而可以再次编辑。",
       "study_sub_parts_body": "将研究定义指定为多个子研究定义的父定义，或作为父定义下的子研究定义的规范。这是针对包含多个子研究部分的方案制定研究规范的方法。",
       "protocol_version_body": "研究定义实例版本与相应方案文档版本之间关系的说明。"
     },
     "FootnotesTemplatesTable": {
-      "general": "Select from the table of templates. Either from generic templates or pre-specified templates, by using the 'Select from pre-instance'-slide in the top of the table."
+      "general": "从模板表中选择，可选择通用模板或预实例化模板，可在表格顶部使用“从预实例选择”滑块。"
     },
     "FootnotesTable": {
-      "general": "List of footnotes applicable for the Schedule of Activities (SoA).",
-      "covered_items": "The itmes in the SoA that the footnote is related to, e.g. a visits or an Activity."
+      "general": "适用于活动安排表 (SoA) 的脚注列表。",
+      "covered_items": "脚注所关联的 SoA 项，例如访视或活动。"
     },
     "StudyFootnoteForm": {
       "general": "脚注是与SoA元素相关的补充信息。与活动相关的说明应使用“活动说明”选项卡。",
@@ -3801,29 +3801,15 @@
     "study_branch_history_title": "History for study branch arm [{branchUid}]"
   },
   "StudyCohorts": {
-    "code": "Code",
-    "number_of_subjects": "Number of subjects",
-    "colour": "Colour",
-    "cohort_deleted": "Cohort deleted",
-    "cohort_updated": "Study Cohort updated",
-    "cohort_created": "Study Cohort created",
-    "study_arm": "Study Arm",
-    "study_branch_arm": "Study Branch Arm",
-    "arm_name": "Arm name",
-    "branch_arm_name": "Branch Arm name",
-    "cohort_name": "Cohort Name",
-    "cohort_short_name": "Cohort Short Name",
-    "cohort_code": "Cohort Code",
-    "planned_number_of_subjects": "Planned number of subjects in Cohort",
-    "edit_cohort": "Edit Cohort",
-    "add_cohort": "Add Cohort",
-    "add_arm": "Add study arm",
-    "value_less_then": "Value must be less than",
-    "number_of_subjects_exceeds": "Number of subjects in a cohort cannot exceed total number of subject in the study",
-    "study_cohort": "Study cohort",
-    "add_study_cohort": "Add Study Cohort",
-    "global_history_title": "Study cohorts history",
-    "study_arm_history_title": "History for study cohort [{cohortUid}]",
+      "study_arm": "选择适用该队列的研究试验组。",
+      "study_branch_arm": "选择适用该队列的研究分支试验组。如未使用分支则留空。",
+      "cohort_name": "队列的完整名称，例如“Liver disease”或“Healthy Liver”",
+      "cohort_short_name": "相应的简称，例如 LF 或 HL",
+      "cohort_code": "队列的简短代码",
+      "nuber_of_subjects": "该队列计划的受试者人数。注意不得大于为试验组/分支试验组定义的受试者人数。",
+      "description": "队列的描述，例如按 Child-Pugh 评分 B+C 定义的肝病",
+      "colour": "选择该队列的颜色（将在设计矩阵中显示）。"
+    }]",
     "cohort_code_error": "This field can only contain numbers from 1-99",
     "description": "描述",
     "connected_arms": "Connected Arms",
