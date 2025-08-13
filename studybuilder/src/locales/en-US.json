@@ -453,7 +453,7 @@
             "select_template": "To create an instantiation of a Time Frame, select from the relevant library and it's listed templates."
         },
         "StudyForm": {
-            "project_id": "Select the project ID from the drop-down list. For details on project see <a href='https://novonordisk.sharepoint.com/sites/ProjectToolbox' target='_blank'>[Project Toolbox]<a> ",
+            "project_id": "Select the project ID from the drop-down list. For details on project see <a href='https://novonordisk.sharepoint.com/sites/ProjectToolbox' target='_blank'>[Project Toolbox]</a>.",
             "project_name": "Auto-populated based on selected project",
             "brand_name": "Auto-populated based on selected project (only populated if brand name exists)",
             "study_id": "ID that will be generated for this study",
@@ -472,9 +472,9 @@
         },
         "StudyDefineForm": {
             "general": "This section is for defining the Study. For requesting a term/value added to drop-down list, please refer to SharePoint",
-            "studytype": "Select value that reflects the overall study type. For definition of study types see <a href='{url}' target='_blank'>[Study Type]<a>",
+            "studytype": "Select value that reflects the overall study type. For definition of study types see <a href='{url}' target='_blank'>[Study Type]</a>.",
             "studyintent": "Select the values that reflect the planned purposes of the therapy or device being investigated in the study",
-            "trialtype": "Select the values that reflect the trial type(s) that is within the study purpose. For definition of the trial types see <a href='{url}' target='_blank'>[Trial Type Response]<a>",
+            "trialtype": "Select the values that reflect the trial type(s) that is within the study purpose. For definition of the trial types see <a href='{url}' target='_blank'>[Trial Type Response]</a>.",
             "trialphase": "Select relevant phase or stage, of the study",
             "studystoprule": "The rule(s), regulation(s) and/or condition(s) that determines the point in time when a clinical trial will be terminated. Stopping rule as specified in Protocol. If there is no stopping rule record 'NONE' in this field",
             "extensiontrial": "Indicate whether the study is an extension trial",
@@ -739,7 +739,7 @@
             "general": "Code system intended to include all units of measures. UCUM is used in healthcare to populate electronic health records, such as laboratory records in LOINC, and in the ISO IDMP standard (Identification of Medicinal Products)."
         },
         "UCUM": {
-            "code": "Add the code for the new UCUM. For syntax rules see <a href='https://ucum.org/ucum.html.' target='_blank'>[UCUM]<a>",
+            "code": "Add the code for the new UCUM. For syntax rules see <a href='https://ucum.org/ucum.html' target='_blank'>[UCUM]</a>.",
             "description": "Add an description of the UCUM code."
         },
         "ActivitiesTable": {
