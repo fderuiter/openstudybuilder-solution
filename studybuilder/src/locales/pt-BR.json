@@ -222,20 +222,20 @@
             "context": "The Context attribute specifies the application domain in which this additional name is relevant. You could use for example 'CDASH/SDTM' with a 'Name' = 'DM:Demographics|DS:Disposition' and then the ODM-XML view will display it as an annotation for two SDTM Domain."
         },
         "GenericTemplateForm": {
-            "study_indication": "Indicações, condições, doenças ou distúrbios abrangidos pelo modelo. Selecione NA (não aplicável) se o modelo for genérico e não direcionado a estudos específicos.",
-            "study_phase": "Fases do estudo abrangidas pelo modelo. Selecione NA (não aplicável) se o modelo for genérico e não direcionado a estudos específicos."
+            "study_indication": "Indicações, condições, doenças ou distúrbios no escopo do modelo. Selecione NA (não aplicável) se o modelo for genérico e não direcionado a estudos específicos.",
+            "study_phase": "Fases do estudo no escopo do modelo. Selecione NA (não aplicável) se o modelo for genérico e não direcionado a estudos específicos."
         },
         "ObjectiveTemplateForm": {
-            "name": "Example of objective: 'To demonstrate superiority of [CompoundDosing] [NumericValue] [Dose Unit] versus [Comparator] [NumericValue] [Dose Unit] with respect to [ActivityInstance] at [TimePoint] in patients with [DiseaseDisorder]' or 'To document the safety profile of [StudyIntervention].' Add parameters enclosed in square brackets [ and ].",
-            "indication_disorder": "Select one or more indications from the drop-down for which this objective applies. Tick NA if not applicable.",
-            "objective_category": "Select one or more categories from the drop-down for which this objective applies. Tick NA if not applicable.",
-            "confirmatory_testing": "Use the radio-button to specify if the template is to be used to express an objective that is related to a confirmatory testing. For objectives that are related to confirmatory testing, it is essential that the objectives are precise and state if the purpose is to demonstrate superiority, non-inferiority, or bioequivalence. Also, it is essential that the endpoint (including time frame) associated with the confirmatory analysis is stated in the objective. Example of an objective related to confirmatory testing: To demonstrate superiority of [CompoundDosing] [NumericValue] [Dose Unit] versus [Comparator] [NumericValue] [Dose Unit] with respect to [ActivityInstance] at [TimePoint] in patients with [DiseaseDisorder]. Example of an objective not related to confirmatory testing: To compare the safety and efficacy with respect to glycemic control of [CompoundDosing] [NumericValue] [Dose Unit] versus [Comparator] [NumericValue] [Dose Unit] in patients with [DiseaseDisorder]"
+            "name": "Exemplo de objetivo: 'Demonstrar a superioridade de [CompoundDosing] [NumericValue] [Dose Unit] em comparação com [Comparator] [NumericValue] [Dose Unit] em relação a [ActivityInstance] em [TimePoint] em pacientes com [DiseaseDisorder]' ou 'Documentar o perfil de segurança de [StudyIntervention]'. Adicione parâmetros entre colchetes [ e ].",
+            "indication_disorder": "Selecione uma ou mais indicações no menu suspenso às quais este objetivo se aplica. Marque NA (não aplicável) se não for aplicável.",
+            "objective_category": "Selecione uma ou mais categorias no menu suspenso às quais este objetivo se aplica. Marque NA (não aplicável) se não for aplicável.",
+            "confirmatory_testing": "Use o botão de opção para especificar se o modelo será usado para expressar um objetivo relacionado a um teste confirmatório. Para objetivos relacionados a teste confirmatório, é essencial que os objetivos sejam precisos e indiquem se a finalidade é demonstrar superioridade, não-inferioridade ou bioequivalência. Também é essencial que o endpoint (incluindo o período) associado à análise confirmatória seja declarado no objetivo. Exemplo de objetivo relacionado a teste confirmatório: Demonstrar a superioridade de [CompoundDosing] [NumericValue] [Dose Unit] em comparação com [Comparator] [NumericValue] [Dose Unit] em relação a [ActivityInstance] em [TimePoint] em pacientes com [DiseaseDisorder]. Exemplo de objetivo não relacionado a teste confirmatório: Comparar a segurança e eficácia em relação ao controle glicêmico de [CompoundDosing] [NumericValue] [Dose Unit] em comparação com [Comparator] [NumericValue] [Dose Unit] em pacientes com [DiseaseDisorder]"
         },
         "ActivityInstructionTemplateForm": {
-            "indications": "Indications, conditions, diseases or disorders in scope for the template. Select NA (not applicable), if template is generic not targeted specific indication.",
-            "group": "Select the default group the activity belongs to (grouping is used e.g. in protocol SoA display). It can ben changed on study level if needed.",
-            "sub_group": "Select one (or more) default subgroup(s) the activity belongs to (gub-grouping is used e.g. in protocol SoA display) . It can ben changed on study level if needed.",
-            "activity": "Select NA (not applicable), if template not targeting specific activities."
+            "indications": "Indicações, condições, doenças ou distúrbios abrangidos pelo modelo. Selecione NA (não aplicável) se o modelo for genérico e não direcionado a uma indicação específica.",
+            "group": "Selecione o grupo padrão ao qual a atividade pertence (o agrupamento é usado, por exemplo, na exibição do SoA do protocolo). Pode ser alterado no nível do estudo, se necessário.",
+            "sub_group": "Selecione um (ou mais) subgrupos padrão aos quais a atividade pertence (o subagrupamento é usado, por exemplo, na exibição do SoA do protocolo). Pode ser alterado no nível do estudo, se necessário.",
+            "activity": "Selecione NA (não aplicável) se o modelo não for direcionado a atividades específicas."
         },
         "ActivityInstructionTable": {
             "general": "A list of Activity instructions used on studies."
