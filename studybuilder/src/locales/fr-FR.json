@@ -158,17 +158,17 @@
         "multi_error_title": "Une ou plusieurs erreurs sont survenues pendant l'opération"
     },
     "_errors": {
-        "exclusive_select": "Field and Null Flavor can't be selected at the same time.",
-        "numeric": "This field must contains numbers only",
-        "required": "This field is required",
-        "max_length_reached": "This field must not exceed {length} characters",
-        "max_value_reached": "Value must be less than {max}",
-        "min_value_reached": "Value can't be less than {min}",
-        "duration_incomplete": "You must select a value and a unit",
-        "validation_error": "Data validation error:",
-        "select_at_least_one": "Select a value or a reason for missing",
-        "no_parameter_values_selected": "No value(s) selected",
-        "identical_name": "Sentence case name value must be identical to name value"
+        "exclusive_select": "Le champ et le Null Flavor ne peuvent pas être sélectionnés en même temps.",
+        "numeric": "Ce champ doit contenir uniquement des nombres",
+        "required": "Ce champ est obligatoire",
+        "max_length_reached": "Ce champ ne doit pas dépasser {length} caractères",
+        "max_value_reached": "La valeur doit être inférieure à {max}",
+        "min_value_reached": "La valeur ne peut pas être inférieure à {min}",
+        "duration_incomplete": "Vous devez sélectionner une valeur et une unité",
+        "validation_error": "Erreur de validation des données :",
+        "select_at_least_one": "Sélectionnez une valeur ou une raison de l'absence",
+        "no_parameter_values_selected": "Aucune valeur sélectionnée",
+        "identical_name": "La valeur du nom en casse phrase doit être identique à la valeur du nom"
     },
     "_help": {
         "CrfTemplates": {
