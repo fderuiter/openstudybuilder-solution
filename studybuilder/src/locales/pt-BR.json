@@ -920,18 +920,18 @@
         }
     },
     "Topbar": {
-        "app_selector_title": "Choose a section",
-        "admin": "Admin",
-        "help": "Help",
-        "documentation_portal": "Technical documentation",
-        "user_guide": "User guides",
-        "about": "About",
-        "need_help": "Need Help?",
-        "enable_dark_theme": "Enable dark theme",
-        "enable_light_theme": "Enable light theme",
-        "settings": "Settings",
-        "add_study": "ADD NEW STUDY",
-        "select_study": "SELECT STUDY"
+        "app_selector_title": "Escolha uma seção",
+        "admin": "Administração",
+        "help": "Ajuda",
+        "documentation_portal": "Documentação técnica",
+        "user_guide": "Guias do usuário",
+        "about": "Sobre",
+        "need_help": "Precisa de ajuda?",
+        "enable_dark_theme": "Ativar tema escuro",
+        "enable_light_theme": "Ativar tema claro",
+        "settings": "Configurações",
+        "add_study": "ADICIONAR NOVO ESTUDO",
+        "select_study": "SELECIONAR ESTUDO"
     },
     "Library": {
         "description_top_before": "The ",
