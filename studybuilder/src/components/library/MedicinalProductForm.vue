@@ -44,8 +44,8 @@
               :rules="[formRules.required]"
               :filter-keys="['raw.searchable_text']"
             >
-              <template #item="{ props, item }">
-                <v-list-item v-bind="props" :title="item.raw.derived_name">
+              <template #item="{ props, internalItem: item }">
+                <v-list-item v-bind="props" :title="item.derived_name">
                   <v-list-item-subtitle class="pa-2">
                     {{ displayDosageForms(item.raw) }}
                     {{ displayRoutesOfAdministration(item.raw) }}
@@ -90,7 +90,7 @@
         </v-row>
         <v-row>
           <v-col>
-            <div class="text-h6 my-2">
+            <div class="text-headline-small my-2">
               {{ $t('MedicinalProductForm.dose_values') }}
               <v-btn
                 color="primary"

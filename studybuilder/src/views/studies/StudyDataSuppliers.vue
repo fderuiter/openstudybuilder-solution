@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <v-card elevation="2">
+    <v-card elevation="1">
       <v-tabs v-model="tab" bg-color="white">
         <v-tab value="overview">{{
           $t('StudyDataSuppliers.overview_tab')
@@ -75,7 +75,7 @@
               class="mb-6"
             >
               <div class="supplier-type-section pa-4">
-                <div class="text-h6 mb-4">
+                <div class="text-headline-small mb-4">
                   {{ $t('StudyDataSuppliers.supplier_data_type') }}
                   <strong>{{ typeName }}</strong>
                 </div>
@@ -83,7 +83,7 @@
                   v-if="suppliers.length === 0"
                   class="pa-4 bg-grey-lighten-3 rounded"
                 >
-                  <div class="text-body-1">
+                  <div class="text-body-large">
                     {{ $t('StudyDataSuppliers.empty_state') }}
                   </div>
                 </div>
@@ -93,7 +93,7 @@
                     :key="supplier.study_data_supplier_uid"
                     class="mb-3 pa-4 bg-grey-lighten-3 rounded"
                   >
-                    <div class="text-body-1">
+                    <div class="text-body-large">
                       {{ $t('StudyDataSuppliers.data_supplier_label') }}
                       <strong>{{ supplier.name }}</strong>
                     </div>
@@ -208,7 +208,7 @@
     <v-dialog v-model="dialog" max-width="800px" persistent>
       <v-card>
         <v-card-title>
-          <span class="text-h5">{{
+          <span class="text-headline-medium">{{
             $t('StudyDataSuppliers.edit_dialog_title')
           }}</span>
         </v-card-title>
@@ -263,7 +263,7 @@
     <v-dialog v-model="auditDialog" max-width="1200px">
       <v-card>
         <v-card-title>
-          <span class="text-h5">{{
+          <span class="text-headline-medium">{{
             $t('StudyDataSuppliers.audit_trail_title')
           }}</span>
         </v-card-title>

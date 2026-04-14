@@ -36,7 +36,7 @@
             <v-divider class="mt-2"></v-divider>
           </template>
 
-          <template #selection="{ item, index }">
+          <template #selection="{ internalItem: item, index }">
             <div v-if="index === 0">
               <span>{{
                 item.title.length > 25
@@ -44,7 +44,7 @@
                   : item.title
               }}</span>
             </div>
-            <span v-if="index === 1" class="grey--text text-caption mr-1">
+            <span v-if="index === 1" class="grey--text text-body-small mr-1">
               (+{{ selectedCollections.length - 1 }})
             </span>
           </template>
@@ -91,7 +91,7 @@
             <v-divider class="mt-2"></v-divider>
           </template>
 
-          <template #selection="{ item, index }">
+          <template #selection="{ internalItem: item, index }">
             <div v-if="index === 0">
               <span>{{
                 item.title.length > 25
@@ -99,7 +99,7 @@
                   : item.title
               }}</span>
             </div>
-            <span v-if="index === 1" class="grey--text text-caption mr-1">
+            <span v-if="index === 1" class="grey--text text-body-small mr-1">
               (+{{ selectedForms.length - 1 }})
             </span>
           </template>
@@ -199,9 +199,12 @@
       </v-col>
     </v-row>
     <div v-show="loading">
-      <v-row align="center" justify="center" style="text-align: -webkit-center">
+      <v-row
+        class="align-center justify-center"
+        style="text-align: -webkit-center"
+      >
         <v-col cols="12" sm="4">
-          <div class="text-h5">
+          <div class="text-headline-medium">
             {{ $t('OdmViewer.loading_message') }}
           </div>
           <v-progress-circular

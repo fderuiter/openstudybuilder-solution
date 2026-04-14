@@ -3093,10 +3093,10 @@ vue@^3.4.19:
     "@vue/server-renderer" "3.5.29"
     "@vue/shared" "3.5.29"
 
-vuetify@3.12.2:
-  version "3.12.2"
-  resolved "https://registry.yarnpkg.com/vuetify/-/vuetify-3.12.2.tgz#c6d5a74243925115b56a488a9627d0a4a57108be"
-  integrity sha512-cVQa4+5iQpDs00ToMUnWRHlMdv1d5tEH2wcZIthqSCmBipQAG4rQKE55zFwZFYlPyiDhUVY1RcAFtXCuHNcCww==
+vuetify@4.0.2:
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/vuetify/-/vuetify-4.0.2.tgz#6d4e665cbcf79fc362c558657e080b599644b693"
+  integrity sha512-klgSGmfXoLajdTuuxreilzDQjp0ojzL2U5v6Z3ZbMYtpihPPXT9rkd/FxWL3dIGevnWdgaP2Kpwoz6aS/MISDA==
 
 webpack-merge@^5.8.0:
   version "5.10.0"

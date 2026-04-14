@@ -35,7 +35,7 @@
         <v-alert
           density="compact"
           type="info"
-          elevation="2"
+          elevation="1"
           class="text-white mt-4"
           :text="$t('ProtocolFlowchart.soa_settings_message')"
         />
@@ -47,7 +47,7 @@
         class="secondary-btn"
         variant="outlined"
         rounded
-        elevation="2"
+        elevation="1"
         width="120px"
         @click="cancel"
       >
@@ -57,7 +57,7 @@
         color="secondary"
         variant="flat"
         rounded
-        elevation="2"
+        elevation="1"
         width="120px"
         @click="submit"
       >

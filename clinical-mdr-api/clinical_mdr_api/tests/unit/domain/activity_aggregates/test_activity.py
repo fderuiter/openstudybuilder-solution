@@ -55,7 +55,7 @@ def create_random_activity_ar(
             library_name=library, is_editable=is_editable
         ),
         author_id=AUTHOR_ID,
-        concept_exists_by_library_and_name_callback=lambda _l, _c: False,
+        concept_exists_by_library_and_name_callback=lambda _l, _c, _g: False,
         activity_subgroup_exists=lambda _: True,
         activity_group_exists=lambda _: True,
     )
@@ -89,7 +89,7 @@ class TestActivity(unittest.TestCase):
             author_id=AUTHOR_ID,
             change_description="Test",
             concept_vo=activity_vo,
-            concept_exists_by_library_and_name_callback=lambda _l, _c: False,
+            concept_exists_by_library_and_name_callback=lambda _l, _c, _g: False,
             activity_subgroup_exists=lambda _: True,
             activity_group_exists=lambda _: True,
         )
@@ -204,7 +204,7 @@ class TestActivityNegative(unittest.TestCase):
                     library_name="library", is_editable=True
                 ),
                 author_id=AUTHOR_ID,
-                concept_exists_by_library_and_name_callback=lambda _l, _c: False,
+                concept_exists_by_library_and_name_callback=lambda _l, _c, _g: False,
                 activity_subgroup_exists=lambda _: True,
                 activity_group_exists=lambda _: True,
             )
@@ -241,7 +241,7 @@ class TestActivityNegative(unittest.TestCase):
                     request_rationale=random_str(),
                     is_data_collected=True,
                 ),
-                concept_exists_by_library_and_name_callback=lambda _l, _c: False,
+                concept_exists_by_library_and_name_callback=lambda _l, _c, _g: False,
                 activity_subgroup_exists=lambda _: True,
                 activity_group_exists=lambda _: True,
             )

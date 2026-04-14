@@ -5,7 +5,7 @@
     </div>
     <v-form ref="formRef">
       <v-card>
-        <v-card-text class="text-body-2">
+        <v-card-text class="text-body-medium">
           <v-row>
             <v-col md="6" sm="12">
               <v-sheet
@@ -71,7 +71,7 @@
               />
             </v-col>
           </v-row>
-          <div class="text-h6 font-weight-bold text-nnTrueBlue">
+          <div class="text-headline-small font-weight-bold text-nnTrueBlue">
             {{ $t('SystemAnnouncementsView.preview') }}
           </div>
           <SystemAnnouncement :announcement="form" />

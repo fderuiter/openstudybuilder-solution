@@ -23,6 +23,7 @@ from clinical_mdr_api.models.controlled_terminologies.ct_codelist import (
     CTCodelistPaired,
     CTCodelistPairedInput,
     CTCodelistTerm,
+    CTPairedCodelistTerm,
 )
 from clinical_mdr_api.models.utils import GenericFilteringReturn
 from clinical_mdr_api.repositories._utils import FilterOperator
@@ -787,3 +788,52 @@ class CTCodelistService:
             )
 
         return self.get_paired_codelists(codelist_uid)
+
+    def get_paired_codelist_terms(
+        self,
+        codelist_uid: str,
+        sort_by: dict[str, bool] | None = None,
+        page_number: int = 1,
+        page_size: int = 0,
+        filter_by: dict[str, dict[str, Any]] | None = None,
+        filter_operator: FilterOperator = FilterOperator.AND,
+        total_count: bool = False,
+    ) -> GenericFilteringReturn[CTPairedCodelistTerm]:
+        paired_codes_uid, paired_names_uid = (
+            self._repos.ct_codelist_aggregated_repository.get_paired_codelist_uids(
+                codelist_uid
+            )
+        )
+
+        BusinessLogicException.raise_if(
+            paired_codes_uid is None and paired_names_uid is None,
+            msg=f"Codelist with UID '{codelist_uid}' does not have a paired codelist.",
+        )
+
+        if paired_codes_uid is not None:
+            names_codelist_uid = codelist_uid
+            codes_codelist_uid = paired_codes_uid
+        else:
+            assert paired_names_uid is not None
+            codes_codelist_uid = codelist_uid
+            names_codelist_uid = paired_names_uid
+
+        all_paired_terms, count = (
+            self._repos.ct_codelist_aggregated_repository.find_paired_codelist_terms(
+                names_codelist_uid=names_codelist_uid,
+                codes_codelist_uid=codes_codelist_uid,
+                sort_by=sort_by,
+                page_number=page_number,
+                page_size=page_size,
+                total_count=total_count,
+                filter_by=filter_by,
+                filter_operator=filter_operator,
+            )
+        )
+
+        items = [
+            CTPairedCodelistTerm.from_ct_paired_codelist_term_ar(paired_term_ar)
+            for paired_term_ar in all_paired_terms
+        ]
+
+        return GenericFilteringReturn.create(items=items, total=count)

@@ -28,14 +28,14 @@ from clinical_mdr_api.models.concepts.activities.activity import (
 )
 from clinical_mdr_api.models.concepts.activities.activity_instance import (
     ActivityInstanceDetail,
-    ActivityInstanceEditInput,
     ActivityInstanceGrouping,
+    ActivityInstanceGroupingsEditInput,
 )
 from clinical_mdr_api.models.utils import GenericFilteringReturn
 from clinical_mdr_api.services._utils import is_library_editable
 from clinical_mdr_api.services.concepts import constants
 from clinical_mdr_api.services.concepts.activities.activity_instance_service import (
-    ActivityInstanceService,
+    ActivityInstanceGroupingsService,
 )
 from clinical_mdr_api.services.concepts.concept_generic_service import (
     ConceptGenericService,
@@ -460,7 +460,7 @@ class ActivityService(ConceptGenericService[ActivityAR]):
         self.batch_cascade_update(item, linked_instances)
 
     def batch_cascade_update(self, item: ActivityAR, linked_instances: dict[str, Any]):
-        activity_instance_service = ActivityInstanceService()
+        activity_instance_groupings_service = ActivityInstanceGroupingsService()
         linked_instances_map = {
             activity_instance["uid"]: activity_instance
             for activity_instance in linked_instances.get("activity_instances", [])
@@ -471,7 +471,7 @@ class ActivityService(ConceptGenericService[ActivityAR]):
                 uids=activity_instance_uids
             )
             activity_instance_ars, _ = (
-                self._repos.activity_instance_repository.find_all(
+                self._repos.activity_instance_groupings_repository.find_all(
                     uids=activity_instance_uids,
                 )
             )
@@ -513,21 +513,20 @@ class ActivityService(ConceptGenericService[ActivityAR]):
                 # For FINAL activity instances: create new version, edit, and approve
                 activity_instance.create_new_version(author_id=self.author_id)
 
-                edit_input = ActivityInstanceEditInput(
+                edit_input = ActivityInstanceGroupingsEditInput(
                     change_description="Cascade edit",
                     activity_groupings=instance_groupings,
-                    name=activity_instance.concept_vo.name,
-                    name_sentence_case=activity_instance.concept_vo.name_sentence_case,
                 )
-                activity_instance = activity_instance_service._edit_aggregate(
+                activity_instance = activity_instance_groupings_service._edit_aggregate(
                     item=activity_instance,
                     concept_edit_input=edit_input,
                     perform_validation=False,
                 )
 
                 activity_instance.approve(author_id=self.author_id)
-                self._repos.activity_instance_repository.copy_activity_instance_and_recreate_activity_groupings(
-                    activity_instance=activity_instance, author_id=self.author_id
+                self._repos.activity_instance_groupings_repository.copy_activity_instance_groupings_and_recreate(
+                    activity_instance_groupings=activity_instance,
+                    author_id=self.author_id,
                 )
 
     def get_specific_activity_version_groupings(

@@ -36,7 +36,7 @@
         </v-row>
         <v-row>
           <v-col>
-            <div class="text-h6 mb-2">
+            <div class="text-headline-small mb-2">
               {{ $t('PharmaceuticalProductForm.ingredients') }}
               <v-btn
                 color="primary"

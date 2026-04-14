@@ -40,6 +40,22 @@ class ActivityInstanceClassService(NeomodelExtGenericService[ActivityInstanceCla
     api_model_class = ActivityInstanceClass
     version_class = ActivityInstanceClassVersion
 
+    @ensure_transaction(db)
+    def get_all_item_versions(
+        self,
+        sort_by: dict[str, bool] | None = None,
+        page_number: int = 1,
+        page_size: int = 0,
+        total_count: bool = False,
+    ) -> GenericFilteringReturn[ActivityInstanceClass]:
+        items, total = self.repository.find_all_versions(
+            sort_by=sort_by,
+            page_number=page_number,
+            page_size=page_size,
+            total_count=total_count,
+        )
+        return GenericFilteringReturn(items=items, total=total)
+
     def _transform_aggregate_root_to_pydantic_model(
         self, item_ar: ActivityInstanceClassAR
     ) -> ActivityInstanceClass:

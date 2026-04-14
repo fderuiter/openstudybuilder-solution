@@ -216,7 +216,7 @@ function fetchItems(filters, options, filtersUpdated) {
   }
   const params = filteringParameters.prepareParameters(
     options,
-    filters,
+    savedFilters.value,
     filtersUpdated
   )
   compoundsApi.getFiltered(params).then((resp) => {

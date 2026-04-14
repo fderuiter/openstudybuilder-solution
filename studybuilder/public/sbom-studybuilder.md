@@ -240,7 +240,7 @@
 | vue-i18n                                         | 11.1.10  | [MIT](#vue-i18n)                                         |
 | vue-router                                       | 4.6.4    | [MIT](#vue-router)                                       |
 | vue                                              | 3.5.29   | [MIT](#vue)                                              |
-| vuetify                                          | 3.12.2   | [MIT](#vuetify)                                          |
+| vuetify                                          | 4.0.2    | [MIT](#vuetify)                                          |
 | webpack-merge                                    | 5.10.0   | [MIT](#webpack-merge)                                    |
 | which                                            | 2.0.2    | [ISC](#which)                                            |
 | wildcard                                         | 2.0.1    | [MIT](#wildcard)                                         |

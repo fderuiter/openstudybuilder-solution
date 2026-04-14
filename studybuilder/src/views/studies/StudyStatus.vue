@@ -3,14 +3,14 @@
     <div class="page-title d-flex align-center">
       {{ $t('StudyStatusView.title') }} ({{ studiesGeneralStore.studyId }})
       <HelpButton width="800px">
-        <div class="text-h6">
+        <div class="text-headline-small">
           {{ $t('_help.StudyStatus.core_attributes') }}
         </div>
         <div
           class="my-2"
           v-html="sanitizeHTML($t('_help.StudyStatus.core_attributes_body'))"
         />
-        <div class="text-h6">
+        <div class="text-headline-small">
           {{ $t('_help.StudyStatus.study_status') }}
         </div>
         <div class="my-2">
@@ -58,13 +58,13 @@
           </li>
         </ul>
 
-        <div class="text-h6 mt-2">
+        <div class="text-headline-small mt-2">
           {{ $t('_help.StudyStatus.study_sub_parts') }}
         </div>
         <div class="my-2">
           {{ $t('_help.StudyStatus.study_sub_parts_body') }}
         </div>
-        <div class="text-h6">
+        <div class="text-headline-small">
           {{ $t('_help.StudyStatus.protocol_version') }}
         </div>
         <div class="my-2">

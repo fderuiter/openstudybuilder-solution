@@ -6,6 +6,14 @@ const { When, Then, Given } = require("@badeball/cypress-cucumber-preprocessor")
 let groupName, subgroupName, secondSubgroup, activityName, instanceName
 let trimmedStartDate
 
+When('Activity instance approve attributes button is clicked', () => cy.get('button .mdi-check-decagram').eq(0).click())
+
+When('Activity instance approve groupings button is clicked', () => cy.get('.activity-section').within(() => cy.get('button .mdi-check-decagram').click()))
+
+When('Activity instance attributes new version button is clicked', () => cy.get('button .mdi-plus-circle-outline').eq(0).click())
+
+When('Activity instance groupings new version button is clicked', () => cy.get('.activity-section').within(() => cy.get('button .mdi-plus-circle-outline').click()))
+
 When('Activity name created via API is fetched', () => cy.getActivityNameByUid().then(text => activityName = text))
 
 When('Group, subgroup, activity and instance names created through API are found', () => {
@@ -125,6 +133,8 @@ Then('The Activity Item Class table is empty', () => verifyIfTableIsEmpty('Activ
 
 Then('The Activity groupings table is empty', () => verifyIfTableIsEmpty('Activity groupings', 'No data available'))
 
+Then('The Activity groupings table for Instance is empty', () => verifyIfTableIsEmptyInstance('Activity groupings', 'No data available'))
+
 Then('The Activity subgroups table is empty', () => verifyIfTableIsEmpty('Activity subgroup', 'No subgroups available.'))
 
 Then('The Activities groups table is empty', () => verifyIfTableIsEmpty('Activity group', 'No items available'))
@@ -150,12 +160,11 @@ Then('The activity instance is not available in Activity groupings table', () =>
 })
 
 Then('The Instance linked group, subgroup and instance are displayed in the Activity groupings table', () => {
-    verifyActivityGroupings('Activity', activityName)
+    verifyActivityGroupingsInstancePage(activityName)
 })
 
 Then('The Instance linked activity has status {string} and version {string}', (status, version) => {
-    cy.contains('.section-header', 'Activity groupings').parent().within(() => {
-        cy.checkRowByIndex(0, 'Activity', status)
+    cy.contains('.section-header', 'Activity groupings').parent().find('[data-cy="data-table"]').within(() => {
         cy.checkRowByIndex(0, 'Activity', version)
     })
 })
@@ -163,6 +172,20 @@ Then('The Instance linked activity has status {string} and version {string}', (s
 Then('The status displayed on the summary has value {string} and version is {string}', (status, version) => {
     cy.contains('.summary-label', 'Status').parent().within(() => cy.get('.summary-value').should('have.text', status))
     cy.get('.v-select__selection-text').should('contain', version)
+})
+
+Then('The status displayed on the summary for Activity Instance Attributes is {string} and version is {string}', (status, version) => {
+    cy.get('.activity-instance-attributes-section').within(() => {
+        cy.contains('.summary-label', 'Status').parent().within(() => cy.get('.summary-value').should('have.text', status))
+        cy.get('.v-select__selection-text').should('contain', version)
+    })
+})
+
+Then('The status displayed on the summary for Activity Instance Groupings is {string} and version is {string}', (status, version) => {
+    cy.get('.activity-section').within(() => {
+        cy.contains('.summary-label', 'Status').parent().within(() => cy.get('.summary-value').should('have.text', status))
+        cy.get('.v-select__selection-text').should('contain', version)
+    })
 })
 
 When('Version {string} is selected from the Version dropdown list', (version) => {
@@ -364,6 +387,12 @@ function verifyIfTableIsEmpty(tableName, expectedText) {
     })
 }
 
+function verifyIfTableIsEmptyInstance(tableName, expectedText) {
+    cy.contains('.section-header', tableName).parent().find('[data-cy="data-table"]').within(() => {
+        cy.get('table tbody tr').should('have.text', expectedText)
+    })
+}
+
 function validateTableColumns(tableName, columns) {
   cy.contains('.section-header', tableName).parent().find('table thead tr').within(() => {
     columns.forEach(column => {
@@ -377,6 +406,14 @@ function verifyActivityGroupings(activityItemName, expectedActivityItem) {
         cy.checkRowByIndex(0, 'Activity group', groupName)
         cy.checkRowByIndex(0, 'Activity subgroup', subgroupName)
         cy.checkRowByIndex(0, activityItemName, expectedActivityItem)
+    })
+}
+
+function verifyActivityGroupingsInstancePage(expectedActivityItem) {
+    cy.contains('.section-header', 'Activity groupings').parent().find('[data-cy="data-table"]').within(() => {
+        cy.checkRowByIndex(0, 'Activity group', groupName)
+        cy.checkRowByIndex(0, 'Activity subgroup', subgroupName)
+        cy.checkRowByIndex(0, 'Activity', expectedActivityItem)
     })
 }
 

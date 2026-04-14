@@ -1,5 +1,47 @@
 # OpenStudyBuilder (OSB) Commits changelog
 
+## V 2.8
+
+New Features and Enhancements
+============
+
+### Fixes and Enhancements
+
+- The rule for generating subpart study IDs is changed so this will be the main study ID concatenated with the study subpart acronym. Rule for study subpart acronym is changed to be in upper case, no blanks or special characters and a max length of 10. On the Studies, Study List an additional column is added displaying the main study ID.
+- Creating placeholder activities is now much more streamlined - Users no longer need to choose whether they want to submit their placeholders or not, as we'll only have one type of placeholder activities going forward. It is now also possible to re-use placeholders with identical naming across studies. All placeholders can still be used in the SoA and will be processed by Standards Developers like they are today.
+- Aligned naming of unscheduled study visits with SDTM standard
+- On Studies, Manage Study, Study menu on Protocol Versions tab the distinct protocol document main versions are listed. This now include a column for the original first study definition version related to each protocol document version as well as the latest version. The modified dates and by columns are removed, as they do not reflect the protocol document version, and they are available on the study status tab for the study definition versions.
+
+### New Feature
+
+- Split of the activity instance model, to keep separate versioning of the instance groupings (activity, group, and subgroup), and all other properties. This will allow standards developers to only update the part that needs changes, like when adding a new grouping, while leaving everything related to the data specification unchanged. The result will be less time spent on maintaining the library, and a cleaner library with fewer versions of each instance.
+- New slider switch added to Library - Concepts - Activities page with label Archived library off by default.
+
+### Consumer API
+- GET `/v1/library/activity-instances` endpoint: added information about activity instance class and activity items to response.
+- GET `/v1/library/ct/codelist-terms` endpoint: added optional filtering by `codelist_uid`; added `codelist_uid`, `order` and `ordinal` fields to response.
+
+### End-to-End Automated test enhancements
+
+- Various code improvements to ensure easier maintenance and overall tests stability.
+- Administration > Data Completness Tags: Defined and Implemented tests for adding, updating and removing data completness tags from studies.
+- Library > Concepts > Activities: Adjusted tests to the Split of the activity instance model.
+- Library > Syntax Templates: Moved generic checks on table level (table structure, search, filtering, pagination) to separate feature files.
+- Library > Data Collection Standards > CRF Builder > CRF Items: Defined tests for Activity Instance linkage.
+- Library > Data Collection Standards > CRF Builder > CRF Tree: Defined tests for Activity Instance linkage.
+- Studies > Define Study > Study Activities: Adjusted and implemented new tests for Activity Placeholders.
+- Studies > Define Study > Study Structure > Study Visits: Defined and implemented tests for unscheduled visits.
+- Studies > Manage Study > Study Subparts: Defined and implemented tests for adding, updating and removing study subparts.
+
+Solved Bugs
+============
+
+### Reports
+
+ **Activity Library Dashboard > ReadMe** 
+
+- laboratory_data_specification issues
+
 ## V 2.7
 
 New Features and Enhancements

@@ -373,6 +373,22 @@ class CompactActivityItemClass(BaseModel):
             }
         ),
     ] = False
+    data_type_uid: Annotated[
+        str | None,
+        Field(
+            json_schema_extra={
+                "nullable": True,
+            }
+        ),
+    ] = None
+    data_type_name: Annotated[
+        str | None,
+        Field(
+            json_schema_extra={
+                "nullable": True,
+            }
+        ),
+    ] = None
 
 
 class ActivityInstanceClassRelInput(InputModel):

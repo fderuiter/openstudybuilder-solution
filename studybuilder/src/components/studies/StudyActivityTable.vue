@@ -33,7 +33,7 @@
         color="nnBaseBlue"
         divided
         variant="outlined"
-        class="layoutSelector justify-center mr-12"
+        class="layoutSelector justify-center mr-12 text-body-medium"
         @update:model-value="onStatusTabChange"
       >
         <v-btn v-for="tab in statusTabs" :key="tab.value" :value="tab.value">
@@ -48,6 +48,7 @@
         rounded="xl"
         prepend-icon="mdi-exclamation"
         color="nnBaseBlue"
+        class="text-body-medium"
         :disabled="
           !accessGuard.checkPermission($roles.STUDY_WRITE) ||
           studiesGeneralStore.selectedStudyVersion !== null

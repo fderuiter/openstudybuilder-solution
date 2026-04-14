@@ -3,7 +3,7 @@
   "info": {
     "title": "OpenStudyBuilder Consumer API",
     "description": "\n## NOTICE\n\nThis license information is applicable to the swagger documentation of the clinical-mdr-api, that is the openapi.json.\n\n## License Terms (MIT)\n\nCopyright (C) 2025 Novo Nordisk A/S, Danish company registration no. 24256790\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n## Licenses and Acknowledgements for Incorporated Software\n\nThis component contains software licensed under different licenses when compiled, please refer to the third-party-licenses.md file for further information and full license texts.\n\n## Authentication\n\nSupports OAuth2 [Authorization Code Flow](https://datatracker.ietf.org/doc/html/rfc6749#section-4.1),\nat paths described in the OpenID Connect Discovery metadata document (whose URL is defined by the `OAUTH_METADATA_URL` environment variable).\n\nMicrosoft Identity Platform documentation can be read \n([here](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)).\n",
-    "version": "0.1.120"
+    "version": "0.1.128"
   },
   "paths": {
     "/": {
@@ -186,7 +186,7 @@
           "[V1] Studies"
         ],
         "summary": "Get Studies",
-        "description": "Returns a paginated list of studies, sorted by the specified sort criteria and order.\n\nEach returned study contains a full list of corresponding study versions, sorted by version start date in descending order.\n\nReturned `version_number` value can be used in other endpoints to retrieve study entities (e.g. visits, activities, etc.)\nassociated with a specific study version.",
+        "description": "Returns a paginated list of studies, sorted by the specified sort criteria and order.\n\nEach returned study contains a full list of corresponding study versions, sorted by version start date in descending order.\n\nReturned `version_number` value can be used in other endpoints to retrieve study entities (e.g. visits, activities, etc.)\nassociated with a specific study version.\n\nCodelist details can be retrieved from the `GET /v1/library/ct/codelists` endpoint.\n\nDetails related to the Data Supplier type can be retrieved from the `GET /v1/library/ct/codelist-terms?codelist_submission_value=DATA_SUPPLIER_TYPE` endpoint.",
         "operationId": "get_studies_v1_studies_get",
         "security": [
           {
@@ -1602,7 +1602,7 @@
           "[V1] Library"
         ],
         "summary": "Get Codelist Terms",
-        "description": "Returns a paginated list of CT codelist terms for the specified codelist submission value,\nsorted by ascending sponsor preferred name.\n\nTerms can be filtered by `name_status` and `attributes_status` (_Final, Draft, Retired_). Both default to _Final_.",
+        "description": "Returns a paginated list of CT codelist terms, sorted by ascending by codelist UID, then term UID.\n\nIf neither `codelist_submission_value` nor `codelist_uid` is provided, all terms are returned.\nIf either is provided, terms are filtered accordingly.\n\nTerms can also be filtered by `name_status` and `attributes_status` (_Final, Draft, Retired_). Both default to _Final_.",
         "operationId": "get_codelist_terms_v1_library_ct_codelist_terms_get",
         "security": [
           {
@@ -1616,13 +1616,38 @@
           {
             "name": "codelist_submission_value",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
-              "type": "string",
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
               "description": "Codelist submission value to filter by, for example `TIMELB`, `TIMEREF`, `VISCNTMD`, `FLWCRTGRP`, `EPOCHSTP` etc.",
               "title": "Codelist Submission Value"
             },
             "description": "Codelist submission value to filter by, for example `TIMELB`, `TIMEREF`, `VISCNTMD`, `FLWCRTGRP`, `EPOCHSTP` etc."
+          },
+          {
+            "name": "codelist_uid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Codelist UID to filter by.",
+              "title": "Codelist Uid"
+            },
+            "description": "Codelist UID to filter by."
           },
           {
             "name": "page_size",
@@ -2086,10 +2111,41 @@
       },
       "CodelistTerm": {
         "properties": {
-          "uid": {
+          "codelist_uid": {
             "type": "string",
-            "title": "Uid",
+            "title": "Codelist Uid",
+            "description": "Codelist UID"
+          },
+          "term_uid": {
+            "type": "string",
+            "title": "Term Uid",
             "description": "Codelist Term UID"
+          },
+          "order": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order",
+            "description": "Term order within the codelist",
+            "nullable": true
+          },
+          "ordinal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ordinal",
+            "description": "Term ordinal value (only for ordinal codelists)",
+            "nullable": true
           },
           "submission_value": {
             "type": "string",
@@ -2156,7 +2212,8 @@
         },
         "type": "object",
         "required": [
-          "uid",
+          "codelist_uid",
+          "term_uid",
           "submission_value",
           "sponsor_preferred_name",
           "library_name",
@@ -2488,6 +2545,18 @@
             "title": "Version",
             "description": "Activity Version"
           },
+          "activity_instance_class": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LibraryActivityInstanceClass"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Activity Instance Class",
+            "nullable": true
+          },
           "groupings": {
             "items": {
               "$ref": "#/components/schemas/LibraryActivityGroupingWithActivity"
@@ -2495,6 +2564,24 @@
             "type": "array",
             "title": "Groupings",
             "description": "Activity Groups/Subgroups",
+            "default": []
+          },
+          "groupings_status": {
+            "$ref": "#/components/schemas/LibraryItemStatus",
+            "description": "Activity Groupings Status"
+          },
+          "groupings_version": {
+            "type": "string",
+            "title": "Groupings Version",
+            "description": "Activity Groupings Version"
+          },
+          "activity_items": {
+            "items": {
+              "$ref": "#/components/schemas/LibraryActivityItem"
+            },
+            "type": "array",
+            "title": "Activity Items",
+            "description": "Activity Items",
             "default": []
           }
         },
@@ -2505,9 +2592,172 @@
           "name",
           "definition",
           "status",
-          "version"
+          "version",
+          "groupings_status",
+          "groupings_version"
         ],
         "title": "LibraryActivityInstance"
+      },
+      "LibraryActivityInstanceClass": {
+        "properties": {
+          "uid": {
+            "type": "string",
+            "title": "Uid",
+            "description": "Activity Instance Class UID"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Activity Instance Class Name",
+            "nullable": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "uid"
+        ],
+        "title": "LibraryActivityInstanceClass"
+      },
+      "LibraryActivityItem": {
+        "properties": {
+          "activity_item_class": {
+            "$ref": "#/components/schemas/LibraryActivityItemClass",
+            "description": "Activity Item Class"
+          },
+          "data_type": {
+            "type": "string",
+            "title": "Data Type",
+            "description": "Data type of the activity item"
+          },
+          "ct_codelist": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LibraryActivityItemCTCodelist"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "CT Codelist",
+            "nullable": true
+          },
+          "ct_terms": {
+            "items": {
+              "$ref": "#/components/schemas/SimpleCodelistTerm"
+            },
+            "type": "array",
+            "title": "Ct Terms",
+            "description": "CT Terms",
+            "default": []
+          },
+          "unit_definitions": {
+            "items": {
+              "$ref": "#/components/schemas/LibraryActivityItemUnitDefinition"
+            },
+            "type": "array",
+            "title": "Unit Definitions",
+            "description": "Unit Definitions",
+            "default": []
+          },
+          "text_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text Value",
+            "description": "Text Value",
+            "nullable": true
+          },
+          "is_adam_param_specific": {
+            "type": "boolean",
+            "title": "Is Adam Param Specific",
+            "description": "Is ADaM Parameter Specific",
+            "default": false
+          },
+          "is_activity_instance_id_specific": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Activity Instance Id Specific",
+            "description": "Is Activity Instance ID Specific"
+          }
+        },
+        "type": "object",
+        "required": [
+          "activity_item_class",
+          "data_type"
+        ],
+        "title": "LibraryActivityItem"
+      },
+      "LibraryActivityItemCTCodelist": {
+        "properties": {
+          "uid": {
+            "type": "string",
+            "title": "Uid",
+            "description": "CT Codelist UID"
+          },
+          "submission_value": {
+            "type": "string",
+            "title": "Submission Value",
+            "description": "CT Codelist Submission Value"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uid",
+          "submission_value"
+        ],
+        "title": "LibraryActivityItemCTCodelist"
+      },
+      "LibraryActivityItemClass": {
+        "properties": {
+          "uid": {
+            "type": "string",
+            "title": "Uid",
+            "description": "Activity Item Class UID"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Activity Item Class Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uid",
+          "name"
+        ],
+        "title": "LibraryActivityItemClass"
+      },
+      "LibraryActivityItemUnitDefinition": {
+        "properties": {
+          "uid": {
+            "type": "string",
+            "title": "Uid",
+            "description": "Unit Definition UID"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uid"
+        ],
+        "title": "LibraryActivityItemUnitDefinition"
       },
       "LibraryItemStatus": {
         "type": "string",
@@ -3093,6 +3343,26 @@
         ],
         "title": "PapillonsSoAItem"
       },
+      "SimpleCodelistTerm": {
+        "properties": {
+          "codelist_uid": {
+            "type": "string",
+            "title": "Codelist Uid",
+            "description": "Codelist Term UID"
+          },
+          "term_uid": {
+            "type": "string",
+            "title": "Term Uid",
+            "description": "Codelist Term UID"
+          }
+        },
+        "type": "object",
+        "required": [
+          "codelist_uid",
+          "term_uid"
+        ],
+        "title": "SimpleCodelistTerm"
+      },
       "SoaGroup": {
         "properties": {
           "uid": {
@@ -3263,6 +3533,14 @@
             "type": "array",
             "title": "Data Completeness Tags",
             "description": "List of data completeness tag names assigned to the study."
+          },
+          "data_suppliers": {
+            "items": {
+              "$ref": "#/components/schemas/StudyDataSupplier"
+            },
+            "type": "array",
+            "title": "Data Suppliers",
+            "description": "List of data suppliers of the study."
           }
         },
         "type": "object",
@@ -3542,6 +3820,40 @@
           "TemplateParameterTermRoot"
         ],
         "title": "StudyAuditTrailEntity"
+      },
+      "StudyDataSupplier": {
+        "properties": {
+          "uid": {
+            "type": "string",
+            "title": "Uid"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "type": {
+            "$ref": "#/components/schemas/SimpleCodelistTerm"
+          },
+          "order": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order",
+            "nullable": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "uid",
+          "name",
+          "type"
+        ],
+        "title": "StudyDataSupplier"
       },
       "StudyDetailedSoA": {
         "properties": {

@@ -5,33 +5,33 @@
 |--------------------------|--------------|--------------------------------------------------------------|
 | annotated-doc            | 0.0.4        | [MIT](#annotated-doc)                                        |
 | annotated-types          | 0.6.0        | [see below](#annotated-types)                                |
-| anyio                    | 4.12.1       | [MIT](#anyio)                                                |
+| anyio                    | 4.13.0       | [MIT](#anyio)                                                |
 | asyncache                | 0.3.1        | [MIT](#asyncache)                                            |
-| attrs                    | 25.4.0       | [MIT](#attrs)                                                |
+| attrs                    | 26.1.0       | [MIT](#attrs)                                                |
 | Authlib                  | 1.6.9        | [BSD-3-Clause](#authlib)                                     |
-| azure-core               | 1.38.2       | [MIT License](#azure-core)                                   |
-| azure-identity           | 1.25.2       | [MIT](#azure-identity)                                       |
+| azure-core               | 1.39.0       | [MIT](#azure-core)                                           |
+| azure-identity           | 1.25.3       | [MIT](#azure-identity)                                       |
 | beautifulsoup4           | 4.12.3       | [MIT License](#beautifulsoup4)                               |
 | brotli                   | 1.2.0        | [MIT](#brotli)                                               |
 | cachetools               | 5.5.2        | [MIT](#cachetools)                                           |
 | certifi                  | 2026.2.25    | [MPL-2.0](#certifi)                                          |
 | cffi                     | 2.0.0        | [MIT](#cffi)                                                 |
-| charset-normalizer       | 3.4.5        | [MIT](#charset-normalizer)                                   |
+| charset-normalizer       | 3.4.6        | [MIT](#charset-normalizer)                                   |
 | click                    | 8.3.1        | [BSD-3-Clause](#click)                                       |
 | colour                   | 0.1.5        | [BSD 3-Clause License](#colour)                              |
-| cryptography             | 46.0.5       | [Apache-2.0 OR BSD-3-Clause](#cryptography)                  |
+| cryptography             | 46.0.6       | [Apache-2.0 OR BSD-3-Clause](#cryptography)                  |
 | cssselect2               | 0.9.0        | [see below](#cssselect2)                                     |
-| deepdiff                 | 8.6.1        | [see below](#deepdiff)                                       |
+| deepdiff                 | 8.6.2        | [see below](#deepdiff)                                       |
 | dict2xml                 | 1.7.8        | [MIT](#dict2xml)                                             |
 | docraptor                | 3.1.0        | [MIT](#docraptor)                                            |
 | et_xmlfile               | 2.0.0        | [MIT](#et_xmlfile)                                           |
 | fastapi                  | 0.131.0      | [MIT](#fastapi)                                              |
-| fhir_core                | 1.1.5        | [BSD license](#fhir_core)                                    |
+| fhir_core                | 1.1.7        | [BSD license](#fhir_core)                                    |
 | fhir.resources           | 8.2.0        | [BSD license](#fhirresources)                                |
-| fonttools                | 4.61.1       | [MIT](#fonttools)                                            |
+| fonttools                | 4.62.1       | [MIT](#fonttools)                                            |
 | google-api-core          | 2.30.0       | [Apache 2.0](#google-api-core)                               |
-| google-auth              | 2.48.0       | [Apache 2.0](#google-auth)                                   |
-| googleapis-common-protos | 1.72.0       | [Apache 2.0](#googleapis-common-protos)                      |
+| google-auth              | 2.49.1       | [Apache 2.0](#google-auth)                                   |
+| googleapis-common-protos | 1.73.0       | [Apache 2.0](#googleapis-common-protos)                      |
 | h11                      | 0.16.0       | [MIT](#h11)                                                  |
 | httpcore                 | 1.0.9        | [BSD-3-Clause](#httpcore)                                    |
 | httpx                    | 0.27.2       | [BSD-3-Clause](#httpx)                                       |
@@ -42,10 +42,10 @@
 | MarkupSafe               | 3.0.3        | [BSD-3-Clause](#markupsafe)                                  |
 | msal                     | 1.35.1       | [MIT](#msal)                                                 |
 | msal-extensions          | 1.3.1        | [MIT License](#msal-extensions)                              |
-| neo4j                    | 5.28.3       | [Apache License, Version 2.0](#neo4j)                        |
-| neomodel                 | 5.5.3        | [MIT](#neomodel)                                             |
+| neo4j                    | 6.1.0        | [Apache-2.0 AND Python-2.0](#neo4j)                          |
+| neomodel                 | 6.1.0        | [MIT](#neomodel)                                             |
 | nh3                      | 0.2.22       | [MIT](#nh3)                                                  |
-| numpy                    | 2.4.2        | [BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0](#numpy) |
+| numpy                    | 2.4.3        | [BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0](#numpy) |
 | opencensus               | 0.11.4       | [Apache-2.0](#opencensus)                                    |
 | opencensus-context       | 0.1.3        | [Apache-2.0](#opencensus-context)                            |
 | opencensus-ext-azure     | 1.1.15       | [Apache-2.0](#opencensus-ext-azure)                          |
@@ -54,16 +54,16 @@
 | pandas                   | 3.0.1        | [see below](#pandas)                                         |
 | pillow                   | 12.1.1       | [MIT-CMU](#pillow)                                           |
 | proto-plus               | 1.27.1       | [Apache 2.0](#proto-plus)                                    |
-| protobuf                 | 6.33.5       | [3-Clause BSD License](#protobuf)                            |
+| protobuf                 | 6.33.6       | [3-Clause BSD License](#protobuf)                            |
 | psutil                   | 7.2.2        | [BSD-3-Clause](#psutil)                                      |
-| pyasn1                   | 0.6.2        | [BSD-2-Clause](#pyasn1)                                      |
+| pyasn1                   | 0.6.3        | [BSD-2-Clause](#pyasn1)                                      |
 | pyasn1_modules           | 0.4.2        | [BSD](#pyasn1_modules)                                       |
 | pycparser                | 3.0          | [BSD-3-Clause](#pycparser)                                   |
 | pydantic                 | 2.12.5       | [MIT](#pydantic)                                             |
 | pydantic_core            | 2.41.5       | [MIT](#pydantic_core)                                        |
 | pydantic-settings        | 2.7.1        | [MIT](#pydantic-settings)                                    |
 | pydyf                    | 0.12.1       | [see below](#pydyf)                                          |
-| PyJWT                    | 2.11.0       | [MIT](#pyjwt)                                                |
+| PyJWT                    | 2.12.1       | [MIT](#pyjwt)                                                |
 | pyphen                   | 0.17.2       | [see below](#pyphen)                                         |
 | python-dateutil          | 2.9.0.post0  | [Dual License](#python-dateutil)                             |
 | python-docx              | 1.1.2        | [MIT](#python-docx)                                          |
@@ -71,8 +71,7 @@
 | python-multipart         | 0.0.22       | [Apache-2.0](#python-multipart)                              |
 | pytz                     | 2026.1.post1 | [MIT](#pytz)                                                 |
 | PyYAML                   | 6.0.3        | [MIT](#pyyaml)                                               |
-| requests                 | 2.32.5       | [Apache-2.0](#requests)                                      |
-| rsa                      | 4.9.1        | [Apache-2.0](#rsa)                                           |
+| requests                 | 2.33.0       | [Apache-2.0](#requests)                                      |
 | six                      | 1.17.0       | [MIT](#six)                                                  |
 | sniffio                  | 1.3.1        | [MIT OR Apache-2.0](#sniffio)                                |
 | sortedcontainers         | 2.4.0        | [Apache 2.0](#sortedcontainers)                              |
@@ -9331,22 +9330,8 @@
        incurred by, or claims asserted against, such Contributor by reason
        of your accepting any such warranty or additional liability.
 
----
-### rsa
-
-    Copyright 2011 Sybren A. Stüvel <sybren@stuvel.eu>
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-       https://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Requests
+    Copyright 2019 Kenneth Reitz
 
 ---
 ### six

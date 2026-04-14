@@ -2,7 +2,7 @@
   <div>
     <v-expansion-panels v-model="tabs" multiple>
       <v-expansion-panel>
-        <v-expansion-panel-header class="text-h6">
+        <v-expansion-panel-header class="text-headline-small">
           {{ $t('SpecificationDashboard.status_overview') }}
         </v-expansion-panel-header>
         <v-expansion-panel-content>
@@ -114,7 +114,7 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
       <v-expansion-panel>
-        <v-expansion-panel-header class="text-h6">
+        <v-expansion-panel-header class="text-headline-small">
           {{ $t('SpecificationDashboard.study_title') }}
         </v-expansion-panel-header>
         <v-expansion-panel-content>
@@ -166,7 +166,7 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
       <v-expansion-panel>
-        <v-expansion-panel-header class="text-h6">
+        <v-expansion-panel-header class="text-headline-small">
           {{ $t('SpecificationDashboard.registry_identifiers') }}
         </v-expansion-panel-header>
         <v-expansion-panel-content>
@@ -220,7 +220,7 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
       <v-expansion-panel>
-        <v-expansion-panel-header class="text-h6">
+        <v-expansion-panel-header class="text-headline-small">
           {{ $t('SpecificationDashboard.study_design') }}
         </v-expansion-panel-header>
         <v-expansion-panel-content>
@@ -438,7 +438,7 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
       <v-expansion-panel>
-        <v-expansion-panel-header class="text-h6">
+        <v-expansion-panel-header class="text-headline-small">
           {{ $t('SpecificationDashboard.study_population') }}
         </v-expansion-panel-header>
         <v-expansion-panel-content>
@@ -492,7 +492,7 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
       <v-expansion-panel>
-        <v-expansion-panel-header class="text-h6">
+        <v-expansion-panel-header class="text-headline-small">
           {{ $t('SpecificationDashboard.study_criteria') }}
         </v-expansion-panel-header>
         <v-expansion-panel-content>
@@ -710,7 +710,7 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
       <v-expansion-panel>
-        <v-expansion-panel-header class="text-h6">
+        <v-expansion-panel-header class="text-headline-small">
           {{ $t('SpecificationDashboard.study_interventions') }}
         </v-expansion-panel-header>
         <v-expansion-panel-content>
@@ -835,7 +835,7 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
       <v-expansion-panel>
-        <v-expansion-panel-header class="text-h6">
+        <v-expansion-panel-header class="text-headline-small">
           {{ $t('SpecificationDashboard.study_purpose') }}
         </v-expansion-panel-header>
         <v-expansion-panel-content>
@@ -952,7 +952,7 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
       <v-expansion-panel>
-        <v-expansion-panel-header class="text-h6">
+        <v-expansion-panel-header class="text-headline-small">
           {{ $t('SpecificationDashboard.study_activities') }}
         </v-expansion-panel-header>
         <v-expansion-panel-content>

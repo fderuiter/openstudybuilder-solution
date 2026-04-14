@@ -9,6 +9,10 @@ Feature: Studies - Define Study - Study Data Specifications - Study Activity Ins
         Given The user is logged in
         And A test study is selected
 
+    Scenario: [TestData] Old placeholder activity workflow feature flag is disabled
+        When The '/administration/featureflags' page is opened
+        Then Old placeholder workflow feature flag is turned off
+
     Scenario: [Test data] User creates test data via API
         And [API] The epoch with type 'Pre Treatment' and subtype 'Run-in' exists in selected study
         And [API] The epoch with type 'Treatment' and subtype 'Intervention' exists in selected study
@@ -67,33 +71,23 @@ Feature: Studies - Define Study - Study Data Specifications - Study Activity Ins
             | History                                            |
 
     Scenario: [Placeholder][Submitted] User must be able to see submitted placeholder in the Activity Instances table
-        Given The test study '/activities/list' page is opened
-        When Study activity add button is clicked
-        And Activity from placeholder is selected
-        And Form continue button is clicked
-        And User selects option to create placeholder with submitting
-        When Activity placeholder data is filled in
-        And Form save button is clicked
-        And The form is no longer available
+        And [API] Get SoA Group 'BIOMARKERS' id
+        When [API] Create Submitted Requested Activity
+        And [API] Requested Activity is added to the study
         And The test study '/data_specifications/instances' page is opened
         And Activity placeholder is found
         Then Correct placeholder data is visible in the study activity instances table
-        Then The activity state is 'Add instance'
+        Then The activity state is 'Not applicable'
         And The reviewed checkbox is disabled
 
     Scenario: [Placeholder][Not-Submitted] User must be able to see not-submitted placeholder in the Activity Instances table
-        Given The test study '/activities/list' page is opened
-        When Study activity add button is clicked
-        And Activity from placeholder is selected
-        And Form continue button is clicked
-        And User selects option to create placeholder without submitting
-        When Activity placeholder data is filled in
-        And Form save button is clicked
-        And The form is no longer available
+        And [API] Get SoA Group 'BIOMARKERS' id
+        When [API] Create Unsubmitted Requested Activity
+        And [API] Requested Activity is added to the study
         And The test study '/data_specifications/instances' page is opened
         And Activity placeholder is found
         Then Correct placeholder data is visible in the study activity instances table
-        Then The activity state is 'Add instance'
+        Then The activity state is 'Not applicable'
         And The reviewed checkbox is disabled
 
     Scenario: User must be able to selected one activity instance for study activity and save without review

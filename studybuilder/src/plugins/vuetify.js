@@ -64,6 +64,9 @@ const NNCustomLightTheme = {
 
 export default createVuetify({
   defaults: {
+    VBtn: {
+      class: 'text-uppercase',
+    },
     VTextField: {
       variant: 'outlined',
       density: 'compact',

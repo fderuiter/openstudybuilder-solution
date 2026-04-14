@@ -556,3 +556,282 @@ def test_table_to_xlsx():
     }
     merged_ranges = {str(rng) for rng in worksheet.merged_cells.ranges}
     assert expected_merged.issubset(merged_ranges)
+
+
+# Table for hide_rows_without_checkmarks tests:
+# 2 header rows + 4 activity rows (alternating visible/hidden)
+_XLSX_HIDE_TABLE = TableWithFootnotes(
+    rows=[
+        TableRow(
+            hide=False, cells=[TableCell("Header A"), TableCell("V1"), TableCell("V2")]
+        ),
+        TableRow(
+            hide=False, cells=[TableCell("Header B"), TableCell("W1"), TableCell("W2")]
+        ),
+        TableRow(
+            hide=False, cells=[TableCell("Activity 1"), TableCell("X"), TableCell("")]
+        ),
+        TableRow(
+            hide=True, cells=[TableCell("Activity 2"), TableCell(""), TableCell("")]
+        ),
+        TableRow(
+            hide=False, cells=[TableCell("Activity 3"), TableCell("X"), TableCell("X")]
+        ),
+        TableRow(
+            hide=True, cells=[TableCell("Activity 4"), TableCell(""), TableCell("")]
+        ),
+    ],
+    num_header_rows=2,
+    num_header_cols=1,
+    title="Hide Test",
+)
+
+
+def test_table_to_xlsx_hide_rows_false_includes_all_rows():
+    """Default behaviour: hidden rows ARE written to the worksheet"""
+    workbook = table_to_xlsx(_XLSX_HIDE_TABLE, hide_rows_without_checkmarks=False)
+    worksheet = workbook.active
+
+    # THEN all rows (including hidden ones) appear in the sheet
+    assert worksheet.max_row == len(_XLSX_HIDE_TABLE.rows)
+
+    # THEN cell text matches for every row, including hidden ones
+    for r, row in enumerate(_XLSX_HIDE_TABLE.rows, start=1):
+        for c, cell in enumerate(row.cells, start=1):
+            value = worksheet.cell(row=r, column=c).value or ""
+            assert value == cell.text, f"text mismatch at row {r} col {c}"
+
+
+def test_table_to_xlsx_hide_rows_true_excludes_hidden_rows():
+    """hide_rows_without_checkmarks=True: hidden rows must NOT appear in the worksheet"""
+    workbook = table_to_xlsx(_XLSX_HIDE_TABLE, hide_rows_without_checkmarks=True)
+    worksheet = workbook.active
+
+    visible_rows = [row for row in _XLSX_HIDE_TABLE.rows if not row.hide]
+
+    # THEN only visible rows appear in the sheet
+    assert worksheet.max_row == len(visible_rows)
+
+    # THEN cell text of visible rows matches, in order
+    for r, row in enumerate(visible_rows, start=1):
+        for c, cell in enumerate(row.cells, start=1):
+            value = worksheet.cell(row=r, column=c).value or ""
+            assert value == cell.text, f"text mismatch at worksheet row {r} col {c}"
+
+
+def test_table_to_xlsx_hide_rows_title_and_freeze_panes_unaffected():
+    """Worksheet title and freeze_panes are unaffected by hide_rows_without_checkmarks"""
+    wb_all = table_to_xlsx(_XLSX_HIDE_TABLE, hide_rows_without_checkmarks=False)
+    wb_filtered = table_to_xlsx(_XLSX_HIDE_TABLE, hide_rows_without_checkmarks=True)
+
+    assert wb_filtered.active.title == wb_all.active.title == _XLSX_HIDE_TABLE.title
+    assert wb_filtered.active.freeze_panes == wb_all.active.freeze_panes
+
+
+# Tests for UID data attributes functionality
+
+
+TEST_TABLE_WITH_UIDS = TableWithFootnotes(
+    rows=[
+        TableRow(
+            cells=[
+                TableCell(text="Visits"),
+                TableCell(text="V1", refs=[Ref(type_="StudyVisit", uid="visit-1")]),
+                TableCell(text="V2", refs=[Ref(type_="StudyVisit", uid="visit-2")]),
+                TableCell(
+                    text="V3",
+                    refs=[
+                        Ref(type_="StudyVisit", uid="visit-3"),
+                        Ref(type_="StudyEpoch", uid="epoch-1"),
+                    ],
+                ),
+            ]
+        ),
+        TableRow(
+            cells=[
+                TableCell(
+                    text="Lab Assessment",
+                    refs=[Ref(type_="StudyActivity", uid="activity-1")],
+                ),
+                TableCell(text="X"),
+                TableCell(text=""),
+                TableCell(text="X"),
+            ]
+        ),
+    ],
+    num_header_rows=1,
+    num_header_cols=1,
+    title="Table with UIDs",
+)
+
+
+def test_tables_to_html_with_include_uids_false():
+    """Test that tables_to_html without include_uids doesn't add data attributes"""
+    html = tables_to_html([TEST_TABLE_WITH_UIDS], include_uids=False)
+
+    doc = bs4.BeautifulSoup(html, features="html.parser")
+
+    # Find all cells with references
+    cells_with_refs = doc.find_all(["th", "td"])
+
+    for cell in cells_with_refs:
+        # THEN no object-uid or object-type attributes should be present
+        assert not any(
+            attr.startswith("object-") for attr in cell.attrs.keys()
+        ), f"Found unexpected object-* attribute in cell: {cell.attrs}"
+
+
+def test_tables_to_html_with_include_uids_true():
+    """Test that tables_to_html with include_uids=True adds data attributes"""
+    html = tables_to_html([TEST_TABLE_WITH_UIDS], include_uids=True)
+
+    doc = bs4.BeautifulSoup(html, features="html.parser")
+
+    # Find specific cells with known references
+    v1_cell = None
+    v3_cell = None
+    lab_cell = None
+
+    for cell in doc.find_all(["th", "td"]):
+        if cell.get_text(strip=True) == "V1":
+            v1_cell = cell
+        elif cell.get_text(strip=True) == "V3":
+            v3_cell = cell
+        elif cell.get_text(strip=True) == "Lab Assessment":
+            lab_cell = cell
+
+    # THEN V1 cell should have single reference attributes
+    assert v1_cell is not None
+    assert v1_cell.get("object-type") == "StudyVisit"
+    assert v1_cell.get("object-uid") == "visit-1"
+
+    # THEN V3 cell should have multiple reference attributes
+    assert v3_cell is not None
+    assert v3_cell.get("object-type-0") == "StudyVisit"
+    assert v3_cell.get("object-uid-0") == "visit-3"
+    assert v3_cell.get("object-type-1") == "StudyEpoch"
+    assert v3_cell.get("object-uid-1") == "epoch-1"
+
+    # THEN Lab Assessment cell should have activity reference
+    assert lab_cell is not None
+    assert lab_cell.get("object-type") == "StudyActivity"
+    assert lab_cell.get("object-uid") == "activity-1"
+
+    # THEN cells without references should not have object attributes
+    empty_cells = [
+        cell for cell in doc.find_all(["th", "td"]) if cell.get_text(strip=True) == ""
+    ]
+    for cell in empty_cells:
+        assert not any(
+            attr.startswith("object-") for attr in cell.attrs.keys()
+        ), f"Empty cell should not have object attributes: {cell.attrs}"
+
+
+def test_tables_to_html_with_include_uids_single_table():
+    """Test that single table also supports include_uids parameter"""
+    html = table_to_html(TEST_TABLE_WITH_UIDS)
+
+    # Default behavior should not include UIDs
+    doc = bs4.BeautifulSoup(html, features="html.parser")
+    cells_with_attrs = [
+        cell
+        for cell in doc.find_all(["th", "td"])
+        if any(attr.startswith("object-") for attr in cell.attrs.keys())
+    ]
+    assert (
+        len(cells_with_attrs) == 0
+    ), "Default table_to_html should not include UID attributes"
+
+
+def test_cell_to_attrs_with_single_ref():
+    """Test _cell_to_attrs function with single reference"""
+    from clinical_mdr_api.services.utils.table_f import _cell_to_attrs
+
+    cell = TableCell(
+        text="Test Cell",
+        style="test-style",
+        span=2,
+        refs=[Ref(type_="StudyVisit", uid="visit-123")],
+    )
+
+    attrs = _cell_to_attrs(cell, include_uids=True)
+
+    expected_attrs = {
+        "klass": "test-style",
+        "colspan": 2,
+        "object-type": "StudyVisit",
+        "object-uid": "visit-123",
+    }
+
+    assert attrs == expected_attrs
+
+
+def test_cell_to_attrs_with_multiple_refs():
+    """Test _cell_to_attrs function with multiple references"""
+    from clinical_mdr_api.services.utils.table_f import _cell_to_attrs
+
+    cell = TableCell(
+        text="Multi Ref Cell",
+        refs=[
+            Ref(type_="StudyVisit", uid="visit-123"),
+            Ref(type_="StudyEpoch", uid="epoch-456"),
+            Ref(type_="StudyActivity", uid="activity-789"),
+        ],
+    )
+
+    attrs = _cell_to_attrs(cell, include_uids=True)
+
+    expected_attrs = {
+        "object-type-0": "StudyVisit",
+        "object-uid-0": "visit-123",
+        "object-type-1": "StudyEpoch",
+        "object-uid-1": "epoch-456",
+        "object-type-2": "StudyActivity",
+        "object-uid-2": "activity-789",
+    }
+
+    assert attrs == expected_attrs
+
+
+def test_cell_to_attrs_without_include_uids():
+    """Test _cell_to_attrs function with include_uids=False"""
+    from clinical_mdr_api.services.utils.table_f import _cell_to_attrs
+
+    cell = TableCell(
+        text="Test Cell",
+        style="test-style",
+        span=3,
+        refs=[Ref(type_="StudyVisit", uid="visit-123")],
+    )
+
+    attrs = _cell_to_attrs(cell, include_uids=False)
+
+    expected_attrs = {"klass": "test-style", "colspan": 3}
+
+    assert attrs == expected_attrs
+
+
+def test_cell_to_attrs_no_refs():
+    """Test _cell_to_attrs function with no references"""
+    from clinical_mdr_api.services.utils.table_f import _cell_to_attrs
+
+    cell = TableCell(text="No Refs Cell", style="test-style")
+
+    attrs = _cell_to_attrs(cell, include_uids=True)
+
+    expected_attrs = {"klass": "test-style"}
+
+    assert attrs == expected_attrs
+
+
+def test_cell_to_attrs_empty_refs():
+    """Test _cell_to_attrs function with empty refs list"""
+    from clinical_mdr_api.services.utils.table_f import _cell_to_attrs
+
+    cell = TableCell(text="Empty Refs Cell", refs=[])
+
+    attrs = _cell_to_attrs(cell, include_uids=True)
+
+    expected_attrs = {}
+
+    assert attrs == expected_attrs

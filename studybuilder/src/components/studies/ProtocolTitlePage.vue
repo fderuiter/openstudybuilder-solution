@@ -1,6 +1,6 @@
 <template>
   <div class="mt-6 d-flex align-center">
-    <v-card-title class="text-h6">
+    <v-card-title class="text-headline-small">
       {{ $t('StudyProtocolElementsView.title_page') }}
     </v-card-title>
   </div>

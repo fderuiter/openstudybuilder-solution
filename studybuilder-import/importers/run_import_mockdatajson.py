@@ -46,6 +46,7 @@ from .utils.api_bindings import (
 )
 from .utils.importer import BaseImporter, open_file
 from .utils.metrics import Metrics
+from .utils.path_join import path_join
 
 metrics = Metrics()
 
@@ -124,6 +125,8 @@ TEMPLATES = "Templates"
 STUDIES = "Studies"
 CONCEPT_VALUES = "ConceptValues"
 DICTIONARIES = "Dictionaries"
+
+ACTIVITY_INSTANCES_PATH = "/concepts/activities/activity-instances"
 
 DEFINITION_PLACEHOLDER = None
 
@@ -3168,6 +3171,503 @@ class MockdataJson(BaseImporter):
             else:
                 self.log.warning(f"Failed to add activity '{data['name']}'")
 
+    def _normalize_instance_item(self, item):
+        activity_item_class_uid = item.get("activity_item_class_uid") or (
+            item.get("activity_item_class") or {}
+        ).get("uid")
+
+        unit_definition_uids = item.get("unit_definition_uids")
+        if unit_definition_uids is None:
+            unit_definition_uids = [
+                unit.get("uid") for unit in item.get("unit_definitions", [])
+            ]
+
+        term_uids = item.get("ct_term_uids")
+        if term_uids is None:
+            term_uids = []
+            for term in item.get("ct_terms", []):
+                term_uid = term.get("term_uid") or term.get("uid")
+                if term_uid:
+                    term_uids.append(term_uid)
+
+        return (
+            activity_item_class_uid,
+            frozenset(term_uids),
+            frozenset(uid for uid in unit_definition_uids if uid is not None),
+        )
+
+    def _normalize_instance_grouping(self, grouping):
+        return (
+            grouping.get("activity_uid") or (grouping.get("activity") or {}).get("uid"),
+            grouping.get("activity_group_uid")
+            or (grouping.get("activity_group") or {}).get("uid"),
+            grouping.get("activity_subgroup_uid")
+            or (grouping.get("activity_subgroup") or {}).get("uid"),
+        )
+
+    def compare_instance_items(self, old, new):
+        new_items = {self._normalize_instance_item(item) for item in new}
+        old_items = {self._normalize_instance_item(item) for item in old}
+        return new_items == old_items
+
+    def compare_instance_groupings(self, old, new):
+        new_groupings = {self._normalize_instance_grouping(item) for item in new}
+        old_groupings = {self._normalize_instance_grouping(item) for item in old}
+        return new_groupings == old_groupings
+
+    def are_instance_attributes_equal(self, new, existing):
+        properties_to_compare = [
+            "activity_instance_class_uid",
+            "library_name",
+            "name_sentence_case",
+            "definition",
+            "adam_param_code",
+            "legacy_description",
+            "topic_code",
+            "nci_concept_id",
+            "is_required_for_activity",
+            "is_default_selected_for_activity",
+            "is_data_sharing",
+            "is_legacy_usage",
+        ]
+
+        for prop_name in properties_to_compare:
+            new_value = new.get(prop_name)
+            existing_value = existing.get(prop_name)
+            if prop_name == "definition":
+                if new_value == "":
+                    new_value = None
+                if existing_value == "":
+                    existing_value = None
+            if new_value != existing_value:
+                self.log.debug(
+                    "Difference found in property '%s': existing='%s', new='%s'",
+                    prop_name,
+                    existing_value,
+                    new_value,
+                )
+                return False
+
+        if not self.compare_instance_items(
+            existing.get("activity_items", []), new.get("activity_items", [])
+        ):
+            self.log.debug("Difference found in activity_items")
+            return False
+        return True
+
+    def are_instance_groupings_equal(self, new, existing):
+        if not self.compare_instance_groupings(
+            existing.get("activity_groupings", []), new.get("activity_groupings", [])
+        ):
+            self.log.debug("Difference found in activity_groupings")
+            return False
+        return True
+
+    def _split_activity_instance_payload(self, body):
+        attributes_payload = {
+            key: value for key, value in body.items() if key != "activity_groupings"
+        }
+        groupings_payload = {"activity_groupings": body.get("activity_groupings", [])}
+        return attributes_payload, groupings_payload
+
+    def _resolve_activity_instance_groupings(
+        self, instance, all_activities, all_groups, all_subgroups
+    ):
+        groupings = []
+        for grouping in instance.get("activity_groupings") or []:
+            if MDR_MIGRATION_FROM_SAME_ENV:
+                activity_uid = grouping.get("activity_uid") or (
+                    grouping.get("activity") or {}
+                ).get("uid")
+                group_uid = grouping.get("activity_group_uid") or (
+                    grouping.get("activity_group") or {}
+                ).get("uid")
+                subgroup_uid = grouping.get("activity_subgroup_uid") or (
+                    grouping.get("activity_subgroup") or {}
+                ).get("uid")
+            else:
+                activity_name = grouping.get("activity_name") or (
+                    grouping.get("activity") or {}
+                ).get("name")
+                group_name = grouping.get("activity_group_name") or (
+                    grouping.get("activity_group") or {}
+                ).get("name")
+                subgroup_name = grouping.get("activity_subgroup_name") or (
+                    grouping.get("activity_subgroup") or {}
+                ).get("name")
+                activity_uid = all_activities.get(activity_name)
+                group_uid = all_groups.get(group_name)
+                subgroup_uid = all_subgroups.get(subgroup_name)
+
+            if not activity_uid or not group_uid or not subgroup_uid:
+                self.log.warning(
+                    "Skipping incomplete grouping for instance '%s': activity_uid=%s, group_uid=%s, subgroup_uid=%s",
+                    instance.get("name"),
+                    activity_uid,
+                    group_uid,
+                    subgroup_uid,
+                )
+                continue
+
+            resolved = {
+                "activity_uid": activity_uid,
+                "activity_group_uid": group_uid,
+                "activity_subgroup_uid": subgroup_uid,
+            }
+            if resolved not in groupings:
+                groupings.append(resolved)
+        return groupings
+
+    def _build_activity_items_payload(self, instance, all_item_classes, all_units):
+        grouped_items = {}
+        for item in instance.get("activity_items") or []:
+            if MDR_MIGRATION_FROM_SAME_ENV:
+                class_uid = item.get("activity_item_class_uid") or (
+                    item.get("activity_item_class") or {}
+                ).get("uid")
+            else:
+                class_name = (item.get("activity_item_class") or {}).get("name")
+                class_uid = all_item_classes.get(class_name)
+
+            if class_uid is None:
+                self.log.warning(
+                    "Skipping activity item with unknown class for instance '%s': %s",
+                    instance.get("name"),
+                    item.get("activity_item_class"),
+                )
+                continue
+
+            if class_uid not in grouped_items:
+                grouped_items[class_uid] = {
+                    "activity_item_class_uid": class_uid,
+                    "ct_term_uids": set(),
+                    "unit_definition_uids": set(),
+                    "is_adam_param_specific": item.get("is_adam_param_specific", False),
+                    "odm_form_uid": item.get("odm_form_uid"),
+                    "odm_item_group_uid": item.get("odm_item_group_uid"),
+                    "odm_item_uid": item.get("odm_item_uid"),
+                }
+
+            for term in item.get("ct_terms") or []:
+                term_uid = term.get("term_uid") or term.get("uid")
+                if term_uid:
+                    grouped_items[class_uid]["ct_term_uids"].add(term_uid)
+
+            for term_uid in item.get("ct_term_uids") or []:
+                if term_uid:
+                    grouped_items[class_uid]["ct_term_uids"].add(term_uid)
+
+            for unit_uid in item.get("unit_definition_uids") or []:
+                if unit_uid:
+                    grouped_items[class_uid]["unit_definition_uids"].add(unit_uid)
+
+            for unit in item.get("unit_definitions") or []:
+                if MDR_MIGRATION_FROM_SAME_ENV:
+                    unit_uid = unit.get("uid")
+                else:
+                    unit_name = unit.get("name")
+                    unit_uid = all_units.get(unit_name) or unit.get("uid")
+                if unit_uid:
+                    grouped_items[class_uid]["unit_definition_uids"].add(unit_uid)
+
+        items = []
+        for item in grouped_items.values():
+            if item["ct_term_uids"] and item["unit_definition_uids"]:
+                self.log.warning(
+                    "Activity item class '%s' links to both terms and units, dropping units",
+                    item["activity_item_class_uid"],
+                )
+                item["unit_definition_uids"] = set()
+            item["ct_term_uids"] = sorted(item["ct_term_uids"])
+            item["unit_definition_uids"] = sorted(item["unit_definition_uids"])
+            items.append(item)
+        return items
+
+    def _build_activity_instance_payload(
+        self,
+        instance,
+        all_activities,
+        all_groups,
+        all_subgroups,
+        all_instance_classes,
+        all_item_classes,
+        all_units,
+    ):
+        name = instance.get("name")
+        if not name:
+            self.log.warning("Skipping activity instance with missing name")
+            return None
+
+        if MDR_MIGRATION_FROM_SAME_ENV:
+            activity_instance_class_uid = instance.get(
+                "activity_instance_class_uid"
+            ) or (instance.get("activity_instance_class") or {}).get("uid")
+        else:
+            instance_class_name = (instance.get("activity_instance_class") or {}).get(
+                "name"
+            )
+            activity_instance_class_uid = all_instance_classes.get(instance_class_name)
+
+        if not activity_instance_class_uid:
+            self.log.warning(
+                "Skipping activity instance '%s' with unknown activity instance class",
+                name,
+            )
+            return None
+
+        activity_groupings = self._resolve_activity_instance_groupings(
+            instance, all_activities, all_groups, all_subgroups
+        )
+        if len(activity_groupings) == 0:
+            self.log.warning(
+                "Skipping activity instance '%s' because it lacks valid groupings",
+                name,
+            )
+            return None
+
+        activity_items = self._build_activity_items_payload(
+            instance, all_item_classes, all_units
+        )
+
+        body = {
+            "activity_instance_class_uid": activity_instance_class_uid,
+            "name": name,
+            "name_sentence_case": instance.get("name_sentence_case") or name.lower(),
+            "definition": instance.get("definition") or None,
+            "adam_param_code": instance.get("adam_param_code") or None,
+            "activity_groupings": activity_groupings,
+            "activity_items": activity_items,
+            "legacy_description": instance.get("legacy_description") or None,
+            "topic_code": instance.get("topic_code") or None,
+            "library_name": instance.get("library_name") or "Sponsor",
+            "nci_concept_id": instance.get("nci_concept_id") or None,
+            "is_required_for_activity": instance.get("is_required_for_activity", False),
+            "is_default_selected_for_activity": instance.get(
+                "is_default_selected_for_activity", False
+            ),
+            "is_data_sharing": instance.get("is_data_sharing", True),
+            "is_legacy_usage": instance.get("is_legacy_usage", False),
+        }
+        return {
+            "path": ACTIVITY_INSTANCES_PATH,
+            "approve_path": ACTIVITY_INSTANCES_PATH,
+            "body": body,
+        }
+
+    def _patch_activity_instance_part(
+        self,
+        activity_instance_name,
+        activity_instance_uid,
+        part,
+        payload,
+    ):
+        part_path = path_join(ACTIVITY_INSTANCES_PATH, activity_instance_uid, part)
+        body = dict(payload)
+        body["change_description"] = "Migration modification"
+
+        version_path = path_join(part_path, "versions")
+        version_response = self.api.simple_post_to_api(
+            version_path,
+            {},
+            simple_path=ACTIVITY_INSTANCES_PATH,
+        )
+        if version_response is None:
+            self.log.warning(
+                "Could not create new %s version for activity instance '%s', attempting to patch current draft",
+                part,
+                activity_instance_name,
+            )
+
+        response = self.api.simple_patch(
+            body=body,
+            url=part_path,
+            path=ACTIVITY_INSTANCES_PATH,
+        )
+        if response is None:
+            response = self.api.simple_put(
+                body=body,
+                url=part_path,
+                path=ACTIVITY_INSTANCES_PATH,
+            )
+        if response is None:
+            self.log.error(
+                "Failed to patch activity instance '%s' (%s)",
+                activity_instance_name,
+                part,
+            )
+            return
+
+        if not self.api.simple_approve(path_join(part_path, "approvals")):
+            self.log.error(
+                "Failed to approve activity instance '%s' (%s)",
+                activity_instance_name,
+                part,
+            )
+
+    def _patch_activity_instance_parts(
+        self,
+        activity_instance_name,
+        activity_instance_uid,
+        attributes_payload,
+        groupings_payload,
+        patch_attributes,
+        patch_groupings,
+    ):
+        if not patch_attributes and not patch_groupings:
+            self.log.info(
+                f"Identical activity instance '{activity_instance_name}' already exists"
+            )
+            return
+
+        if patch_attributes:
+            self.log.info(
+                f"Patch activity instance attributes '{activity_instance_name}'"
+            )
+            self._patch_activity_instance_part(
+                activity_instance_name=activity_instance_name,
+                activity_instance_uid=activity_instance_uid,
+                part="attributes",
+                payload=attributes_payload,
+            )
+
+        if patch_groupings:
+            self.log.info(
+                f"Patch activity instance groupings '{activity_instance_name}'"
+            )
+            self._patch_activity_instance_part(
+                activity_instance_name=activity_instance_name,
+                activity_instance_uid=activity_instance_uid,
+                part="groupings",
+                payload=groupings_payload,
+            )
+
+    @open_file()
+    def handle_activity_instances(self, jsonfile):
+        self.log.info("======== Activity instances ========")
+        imported = json.load(jsonfile)
+
+        all_activities = self.fetch_all_activities()
+        all_groups = self.fetch_all_activity_groups()
+        all_subgroups = self.fetch_all_activity_subgroups()
+        all_instance_classes = self.api.get_all_identifiers(
+            self.api.get_all_from_api("/activity-instance-classes"),
+            identifier="name",
+            value="uid",
+        )
+        all_item_classes = self.api.get_all_identifiers(
+            self.api.get_all_from_api("/activity-item-classes"),
+            identifier="name",
+            value="uid",
+        )
+        all_units = self.api.get_all_identifiers(
+            self.api.get_all_from_api("/concepts/unit-definitions"),
+            identifier="name",
+            value="uid",
+        )
+
+        existing_instances = self.api.get_all_from_api(ACTIVITY_INSTANCES_PATH)
+        existing_rows_by_name = self.api.response_to_dict(existing_instances, "name")
+        existing_rows_by_tc = {}
+        for item in existing_instances:
+            topic_code = item.get("topic_code")
+            if topic_code:
+                existing_rows_by_tc[topic_code] = item
+
+        for instance in imported:
+            activity_instance_data = self._build_activity_instance_payload(
+                instance,
+                all_activities,
+                all_groups,
+                all_subgroups,
+                all_instance_classes,
+                all_item_classes,
+                all_units,
+            )
+            if activity_instance_data is None:
+                continue
+
+            activity_instance_name = activity_instance_data["body"]["name"]
+            topic_code = activity_instance_data["body"]["topic_code"]
+            existing_by_name = existing_rows_by_name.get(activity_instance_name)
+            existing_by_topic = (
+                existing_rows_by_tc.get(topic_code) if topic_code else None
+            )
+
+            if existing_by_name is None and (
+                topic_code is None or existing_by_topic is None
+            ):
+                self.log.info(f"Adding activity instance '{activity_instance_name}'")
+                response = self.api.simple_post_to_api(
+                    ACTIVITY_INSTANCES_PATH,
+                    activity_instance_data["body"],
+                )
+                if response is not None:
+                    if self.api.approve_item(response["uid"], ACTIVITY_INSTANCES_PATH):
+                        self.log.info("Approve ok")
+                        self.metrics.icrement(ACTIVITY_INSTANCES_PATH + "--Approve")
+                    else:
+                        self.log.error("Approve failed")
+                        self.metrics.icrement(
+                            ACTIVITY_INSTANCES_PATH + "--ApproveError"
+                        )
+                else:
+                    self.log.warning(
+                        "Failed to add activity instance '%s'",
+                        activity_instance_name,
+                    )
+                if response is not None:
+                    existing_rows_by_name[activity_instance_name] = response
+                    if topic_code:
+                        existing_rows_by_tc[topic_code] = response
+                continue
+
+            if (
+                existing_by_name is not None
+                and topic_code is not None
+                and existing_by_name.get("topic_code") != topic_code
+            ):
+                self.log.warning(
+                    "Not patching activity instance '%s' because topic code '%s' conflicts with existing '%s'",
+                    activity_instance_name,
+                    topic_code,
+                    existing_by_name.get("topic_code"),
+                )
+                continue
+
+            existing_instance = existing_by_topic or existing_by_name
+            if existing_instance is None:
+                self.log.warning(
+                    "Cannot patch activity instance '%s' because no existing instance was found",
+                    activity_instance_name,
+                )
+                continue
+
+            patch_attributes = not self.are_instance_attributes_equal(
+                activity_instance_data["body"], existing_instance
+            )
+            patch_groupings = not self.are_instance_groupings_equal(
+                activity_instance_data["body"], existing_instance
+            )
+
+            if patch_attributes or patch_groupings:
+                attributes_payload, groupings_payload = (
+                    self._split_activity_instance_payload(
+                        activity_instance_data["body"]
+                    )
+                )
+                self._patch_activity_instance_parts(
+                    activity_instance_name=activity_instance_name,
+                    activity_instance_uid=existing_instance.get("uid"),
+                    attributes_payload=attributes_payload,
+                    groupings_payload=groupings_payload,
+                    patch_attributes=patch_attributes,
+                    patch_groupings=patch_groupings,
+                )
+            else:
+                self.log.info(
+                    f"Identical activity instance '{activity_instance_name}' already exists"
+                )
+
     def run(self):
         self.log.info("Migrating json mock data")
 
@@ -3231,7 +3731,14 @@ class MockdataJson(BaseImporter):
         else:
             self.log.info("Skipping activities")
 
-        # TODO Activity instances
+        # Activity instances
+        if MDR_MIGRATION_EXPORTED_ACTIVITY_INSTANCES:
+            act_inst_json = os.path.join(
+                self.import_dir, "concepts.activities.activity-instances.json"
+            )
+            self.handle_activity_instances(act_inst_json)
+        else:
+            self.log.info("Skipping activity instances")
 
         # Compounds and compound aliases
         if MDR_MIGRATION_EXPORTED_COMPOUNDS:

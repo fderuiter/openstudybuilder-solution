@@ -278,13 +278,17 @@ class ConceptGenericRepository(
         filter_parameters = []
         filter_query_parameters = {}
         uids = kwargs.get("uids")
+        if self._has_uid_and_library_on_parent_root():
+            concept_root_alias = "parent_root"
+        else:
+            concept_root_alias = "concept_root"
         if library:
-            filter_by_library_name = """
-            head([(library:Library)-[:CONTAINS_CONCEPT]->(concept_root) | library.name])=$library_name"""
+            filter_by_library_name = f"""
+            head([(library:Library)-[:CONTAINS_CONCEPT]->({concept_root_alias}) | library.name])=$library_name"""
             filter_parameters.append(filter_by_library_name)
             filter_query_parameters["library_name"] = library
         if uids:
-            filter_by_uids = "concept_root.uid IN $uids"
+            filter_by_uids = f"{concept_root_alias}.uid IN $uids"
             filter_parameters.append(filter_by_uids)
             filter_query_parameters["uids"] = uids
 
@@ -493,8 +497,9 @@ class ConceptGenericRepository(
 
         query.parameters.update(filter_query_parameters)
 
+        header_alias = self.format_filter_sort_keys(field_name)
         query.full_query = query.build_header_query(
-            header_alias=field_name, page_size=page_size
+            header_alias=header_alias, page_size=page_size
         )
         result_array, _ = query.execute()
 

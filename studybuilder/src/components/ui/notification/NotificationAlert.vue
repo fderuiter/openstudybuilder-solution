@@ -6,7 +6,10 @@
         :class="{ 'mb-4': props.notification?.error?.correlation_id }"
         v-html="props.notification.msg"
       ></p>
-      <p v-if="props.notification?.error?.correlation_id" class="text-body-2">
+      <p
+        v-if="props.notification?.error?.correlation_id"
+        class="text-body-medium"
+      >
         <span class="font-weight-bold">{{ $t('_global.correlation_id') }}</span>
         <br />
         {{ props.notification?.error?.correlation_id }}

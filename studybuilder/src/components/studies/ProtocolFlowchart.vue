@@ -1,6 +1,6 @@
 <template>
   <div class="pa-4 bg-white">
-    <v-row>
+    <v-row class="mb-2">
       <v-col cols="4"> </v-col>
       <v-col cols="8" class="d-flex align-center">
         <v-spacer />
@@ -10,9 +10,9 @@
           :label="$t('ProtocolFlowchart.show_split_menu')"
           hide-details
           class="mr-4"
-          :readonly="soaContentLoadingStore.loading || toggle.length !== 0"
+          :readonly="loading || toggle.length !== 0"
           :disabled="toggle.length !== 0"
-          :loading="soaContentLoadingStore.loading ? 'warning' : null"
+          :loading="loading ? 'warning' : null"
         />
         <v-switch
           v-show="switchIsEnabled(['protocol'])"
@@ -20,8 +20,8 @@
           :label="$t('ProtocolFlowchart.show_epochs')"
           hide-details
           class="mr-4"
-          :readonly="soaContentLoadingStore.loading"
-          :loading="soaContentLoadingStore.loading ? 'warning' : null"
+          :readonly="loading"
+          :loading="loading ? 'warning' : null"
           @update:model-value="updateSoaPreferences('show_epochs')"
         />
         <v-switch
@@ -30,9 +30,21 @@
           :label="$t('ProtocolFlowchart.show_milestones')"
           hide-details
           class="mr-4"
-          :readonly="soaContentLoadingStore.loading"
-          :loading="soaContentLoadingStore.loading ? 'warning' : null"
+          :readonly="loading"
+          :loading="loading ? 'warning' : null"
           @update:model-value="updateSoaPreferences('show_milestones')"
+        />
+        <v-switch
+          v-show="switchIsEnabled(['protocol_lab_table'])"
+          v-model="studiesGeneralStore.soaPreferences.show_all_visits_lab_table"
+          :label="$t('ProtocolFlowchart.show_all_visits_lab_table')"
+          hide-details
+          class="mr-4"
+          :readonly="loading"
+          :loading="loading ? 'warning' : null"
+          @update:model-value="
+            updateSoaPreferences('show_all_visits_lab_table')
+          "
         />
         <v-menu rounded location="bottom">
           <template #activator="{ props }">
@@ -43,7 +55,7 @@
               variant="outlined"
               color="nnBaseBlue"
               v-bind="props"
-              :loading="soaContentLoadingStore.loading"
+              :loading="loading"
             >
               <v-icon>mdi-download-outline</v-icon>
               <v-tooltip activator="parent" location="top">
@@ -144,11 +156,9 @@
 
 <script setup>
 import { inject, onMounted, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import study from '@/api/study'
 import soaDownloads from '@/utils/soaDownloads'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
-import { useSoaContentLoadingStore } from '@/stores/soa-content-loading'
 import unitConstants from '@/constants/units'
 import units from '@/api/units'
 import { useAccessGuard } from '@/composables/accessGuard'
@@ -170,13 +180,11 @@ const props = defineProps({
 })
 
 const studiesGeneralStore = useStudiesGeneralStore()
-const soaContentLoadingStore = useSoaContentLoadingStore()
 const accessGuard = useAccessGuard()
-const { t } = useI18n()
 const roles = inject('roles')
 
 const protocolFlowchart = ref('')
-const loadingMessage = ref('')
+const loading = ref(true)
 const preferredTimeUnits = ref([])
 const toggle = ref([])
 const groupedVisits = ref([])
@@ -270,6 +278,7 @@ async function loadVisits() {
 }
 async function splitSoA(visitUid) {
   splitLoading.value = true
+  loading.value = true
   if (toggle.value.includes(visitUid)) {
     const payload = { uid: visitUid }
     await study.splitSoA(studiesGeneralStore.selectedStudy.uid, payload)
@@ -297,6 +306,7 @@ function switchIsEnabled(layouts = []) {
   )
 }
 function updateSoaPreferences(key) {
+  loading.value = true
   studiesGeneralStore
     .setSoaPreferences({ [key]: studiesGeneralStore.soaPreferences[key] })
     .then(() => {
@@ -304,8 +314,7 @@ function updateSoaPreferences(key) {
     })
 }
 function updateFlowchart() {
-  loadingMessage.value = t('ProtocolFlowchart.loading')
-  soaContentLoadingStore.changeLoadingState()
+  loading.value = true
   study
     .getStudyProtocolFlowchartHtml(studiesGeneralStore.selectedStudy.uid, {
       layout: props.layout,
@@ -314,11 +323,12 @@ function updateFlowchart() {
       protocolFlowchart.value = resp.data
       splitLoading.value = false
     })
-    .catch(stopLoading())
+    .finally(() => {
+      stopLoading()
+    })
 }
 async function downloadDocx() {
-  loadingMessage.value = t('ProtocolFlowchart.downloading')
-  soaContentLoadingStore.changeLoadingState()
+  loading.value = true
   try {
     await soaDownloads.docxDownload(props.layout)
   } finally {
@@ -326,7 +336,7 @@ async function downloadDocx() {
   }
 }
 async function downloadCSV() {
-  soaContentLoadingStore.changeLoadingState()
+  loading.value = true
   try {
     await soaDownloads.csvDownload(props.layout)
   } finally {
@@ -334,7 +344,7 @@ async function downloadCSV() {
   }
 }
 async function downloadEXCEL() {
-  soaContentLoadingStore.changeLoadingState()
+  loading.value = true
   try {
     await soaDownloads.excelDownload(props.layout)
   } finally {
@@ -342,8 +352,7 @@ async function downloadEXCEL() {
   }
 }
 function stopLoading() {
-  loadingMessage.value = ''
-  soaContentLoadingStore.changeLoadingState()
+  loading.value = false
 }
 </script>
 

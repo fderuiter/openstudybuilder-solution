@@ -6,8 +6,15 @@ from typing import Any
 import pytest
 from fastapi.testclient import TestClient
 
+from clinical_mdr_api.models.study_selections.study_selection import (
+    StudySelectionDataSupplierInput,
+    StudySelectionDataSupplierSyncInput,
+)
 from clinical_mdr_api.services.data_completeness_tags import DataCompletenessTagService
 from clinical_mdr_api.services.studies.study import StudyService
+from clinical_mdr_api.services.studies.study_data_supplier import (
+    StudyDataSupplierSelectionService,
+)
 from clinical_mdr_api.services.studies.study_flowchart import StudyFlowchartService
 from clinical_mdr_api.tests.integration.utils.api import inject_base_data
 from clinical_mdr_api.tests.integration.utils.factory_visit import (
@@ -35,6 +42,7 @@ STUDY_FIELDS_ALL = [
     "acronym",
     "versions",
     "data_completeness_tags",
+    "data_suppliers",
 ]
 
 STUDY_FIELDS_NOT_NULL = [
@@ -319,7 +327,7 @@ def test_data(api_client):
 
     studies = [study]  # type: ignore[list-item]
     for _idx in range(1, total_studies):
-        rand = TestUtils.random_str(4)
+        rand = TestUtils.random_str(10)
         studies.append(TestUtils.create_study(acronym=f"ACR-{rand}"))  # type: ignore[arg-type]
 
     study_epoch = create_study_epoch("EpochSubType_0001", study_uid=studies[0].uid)
@@ -509,6 +517,50 @@ def test_get_studies_returns_data_completeness_tags(api_client):
     # Cleanup
     service.remove_tag_from_study(study_uid=studies[0].uid, tag_uid=tag1.uid)
     service.remove_tag_from_study(study_uid=studies[0].uid, tag_uid=tag2.uid)
+
+
+def test_get_studies_returns_data_suppliers(api_client):
+    """Verify that data_suppliers are properly returned for studies."""
+    ct_codelist = TestUtils.create_ct_codelist(
+        name="Data Supplier",
+        submission_value="DATA_SUPPLIER_TYPE",
+        extensible=True,
+        approve=True,
+    )
+    ct_term = TestUtils.create_ct_term(codelist_uid=ct_codelist.codelist_uid)
+    data_supplier = TestUtils.create_data_supplier(
+        name="Consumer Data Supplier A", supplier_type_uid=ct_term.term_uid
+    )
+
+    service = StudyDataSupplierSelectionService()
+    service.sync_selections(
+        study_uid=studies[0].uid,
+        sync_input=StudySelectionDataSupplierSyncInput(
+            suppliers=[
+                StudySelectionDataSupplierInput(
+                    data_supplier_uid=data_supplier.uid,  # type: ignore[arg-type]
+                )
+            ]
+        ),
+    )
+
+    response = api_client.get(f"{BASE_URL}/studies?page_size=100")
+    assert_response_status_code(response, 200)
+    res = response.json()
+
+    # Find the study we assigned tags to
+    study_item = next((s for s in res["items"] if s["uid"] == studies[0].uid), None)
+    assert study_item is not None
+    assert "data_suppliers" in study_item
+    assert isinstance(study_item["data_suppliers"], list)
+    assert study_item["data_suppliers"][0]["name"] == data_supplier.name
+
+    # Verify a study without tags returns an empty list
+    study_without_data_supplier = next(
+        (s for s in res["items"] if s["uid"] == studies[1].uid), None
+    )
+    assert study_without_data_supplier is not None
+    assert study_without_data_supplier["data_suppliers"] == []
 
 
 def test_get_studies_pagination_sorting(api_client):

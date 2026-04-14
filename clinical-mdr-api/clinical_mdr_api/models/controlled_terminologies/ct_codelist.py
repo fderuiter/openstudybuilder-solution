@@ -12,6 +12,7 @@ from clinical_mdr_api.domains.controlled_terminologies.ct_codelist_name import (
 )
 from clinical_mdr_api.domains.controlled_terminologies.ct_codelist_term import (
     CTCodelistTermAR,
+    CTPairedCodelistTermAR,
 )
 from clinical_mdr_api.models.controlled_terminologies.ct_codelist_attributes import (
     CTCodelistAttributes,
@@ -271,35 +272,8 @@ class CTCodelistCompact(BaseModel):
     library_name: Annotated[str, Field()]
 
 
-class CTCodelistTerm(BaseModel):
-    @classmethod
-    def from_ct_codelist_term_ar(
-        cls,
-        ct_codelist_term_ar: CTCodelistTermAR,
-    ) -> Self:
-        codelist_terms = cls(
-            term_uid=ct_codelist_term_ar.ct_codelist_term_vo.term_uid,
-            submission_value=ct_codelist_term_ar.ct_codelist_term_vo.submission_value,
-            order=ct_codelist_term_ar.ct_codelist_term_vo.order,
-            ordinal=ct_codelist_term_ar.ct_codelist_term_vo.ordinal,
-            library_name=ct_codelist_term_ar.ct_codelist_term_vo.library_name,
-            sponsor_preferred_name=ct_codelist_term_ar.ct_codelist_term_vo.sponsor_preferred_name,
-            sponsor_preferred_name_sentence_case=ct_codelist_term_ar.ct_codelist_term_vo.sponsor_preferred_name_sentence_case,
-            concept_id=ct_codelist_term_ar.ct_codelist_term_vo.concept_id,
-            nci_preferred_name=ct_codelist_term_ar.ct_codelist_term_vo.nci_preferred_name,
-            definition=ct_codelist_term_ar.ct_codelist_term_vo.definition,
-            name_date=ct_codelist_term_ar.ct_codelist_term_vo.name_date,
-            name_status=ct_codelist_term_ar.ct_codelist_term_vo.name_status.value,
-            attributes_date=ct_codelist_term_ar.ct_codelist_term_vo.attributes_date,
-            attributes_status=ct_codelist_term_ar.ct_codelist_term_vo.attributes_status.value,
-            start_date=ct_codelist_term_ar.ct_codelist_term_vo.start_date,
-            end_date=ct_codelist_term_ar.ct_codelist_term_vo.end_date,
-        )
-
-        return codelist_terms
-
+class CTCodelistTermBase(BaseModel):
     term_uid: Annotated[str, Field()]
-    submission_value: Annotated[str, Field()]
     order: Annotated[
         int | None,
         Field(json_schema_extra={"nullable": True}),
@@ -330,3 +304,68 @@ class CTCodelistTerm(BaseModel):
 
     start_date: datetime
     end_date: Annotated[datetime | None, Field(json_schema_extra={"nullable": True})]
+
+
+class CTCodelistTerm(CTCodelistTermBase):
+    @classmethod
+    def from_ct_codelist_term_ar(
+        cls,
+        ct_codelist_term_ar: CTCodelistTermAR,
+    ) -> Self:
+        codelist_terms = cls(
+            term_uid=ct_codelist_term_ar.ct_codelist_term_vo.term_uid,
+            submission_value=ct_codelist_term_ar.ct_codelist_term_vo.submission_value,
+            order=ct_codelist_term_ar.ct_codelist_term_vo.order,
+            ordinal=ct_codelist_term_ar.ct_codelist_term_vo.ordinal,
+            library_name=ct_codelist_term_ar.ct_codelist_term_vo.library_name,
+            sponsor_preferred_name=ct_codelist_term_ar.ct_codelist_term_vo.sponsor_preferred_name,
+            sponsor_preferred_name_sentence_case=ct_codelist_term_ar.ct_codelist_term_vo.sponsor_preferred_name_sentence_case,
+            concept_id=ct_codelist_term_ar.ct_codelist_term_vo.concept_id,
+            nci_preferred_name=ct_codelist_term_ar.ct_codelist_term_vo.nci_preferred_name,
+            definition=ct_codelist_term_ar.ct_codelist_term_vo.definition,
+            name_date=ct_codelist_term_ar.ct_codelist_term_vo.name_date,
+            name_status=ct_codelist_term_ar.ct_codelist_term_vo.name_status.value,
+            attributes_date=ct_codelist_term_ar.ct_codelist_term_vo.attributes_date,
+            attributes_status=ct_codelist_term_ar.ct_codelist_term_vo.attributes_status.value,
+            start_date=ct_codelist_term_ar.ct_codelist_term_vo.start_date,
+            end_date=ct_codelist_term_ar.ct_codelist_term_vo.end_date,
+        )
+
+        return codelist_terms
+
+    submission_value: Annotated[str, Field()]
+
+
+class CTPairedCodelistTerm(CTCodelistTermBase):
+    @classmethod
+    def from_ct_paired_codelist_term_ar(
+        cls,
+        ct_paired_codelist_term_ar: CTPairedCodelistTermAR,
+    ) -> Self:
+        vo = ct_paired_codelist_term_ar.ct_paired_codelist_term_vo
+        return cls(
+            term_uid=vo.term_uid,
+            code_submission_value=vo.code_submission_value,
+            name_submission_value=vo.name_submission_value,
+            order=vo.order,
+            ordinal=vo.ordinal,
+            library_name=vo.library_name,
+            sponsor_preferred_name=vo.sponsor_preferred_name,
+            sponsor_preferred_name_sentence_case=vo.sponsor_preferred_name_sentence_case,
+            concept_id=vo.concept_id,
+            nci_preferred_name=vo.nci_preferred_name,
+            definition=vo.definition,
+            name_date=vo.name_date,
+            name_status=vo.name_status.value,
+            attributes_date=vo.attributes_date,
+            attributes_status=vo.attributes_status.value,
+            start_date=vo.start_date,
+            end_date=vo.end_date,
+        )
+
+    code_submission_value: Annotated[
+        str | None, Field(json_schema_extra={"nullable": True})
+    ]
+    name_submission_value: Annotated[
+        str | None, Field(json_schema_extra={"nullable": True})
+    ]

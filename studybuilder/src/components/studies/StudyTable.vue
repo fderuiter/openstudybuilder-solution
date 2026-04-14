@@ -229,6 +229,10 @@ const headers = [
     key: 'id',
   },
   {
+    title: t('StudyTable.main_id'),
+    key: 'main_id',
+  },
+  {
     title: t('StudyTable.subpart_id'),
     key: 'subpart_id',
   },

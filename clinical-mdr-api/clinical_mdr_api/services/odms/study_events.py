@@ -80,6 +80,8 @@ class OdmStudyEventService(OdmGenericService[OdmStudyEventAR]):
     ) -> OdmStudyEvent:
         odm_study_event_ar = self._find_by_uid_or_raise_not_found(normalize_string(uid))
 
+        renumbering_start = len(odm_study_event_ar.odm_vo.form_uids) or 1
+
         BusinessLogicException.raise_if(
             odm_study_event_ar.item_metadata.status != LibraryItemStatus.DRAFT,
             msg=self.OBJECT_NOT_IN_DRAFT,
@@ -92,8 +94,13 @@ class OdmStudyEventService(OdmGenericService[OdmStudyEventAR]):
                 relationship_type=RelationType.FORM,
                 disconnect_all=True,
             )
+            renumbering_start = 1
 
-        for form in odm_study_event_form_post_input:
+        post_input = self.renumber_items_sequentially(
+            odm_study_event_form_post_input, "order_number", renumbering_start
+        )
+
+        for form in post_input:
             self._repos.odm_study_event_repository.add_relation(
                 uid=uid,
                 relation_uid=form.uid,

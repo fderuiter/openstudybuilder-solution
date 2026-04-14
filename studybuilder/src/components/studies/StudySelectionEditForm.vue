@@ -9,7 +9,7 @@
   >
     <template #body>
       <div class="d-flex align-center">
-        <div class="text-secondary text-h6">
+        <div class="text-secondary text-headline-small">
           {{ $t('_global.template') }}
         </div>
         <v-btn

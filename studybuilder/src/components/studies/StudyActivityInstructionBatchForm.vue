@@ -49,7 +49,7 @@
       </v-form>
     </template>
     <template #[`step.selectFromStudies`]>
-      <p class="text-grey text-subtitle-1 font-weight-bold">
+      <p class="text-grey text-body-large font-weight-bold">
         {{ $t('StudyActivityInstructionBatchForm.selected_items') }}
       </p>
       <v-data-table
@@ -74,7 +74,7 @@
       </v-data-table>
     </template>
     <template #[`step.selectFromStudies.after`]>
-      <p class="text-grey text-subtitle-1 font-weight-bold mb-0 ml-3">
+      <p class="text-grey text-body-large font-weight-bold mb-0 ml-3">
         {{ $t('StudyObjectiveForm.copy_instructions') }}
       </p>
       <v-col cols="12" class="pt-0 mt-0">
@@ -108,7 +108,7 @@
     </template>
 
     <template #[`step.selectTemplate`]>
-      <p class="text-grey text-subtitle-1 font-weight-bold">
+      <p class="text-grey text-body-large font-weight-bold">
         {{ $t('StudyActivityInstructionBatchForm.select_template_title') }}
       </p>
       <v-card flat class="parameterBackground">
@@ -122,7 +122,7 @@
     </template>
     <template #[`step.selectTemplate.after`]>
       <div class="d-flex align-center">
-        <p class="text-grey text-subtitle-1 font-weight-bold mb-0 ml-3">
+        <p class="text-grey text-body-large font-weight-bold mb-0 ml-3">
           {{ $t('StudyObjectiveForm.copy_instructions') }}
         </p>
         <v-switch

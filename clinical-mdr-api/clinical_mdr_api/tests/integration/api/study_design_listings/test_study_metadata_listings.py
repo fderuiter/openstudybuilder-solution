@@ -763,7 +763,7 @@ def test_study_metadata_listing_api(api_client):
 
 
 def test_study_metadata_listing_with_subpart(api_client):
-    subpart_acronym = "test"
+    subpart_acronym = "TEST"
     # create parent study
     parent_study = TestUtils.create_study(project_number=project_id)
     TestUtils.set_study_standard_version(study_uid=parent_study.uid)
@@ -819,7 +819,7 @@ def test_study_metadata_listing_with_subpart(api_client):
 
     expected_output = {
         "api_ver": "TBA",
-        "study_id": f"123-{p_study_number}test",
+        "study_id": f"123-{p_study_number}{subpart_acronym}",
         "study_ver": 2.0,
         "specified_dt": "2099-12-30",
         "request_dt": "2024-04-05T09:55:55",

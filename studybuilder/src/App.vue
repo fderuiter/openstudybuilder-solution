@@ -116,6 +116,7 @@ function navigateToRoot() {
 
 <style lang="scss" scoped>
 .v-breadcrumbs {
+  margin-top: 0;
   padding-top: 5px;
   padding-bottom: 5px;
   padding-left: 12px;

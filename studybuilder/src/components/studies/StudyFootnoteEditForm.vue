@@ -15,7 +15,7 @@
     @close="close"
   >
     <template #formFields="{}">
-      <p class="mt-6 text-secondary text-h6">
+      <p class="mt-6 text-secondary text-headline-small">
         {{ $t('StudyFootnoteEditForm.linked_items') }}
       </p>
       <v-row>

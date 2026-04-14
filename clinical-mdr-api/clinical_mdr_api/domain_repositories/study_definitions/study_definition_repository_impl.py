@@ -2124,6 +2124,52 @@ class StudyDefinitionRepositoryImpl(StudyDefinitionRepository, RepositoryImpl):
             date=date,
         )
 
+        # Persist study fields and registry identifiers that are inherited
+        # from a parent study (e.g. when creating a subpart).  Only call the
+        # maintain helpers when there are actual values to persist.
+        metadata = snapshot.current_metadata
+        has_study_description = (
+            metadata.study_title is not None or metadata.study_short_title is not None
+        )
+        has_registry_ids = any(
+            getattr(metadata, cfg.study_field_name, None) is not None
+            for cfg in FieldConfiguration.default_field_config()
+            if cfg.study_field_data_type == StudyFieldType.REGISTRY
+        )
+        if has_study_description or has_registry_ids:
+            empty_snapshot = StudyDefinitionSnapshot(
+                uid=snapshot.uid,
+                study_parent_part_uid=snapshot.study_parent_part_uid,
+                study_subpart_uids=snapshot.study_subpart_uids,
+                current_metadata=StudyDefinitionSnapshot.StudyMetadataSnapshot(
+                    study_number=metadata.study_number,
+                    project_number=metadata.project_number,
+                ),
+                draft_metadata=None,
+                released_metadata=None,
+                locked_metadata_versions=[],
+                study_status=snapshot.study_status,
+                deleted=False,
+            )
+            if has_study_description:
+                self._maintain_study_fields_relationships(
+                    study_root=root,
+                    previous_snapshot=empty_snapshot,
+                    current_snapshot=snapshot,
+                    previous_value=value,
+                    expected_latest_value=value,
+                    date=date,
+                )
+            if has_registry_ids:
+                self._maintain_study_registry_id_fields_relationships(
+                    study_root=root,
+                    previous_snapshot=empty_snapshot,
+                    current_snapshot=snapshot,
+                    previous_value=value,
+                    expected_latest_value=value,
+                    date=date,
+                )
+
     @staticmethod
     def _generate_study_value_audit_node(
         study_root_node: StudyRoot,
@@ -2841,9 +2887,13 @@ MATCH (sr:StudyRoot)-[:LATEST]->(sv)
 
             study_id_prefix = study_value.get("study_id_prefix")
             study_number = study_value.get("study_number")
+            study_subpart_acronym = study_value.get("study_subpart_acronym")
 
             if study_number and study_id_prefix:
-                return f"{study_id_prefix}-{study_number}"
+                study_id = f"{study_id_prefix}-{study_number}"
+                if study_subpart_acronym:
+                    study_id += f"-{study_subpart_acronym}"
+                return study_id
 
         return None
 

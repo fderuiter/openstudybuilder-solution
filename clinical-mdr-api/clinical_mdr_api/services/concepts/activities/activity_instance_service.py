@@ -2,10 +2,16 @@ import datetime
 from typing import Any
 
 from clinical_mdr_api.domain_repositories.concepts.activities.activity_instance_repository import (
+    ActivityInstanceAttributesRepository,
+    ActivityInstanceGroupingsRepository,
     ActivityInstanceRepository,
 )
 from clinical_mdr_api.domains.concepts.activities.activity_instance import (
     ActivityInstanceAR,
+    ActivityInstanceAttributesAR,
+    ActivityInstanceAttributesVO,
+    ActivityInstanceGroupingsAR,
+    ActivityInstanceGroupingsVO,
     ActivityInstanceGroupingVO,
     ActivityInstanceVO,
 )
@@ -17,16 +23,21 @@ from clinical_mdr_api.domains.concepts.activities.activity_item import (
 from clinical_mdr_api.domains.versioned_object_aggregate import LibraryVO
 from clinical_mdr_api.models.concepts.activities.activity_instance import (
     ActivityInstance,
+    ActivityInstanceAttributes,
+    ActivityInstanceAttributesVersion,
     ActivityInstanceCreateInput,
     ActivityInstanceEditInput,
+    ActivityInstanceGroupings,
+    ActivityInstanceGroupingsEditInput,
+    ActivityInstanceGroupingsVersion,
     ActivityInstanceOverview,
     ActivityInstanceVersion,
-    SimpleActivityInstanceGrouping,
     SimplifiedActivityItem,
 )
 from clinical_mdr_api.models.concepts.activities.activity_item import (
     CompactUnitDefinition,
 )
+from clinical_mdr_api.models.utils import BaseModel
 from clinical_mdr_api.services.concepts import constants
 from clinical_mdr_api.services.concepts.concept_generic_service import (
     ConceptGenericService,
@@ -92,6 +103,7 @@ class ActivityInstanceService(ConceptGenericService[ActivityInstanceAR]):
                         ct_terms=ct_terms,
                         unit_definitions=unit_definitions,
                         text_value=item.text_value,
+                        is_activity_instance_id_specific=item.is_activity_instance_id_specific,
                     )
                 )
 
@@ -157,9 +169,196 @@ class ActivityInstanceService(ConceptGenericService[ActivityInstanceAR]):
     def _edit_aggregate(
         self,
         item: ActivityInstanceAR,
+        concept_edit_input: BaseModel,
+    ) -> ActivityInstanceAR:
+        # Editing happens on the different aggregate roots for attributes and groupings,
+        # so this method is never used.
+        raise NotImplementedError
+
+    def get_activity_instance_overview(
+        self, activity_instance_uid: str, version: str | None = None
+    ) -> ActivityInstanceOverview:
+        NotFoundException.raise_if_not(
+            self.repository.exists_by("uid", activity_instance_uid, True),
+            "Activity Instance",
+            activity_instance_uid,
+        )
+        overview = (
+            self._repos.activity_instance_repository.get_activity_instance_overview(
+                uid=activity_instance_uid, version=version
+            )
+        )
+        return ActivityInstanceOverview.from_repository_input(overview=overview)
+
+    def get_activity_instance_items(
+        self, activity_instance_uid: str, version: str | None = None
+    ) -> list[SimplifiedActivityItem]:
+        NotFoundException.raise_if_not(
+            self.repository.exists_by("uid", activity_instance_uid, True),
+            "Activity Instance",
+            activity_instance_uid,
+        )
+        overview = self.repository.get_activity_instance_overview(
+            uid=activity_instance_uid, version=version
+        )
+        return ActivityInstanceOverview.from_repository_input(
+            overview=overview
+        ).activity_items
+
+    def get_cosmos_activity_instance_overview(
+        self, activity_instance_uid: str
+    ) -> dict[str, Any]:
+        NotFoundException.raise_if_not(
+            self.repository.exists_by("uid", activity_instance_uid, True),
+            "Activity Instance",
+            activity_instance_uid,
+        )
+        data: dict[Any, Any] = self.repository.get_cosmos_activity_instance_overview(
+            uid=activity_instance_uid
+        )
+        result: dict[str, Any] = {
+            "packageDate": datetime.date.today().isoformat(),
+            "packageType": "bc",
+            "conceptId": data["activity_instance_value"]["nci_concept_id"],
+            "ncitCode": data["activity_instance_value"]["nci_concept_id"],
+            "href": constants.COSM0S_BASE_ITEM_HREF.format(
+                data["activity_instance_value"]["nci_concept_id"]
+            ),
+            "categories": data["activity_subgroups"],
+            "shortName": data["activity_instance_value"]["name"],
+            "synonyms": data["activity_instance_value"]["abbreviation"],
+            "resultScales": [
+                constants.COSM0S_RESULT_SCALES_MAP.get(
+                    data["activity_instance_class_name"], ""
+                )
+            ],
+            "definition": data["activity_instance_value"]["definition"],
+            "dataElementConcepts": [],
+        }
+        for activity_item in data["activity_items"]:
+            result["dataElementConcepts"].append(
+                {
+                    "conceptId": activity_item["nci_concept_id"],
+                    "ncitCode": activity_item["nci_concept_id"],
+                    "href": constants.COSM0S_BASE_ITEM_HREF.format(
+                        activity_item["nci_concept_id"]
+                    ),
+                    "shortName": activity_item["name"],
+                    "dataType": constants.COSMOS_DEC_TYPES_MAP.get(
+                        activity_item["type"], activity_item["type"]
+                    ),
+                    "exampleSet": activity_item["example_set"],
+                }
+            )
+        return result
+
+
+class ActivityInstanceAttributesService(
+    ConceptGenericService[ActivityInstanceAttributesAR]
+):
+    aggregate_class = ActivityInstanceAttributesAR
+    repository_interface = ActivityInstanceAttributesRepository
+    version_class = ActivityInstanceAttributesVersion
+
+    def _get_parent_class_uid(self, uid: str) -> str | None:
+        """Get parent class UID for a given activity instance class UID"""
+        parent = self._repos.activity_instance_class_repository.get_parent_class(uid)
+        return parent[0] if parent else None
+
+    def _transform_aggregate_root_to_pydantic_model(
+        self, item_ar: ActivityInstanceAttributesAR
+    ) -> ActivityInstanceAttributes:
+        return ActivityInstanceAttributes.from_activity_ar(
+            activity_ar=item_ar,
+        )
+
+    def _create_aggregate_root(
+        self,
+        concept_input: ActivityInstanceCreateInput,
+        library: LibraryVO,
+        preview: bool = False,
+    ) -> ActivityInstanceAttributesAR:
+        activity_items = []
+        if (
+            getattr(concept_input, "activity_items", None)
+            and concept_input.activity_items is not None
+        ):
+            for item in concept_input.activity_items:
+                unit_definitions = [
+                    CompactUnitDefinition(uid=unit_uid, name=None, dimension_name=None)
+                    for unit_uid in item.unit_definition_uids
+                ]
+                ct_terms = [
+                    CTTermItem(
+                        uid=ct_term.term_uid,
+                        name=None,
+                        codelist_uid=ct_term.codelist_uid,
+                    )
+                    for ct_term in item.ct_terms
+                ]
+                ct_codelist = (
+                    CTCodelistItem(uid=item.ct_codelist_uid)
+                    if item.ct_codelist_uid
+                    else None
+                )
+                activity_items.append(
+                    ActivityItemVO.from_repository_values(
+                        is_adam_param_specific=item.is_adam_param_specific,
+                        activity_item_class_uid=item.activity_item_class_uid,
+                        activity_item_class_name=None,
+                        ct_codelist=ct_codelist,
+                        ct_terms=ct_terms,
+                        unit_definitions=unit_definitions,
+                        is_activity_instance_id_specific=item.is_activity_instance_id_specific,
+                    )
+                )
+
+        return ActivityInstanceAttributesAR.from_input_values(
+            author_id=self.author_id,
+            concept_vo=ActivityInstanceAttributesVO.from_repository_values(
+                nci_concept_id=concept_input.nci_concept_id,
+                nci_concept_name=concept_input.nci_concept_name,
+                name=concept_input.name or "",
+                name_sentence_case=concept_input.name_sentence_case or "",
+                definition=concept_input.definition,
+                abbreviation=concept_input.abbreviation,
+                is_research_lab=concept_input.is_research_lab,
+                molecular_weight=concept_input.molecular_weight,
+                topic_code=concept_input.topic_code,
+                adam_param_code=concept_input.adam_param_code,
+                is_required_for_activity=concept_input.is_required_for_activity,
+                is_default_selected_for_activity=concept_input.is_default_selected_for_activity,
+                is_data_sharing=concept_input.is_data_sharing,
+                is_legacy_usage=concept_input.is_legacy_usage,
+                is_derived=concept_input.is_derived,
+                legacy_description=concept_input.legacy_description,
+                activity_instance_class_uid=concept_input.activity_instance_class_uid,
+                activity_instance_class_name=None,
+                activity_items=activity_items,
+            ),
+            library=library,
+            generate_uid_callback=(
+                self.repository.generate_uid
+                if not preview
+                else lambda: "PreviewTemporalUid"
+            ),
+            concept_exists_by_library_and_property_value_callback=self._repos.activity_instance_repository.latest_concept_in_library_exists_by_property_value,
+            ct_term_exists_by_uid_callback=self._repos.ct_term_name_repository.term_exists,
+            unit_definition_exists_by_uid_callback=self._repos.unit_definition_repository.final_concept_exists,
+            find_activity_item_class_by_uid_callback=self._repos.activity_item_class_repository.find_by_uid_2,
+            find_activity_instance_class_by_uid_callback=self._repos.activity_instance_class_repository.find_by_uid_2,
+            preview=preview,
+            get_dimension_names_by_unit_definition_uids=self._repos.unit_definition_repository.get_dimension_names_by_unit_definition_uids,
+            get_parent_class_uid_callback=self._get_parent_class_uid,
+            strict_mode=getattr(concept_input, "strict_mode", False),
+        )
+
+    def _edit_aggregate(
+        self,
+        item: ActivityInstanceAttributesAR,
         concept_edit_input: ActivityInstanceEditInput,
         perform_validation: bool = True,
-    ) -> ActivityInstanceAR:
+    ) -> ActivityInstanceAttributesAR:
         fields_set = concept_edit_input.model_fields_set
 
         # Validate that restricted fields cannot be modified
@@ -228,31 +427,6 @@ class ActivityInstanceService(ConceptGenericService[ActivityInstanceAR]):
                             msg="Activity items with param/paramcd cannot have their terms (ct_terms) modified after creation.",
                         )
 
-        if "activity_groupings" in fields_set:
-            if concept_edit_input.activity_groupings:
-                activity_groupings = [
-                    ActivityInstanceGroupingVO(
-                        activity_uid=activity_grouping.activity_uid,
-                        activity_group_uid=activity_grouping.activity_group_uid,
-                        activity_subgroup_uid=activity_grouping.activity_subgroup_uid,
-                    )
-                    for activity_grouping in concept_edit_input.activity_groupings
-                ]
-            else:
-                activity_groupings = []
-        else:
-            if item.concept_vo.activity_groupings:
-                activity_groupings = [
-                    ActivityInstanceGroupingVO(
-                        activity_uid=activity_grouping.activity_uid,
-                        activity_group_uid=activity_grouping.activity_group_uid,
-                        activity_subgroup_uid=activity_grouping.activity_subgroup_uid,
-                    )
-                    for activity_grouping in item.concept_vo.activity_groupings
-                ]
-            else:
-                activity_groupings = []
-
         if "activity_items" in fields_set:
             activity_items = []
             if concept_edit_input.activity_items is not None:
@@ -284,6 +458,7 @@ class ActivityInstanceService(ConceptGenericService[ActivityInstanceAR]):
                             ct_terms=ct_terms,
                             unit_definitions=unit_definitions,
                             text_value=activity_item.text_value,
+                            is_activity_instance_id_specific=activity_item.is_activity_instance_id_specific,
                         )
                     )
         else:
@@ -292,7 +467,7 @@ class ActivityInstanceService(ConceptGenericService[ActivityInstanceAR]):
         item.edit_draft(
             author_id=self.author_id,
             change_description=concept_edit_input.change_description,
-            concept_vo=ActivityInstanceVO.from_repository_values(
+            concept_vo=ActivityInstanceAttributesVO.from_repository_values(
                 nci_concept_id=get_edit_input_or_previous_value(
                     concept_edit_input,
                     item.concept_vo,
@@ -347,7 +522,6 @@ class ActivityInstanceService(ConceptGenericService[ActivityInstanceAR]):
                 legacy_description=get_edit_input_or_previous_value(
                     concept_edit_input, item.concept_vo, "legacy_description"
                 ),
-                activity_groupings=activity_groupings,
                 activity_instance_class_uid=concept_edit_input.activity_instance_class_uid
                 or item.concept_vo.activity_instance_class_uid,
                 activity_instance_class_name=None,
@@ -356,9 +530,6 @@ class ActivityInstanceService(ConceptGenericService[ActivityInstanceAR]):
             concept_exists_by_library_and_property_value_callback=self._repos.activity_instance_repository.latest_concept_in_library_exists_by_property_value,
             ct_term_exists_by_uid_callback=self._repos.ct_term_name_repository.term_exists,
             unit_definition_exists_by_uid_callback=self._repos.unit_definition_repository.final_concept_exists,
-            get_final_activity_value_by_uid_callback=self._repos.activity_repository.final_concept_value,
-            activity_group_exists=self._repos.activity_group_repository.final_concept_exists,
-            activity_subgroup_exists=self._repos.activity_subgroup_repository.final_concept_exists,
             find_activity_item_class_by_uid_callback=self._repos.activity_item_class_repository.find_by_uid_2,
             find_activity_instance_class_by_uid_callback=self._repos.activity_instance_class_repository.find_by_uid_2,
             get_dimension_names_by_unit_definition_uids=self._repos.unit_definition_repository.get_dimension_names_by_unit_definition_uids,
@@ -372,94 +543,80 @@ class ActivityInstanceService(ConceptGenericService[ActivityInstanceAR]):
         )
         return item
 
-    def get_activity_instance_overview(
-        self, activity_instance_uid: str, version: str | None = None
-    ) -> ActivityInstanceOverview:
-        NotFoundException.raise_if_not(
-            self.repository.exists_by("uid", activity_instance_uid, True),
-            "Activity Instance",
-            activity_instance_uid,
-        )
-        overview = (
-            self._repos.activity_instance_repository.get_activity_instance_overview(
-                uid=activity_instance_uid, version=version
-            )
-        )
-        return ActivityInstanceOverview.from_repository_input(overview=overview)
 
-    def get_activity_instance_groupings(
-        self, activity_instance_uid: str, version: str | None = None
-    ) -> list[SimpleActivityInstanceGrouping]:
-        NotFoundException.raise_if_not(
-            self.repository.exists_by("uid", activity_instance_uid, True),
-            "Activity Instance",
-            activity_instance_uid,
-        )
-        overview = self.repository.get_activity_instance_overview(
-            uid=activity_instance_uid, version=version
-        )
-        return ActivityInstanceOverview.from_repository_input(
-            overview=overview
-        ).activity_groupings
+class ActivityInstanceGroupingsService(
+    ConceptGenericService[ActivityInstanceGroupingsAR]
+):
+    aggregate_class = ActivityInstanceGroupingsAR
+    repository_interface = ActivityInstanceGroupingsRepository
+    version_class = ActivityInstanceGroupingsVersion
 
-    def get_activity_instance_items(
-        self, activity_instance_uid: str, version: str | None = None
-    ) -> list[SimplifiedActivityItem]:
-        NotFoundException.raise_if_not(
-            self.repository.exists_by("uid", activity_instance_uid, True),
-            "Activity Instance",
-            activity_instance_uid,
-        )
-        overview = self.repository.get_activity_instance_overview(
-            uid=activity_instance_uid, version=version
-        )
-        return ActivityInstanceOverview.from_repository_input(
-            overview=overview
-        ).activity_items
+    def _get_parent_class_uid(self, uid: str) -> str | None:
+        """Get parent class UID for a given activity instance class UID"""
+        parent = self._repos.activity_instance_class_repository.get_parent_class(uid)
+        return parent[0] if parent else None
 
-    def get_cosmos_activity_instance_overview(
-        self, activity_instance_uid: str
-    ) -> dict[str, Any]:
-        NotFoundException.raise_if_not(
-            self.repository.exists_by("uid", activity_instance_uid, True),
-            "Activity Instance",
-            activity_instance_uid,
+    def _transform_aggregate_root_to_pydantic_model(
+        self, item_ar: ActivityInstanceGroupingsAR
+    ) -> ActivityInstanceGroupings:
+        return ActivityInstanceGroupings.from_activity_ar(
+            activity_ar=item_ar,
+            find_activity_hierarchy_by_uid=self._repos.activity_repository.find_by_uid_2,
+            find_activity_subgroup_by_uid=self._repos.activity_subgroup_repository.find_by_uid_2,
+            find_activity_group_by_uid=self._repos.activity_group_repository.find_by_uid_2,
         )
-        data: dict[Any, Any] = self.repository.get_cosmos_activity_instance_overview(
-            uid=activity_instance_uid
-        )
-        result: dict[str, Any] = {
-            "packageDate": datetime.date.today().isoformat(),
-            "packageType": "bc",
-            "conceptId": data["activity_instance_value"]["nci_concept_id"],
-            "ncitCode": data["activity_instance_value"]["nci_concept_id"],
-            "href": constants.COSM0S_BASE_ITEM_HREF.format(
-                data["activity_instance_value"]["nci_concept_id"]
+
+    def _create_aggregate_root(
+        self,
+        concept_input: ActivityInstanceCreateInput,
+        library: LibraryVO,
+        preview: bool = False,
+    ) -> ActivityInstanceGroupingsAR:
+        # Groupings are never created by themselves, creation only happens together with attributes,
+        # so we can raise NotImplementedError here and use the del
+        raise NotImplementedError
+
+    def _edit_aggregate(
+        self,
+        item: ActivityInstanceGroupingsAR,
+        concept_edit_input: ActivityInstanceGroupingsEditInput,
+        perform_validation: bool = True,
+    ) -> ActivityInstanceGroupingsAR:
+        fields_set = concept_edit_input.model_fields_set
+        if "activity_groupings" in fields_set:
+            if concept_edit_input.activity_groupings:
+                activity_groupings = [
+                    ActivityInstanceGroupingVO(
+                        activity_uid=activity_grouping.activity_uid,
+                        activity_group_uid=activity_grouping.activity_group_uid,
+                        activity_subgroup_uid=activity_grouping.activity_subgroup_uid,
+                    )
+                    for activity_grouping in concept_edit_input.activity_groupings
+                ]
+            else:
+                activity_groupings = []
+        else:
+            if item.concept_vo.activity_groupings:
+                activity_groupings = [
+                    ActivityInstanceGroupingVO(
+                        activity_uid=activity_grouping.activity_uid,
+                        activity_group_uid=activity_grouping.activity_group_uid,
+                        activity_subgroup_uid=activity_grouping.activity_subgroup_uid,
+                    )
+                    for activity_grouping in item.concept_vo.activity_groupings
+                ]
+            else:
+                activity_groupings = []
+
+        item.edit_draft(
+            author_id=self.author_id,
+            change_description=concept_edit_input.change_description,
+            concept_vo=ActivityInstanceGroupingsVO.from_repository_values(
+                activity_groupings=activity_groupings,
             ),
-            "categories": data["activity_subgroups"],
-            "shortName": data["activity_instance_value"]["name"],
-            "synonyms": data["activity_instance_value"]["abbreviation"],
-            "resultScales": [
-                constants.COSM0S_RESULT_SCALES_MAP.get(
-                    data["activity_instance_class_name"], ""
-                )
-            ],
-            "definition": data["activity_instance_value"]["definition"],
-            "dataElementConcepts": [],
-        }
-        for activity_item in data["activity_items"]:
-            result["dataElementConcepts"].append(
-                {
-                    "conceptId": activity_item["nci_concept_id"],
-                    "ncitCode": activity_item["nci_concept_id"],
-                    "href": constants.COSM0S_BASE_ITEM_HREF.format(
-                        activity_item["nci_concept_id"]
-                    ),
-                    "shortName": activity_item["name"],
-                    "dataType": constants.COSMOS_DEC_TYPES_MAP.get(
-                        activity_item["type"], activity_item["type"]
-                    ),
-                    "exampleSet": activity_item["example_set"],
-                }
-            )
-        return result
+            get_final_activity_value_by_uid_callback=self._repos.activity_repository.final_concept_value,
+            activity_group_exists=self._repos.activity_group_repository.final_concept_exists,
+            activity_subgroup_exists=self._repos.activity_subgroup_repository.final_concept_exists,
+            perform_validation=perform_validation,
+        )
+        return item

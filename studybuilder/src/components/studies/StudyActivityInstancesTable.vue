@@ -149,8 +149,7 @@
           class="mt-2 mb-n4"
           :disabled="
             !item.study_activity_instance_uid ||
-            !item.activity?.is_data_collected ||
-            item.is_reviewed
+            !item.activity?.is_data_collected
           "
           @update:model-value="markItemModified(item)"
         />
@@ -172,11 +171,11 @@
           closable-chips
           clearable
           :loading="item._loadingBaselineVisits"
-          :disabled="!item.study_activity_instance_uid || item.is_reviewed"
+          :disabled="!item.study_activity_instance_uid"
           @click="loadBaselineVisitsForItem(item)"
           @update:model-value="markItemModified(item)"
         >
-          <template #chip="{ item: chipItem, props: chipProps }">
+          <template #chip="{ internalItem: chipItem, props: chipProps }">
             <v-tooltip
               :text="chipItem.title"
               location="top"
@@ -211,7 +210,7 @@
           :disabled="!item.study_activity_instance_uid"
           @update:model-value="onSupplierChange(item, $event)"
         >
-          <template #selection="{ item: selectedItem }">
+          <template #selection="{ internalItem: selectedItem }">
             <v-tooltip
               :text="selectedItem.title"
               location="top"
@@ -242,7 +241,7 @@
           :disabled="!item.study_activity_instance_uid"
           @update:model-value="markItemModified(item)"
         >
-          <template #selection="{ item: selectedItem }">
+          <template #selection="{ internalItem: selectedItem }">
             <v-tooltip
               :text="selectedItem.title"
               location="top"
@@ -273,7 +272,7 @@
           :disabled="!item.study_activity_instance_uid"
           @update:model-value="markItemModified(item)"
         >
-          <template #selection="{ item: selectedItem }">
+          <template #selection="{ internalItem: selectedItem }">
             <v-tooltip
               :text="selectedItem.title"
               location="top"

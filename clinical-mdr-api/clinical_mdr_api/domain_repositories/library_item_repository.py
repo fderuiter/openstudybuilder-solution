@@ -74,6 +74,9 @@ class LibraryItemRepositoryImplBase(
     lock_store_term_by_uid_and_submval = Lock()
     has_library = True
 
+    def _has_uid_and_library_on_parent_root(self) -> bool:
+        return False
+
     @abc.abstractmethod
     def _create_aggregate_root_instance_from_version_root_relationship_and_value(
         self,
@@ -278,8 +281,11 @@ class LibraryItemRepositoryImplBase(
         if self._is_repository_related_to_ct():
             root = root.has_root.single()
 
+        # updating library connection if necessary
+        # Skip if we have uid and library on a parent root
         if (
-            self.has_library
+            not self._has_uid_and_library_on_parent_root()
+            and self.has_library
             and versioned_object.library.name != root.has_library.get().name
         ):
             self._db_remove_relationship(root.has_library)
@@ -655,9 +661,6 @@ class LibraryItemRepositoryImplBase(
         )
         itm: VersionValue
         for itm in traversal.all():
-            assert isinstance(
-                itm, (VersionValue, ControlledTerminology)
-            )  # PIWQ: juts to check whether I understand what's going here
             if itm in managed:
                 continue
 
@@ -684,15 +687,19 @@ class LibraryItemRepositoryImplBase(
         # these two nodes don't contain uids but serves as a roots for versioned relationships
         # Connection to the Library node is attached to the 'main' root not the root that owns versioned relationships
         # this is why we need the following condition
-        if not self._is_repository_related_to_ct():
-            root: VersionRoot | None = self.root_class.nodes.get_or_none(uid=uid)
-            if root is not None:
-
-                if self.has_library:
-                    library = root.has_library.get()
-                else:
-                    library = None
-        else:
+        if self._has_uid_and_library_on_parent_root():
+            # This object has a parent root that contains the uid
+            parent_root: VersionRoot | None = self.parent_root_class.nodes.get_or_none(
+                uid=uid
+            )
+            if parent_root is not None:
+                root: VersionRoot | None = getattr(
+                    parent_root, self.parent_root_relationship
+                ).single()
+                library = parent_root.has_library.get()
+            else:
+                root = None
+        elif self._is_repository_related_to_ct():
             # ControlledTerminology version root items don't contain uid - then we have to get object by it's id
             _result, _ = db.cypher_query(
                 MATCH_NODE_BY_ID,
@@ -703,6 +710,14 @@ class LibraryItemRepositoryImplBase(
             if root is not None:
                 if self.has_library:
                     library = root.has_root.single().has_library.get()
+                else:
+                    library = None
+        else:
+            root = self.root_class.nodes.get_or_none(uid=uid)
+            if root is not None:
+
+                if self.has_library:
+                    library = root.has_library.get()
                 else:
                     library = None
 
@@ -1051,7 +1066,11 @@ class LibraryItemRepositoryImplBase(
         if not self.has_library:
             library = None
         elif not self._is_repository_related_to_ct():
-            library = item.has_library.get()
+            if self._has_uid_and_library_on_parent_root():
+                parent_root = getattr(item, self.parent_root_relationship).single()
+                library = parent_root.has_library.get()
+            else:
+                library = item.has_library.get()
         else:
             library = item.has_root.single().has_library.get()
         data = value.to_dict()
@@ -2642,6 +2661,7 @@ END
                     ct_terms:ct_terms,
                     unit_definitions: unit_definitions,
                     is_adam_param_specific: activity_item.is_adam_param_specific,
+                    is_activity_instance_id_specific: activity_item.is_activity_instance_id_specific,
                     text_value: activity_item.text_value,
                     odm_items: odm_items
                 }) as activity_items
@@ -2704,7 +2724,7 @@ END
                         <-[:HAS_SELECTED_ACTIVITY]-(sa:StudyActivity)<-[:HAS_STUDY_ACTIVITY]-(study_value:StudyValue)
                         WHERE library.name="Requested" AND NOT (sa)-[:BEFORE]-() AND NOT (sa)--(:Delete) |
                         COALESCE(study_value.study_id_prefix, '') + "-" + COALESCE(study_value.study_number, '') +
-                        CASE WHEN study_value.subpart_id IS NOT NULL AND study_value.subpart_id <> '' THEN "-" + study_value.subpart_id ELSE "" END])) AS used_by_studies
+                        CASE WHEN study_value.study_subpart_acronym IS NOT NULL AND study_value.study_subpart_acronym <> '' THEN "-" + study_value.study_subpart_acronym ELSE "" END])) AS used_by_studies
                 RETURN activity_groupings, used_by_studies
             }
         """

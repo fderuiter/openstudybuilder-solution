@@ -47,6 +47,8 @@ class ActivitySubGroupRepository(ConceptGenericRepository[ActivitySubGroupAR]):
                 name_sentence_case=input_dict["name_sentence_case"],
                 definition=input_dict.get("definition"),
                 abbreviation=input_dict.get("abbreviation"),
+                nci_concept_id=input_dict.get("nci_concept_id"),
+                nci_concept_name=input_dict.get("nci_concept_name"),
             ),
             library=LibraryVO.from_input_values_2(
                 library_name=input_dict["library_name"],
@@ -82,6 +84,8 @@ class ActivitySubGroupRepository(ConceptGenericRepository[ActivitySubGroupAR]):
                 name_sentence_case=value.name_sentence_case,
                 definition=value.definition,
                 abbreviation=value.abbreviation,
+                nci_concept_id=value.nci_concept_id,
+                nci_concept_name=value.nci_concept_name,
             ),
             library=LibraryVO.from_input_values_2(
                 library_name=library.name,
@@ -106,6 +110,8 @@ class ActivitySubGroupRepository(ConceptGenericRepository[ActivitySubGroupAR]):
                 name_sentence_case=value.name_sentence_case,
                 definition=value.definition,
                 abbreviation=value.abbreviation,
+                nci_concept_id=value.nci_concept_id,
+                nci_concept_name=value.nci_concept_name,
             ),
             library=LibraryVO.from_input_values_2(
                 library_name=library.name,

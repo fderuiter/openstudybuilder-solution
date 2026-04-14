@@ -20,9 +20,8 @@
           </v-timeline-item>
         </v-timeline>
       </v-col>
-      <v-spacer />
       <v-col cols="11">
-        <v-card class="mt-2 mb-2" elevation="6" max-width="99%">
+        <v-card class="mt-2 mb-2" elevation="1" max-width="99%">
           <v-card-text>
             <v-row>
               <v-col cols="1">
@@ -76,7 +75,7 @@
           <v-window v-model="activeTab">
             <v-window-item v-for="tab of datasetClasses" :key="tab.uid">
               <div>
-                <v-card class="mt-2 mb-2 ml-1" elevation="6" max-width="1440px">
+                <v-card class="mt-2 mb-2 ml-1" elevation="1" max-width="1440px">
                   <v-card-text>
                     <v-row>
                       <v-col cols="2">

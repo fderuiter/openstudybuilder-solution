@@ -155,7 +155,10 @@ def test_get_codelists_filter_both_statuses_explicit(api_client):
 # ------- Codelist Term tests -------
 
 CODELIST_TERM_FIELDS_ALL = [
-    "uid",
+    "term_uid",
+    "codelist_uid",
+    "order",
+    "ordinal",
     "submission_value",
     "sponsor_preferred_name",
     "concept_id",
@@ -168,7 +171,8 @@ CODELIST_TERM_FIELDS_ALL = [
 ]
 
 CODELIST_TERM_FIELDS_NOT_NULL = [
-    "uid",
+    "term_uid",
+    "codelist_uid",
     "submission_value",
     "sponsor_preferred_name",
     "library_name",
@@ -177,6 +181,8 @@ CODELIST_TERM_FIELDS_NOT_NULL = [
     "attributes_status",
     "attributes_version",
 ]
+
+CODELIST_UID = "C66737"
 
 
 def test_get_codelist_terms(api_client):
@@ -240,10 +246,65 @@ def test_get_codelist_terms_pagination(api_client):
     assert len(all_fetched) == 10
 
 
-def test_get_codelist_terms_missing_required_param(api_client):
-    """Test that omitting required codelist_submission_value returns 400."""
+def test_get_codelist_terms_no_filters(api_client):
+    """Calling without any filter returns all terms (200)."""
     response = api_client.get(f"{BASE_URL}/library/ct/codelist-terms")
-    assert_response_status_code(response, 400)
+    assert_response_status_code(response, 200)
+    res = response.json()
+
+    TestUtils.assert_paginated_response_shape_ok(res, False)
+    assert len(res["items"]) > 0
+
+    for item in res["items"]:
+        TestUtils.assert_response_shape_ok(
+            item, CODELIST_TERM_FIELDS_ALL, CODELIST_TERM_FIELDS_NOT_NULL
+        )
+
+
+def test_get_codelist_terms_filter_by_codelist_uid(api_client):
+    """Filtering by codelist_uid returns the same terms as filtering by codelist_submission_value for the same codelist."""
+    response_by_uid = api_client.get(
+        f"{BASE_URL}/library/ct/codelist-terms?codelist_uid={CODELIST_UID}"
+    )
+    assert_response_status_code(response_by_uid, 200)
+    res_by_uid = response_by_uid.json()
+
+    response_by_submval = api_client.get(
+        f"{BASE_URL}/library/ct/codelist-terms?codelist_submission_value={CODELIST_SUBMISSION_VALUE}"
+    )
+    assert_response_status_code(response_by_submval, 200)
+    res_by_submval = response_by_submval.json()
+
+    assert len(res_by_uid["items"]) == len(res_by_submval["items"])
+    assert {item["term_uid"] for item in res_by_uid["items"]} == {
+        item["term_uid"] for item in res_by_submval["items"]
+    }
+
+
+def test_get_codelist_terms_filter_by_both_params(api_client):
+    """Filtering by both codelist_uid and codelist_submission_value returns the same results as filtering by either alone."""
+    response = api_client.get(
+        f"{BASE_URL}/library/ct/codelist-terms?codelist_uid={CODELIST_UID}&codelist_submission_value={CODELIST_SUBMISSION_VALUE}"
+    )
+    assert_response_status_code(response, 200)
+    res = response.json()
+
+    response_by_uid = api_client.get(
+        f"{BASE_URL}/library/ct/codelist-terms?codelist_uid={CODELIST_UID}"
+    )
+    assert len(res["items"]) == len(response_by_uid.json()["items"])
+
+
+def test_get_codelist_terms_filter_by_nonexistent_codelist_uid(api_client):
+    """Filtering by a nonexistent codelist_uid returns empty list."""
+    response = api_client.get(
+        f"{BASE_URL}/library/ct/codelist-terms?codelist_uid=NONEXISTENT"
+    )
+    assert_response_status_code(response, 200)
+    res = response.json()
+
+    TestUtils.assert_paginated_response_shape_ok(res, False)
+    assert len(res["items"]) == 0
 
 
 def test_get_codelist_terms_invalid_pagination_params(api_client):

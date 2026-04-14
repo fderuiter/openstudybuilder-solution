@@ -66,6 +66,6 @@ function filterByStatus(statusValue, initialFiltering) {
     cy.get('button.clearAllBtn').filter(':visible').click()
     cy.contains('[data-cy="filter-field"]', 'Status').click()
     cy.get('.v-overlay__content .v-list').filter(':visible').should('not.contain', 'No data available')
-    cy.get('.v-overlay__content .v-list').filter(':visible').contains(statusValue).click()
-    cy.wait(1500)
+    cy.get('.v-overlay__content .v-list').filter(':visible').contains('.v-list-item', statusValue).find('input').click()
+    cy.wait(500)
 }

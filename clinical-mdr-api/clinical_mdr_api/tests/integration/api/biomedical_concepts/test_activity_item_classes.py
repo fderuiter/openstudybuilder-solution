@@ -1027,3 +1027,73 @@ def test_get_activity_instance_classes_using_item(api_client: TestClient) -> Non
     result = response.json()
     assert result["items"] == []
     assert result["total"] == 0
+
+
+def test_get_activity_item_classes_versions(api_client):
+    """Test GET /activity-item-classes/versions endpoint"""
+    # First, create a new version of one item class so we have multiple versions
+    response = api_client.post(
+        f"/activity-item-classes/{activity_item_classes_all[0].uid}/versions"
+    )
+    assert_response_status_code(response, 201)
+
+    # Get all versions
+    response = api_client.get(
+        "/activity-item-classes/versions?page_size=100&total_count=true"
+    )
+    res = response.json()
+
+    assert_response_status_code(response, 200)
+
+    # Check response structure
+    assert set(res.keys()) == {"items", "total", "page", "size"}
+    assert res["total"] > 0
+
+    # Should have more versions than unique classes (since we created a new version above)
+    assert res["total"] > len(activity_item_classes_all)
+
+    # Check that the items are sorted by start_date descending
+    start_dates = [item["start_date"] for item in res["items"] if item["start_date"]]
+    assert start_dates == sorted(start_dates, reverse=True)
+
+    # Check that the class updated in this test has multiple versions
+    versions_of_class = [
+        item["version"]
+        for item in res["items"]
+        if item["uid"] == activity_item_classes_all[0].uid
+    ]
+    assert len(versions_of_class) >= 2
+
+    # Check fields on first item
+    item = res["items"][0]
+    assert "uid" in item
+    assert "name" in item
+    assert "version" in item
+    assert "status" in item
+    assert "start_date" in item
+    assert "library_name" in item
+
+
+def test_get_activity_item_classes_versions_pagination(api_client):
+    """Test pagination on /activity-item-classes/versions"""
+    # Get first page
+    response = api_client.get(
+        "/activity-item-classes/versions?page_size=2&page_number=1&total_count=true"
+    )
+    assert_response_status_code(response, 200)
+    page1 = response.json()
+    assert len(page1["items"]) == 2
+    assert page1["total"] > 2
+
+    # Get second page
+    response = api_client.get(
+        "/activity-item-classes/versions?page_size=2&page_number=2&total_count=true"
+    )
+    assert_response_status_code(response, 200)
+    page2 = response.json()
+    assert len(page2["items"]) > 0
+
+    # Pages should not overlap
+    page1_uids_versions = {(i["uid"], i["version"]) for i in page1["items"]}
+    page2_uids_versions = {(i["uid"], i["version"]) for i in page2["items"]}
+    assert page1_uids_versions.isdisjoint(page2_uids_versions)

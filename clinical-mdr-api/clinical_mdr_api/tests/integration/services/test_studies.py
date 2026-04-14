@@ -285,7 +285,7 @@ def test_get_study_id__for_subpart__returns_study_id(
     study_id = study_service.get_study_id(subpart_study.uid)
 
     # THEN
-    expected_id = f"{tst_project.project_number}-{study_number}"
+    expected_id = f"{tst_project.project_number}-{study_number}-SUB1"
     assert study_id == expected_id
 
 

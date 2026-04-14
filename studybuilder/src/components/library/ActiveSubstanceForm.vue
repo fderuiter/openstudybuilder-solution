@@ -56,7 +56,7 @@
               item-title="dictionary_id"
               item-value="term_uid"
             >
-              <template #item="{ props, item }">
+              <template #item="{ props, internalItem: item }">
                 <v-list-item
                   v-bind="props"
                   :title="`${item.raw.name} (${item.raw.dictionary_id})`"

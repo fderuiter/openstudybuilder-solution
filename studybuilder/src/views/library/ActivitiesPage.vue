@@ -68,37 +68,51 @@ import ActivityItemClassTable from '@/components/library/ActivityItemClassTable.
 import HelpButtonWithPanels from '@/components/tools/HelpButtonWithPanels.vue'
 import NavigationTabs from '@/components/tools/NavigationTabs.vue'
 import { useI18n } from 'vue-i18n'
+import { useFeatureFlagsStore } from '@/stores/feature-flags'
+import { computed } from 'vue'
 
 const { t } = useI18n()
+const featureFlagsStore = useFeatureFlagsStore()
 
-const tabs = [
-  { tab: 'activities', name: t('ActivityTable.activities') },
-  {
-    tab: 'activity-groups',
-    name: t('ActivityTable.activity_groups'),
-  },
-  {
-    tab: 'activity-subgroups',
-    name: t('ActivityTable.activity_subgroups'),
-  },
-  {
-    tab: 'activities-by-grouping',
-    name: t('ActivityTable.activities_overview'),
-  },
-  { tab: 'activity-instances', name: t('ActivityTable.instances') },
-  {
-    tab: 'requested-activities',
-    name: t('ActivityTable.requested'),
-  },
-  {
-    tab: 'activity-instance-classes',
-    name: t('ActivityTable.activity_instance_classes'),
-  },
-  {
-    tab: 'activity-item-classes',
-    name: t('ActivityTable.activity_item_classes'),
-  },
-]
+const streamlinePlaceholders = computed(
+  () => !featureFlagsStore.getFeatureFlag('streamline_placeholder_activities')
+)
+
+const tabs = computed(() => {
+  const allTabs = [
+    { tab: 'activities', name: t('ActivityTable.activities') },
+    {
+      tab: 'activity-groups',
+      name: t('ActivityTable.activity_groups'),
+    },
+    {
+      tab: 'activity-subgroups',
+      name: t('ActivityTable.activity_subgroups'),
+    },
+    {
+      tab: 'activities-by-grouping',
+      name: t('ActivityTable.activities_overview'),
+    },
+    { tab: 'activity-instances', name: t('ActivityTable.instances') },
+    ...(!streamlinePlaceholders.value
+      ? [
+          {
+            tab: 'requested-activities',
+            name: t('ActivityTable.requested'),
+          },
+        ]
+      : []),
+    {
+      tab: 'activity-instance-classes',
+      name: t('ActivityTable.activity_instance_classes'),
+    },
+    {
+      tab: 'activity-item-classes',
+      name: t('ActivityTable.activity_item_classes'),
+    },
+  ]
+  return allTabs
+})
 const helpItems = [
   'ActivityTable.activities',
   'ActivityTable.activity_groups',

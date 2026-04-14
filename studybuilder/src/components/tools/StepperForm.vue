@@ -36,7 +36,7 @@
                   <v-btn
                     class="secondary-btn"
                     variant="outlined"
-                    elevation="2"
+                    elevation="1"
                     width="120px"
                     @click="cancel"
                   >
@@ -46,7 +46,7 @@
                     v-if="currentStep > 1"
                     class="secondary-btn ml-2"
                     variant="outlined"
-                    elevation="2"
+                    elevation="1"
                     width="120px"
                     @click="currentStep = index"
                   >
@@ -58,7 +58,7 @@
                     :data-cy="`step.${step.name}` + '-continue-button'"
                     color="secondary"
                     class="ml-2 mr-2"
-                    elevation="2"
+                    elevation="1"
                     width="120px"
                     @click="goToStep(index + 1, index + 2)"
                   >
@@ -70,7 +70,7 @@
                     color="secondary"
                     class="ml-2"
                     :loading="loading"
-                    elevation="2"
+                    elevation="1"
                     width="120px"
                     @click="submit"
                   >

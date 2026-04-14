@@ -19,7 +19,7 @@
         <!-- Activity Instance Classes Table -->
         <div class="activity-section">
           <div class="section-header mb-1">
-            <h3 class="text-h6 font-weight-bold text-primary">
+            <h3 class="text-headline-small font-weight-bold text-primary">
               {{ $t('ActivityItemClassOverview.activity_instance_classes') }}
             </h3>
           </div>
@@ -88,7 +88,7 @@
         </div>
         <div v-if="displayApplicableCodelists" class="activity-section">
           <div class="section-header mb-1">
-            <h3 class="text-h6 font-weight-bold text-primary">
+            <h3 class="text-headline-small font-weight-bold text-primary">
               {{ $t('ActivityItemClassOverview.applicable_codelists') }}
             </h3>
           </div>

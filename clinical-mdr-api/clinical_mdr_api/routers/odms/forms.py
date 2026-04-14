@@ -477,7 +477,10 @@ def add_item_groups_to_odm_form(
     override: Annotated[
         bool,
         Query(
-            description="If true, all existing item group relationships will be replaced with the provided item group relationships.",
+            description="""
+When true, replaces all existing item relationships with the provided ones.  
+When false, appends the provided item relationships to existing ones, continuing the order sequence.
+            """,
         ),
     ] = False,
 ) -> OdmForm:

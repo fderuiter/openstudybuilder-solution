@@ -361,6 +361,7 @@ from clinical_mdr_api.services.concepts.activities.activity_group_service import
     ActivityGroupService,
 )
 from clinical_mdr_api.services.concepts.activities.activity_instance_service import (
+    ActivityInstanceGroupingsService,
     ActivityInstanceService,
 )
 from clinical_mdr_api.services.concepts.activities.activity_service import (
@@ -778,7 +779,7 @@ class TestUtils:
     @classmethod
     def random_str(cls, length: int = 8, prefix: str = ""):
         """returns a random numerical string of `length` with optional string prefix (length excludes prefix)"""
-        return prefix + str(randint(1, 10**length - 1))
+        return prefix + str(randint(0, 10**length - 1)).zfill(length)
 
     @classmethod
     def random_if_none(cls, val, length: int = 10, prefix: str = ""):
@@ -1735,9 +1736,12 @@ class TestUtils:
             concept_input=activity_instance_input, preview=preview
         )
         if approve and not preview:
+            groupings_service = ActivityInstanceGroupingsService()
             service.approve(result.uid)
+            groupings_service.approve(result.uid)
             if retire_after_approve:
                 service.inactivate_final(result.uid)
+                groupings_service.inactivate_final(result.uid)
         return result
 
     @classmethod
@@ -1865,6 +1869,8 @@ class TestUtils:
         definition: str | None = None,
         abbreviation: str | None = None,
         library_name: str = SPONSOR_LIBRARY_NAME,
+        nci_concept_id: str | None = None,
+        nci_concept_name: str | None = None,
         approve: bool = True,
     ) -> ActivitySubGroup:
         service: ActivitySubGroupService = ActivitySubGroupService()
@@ -1875,6 +1881,8 @@ class TestUtils:
                 definition=definition,
                 abbreviation=abbreviation,
                 library_name=library_name,
+                nci_concept_id=nci_concept_id,
+                nci_concept_name=nci_concept_name,
             )
         )
         result: ActivitySubGroup = service.create(  # type: ignore[assignment]
@@ -1892,6 +1900,8 @@ class TestUtils:
         definition: str | None = None,
         abbreviation: str | None = None,
         library_name: str = SPONSOR_LIBRARY_NAME,
+        nci_concept_id: str | None = None,
+        nci_concept_name: str | None = None,
         approve: bool = True,
     ) -> ActivityGroup:
         service: ActivityGroupService = ActivityGroupService()
@@ -1902,6 +1912,8 @@ class TestUtils:
                 definition=definition,
                 abbreviation=abbreviation,
                 library_name=library_name,
+                nci_concept_id=nci_concept_id,
+                nci_concept_name=nci_concept_name,
             )
         )
         result: ActivityGroup = service.create(  # type: ignore[assignment]
@@ -2697,7 +2709,9 @@ class TestUtils:
             )
         else:
             payload = StudySubpartCreateInput(  # type: ignore[assignment]
-                study_subpart_acronym=cls.random_if_none(subpart_acronym, prefix="st-"),
+                study_subpart_acronym=cls.random_if_none(
+                    subpart_acronym, length=6, prefix="SUB"
+                ),
                 description=cls.random_if_none(description),
                 study_parent_part_uid=study_parent_part_uid,
             )

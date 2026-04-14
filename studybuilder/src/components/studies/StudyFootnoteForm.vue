@@ -42,7 +42,7 @@
       </v-form>
     </template>
     <template #[`step.selectFootnote`]>
-      <p class="text-grey text-subtitle-1 font-weight-bold">
+      <p class="text-grey text-body-large font-weight-bold">
         {{ $t('StudyFootnoteForm.selected_footnotes') }}
       </p>
       <v-data-table
@@ -64,7 +64,7 @@
       </v-data-table>
     </template>
     <template #[`step.selectFootnote.after`]>
-      <p class="text-grey text-subtitle-1 font-weight-bold mb-0 ml-3">
+      <p class="text-grey text-body-large font-weight-bold mb-0 ml-3">
         {{ $t('StudyFootnoteForm.copy_instructions') }}
       </p>
       <v-col cols="12" flat class="pt-0 mt-0">
@@ -110,7 +110,7 @@
     </template>
     <template #[`step.selectTemplates.after`]>
       <div class="d-flex align-center">
-        <p class="text-grey text-subtitle-1 font-weight-bold mb-0 ml-3">
+        <p class="text-grey text-body-large font-weight-bold mb-0 ml-3">
           {{ $t('StudyFootnoteForm.copy_instructions') }}
         </p>
         <v-switch

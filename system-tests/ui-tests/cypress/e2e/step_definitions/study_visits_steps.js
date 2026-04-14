@@ -3,6 +3,14 @@ import { getCurrStudyUid } from '../../support/helper_functions'
 
 let studyVisits_uid
 
+When('User is presented with correct unscheduled visit name', () => cy.get('[data-cy="visit-name"] input').should('have.value', 'Unscheduled'))
+
+When('User is presented with visit start rule set as {string}', (startRule) => cy.get(`[data-cy="visit-start-rule"] textarea[value="${startRule}"]`).should('be.visible'))
+
+When('User must be able to set vist start rule as {string}', (startRule) => cy.get('[data-cy="visit-start-rule"] [class="v-field__input"]').clear().type(startRule))
+
+When('User waits for the Basic epoch for unscheduled visit to load', () => cy.get('[data-cy="study-period"]').should('contain.text', 'Basic'))
+
 When('User intercepts create visit request', () => cy.intercept('**/study-visits').as('visitRequest'))
 
 When('User search for visit with name {string}', (visitName) => cy.searchAndCheckPresence(visitName, true))
@@ -147,7 +155,6 @@ Then('The study visit is created', () => {
 
 function createEpochViaAPI(epochType, epochSubType) {
     cy.getEpochTypeAndSubType(epochType, epochSubType)
-    cy.getEpochTerm(getCurrStudyUid())
     cy.createEpoch(getCurrStudyUid())
 }
 

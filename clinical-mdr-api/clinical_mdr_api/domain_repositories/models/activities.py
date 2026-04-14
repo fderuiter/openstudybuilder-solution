@@ -114,7 +114,7 @@ class ActivityGrouping(ClinicalMdrNodeWithUID):
         "ActivityValue", "HAS_GROUPING", model=ClinicalMdrRel, cardinality=One
     )
     has_activity = RelationshipFrom(
-        "ActivityInstanceValue",
+        "ActivityInstanceGroupingValue",
         "HAS_ACTIVITY",
         model=ClinicalMdrRel,
         cardinality=ZeroOrMore,
@@ -175,6 +175,7 @@ class ActivityRoot(ConceptRoot):
 
 class ActivityItem(ClinicalMdrNode):
     is_adam_param_specific = BooleanProperty(False)
+    is_activity_instance_id_specific = BooleanProperty()
     text_value = StringProperty()
     has_activity_item_class = RelationshipFrom(
         ActivityItemClassRoot,
@@ -207,9 +208,6 @@ class ActivityInstanceValue(ConceptValue):
     is_derived = BooleanProperty(default=False)
     legacy_description = StringProperty()
 
-    has_activity = RelationshipTo(
-        ActivityGrouping, "HAS_ACTIVITY", model=ClinicalMdrRel, cardinality=OneOrMore
-    )
     activity_instance_class = RelationshipTo(
         ActivityInstanceClassRoot,
         "ACTIVITY_INSTANCE_CLASS",
@@ -236,6 +234,72 @@ class ActivityInstanceValue(ConceptValue):
     )
 
 
+class ActivityInstanceGroupingRoot(ClinicalMdrNode):
+    has_version = RelationshipTo(
+        "ActivityInstanceGroupingValue", "HAS_VERSION", model=VersionRelationship
+    )
+    has_latest_value = RelationshipTo(
+        "ActivityInstanceGroupingValue", "LATEST", model=ClinicalMdrRel
+    )
+    latest_draft = RelationshipTo(
+        "ActivityInstanceGroupingValue", "LATEST_DRAFT", model=ClinicalMdrRel
+    )
+    latest_final = RelationshipTo(
+        "ActivityInstanceGroupingValue", "LATEST_FINAL", model=ClinicalMdrRel
+    )
+    latest_retired = RelationshipTo(
+        "ActivityInstanceGroupingValue", "LATEST_RETIRED", model=ClinicalMdrRel
+    )
+    has_grouping_root = RelationshipFrom(
+        "ActivityInstanceRoot",
+        "HAS_GROUPING_ROOT",
+        model=ClinicalMdrRel,
+        cardinality=One,
+    )
+
+    def get_value_for_version(self, version: str | None):
+        matching_values = self.has_version.match(version=version)
+        if len(matching_values) > 0:
+            return matching_values[0]
+        return None
+
+    def get_relation_for_version(self, version: str):
+        value = self.get_value_for_version(version)
+        relationships = self.has_version.all_relationships(value)
+        all_matching = [rel for rel in relationships if rel.version == version]
+        all_without_end = [rel for rel in all_matching if rel.end_date is None]
+        if len(all_without_end) == 1:
+            # There is only one relationship without end date
+            return all_without_end[0]
+        if len(all_without_end) > 1:
+            # There are several relationships without end date, return the latest one based on start date
+            return max(all_without_end, key=lambda d: d.start_date)
+        # There are no relationships without end date, return the latest one based on end date
+        return max(all_matching, key=lambda d: d.end_date)
+
+
+class ActivityInstanceGroupingValue(ClinicalMdrNode):
+    has_latest_value = RelationshipFrom(
+        ActivityInstanceGroupingRoot, "LATEST", model=ClinicalMdrRel
+    )
+    has_version = RelationshipFrom(
+        ActivityInstanceGroupingRoot, "HAS_VERSION", model=VersionRelationship
+    )
+    latest_draft = RelationshipFrom(
+        ActivityInstanceGroupingRoot, "LATEST_DRAFT", model=ClinicalMdrRel
+    )
+    latest_final = RelationshipFrom(
+        ActivityInstanceGroupingRoot, "LATEST_FINAL", model=ClinicalMdrRel
+    )
+    latest_retired = RelationshipFrom(
+        ActivityInstanceGroupingRoot, "LATEST_RETIRED", model=ClinicalMdrRel
+    )
+
+    has_activity = RelationshipTo(
+        ActivityGrouping, "HAS_ACTIVITY", model=ClinicalMdrRel, cardinality=OneOrMore
+    )
+
+
 class ActivityInstanceRoot(ConceptRoot):
     has_version = RelationshipTo(
         ActivityInstanceValue, "HAS_VERSION", model=VersionRelationship
@@ -251,4 +315,11 @@ class ActivityInstanceRoot(ConceptRoot):
     )
     latest_retired = RelationshipTo(
         ActivityInstanceValue, "LATEST_RETIRED", model=ClinicalMdrRel
+    )
+
+    has_grouping_root = RelationshipTo(
+        ActivityInstanceGroupingRoot,
+        "HAS_GROUPING_ROOT",
+        model=ClinicalMdrRel,
+        cardinality=One,
     )

@@ -41,7 +41,7 @@
       </v-form>
     </template>
     <template #[`step.selectObjective`]>
-      <p class="text-grey text-subtitle-1 font-weight-bold">
+      <p class="text-grey text-body-large font-weight-bold">
         {{ $t('StudyObjectiveForm.selected_objectives') }}
       </p>
       <v-data-table
@@ -63,7 +63,7 @@
       </v-data-table>
     </template>
     <template #[`step.selectObjective.after`]>
-      <p class="text-grey text-subtitle-1 font-weight-bold mb-0 ml-3">
+      <p class="text-grey text-body-large font-weight-bold mb-0 ml-3">
         {{ $t('StudyObjectiveForm.copy_instructions') }}
       </p>
       <v-col cols="12" class="pt-0 mt-0">
@@ -111,7 +111,7 @@
     </template>
     <template #[`step.selectTemplates.after`]>
       <div class="d-flex align-center">
-        <p class="text-grey text-subtitle-1 font-weight-bold mb-0 ml-3">
+        <p class="text-grey text-body-large font-weight-bold mb-0 ml-3">
           {{ $t('StudyObjectiveForm.copy_instructions') }}
         </p>
         <v-switch

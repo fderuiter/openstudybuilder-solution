@@ -1,5 +1,5 @@
 <template>
-  <v-expand-transition>
+  <v-expand-both-transition>
     <v-btn
       v-if="
         notificationHub.queue.value.length > 0 && !isNotificationPanelExpanded
@@ -25,7 +25,7 @@
       location="top right"
       width="550"
       max-height="300"
-      elevation="24"
+      elevation="1"
     >
       <v-card-title class="d-flex align-center pa-1 px-4">
         <v-badge
@@ -151,7 +151,7 @@
         />
       </v-card-actions>
     </v-card>
-  </v-expand-transition>
+  </v-expand-both-transition>
 </template>
 
 <script setup>

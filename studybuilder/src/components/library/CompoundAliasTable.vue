@@ -246,7 +246,7 @@ export default {
       }
       const params = filteringParameters.prepareParameters(
         options,
-        filters,
+        this.filters,
         filtersUpdated
       )
       compoundAliases.getFiltered(params).then((resp) => {

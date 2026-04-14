@@ -642,9 +642,11 @@ class SoATestData:
 
         self.soa_footnotes = self.create_soa_footnotes(self.FOOTNOTES)
 
-        # Patch SoA Preferences as tests do not yet support baseline_as_time_zero
+        # Patch SoA Preferences to keep baseline and lab table visit structure deterministic in tests.
         self.soa_preferences = TestUtils.patch_soa_preferences(
-            self.study.uid, baseline_as_time_zero=False
+            self.study.uid,
+            baseline_as_time_zero=False,
+            show_all_visits_lab_table=False,
         )
 
     def create_codelist_with_terms(

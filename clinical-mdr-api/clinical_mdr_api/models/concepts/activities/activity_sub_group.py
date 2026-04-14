@@ -15,6 +15,13 @@ from clinical_mdr_api.models.utils import BaseModel, EditInputModel
 
 
 class ActivitySubGroup(ActivityBase):
+    nci_concept_id: Annotated[
+        str | None, Field(json_schema_extra={"nullable": True})
+    ] = None
+    nci_concept_name: Annotated[
+        str | None, Field(json_schema_extra={"nullable": True})
+    ] = None
+
     @classmethod
     def from_activity_ar(
         cls,
@@ -27,6 +34,8 @@ class ActivitySubGroup(ActivityBase):
             name_sentence_case=activity_subgroup_ar.concept_vo.name_sentence_case,
             definition=activity_subgroup_ar.concept_vo.definition,
             abbreviation=activity_subgroup_ar.concept_vo.abbreviation,
+            nci_concept_id=activity_subgroup_ar.concept_vo.nci_concept_id,
+            nci_concept_name=activity_subgroup_ar.concept_vo.nci_concept_name,
             library_name=Library.from_library_vo(activity_subgroup_ar.library).name,
             start_date=activity_subgroup_ar.item_metadata.start_date,
             end_date=activity_subgroup_ar.item_metadata.end_date,
@@ -49,6 +58,8 @@ class ActivitySubGroupCreateInput(ExtendedConceptPostInput):
         ),
     ]
     name_sentence_case: Annotated[str, Field(min_length=1)]
+    nci_concept_id: Annotated[str | None, Field(min_length=1)] = None
+    nci_concept_name: Annotated[str | None, Field(min_length=1)] = None
     library_name: Annotated[str, Field(min_length=1)]
 
 
@@ -74,6 +85,8 @@ class ActivityGroupForActivitySubGroup(BaseModel):
 class ActivitySubGroupDetail(BaseModel):
     name: Annotated[str | None, Field()] = None
     name_sentence_case: Annotated[str | None, Field()] = None
+    nci_concept_id: Annotated[str | None, Field()] = None
+    nci_concept_name: Annotated[str | None, Field()] = None
     library_name: Annotated[str | None, Field()] = None
     definition: Annotated[str | None, Field()] = None
     start_date: Annotated[datetime | None, Field()] = None
@@ -104,6 +117,8 @@ class ActivitySubGroupOverview(BaseModel):
                 # Map basic fields from subgroup_value
                 name=subgroup_value.get("name"),
                 name_sentence_case=subgroup_value.get("name_sentence_case"),
+                nci_concept_id=subgroup_value.get("nci_concept_id"),
+                nci_concept_name=subgroup_value.get("nci_concept_name"),
                 definition=subgroup_value.get("definition"),
                 # Get library name from library node
                 library_name=library_info.get("name"),

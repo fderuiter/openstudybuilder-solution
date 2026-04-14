@@ -47,6 +47,7 @@ log = logging.getLogger(__name__)
 
 class SoALayout(Enum):
     PROTOCOL = "protocol"
+    PROTOCOL_LAB_TABLE = "protocol_lab_table"
     DETAILED = "detailed"
     OPERATIONAL = "operational"
 

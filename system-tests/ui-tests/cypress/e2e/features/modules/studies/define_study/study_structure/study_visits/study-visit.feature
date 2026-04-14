@@ -398,3 +398,36 @@ Feature: Studies - Define Study - Study Structure - Study Visits
         And Visit timing 7 is selected for the visit
         When Form save button is clicked
         Then The pop up displays 'There already exists a visit with timing set to 7'
+
+    Scenario: [Create][Study Vists][Unscheduled] User must be presented with correct visit name and visit type when creating unscheduled visit
+        Given A test study is selected
+        And [API] The epoch with type 'No Treatment' and subtype 'Basic' exists in selected study
+        And The test study '/study_structure/visits' page is opened
+        And User waits for epochs to load
+        And User waits for 2 seconds
+        And Add visit button is clicked
+        And Visit scheduling type is selected as 'UNSCHEDULED_VISIT'
+        And Form continue button is clicked
+        And User waits for the Basic epoch for unscheduled visit to load
+        When Form continue button is clicked
+        Then User is presented with correct unscheduled visit name
+        And User is presented with visit start rule set as 'Unplanned unscheduled'
+
+    Scenario: [Create][Study Vists][Unscheduled] User must be set visit start rule for unscheduled visit
+        Given A test study is selected
+        And [API] The epoch with type 'No Treatment' and subtype 'Basic' exists in selected study
+        And The test study '/study_structure/visits' page is opened
+        And User waits for epochs to load
+        And User waits for 2 seconds
+        And Add visit button is clicked
+        And Visit scheduling type is selected as 'UNSCHEDULED_VISIT'
+        And Form continue button is clicked
+        And User waits for the Basic epoch for unscheduled visit to load
+        When Form continue button is clicked
+        Then User must be able to set vist start rule as 'Custom start rule'
+        And Form save button is clicked
+        When User searches for 'Unscheduled'
+        And The 'Edit' option is clicked from the three dot menu list
+        And Form continue button is clicked
+        And Form continue button is clicked
+        And User is presented with visit start rule set as 'Custom start rule'

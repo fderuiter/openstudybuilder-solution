@@ -23,13 +23,8 @@ Feature: Library - Concepts - Activities - Activity instances - new wizard stepp
         Then User can see which activity was selected in the previous step
 
     Scenario: [Create][Requested Activity] User must not be able to see submitted requested activity
-        Given The test study '/activities/list' page is opened
-        When Study activity add button is clicked
-        And Activity from placeholder is selected
-        And Form continue button is clicked
-        And User selects option to create placeholder with submitting
-        When Activity placeholder data is filled in
-        And Form save button is clicked
+        And [API] Get SoA Group 'BIOMARKERS' id
+        When [API] Create Submitted Requested Activity
         Given The '/library/activities/activity-instances' page is opened
         And User intercepts available activities requests
         When The Add Activity Instance button is clicked
@@ -38,14 +33,8 @@ Feature: Library - Concepts - Activities - Activity instances - new wizard stepp
         Then No results are returned in the form table
 
     Scenario: [Create][Requested Activity] User must not be able to see unsubmitted requested activity
-        Given The test study '/activities/list' page is opened
-        When Study activity add button is clicked
-        And Activity from placeholder is selected
-        And Form continue button is clicked
-        And User selects option to create placeholder without submitting
-        When Activity placeholder data is filled in
-        And Form save button is clicked
-        And The form is no longer available
+        And [API] Get SoA Group 'BIOMARKERS' id
+        When [API] Create Unsubmitted Requested Activity
         Given The '/library/activities/activity-instances' page is opened
         And User intercepts available activities requests
         When The Add Activity Instance button is clicked

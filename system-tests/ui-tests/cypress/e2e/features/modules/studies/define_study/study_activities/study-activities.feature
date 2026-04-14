@@ -9,6 +9,10 @@ Feature: Studies - Define Study - Study Activities - Study Activities
         Given The user is logged in
         And A test study is selected
 
+    Scenario: [TestData] Old placeholder activity workflow feature flag is disabled
+        When The '/administration/featureflags' page is opened
+        Then Old placeholder workflow feature flag is turned off
+
     Scenario: [TestData] Study visits, epochs and activities are created
         And [API] All Activities are deleted from study
 
@@ -106,26 +110,6 @@ Feature: Studies - Define Study - Study Activities - Study Activities
         Then The pop up displays 'Study activity added'
         Then The Study Activity is visible in table
 
-    @smoke_test
-    Scenario: [Create][Placeholder] User must be able to create a Study Activity placeholder as an activity concept request
-        Given The test study '/activities/list' page is opened
-        When Study activity add button is clicked
-        And Activity from placeholder is selected
-        And Form continue button is clicked
-        And User selects option to create placeholder without submitting
-        When Activity placeholder data is filled in
-        And Form save button is clicked
-        And The form is no longer available
-        And Activity placeholder is found
-        Then The Study Activity placeholder is visible within the Study Activities table
-
-    Scenario: [Actions][Delete][Placeholder] User must be able to delete a Study Activity placeholder
-        Given The test study '/activities/list' page is opened
-        And Activity placeholder is found
-        When The 'Remove Activity' option is clicked from the three dot menu list
-        And Action is confirmed by clicking continue
-        Then The Study Activity Placeholder is not available
-
     Scenario: [Actions][Edit][version 0.1][Activity] User must be able to edit a Study Activity
         And [API] Study Activity is created and approved
         And [API] Get SoA Group 'BIOMARKERS' id
@@ -138,46 +122,6 @@ Feature: Studies - Define Study - Study Activities - Study Activities
         And The form is no longer available
         And Activity is searched for and found
         Then The edited Study Activity data is reflected within the Study Activity table
-
-    # Note, currently only the SoA group can be changed, not the request, will be specified and updated in later release
-    Scenario: [Actions][Edit][version 0.1][Placeholder] User must be able to edit a Study Activity placeholder
-        Given The test study '/activities/list' page is opened
-        When Study activity add button is clicked
-        And Activity from placeholder is selected
-        And Form continue button is clicked
-        And User selects option to create placeholder without submitting
-        When Activity placeholder data is filled in
-        And Selected study id is saved
-        And Form save button is clicked
-        And The form is no longer available
-        And Activity placeholder is found
-        When The 'Edit' option is clicked from the three dot menu list
-        And The SoA group can be changed
-        And Modal window 'Save' button is clicked
-        And The form is no longer available
-        Then The pop up displays 'Study activity updated'
-        And Activity placeholder is found
-        Then The edited Study Activity data is reflected within the Study Activity table
-
-    @BUG_ID:2722627
-    Scenario: [Actions][Edit][version 0.1][Placeholder] User must be able to edit data collection flag
-        Given The test study '/activities/list' page is opened
-        When Study activity add button is clicked
-        And Activity from placeholder is selected
-        And Form continue button is clicked
-        And User selects option to create placeholder without submitting
-        When Activity placeholder data is filled in
-        And Data collection flag is unchecked
-        And Form save button is clicked
-        And The form is no longer available
-        And Activity placeholder is found
-        When The 'Edit' option is clicked from the three dot menu list
-        And Data collection flag is checked
-        And Modal window 'Save' button is clicked
-        And The form is no longer available
-        Then The pop up displays 'Study activity updated'
-        And Activity placeholder is found
-        Then The study activity table is displaying updated value for data collection
 
     Scenario: [Create][Mandatory fields][Activity] User must not be able to create Study Activity from studies without study selected
         Given The test study '/activities/list' page is opened
@@ -194,15 +138,6 @@ Feature: Studies - Define Study - Study Activities - Study Activities
         And The user tries to go further without SoA group chosen
         And Form save button is clicked
         Then The validation appears and Create Activity form stays on SoA group selection
-
-    Scenario: [Create][Mandatory fields][Placeholder] User must not be able to create Study Activity placeholder without SoA group selected
-        Given The test study '/activities/list' page is opened
-        And Study activity add button is clicked
-        And Activity from placeholder is selected
-        And Form continue button is clicked
-        And The user tries to go further in activity placeholder creation without SoA group chosen
-        And Form save button is clicked
-        Then The validation appears under empty SoA group selection
 
     Scenario: [Actions][Approve] User must be able to add newly created approved Activity
         And [API] Study Activity is created and approved

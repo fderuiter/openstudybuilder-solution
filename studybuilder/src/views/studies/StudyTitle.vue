@@ -49,7 +49,7 @@
             <div class="label mb-2">
               {{ $t('StudyTitleView.title') }}
             </div>
-            <div data-cy="study-title-field" class="text-body-1 value">
+            <div data-cy="study-title-field" class="text-body-large value">
               {{ description.study_title }}
             </div>
           </div>
@@ -59,7 +59,7 @@
             <div class="label mb-2">
               {{ $t('StudyTitleView.short_title') }}
             </div>
-            <div data-cy="study-title-field" class="text-body-1 value">
+            <div data-cy="study-title-field" class="text-body-large value">
               {{ description.study_short_title }}
             </div>
           </div>
@@ -169,6 +169,7 @@ onMounted(() => {
 
 .title-col {
   position: relative;
+  padding-left: 1rem;
 }
 
 .title-col::before {

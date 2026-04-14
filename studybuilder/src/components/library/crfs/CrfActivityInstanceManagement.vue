@@ -116,7 +116,7 @@
         <v-card
           v-for="(ai, idx) in formInstances"
           :key="idx"
-          elevation="2"
+          elevation="1"
           class="mb-8"
           :border="isAlreadyDefined(ai) ? 'error xl' : 'vTransparent xl'"
         >

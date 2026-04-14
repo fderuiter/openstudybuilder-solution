@@ -18,6 +18,14 @@ When('Activity instance wizard textual findings feature flag is turned on', () =
 
 When('Activity instance wizard edit mode feature flag is turned on', () => toggleOnOff('edit mode of the new wizard', true))
 
+When('Old placeholder workflow feature flag is turned on', () => toggleOnOff('enabled restores the old placeholder activity workflow: shows the Requested Activities', true))
+
+When('Old placeholder workflow feature flag is turned off', () => toggleOnOff('enabled restores the old placeholder activity workflow: shows the Requested Activities', false))
+
+When('Study data supplier feature flag is turned on', () => toggleOnOff('This flag toggles on/off the Study Data Suppliers page', true))
+
+When('Userdefined study data supplier feature flag is turned on', () => toggleOnOff('This flag toggles on/off the ability to create a user-defined data supplier from study level', true))
+
 function toggleAllOnOff(on) {
   cy.wait(1000)
   on ? cy.get('table .v-switch input').check() : cy.get('table .v-switch input').uncheck()

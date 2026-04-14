@@ -4,7 +4,7 @@
       <v-card-title v-if="!noTitle">
         <span class="dialog-title">{{ $t('OdmViewer.odm_references') }}</span>
       </v-card-title>
-      <v-row v-show="loading" center justify="center">
+      <v-row v-show="loading" class="justify-center" center>
         <v-col cols="12" sm="4">
           <v-progress-circular
             color="primary"

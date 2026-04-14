@@ -43,8 +43,9 @@ export default {
   getCOSMoSOverview(source, uid) {
     return repository.get(`${resource}/${source}/${uid}/overview.cosmos`)
   },
-  getVersions(source, uid) {
-    return repository.get(`${resource}/${source}/${uid}/versions`)
+  getVersions(source, uid, subitem = null) {
+    const subitemPath = subitem ? `/${subitem}` : ''
+    return repository.get(`${resource}/${source}/${uid}${subitemPath}/versions`)
   },
   getAuditTrail(source, options) {
     const params = {
@@ -54,26 +55,36 @@ export default {
     if (options) {
       params.page_size = options.itemsPerPage
     }
-    return repository.get(`${resource}/${source}/versions`, { params })
+    return repository.get(`${resource}/${source}`, { params })
   },
-  inactivate(uid, source) {
-    return repository.delete(`${resource}/${source}/${uid}/activations`)
+  inactivate(uid, source, subitem = null) {
+    const subitemPath = subitem ? `/${subitem}` : ''
+    return repository.delete(
+      `${resource}/${source}/${uid}${subitemPath}/activations`
+    )
   },
-  reactivate(uid, source) {
-    return repository.post(`${resource}/${source}/${uid}/activations`)
+  reactivate(uid, source, subitem = null) {
+    const subitemPath = subitem ? `/${subitem}` : ''
+    return repository.post(
+      `${resource}/${source}/${uid}${subitemPath}/activations`
+    )
   },
   delete(uid, source) {
     return repository.delete(`${resource}/${source}/${uid}`)
   },
-  approve(uid, source, params) {
+  approve(uid, source, params, subitem = null) {
+    const subitemPath = subitem ? `/${subitem}` : ''
     return repository.post(
-      `${resource}/${source}/${uid}/approvals`,
+      `${resource}/${source}/${uid}${subitemPath}/approvals`,
       {},
       { params }
     )
   },
-  newVersion(uid, source) {
-    return repository.post(`${resource}/${source}/${uid}/versions`)
+  newVersion(uid, source, subitem = null) {
+    const subitemPath = subitem ? `/${subitem}` : ''
+    return repository.post(
+      `${resource}/${source}/${uid}${subitemPath}/versions`
+    )
   },
   rejectActivityRequest(uid, data) {
     const params = {
@@ -135,20 +146,29 @@ export default {
   getPreview(data, source) {
     return repository.post(`${resource}/${source}/preview`, data)
   },
-  update(uid, data, params, source) {
+  update(uid, data, params, source, subitem = null) {
     const patch_data = {
       ...data,
     }
+    const subitemPath = subitem ? `/${subitem}` : ''
     if (
       ['activities', 'activity-groups', 'activity-sub-groups'].includes(source)
     ) {
-      return repository.put(`${resource}/${source}/${uid}`, patch_data, {
-        params,
-      })
+      return repository.put(
+        `${resource}/${source}/${uid}${subitemPath}`,
+        patch_data,
+        {
+          params,
+        }
+      )
     }
-    return repository.patch(`${resource}/${source}/${uid}`, patch_data, {
-      params,
-    })
+    return repository.patch(
+      `${resource}/${source}/${uid}${subitemPath}`,
+      patch_data,
+      {
+        params,
+      }
+    )
   },
   createFromActivityRequest(data) {
     return repository.post(`${resource}/activities/sponsor-activities`, data)
@@ -194,7 +214,7 @@ export default {
       queryParams.version = version
     }
     return repository.get(
-      `${resource}/activity-instances/${activity_instance_uid}/activity-groupings`,
+      `${resource}/activity-instances/${activity_instance_uid}/groupings`,
       { params: queryParams }
     )
   },

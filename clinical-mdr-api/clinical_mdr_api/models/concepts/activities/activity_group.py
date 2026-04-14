@@ -11,6 +11,13 @@ from clinical_mdr_api.models.utils import EditInputModel
 
 
 class ActivityGroup(ActivityBase):
+    nci_concept_id: Annotated[
+        str | None, Field(json_schema_extra={"nullable": True})
+    ] = None
+    nci_concept_name: Annotated[
+        str | None, Field(json_schema_extra={"nullable": True})
+    ] = None
+
     @classmethod
     def from_activity_ar(cls, activity_group_ar: ActivityGroupAR) -> Self:
         return cls(
@@ -19,6 +26,8 @@ class ActivityGroup(ActivityBase):
             name_sentence_case=activity_group_ar.concept_vo.name_sentence_case,
             definition=activity_group_ar.concept_vo.definition,
             abbreviation=activity_group_ar.concept_vo.abbreviation,
+            nci_concept_id=activity_group_ar.concept_vo.nci_concept_id,
+            nci_concept_name=activity_group_ar.concept_vo.nci_concept_name,
             library_name=Library.from_library_vo(activity_group_ar.library).name,
             start_date=activity_group_ar.item_metadata.start_date,
             end_date=activity_group_ar.item_metadata.end_date,
@@ -41,6 +50,8 @@ class BaseActivityGroupInput(ExtendedConceptPostInput):
         ),
     ]
     name_sentence_case: Annotated[str, Field(min_length=1)]
+    nci_concept_id: Annotated[str | None, Field(min_length=1)] = None
+    nci_concept_name: Annotated[str | None, Field(min_length=1)] = None
 
 
 class ActivityGroupEditInput(BaseActivityGroupInput, EditInputModel):
@@ -64,6 +75,8 @@ class ActivityGroupDetail(BaseModel):
 
     name: Annotated[str, Field()]
     name_sentence_case: Annotated[str | None, Field()] = None
+    nci_concept_id: Annotated[str | None, Field()] = None
+    nci_concept_name: Annotated[str | None, Field()] = None
     library_name: Annotated[str | None, Field()] = None
     start_date: Annotated[str | None, Field()] = None
     end_date: Annotated[str | None, Field()] = None

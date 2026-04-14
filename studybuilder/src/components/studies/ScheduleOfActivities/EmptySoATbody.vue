@@ -9,13 +9,13 @@
             </div>
           </template>
           <template #title>
-            <div class="text-subtitle-2 mt-8">
+            <div class="text-label-large mt-8">
               {{ props.messages.title }}
             </div>
           </template>
 
           <template #text>
-            <div class="text-caption">
+            <div class="text-body-small">
               {{ props.messages.text }}
             </div>
           </template>

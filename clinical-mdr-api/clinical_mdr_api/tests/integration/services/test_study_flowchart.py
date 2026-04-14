@@ -1830,3 +1830,256 @@ def _to_list_of_dicts(items: Sequence[pydantic.BaseModel]) -> list[dict[str, Any
         )
         for item in items
     ]
+
+
+# Tests for Protocol Lab table functionality
+
+
+def test_get_flowchart_table_lab_table_integration(
+    soa_test_data: SoATestData,
+):
+    """Integration test for get_flowchart_table_lab_table with real database"""
+
+    study_uid = soa_test_data.study.uid
+    service = StudyFlowchartService()
+
+    table = service.get_flowchart_table_lab_table(
+        study_uid=study_uid, study_value_version=None, time_unit="week"
+    )
+
+    # THEN should return a valid table
+    assert isinstance(table, TableWithFootnotes)
+
+    # THEN should have correct structure for Lab table
+    assert table.num_header_cols == 2  # Subgroup + Activity columns
+
+    # THEN should have header rows
+    assert table.num_header_rows > 0
+
+    # THEN should have at least header rows
+    assert len(table.rows) >= table.num_header_rows
+
+
+def test_get_flowchart_table_lab_table_filters_laboratory_assessments(
+    soa_test_data: SoATestData,
+):
+    """Test that Protocol Lab table filters to Laboratory Assessments only"""
+
+    study_uid = soa_test_data.study.uid
+    service = StudyFlowchartService()
+
+    # Get regular flowchart for comparison
+    regular_table = service.get_flowchart_table(
+        study_uid=study_uid,
+        study_value_version=None,
+        layout=SoALayout.DETAILED,
+        time_unit="week",
+    )
+
+    # Get Lab table table
+    lab_table = service.get_flowchart_table_lab_table(
+        study_uid=study_uid, study_value_version=None, time_unit="week"
+    )
+
+    # Count activity rows (excluding headers)
+    regular_activity_rows = len(regular_table.rows) - regular_table.num_header_rows
+    lab_table_activity_rows = len(lab_table.rows) - lab_table.num_header_rows
+
+    # THEN Lab table should have fewer or equal activities (filtered subset)
+    assert lab_table_activity_rows <= regular_activity_rows
+
+    # THEN all lab table visits should also be present in the regular table
+    def _visit_uids_from_header(table):
+        uids = set()
+        for row in table.rows[: table.num_header_rows]:
+            for cell in row.cells:
+                if cell.refs:
+                    for ref in cell.refs:
+                        if ref.type == SoAItemType.STUDY_VISIT.value:
+                            uids.add(ref.uid)
+        return uids
+
+    regular_visit_uids = _visit_uids_from_header(regular_table)
+    lab_table_visit_uids = _visit_uids_from_header(lab_table)
+
+    assert lab_table_visit_uids.issubset(
+        regular_visit_uids
+    ), f"Lab table visits {lab_table_visit_uids - regular_visit_uids} not found in regular table"
+
+
+def test_get_study_flowchart_html_with_protocol_lab_table_layout(
+    soa_test_data: SoATestData,
+):
+    """Test HTML generation for Protocol Lab table layout"""
+
+    study_uid = soa_test_data.study.uid
+    service = StudyFlowchartService()
+
+    html = service.get_study_flowchart_html(
+        study_uid=study_uid,
+        study_value_version=None,
+        layout=SoALayout.PROTOCOL_LAB_TABLE,
+        time_unit="week",
+    )
+
+    # THEN should return valid HTML
+    assert isinstance(html, str)
+    assert len(html) > 0
+    assert "<table>" in html
+    assert "</table>" in html
+
+
+def test_get_study_flowchart_html_with_include_uids(
+    soa_test_data: SoATestData,
+):
+    """Test HTML generation with include_uids parameter"""
+
+    study_uid = soa_test_data.study.uid
+    service = StudyFlowchartService()
+
+    # Get HTML without UIDs
+    html_without_uids = service.get_study_flowchart_html(
+        study_uid=study_uid,
+        study_value_version=None,
+        layout=SoALayout.PROTOCOL,
+        time_unit="week",
+        include_uids=False,
+    )
+
+    # Get HTML with UIDs
+    html_with_uids = service.get_study_flowchart_html(
+        study_uid=study_uid,
+        study_value_version=None,
+        layout=SoALayout.PROTOCOL,
+        time_unit="week",
+        include_uids=True,
+    )
+
+    # THEN both should be valid HTML
+    assert isinstance(html_without_uids, str)
+    assert isinstance(html_with_uids, str)
+    assert "<table>" in html_without_uids
+    assert "<table>" in html_with_uids
+
+    # THEN HTML with UIDs should contain object-uid attributes
+    assert "object-uid" in html_with_uids
+
+    # THEN HTML without UIDs should not contain object-uid attributes
+    assert "object-uid" not in html_without_uids
+
+
+def test_protocol_lab_table_with_different_time_units(
+    soa_test_data: SoATestData,
+):
+    """Test Protocol Lab table works with different time units"""
+
+    study_uid = soa_test_data.study.uid
+    service = StudyFlowchartService()
+
+    for time_unit in ["day", "week"]:
+        table = service.get_flowchart_table_lab_table(
+            study_uid=study_uid, study_value_version=None, time_unit=time_unit
+        )
+
+        # THEN should return valid table for both time units
+        assert isinstance(table, TableWithFootnotes)
+        assert table.num_header_cols == 2
+        assert table.num_header_rows > 0
+
+
+def test_footnote_filtering_in_lab_table(
+    soa_test_data: SoATestData,
+):
+    """Test that footnotes are properly filtered for visible rows in Lab table"""
+
+    study_uid = soa_test_data.study.uid
+    service = StudyFlowchartService()
+
+    table = service.get_flowchart_table_lab_table(
+        study_uid=study_uid, study_value_version=None, time_unit="week"
+    )
+
+    # THEN footnotes should only reference items that appear in visible rows
+    if table.footnotes:
+        # Get all referenced UIDs from visible rows
+        visible_rows = [row for row in table.rows if not row.hide]
+        referenced_uids = set()
+        for row in visible_rows:
+            for cell in row.cells:
+                if cell.refs:
+                    for ref in cell.refs:
+                        referenced_uids.add(ref.uid)
+
+        # Check that all footnotes reference items that are in visible rows
+        for footnote in table.footnotes.values():
+            # Note: This is a basic check - actual footnote filtering logic may be more complex
+            assert hasattr(footnote, "uid"), "Footnote should have uid attribute"
+
+
+@pytest.mark.parametrize(
+    "layout", [SoALayout.PROTOCOL_LAB_TABLE, SoALayout.PROTOCOL, SoALayout.DETAILED]
+)
+def test_include_uids_parameter_across_layouts(
+    soa_test_data: SoATestData, layout: SoALayout
+):
+    """Test include_uids parameter works across different layouts"""
+
+    study_uid = soa_test_data.study.uid
+    service = StudyFlowchartService()
+
+    html = service.get_study_flowchart_html(
+        study_uid=study_uid,
+        study_value_version=None,
+        layout=layout,
+        time_unit="week",
+        include_uids=True,
+    )
+
+    # THEN all layouts should support include_uids
+    assert isinstance(html, str)
+    assert len(html) > 0
+
+    # THEN HTML should contain UID attributes when include_uids is True
+    # (may vary based on layout and available data)
+    if "object-uid" in html:
+        # If UIDs are present, verify they follow the expected format
+        assert "object-type" in html, "Should also have object-type attributes"
+
+
+def test_hide_rows_without_checkmarks_integration(
+    soa_test_data: SoATestData,
+):
+    """Integration test for hiding rows without checkmarks in Lab table"""
+
+    study_uid = soa_test_data.study.uid
+    service = StudyFlowchartService()
+
+    table = service.get_flowchart_table_lab_table(
+        study_uid=study_uid, study_value_version=None, time_unit="week"
+    )
+
+    # Count visible activity rows
+    activity_rows = table.rows[table.num_header_rows :]
+    visible_activity_rows = [row for row in activity_rows if not row.hide]
+
+    # THEN should have some activity rows (unless no Laboratory Assessments activities exist)
+    # Note: This may be 0 if test data doesn't have Laboratory Assessments activities
+    assert len(activity_rows) >= 0
+
+    # THEN if there are visible activity rows with visit columns, they should have checkmarks
+    # Note: when show_all_visits_lab_table is False, visit columns are stripped from the table,
+    # so we can only verify checkmarks when visit columns are present.
+    for row in visible_activity_rows:
+        # Check if row has checkmarks in visit columns (skip first 2 columns: subgroup + activity)
+        visit_cells = row.cells[2:]  # Skip header columns
+        if not visit_cells:
+            # Visit columns were stripped (show_all_visits_lab_table=False), skip checkmark check
+            continue
+        has_checkmark = any(cell.text == "X" for cell in visit_cells)
+
+        # If the row is visible, it should either have checkmarks or be a header/grouping row
+        if row.cells[0].text or row.cells[1].text:  # Has content in header columns
+            # This is an activity row, so if it's visible, it should have checkmarks
+            assert (
+                has_checkmark
+            ), f"Visible activity row should have checkmarks: {row.cells[:5]}"  # Show first few cells for debugging

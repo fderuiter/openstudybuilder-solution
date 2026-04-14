@@ -15,6 +15,9 @@ class ActivityGroupVO(ConceptVO):
     The ActivityGroupVO acts as the value object for a single ActivityGroup aggregate
     """
 
+    nci_concept_id: str | None = None
+    nci_concept_name: str | None = None
+
     @classmethod
     def from_repository_values(
         cls,
@@ -22,6 +25,8 @@ class ActivityGroupVO(ConceptVO):
         name_sentence_case: str | None,
         definition: str | None,
         abbreviation: str | None,
+        nci_concept_id: str | None = None,
+        nci_concept_name: str | None = None,
     ) -> Self:
         activity_group_vo = cls(
             name=name,
@@ -29,6 +34,8 @@ class ActivityGroupVO(ConceptVO):
             definition=definition,
             abbreviation=abbreviation,
             is_template_parameter=True,
+            nci_concept_id=nci_concept_id,
+            nci_concept_name=nci_concept_name,
         )
 
         return activity_group_vo

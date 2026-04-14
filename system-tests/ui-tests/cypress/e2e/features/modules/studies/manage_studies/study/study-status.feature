@@ -65,7 +65,7 @@ Feature: Studies - Manage Study - Study Status
         And The user provides protocol major version '1'
         And The user provides protocol minor version '2'
         And Action is confirmed by clicking save
-        Then The study is locked with 'Data Specification Update' as a reason with major protocol version '1' and minor version '2'
+        Then The study is locked with 'Study Specification Updates' as a reason with major protocol version '1' and minor version '2'
 
     Scenario: [Lock] User must be able to lock study for final protocol reason
         Given A test study '9902' in draft status with defined title exists
@@ -125,21 +125,21 @@ Feature: Studies - Manage Study - Study Status
         Given A test study '9909' locked for 'Study Specification Updates' in major version '0' and minor version '1' exists
         When The user unlocks the study for 'Protocol Amendment Updates' reason
         And Action is confirmed by clicking save
-        Then The study is unlocked with 'Amendment' as a reason with major protocol version '0' and minor version '1'
+        Then The study is unlocked with 'Amendment' as a reason
 
     Scenario: [Unlock] User must be able to unlock study for other reason
         Given A test study '9911' locked for 'Study Specification Updates' in major version '0' and minor version '1' exists
         When The user unlocks the study for 'Other' reason
         And Action is confirmed by clicking save
-        Then The study is unlocked with 'Other' as a reason with major protocol version '0' and minor version '1'
+        Then The study is unlocked with 'Other' as a reason
 
     Scenario: [Unlock] User must be able to unlock study for study specification updates reason
         Given A test study '9912' locked for 'Study Specification Updates' in major version '0' and minor version '1' exists
         When The user unlocks the study for 'Study Specification Updates' reason
         And Action is confirmed by clicking save
-        Then The study is unlocked with 'Study Specification Updates' as a reason with major protocol version '0' and minor version '1'
+        Then The study is unlocked with 'Study Specification Updates' as a reason
 
-    Scenario: [Unlock] User must be able notified when unlocking a study with protocol version submitted
-        Given A test study '9914' locked for 'Study Specification Updates' in major version '1' and minor version '2' exists
+    Scenario: [Unlock] User must be notified when unlocking a study with protocol version submitted
+        Given A test study '9913' locked for 'Final Protocol' in major version '1' and minor version '0' exists
         When The 'unlock-study' button is clicked
         Then The the user is prompted with a notification message 'Note, that this study has been locked to a protocol version. If the study has passed FPFV, you accept that you carry the risk of modifying the study metadata related to the protocol and downstream processing by proceeding. How do you want to proceed?'

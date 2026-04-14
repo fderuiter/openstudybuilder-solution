@@ -147,6 +147,8 @@ class OdmItemGroupService(OdmGenericService[OdmItemGroupAR]):
     ) -> OdmItemGroup:
         odm_item_group_ar = self._find_by_uid_or_raise_not_found(normalize_string(uid))
 
+        renumbering_start = len(odm_item_group_ar.odm_vo.item_uids) or 1
+
         BusinessLogicException.raise_if(
             odm_item_group_ar.item_metadata.status != LibraryItemStatus.DRAFT,
             msg=self.OBJECT_NOT_IN_DRAFT,
@@ -159,6 +161,7 @@ class OdmItemGroupService(OdmGenericService[OdmItemGroupAR]):
                 relationship_type=RelationType.ITEM,
                 disconnect_all=True,
             )
+            renumbering_start = 1
 
         vendor_attribute_patterns = self.get_regex_patterns_of_attributes(
             [
@@ -177,7 +180,11 @@ class OdmItemGroupService(OdmGenericService[OdmItemGroupAR]):
             VendorAttributeCompatibleType.ITEM_REF,
         )
 
-        for item in odm_item_group_item_post_input:
+        post_input = self.renumber_items_sequentially(
+            odm_item_group_item_post_input, "order_number", renumbering_start
+        )
+
+        for item in post_input:
             if item.vendor:
                 self.can_connect_vendor_attributes(item.vendor.attributes)
                 self.attribute_values_matches_their_regex(

@@ -1474,13 +1474,13 @@ def test_sync_to_latest_version_activity_instance(api_client):
     assert study_activity_instances[0]["keep_old_version"] is False
 
     response = api_client.post(
-        f"/concepts/activities/activity-instances/{new_test_activity_instance.uid}/versions",
+        f"/concepts/activities/activity-instances/{new_test_activity_instance.uid}/attributes/versions",
     )
     assert_response_status_code(response, 201)
     # PATCH underling activity-instance
     changed_definition = "new activity instance definition for sync test"
     response = api_client.patch(
-        f"/concepts/activities/activity-instances/{new_test_activity_instance.uid}",
+        f"/concepts/activities/activity-instances/{new_test_activity_instance.uid}/attributes",
         json={
             "definition": changed_definition,
             "change_description": "Sync to latest version test",
@@ -1489,7 +1489,7 @@ def test_sync_to_latest_version_activity_instance(api_client):
     assert_response_status_code(response, 200)
 
     response = api_client.post(
-        f"/concepts/activities/activity-instances/{new_test_activity_instance.uid}/approvals",
+        f"/concepts/activities/activity-instances/{new_test_activity_instance.uid}/attributes/approvals",
     )
     assert_response_status_code(response, 201)
 
@@ -1514,14 +1514,14 @@ def test_sync_to_latest_version_activity_instance(api_client):
     )
 
     response = api_client.post(
-        f"/concepts/activities/activity-instances/{new_test_activity_instance.uid}/versions",
+        f"/concepts/activities/activity-instances/{new_test_activity_instance.uid}/attributes/versions",
     )
     assert_response_status_code(response, 201)
     # PATCH underling activity-instance - use a modifiable field instead of activity_instance_class_uid
     # DUE TO THE activity_instance_class_uid is not modifiable after creation
     updated_name = "Updated activity instance name for sync test"
     response = api_client.patch(
-        f"/concepts/activities/activity-instances/{new_test_activity_instance.uid}",
+        f"/concepts/activities/activity-instances/{new_test_activity_instance.uid}/attributes",
         json={
             "name": updated_name,
             "name_sentence_case": updated_name.lower(),
@@ -1531,7 +1531,7 @@ def test_sync_to_latest_version_activity_instance(api_client):
     assert_response_status_code(response, 200)
 
     response = api_client.post(
-        f"/concepts/activities/activity-instances/{new_test_activity_instance.uid}/approvals",
+        f"/concepts/activities/activity-instances/{new_test_activity_instance.uid}/attributes/approvals",
     )
     assert_response_status_code(response, 201)
 
@@ -1825,11 +1825,11 @@ def test_study_activity_instances_return_proper_activity_instance_versionsing_da
         activity_items=[],
     )
     response = api_client.post(
-        f"/concepts/activities/activity-instances/{activity_instance.uid}/versions",
+        f"/concepts/activities/activity-instances/{activity_instance.uid}/attributes/versions",
     )
     assert_response_status_code(response, 201)
     response = api_client.post(
-        f"/concepts/activities/activity-instances/{activity_instance.uid}/approvals",
+        f"/concepts/activities/activity-instances/{activity_instance.uid}/attributes/approvals",
     )
     assert_response_status_code(response, 201)
     # After creating a new draft and immidiately approving it, we'll have two Final (1.0, 2.0) versions linked between single root-value nodes
@@ -1975,7 +1975,7 @@ def test_study_activity_instances_review_changes_batch(api_client):
     )
 
     response = api_client.delete(
-        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/activations"
+        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/attributes/activations"
     )
     assert_response_status_code(response, 200)
 
@@ -2021,19 +2021,19 @@ def test_study_activity_instances_review_changes_batch(api_client):
     assert res["state"] == StudyActivityInstanceState.REVIEW_NOT_NEEDED.value
 
     response = api_client.post(
-        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/activations"
+        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/attributes/activations"
     )
     assert_response_status_code(response, 200)
 
     # update library activity instance
     response = api_client.post(
-        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/versions"
+        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/attributes/versions"
     )
     assert_response_status_code(response, 201)
 
     randomized_activity_name_after_update = "Randomized activity name after update"
     response = api_client.patch(
-        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}",
+        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/attributes",
         json={
             "name": randomized_activity_name_after_update,
             "name_sentence_case": randomized_activity_name_after_update.lower(),
@@ -2042,13 +2042,13 @@ def test_study_activity_instances_review_changes_batch(api_client):
     )
     assert_response_status_code(response, 200)
     response = api_client.post(
-        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/approvals"
+        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/attributes/approvals"
     )
     assert_response_status_code(response, 201)
 
     # update library activity
     response = api_client.post(
-        f"/concepts/activities/activity-instances/{second_randomized_activity_instance.uid}/versions"
+        f"/concepts/activities/activity-instances/{second_randomized_activity_instance.uid}/attributes/versions"
     )
     assert_response_status_code(response, 201)
 
@@ -2056,7 +2056,7 @@ def test_study_activity_instances_review_changes_batch(api_client):
         "Second Randomized activity name after update"
     )
     response = api_client.patch(
-        f"/concepts/activities/activity-instances/{second_randomized_activity_instance.uid}",
+        f"/concepts/activities/activity-instances/{second_randomized_activity_instance.uid}/attributes",
         json={
             "name": second_randomized_activity_name_after_update,
             "name_sentence_case": second_randomized_activity_name_after_update.lower(),
@@ -2065,7 +2065,7 @@ def test_study_activity_instances_review_changes_batch(api_client):
     )
     assert_response_status_code(response, 200)
     response = api_client.post(
-        f"/concepts/activities/activity-instances/{second_randomized_activity_instance.uid}/approvals"
+        f"/concepts/activities/activity-instances/{second_randomized_activity_instance.uid}/attributes/approvals"
     )
     assert_response_status_code(response, 201)
 
@@ -2144,7 +2144,7 @@ def test_study_activity_instances_invalidate_keep_old_version(api_client):
     assert study_activity_instances[0]["activity_instance"]["status"] == "Final"
 
     response = api_client.delete(
-        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/activations"
+        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/attributes/activations"
     )
     assert_response_status_code(response, 200)
 
@@ -2177,18 +2177,18 @@ def test_study_activity_instances_invalidate_keep_old_version(api_client):
     assert res["latest_activity_instance"]["status"] == "Retired"
 
     response = api_client.post(
-        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/activations"
+        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/attributes/activations"
     )
     assert_response_status_code(response, 200)
 
     response = api_client.post(
-        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/versions"
+        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/attributes/versions"
     )
     assert_response_status_code(response, 201)
 
     updated_name = randomized_activity_instance.name + " updated"
     response = api_client.patch(
-        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}",
+        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/attributes",
         json={
             "name": updated_name,
             "name_sentence_case": updated_name.lower(),
@@ -2198,7 +2198,7 @@ def test_study_activity_instances_invalidate_keep_old_version(api_client):
     assert_response_status_code(response, 200)
 
     response = api_client.post(
-        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/approvals"
+        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/attributes/approvals"
     )
     assert_response_status_code(response, 201)
 
@@ -2816,4 +2816,274 @@ def test_study_activity_instance_origin_term_not_in_codelist(api_client):
     assert_response_status_code(response, 400)
     res = response.json()
     assert "was not found in the codelist" in res["message"]
+    TestUtils.delete_study(test_study.uid)
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# Tests for StudyActivityInstance state field
+# ────────────────────────────────────────────────────────────────────────────
+
+
+def test_state_not_applicable_for_non_data_collection_activity(api_client):
+    """
+    Requirement: User must be presented with 'Not applicable' state for every
+    non-data collection study activity.
+    """
+    test_study = TestUtils.create_study(project_number=project.project_number)
+
+    non_dc_activity_group = TestUtils.create_activity_group(name="NonDC Group")
+    non_dc_activity_subgroup = TestUtils.create_activity_subgroup(name="NonDC SubGroup")
+    non_dc_activity = TestUtils.create_activity(
+        name="Non Data Collection Activity",
+        activity_subgroups=[non_dc_activity_subgroup.uid],
+        activity_groups=[non_dc_activity_group.uid],
+        library_name="Sponsor",
+        is_data_collected=False,
+    )
+
+    response = api_client.post(
+        f"/studies/{test_study.uid}/study-activities",
+        json={
+            "activity_uid": non_dc_activity.uid,
+            "activity_subgroup_uid": non_dc_activity_subgroup.uid,
+            "activity_group_uid": non_dc_activity_group.uid,
+            "soa_group_term_uid": term_efficacy_uid,
+        },
+    )
+    assert_response_status_code(response, 201)
+
+    response = api_client.get(
+        f"/studies/{test_study.uid}/study-activity-instances",
+    )
+    assert_response_status_code(response, 200)
+    items = response.json()["items"]
+    assert len(items) >= 1
+    for item in items:
+        assert item["state"] == StudyActivityInstanceState.NOT_APPLICABLE.value
+
+    TestUtils.delete_study(test_study.uid)
+
+
+def test_state_review_needed_for_default_activity_instance(api_client):
+    """
+    Requirement: User must be presented with 'Review needed' state when
+    activity instance selected for study activity is default (not mandatory).
+    """
+    test_study = TestUtils.create_study(project_number=project.project_number)
+
+    default_activity_group = TestUtils.create_activity_group(name="Default AI Group")
+    default_activity_subgroup = TestUtils.create_activity_subgroup(
+        name="Default AI SubGroup"
+    )
+    default_activity = TestUtils.create_activity(
+        name="Activity With Default Instance",
+        activity_subgroups=[default_activity_subgroup.uid],
+        activity_groups=[default_activity_group.uid],
+        library_name="Sponsor",
+        is_data_collected=True,
+    )
+    default_instance_class = TestUtils.create_activity_instance_class(
+        name="Default Instance Class"
+    )
+    TestUtils.create_activity_instance(
+        name="Default selected instance",
+        activity_instance_class_uid=default_instance_class.uid,
+        name_sentence_case="default selected instance",
+        topic_code="default_selected_topic",
+        is_required_for_activity=False,
+        is_default_selected_for_activity=True,
+        activities=[default_activity.uid],
+        activity_subgroups=[default_activity_subgroup.uid],
+        activity_groups=[default_activity_group.uid],
+        activity_items=[],
+    )
+
+    response = api_client.post(
+        f"/studies/{test_study.uid}/study-activities",
+        json={
+            "activity_uid": default_activity.uid,
+            "activity_subgroup_uid": default_activity_subgroup.uid,
+            "activity_group_uid": default_activity_group.uid,
+            "soa_group_term_uid": term_efficacy_uid,
+        },
+    )
+    assert_response_status_code(response, 201)
+
+    response = api_client.get(
+        f"/studies/{test_study.uid}/study-activity-instances",
+    )
+    assert_response_status_code(response, 200)
+    items = response.json()["items"]
+    assert len(items) == 1
+    assert items[0]["state"] == StudyActivityInstanceState.REVIEW_NEEDED.value
+    assert items[0]["is_reviewed"] is False
+
+    TestUtils.delete_study(test_study.uid)
+
+
+def test_state_review_not_needed_for_mandatory_activity_instance(api_client):
+    """
+    Requirement: User must be presented with 'Review not needed' and checked
+    Reviewed checkbox when activity instance selected for study activity is mandatory.
+    """
+    test_study = TestUtils.create_study(project_number=project.project_number)
+
+    response = api_client.post(
+        f"/studies/{test_study.uid}/study-activities",
+        json={
+            "activity_uid": randomized_activity.uid,
+            "activity_subgroup_uid": randomisation_activity_subgroup.uid,
+            "activity_group_uid": general_activity_group.uid,
+            "soa_group_term_uid": term_efficacy_uid,
+        },
+    )
+    assert_response_status_code(response, 201)
+
+    response = api_client.get(
+        f"/studies/{test_study.uid}/study-activity-instances",
+    )
+    assert_response_status_code(response, 200)
+    items = response.json()["items"]
+    # The auto-created instance corresponds to randomized_activity_instance which is mandatory
+    mandatory_items = [
+        item
+        for item in items
+        if item.get("activity_instance")
+        and item["activity_instance"]["is_required_for_activity"]
+    ]
+    assert len(mandatory_items) >= 1
+    for item in mandatory_items:
+        assert item["state"] == StudyActivityInstanceState.REVIEW_NOT_NEEDED.value
+        assert item["is_reviewed"] is True
+
+    TestUtils.delete_study(test_study.uid)
+
+
+def test_state_add_instance_when_no_activity_instance_linked(api_client):
+    """
+    Requirement: User must be presented with 'Add instance' and disabled Reviewed
+    checkbox when study activity is not linked to any activity instance.
+    """
+    test_study = TestUtils.create_study(project_number=project.project_number)
+
+    # Create an activity that has no linked activity instances
+    orphan_activity_group = TestUtils.create_activity_group(name="Orphan Group")
+    orphan_activity_subgroup = TestUtils.create_activity_subgroup(
+        name="Orphan SubGroup"
+    )
+    orphan_activity = TestUtils.create_activity(
+        name="Activity Without Instances",
+        activity_subgroups=[orphan_activity_subgroup.uid],
+        activity_groups=[orphan_activity_group.uid],
+        library_name="Sponsor",
+        is_data_collected=True,
+    )
+
+    response = api_client.post(
+        f"/studies/{test_study.uid}/study-activities",
+        json={
+            "activity_uid": orphan_activity.uid,
+            "activity_subgroup_uid": orphan_activity_subgroup.uid,
+            "activity_group_uid": orphan_activity_group.uid,
+            "soa_group_term_uid": term_efficacy_uid,
+        },
+    )
+    assert_response_status_code(response, 201)
+
+    response = api_client.get(
+        f"/studies/{test_study.uid}/study-activity-instances",
+    )
+    assert_response_status_code(response, 200)
+    items = response.json()["items"]
+    assert len(items) == 1
+    assert items[0]["state"] == StudyActivityInstanceState.ADD_INSTANCE.value
+    assert items[0]["activity_instance"] is None
+    assert items[0]["is_reviewed"] is False
+
+    TestUtils.delete_study(test_study.uid)
+
+
+def test_state_remove_instance_when_too_many_instances(api_client):
+    """
+    Requirement: User must be presented with 'Remove instance' and disabled Reviewed
+    checkbox when study activity has more linked activity instances than allowed
+    for that study activity (is_multiple_selection_allowed=False with >1 instance).
+    """
+    test_study = TestUtils.create_study(project_number=project.project_number)
+
+    single_select_group = TestUtils.create_activity_group(name="SingleSelect Group")
+    single_select_subgroup = TestUtils.create_activity_subgroup(
+        name="SingleSelect SubGroup"
+    )
+    single_select_activity = TestUtils.create_activity(
+        name="Single Select Activity",
+        activity_subgroups=[single_select_subgroup.uid],
+        activity_groups=[single_select_group.uid],
+        library_name="Sponsor",
+        is_data_collected=True,
+        is_multiple_selection_allowed=False,
+    )
+    single_select_instance_class = TestUtils.create_activity_instance_class(
+        name="SingleSelect Instance Class"
+    )
+    TestUtils.create_activity_instance(
+        name="SingleSelect required instance",
+        activity_instance_class_uid=single_select_instance_class.uid,
+        name_sentence_case="singleselect required instance",
+        topic_code="single_select_required_topic",
+        is_required_for_activity=True,
+        activities=[single_select_activity.uid],
+        activity_subgroups=[single_select_subgroup.uid],
+        activity_groups=[single_select_group.uid],
+        activity_items=[],
+    )
+    extra_instance = TestUtils.create_activity_instance(
+        name="SingleSelect extra instance",
+        activity_instance_class_uid=single_select_instance_class.uid,
+        name_sentence_case="singleselect extra instance",
+        topic_code="single_select_extra_topic",
+        is_required_for_activity=False,
+        activities=[single_select_activity.uid],
+        activity_subgroups=[single_select_subgroup.uid],
+        activity_groups=[single_select_group.uid],
+        activity_items=[],
+    )
+
+    response = api_client.post(
+        f"/studies/{test_study.uid}/study-activities",
+        json={
+            "activity_uid": single_select_activity.uid,
+            "activity_subgroup_uid": single_select_subgroup.uid,
+            "activity_group_uid": single_select_group.uid,
+            "soa_group_term_uid": term_efficacy_uid,
+        },
+    )
+    assert_response_status_code(response, 201)
+    study_activity_uid = response.json()["study_activity_uid"]
+
+    # Auto-creation should have created one instance (the required one).
+    # Now manually add a second instance to exceed the allowed count.
+    response = api_client.post(
+        f"/studies/{test_study.uid}/study-activity-instances/batch",
+        json=[
+            {
+                "method": "POST",
+                "content": {
+                    "activity_instance_uid": extra_instance.uid,
+                    "study_activity_uid": study_activity_uid,
+                },
+            }
+        ],
+    )
+    assert_response_status_code(response, 207)
+
+    response = api_client.get(
+        f"/studies/{test_study.uid}/study-activity-instances",
+    )
+    assert_response_status_code(response, 200)
+    items = response.json()["items"]
+    assert len(items) == 2
+    for item in items:
+        assert item["state"] == StudyActivityInstanceState.REMOVE_INSTANCE.value
+
     TestUtils.delete_study(test_study.uid)

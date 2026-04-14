@@ -58,13 +58,17 @@
               />
               <v-textarea
                 v-model="form.request_rationale"
-                :label="$t('ActivityFormsRequested.rationale_for_request')"
+                :label="
+                  streamlinePlaceholders
+                    ? $t('ActivityFormsRequested.description')
+                    : $t('ActivityFormsRequested.rationale_for_request')
+                "
                 data-cy="activity-rationale"
                 clearable
                 auto-grow
                 rows="1"
                 color="nnBaseBlue"
-                :rules="[formRules.required]"
+                :rules="streamlinePlaceholders ? [] : [formRules.required]"
               />
               <v-row>
                 <v-checkbox
@@ -73,6 +77,7 @@
                   :label="$t('ActivityForms.is_data_collected')"
                 />
                 <v-switch
+                  v-if="!streamlinePlaceholders"
                   v-model="form.is_request_final"
                   :label="$t('ActivityForms.submit_request')"
                   class="mt-n5"
@@ -115,6 +120,7 @@ import study from '@/api/study'
 import terms from '@/api/controlledTerminology/terms'
 import activities from '@/api/activities'
 import HelpButton from '@/components/tools/HelpButton.vue'
+import { useFeatureFlagsStore } from '@/stores/feature-flags'
 
 export default {
   components: {
@@ -128,6 +134,10 @@ export default {
     },
   },
   emits: ['close', 'updated'],
+  setup() {
+    const featureFlagsStore = useFeatureFlagsStore()
+    return { featureFlagsStore }
+  },
   data() {
     return {
       form: {},
@@ -136,6 +146,13 @@ export default {
       flowchartGroups: [],
       working: false,
     }
+  },
+  computed: {
+    streamlinePlaceholders() {
+      return !this.featureFlagsStore.getFeatureFlag(
+        'streamline_placeholder_activities'
+      )
+    },
   },
   watch: {
     studyActivity: {

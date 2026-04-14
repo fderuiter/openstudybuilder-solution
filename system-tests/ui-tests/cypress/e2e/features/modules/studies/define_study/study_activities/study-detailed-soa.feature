@@ -9,6 +9,10 @@ Feature: Studies - Define Study - Study Activities - Schedule of Activities - De
         Given The user is logged in
         And A test study is selected
 
+    Scenario: [TestData] Old placeholder activity workflow feature flag is disabled
+        When The '/administration/featureflags' page is opened
+        Then Old placeholder workflow feature flag is turned off
+
     Scenario: [TestData] Study visits, epochs and activities are created
         And [API] The epoch with type 'Pre Treatment' and subtype 'Run-in' exists in selected study
         And [API] The epoch with type 'Treatment' and subtype 'Intervention' exists in selected study
@@ -329,14 +333,9 @@ Feature: Studies - Define Study - Study Activities - Schedule of Activities - De
         Then The old activity is no longer available
 
     Scenario: [Placeholder][Submitted] User must be able to see highlighted (yellow) submitted placeholder in the Detailed SoA
-        Given The test study '/activities/list' page is opened
-        When Study activity add button is clicked
-        And Activity from placeholder is selected
-        And Form continue button is clicked
-        And User selects option to create placeholder with submitting
-        When Activity placeholder data is filled in
-        And Form save button is clicked
-        And The form is no longer available
+        And [API] Get SoA Group 'BIOMARKERS' id
+        When [API] Create Submitted Requested Activity
+        And [API] Requested Activity is added to the study
         And The test study '/activities/soa' page is opened
         And Detailed SoA table is loaded
         And User expand table
@@ -344,14 +343,9 @@ Feature: Studies - Define Study - Study Activities - Schedule of Activities - De
         Then Row containing submitted placeholder is highlighted with yellow color
 
     Scenario: [Placeholder][Not-Submitted] User must be able to see highlighted (orange) not-submitted placeholder in the Detailed SoA
-        Given The test study '/activities/list' page is opened
-        When Study activity add button is clicked
-        And Activity from placeholder is selected
-        And Form continue button is clicked
-        And User selects option to create placeholder without submitting
-        When Activity placeholder data is filled in
-        And Form save button is clicked
-        And The form is no longer available
+        And [API] Get SoA Group 'BIOMARKERS' id
+        When [API] Create Unsubmitted Requested Activity
+        And [API] Requested Activity is added to the study
         And The test study '/activities/soa' page is opened
         And Detailed SoA table is loaded
         And User expand table

@@ -804,7 +804,7 @@ def test_overriding_odm_item_groups_from_a_specific_odm_form(api_client):
     data = [
         {
             "uid": "odm_item_group2",
-            "order_number": 2,
+            "order_number": 2,  # this order number should be overridden by the API to 1, since it's the only form in the request
             "mandatory": "Yes",
             "locked": "No",
             "collection_exception_condition_oid": "collection_exception_condition_oid2",
@@ -879,7 +879,7 @@ def test_overriding_odm_item_groups_from_a_specific_odm_form(api_client):
             "oid": "oid2",
             "name": "name2",
             "version": "1.0",
-            "order_number": 2,
+            "order_number": 1,
             "mandatory": "Yes",
             "collection_exception_condition_oid": "collection_exception_condition_oid2",
             "vendor": {
@@ -1045,7 +1045,7 @@ def test_managing_odm_vendors_of_a_specific_odm_form(api_client):
             "oid": "oid2",
             "name": "name2",
             "version": "1.0",
-            "order_number": 2,
+            "order_number": 1,
             "mandatory": "Yes",
             "collection_exception_condition_oid": "collection_exception_condition_oid2",
             "vendor": {
@@ -1155,7 +1155,7 @@ def test_approving_an_odm_form(api_client):
             "oid": "oid2",
             "name": "name2",
             "version": "1.0",
-            "order_number": 2,
+            "order_number": 1,
             "mandatory": "Yes",
             "collection_exception_condition_oid": "collection_exception_condition_oid2",
             "vendor": {
@@ -1265,7 +1265,7 @@ def test_inactivating_a_specific_odm_form(api_client):
             "oid": "oid2",
             "name": "name2",
             "version": "1.0",
-            "order_number": 2,
+            "order_number": 1,
             "mandatory": "Yes",
             "collection_exception_condition_oid": "collection_exception_condition_oid2",
             "vendor": {
@@ -1375,7 +1375,7 @@ def test_reactivating_a_specific_odm_form(api_client):
             "oid": "oid2",
             "name": "name2",
             "version": "1.0",
-            "order_number": 2,
+            "order_number": 1,
             "mandatory": "Yes",
             "collection_exception_condition_oid": "collection_exception_condition_oid2",
             "vendor": {
@@ -1485,7 +1485,7 @@ def test_creating_a_new_odm_form_version(api_client):
             "oid": "oid2",
             "name": "name2",
             "version": "1.0",
-            "order_number": 2,
+            "order_number": 1,
             "mandatory": "Yes",
             "collection_exception_condition_oid": "collection_exception_condition_oid2",
             "vendor": {
@@ -1731,7 +1731,7 @@ def test_updating_an_existing_odm_form_with_relations(api_client):
             "oid": "oid2",
             "name": "name2",
             "version": "1.0",
-            "order_number": 2,
+            "order_number": 1,
             "mandatory": "Yes",
             "collection_exception_condition_oid": "collection_exception_condition_oid2",
             "vendor": {

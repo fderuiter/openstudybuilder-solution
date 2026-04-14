@@ -91,7 +91,7 @@ def test_data(api_client):
 
     studies = [study]  # type: ignore[list-item]
     for _idx in range(1, total_studies):
-        rand = TestUtils.random_str(4)
+        rand = TestUtils.random_str(10)
         studies.append(TestUtils.create_study(acronym=f"ACR-{rand}"))  # type: ignore[arg-type]
 
     study_epoch = create_study_epoch("EpochSubType_0001", study_uid=studies[0].uid)
@@ -381,8 +381,8 @@ def test_count_create_and_edit_actions_per_entity_type(api_client):
     print("=" * 100 + "\n")
 
     # Assertions based on expected counts per entity_type
-    # StudyField|StudyBooleanField: Create=76, Edit=0
-    assert create_counts["StudyField|StudyBooleanField"] == 76
+    # StudyField|StudyBooleanField: Create=101, Edit=0
+    assert create_counts["StudyField|StudyBooleanField"] == 101
     assert edit_counts["StudyField|StudyBooleanField"] == 0
 
     # StudyField|StudyTimeField: Create=50, Edit=0

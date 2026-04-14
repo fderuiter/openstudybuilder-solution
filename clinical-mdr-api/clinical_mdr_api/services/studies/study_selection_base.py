@@ -10,9 +10,6 @@ from clinical_mdr_api.domains.versioned_object_aggregate import LibraryItemStatu
 from clinical_mdr_api.models.concepts.activities.activity import (
     ActivityForStudyActivity,
 )
-from clinical_mdr_api.models.concepts.activities.activity_instance import (
-    ActivityInstance,
-)
 from clinical_mdr_api.models.concepts.compound import Compound
 from clinical_mdr_api.models.concepts.compound_alias import CompoundAlias
 from clinical_mdr_api.models.concepts.medicinal_product import MedicinalProduct
@@ -362,33 +359,6 @@ class StudySelectionMixin:
             activity_ar=self._repos.activity_repository.find_by_uid_optimized(
                 activity_uid, version=activity_version
             )
-        )
-
-    def _transform_latest_activity_instance_model(
-        self, activity_instance_uid: str
-    ) -> ActivityInstance:
-        """Finds the activity instance with a given UID."""
-
-        return ActivityInstance.from_activity_ar(
-            activity_ar=self._repos.activity_instance_repository.find_by_uid_optimized(
-                activity_instance_uid
-            ),
-            find_activity_hierarchy_by_uid=self._repos.activity_repository.find_by_uid_optimized,
-            find_activity_subgroup_by_uid=self._repos.activity_subgroup_repository.find_by_uid_optimized,
-            find_activity_group_by_uid=self._repos.activity_group_repository.find_by_uid_optimized,
-        )
-
-    def _transform_activity_instance_model(
-        self, activity_instance_uid: str, activity_instance_version: str | None
-    ) -> ActivityInstance:
-        """Finds the activity instance with given UID and version."""
-        return ActivityInstance.from_activity_ar(
-            activity_ar=self._repos.activity_instance_repository.find_by_uid_optimized(
-                activity_instance_uid, version=activity_instance_version
-            ),
-            find_activity_hierarchy_by_uid=self._repos.activity_repository.find_by_uid_optimized,
-            find_activity_subgroup_by_uid=self._repos.activity_subgroup_repository.find_by_uid_optimized,
-            find_activity_group_by_uid=self._repos.activity_group_repository.find_by_uid_optimized,
         )
 
     def _transform_compound_model(self, compound_uid: str) -> Compound:

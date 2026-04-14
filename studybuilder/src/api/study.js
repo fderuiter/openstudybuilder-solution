@@ -764,10 +764,16 @@ export default {
       responseType: 'blob',
     })
   },
-  exportStudyProtocolSoa(studyUid) {
+  exportStudyProtocolSoa(studyUid, layout) {
+    let params = {}
+    if (layout == 'protocol_lab_table') {
+      params = { protocol_lab_table: true }
+    }
+
     const headers = { Accept: 'text/csv' }
     return repository.get(`${resource}/${studyUid}/protocol-soa-exports`, {
       headers,
+      params: params,
       responseType: 'blob',
     })
   },

@@ -3,7 +3,7 @@
     <v-expansion-panel>
       <v-expansion-panel-title
         data-cy="cl-summary-title"
-        class="text-h6 text-grey"
+        class="text-headline-small text-grey"
       >
         {{ $t('CodelistSummary.title') }}
       </v-expansion-panel-title>

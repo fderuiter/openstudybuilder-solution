@@ -5,6 +5,7 @@ Tests for /listings/studies/all/adam/ endpoints
 # pylint: disable=unused-argument
 # pylint: disable=redefined-outer-name
 # pylint: disable=too-many-arguments
+# pylint: disable=invalid-name
 
 # pytest fixture functions have other fixture functions as arguments,
 # which pylint interprets as unused arguments

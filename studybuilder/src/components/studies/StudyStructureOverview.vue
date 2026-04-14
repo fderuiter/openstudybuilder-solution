@@ -16,68 +16,68 @@
       >
         <v-row>
           <v-col>
-            <div class="text-subtitle-1 line-height-125">
+            <div class="text-body-large line-height-125">
               {{ $t('StudyStructureOverview.arms_number') }}
             </div>
-            <div class="text-h6 font-weight-bold mt-1">
+            <div class="text-headline-small font-weight-bold mt-1">
               {{ arms.length }}
             </div>
           </v-col>
           <v-col>
-            <div class="text-subtitle-1 line-height-125">
+            <div class="text-body-large line-height-125">
               {{ $t('StudyStructureOverview.number_branches') }}
             </div>
-            <div class="text-h6 font-weight-bold mt-1">
+            <div class="text-headline-small font-weight-bold mt-1">
               {{ branches.length }}
             </div>
           </v-col>
           <v-col>
-            <div class="text-subtitle-1 line-height-125">
+            <div class="text-body-large line-height-125">
               {{ $t('StudyStructureOverview.number_cohorts') }}
             </div>
-            <div class="text-h6 font-weight-bold mt-1">
+            <div class="text-headline-small font-weight-bold mt-1">
               {{ cohorts.length }}
             </div>
           </v-col>
           <v-col>
-            <div class="text-subtitle-1 line-height-125">
+            <div class="text-body-large line-height-125">
               {{ $t('StudyStructureOverview.planned_subjects') }}
             </div>
-            <div class="text-h6 font-weight-bold mt-1">
+            <div class="text-headline-small font-weight-bold mt-1">
               {{ plannedNumberOfSubjects }}
             </div>
           </v-col>
           <v-col>
-            <div class="text-subtitle-1 line-height-125">
+            <div class="text-body-large line-height-125">
               {{ $t('StudyStructureOverview.number_elements') }}
             </div>
-            <div class="text-h6 font-weight-bold mt-1">
+            <div class="text-headline-small font-weight-bold mt-1">
               {{ cells.length }}
             </div>
           </v-col>
         </v-row>
         <v-row>
           <v-col cols="4">
-            <div class="text-subtitle-1 line-height-125">
+            <div class="text-body-large line-height-125">
               {{ $t('StudyStructureOverview.study_design_class') }}
             </div>
-            <div class="text-h6 font-weight-bold mt-1">
+            <div class="text-headline-small font-weight-bold mt-1">
               {{ designClass }}
             </div>
           </v-col>
           <v-col v-if="sourceVariable?.source_variable" cols="2">
-            <div class="text-subtitle-1 line-height-125">
+            <div class="text-body-large line-height-125">
               {{ $t('StudyStructureOverview.source_var') }}
             </div>
-            <div class="text-h6 font-weight-bold mt-1">
+            <div class="text-headline-small font-weight-bold mt-1">
               {{ sourceVariable.source_variable }}
             </div>
           </v-col>
           <v-col v-if="sourceVariable?.source_variable">
-            <div class="text-subtitle-1 line-height-125">
+            <div class="text-body-large line-height-125">
               {{ $t('StudyStructureOverview.source_var_desc') }}
             </div>
-            <div class="text-h6 font-weight-bold mt-1">
+            <div class="text-headline-small font-weight-bold mt-1">
               {{ sourceVariable.source_variable_description }}
             </div>
           </v-col>
@@ -131,19 +131,19 @@
                   v-if="index === 0"
                   :rowspan="arm.arm_connected_branch_arms.length"
                 >
-                  <div class="text-subtitle-1 line-height-125">
+                  <div class="text-body-large line-height-125">
                     {{ arm.name }}
                   </div>
-                  <div class="text-body-2 text-gray">
+                  <div class="text-body-medium text-gray">
                     {{ arm.number_of_subjects }}
                     {{ $t('StudyStructureOverview.subjects') }}
                   </div>
                 </td>
                 <td>
-                  <div class="text-subtitle-1 line-height-125">
+                  <div class="text-body-large line-height-125">
                     {{ branchArm.name }}
                   </div>
-                  <div class="text-body-2 text-gray">
+                  <div class="text-body-medium text-gray">
                     {{
                       branchArm.number_of_subjects
                         ? branchArm.number_of_subjects
@@ -153,10 +153,10 @@
                   </div>
                 </td>
                 <td v-if="designClass !== cohortConstants.MANUAL">
-                  <div class="text-subtitle-1 line-height-125">
+                  <div class="text-body-large line-height-125">
                     {{ getCohortByBranch(branchArm.branch_arm_uid).name }}
                   </div>
-                  <div class="text-body-2 text-gray">
+                  <div class="text-body-medium text-gray">
                     {{ getCohortByBranch(branchArm.branch_arm_uid).subjects }}
                   </div>
                 </td>
@@ -176,10 +176,10 @@
             <template v-else>
               <tr :key="arm.arm_uid">
                 <td>
-                  <div class="text-subtitle-1 line-height-125">
+                  <div class="text-body-large line-height-125">
                     {{ arm.name }}
                   </div>
-                  <div class="text-body-2 text-gray">
+                  <div class="text-body-medium text-gray">
                     {{ arm.number_of_subjects }}
                     {{ $t('StudyStructureOverview.subjects') }}
                   </div>

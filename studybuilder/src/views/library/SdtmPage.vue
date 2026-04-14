@@ -147,9 +147,10 @@ const igHeaders = ref([
 
 function redirectToGuide(item) {
   redirectGuide.value = item
-  nvTabs.value.tab = tabs.value.indexOf(
-    tabs.value.find((tab) => tab.tab === item.uid)
-  )
+  const tab = tabs.find((t) => t.tab === item.uid)
+  if (tab) {
+    nvTabs.value.tab = tab.tab
+  }
 }
 function redirectToModel(item) {
   redirectModel.value = item

@@ -27,7 +27,7 @@
       </v-row>
       <v-row>
         <v-col cols="11">
-          <p class="text-grey text-subtitle-1 font-weight-bold">
+          <p class="text-grey text-body-large font-weight-bold">
             {{ $t('_global.plain_text_version') }}
           </p>
           <div class="pa-4 bg-parameterBackground">
@@ -43,7 +43,7 @@
         data-cy="verify-syntax-button"
         color="white"
         variant="outlined"
-        elevation="2"
+        elevation="1"
         rounded="xl"
         @click="verifySyntax"
       >

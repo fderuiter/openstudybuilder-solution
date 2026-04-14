@@ -52,12 +52,18 @@ class ActivityItemClassRepository(ConceptGenericRepository[ActivityItemClassAR])
     value_object_class = ActivityItemClassVO
     return_model = ActivityItemClass
 
-    def generic_alias_clause(self, **kwargs):
+    def generic_alias_clause(self, *, return_all_versions: bool = False, **kwargs):
         """Override to use ActivityItemClass-specific library relationship."""
-        return """
+        version_return = (
+            "RETURN hv AS version_rel"
+            if return_all_versions
+            else """WITH collect(hv) as hvs
+                RETURN last(hvs) AS version_rel"""
+        )
+        return f"""
             DISTINCT concept_root, concept_value,
             head([(library:Library)-[:CONTAINS]->(concept_root) | library]) AS library
-            CALL {
+            CALL {{
                 WITH concept_root, concept_value
                 MATCH (concept_root)-[hv:HAS_VERSION]-(concept_value)
                 WITH hv
@@ -66,9 +72,8 @@ class ActivityItemClassRepository(ConceptGenericRepository[ActivityItemClassAR])
                     toInteger(split(hv.version, '.')[1]) ASC,
                     hv.end_date ASC,
                     hv.start_date ASC
-                WITH collect(hv) as hvs
-                RETURN last(hvs) AS version_rel
-            }
+                {version_return}
+            }}
             WITH
                 concept_root,
                 concept_root.uid AS uid,
@@ -76,12 +81,12 @@ class ActivityItemClassRepository(ConceptGenericRepository[ActivityItemClassAR])
                 library.name AS library_name,
                 library.is_editable AS is_library_editable,
                 version_rel
-                CALL {
+                CALL {{
                     WITH version_rel
                     OPTIONAL MATCH (author: User)
                     WHERE author.user_id = version_rel.author_id
                     RETURN author
-                }
+                }}
             WITH
                 uid,
                 concept_root,
@@ -100,6 +105,9 @@ class ActivityItemClassRepository(ConceptGenericRepository[ActivityItemClassAR])
                 version_rel.author_id AS author_id,
                 COALESCE(author.username, version_rel.author_id) AS author_username
         """
+
+    def generic_alias_clause_all_versions(self):
+        return self.generic_alias_clause(return_all_versions=True)
 
     def _create_aggregate_root_instance_from_cypher_result(
         self, input_dict: dict[str, Any]
@@ -245,7 +253,12 @@ class ActivityItemClassRepository(ConceptGenericRepository[ActivityItemClassAR])
             )
         """
 
-        return_clause = "RETURN DISTINCT aicr, aicv, has_activity_instance_class"
+        data_type_match = """
+            OPTIONAL MATCH (aicv)-[:HAS_DATA_TYPE]->(:CTTermContext)-[:HAS_SELECTED_TERM]->(data_type_root:CTTermRoot)
+            -[:HAS_NAME_ROOT]->(:CTTermNameRoot)-[:LATEST]->(data_type_name_value)
+        """
+
+        return_clause = "RETURN DISTINCT aicr, aicv, has_activity_instance_class, data_type_root.uid AS data_type_uid, data_type_name_value.name AS data_type_name"
 
         query_elements = [base_match]
         filter_clause = ""
@@ -260,12 +273,14 @@ class ActivityItemClassRepository(ConceptGenericRepository[ActivityItemClassAR])
             filter_clause = "WHERE " + " AND ".join(filter_elements)
             query_elements.append(filter_clause)
 
+        query_elements.append(data_type_match)
         query_elements.append(return_clause)
         query_elements.append("UNION")
         query_elements.append(base_parent_match)
         if filter_clause:
             query_elements.append(match_for_filter)
             query_elements.append(filter_clause)
+        query_elements.append(data_type_match)
         query_elements.append(return_clause)
 
         query = " ".join(query_elements)

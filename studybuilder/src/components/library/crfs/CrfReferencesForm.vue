@@ -12,7 +12,7 @@
       <template #body>
         <v-expansion-panels v-model="panels" multiple>
           <v-expansion-panel>
-            <v-expansion-panel-title class="text-h6">
+            <v-expansion-panel-title class="text-headline-small">
               {{ $t('CRFForms.standard_attributes') }}
             </v-expansion-panel-title>
             <v-expansion-panel-text>
@@ -46,7 +46,7 @@
                 element.uid.includes('OdmItem'))
             "
           >
-            <v-expansion-panel-title class="text-h6">
+            <v-expansion-panel-title class="text-headline-small">
               {{ $t('CRFForms.vendor_extensions_low') }}
             </v-expansion-panel-title>
             <v-expansion-panel-text>

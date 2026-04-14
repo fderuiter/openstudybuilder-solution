@@ -415,7 +415,10 @@ def add_forms_to_odm_study_event(
     override: Annotated[
         bool,
         Query(
-            description="If true, all existing form relationships will be replaced with the provided form relationships.",
+            description="""
+When true, replaces all existing item relationships with the provided ones.
+When false, appends the provided item relationships to existing ones, continuing the order sequence.
+            """,
         ),
     ] = False,
 ) -> OdmStudyEvent:

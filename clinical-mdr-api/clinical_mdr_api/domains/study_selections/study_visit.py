@@ -128,6 +128,8 @@ class StudyVisitVO:
 
     def derive_visit_name(self):
         if self.visit_class != VisitClass.MANUALLY_DEFINED_VISIT:
+            if self.visit_class == VisitClass.UNSCHEDULED_VISIT:
+                return settings.unscheduled_visit_name
             if self.visit_subclass == VisitSubclass.REPEATING_VISIT:
                 return f"Visit {int(self.visit_number)}.n"
             return f"Visit {int(self.visit_number)}"
@@ -197,7 +199,7 @@ class StudyVisitVO:
                         self.special_visit_number - 1
                     ]
                 return visit_short_name + chosen_letter
-            if self.visit_class in (VisitClass.NON_VISIT, VisitClass.UNSCHEDULED_VISIT):
+            if self.visit_class in [VisitClass.UNSCHEDULED_VISIT, VisitClass.NON_VISIT]:
                 return visit_number
             return visit_short_name
         return self.vis_short_name

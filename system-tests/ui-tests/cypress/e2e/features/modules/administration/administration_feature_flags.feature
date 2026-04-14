@@ -7,7 +7,7 @@ Feature: Administration - Feature Flags
 
   Scenario: [Navigation] User must be able to navigate to the feature flags page in the Administration Page
       Given The '/administration' page is opened
-      #When The 'Feature flags' button is clicked
+      When The 'Feature Flags' button is clicked
       Then The current URL is '/administration/featureflags'
 
   Scenario: [Table][Columns][Names] User must be able to see the columns list on the main page as below

@@ -304,6 +304,8 @@ class ActivityItemClassService(ConceptGenericService[ActivityItemClassAR]):
                     is_default_linked=item_class["has_activity_instance_class"][
                         "is_default_linked"
                     ],
+                    data_type_uid=item_class.get("data_type_uid"),
+                    data_type_name=item_class.get("data_type_name"),
                 )
         # Order the results by name
         return sorted(seen_uids.values(), key=lambda x: x.name or "")

@@ -8,7 +8,7 @@
               <v-slide-group multiple show-arrows class="slideHeight mt-2">
                 <v-slide-group-item v-for="(date, index) in dates" :key="index">
                   <div class="d-block mx-2">
-                    <div class="text-caption mt-3">
+                    <div class="text-body-small mt-3">
                       {{ shortDate(date) }}
                     </div>
                     <div class="text-center">

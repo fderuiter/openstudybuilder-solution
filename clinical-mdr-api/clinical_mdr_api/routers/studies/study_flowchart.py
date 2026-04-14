@@ -124,6 +124,9 @@ def get_study_flowchart_html(
     debug_propagation: Annotated[
         bool, Query(description="Debug propagations without hiding rows")
     ] = False,
+    include_uids: Annotated[
+        bool, Query(description="Include uids in the HTML as data attributes")
+    ] = False,
 ) -> HTMLResponse:
     return HTMLResponse(
         StudyFlowchartService().get_study_flowchart_html(
@@ -134,6 +137,7 @@ def get_study_flowchart_html(
             debug_uids=debug_uids,
             debug_coordinates=debug_coordinates,
             debug_propagation=debug_propagation,
+            include_uids=include_uids,
         )
     )
 
@@ -514,11 +518,16 @@ def export_protocol_soa_content(
     study_value_version: Annotated[
         str | None, _generic_descriptions.STUDY_VALUE_VERSION_QUERY
     ] = None,
+    protocol_lab_table: Annotated[
+        bool,
+        Query(description="Whether to export Protocol Lab table SoA"),
+    ] = False,
 ) -> list[dict[str, Any]]:
     soa_content = StudyFlowchartService().download_detailed_soa_content(
         study_uid=study_uid,
         study_value_version=study_value_version,
-        protocol_flowchart=True,
+        protocol_flowchart=not protocol_lab_table,
+        protocol_lab_table=protocol_lab_table,
     )
     return soa_content
 

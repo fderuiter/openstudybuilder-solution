@@ -81,11 +81,15 @@ from common.utils import VisitClass, insert_space_after_commas
 
 NUM_OPERATIONAL_CODE_COLS = 2
 SOA_CHECK_MARK = "X"
+LAB_TABLE_INCLUDE_ACTIVITY_GROUP = "Laboratory Assessments"
 
 # Strings prepared for localization
 _T = {
     "study_epoch": "",
     "procedure_label": "Procedure",
+    "lab_assessments": "Laboratory assessments",
+    "parameters": "Parameters",
+    "visits_list": "Visits and timing of visits",
     "study_milestone": "",
     "protocol_section": "Protocol Section",
     "visit_short_name": "Visit short name",
@@ -93,6 +97,7 @@ _T = {
     "study_day": "Study day",
     "visit_window": "Visit window ({unit_name})",
     "protocol_flowchart": "Protocol Flowchart",
+    "protocol_lab_table": "Protocol - Lab table",
     "operational_soa": "Operational SoA",
     "detailed_soa": "Detailed SoA",
     "no_study_group": "(not selected)",
@@ -118,6 +123,7 @@ DOCX_STYLES = {
     "soaGroup": ("Table lvl 1", WD_STYLE_TYPE.PARAGRAPH),
     "group": ("Table lvl 2", WD_STYLE_TYPE.PARAGRAPH),
     "subGroup": ("Table lvl 3", WD_STYLE_TYPE.PARAGRAPH),
+    "subGroupLabTable": ("Table lvl 2", WD_STYLE_TYPE.PARAGRAPH),
     "activity": ("Table lvl 4", WD_STYLE_TYPE.PARAGRAPH),
     "activityRequest": ("Table lvl 4", WD_STYLE_TYPE.PARAGRAPH),
     "activityRequestFinal": ("Table lvl 4", WD_STYLE_TYPE.PARAGRAPH),
@@ -624,6 +630,146 @@ class StudyFlowchartService:
 
         return table
 
+    @trace_calls
+    def get_flowchart_table_lab_table(
+        self,
+        study_uid: str,
+        study_value_version: str | None,
+        time_unit: str | None = None,
+    ) -> TableWithFootnotes:
+        """
+        Returns internal TableWithFootnotes representation of Protocol Lab table SoA.
+
+        This table includes:
+        - An additional first column displaying activity subgroup names
+        - Only activities whose activity group name is "Laboratory Assessments"
+
+        Args:
+            study_uid (str): The unique identifier of the study.
+            study_value_version (str | None): The version of the study to check. Defaults to None.
+            time_unit (str | None): The preferred time unit, either "day" or "week". Defaults to None.
+
+        Returns:
+            TableWithFootnotes: Protocol Lab table SoA flowchart table with footnotes.
+        """
+
+        if not time_unit:
+            time_unit = self.get_preferred_time_unit(
+                study_uid, study_value_version=study_value_version
+            )
+
+        self._validate_parameters(
+            study_uid, study_value_version=study_value_version, time_unit=time_unit
+        )
+
+        # Fetch database objects in parallel
+        with ThreadPoolExecutor() as executor:
+            soa_preferences_future = executor.submit(
+                RuntimeContext.with_current_context(self._get_soa_preferences),
+                study_uid,
+                study_value_version=study_value_version,
+            )
+
+            activities_future = executor.submit(
+                RuntimeContext.with_current_context(self.fetch_study_activities),
+                study_uid,
+                study_value_version=study_value_version,
+            )
+
+            activity_schedules_future = executor.submit(
+                RuntimeContext.with_current_context(self._get_study_activity_schedules),
+                study_uid,
+                study_value_version=study_value_version,
+                operational=False,
+            )
+
+            visits_future = executor.submit(
+                RuntimeContext.with_current_context(
+                    self._get_study_visits_dict_filtered
+                ),
+                study_uid,
+                study_value_version,
+            )
+
+            footnotes_future = executor.submit(
+                RuntimeContext.with_current_context(self._get_study_footnotes),
+                study_uid,
+                study_value_version=study_value_version,
+            )
+
+        soa_preferences: StudySoaPreferences = soa_preferences_future.result()
+        all_activities: list[StudySelectionActivity] = activities_future.result()
+        activity_schedules: list[StudyActivitySchedule] = (
+            activity_schedules_future.result()
+        )
+        visits: dict[str, StudyVisitLite] = visits_future.result()
+
+        # Filter for Laboratory Assessments group
+        selection_activities = [
+            activity
+            for activity in all_activities
+            if (
+                activity.study_activity_group.activity_group_name
+                and activity.study_activity_group.activity_group_name.lower().strip()
+                == LAB_TABLE_INCLUDE_ACTIVITY_GROUP.lower().strip()
+            )
+        ]
+
+        # Sort the filtered activities
+        self._sort_study_activities(selection_activities, hide_soa_groups=True)
+
+        # Filter visits to only those with a lab activity schedule assigned (aka 'X')
+        lab_activity_uids = {sa.study_activity_uid for sa in selection_activities}
+        scheduled_visit_uids = {
+            sas.study_visit_uid
+            for sas in activity_schedules
+            if sas.study_activity_uid in lab_activity_uids
+        }
+        visits = {uid: v for uid, v in visits.items() if uid in scheduled_visit_uids}
+
+        # group visits in nested dict: study_epoch_uid -> [ consecutive_visit_group |  visit_uid ] -> [Visits]
+        grouped_visits = self._group_visits(visits.values(), collapse_visit_groups=True)
+
+        # Build header rows with extra column for subgroup names
+        header_rows = self._get_header_rows_lab_table(
+            grouped_visits, time_unit, soa_preferences
+        )
+
+        # Build activity rows with subgroup name column
+        activity_rows = self._get_activity_rows_lab_table(
+            selection_activities,
+            activity_schedules,
+            grouped_visits,
+        )
+
+        table = TableWithFootnotes(
+            rows=header_rows + activity_rows,
+            num_header_rows=len(header_rows),
+            num_header_cols=2,  # Two header columns: subgroup name + activity name
+            title=_T("protocol_lab_table"),
+        )
+
+        # Filter rows without checkmarks
+        self._hide_rows_without_checkmarks(
+            table.rows, len(header_rows), table.num_header_cols
+        )
+
+        # Group rows by activity subgroup name so same-subgroup rows are consecutive
+        self._group_rows_by_subgroup(table.rows, len(header_rows))
+
+        # Do not repeat the activity subgroup name on subsequent rows
+        self._hide_repeated_subgroup_names(table.rows)
+
+        # In case show_all_visits_lab_table is False, keep only the first two columns (subgroup name + activity name) and remove the rest of the visit columns
+        if not soa_preferences.show_all_visits_lab_table:
+            for row in table.rows:
+                row.cells = row.cells[:2]
+
+        footnotes: list[StudySoAFootnote] = footnotes_future.result()
+        self.add_footnotes(table, footnotes)
+
+        return table
+
     @staticmethod
     @trace_calls
     def split_flowchart_table(
@@ -888,7 +1034,16 @@ class StudyFlowchartService:
         debug_uids: bool = False,
         debug_coordinates: bool = False,
         debug_propagation: bool = False,
+        include_uids: bool = False,
     ) -> str:
+        if layout == SoALayout.PROTOCOL_LAB_TABLE:
+            table = self.get_flowchart_table_lab_table(
+                study_uid=study_uid,
+                study_value_version=study_value_version,
+                time_unit=time_unit,
+            )
+            return tables_to_html([table], include_uids=include_uids)
+
         # build internal representation of flowchart
         table = self.get_flowchart_table(
             study_uid=study_uid,
@@ -922,7 +1077,7 @@ class StudyFlowchartService:
             tables = [table]
 
         # convert flowchart to HTML document
-        return tables_to_html(tables)
+        return tables_to_html(tables, include_uids=include_uids)
 
     def split_soa(self, study_uid: str, study_value_version: str | None, table) -> Any:
         # Get StudyVisit.uids for slicing the SoA table
@@ -946,6 +1101,15 @@ class StudyFlowchartService:
         time_unit: str | None,
     ) -> DocxBuilder:
         """Returns a DOCX document with SoA table and footnotes"""
+
+        if layout == SoALayout.PROTOCOL_LAB_TABLE:
+            # Lab table uses its own table builder with different filtering and structure
+            table = self.get_flowchart_table_lab_table(
+                study_uid=study_uid,
+                study_value_version=study_value_version,
+                time_unit=time_unit,
+            )
+            return tables_to_docx([table], styles=DOCX_STYLES)
 
         # build internal representation of flowchart
         table = self.get_flowchart_table(
@@ -992,6 +1156,16 @@ class StudyFlowchartService:
         layout: SoALayout,
         time_unit: str | None,
     ) -> Workbook:
+        if layout == SoALayout.PROTOCOL_LAB_TABLE:
+            table = self.get_flowchart_table_lab_table(
+                study_uid=study_uid,
+                study_value_version=study_value_version,
+                time_unit=time_unit,
+            )
+            return table_to_xlsx(
+                table, styles=OPERATIONAL_XLSX_STYLES, hide_rows_without_checkmarks=True
+            )
+
         # build internal representation of flowchart
         table = self.get_flowchart_table(
             study_uid=study_uid,
@@ -1546,6 +1720,108 @@ class StudyFlowchartService:
 
         return rows
 
+    @classmethod
+    @trace_calls
+    def _get_header_rows_lab_table(
+        cls,
+        grouped_visits: dict[str, dict[str, list[StudyVisitLite]]],
+        time_unit: str,
+        soa_preferences: StudySoaPreferencesInput,
+    ) -> list[TableRow]:
+        """Builds the header rows for Protocol Lab table SoA flowchart with subgroup name column"""
+
+        visit_timing_prop = cls._get_visit_timing_property(time_unit, soa_preferences)
+
+        rows = []
+
+        # Calculate total number of visit columns
+        total_visit_columns = sum(
+            len(visit_groups) for visit_groups in grouped_visits.values()
+        )
+
+        # Header line 1
+        rows.append(header_row_1 := TableRow())
+        header_row_1.cells.append(
+            TableCell(text=_T("lab_assessments"), style="header1")
+        )
+        header_row_1.cells.append(TableCell(text=_T("parameters"), style="header1"))
+
+        if soa_preferences.show_all_visits_lab_table:
+            header_row_1.cells.append(
+                TableCell(_T("visits_list"), span=total_visit_columns, style="header1")
+            )
+
+            # Header line 2: Visit names
+            rows.append(visits_row := TableRow())
+            visits_row.cells.append(
+                TableCell(text=_T("visit_short_name"), style="header2")
+            )
+            visits_row.cells.append(TableCell())  # Empty cell for activity column
+
+            # Header line 3: Visit timing
+            rows.append(timing_row := TableRow())
+            if time_unit == "day":
+                timing_row.cells.append(
+                    TableCell(text=_T("study_day"), style="header3")
+                )
+            else:
+                timing_row.cells.append(
+                    TableCell(text=_T("study_week"), style="header3")
+                )
+            timing_row.cells.append(TableCell())  # Empty cell for activity column
+
+            # Header line 4: Visit window
+            rows.append(window_row := TableRow())
+            visit_window_unit = next(
+                (
+                    group[0].visit_window_unit_name
+                    for visit_groups in grouped_visits.values()
+                    for group in visit_groups.values()
+                ),
+                "",
+            )
+            # Append window unit used for all StudyVisits
+            window_row.cells.append(
+                TableCell(
+                    text=_T("visit_window").format(unit_name=visit_window_unit),
+                    style="header4",
+                )
+            )
+            window_row.cells.append(TableCell())  # Empty cell for activity column
+
+            for _study_epoch_uid, visit_groups in grouped_visits.items():
+                for group in visit_groups.values():
+                    visit: StudyVisitLite = group[0]
+
+                    # Add empty cells with span=0 for the "List of visits" spanning cell
+                    header_row_1.cells.append(TableCell(span=0))
+
+                    visit_name = cls._get_visit_name(group)
+                    visit_timing = cls._get_visit_timing(group, visit_timing_prop)
+
+                    # Visit name cell
+                    visits_row.cells.append(
+                        TableCell(
+                            visit_name,
+                            style="header2",
+                            refs=[
+                                Ref(type_=SoAItemType.STUDY_VISIT.value, uid=vis.uid)
+                                for vis in group
+                            ],
+                        )
+                    )
+
+                    # Visit timing cell
+                    timing_row.cells.append(TableCell(visit_timing, style="header3"))
+
+                    # Visit window
+                    visit_window = cls._get_visit_window(visit)
+
+                    # Visit window cell
+                    window_row.cells.append(TableCell(visit_window, style="header4"))
+
+        return rows
+
     @staticmethod
     def _get_visit_timing_property(
         time_unit: str | None, soa_preferences: StudySoaPreferencesInput
@@ -1844,6 +2120,85 @@ class StudyFlowchartService:
                     study_activity_schedules_mapping,
                     study_selection_activity.study_activity_instance_uid,
                 )
+
+        return rows
+
+    @classmethod
+    @trace_calls
+    def _get_activity_rows_lab_table(
+        cls,
+        study_selection_activities: Sequence[StudySelectionActivity],
+        study_activity_schedules: Sequence[StudyActivitySchedule],
+        grouped_visits: dict[str, dict[str, list[StudyVisitLite]]],
+    ) -> list[TableRow]:
+        """Builds activity rows for Protocol Lab table with subgroup name column"""
+
+        # Ordered StudyVisit.uids of visits to show
+        visit_groups: list[list[StudyVisitLite]] = [
+            visit_group
+            for epochs_group in grouped_visits.values()
+            for visit_group in epochs_group.values()
+        ]
+
+        # StudyActivitySchedules indexed by tuple of [uid, StudyVisit.uid]
+        study_activity_schedules_mapping = {
+            (sas.study_activity_uid, sas.study_visit_uid): sas
+            for sas in study_activity_schedules
+        }
+
+        rows = []
+        prev_study_selection_id = None
+
+        for study_selection_activity in study_selection_activities:
+            study_selection_id = study_selection_activity.study_activity_uid
+
+            if (
+                prev_study_selection_id != study_selection_id
+                and study_selection_activity.study_activity_uid
+            ):
+                prev_study_selection_id = study_selection_id
+
+                # Create row with subgroup name as first cell
+                row = TableRow(
+                    order=study_selection_activity.order,
+                    level=4,
+                )
+
+                # Determine if we should show the subgroup name
+                current_subgroup_name = (
+                    study_selection_activity.study_activity_subgroup.activity_subgroup_name
+                )
+
+                # Add subgroup name cell
+                row.cells.append(
+                    TableCell(
+                        text=current_subgroup_name,
+                        style="subGroupLabTable",
+                        refs=(
+                            [
+                                Ref(
+                                    type_=SoAItemType.STUDY_ACTIVITY_SUBGROUP.value,
+                                    uid=study_selection_activity.study_activity_subgroup.study_activity_subgroup_uid,
+                                )
+                            ]
+                            if study_selection_activity.study_activity_subgroup.study_activity_subgroup_uid
+                            else []
+                        ),
+                    )
+                )
+
+                # Add activity name cell
+                row.cells.append(cls._get_study_activity_cell(study_selection_activity))
+
+                # Add crosses for visits
+                cls._append_activity_crosses(
+                    row,
+                    visit_groups,
+                    study_activity_schedules_mapping,
+                    study_selection_activity.study_activity_uid,
+                )
+
+                rows.append(row)
 
         return rows
 
@@ -2214,7 +2569,41 @@ class StudyFlowchartService:
         table: TableWithFootnotes,
         footnotes: list[StudySoAFootnote],
     ):
-        """Adds footnote symbols to table rows based on the referenced uids"""
+        """Adds footnote symbols to table rows based on the referenced uids.
+
+        Only footnotes whose referenced items appear in at least one visible (non-hidden)
+        row are included. Footnotes that exclusively reference items in hidden rows are
+        silently dropped before symbols are assigned, so they do not appear in the
+        rendered footnote listing.
+        """
+        # Keep only footnotes that are referenced in the table, visible rows only
+        visible_rows = [row for row in table.rows if not row.hide]
+
+        # Collect referenced UIDs preserving the order they appear in the table
+        referenced_uids: dict[str, int] = {}
+        for row in visible_rows:
+            for cell in row.cells:
+                for ref in cell.refs or []:
+                    if ref.uid not in referenced_uids:
+                        referenced_uids[ref.uid] = len(referenced_uids)
+
+        footnotes = [
+            fn
+            for fn in footnotes
+            if any(ref.item_uid in referenced_uids for ref in fn.referenced_items)
+        ]
+
+        # Sort footnotes by the earliest table position of their referenced items
+        footnotes.sort(
+            key=lambda fn: min(
+                (
+                    referenced_uids[ref.item_uid]
+                    for ref in fn.referenced_items
+                    if ref.item_uid in referenced_uids
+                ),
+                default=len(referenced_uids),
+            )
+        )
 
         (
             footnote_symbols_by_ref_uid,
@@ -2228,6 +2617,7 @@ class StudyFlowchartService:
                 cell.footnotes = (
                     sorted(str(_footnote) for _footnote in _footnotes)
                     if _footnotes
+                    and cell.text  # Only show footnote symbols if there is cell text to attach them to
                     else None
                 )
 
@@ -2242,6 +2632,51 @@ class StudyFlowchartService:
         for row in rows:
             # unhide all rows
             row.hide = False
+
+    @staticmethod
+    @trace_calls
+    def _hide_rows_without_checkmarks(
+        rows: list[TableRow], num_header_rows: int, num_header_cols: int = 2
+    ):
+        """
+        Hides activity rows that don't contain any checkmarks in visit cells.
+
+        Args:
+            rows: List of table rows
+            num_header_rows: Number of header rows to skip
+            num_header_cols: Number of leading header columns to skip when checking for checkmarks
+        """
+        for row in rows[num_header_rows:]:
+            has_checkmark = any(
+                cell.text == SOA_CHECK_MARK for cell in row.cells[num_header_cols:]
+            )
+            if not has_checkmark:
+                row.hide = True
+
+    @staticmethod
+    @trace_calls
+    def _group_rows_by_subgroup(rows: list[TableRow], num_header_rows: int):
+        """Reorders activity rows in place so rows with the same subgroup name (first cell) are consecutive."""
+        activity_rows = rows[num_header_rows:]
+        groups: dict[str, list[TableRow]] = {}
+        for row in activity_rows:
+            key = row.cells[0].text if row.cells else ""
+            groups.setdefault(key, []).append(row)
+        rows[num_header_rows:] = [row for group in groups.values() for row in group]
+
+    @staticmethod
+    @trace_calls
+    def _hide_repeated_subgroup_names(rows: list[TableRow]):
+        """Clears the activity subgroup name (first cell) on subsequent rows where it repeats."""
+        prev_subgroup_name = None
+        for row in rows:
+            if row.hide or not row.cells:
+                continue
+            cell = row.cells[0]
+            if cell.text == prev_subgroup_name:
+                cell.text = ""
+            else:
+                prev_subgroup_name = cell.text
 
     @staticmethod
     @trace_calls
@@ -2386,6 +2821,7 @@ class StudyFlowchartService:
         study_uid: str,
         study_value_version: str | None = None,
         protocol_flowchart: bool = False,
+        protocol_lab_table: bool = False,
     ) -> list[dict[Any, Any]]:
         if not study_value_version:
             query = "MATCH (study_root:StudyRoot{uid:$study_uid})-[has_version:LATEST]-(study_value:StudyValue)"
@@ -2431,6 +2867,13 @@ class StudyFlowchartService:
                     is_soa_milestone:study_visit.is_soa_milestone,
                     milestone_name:visity_type_term.name
                 }]) as milestone
+        """
+        query += (
+            "WHERE trim(toLower(study_activity_group.activity_group_value.name)) = $activity_group_filter"
+            if protocol_lab_table
+            else ""
+        )
+        query += """
         ORDER BY study_soa_group.order, study_activity_group.order, study_activity_subgroup.order, study_activity.order, study_visit.visit_number
         RETURN
             CASE
@@ -2452,7 +2895,15 @@ class StudyFlowchartService:
 
         result_array, attribute_names = db.cypher_query(
             query,
-            params={"study_uid": study_uid, "study_value_version": study_value_version},
+            params={
+                "study_uid": study_uid,
+                "study_value_version": study_value_version,
+                "activity_group_filter": (
+                    LAB_TABLE_INCLUDE_ACTIVITY_GROUP.lower().strip()
+                    if protocol_lab_table
+                    else None
+                ),
+            },
         )
         soa_preferences = self._get_soa_preferences(
             study_uid, study_value_version=study_value_version

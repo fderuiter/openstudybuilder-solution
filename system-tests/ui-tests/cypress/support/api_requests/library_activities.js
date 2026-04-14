@@ -1,8 +1,7 @@
-export let group_uid, subgroup_uid, activity_uid, activityInstance_uid, group_name
+export let group_uid, subgroup_uid, activity_uid, activityInstance_uid, group_name, requestedActivity_uid
 const { getShortUniqueId } = require("../../support/helper_functions");
 let groups_uids = []
-let class_uid, requestedActivity_uid
-let topicCode, adamParamCode
+let topicCode, adamParamCode, class_uid
 const activityInstanceClassUrl = '/activity-instance-classes'
 const baseUrl = '/concepts/activities'
 const activityUrl = `${baseUrl}/activities`
@@ -13,18 +12,23 @@ const finalActivityGroupUrl = `${activityGroupUrl}?page_size=0&filters={"status"
 const finalActivitySubGroupUrl = `${activitySubGroupUrl}?page_size=0&filters={"status":{"v":["Final"]}}`
 const activityInfoUrl = (activity_uid) => `${activityUrl}/${activity_uid}`
 const activityInstanceInfoUrl = (activityInstance_uid) => `${activityInstanceUrl}/${activityInstance_uid}`
+const activityInstanceAttributesUrl = (activityInstance_uid) => `${activityInstanceUrl}/${activityInstance_uid}/attributes`
+const activityInstanceGroupingsUrl = (activityInstance_uid) => `${activityInstanceUrl}/${activityInstance_uid}/groupings`
 const activityGroupInfoUrl = (group_uid) => `${activityGroupUrl}/${group_uid}`
 const activitySubGroupInfoUrl = (subgroup_uid) => `${activitySubGroupUrl}/${subgroup_uid}`
 const approveActivityUrl = (activity_uid) => `${activityUrl}/${activity_uid}/approvals`
-const approveActivityInstanceUrl = (activityInstance_uid) => `${activityInstanceUrl}/${activityInstance_uid}/approvals`
+const approveActivityInstanceAttributesUrl = (activityInstance_uid) => `${activityInstanceUrl}/${activityInstance_uid}/attributes/approvals`
+const approveActivityInstanceGroupingsUrl = (activityInstance_uid) => `${activityInstanceUrl}/${activityInstance_uid}/groupings/approvals`
 const approveActivityGroupUrl = (group_uid) => `${activityGroupUrl}/${group_uid}/approvals`
 const approveActivitySubGroupUrl = (subgroup_uid) => `${activitySubGroupUrl}/${subgroup_uid}/approvals`
 const activateActivityUrl = (activity_uid) => `${activityUrl}/${activity_uid}/activations`
-const activateActivityInstanceUrl = (activityInstance_uid) => `${activityInstanceUrl}/${activityInstance_uid}/activations`
+const activateActivityInstanceAttributesUrl = (activityInstance_uid) => `${activityInstanceUrl}/${activityInstance_uid}/attributes/activations`
+const activateActivityInstanceGroupingsUrl = (activityInstance_uid) => `${activityInstanceUrl}/${activityInstance_uid}/groupings/activations`
 const activateActivityGroupUrl = (group_uid) => `${activityGroupUrl}/${group_uid}/activations`
 const activateActivitySubGroupUrl = (subgroup_uid) => `${activitySubGroupUrl}/${subgroup_uid}/activations`
 const newVersionActivityUrl = (activity_uid) => `${activityUrl}/${activity_uid}/versions`
-const newVersionActivityInstanceUrl = (activityInstance_uid) => `${activityInstanceUrl}/${activityInstance_uid}/versions`
+const newVersionActivityInstanceAttributesUrl = (activityInstance_uid) => `${activityInstanceUrl}/${activityInstance_uid}/attributes/versions`
+const newVersionActivityInstanceGroupingsUrl = (activityInstance_uid) => `${activityInstanceUrl}/${activityInstance_uid}/groupings/versions`
 const newVersionActivityGroupUrl = (group_uid) => `${activityGroupUrl}/${group_uid}/versions`
 const newVersionActivitySubGroupUrl = (subgroup_uid) => `${activitySubGroupUrl}/${subgroup_uid}/versions`
 
@@ -40,7 +44,7 @@ Cypress.Commands.add('createActivityInstance', (customName = '', isDataSharing =
     })
 })
 
-Cypress.Commands.add('updateActivityInstance', (name) => cy.sendUpdateRequest('PATCH', activityInstanceInfoUrl(activityInstance_uid), updateActivityInstanceBody(name)))
+Cypress.Commands.add('updateActivityInstanceAttributes', (name) => cy.sendUpdateRequest('PATCH', activityInstanceAttributesUrl(activityInstance_uid), updateActivityInstanceAttributesBody(name)))
 
 Cypress.Commands.add('createGroup', (customName = '') => {
     cy.sendPostRequest(activityGroupUrl, createGroupBody(customName)).then((response) => {
@@ -63,13 +67,22 @@ Cypress.Commands.add('createSubGroupWithTwoGroups', () => {
     cy.sendPostRequest(activitySubGroupUrl, createSubGroupWithGrouBody()).then(response => subgroup_uid = response.body.uid)
 })
 
-Cypress.Commands.add('createRequestedActivity', (customName = '') => {
-    cy.sendPostRequest(activityUrl, createRequestedActivityBody(customName)).then(response => requestedActivity_uid = response.body.uid)
+Cypress.Commands.add('createSubmittedRequestedActivity', (customName = '') => {
+    cy.sendPostRequest(activityUrl, createRequestedActivityBody(true, customName)).then(response => requestedActivity_uid = response.body.uid)
+})
+
+Cypress.Commands.add('createUnsubimittedRequestedActivity', (customName = '') => {
+    cy.sendPostRequest(activityUrl, createRequestedActivityBody(false, customName)).then(response => requestedActivity_uid = response.body.uid)
 })
 
 Cypress.Commands.add('approveActivity', () => cy.sendPostRequest(approveActivityUrl(activity_uid), {}))
 
-Cypress.Commands.add('approveActivityInstance', () => cy.sendPostRequest(approveActivityInstanceUrl(activityInstance_uid), {}))
+Cypress.Commands.add('approveRequestedActivity', () => cy.sendPostRequest(approveActivityUrl(requestedActivity_uid), {}))
+
+Cypress.Commands.add('approveActivityInstance', () => {
+    cy.sendPostRequest(approveActivityInstanceAttributesUrl(activityInstance_uid), {})
+    cy.sendPostRequest(approveActivityInstanceGroupingsUrl(activityInstance_uid), {})
+})
 
 Cypress.Commands.add('approveGroup', () => cy.sendPostRequest(approveActivityGroupUrl(group_uid), {}))
 
@@ -81,7 +94,10 @@ Cypress.Commands.add('approveRequestedActivity', () => cy.sendPostRequest(approv
 
 Cypress.Commands.add('activityNewVersion', () => cy.sendPostRequest(newVersionActivityUrl(activity_uid), {}))
 
-Cypress.Commands.add('activityInstanceNewVersion', () => cy.sendPostRequest(newVersionActivityInstanceUrl(activityInstance_uid), {}))
+Cypress.Commands.add('activityInstanceNewVersion', () => {
+    cy.sendPostRequest(newVersionActivityInstanceAttributesUrl(activityInstance_uid), {})
+    cy.sendPostRequest(newVersionActivityInstanceGroupingsUrl(activityInstance_uid), {})
+})
 
 Cypress.Commands.add('groupNewVersion', () => cy.sendPostRequest(newVersionActivityGroupUrl(group_uid), {}))
 
@@ -89,7 +105,10 @@ Cypress.Commands.add('subGroupNewVersion', () => cy.sendPostRequest(newVersionAc
 
 Cypress.Commands.add('inactivateActivity', () => cy.sendDeleteRequest(activateActivityUrl(activity_uid), {}))
 
-Cypress.Commands.add('inactivateActivityInstance', () => cy.sendDeleteRequest(activateActivityInstanceUrl(activityInstance_uid), {}))
+Cypress.Commands.add('inactivateActivityInstance', () => {
+    cy.sendDeleteRequest(activateActivityInstanceAttributesUrl(activityInstance_uid), {})
+    cy.sendDeleteRequest(activateActivityInstanceGroupingsUrl(activityInstance_uid), {})
+})
 
 Cypress.Commands.add('inactivateGroup', () => cy.sendDeleteRequest(activateActivityGroupUrl(group_uid), {}))
 
@@ -198,15 +217,8 @@ const createActivityInstanceBody = (customName = '', isDataSharing = false, isRe
     }
 }
 
-const updateActivityInstanceBody = (name) => {
+const updateActivityInstanceAttributesBody = (name) => {
     return {
-        activity_groupings: [
-            {
-                activity_uid: activity_uid,
-                activity_group_uid: group_uid,
-                activity_subgroup_uid: subgroup_uid
-            }
-        ],
         change_description: "testing",
         activity_instance_class_uid: class_uid,
         name: name,
@@ -219,6 +231,19 @@ const updateActivityInstanceBody = (name) => {
         definition: "api",
         library_name: "Sponsor",
         activities: [null]
+    }
+}
+
+const updateActivityInstanceGroupingsBody = () => {
+    return {
+        activity_groupings: [
+            {
+                activity_uid: activity_uid,
+                activity_group_uid: group_uid,
+                activity_subgroup_uid: subgroup_uid
+            }
+        ],
+        change_description: "testing",
     }
 }
 
@@ -254,7 +279,7 @@ const createSubGroupWithGrouBody = () => {
     }
 }
 
-const createRequestedActivityBody = (customName = '') => {
+const createRequestedActivityBody = (isRequestFinal, customName = '') => {
     const name = customName === '' ? `API_RequestedActivity${getShortUniqueId()}` : customName
     return {
         activity_groupings: [
@@ -267,6 +292,6 @@ const createRequestedActivityBody = (customName = '') => {
         name_sentence_case: name.toLowerCase(),
         request_rationale: "test",
         library_name: "Requested",
-        is_request_final: true
+        is_request_final: isRequestFinal
     }
 }

@@ -64,24 +64,12 @@ Feature: Library - Concepts - Activities - Activity Instance Class Overview Page
         When Version '1.0' is selected from the Version dropdown list
         Then The status displayed on the summary has value 'Final' and version is '1.0'
     
-    Scenario: [Actions][Availablity][Edit] Edition action is not available
+    Scenario: [Actions][Availability] User must only have access correct actions depending on item state
         When User goes to activity instance class 'GeneralObservation' overview page by clicking its name
         And 'GeneralObservation' overview page is opened
         Then The pencil button is not available
-
-    Scenario: [Actions][Availablity][Approve] Approval action is not available
-        When User goes to activity instance class 'GeneralObservation' overview page by clicking its name
-        And 'GeneralObservation' overview page is opened
         Then The approve button is not available
-
-    Scenario: [Actions][Availablity][Inactivate] Inactivate action is not available
-        When User goes to activity instance class 'GeneralObservation' overview page by clicking its name
-        And 'GeneralObservation' overview page is opened
         Then The inactivate button is not available
-
-    Scenario: [Actions][Availablity][New version] New version action is not available
-        When User goes to activity instance class 'GeneralObservation' overview page by clicking its name
-        And 'GeneralObservation' overview page is opened
         Then The new version plus button is not available
 
     Scenario: [Table][Search][Negative case] User must be able to search not existing activity item class and table will be correctly filtered

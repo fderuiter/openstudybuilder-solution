@@ -61,17 +61,17 @@ Cypress.Commands.add('getRandomizationCriteriaUid', () => cy.getCriteriaTypeUid(
 
 Cypress.Commands.add('getWithdrawalCriteriaUid', () => cy.getCriteriaTypeUid('Withdrawal Criteria'))
 
-Cypress.Commands.add('getInidicationUid', () => cy.getTemplateData(indicationUrl).then(uid => indication_uid = uid))
+Cypress.Commands.add('getInidicationUid', () => {if (!indication_uid) cy.getTemplateData(indicationUrl).then(uid => indication_uid = uid)})
 
-Cypress.Commands.add('getObjectiveCategoryUid', () => cy.getTemplateData(codelistUrl('Objective+Category')).then(uid => objective_category_uid = uid))
+Cypress.Commands.add('getObjectiveCategoryUid', () => {if (!objective_category_uid) cy.getTemplateData(codelistUrl('Objective+Category')).then(uid => objective_category_uid = uid)})
 
-Cypress.Commands.add('getEndpointCategoryUid', () => cy.getTemplateData(codelistUrl('Endpoint+Category')).then(uid => endpoint_category_uid = uid))
+Cypress.Commands.add('getEndpointCategoryUid', () => {if (!endpoint_category_uid) cy.getTemplateData(codelistUrl('Endpoint+Category')).then(uid => endpoint_category_uid = uid)})
 
-Cypress.Commands.add('getEndpointSubCategoryUid', () => cy.getTemplateData(codelistUrl('Endpoint+Sub+Category')).then(uid => endpoint_sub_category_uid = uid))
+Cypress.Commands.add('getEndpointSubCategoryUid', () => {if (!endpoint_sub_category_uid) cy.getTemplateData(codelistUrl('Endpoint+Sub+Category')).then(uid => endpoint_sub_category_uid = uid)})
 
-Cypress.Commands.add('getCriteriaCategoryUid', () => cy.getTemplateData(codelistUrl('Criteria+Category')).then(uid => criteria_category_uid = uid))
+Cypress.Commands.add('getCriteriaCategoryUid', () => {if (!criteria_category_uid) cy.getTemplateData(codelistUrl('Criteria+Category')).then(uid => criteria_category_uid = uid)})
 
-Cypress.Commands.add('getCriteriaSubCategoryUid', () => cy.getTemplateData(codelistUrl('Criteria+Sub+Category')).then(uid => criteria_sub_category_uid = uid))
+Cypress.Commands.add('getCriteriaSubCategoryUid', () => {if (!criteria_sub_category_uid) cy.getTemplateData(codelistUrl('Criteria+Sub+Category')).then(uid => criteria_sub_category_uid = uid)})
 
 Cypress.Commands.add('approveActivityInstruction', () => cy.sendPostRequest(approveActivityInstructionUrl(activity_instruction_uid), {}))
 

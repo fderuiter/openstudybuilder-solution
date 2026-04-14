@@ -54,12 +54,13 @@ def update_study_subpart_properties(study: "Study | CompactStudy"):
     if (
         study.study_parent_part
         and study.study_parent_part.study_id
-        and study.current_metadata.identification_metadata.subpart_id is not None
+        and study.current_metadata.identification_metadata.study_subpart_acronym
+        is not None
     ):
         study.current_metadata.identification_metadata.study_id = (
             study.study_parent_part.study_id
             + "-"
-            + study.current_metadata.identification_metadata.subpart_id
+            + study.current_metadata.identification_metadata.study_subpart_acronym
         )
 
 
@@ -112,6 +113,11 @@ class StudySoaPreferencesInput(PatchInputModel):
         False,
         description="Show the baseline visit as time 0 in all SoA layouts",
         alias=settings.study_field_soa_baseline_as_time_zero,
+    )
+    show_all_visits_lab_table: bool = Field(  # type: ignore[literal-required]
+        False,
+        description="Show all visits in protocol lab table SoA (incl. those without lab assessments)",
+        alias=settings.study_field_soa_show_all_visits_lab_table,
     )
 
 
@@ -380,7 +386,10 @@ class StudyIdentificationMetadataJsonModel(BaseModel):
         str | None, Field(json_schema_extra={"nullable": True})
     ] = None
     study_subpart_acronym: Annotated[
-        str | None, Field(json_schema_extra={"nullable": True})
+        str | None,
+        Field(
+            json_schema_extra={"nullable": True},
+        ),
     ] = None
     project_number: Annotated[
         str | None, Field(json_schema_extra={"nullable": True})
@@ -1727,6 +1736,9 @@ class StudyMinimal(BaseModel):
         ),
     ] = None
     acronym: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = None
+    subpart_acronym: Annotated[
+        str | None, Field(json_schema_extra={"nullable": True})
+    ] = None
 
     @classmethod
     def from_input(
@@ -1736,6 +1748,7 @@ class StudyMinimal(BaseModel):
         return cls(
             uid=val["uid"],
             acronym=val["acronym"],
+            subpart_acronym=val["subpart_acronym"],
             id=val["id"],
         )
 
@@ -1749,6 +1762,13 @@ class StudySimple(StudyMinimal):
             str | None, Field(json_schema_extra={"nullable": True})
         ] = None
 
+    main_id: Annotated[
+        str | None,
+        Field(
+            description="Main ID of the study, e.g. 'NN1234-56789'",
+            json_schema_extra={"nullable": True},
+        ),
+    ] = None
     number: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = None
     title: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = None
     subpart_id: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = (
@@ -1788,6 +1808,7 @@ class StudySimple(StudyMinimal):
             acronym=val.get("acronym"),
             number=val.get("study_number"),
             id=val["id"],
+            main_id=val["main_id"],
             title=val.get("title"),
             subpart_id=val.get("subpart_id"),
             subpart_acronym=val.get("subpart_acronym"),
@@ -1941,7 +1962,9 @@ class StudyCloneInput(StudyCreateInput):
 
 
 class StudySubpartCreateInput(PostInputModel):
-    study_subpart_acronym: Annotated[str, Field(min_length=1)]
+    study_subpart_acronym: Annotated[
+        str, Field(min_length=1, max_length=10, pattern=r"^[A-Za-z0-9]+$")
+    ]
 
     description: Annotated[str | None, Field()] = None
 

@@ -828,6 +828,10 @@ class CypherQueryBuilder:
                                     attribute,
                                     attr_desc,
                                 ) in self.return_model.model_fields.items():
+                                    # Skip fields explicitly excluded from wildcard filtering
+                                    jse = attr_desc.json_schema_extra or {}
+                                    if jse.get("remove_from_wildcard", False):
+                                        continue
                                     # Wildcard filtering only searches in properties of type string
                                     if (
                                         get_field_type(attr_desc.annotation) is str

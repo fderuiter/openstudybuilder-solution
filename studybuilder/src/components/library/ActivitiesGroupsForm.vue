@@ -1,7 +1,7 @@
 <template>
   <div>
     <SimpleFormDialog
-      ref="form"
+      ref="formRef"
       :title="title"
       :help-items="helpItems"
       :open="open"
@@ -37,6 +37,26 @@
               />
             </v-col>
           </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-model="form.nci_concept_id"
+                :label="$t('ActivityForms.nci_concept_id')"
+                data-cy="groupform-nci-concept-id-field"
+                clearable
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-model="form.nci_concept_name"
+                :label="$t('ActivityForms.nci_concept_name')"
+                data-cy="groupform-nci-concept-name-field"
+                clearable
+              />
+            </v-col>
+          </v-row>
           <v-row data-cy="groupform-definition-class">
             <v-col>
               <v-textarea
@@ -68,216 +88,165 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import ConfirmDialog from '@/components/tools/ConfirmDialog.vue'
 import _isEmpty from 'lodash/isEmpty'
-import _isEqual from 'lodash/isEqual'
 import activities from '@/api/activities'
 import SimpleFormDialog from '@/components/tools/SimpleFormDialog.vue'
 import SentenceCaseNameField from '@/components/tools/SentenceCaseNameField.vue'
 import { useFormStore } from '@/stores/form'
+import { computed, inject, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-export default {
-  components: {
-    ConfirmDialog,
-    SimpleFormDialog,
-    SentenceCaseNameField,
+const { t } = useI18n()
+const formStore = useFormStore()
+const notificationHub = inject('notificationHub')
+const formRules = inject('formRules')
+const emit = defineEmits(['close'])
+const formRef = ref()
+const observer = ref()
+
+const props = defineProps({
+  open: Boolean,
+  editedGroupOrSubgroup: {
+    type: Object,
+    default: null,
   },
-  inject: ['notificationHub', 'formRules'],
-  props: {
-    open: Boolean,
-    editedGroupOrSubgroup: {
-      type: Object,
-      default: null,
-    },
-    subgroup: Boolean,
-  },
-  emits: ['close'],
-  setup() {
-    const formStore = useFormStore()
-    return {
-      formStore,
+  subgroup: Boolean,
+})
+
+const form = ref({})
+const editing = ref(false)
+const helpItems = [
+  'ActivityFormsGrouping.name',
+  'ActivityFormsGrouping.definition',
+]
+
+const title = computed(() => {
+  if (!props.subgroup) {
+    return !_isEmpty(props.editedGroupOrSubgroup)
+      ? t('ActivityForms.edit_group')
+      : t('ActivityForms.add_group')
+  } else {
+    return !_isEmpty(props.editedGroupOrSubgroup)
+      ? t('ActivityForms.edit_subgroup')
+      : t('ActivityForms.add_subgroup')
+  }
+})
+
+function initForm(value) {
+  editing.value = true
+  form.value = {
+    name: value.name,
+    name_sentence_case: value.name_sentence_case,
+    definition: value.definition,
+    change_description: '',
+    abbreviation: value.abbreviation,
+    nci_concept_id: value.nci_concept_id,
+    nci_concept_name: value.nci_concept_name,
+  }
+  formStore.save(form.value)
+}
+
+watch(
+  () => props.editedGroupOrSubgroup,
+  (value) => {
+    if (!_isEmpty(value)) {
+      const source = props.subgroup ? 'activity-sub-groups' : 'activity-groups'
+      activities.getObject(source, value.uid).then((resp) => {
+        initForm(resp.data)
+      })
     }
   },
-  data() {
-    return {
-      form: {},
-      steps: [
-        { name: 'select', title: this.$t('ActivityForms.select_type') },
-        {
-          name: 'details',
-          title: this.$t('ActivityForms.add_additional_data'),
-        },
-      ],
-      groups: [],
-      loading: false,
-      editing: false,
-      libraries: [],
-      helpItems: [
-        'ActivityFormsGrouping.name',
-        'ActivityFormsGrouping.definition',
-      ],
-    }
-  },
-  computed: {
-    title() {
-      if (!this.subgroup) {
-        return !_isEmpty(this.editedGroupOrSubgroup)
-          ? this.$t('ActivityForms.edit_group')
-          : this.$t('ActivityForms.add_group')
-      } else {
-        return !_isEmpty(this.editedGroupOrSubgroup)
-          ? this.$t('ActivityForms.edit_subgroup')
-          : this.$t('ActivityForms.add_subgroup')
-      }
-    },
-  },
-  watch: {
-    editedGroupOrSubgroup: {
-      handler(value) {
-        if (!_isEmpty(value)) {
-          const source = this.subgroup
-            ? 'activity-sub-groups'
-            : 'activity-groups'
-          activities.getObject(source, value.uid).then((resp) => {
-            this.initForm(resp.data)
+  { immediate: true }
+)
+
+onMounted(() => {
+  if (!_isEmpty(props.editedGroupOrSubgroup)) {
+    initForm(props.editedGroupOrSubgroup)
+  }
+})
+
+function close() {
+  observer.value.reset()
+  notificationHub.clearErrors()
+  form.value = {}
+  editing.value = false
+  formRef.value.working = false
+  formStore.reset()
+  emit('close')
+}
+
+async function submit() {
+  notificationHub.clearErrors()
+
+  form.value.library_name = 'Sponsor' // Hardcoded for now at the Sinna and Mikkel request
+  if (!props.editedGroupOrSubgroup) {
+    if (!props.subgroup) {
+      activities.create(form.value, 'activity-groups').then(
+        () => {
+          notificationHub.add({
+            msg: t('ActivityForms.group_created'),
           })
+          close()
+        },
+        () => {
+          formRef.value.working = false
         }
-      },
-      immediate: true,
-    },
-  },
-  mounted() {
-    if (!_isEmpty(this.editedGroupOrSubgroup)) {
-      this.initForm(this.editedGroupOrSubgroup)
+      )
+    } else {
+      activities.create(form.value, 'activity-sub-groups').then(
+        () => {
+          notificationHub.add({
+            msg: t('ActivityForms.subgroup_created'),
+          })
+          close()
+        },
+        () => {
+          formRef.value.working = false
+        }
+      )
     }
-  },
-  methods: {
-    initForm(value) {
-      this.editing = true
-      this.form = {
-        name: value.name,
-        name_sentence_case: value.name_sentence_case,
-        definition: value.definition,
-        change_description: '',
-        abbreviation: value.abbreviation,
-      }
-      this.formStore.save(this.form)
-    },
-    async cancel() {
-      if (this.formStore.isEmpty || this.formStore.isEqual(this.form)) {
-        this.close()
-      } else {
-        const options = {
-          type: 'warning',
-          cancelLabel: this.$t('_global.cancel'),
-          agreeLabel: this.$t('_global.continue'),
-        }
-        if (
-          await this.$refs.confirm.open(
-            this.$t('_global.cancel_changes'),
-            options
-          )
-        ) {
-          this.close()
-        }
-      }
-    },
-    close() {
-      this.$emit('close')
-      this.notificationHub.clearErrors()
-      this.form = {}
-      this.editing = false
-      this.$refs.form.working = false
-      this.formStore.reset()
-      this.$refs.observer.reset()
-    },
-    async submit() {
-      this.notificationHub.clearErrors()
-
-      this.form.library_name = 'Sponsor' // Hardcoded for now at the Sinna and Mikkel request
-      if (!this.editedGroupOrSubgroup) {
-        if (!this.subgroup) {
-          activities.create(this.form, 'activity-groups').then(
-            () => {
-              this.notificationHub.add({
-                msg: this.$t('ActivityForms.group_created'),
-              })
-              this.close()
-            },
-            () => {
-              this.$refs.form.working = false
-            }
-          )
-        } else {
-          activities.create(this.form, 'activity-sub-groups').then(
-            () => {
-              this.notificationHub.add({
-                msg: this.$t('ActivityForms.subgroup_created'),
-              })
-              this.close()
-            },
-            () => {
-              this.$refs.form.working = false
-            }
-          )
-        }
-      } else {
-        if (!this.subgroup) {
-          activities
-            .update(
-              this.editedGroupOrSubgroup.uid,
-              this.form,
-              {},
-              'activity-groups'
-            )
-            .then(
-              () => {
-                this.notificationHub.add({
-                  msg: this.$t('ActivityForms.group_updated'),
-                })
-                this.close()
-              },
-              () => {
-                this.$refs.form.working = false
-              }
-            )
-        } else {
-          activities
-            .update(
-              this.editedGroupOrSubgroup.uid,
-              this.form,
-              {},
-              'activity-sub-groups'
-            )
-            .then(
-              () => {
-                this.notificationHub.add({
-                  msg: this.$t('ActivityForms.subgroup_updated'),
-                })
-                this.close()
-              },
-              () => {
-                this.$refs.form.working = false
-              }
-            )
-        }
-      }
-    },
-    checkIfEqual() {
-      if (
-        _isEqual(
-          this.form.change_description,
-          this.editedGroupOrSubgroup.change_description
-        ) &&
-        _isEqual(this.form.definition, this.editedGroupOrSubgroup.definition) &&
-        _isEqual(this.form.name, this.editedGroupOrSubgroup.name)
-      ) {
-        return true
-      } else {
-        return false
-      }
-    },
-  },
+  } else {
+    if (!props.subgroup) {
+      activities
+        .update(
+          props.editedGroupOrSubgroup.uid,
+          form.value,
+          {},
+          'activity-groups'
+        )
+        .then(
+          () => {
+            notificationHub.add({
+              msg: t('ActivityForms.group_updated'),
+            })
+            close()
+          },
+          () => {
+            formRef.value.working = false
+          }
+        )
+    } else {
+      activities
+        .update(
+          props.editedGroupOrSubgroup.uid,
+          form.value,
+          {},
+          'activity-sub-groups'
+        )
+        .then(
+          () => {
+            notificationHub.add({
+              msg: t('ActivityForms.subgroup_updated'),
+            })
+            close()
+          },
+          () => {
+            formRef.value.working = false
+          }
+        )
+    }
+  }
 }
 </script>

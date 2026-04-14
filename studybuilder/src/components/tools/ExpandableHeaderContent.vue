@@ -13,12 +13,12 @@
             props.item.description.length > 30
           "
         >
-          <p class="subtitle-1">
+          <p class="text-body-medium">
             {{ props.item.description.substring(0, 30) + '...' }}
           </p>
         </template>
         <template v-else>
-          <p class="subtitle-1">
+          <p class="text-body-medium">
             {{ props.item.description }}
           </p>
         </template>

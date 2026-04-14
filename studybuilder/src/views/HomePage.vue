@@ -1,7 +1,7 @@
 <template>
   <div class="text-center mt-16">
     <h1
-      class="text-h3"
+      class="text-display-small"
       v-html="
         sanitizeHTMLHandler(
           $t(
@@ -15,7 +15,7 @@
         )
       "
     ></h1>
-    <h2 class="text-h4 mt-2">
+    <h2 class="text-headline-large mt-2">
       {{ $t('HomeView.subtitle') }}
     </h2>
     <div class="d-flex justify-center container">
@@ -29,7 +29,7 @@
       <div class="mt-6 env-center">{{ appEnv }}</div>
     </div>
 
-    <div class="mt-16 d-flex justify-center text-h6">
+    <div class="mt-16 d-flex justify-center text-headline-small">
       <div class="mx-12">
         {{ $t('HomeView.design') }}<br />
         {{ $t('HomeView.design_text1') }}<br />

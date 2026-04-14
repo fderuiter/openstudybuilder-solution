@@ -78,7 +78,7 @@
                       </div>
                       <span
                         v-if="index === 1"
-                        class="text-grey text-caption mr-1"
+                        class="text-grey text-body-small mr-1"
                       >
                         (+{{ columnFilters[header.key].length - 1 }})
                       </span>
@@ -164,7 +164,7 @@
                       </div>
                       <span
                         v-if="index === 1"
-                        class="text-grey text-caption mr-1"
+                        class="text-grey text-body-small mr-1"
                       >
                         (+{{ columnFilters[header.key].length - 1 }})
                       </span>

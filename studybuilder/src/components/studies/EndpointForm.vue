@@ -35,7 +35,7 @@
       </v-form>
     </template>
     <template #[`step.selectEndpoint`]>
-      <p class="text-grey text-subtitle-1 font-weight-bold">
+      <p class="text-grey text-body-large font-weight-bold">
         {{ $t('StudyEndpointForm.selected_endpoints') }}
       </p>
       <v-data-table
@@ -58,7 +58,7 @@
       </v-data-table>
     </template>
     <template #[`step.selectEndpoint.after`]>
-      <p class="text-grey text-subtitle-1 font-weight-bold mb-0 ml-3">
+      <p class="text-grey text-body-large font-weight-bold mb-0 ml-3">
         {{ $t('StudyObjectiveForm.copy_instructions') }}
       </p>
       <v-col cols="12" class="pt-0 mt-0">
@@ -121,7 +121,7 @@
       </v-card>
     </template>
     <template #[`step.objective.after`]>
-      <p class="text-grey text-subtitle-1 font-weight-bold mb-0 ml-3 mt-2">
+      <p class="text-grey text-body-large font-weight-bold mb-0 ml-3 mt-2">
         {{ $t('StudyObjectiveForm.copy_instructions') }}
       </p>
       <v-col cols="12" class="pt-0">
@@ -176,7 +176,7 @@
 
     <template #[`step.selectEndpointTemplate.after`]>
       <div class="d-flex align-center">
-        <p class="text-grey text-subtitle-1 font-weight-bold mb-0 ml-3">
+        <p class="text-grey text-body-large font-weight-bold mb-0 ml-3">
           {{ $t('StudyObjectiveForm.copy_instructions') }}
         </p>
         <v-switch
@@ -261,7 +261,7 @@
             />
           </v-col>
           <v-col cols="2" class="px-0">
-            <p class="text-grey text-subtitle-1 font-weight-bold my-2">
+            <p class="text-grey text-body-large font-weight-bold my-2">
               {{ $t('StudyEndpointForm.selected_endpoint_units') }}
             </p>
             <v-card flat class="bg-parameterBackground">
