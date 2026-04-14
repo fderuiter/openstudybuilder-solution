@@ -60,10 +60,8 @@ Feature: Library - Concepts - Activities - Activity instances - wizard stepper -
         And test_name '1,3-Beta-D-Glucan' is selected
         And Selected Code Submission value is saved
         And unit_dimension 'BMI' and standard_unit 'kg/m2' are selected
-        And User intecepts codelist submission value request
         And User intecepts preview request
         And Form continue button is clicked
-        Then User waits for codelist submission value request
         Then User waits for preview request 
         And Automatically assigned activity instance name is saved
         And Form continue button is clicked

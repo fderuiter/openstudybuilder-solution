@@ -54,7 +54,7 @@ def test_data():
     studies = [study]  # type: ignore[list-item]
     for _idx in range(1, 5):
         rand = TestUtils.random_str(4)
-        studies.append(TestUtils.create_study(number=rand, acronym=f"ACR-{rand}"))  # type: ignore[arg-type]
+        studies.append(TestUtils.create_study(acronym=f"ACR-{rand}"))  # type: ignore[arg-type]
 
 
 def test_get_studies(api_client):

@@ -992,6 +992,7 @@ ALL_ROUTES_METHODS_ROLES = (  # type: ignore[var-annotated]
     ("/ct/codelists/{codelist_uid}/names/approvals", "POST", {"Library.Write"}),
     ("/ct/codelists/{codelist_uid}/paired", "GET", {"Library.Read"}),
     ("/ct/codelists/{codelist_uid}/paired", "PATCH", {"Library.Write"}),
+    ("/ct/paired-codelists/{codelist_uid}/terms", "GET", {"Library.Read"}),
     ("/ct/terms", "POST", {"Library.Write"}),
     ("/ct/terms", "GET", {"Library.Read"}),
     ("/ct/terms/headers", "GET", {"Library.Read"}),
@@ -1079,7 +1080,6 @@ ALL_ROUTES_METHODS_ROLES = (  # type: ignore[var-annotated]
     ("/template-parameters/{name}/terms", "GET", {"Library.Read"}),
     ("/concepts/activities/activity-instances", "GET", {"Library.Read"}),
     ("/concepts/activities/activity-instances/preview", "POST", {"Library.Write"}),
-    ("/concepts/activities/activity-instances/versions", "GET", {"Library.Read"}),
     ("/concepts/activities/activity-instances/headers", "GET", {"Library.Read"}),
     (
         "/concepts/activities/activities/{activity_uid}/versions/{version}/groupings",
@@ -1102,7 +1102,7 @@ ALL_ROUTES_METHODS_ROLES = (  # type: ignore[var-annotated]
         {"Library.Read"},
     ),
     (
-        "/concepts/activities/activity-instances/{activity_instance_uid}/activity-groupings",
+        "/concepts/activities/activity-instances/{activity_instance_uid}/groupings",
         "GET",
         {"Library.Read"},
     ),
@@ -1116,43 +1116,84 @@ ALL_ROUTES_METHODS_ROLES = (  # type: ignore[var-annotated]
         "GET",
         {"Library.Read"},
     ),
-    (
-        "/concepts/activities/activity-instances/{activity_instance_uid}/versions",
-        "GET",
-        {"Library.Read"},
-    ),
     ("/concepts/activities/activity-instances", "POST", {"Library.Write"}),
     (
         "/concepts/activities/activity-instances/{activity_instance_uid}",
+        "DELETE",
+        {"Library.Write"},
+    ),
+    (
+        "/concepts/activities/activity-instances/{activity_instance_uid}/groupings",
         "PATCH",
         {"Library.Write"},
     ),
     (
-        "/concepts/activities/activity-instances/{activity_instance_uid}/versions",
+        "/concepts/activities/activity-instances/{activity_instance_uid}/groupings/versions",
+        "GET",
+        {"Library.Read"},
+    ),
+    (
+        "/concepts/activities/activity-instances/{activity_instance_uid}/groupings/versions",
         "POST",
         {"Library.Write"},
     ),
     (
-        "/concepts/activities/activity-instances/{activity_instance_uid}/approvals",
+        "/concepts/activities/activity-instances/{activity_instance_uid}/groupings/approvals",
         "POST",
         {"Library.Write"},
     ),
     (
-        "/concepts/activities/activity-instances/{activity_instance_uid}/activations",
+        "/concepts/activities/activity-instances/{activity_instance_uid}/groupings/activations",
+        "POST",
+        {"Library.Write"},
+    ),
+    (
+        "/concepts/activities/activity-instances/{activity_instance_uid}/groupings/activations",
         "DELETE",
         {"Library.Write"},
     ),
     (
-        "/concepts/activities/activity-instances/{activity_instance_uid}/activations",
+        "/concepts/activities/activity-instances/{activity_instance_uid}/attributes",
+        "GET",
+        {"Library.Read"},
+    ),
+    (
+        "/concepts/activities/activity-instances/attributes/versions",
+        "GET",
+        {"Library.Read"},
+    ),
+    (
+        "/concepts/activities/activity-instances/{activity_instance_uid}/attributes",
+        "PATCH",
+        {"Library.Write"},
+    ),
+    (
+        "/concepts/activities/activity-instances/{activity_instance_uid}/attributes/versions",
+        "GET",
+        {"Library.Read"},
+    ),
+    (
+        "/concepts/activities/activity-instances/{activity_instance_uid}/attributes/versions",
         "POST",
         {"Library.Write"},
     ),
     (
-        "/concepts/activities/activity-instances/{activity_instance_uid}",
+        "/concepts/activities/activity-instances/{activity_instance_uid}/attributes/approvals",
+        "POST",
+        {"Library.Write"},
+    ),
+    (
+        "/concepts/activities/activity-instances/{activity_instance_uid}/attributes/activations",
+        "POST",
+        {"Library.Write"},
+    ),
+    (
+        "/concepts/activities/activity-instances/{activity_instance_uid}/attributes/activations",
         "DELETE",
         {"Library.Write"},
     ),
     ("/activity-instance-classes", "GET", {"Library.Read"}),
+    ("/activity-instance-classes/versions", "GET", {"Library.Read"}),
     ("/activity-instance-classes/headers", "GET", {"Library.Read"}),
     (
         "/activity-instance-classes/{activity_instance_class_uid}",
@@ -1231,6 +1272,7 @@ ALL_ROUTES_METHODS_ROLES = (  # type: ignore[var-annotated]
         {"Library.Write"},
     ),
     ("/activity-item-classes", "GET", {"Library.Read"}),
+    ("/activity-item-classes/versions", "GET", {"Library.Read"}),
     ("/activity-item-classes/headers", "GET", {"Library.Read"}),
     ("/activity-item-classes/{activity_item_class_uid}", "GET", {"Library.Read"}),
     (

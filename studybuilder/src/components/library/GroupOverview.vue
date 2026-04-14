@@ -25,7 +25,7 @@
             :activity="itemOverview.group"
             :all-versions="allVersions(itemOverview)"
             :show-library="true"
-            :show-nci-concept-id="false"
+            :show-nci-concept-id="true"
             :show-data-collection="false"
             :show-abbreviation="false"
             :show-author="true"
@@ -39,7 +39,7 @@
         <!-- Activity Subgroups using NNTable -->
         <div v-if="loadingSubgroups" class="my-5">
           <div class="section-header mb-1">
-            <h3 class="text-h6 font-weight-bold text-primary">
+            <h3 class="text-headline-small font-weight-bold text-primary">
               {{ $t('ActivityOverview.activity_subgroups') }}
             </h3>
           </div>
@@ -47,7 +47,7 @@
         </div>
         <div v-else class="my-5">
           <div class="section-header mb-1">
-            <h3 class="text-h6 font-weight-bold text-primary">
+            <h3 class="text-headline-small font-weight-bold text-primary">
               {{ $t('ActivityOverview.activity_subgroups') }}
             </h3>
           </div>
@@ -92,7 +92,7 @@
             </template>
             <template #no-data>
               <div class="text-center py-4">
-                <span class="text-body-1 text-grey-darken-1">{{
+                <span class="text-body-large text-grey-darken-1">{{
                   $t('ActivityOverview.no_subgroups')
                 }}</span>
               </div>

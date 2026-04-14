@@ -16,6 +16,10 @@ from clinical_mdr_api.domains.versioned_object_aggregate import (
 from clinical_mdr_api.models.concepts.activities.activity import (
     ActivityHierarchySimpleModel,
 )
+from clinical_mdr_api.models.concepts.activities.activity_instance import (
+    ActivityInstanceGrouping,
+    ActivityInstanceHierarchySimpleModel,
+)
 from clinical_mdr_api.models.concepts.unit_definitions.unit_definition import (
     UnitDefinitionModel,
 )
@@ -139,6 +143,24 @@ class ConceptGenericService(Generic[_AggregateRootType], ABC):
                         field_name,
                         [
                             term.uid
+                            for term in getattr(reference_base_model, field_name)
+                        ],
+                    )
+                elif (
+                    get_field_type(
+                        reference_base_model.model_fields[field_name].annotation
+                    )
+                    is ActivityInstanceHierarchySimpleModel
+                ):
+                    setattr(
+                        base_model_with_missing_values,
+                        field_name,
+                        [
+                            ActivityInstanceGrouping(
+                                activity_uid=term.activity.uid,
+                                activity_group_uid=term.activity_group.uid,
+                                activity_subgroup_uid=term.activity_subgroup.uid,
+                            )
                             for term in getattr(reference_base_model, field_name)
                         ],
                     )
@@ -587,8 +609,7 @@ class ConceptGenericService(Generic[_AggregateRootType], ABC):
                     MATCH   (lib:Library)-[:CONTAINS_TERM]->
                             (ctterm_root:CTTermRoot)
                         where 
-                            lib.name="CDISC" 
-                            AND ctterm_root.uid = $ct_uid
+                            ctterm_root.uid = $ct_uid
                     MATCH (ctterm_root)<-[:HAS_TERM_ROOT]-
                             (codelist_term:CTCodelistTerm)<-[:HAS_TERM]-
                             (:CTCodelistRoot)<-[:REFERENCES_CODELIST]-

@@ -51,6 +51,10 @@ def get_studies(
 
     Returned `version_number` value can be used in other endpoints to retrieve study entities (e.g. visits, activities, etc.)
     associated with a specific study version.
+
+    Codelist details can be retrieved from the `GET /v1/library/ct/codelists` endpoint.
+
+    Details related to the Data Supplier type can be retrieved from the `GET /v1/library/ct/codelist-terms?codelist_submission_value=DATA_SUPPLIER_TYPE` endpoint.
     """
     studies = DB.get_studies(
         sort_by=sort_by,
@@ -714,7 +718,7 @@ def get_codelists(
     )
 
 
-# GET endpoint /library/ct/codelist-terms?codelist_submission_value=XYZ that returns list of codelist terms for the specified codelist submission value
+# GET endpoint /library/ct/codelist-terms that returns list of codelist terms, optionally filtered by codelist submission value and/or codelist UID
 @router.get(
     "/library/ct/codelist-terms",
     tags=["[V1] Library"],
@@ -730,11 +734,15 @@ def get_codelists(
 def get_codelist_terms(
     request: Request,
     codelist_submission_value: Annotated[
-        str,
+        str | None,
         Query(
             description="Codelist submission value to filter by, for example `TIMELB`, `TIMEREF`, `VISCNTMD`, `FLWCRTGRP`, `EPOCHSTP` etc."
         ),
-    ],
+    ] = None,
+    codelist_uid: Annotated[
+        str | None,
+        Query(description="Codelist UID to filter by."),
+    ] = None,
     page_size: Annotated[int, PAGE_SIZE_QUERY] = settings.page_size_100,
     page_number: Annotated[
         int, PAGE_NUMBER_QUERY
@@ -743,13 +751,16 @@ def get_codelist_terms(
     attributes_status: models.LibraryItemStatus | None = models.LibraryItemStatus.FINAL,
 ) -> PaginatedResponse[models.CodelistTerm]:
     """
-    Returns a paginated list of CT codelist terms for the specified codelist submission value,
-    sorted by ascending sponsor preferred name.
+    Returns a paginated list of CT codelist terms, sorted by ascending by codelist UID, then term UID.
 
-    Terms can be filtered by `name_status` and `attributes_status` (_Final, Draft, Retired_). Both default to _Final_.
+    If neither `codelist_submission_value` nor `codelist_uid` is provided, all terms are returned.
+    If either is provided, terms are filtered accordingly.
+
+    Terms can also be filtered by `name_status` and `attributes_status` (_Final, Draft, Retired_). Both default to _Final_.
     """
     codelist_terms = DB.get_codelist_terms(
         codelist_submission_value=codelist_submission_value,
+        codelist_uid=codelist_uid,
         page_size=page_size,
         page_number=page_number,
         name_status=name_status,
@@ -768,6 +779,7 @@ def get_codelist_terms(
         ],
         query_param_names=[
             "codelist_submission_value",
+            "codelist_uid",
             "name_status",
             "attributes_status",
         ],

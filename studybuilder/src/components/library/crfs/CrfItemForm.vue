@@ -14,8 +14,8 @@
   >
     <template #[`step.form`]="{ step }">
       <v-form :ref="`observer${step}`">
-        <v-card elevation="4" class="mx-auto pa-4">
-          <div class="text-h5 mb-4">
+        <v-card elevation="1" class="mx-auto pa-4">
+          <div class="text-headline-medium mb-4">
             {{ $t('CRFForms.definition') }}
           </div>
           <v-row>
@@ -80,8 +80,8 @@
             </v-col>
           </v-row>
         </v-card>
-        <v-card elevation="4" class="mx-auto mt-3 pa-4">
-          <div class="text-h5 mb-4">
+        <v-card elevation="1" class="mx-auto mt-3 pa-4">
+          <div class="text-headline-medium mb-4">
             {{ $t('CRFForms.annotations') }}
           </div>
           <v-row>
@@ -221,11 +221,25 @@
                   </v-icon>
                 </td>
                 <td>{{ item.term_uid }}</td>
-                <td>{{ item.name }}</td>
-                <td>
+                <td v-if="isTermRemoved(item)" colspan="3">
+                  <v-alert
+                    variant="tonal"
+                    type="warning"
+                    icon="mdi-alert"
+                    class="ma-0 pa-2"
+                  >
+                    {{
+                      $t('CRFItems.disconnected_term', {
+                        codelist: selectedCodelists[0]?.attributes?.name,
+                      })
+                    }}
+                  </v-alert>
+                </td>
+                <td v-if="!isTermRemoved(item)">{{ item.name }}</td>
+                <td v-if="!isTermRemoved(item)">
                   <v-checkbox v-model="item.mandatory" :readonly="isReadOnly" />
                 </td>
-                <td>
+                <td v-if="!isTermRemoved(item)">
                   <v-text-field
                     v-model="item.display_text"
                     :readonly="isReadOnly"
@@ -236,6 +250,7 @@
                     icon="mdi-delete-outline"
                     class="mt-1"
                     variant="text"
+                    :color="isTermRemoved(item) ? 'error' : ''"
                     :readonly="isReadOnly"
                     @click="removeTerm(item)"
                   />
@@ -460,6 +475,10 @@ function getObserver(step) {
     8: observer8,
   }
   return observers[step]?.value
+}
+
+function isTermRemoved(term) {
+  return !(term.name ?? term.submission_value)
 }
 
 const helpItems = [
@@ -733,7 +752,7 @@ const actions = computed(() => [
   {
     label: t('_global.approve'),
     icon: 'mdi-check-decagram',
-    iconColor: 'success',
+    iconColor: () => 'success',
     condition: () => !readOnly.value,
     click: approve,
   },

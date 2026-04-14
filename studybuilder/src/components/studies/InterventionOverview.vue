@@ -411,7 +411,10 @@ export default {
           return {
             id: `${pharmaProduct.uid}-ingredient-${ingredient.active_substance.uid}`,
             title: getIngredientName(ingredient),
-            halfLife: `${ingredient.half_life?.value} ${ingredient.half_life?.unit_label}`,
+            halfLife:
+              ingredient.half_life?.value != null
+                ? `${ingredient.half_life.value} ${ingredient.half_life.unit_label}`
+                : '',
             lagTimes: ingredient.lag_times
               .map(
                 (lag_time) =>

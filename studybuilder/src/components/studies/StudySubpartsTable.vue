@@ -60,6 +60,22 @@
               item.current_metadata.identification_metadata
                 .study_subpart_acronym
             }}
+            <v-tooltip
+              v-if="
+                !isValidSubpartAcronym(
+                  item.current_metadata.identification_metadata
+                    .study_subpart_acronym
+                )
+              "
+              location="top"
+            >
+              <template #activator="{ props }">
+                <v-icon v-bind="props" size="small" color="error" class="ml-1">
+                  mdi-alert
+                </v-icon>
+              </template>
+              {{ $t('StudySubparts.invalid_subpart_acronym') }}
+            </v-tooltip>
           </td>
           <td>
             {{ item.current_metadata.identification_metadata.description }}
@@ -97,6 +113,28 @@
     </template>
     <template #[`item.actions`]="{ item }">
       <ActionsMenu :actions="actions" :item="item" />
+    </template>
+    <template
+      #[`item.current_metadata.identification_metadata.study_subpart_acronym`]="{
+        item,
+      }"
+    >
+      {{ item.current_metadata.identification_metadata.study_subpart_acronym }}
+      <v-tooltip
+        v-if="
+          !isValidSubpartAcronym(
+            item.current_metadata.identification_metadata.study_subpart_acronym
+          )
+        "
+        location="top"
+      >
+        <template #activator="{ props }">
+          <v-icon v-bind="props" size="small" color="error" class="ml-1">
+            mdi-alert
+          </v-icon>
+        </template>
+        {{ $t('StudySubparts.invalid_subpart_acronym') }}
+      </v-tooltip>
     </template>
     <template
       #[`item.current_metadata.version_metadata.version_timestamp`]="{ item }"
@@ -172,7 +210,10 @@ const [parent, items] = useDragAndDrop([], {
 const total = ref(0)
 const headers = [
   { title: '', key: 'actions', width: '1%' },
-  { title: t('StudySubparts.study_id'), key: 'study_parent_part.study_id' },
+  {
+    title: t('StudySubparts.study_id'),
+    key: 'current_metadata.identification_metadata.study_id',
+  },
   {
     title: t('StudySubparts.study_acronym'),
     key: 'current_metadata.identification_metadata.study_acronym',
@@ -356,6 +397,10 @@ async function fetchSubpartHistory(options) {
   const firstIndex = (options.page - 1) * options.itemsPerPage
   const lastIndex = options.page * options.itemsPerPage
   subpartHistoryItems.value = resp.data.slice(firstIndex, lastIndex)
+}
+function isValidSubpartAcronym(value) {
+  if (!value) return false
+  return /^[A-Z0-9]+$/.test(value) && value.length <= 10
 }
 function closeSubpartHistory() {
   selectedSubpart.value = {}

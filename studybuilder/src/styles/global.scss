@@ -1,6 +1,9 @@
 // main
 body {
   background-color: #012169;
+  font-family: 'Open Sans', serif;
+  font-size: 1rem;
+  line-height: 1.5;
 }
 
 // Colors
@@ -27,6 +30,7 @@ body {
 // Tabs
 .v-tab {
   text-transform: none !important;
+  font-size: 0.9rem !important;
 }
 
 // Cards
@@ -80,7 +84,6 @@ body {
   background-color: rgb(var(--v-theme-nnTrueBlue)) !important;
   color: rgb(var(--v-theme-nnWhite)) !important;
   text-align: start;
-  font-weight: 500;
   font-size: 12px;
   font-weight: bold !important;
 }
@@ -94,14 +97,20 @@ body {
   border-left-style: outset;
   border-bottom-style: outset;
   border-width: 1px !important;
-  border-color: rgb(var(--v-theme-nnFadedBlue200)) !important;
+  border-color: rgba(
+    var(--v-theme-darkGrey),
+    var(--v-border-opacity)
+  ) !important;
 }
 
 .v-data-table__th {
   border-left-style: outset;
   border-bottom-style: outset;
   border-width: 1px !important;
-  border-color: rgb(var(--v-theme-nnFadedBlue200)) !important;
+  border-color: rgba(
+    var(--v-theme-darkGrey),
+    var(--v-border-opacity)
+  ) !important;
 }
 
 .v-data-table {
@@ -271,6 +280,12 @@ thead.v-data-table-header {
 
 .v-btn {
   padding: 0 16px !important;
+  font-size: 14px !important;
+  letter-spacing: 1px;
+}
+
+.v-btn--icon .v-icon {
+  font-size: 20px !important;
 }
 
 // Typography

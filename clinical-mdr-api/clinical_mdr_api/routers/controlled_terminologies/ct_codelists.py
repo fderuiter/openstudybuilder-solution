@@ -16,6 +16,7 @@ from clinical_mdr_api.models.controlled_terminologies.ct_codelist import (
     CTCodelistPairedInput,
     CTCodelistTerm,
     CTCodelistTermInput,
+    CTPairedCodelistTerm,
 )
 from clinical_mdr_api.models.utils import CustomPage
 from clinical_mdr_api.repositories._utils import FilterOperator
@@ -381,6 +382,50 @@ def update_paired_codelist(
         paired_codelists=codelist_input,
     )
     return results
+
+
+@router.get(
+    "/paired-codelists/{codelist_uid}/terms",
+    dependencies=[security, rbac.LIBRARY_READ],
+    summary="Returns terms from the paired codelists identified by the given codelist UID.",
+    description="Returns the list of all terms coming from the codelist specified by the given UID and its paired codelist. "
+    "Each term includes both the code_submission_value (from the codes codelist) and "
+    "the name_submission_value (from the names codelist).",
+    response_model=CustomPage[CTPairedCodelistTerm],
+    status_code=200,
+    responses={
+        400: {
+            "model": ErrorResponse,
+            "description": "Bad Request - The codelist does not have a paired codelist.",
+        },
+        403: _generic_descriptions.ERROR_403,
+        404: _generic_descriptions.ERROR_404,
+    },
+)
+def get_paired_codelist_terms(
+    codelist_uid: str = CTCodelistUID,
+    sort_by: _generic_descriptions.SORT_BY_QUERY = None,
+    page_number: _generic_descriptions.PAGE_NUMBER_QUERY = settings.default_page_number,
+    page_size: _generic_descriptions.PAGE_SIZE_QUERY = settings.default_page_size,
+    filters: _generic_descriptions.FILTERS_QUERY = None,
+    operator: str | None = Query(
+        "and", description=_generic_descriptions.FILTER_OPERATOR
+    ),
+    total_count: _generic_descriptions.TOTAL_COUNT_QUERY = False,
+):
+    ct_codelist_service = CTCodelistService()
+    results = ct_codelist_service.get_paired_codelist_terms(
+        codelist_uid=codelist_uid,
+        sort_by=sort_by,
+        page_number=page_number,
+        page_size=page_size,
+        total_count=total_count,
+        filter_by=filters,
+        filter_operator=FilterOperator.from_str(operator),
+    )
+    return CustomPage.create(
+        items=results.items, total=results.total, page=page_number, size=page_size
+    )
 
 
 @router.get(

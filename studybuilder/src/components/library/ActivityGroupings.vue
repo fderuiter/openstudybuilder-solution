@@ -6,7 +6,7 @@
     >
       <v-col cols="12" class="px-0">
         <div class="section-header mb-1">
-          <h3 class="text-h6 font-weight-bold text-primary">
+          <h3 class="text-headline-small font-weight-bold text-primary">
             {{ $t('ActivityOverview.activity_groupings') }}
           </h3>
         </div>
@@ -43,7 +43,7 @@
               >
                 {{ item.activity_group.name }}
               </router-link>
-              <div class="text-caption text-grey-darken-1">
+              <div class="text-body-small text-grey-darken-1">
                 {{ $t('_global.version') }} {{ item.group_version }}
                 <span v-if="item.group_status" class="ml-2"
                   >- {{ item.group_status }}</span
@@ -63,7 +63,7 @@
               >
                 {{ item.activity_subgroup.name }}
               </router-link>
-              <div class="text-caption text-grey-darken-1">
+              <div class="text-body-small text-grey-darken-1">
                 {{ $t('_global.version') }} {{ item.subgroup_version }}
                 <span v-if="item.subgroup_status" class="ml-2"
                   >- {{ item.subgroup_status }}</span
@@ -94,13 +94,13 @@
                   </router-link>
                   <div
                     v-if="instance.version"
-                    class="text-caption text-grey-darken-1"
+                    class="text-body-small text-grey-darken-1"
                   >
                     {{ $t('_global.version') }} {{ instance.version }}
                   </div>
                 </div>
               </div>
-              <div v-else class="text-caption text-grey-darken-1">
+              <div v-else class="text-body-small text-grey-darken-1">
                 {{ $t('ActivityOverview.no_instances') }}
               </div>
             </template>

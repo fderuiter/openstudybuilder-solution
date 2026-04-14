@@ -60,7 +60,7 @@
       </div>
       <div class="table-panel mt-4">
         <div class="table-header px-4 py-3">
-          <div class="text-subtitle-2 font-weight-bold">
+          <div class="text-label-large font-weight-bold">
             {{ $t('StudyTitleForm.copy_title') }}
           </div>
         </div>

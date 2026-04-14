@@ -27,13 +27,13 @@ When('[API] Requested activity is inactivated', () => cy.inactivateRequestedActi
 
 Given('[API] First requested activity for search test is created', () => createRequestedActivityViaApi(`SearchTest${getShortUniqueId()}`))
 
-Given('[API] Second requested activity for search test is created', () => cy.createRequestedActivity(`SearchTest${getShortUniqueId()}`))
+Given('[API] Second requested activity for search test is created', () => cy.createSubmittedRequestedActivity(`SearchTest${getShortUniqueId()}`))
 
 function createRequestedActivityViaApi(customName = '') {
     cy.intercept('/api/concepts/activities/activities?page_number=1&*').as('getData')
     cy.getFinalGroupUid()
     cy.getFinalSubGroupUid()
-    cy.createRequestedActivity(customName)
+    cy.createSubmittedRequestedActivity(customName)
     cy.getRequestedActivityNameByUid().then(name => apiRequestedActivityName = name)
     cy.wait('@getData', {timeout: 20000})
 }

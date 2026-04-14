@@ -15,7 +15,7 @@
           <v-col cols="12">
             <slot name="body">
               <div
-                class="text-body-1 mt-1"
+                class="text-body-large mt-1"
                 v-html="sanitizeHTML(savedMessage)"
               />
             </slot>

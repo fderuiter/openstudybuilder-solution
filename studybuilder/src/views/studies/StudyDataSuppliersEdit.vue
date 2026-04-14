@@ -16,14 +16,14 @@
       :text="$t('StudyDataSuppliers.info_message')"
     />
 
-    <v-card elevation="2" class="mt-4 pa-6">
+    <v-card elevation="1" class="mt-4 pa-6">
       <div
         v-for="(suppliers, typeName) in groupedSuppliers"
         :key="typeName"
         class="mb-6"
       >
         <div class="supplier-type-section pa-4">
-          <div class="text-h6 mb-4">
+          <div class="text-headline-small mb-4">
             {{ $t('StudyDataSuppliers.supplier_data_type') }}
             <strong>{{ typeName }}</strong>
           </div>
@@ -34,7 +34,7 @@
             :key="supplier.study_data_supplier_uid || supplier._tempId || index"
             class="d-flex align-center mb-3"
           >
-            <div class="text-body-2 mr-4" style="min-width: 120px">
+            <div class="text-body-medium mr-4" style="min-width: 120px">
               {{ $t('StudyDataSuppliers.data_supplier_label') }}
             </div>
             <v-select
@@ -45,11 +45,11 @@
               class="flex-grow-1 mr-4"
               hide-details
             >
-              <template #item="{ props, item }">
-                <v-list-subheader v-if="item.raw.type === 'subheader'">
-                  {{ item.raw.title }}
+              <template #item="{ props, internalItem: item }">
+                <v-list-subheader v-if="item.type === 'subheader'">
+                  {{ item.title }}
                 </v-list-subheader>
-                <v-divider v-else-if="item.raw.type === 'divider'" />
+                <v-divider v-else-if="item.type === 'divider'" />
                 <v-list-item v-else v-bind="props" />
               </template>
             </v-select>
@@ -64,7 +64,7 @@
 
           <!-- Empty state or add more -->
           <div v-if="suppliers.length === 0" class="mb-3">
-            <div class="text-body-1 mb-3">
+            <div class="text-body-large mb-3">
               {{ $t('StudyDataSuppliers.empty_state') }}
             </div>
           </div>
@@ -88,7 +88,7 @@
               "
               class="d-flex align-center ml-auto"
             >
-              <span class="text-body-2 text-medium-emphasis mr-6">{{
+              <span class="text-body-medium text-medium-emphasis mr-6">{{
                 $t('StudyDataSuppliers.not_present_prompt')
               }}</span>
               <v-btn

@@ -19,7 +19,7 @@
         <!-- Activity Item Classes Table -->
         <div v-if="itemOverview" class="activity-section">
           <div class="section-header mb-1">
-            <h3 class="text-h6 font-weight-bold text-primary">
+            <h3 class="text-headline-small font-weight-bold text-primary">
               {{ $t('ActivityInstanceClassOverview.activity_item_classes') }}
             </h3>
           </div>

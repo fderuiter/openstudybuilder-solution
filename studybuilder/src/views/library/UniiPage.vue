@@ -133,10 +133,10 @@
                   item-value="term_uid"
                   clearable
                 >
-                  <template #item="{ props, item }">
+                  <template #item="{ props, internalItem: item }">
                     <v-list-item
                       v-bind="props"
-                      :title="`${item.raw.name} (${item.raw.dictionary_id})`"
+                      :title="`${item.name} (${item.dictionary_id})`"
                     >
                     </v-list-item>
                   </template>

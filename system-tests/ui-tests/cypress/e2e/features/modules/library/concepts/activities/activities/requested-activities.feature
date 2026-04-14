@@ -61,7 +61,7 @@ Feature: Library - Concepts - Activities - Requested Activities
         Then The new activity request is saved with a status as 'Retired'
         And The activity request appears as rejected for study
 
-    Scenario: [Actions][Availability][Draft item] User must only have access to aprove, edit, delete, history actions for Drafted version of the requested activity
+    Scenario: [Actions][Availability] User must only have access correct actions depending on item state
         Given The '/library/activities/requested-activities' page is opened
         And [API] Requested activity in status Draft exists
         And Requested activity is found
@@ -69,29 +69,12 @@ Feature: Library - Concepts - Activities - Requested Activities
         Then 'Approve' action is available
         And 'History' action is available
         And 'Edit' action is not available
-
-    Scenario: [Actions][Availability][Final item] User must only have access to new version, inactivate, history actions for Final version of the requested activity
-        Given The '/library/activities/requested-activities' page is opened
-        And [API] Requested activity in status Draft exists
         And [API] Requested activity is approved
         And Requested activity is found
         And The item actions button is clicked
         Then Only actions that should be avaiable for the Final item are displayed
-
-    Scenario: [Actions][Availability][Retired item] User must only have access to reactivate, history actions for Retired version of the requested activity
-        Given The '/library/activities/requested-activities' page is opened
-        And [API] Requested activity in status Draft exists
-        And [API] Requested activity is approved
+        Then 'Handle placeholder request' action is available
         And [API] Requested activity is inactivated
         And Requested activity is found
         And The item actions button is clicked
         Then Only actions that should be avaiable for the Retired item are displayed
-
-    Scenario: [Actions][Availability][Final item] User must have access to Handle placeholder request action for Final version of the requested activity
-        Given The '/library/activities/requested-activities' page is opened
-        And [API] Requested activity in status Draft exists
-        And [API] Requested activity is approved
-        And Requested activity is found
-        And The item actions button is clicked
-        Then 'Handle placeholder request' action is available
-

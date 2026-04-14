@@ -761,6 +761,7 @@ return *
 
     def get_studies_list(
         self,
+        minimal_response: bool = True,
         has_study_objective: bool | None = None,
         has_study_footnote: bool | None = None,
         has_study_endpoint: bool | None = None,
@@ -805,6 +806,29 @@ return *
             return f"WHERE {' AND '.join(conditions)}" if conditions else ""
 
         self._check_not_closed()
+
+        if minimal_response:
+            query = f"""
+                MATCH (sr:StudyRoot)-[:LATEST]->(sv:StudyValue)
+                {where_stmt()}
+
+                RETURN sr.uid AS uid,
+                    sv.study_id_prefix + '-' + sv.study_number + COALESCE(nullif('-' + sv.study_subpart_acronym, '-'), '') as id,
+                    sv.study_acronym,
+                    sv.study_subpart_acronym
+                ORDER BY uid
+            """
+            rs = db.cypher_query(query)
+            return [
+                {
+                    "uid": row[0],
+                    "id": row[1],
+                    "acronym": row[2],
+                    "subpart_acronym": row[3],
+                }
+                for row in rs[0]
+            ]
+
         query = f"""
             MATCH (sr:StudyRoot)-[:LATEST]->(sv:StudyValue)-[:HAS_PROJECT]-(:StudyProjectField)<-[:HAS_FIELD]-(p:Project)<-[:HOLDS_PROJECT]-(cp:ClinicalProgramme)
             {where_stmt()}
@@ -830,14 +854,15 @@ return *
                 head(latest_released) as latest_released_version,
                 head(latest_locked) as latest_locked_version
             OPTIONAL MATCH (author:User {{user_id: current_version.author_id}})
-            RETURN  sr.uid AS uid,
+            RETURN sr.uid AS uid,
                 sv.study_acronym,
-                sv.study_id_prefix + '-' + sv.study_number + COALESCE(nullif('-' + sv.subpart_id, '-'), '') as id,
+                sv.study_id_prefix + '-' + sv.study_number + COALESCE(nullif('-' + sv.study_subpart_acronym, '-'), '') as id,
+                sv.study_id_prefix + '-' + sv.study_number as main_id,
                 sv.study_number,
                 sv.subpart_id,
                 sv.study_subpart_acronym,
                 stf.value as study_title,
-                cp.name as clinical_progamme,
+                cp.name as clinical_programme,
                 p.project_number as project_number,
                 p.name as project_name,
                 current_version.author_id as version_author_id,
@@ -856,21 +881,22 @@ return *
                 "uid": row[0],
                 "acronym": row[1],
                 "id": row[2],
-                "study_number": row[3],
-                "subpart_id": row[4],
-                "subpart_acronym": row[5],
-                "title": row[6],
-                "clinical_programme_name": row[7],
-                "project_number": row[8],
-                "project_name": row[9],
-                "version_author_id": row[10],
-                "version_status": row[11],
-                "version_start_date": convert_to_datetime(row[12]),
-                "version_number": row[13],
-                "version_author": row[14],
-                "latest_locked_version": row[15],
-                "latest_released_version": row[16],
-                "data_completeness_tags": row[17],
+                "main_id": row[3],
+                "study_number": row[4],
+                "subpart_id": row[5],
+                "subpart_acronym": row[6],
+                "title": row[7],
+                "clinical_programme_name": row[8],
+                "project_number": row[9],
+                "project_name": row[10],
+                "version_author_id": row[11],
+                "version_status": row[12],
+                "version_start_date": convert_to_datetime(row[13]),
+                "version_number": row[14],
+                "version_author": row[15],
+                "latest_locked_version": row[16],
+                "latest_released_version": row[17],
+                "data_completeness_tags": row[18],
             }
             for row in rs[0]
         ]

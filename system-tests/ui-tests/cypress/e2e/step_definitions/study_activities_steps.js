@@ -1,5 +1,5 @@
 import { activityName } from "./library_activities_steps";
-import { activity_uid, subgroup_uid, group_uid, group_name } from "../../support/api_requests/library_activities";
+import { activity_uid, subgroup_uid, group_uid, group_name, requestedActivity_uid } from "../../support/api_requests/library_activities";
 import { getCurrentStudyId, getCurrStudyUid } from "./../../support/helper_functions";
 const { Given, When, Then } = require("@badeball/cypress-cucumber-preprocessor");
 const { getShortUniqueId } = require("../../support/helper_functions");
@@ -7,6 +7,22 @@ const { getShortUniqueId } = require("../../support/helper_functions");
 export let activity_activity, current_activity_uid, study_activity_uid, activity_placeholder_name
 export let exchangedActivities = []
 let activity_library, activity_soa_group, activity_group, activity_sub_group, edit_placeholder_name, current_study, new_activity_name
+
+When('User sets Activity Placeholder name', () => cy.fillInput('instance-name', activity_placeholder_name = `placeholder_${getShortUniqueId()}`))
+
+When('User sets Activity Placeholder name that is already used', () => cy.fillInput('instance-name', activity_placeholder_name))
+
+When('User sets Activity Placeholder rationale', () => cy.fillInput('activity-rationale', 'Placeholder Test Rationale'))
+
+When('User selects Activity Placeholder SoA group as {string}', (soaGroup) => cy.selectVSelect('flowchart-group', soaGroup))
+
+When('User selects first group for placeholder', () => cy.selectFirstVSelect('activity-group'))
+
+When('User selects second group for placeholder', () => cy.selectSecondVSelect('activity-group'))
+
+When('User selects first subgroup for placeholder', () => cy.selectFirstVSelect('activity-subgroup'))
+
+When('User selects second subgroup for placeholder', () => cy.selectSecondVSelect('activity-subgroup'))
 
 When('User intercepts available studies request', () => cy.intercept('/api/studies/list?minimal_response=false&has_study_activity=true').as('availableStudies'))
 
@@ -30,7 +46,7 @@ Then('The activity request is removed from the study', () => cy.searchAndCheckPr
 
 When('Activity placeholder is searched for', () => cy.searchForInPopUp(activity_placeholder_name))
 
-When('{int} Activity for exchanging the placeholder is searched in filters', (index) => cy.get('.v-list [placeholder="Search"]').click().clear().type(exchangedActivities[index - 1]))
+When('{int} Activity for exchanging the placeholder is searched in filters', (index) => cy.get('.border-b').filter(':visible').within(() => { cy.get('input').clear().type(exchangedActivities[index - 1])}))
 
 When('{int} Activity is found and click in the filters', (index) => cy.contains('.v-overlay .v-list-item', exchangedActivities[index - 1]).find('input').check())
 
@@ -105,7 +121,6 @@ When('The user tries to go further without SoA group chosen', () => {
 })
 
 When('The user tries to go further in activity placeholder creation without SoA group chosen', () => {
-    cy.contains('.choice .text', 'Create a placeholder activity without submitting for approval').click()
     cy.fillInput('instance-name', `Placeholder Instance Name ${getShortUniqueId()}`)
     cy.fillInput('activity-rationale', 'Placeholder Test Rationale')
 })
@@ -189,6 +204,24 @@ Then('[API] Activity with two subgroups available is added to the study', () => 
     cy.approveSubGroup()
 })
 
+Then('[API] Create Unsubmitted Requested Activity', () => {
+    activity_placeholder_name = `Placeholder_${getShortUniqueId()}`
+    cy.getFinalGroupUid()
+    cy.getFinalSubGroupUid()
+    cy.createUnsubimittedRequestedActivity(activity_placeholder_name)
+    cy.approveRequestedActivity()
+})
+
+Then('[API] Create Submitted Requested Activity', () => {
+    activity_placeholder_name = `Placeholder_${getShortUniqueId()}`
+    cy.getFinalGroupUid()
+    cy.getFinalSubGroupUid()
+    cy.createSubmittedRequestedActivity(activity_placeholder_name)
+    cy.approveRequestedActivity()
+})
+
+Then('[API] Requested Activity is added to the study', () => cy.addActivityToStudy(getCurrStudyUid(), requestedActivity_uid, group_uid, subgroup_uid))
+
 When('The user accepts the changes', () => cy.contains('button', 'Accept').click())
 
 When('The user declines the changes', () => cy.contains('button', 'Decline').click())
@@ -224,6 +257,11 @@ When('User selects select study {string}', (value) => {
     cy.get('.v-overlay .v-list-item').should('not.contain', 'No data available')
     cy.contains('.v-overlay .v-window-item .v-input', 'Study ID / Acronym').type(value)
     cy.contains('.v-overlay .v-list-item', value).click()
+})
+
+When('Pop-up displays that there is already existing placeholder with such name, group and subgroup', () => {
+    cy.contains('.v-overlay .v-card .v-card-text', `An activity named '${activity_placeholder_name}'`).should('be.visible')
+    cy.contains('.v-overlay .v-card .v-card-text', `already exists in the library. Do you want to reuse it?`).should('be.visible')
 })
 
 function getActivityData(rowIndex) {

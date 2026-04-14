@@ -23,7 +23,13 @@
         />
         <v-radio
           v-if="!order"
-          :label="$t('StudyActivityForm.create_placeholder_for_activity')"
+          :label="
+            streamlinePlaceholders
+              ? $t(
+                  'StudyActivityForm.create_placeholder_for_activity_streamlined'
+                )
+              : $t('StudyActivityForm.create_placeholder_for_activity')
+          "
           value="createPlaceholder"
           data-cy="create-placeholder"
         />
@@ -51,7 +57,7 @@
         >
           <v-card-text class="pa-4">
             <div class="d-flex align-center flex-wrap ga-2">
-              <span class="text-body-2 font-weight-medium mr-2">
+              <span class="text-body-medium font-weight-medium mr-2">
                 {{
                   isExchangeActivityFromRequestLibrary
                     ? $t('StudyActivityForm.exchanging_placeholder')
@@ -62,7 +68,7 @@
                 v-if="exchangeActivityData.study_soa_group"
                 class="d-flex align-center ga-1"
               >
-                <span class="text-body-2">
+                <span class="text-body-medium">
                   {{ $t('StudyActivityForm.flowchart_group') }}:
                   {{ exchangeActivityData.study_soa_group.soa_group_term_name }}
                 </span>
@@ -84,7 +90,7 @@
                 v-if="exchangeActivityData.study_activity_group"
                 class="d-flex align-center ga-1"
               >
-                <span class="text-body-2">
+                <span class="text-body-medium">
                   {{ $t('StudyActivity.activity_group') }}:
                   {{
                     exchangeActivityData.study_activity_group
@@ -109,7 +115,7 @@
                 v-if="exchangeActivityData.study_activity_subgroup"
                 class="d-flex align-center ga-1"
               >
-                <span class="text-body-2">
+                <span class="text-body-medium">
                   {{ $t('StudyActivity.activity_sub_group') }}:
                   {{
                     exchangeActivityData.study_activity_subgroup
@@ -134,7 +140,7 @@
                 v-if="exchangeActivityData.activity"
                 class="d-flex align-center ga-1"
               >
-                <span class="text-body-2">
+                <span class="text-body-medium">
                   {{ $t('StudyActivity.activity') }}:
                   {{ exchangeActivityData.activity.name }}
                 </span>
@@ -253,7 +259,7 @@
         >
           <v-card-text class="pa-4">
             <div class="d-flex align-center flex-wrap ga-2">
-              <span class="text-body-2 font-weight-medium mr-2">
+              <span class="text-body-medium font-weight-medium mr-2">
                 {{
                   isExchangeActivityFromRequestLibrary
                     ? $t('StudyActivityForm.exchanging_placeholder')
@@ -264,7 +270,7 @@
                 v-if="exchangeActivityData.study_soa_group"
                 class="d-flex align-center ga-1"
               >
-                <span class="text-body-2">
+                <span class="text-body-medium">
                   {{ $t('StudyActivityForm.flowchart_group') }}:
                   {{ exchangeActivityData.study_soa_group.soa_group_term_name }}
                 </span>
@@ -286,7 +292,7 @@
                 v-if="exchangeActivityData.study_activity_group"
                 class="d-flex align-center ga-1"
               >
-                <span class="text-body-2">
+                <span class="text-body-medium">
                   {{ $t('StudyActivity.activity_group') }}:
                   {{
                     exchangeActivityData.study_activity_group
@@ -311,7 +317,7 @@
                 v-if="exchangeActivityData.study_activity_subgroup"
                 class="d-flex align-center ga-1"
               >
-                <span class="text-body-2">
+                <span class="text-body-medium">
                   {{ $t('StudyActivity.activity_sub_group') }}:
                   {{
                     exchangeActivityData.study_activity_subgroup
@@ -336,7 +342,7 @@
                 v-if="exchangeActivityData.activity"
                 class="d-flex align-center ga-1"
               >
-                <span class="text-body-2">
+                <span class="text-body-medium">
                   {{ $t('StudyActivity.activity') }}:
                   {{ exchangeActivityData.activity.name }}
                 </span>
@@ -482,12 +488,15 @@
     <template #[`step.createPlaceholder`]>
       <v-form ref="createPlaceholderForm">
         <ChoiceField
+          v-if="!streamlinePlaceholders"
           v-model="form.is_request_final"
           :choices="requestTypes"
           inline
           width="400"
         />
-        <div v-if="form.is_request_final !== undefined">
+        <div
+          v-if="streamlinePlaceholders || form.is_request_final !== undefined"
+        >
           <v-row>
             <v-col cols="3">
               <v-autocomplete
@@ -552,13 +561,17 @@
             <v-col cols="3">
               <v-textarea
                 v-model="form.request_rationale"
-                :label="$t('ActivityFormsRequested.rationale_for_request')"
+                :label="
+                  streamlinePlaceholders
+                    ? $t('ActivityFormsRequested.description')
+                    : $t('ActivityFormsRequested.rationale_for_request')
+                "
                 data-cy="activity-rationale"
                 color="nnBaseBlue"
                 clearable
                 auto-grow
                 rows="1"
-                :rules="[formRules.required]"
+                :rules="streamlinePlaceholders ? [] : [formRules.required]"
               />
             </v-col>
             <v-col cols="3">
@@ -681,8 +694,14 @@ import libConstants from '@/constants/libraries'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import ChoiceField from '@/components/ui/ChoiceField.vue'
 import StudySelectorField from '@/components/studies/StudySelectorField.vue'
+import { useFeatureFlagsStore } from '@/stores/feature-flags'
 
 const notificationHub = inject('notificationHub')
+const featureFlagsStore = useFeatureFlagsStore()
+
+const streamlinePlaceholders = computed(
+  () => !featureFlagsStore.getFeatureFlag('streamline_placeholder_activities')
+)
 const formRules = inject('formRules')
 const { t } = useI18n()
 const emit = defineEmits(['close', 'added'])
@@ -851,6 +870,9 @@ watch(creationMode, (value) => {
     steps.value = selectFromLibrarySteps
   } else {
     steps.value = createPlaceholderSteps
+    if (streamlinePlaceholders.value) {
+      form.value.is_request_final = false
+    }
   }
   selectedOnly.value = false
   selectedActivities.value = []
@@ -1469,29 +1491,100 @@ async function submit() {
     ) {
       delete form.value.activity_groupings
     }
-    const createdActivity = await activitiesApi.create(form.value, 'activities')
-    await activitiesApi
-      .approve(createdActivity.data.uid, 'activities')
-      .then((resp) => {
-        const activity = {
-          ...resp.data,
-          item_key: resp.data.uid,
+    // Check if an activity with the same name and groupings already exists
+    const userGroupUid =
+      form.value.activity_groupings?.[0]?.activity_group_uid || null
+    const userSubgroupUid =
+      form.value.activity_groupings?.[0]?.activity_subgroup_uid || null
+
+    const matchesNameAndGroupings = (a) => {
+      if (a.name?.toLowerCase() !== form.value.name?.toLowerCase()) return false
+      if (!userGroupUid && !userSubgroupUid) return true
+      return a.activity_groupings?.some(
+        (g) =>
+          g.activity_group_uid === userGroupUid &&
+          g.activity_subgroup_uid === userSubgroupUid
+      )
+    }
+
+    let existingActivity = activities.value.find(matchesNameAndGroupings)
+    if (!existingActivity) {
+      const searchResp = await activitiesApi.get(
+        {
+          page_size: 0,
+          filters: { name: { v: [form.value.name] } },
+        },
+        'activities'
+      )
+      existingActivity = searchResp.data.items.find(matchesNameAndGroupings)
+    }
+
+    if (existingActivity) {
+      // Ask user to confirm reusing the existing activity
+      const matchedGrouping = existingActivity.activity_groupings?.[0]
+      const confirmed = await confirm.value.open(
+        t('StudyActivityForm.reuse_existing_activity', {
+          name: existingActivity.name,
+          group: matchedGrouping?.activity_group_name || '-',
+          subgroup: matchedGrouping?.activity_subgroup_name || '-',
+        }),
+        {
+          type: 'info',
+          agreeLabel: t('StudyActivityForm.reuse'),
+          cancelLabel: t('_global.cancel'),
         }
-        if (resp.data.activity_groupings.length > 0) {
-          activity.activity_group = {
-            uid: resp.data.activity_groupings[0].activity_group_uid,
-          }
-          activity.activity_subgroup = {
-            uid: resp.data.activity_groupings[0].activity_subgroup_uid,
-          }
-          activity.item_key =
-            resp.data.uid +
-            resp.data.activity_groupings[0].activity_group_uid +
-            resp.data.activity_groupings[0].activity_subgroup_uid
+      )
+      if (!confirmed) {
+        resetLoading.value += 1
+        return
+      }
+      // Reuse the existing activity instead of creating a duplicate
+      const activity = {
+        ...existingActivity,
+        item_key: existingActivity.uid,
+      }
+      if (existingActivity.activity_groupings?.length > 0) {
+        activity.activity_group = {
+          uid: existingActivity.activity_groupings[0].activity_group_uid,
         }
-        activity.flowchart_group = { ...form.value.flowchart_group }
-        selectedActivities.value.push(activity)
-      })
+        activity.activity_subgroup = {
+          uid: existingActivity.activity_groupings[0].activity_subgroup_uid,
+        }
+        activity.item_key =
+          existingActivity.uid +
+          existingActivity.activity_groupings[0].activity_group_uid +
+          existingActivity.activity_groupings[0].activity_subgroup_uid
+      }
+      activity.flowchart_group = { ...form.value.flowchart_group }
+      selectedActivities.value.push(activity)
+    } else {
+      const createdActivity = await activitiesApi.create(
+        form.value,
+        'activities'
+      )
+      await activitiesApi
+        .approve(createdActivity.data.uid, 'activities')
+        .then((resp) => {
+          const activity = {
+            ...resp.data,
+            item_key: resp.data.uid,
+          }
+          if (resp.data.activity_groupings.length > 0) {
+            activity.activity_group = {
+              uid: resp.data.activity_groupings[0].activity_group_uid,
+            }
+            activity.activity_subgroup = {
+              uid: resp.data.activity_groupings[0].activity_subgroup_uid,
+            }
+            activity.item_key =
+              resp.data.uid +
+              resp.data.activity_groupings[0].activity_group_uid +
+              resp.data.activity_groupings[0].activity_subgroup_uid
+          }
+          activity.flowchart_group = { ...form.value.flowchart_group }
+          selectedActivities.value.push(activity)
+        })
+    }
   }
   if (
     !selectedActivities.value.length &&

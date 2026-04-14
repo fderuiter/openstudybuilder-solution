@@ -41,6 +41,8 @@ def test_post_create_activity_group(api_client):
         "definition": "definition",
         "abbreviation": "abbv",
         "library_name": "Sponsor",
+        "nci_concept_id": "CONCEPT_ID",
+        "nci_concept_name": "CONCEPT_NAME",
     }
     response = api_client.post("/concepts/activities/activity-groups", json=data)
 
@@ -54,6 +56,8 @@ def test_post_create_activity_group(api_client):
     assert res["definition"] == "definition"
     assert res["abbreviation"] == "abbv"
     assert res["library_name"] == "Sponsor"
+    assert res["nci_concept_id"] == data["nci_concept_id"]
+    assert res["nci_concept_name"] == data["nci_concept_name"]
     assert res["end_date"] is None
     assert res["status"] == "Draft"
     assert res["version"] == "0.1"

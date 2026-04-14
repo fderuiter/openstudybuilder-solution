@@ -137,22 +137,15 @@ Feature: Library - Concepts - Activities - Activity Subgroups
         Then The form is no longer available
         And Activity subgroup is searched for and not found
     
-    Scenario: [Actions][Availability][Draft item] User must only have access to aprove, edit, delete, history actions for Drafted version of the activity subgroup
+    Scenario: [Actions][Availability] User must only have access correct actions depending on item state
         When [API] Activity subgroup in status Draft exists
         And Activity subgroup is searched for and found
         And The item actions button is clicked
         Then Only actions that should be avaiable for the Draft item are displayed
-
-    Scenario: [Actions][Availability][Final item] User must only have access to new version, inactivate, history actions for Final version of the activity subgroup
-        When [API] Activity subgroup in status Draft exists
         And [API] Activity subgroup is approved
         And Activity subgroup is searched for and found
         And The item actions button is clicked
         Then Only actions that should be avaiable for the Final item are displayed
-
-    Scenario: [Actions][Availability][Retired item] User must only have access to reactivate, history actions for Retired version of the activity subgroup
-        When [API] Activity subgroup in status Draft exists
-        And [API] Activity subgroup is approved
         And [API] Activity subgroup is inactivated
         And Activity subgroup is searched for and found
         And The item actions button is clicked

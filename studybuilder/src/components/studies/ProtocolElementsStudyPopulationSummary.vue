@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="mt-6 d-flex align-center">
-      <v-card-title class="text-h6 ml-2">
+      <v-card-title class="text-headline-small ml-2">
         {{ $t('StudyPopulationView.title') }}
       </v-card-title>
     </div>
@@ -18,7 +18,7 @@
       >
         <v-expansion-panel-title
           v-if="criterias.length > 0"
-          class="text-h6 text-grey"
+          class="text-headline-small text-grey"
         >
           <span v-html="sanitizeHTMLHandler(name)" />
         </v-expansion-panel-title>

@@ -648,16 +648,6 @@ def test_get_activity_versions(api_client):
         pytest.param('{"*": {"v": ["zzzz"]}}', None, None),
         pytest.param('{"*": {"v": ["Final"]}}', "status", "Final"),
         pytest.param('{"*": {"v": ["1.0"]}}', "version", "1.0"),
-        pytest.param(
-            '{"*": {"v": ["activity_group"]}}',
-            "activity_groupings.activity_group_name",
-            "activity_group",
-        ),
-        pytest.param(
-            '{"*": {"v": ["activity_subgroup"]}}',
-            "activity_groupings.activity_subgroup_name",
-            "activity_subgroup",
-        ),
     ],
 )
 def test_filtering_versions_wildcard(
@@ -1289,7 +1279,7 @@ def test_cascade_edit_activities(api_client):
     assert res["version"] == "1.0"
     assert res["status"] == "Final"
 
-    # ==== Update activity with cascade edit&approve, instance should be updated also ====
+    # ==== Update activity with cascade edit&approve, instance groupings should be updated also ====
 
     # Create new version of activity
     response = api_client.post(
@@ -1386,8 +1376,8 @@ def test_cascade_edit_activities(api_client):
     assert_response_status_code(response, 200)
     res = response.json()
     assert len(res["activity_groupings"]) == 1
-    assert res["version"] == "3.0"
-    assert res["status"] == "Final"
+    assert res["groupings_version"] == "3.0"
+    assert res["groupings_status"] == "Final"
 
     # Update the activity by removing activity grouping
     api_client.post(f"/concepts/activities/activities/{activity.uid}/versions")
@@ -1427,13 +1417,13 @@ def test_cascade_edit_activities(api_client):
     assert_response_status_code(response, 200)
     res = response.json()
     assert len(res["activity_groupings"]) == 1
-    assert res["version"] == "3.0"
-    assert res["status"] == "Final"
+    assert res["groupings_version"] == "3.0"
+    assert res["groupings_status"] == "Final"
 
     # Get the instance versions and assert that there is one new version created.
     # There should be a new final version 2.0 that links to activity version 2.0
     response = api_client.get(
-        f"/concepts/activities/activity-instances/{activity_instance.uid}/versions"
+        f"/concepts/activities/activity-instances/{activity_instance.uid}/groupings/versions"
     )
     assert_response_status_code(response, 200)
     res = response.json()
@@ -1488,8 +1478,314 @@ def test_cascade_edit_activities(api_client):
     assert_response_status_code(response, 200)
     res = response.json()
 
-    assert res["version"] == "3.0"
-    assert res["status"] == "Final"
+    assert res["groupings_version"] == "3.0"
+    assert res["groupings_status"] == "Final"
+
+
+def test_get_specific_activity_version_groupings(api_client):
+    """Test that the /groupings endpoint returns activity instances linked to an activity,
+    and that updating the activity/instance shows correct data per version."""
+
+    # ==== Setup: create fresh group, subgroup, activity, and instance ====
+    grp = TestUtils.create_activity_group(name="groupings_test_group")
+    subgrp = TestUtils.create_activity_subgroup(name="groupings_test_subgroup")
+
+    activity = TestUtils.create_activity(
+        name="Groupings Test Activity",
+        activity_subgroups=[subgrp.uid],
+        activity_groups=[grp.uid],
+        approve=True,
+        is_data_collected=True,
+    )
+
+    instance = TestUtils.create_activity_instance(
+        name="Groupings Test Instance",
+        activity_instance_class_uid=activity_instance_classes[0].uid,
+        name_sentence_case="groupings test instance",
+        topic_code="groupings_tc",
+        activities=[activity.uid],
+        activity_subgroups=[subgrp.uid],
+        activity_groups=[grp.uid],
+        activity_items=[activity_items[0]],
+        approve=True,
+    )
+
+    # ==== 1: check groupings for the initial approved version ====
+    response = api_client.get(
+        f"/concepts/activities/activities/{activity.uid}/versions/1.0/groupings"
+    )
+    assert_response_status_code(response, 200)
+    res = response.json()
+
+    assert res["total"] >= 1
+    items = res["items"]
+    assert len(items) >= 1
+
+    item = items[0]
+    assert item["activity_uid"] == activity.uid
+    assert item["activity_version"] == "1.0"
+
+    assert len(item["activity_groupings"]) == 1
+    grouping = item["activity_groupings"][0]
+    assert grouping["group"]["uid"] == grp.uid
+    assert grouping["group"]["name"] == grp.name
+    assert grouping["subgroup"]["uid"] == subgrp.uid
+    assert grouping["subgroup"]["name"] == subgrp.name
+
+    instance_uids = [inst["uid"] for inst in grouping["activity_instances"]]
+    assert instance.uid in instance_uids
+
+    # ==== 2: update the activity with a new name, approve, and check that the groupings endpoint for v2.0 returns the updated data ====
+    response = api_client.post(
+        f"/concepts/activities/activities/{activity.uid}/versions",
+        json={},
+    )
+    assert_response_status_code(response, 201)
+    response = api_client.put(
+        f"/concepts/activities/activities/{activity.uid}",
+        json={
+            "name": "Updated Groupings Test Activity",
+            "name_sentence_case": "updated groupings test activity",
+            "change_description": "test update for v2.0",
+            "library_name": activity.library_name,
+            "is_data_collected": True,
+            "activity_groupings": [
+                {"activity_group_uid": grp.uid, "activity_subgroup_uid": subgrp.uid}
+            ],
+        },
+    )
+    assert_response_status_code(response, 200)
+
+    response = api_client.post(
+        f"/concepts/activities/activities/{activity.uid}/approvals",
+        params={"cascade_edit_and_approve": True},
+    )
+    assert_response_status_code(response, 201)
+
+    response = api_client.get(
+        f"/concepts/activities/activities/{activity.uid}/versions/2.0/groupings"
+    )
+    assert_response_status_code(response, 200)
+    res = response.json()
+
+    assert res["total"] >= 1
+    items = res["items"]
+    assert len(items) >= 1
+
+    item = items[0]
+    assert item["activity_uid"] == activity.uid
+    assert item["activity_version"] == "2.0"
+
+    assert len(item["activity_groupings"]) == 1
+    grouping = item["activity_groupings"][0]
+    assert grouping["group"]["uid"] == grp.uid
+    assert grouping["group"]["name"] == grp.name
+    assert grouping["subgroup"]["uid"] == subgrp.uid
+    assert grouping["subgroup"]["name"] == subgrp.name
+
+    assert grouping["activity_instances"][0]["uid"] == instance.uid
+    assert grouping["activity_instances"][0]["name"] == "Groupings Test Instance"
+
+    # 3a: Update the instance with a new name, approve
+    response = api_client.post(
+        f"/concepts/activities/activity-instances/{instance.uid}/attributes/versions",
+        json={},
+    )
+    assert_response_status_code(response, 201)
+    response = api_client.patch(
+        f"/concepts/activities/activity-instances/{instance.uid}/attributes",
+        json={
+            "name": "Updated Groupings Test Instance",
+            "name_sentence_case": "updated groupings test instance",
+            "change_description": "test update for instance",
+            "topic_code": instance.topic_code,
+            "nci_concept_id": instance.nci_concept_id,
+            "library_name": instance.library_name,
+        },
+    )
+    assert_response_status_code(response, 200)
+    response = api_client.post(
+        f"/concepts/activities/activity-instances/{instance.uid}/attributes/approvals",
+    )
+    assert_response_status_code(response, 201)
+
+    # 3b: Undate the instance groupings to link it to the new activity version, approve
+    response = api_client.post(
+        f"/concepts/activities/activity-instances/{instance.uid}/groupings/versions",
+        json={},
+    )
+    assert_response_status_code(response, 201)
+    response = api_client.patch(
+        f"/concepts/activities/activity-instances/{instance.uid}/groupings",
+        json={
+            "change_description": "link instance to new activity version",
+        },
+    )
+    assert_response_status_code(response, 200)
+    response = api_client.post(
+        f"/concepts/activities/activity-instances/{instance.uid}/groupings/approvals",
+    )
+    assert_response_status_code(response, 201)
+
+    # 4: Get the activity groupings for the activity v2.0 again and assert that the instance data is updated
+    response = api_client.get(
+        f"/concepts/activities/activities/{activity.uid}/versions/2.0/groupings"
+    )
+    assert_response_status_code(response, 200)
+    res = response.json()
+    items = res["items"]
+    item = items[0]
+    assert len(item["activity_groupings"]) == 1
+    grouping = item["activity_groupings"][0]
+    assert len(grouping["activity_instances"]) == 1
+    assert grouping["activity_instances"][0]["uid"] == instance.uid
+    assert (
+        grouping["activity_instances"][0]["name"] == "Updated Groupings Test Instance"
+    )
+
+    # 5: Get the activity groupings for the activity v1.0 and assert that the instance data is NOT updated in the old version
+    response = api_client.get(
+        f"/concepts/activities/activities/{activity.uid}/versions/1.0/groupings"
+    )
+    assert_response_status_code(response, 200)
+    res = response.json()
+    items = res["items"]
+    item = items[0]
+    assert len(item["activity_groupings"]) == 1
+    grouping = item["activity_groupings"][0]
+    assert len(grouping["activity_instances"]) == 1
+    assert grouping["activity_instances"][0]["uid"] == instance.uid
+    assert grouping["activity_instances"][0]["name"] == "Groupings Test Instance"
+
+
+def test_get_instances_for_version(api_client):
+    # Create activity and instance
+    activity = TestUtils.create_activity(
+        name="Linked Instances Test Activity",
+        activity_subgroups=[activity_subgroup.uid],
+        activity_groups=[activity_group.uid],
+        approve=True,
+    )
+    instance = TestUtils.create_activity_instance(
+        name="Linked Instances Test Instance",
+        activity_instance_class_uid=activity_instance_classes[0].uid,
+        name_sentence_case="linked instances test instance",
+        topic_code="linked_instances_tc",
+        activities=[activity.uid],
+        activity_subgroups=[activity_subgroup.uid],
+        activity_groups=[activity_group.uid],
+        activity_items=[activity_items[0]],
+        approve=True,
+    )
+    # Get instances linked to the activity version
+    response = api_client.get(
+        f"/concepts/activities/activities/{activity.uid}/versions/1.0/instances"
+    )
+    assert_response_status_code(response, 200)
+    res = response.json()
+    assert res["total"] == 1
+    assert res["items"][0]["uid"] == instance.uid
+    assert res["items"][0]["name"] == "Linked Instances Test Instance"
+    all_linked_versions = [child["version"] for child in res["items"][0]["children"]]
+    all_linked_versions.append(res["items"][0]["version"])
+    assert len(all_linked_versions) == 2
+    assert "1.0" in all_linked_versions
+    assert "0.1" in all_linked_versions
+
+    # Make a new Ativity version
+    response = api_client.post(
+        f"/concepts/activities/activities/{activity.uid}/versions",
+        json={},
+    )
+    assert_response_status_code(response, 201)
+    response = api_client.put(
+        f"/concepts/activities/activities/{activity.uid}",
+        json={
+            "name": "Edited Linked Instances Test Activity",
+            "name_sentence_case": "edited linked instances test activity",
+            "change_description": "test update for new version",
+            "library_name": activity.library_name,
+            "is_data_collected": True,
+            "activity_groupings": [
+                {
+                    "activity_group_uid": activity_group.uid,
+                    "activity_subgroup_uid": activity_subgroup.uid,
+                }
+            ],
+        },
+    )
+    assert_response_status_code(response, 200)
+    response = api_client.post(
+        f"/concepts/activities/activities/{activity.uid}/approvals",
+        params={"cascade_edit_and_approve": True},
+    )
+    assert_response_status_code(response, 201)
+
+    # Get instances linked to the new activity version
+    response = api_client.get(
+        f"/concepts/activities/activities/{activity.uid}/versions/2.0/instances"
+    )
+    assert_response_status_code(response, 200)
+    res = response.json()
+    assert res["total"] == 1
+    assert res["items"][0]["uid"] == instance.uid
+    assert res["items"][0]["name"] == "Linked Instances Test Instance"
+    all_linked_versions = [child["version"] for child in res["items"][0]["children"]]
+    all_linked_versions.append(res["items"][0]["version"])
+    assert len(all_linked_versions) == 1
+    assert "1.0" in all_linked_versions
+
+    # Make a new instance attributes version
+    response = api_client.post(
+        f"/concepts/activities/activity-instances/{instance.uid}/attributes/versions",
+        json={},
+    )
+    assert_response_status_code(response, 201)
+    response = api_client.patch(
+        f"/concepts/activities/activity-instances/{instance.uid}/attributes",
+        json={
+            "name": "Edited Linked Instances Test Instance",
+            "name_sentence_case": "edited linked instances test instance",
+            "change_description": "test update for instance",
+        },
+    )
+    assert_response_status_code(response, 200)
+    response = api_client.post(
+        f"/concepts/activities/activity-instances/{instance.uid}/attributes/approvals",
+    )
+    assert_response_status_code(response, 201)
+
+    # Get instances linked to the new activity version again, should include the new instance version as well
+    response = api_client.get(
+        f"/concepts/activities/activities/{activity.uid}/versions/2.0/instances"
+    )
+    assert_response_status_code(response, 200)
+    res = response.json()
+    assert res["total"] == 1
+    assert res["items"][0]["uid"] == instance.uid
+    assert res["items"][0]["name"] == "Edited Linked Instances Test Instance"
+    all_linked_versions = [child["version"] for child in res["items"][0]["children"]]
+    all_linked_versions.append(res["items"][0]["version"])
+    assert len(all_linked_versions) == 4
+    assert "1.0" in all_linked_versions
+    assert "1.1" in all_linked_versions
+    assert "1.2" in all_linked_versions
+    assert "2.0" in all_linked_versions
+
+    # Get the instances linked to the old activity version, should still be linked to the old version
+    response = api_client.get(
+        f"/concepts/activities/activities/{activity.uid}/versions/1.0/instances"
+    )
+    assert_response_status_code(response, 200)
+    res = response.json()
+    assert res["total"] == 1
+    assert res["items"][0]["uid"] == instance.uid
+    assert res["items"][0]["name"] == "Linked Instances Test Instance"
+    all_linked_versions = [child["version"] for child in res["items"][0]["children"]]
+    all_linked_versions.append(res["items"][0]["version"])
+    assert len(all_linked_versions) == 2
+    assert "1.0" in all_linked_versions
+    assert "0.1" in all_linked_versions
 
 
 def test_create_activity_without_groupings_not_allowed(api_client):

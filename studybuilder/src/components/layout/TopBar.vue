@@ -1,9 +1,9 @@
 <template>
-  <v-app-bar color="primary" elevation="2" height="70">
+  <v-app-bar color="primary" elevation="1" height="70">
     <v-app-bar-nav-icon
       v-if="!props.hideAppBarNavIcon"
       data-cy="topbar-menu-button"
-      elevation="6"
+      elevation="4"
       @click="appStore.drawer = !appStore.drawer"
     />
     <div data-cy="topbar-logo" class="d-flex action" @click="navigateToRoot">
@@ -54,6 +54,7 @@
       <v-btn
         variant="flat"
         rounded
+        class="text-label-large"
         :color="
           currentStudyStatus === 'DRAFT'
             ? 'green'
@@ -222,7 +223,7 @@
         <v-btn
           color="nnBaseBlue"
           rounded="xl"
-          elevation="2"
+          elevation="1"
           @click="openSelectStudyDialog"
         >
           {{ $t('_global.select_study') }}
@@ -230,7 +231,7 @@
         <v-btn
           color="nnBaseBlue"
           rounded="xl"
-          elevation="2"
+          elevation="1"
           @click="redirectToStudyTable"
         >
           {{ $t('_global.add_study') }}
@@ -367,6 +368,9 @@ function reloadPage() {
 @use 'vuetify/settings';
 .action {
   cursor: pointer;
+}
+.text-capitalize {
+  text-transform: capitalize !important;
 }
 .v-toolbar {
   &-items {

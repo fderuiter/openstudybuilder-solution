@@ -815,7 +815,7 @@ def test_create_study_subpart(api_client):
     response = api_client.post(
         "/studies",
         json={
-            "study_subpart_acronym": "sub something",
+            "study_subpart_acronym": "SUB1",
             "description": "desc",
             "study_parent_part_uid": study.uid,
         },
@@ -865,12 +865,12 @@ def test_create_study_subpart(api_client):
         "study_number": study.current_metadata.identification_metadata.study_number,
         "subpart_id": "a",
         "study_acronym": "new acronym",
-        "study_subpart_acronym": "sub something",
+        "study_subpart_acronym": "SUB1",
         "project_number": "123",
         "project_name": "Project ABC",
         "description": "desc",
         "clinical_programme_name": "CP",
-        "study_id": f"{study.current_metadata.identification_metadata.study_id}-a",
+        "study_id": f"{study.current_metadata.identification_metadata.study_id}-SUB1",
         "registry_identifiers": {
             "ct_gov_id": None,
             "ct_gov_id_null_value_code": None,
@@ -957,12 +957,12 @@ def test_create_study_subpart(api_client):
         "study_number": study.current_metadata.identification_metadata.study_number,
         "subpart_id": "a",
         "study_acronym": "new acronym",
-        "study_subpart_acronym": "sub something",
+        "study_subpart_acronym": "SUB1",
         "project_number": "123",
         "project_name": "Project ABC",
         "description": "desc",
         "clinical_programme_name": "CP",
-        "study_id": f"{study.current_metadata.identification_metadata.study_id}-a",
+        "study_id": f"{study.current_metadata.identification_metadata.study_id}-SUB1",
         "registry_identifiers": {
             "ct_gov_id": None,
             "ct_gov_id_null_value_code": None,
@@ -1027,7 +1027,7 @@ def test_use_an_already_existing_study_as_a_study_subpart(api_client):
             "current_metadata": {
                 "identification_metadata": {
                     "study_acronym": "something",
-                    "study_subpart_acronym": "sub something",
+                    "study_subpart_acronym": "SUB1",
                 }
             },
         },
@@ -1078,11 +1078,11 @@ def test_use_an_already_existing_study_as_a_study_subpart(api_client):
         "subpart_id": "a",
         "project_number": "123",
         "study_acronym": parent_study.current_metadata.identification_metadata.study_acronym,
-        "study_subpart_acronym": "sub something",
+        "study_subpart_acronym": "SUB1",
         "project_name": new_study.current_metadata.identification_metadata.project_name,
         "description": new_study.current_metadata.identification_metadata.description,
         "clinical_programme_name": "CP",
-        "study_id": f"{parent_study.current_metadata.identification_metadata.study_id}-a",
+        "study_id": f"{parent_study.current_metadata.identification_metadata.study_id}-SUB1",
         "registry_identifiers": {
             "ct_gov_id": None,
             "ct_gov_id_null_value_code": None,
@@ -1183,11 +1183,11 @@ def test_use_an_already_existing_study_as_a_study_subpart(api_client):
         "subpart_id": "a",
         "project_number": "123",
         "study_acronym": parent_study.current_metadata.identification_metadata.study_acronym,
-        "study_subpart_acronym": "sub something",
+        "study_subpart_acronym": "SUB1",
         "project_name": new_study.current_metadata.identification_metadata.project_name,
         "description": new_study.current_metadata.identification_metadata.description,
         "clinical_programme_name": "CP",
-        "study_id": f"{parent_study.current_metadata.identification_metadata.study_id}-a",
+        "study_id": f"{parent_study.current_metadata.identification_metadata.study_id}-SUB1",
         "registry_identifiers": {
             "ct_gov_id": None,
             "ct_gov_id_null_value_code": None,
@@ -1586,7 +1586,7 @@ def test_remove_study_subpart_from_parent_part(api_client):
             "study_parent_part_uid": parent_part.uid,
             "current_metadata": {
                 "identification_metadata": {
-                    "study_subpart_acronym": "sub something",
+                    "study_subpart_acronym": "SUB1",
                 }
             },
         },
@@ -1637,11 +1637,11 @@ def test_remove_study_subpart_from_parent_part(api_client):
         "subpart_id": "a",
         "project_number": "123",
         "study_acronym": parent_part.current_metadata.identification_metadata.study_acronym,
-        "study_subpart_acronym": "sub something",
+        "study_subpart_acronym": "SUB1",
         "project_name": new_study.current_metadata.identification_metadata.project_name,
         "description": None,
         "clinical_programme_name": "CP",
-        "study_id": f"{parent_part.current_metadata.identification_metadata.study_id}-a",
+        "study_id": f"{parent_part.current_metadata.identification_metadata.study_id}-SUB1",
         "registry_identifiers": {
             "ct_gov_id": None,
             "ct_gov_id_null_value_code": None,
@@ -2257,7 +2257,7 @@ def test_cannot_remove_study_subpart_from_parent_part_and_provide_an_existing_st
             "study_parent_part_uid": parent_part.uid,
             "current_metadata": {
                 "identification_metadata": {
-                    "study_subpart_acronym": "sub something",
+                    "study_subpart_acronym": "SUB1",
                 }
             },
         },
@@ -3006,6 +3006,7 @@ def test_get_studies_list(api_client):
         "uid",
         "id",
         "acronym",
+        "subpart_acronym",
     ]
     STUDY_MINIMAL_FIELDS_NOT_NULL = [
         "uid",
@@ -3013,6 +3014,7 @@ def test_get_studies_list(api_client):
     STUDY_SIMPLE_FIELDS = [
         "uid",
         "id",
+        "main_id",
         "acronym",
         "number",
         "title",

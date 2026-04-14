@@ -60,6 +60,8 @@ class ActivitySubGroupService(ConceptGenericService[ActivitySubGroupAR]):
                 name_sentence_case=concept_input.name_sentence_case,
                 definition=concept_input.definition,
                 abbreviation=concept_input.abbreviation,
+                nci_concept_id=concept_input.nci_concept_id,
+                nci_concept_name=concept_input.nci_concept_name,
             ),
             library=library,
             generate_uid_callback=self.repository.generate_uid,
@@ -79,6 +81,8 @@ class ActivitySubGroupService(ConceptGenericService[ActivitySubGroupAR]):
                 name_sentence_case=concept_edit_input.name_sentence_case,
                 definition=concept_edit_input.definition,
                 abbreviation=concept_edit_input.abbreviation,
+                nci_concept_id=concept_edit_input.nci_concept_id,
+                nci_concept_name=concept_edit_input.nci_concept_name,
             ),
             concept_exists_by_library_and_name_callback=self._repos.activity_subgroup_repository.latest_concept_in_library_exists_by_name,
         )
@@ -111,6 +115,8 @@ class ActivitySubGroupService(ConceptGenericService[ActivitySubGroupAR]):
         activity_subgroup_detail = ActivitySubGroupDetail(
             name=subgroup.name,
             name_sentence_case=subgroup.name_sentence_case,
+            nci_concept_id=subgroup.nci_concept_id,
+            nci_concept_name=subgroup.nci_concept_name,
             library_name=subgroup.library_name,
             definition=subgroup.definition,
             start_date=subgroup.start_date,

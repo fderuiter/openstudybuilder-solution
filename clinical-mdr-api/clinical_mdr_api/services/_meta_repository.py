@@ -20,6 +20,8 @@ from clinical_mdr_api.domain_repositories.concepts.activities.activity_group_rep
     ActivityGroupRepository,
 )
 from clinical_mdr_api.domain_repositories.concepts.activities.activity_instance_repository import (
+    ActivityInstanceAttributesRepository,
+    ActivityInstanceGroupingsRepository,
     ActivityInstanceRepository,
 )
 from clinical_mdr_api.domain_repositories.concepts.activities.activity_repository import (
@@ -320,13 +322,14 @@ class MetaRepository:
 
     def close(self) -> None:
         for repo in self._repositories.values():
-            repo.close()
+            if hasattr(repo, "close"):
+                repo.close()
         self._repositories = {}
 
     def __del__(self):
         self.close()
 
-    def _build_repository_instance(self, repo_interface: type) -> Any:
+    def _build_repository_instance(self, repo_interface: type, **kwargs) -> Any:
         """
         here we put code for build different repo classes.
         :param repo_interface: An interface to retrieve a configured implementation.
@@ -343,16 +346,14 @@ class MetaRepository:
         }
 
         if repo_interface not in repository_configuration:
-            raise NotImplementedError(
-                f"This class doesn't know how to provide {repo_interface} implementation."
-            )
+            return repo_interface(**kwargs)
 
-        return repository_configuration[repo_interface]()
+        return repository_configuration[repo_interface](**kwargs)
 
-    def get_repository_instance(self, repo_interface: type) -> Any:
+    def get_repository_instance(self, repo_interface: type, **kwargs) -> Any:
         if repo_interface not in self._repositories:
             self._repositories[repo_interface] = self._build_repository_instance(
-                repo_interface
+                repo_interface, **kwargs
             )
         return self._repositories[repo_interface]
 
@@ -360,275 +361,309 @@ class MetaRepository:
 
     @property
     def activity_instance_repository(self) -> ActivityInstanceRepository:
-        return ActivityInstanceRepository()
+        return self.get_repository_instance(ActivityInstanceRepository)
+
+    @property
+    def activity_instance_groupings_repository(
+        self,
+    ) -> ActivityInstanceGroupingsRepository:
+        return ActivityInstanceGroupingsRepository()
+
+    @property
+    def activity_instance_attributes_repository(
+        self,
+    ) -> ActivityInstanceAttributesRepository:
+        return ActivityInstanceAttributesRepository()
 
     @property
     def activity_instance_class_repository(self) -> ActivityInstanceClassRepository:
-        return ActivityInstanceClassRepository()
+        return self.get_repository_instance(ActivityInstanceClassRepository)
 
     @property
     def data_supplier_repository(self) -> DataSupplierRepository:
-        return DataSupplierRepository()
+        return self.get_repository_instance(DataSupplierRepository)
 
     @property
     def data_model_ig_repository(self) -> DataModelIGRepository:
-        return DataModelIGRepository()
+        return self.get_repository_instance(DataModelIGRepository)
 
     @property
     def dataset_repository(self) -> DatasetRepository:
-        return DatasetRepository()
+        return self.get_repository_instance(DatasetRepository)
 
     @property
     def dataset_class_repository(self) -> DatasetClassRepository:
-        return DatasetClassRepository()
+        return self.get_repository_instance(DatasetClassRepository)
 
     @property
     def dataset_variable_repository(self) -> DatasetVariableRepository:
-        return DatasetVariableRepository()
+        return self.get_repository_instance(DatasetVariableRepository)
 
     @property
     def activity_item_class_repository(self) -> ActivityItemClassRepository:
-        return ActivityItemClassRepository()
+        return self.get_repository_instance(ActivityItemClassRepository)
 
     @property
     def compound_repository(self) -> CompoundRepository:
-        return CompoundRepository()
+        return self.get_repository_instance(CompoundRepository)
 
     @property
     def compound_alias_repository(self) -> CompoundAliasRepository:
-        return CompoundAliasRepository()
+        return self.get_repository_instance(CompoundAliasRepository)
 
     @property
     def medicinal_product_repository(self) -> MedicinalProductRepository:
-        return MedicinalProductRepository()
+        return self.get_repository_instance(MedicinalProductRepository)
 
     @property
     def active_substance_repository(self) -> ActiveSubstanceRepository:
-        return ActiveSubstanceRepository()
+        return self.get_repository_instance(ActiveSubstanceRepository)
 
     @property
     def pharmaceutical_product_repository(self) -> PharmaceuticalProductRepository:
-        return PharmaceuticalProductRepository()
+        return self.get_repository_instance(PharmaceuticalProductRepository)
 
     @property
     def activity_repository(self) -> ActivityRepository:
-        return ActivityRepository()
+        return self.get_repository_instance(ActivityRepository)
 
     @property
     def activity_subgroup_repository(self) -> ActivitySubGroupRepository:
-        return ActivitySubGroupRepository()
+        return self.get_repository_instance(ActivitySubGroupRepository)
 
     @property
     def activity_group_repository(self) -> ActivityGroupRepository:
-        return ActivityGroupRepository()
+        return self.get_repository_instance(ActivityGroupRepository)
 
     @property
     def numeric_value_repository(self) -> NumericValueRepository:
-        return NumericValueRepository()
+        return self.get_repository_instance(NumericValueRepository)
 
     @property
     def numeric_value_with_unit_repository(self) -> NumericValueWithUnitRepository:
-        return NumericValueWithUnitRepository()
+        return self.get_repository_instance(NumericValueWithUnitRepository)
 
     @property
     def lag_time_repository(self) -> LagTimeRepository:
-        return LagTimeRepository()
+        return self.get_repository_instance(LagTimeRepository)
 
     @property
     def text_value_repository(self) -> TextValueRepository:
-        return TextValueRepository()
+        return self.get_repository_instance(TextValueRepository)
 
     @property
     def visit_name_repository(self) -> VisitNameRepository:
-        return VisitNameRepository()
+        return self.get_repository_instance(VisitNameRepository)
 
     @property
     def study_day_repository(self) -> StudyDayRepository:
-        return StudyDayRepository()
+        return self.get_repository_instance(StudyDayRepository)
 
     @property
     def study_week_repository(self) -> StudyWeekRepository:
-        return StudyWeekRepository()
+        return self.get_repository_instance(StudyWeekRepository)
 
     @property
     def study_duration_days_repository(self) -> StudyDurationDaysRepository:
-        return StudyDurationDaysRepository()
+        return self.get_repository_instance(StudyDurationDaysRepository)
 
     @property
     def study_duration_weeks_repository(self) -> StudyDurationWeeksRepository:
-        return StudyDurationWeeksRepository()
+        return self.get_repository_instance(StudyDurationWeeksRepository)
 
     @property
     def week_in_study_repository(self) -> WeekInStudyRepository:
-        return WeekInStudyRepository()
+        return self.get_repository_instance(WeekInStudyRepository)
 
     @property
     def time_point_repository(self) -> TimePointRepository:
-        return TimePointRepository()
+        return self.get_repository_instance(TimePointRepository)
 
     @property
     def unit_definition_repository(self) -> UnitDefinitionRepository:
-        return UnitDefinitionRepository()
+        return self.get_repository_instance(UnitDefinitionRepository)
 
     @property
     def odm_method_repository(self) -> MethodRepository:
-        return MethodRepository()
+        return self.get_repository_instance(MethodRepository)
 
     @property
     def odm_condition_repository(self) -> ConditionRepository:
-        return ConditionRepository()
+        return self.get_repository_instance(ConditionRepository)
 
     @property
     def odm_form_repository(self) -> FormRepository:
-        return FormRepository()
+        return self.get_repository_instance(FormRepository)
 
     @property
     def odm_item_group_repository(self) -> ItemGroupRepository:
-        return ItemGroupRepository()
+        return self.get_repository_instance(ItemGroupRepository)
 
     @property
     def odm_item_repository(self) -> ItemRepository:
-        return ItemRepository()
+        return self.get_repository_instance(ItemRepository)
 
     @property
     def odm_study_event_repository(self) -> StudyEventRepository:
-        return StudyEventRepository()
+        return self.get_repository_instance(StudyEventRepository)
 
     @property
     def odm_vendor_namespace_repository(self) -> VendorNamespaceRepository:
-        return VendorNamespaceRepository()
+        return self.get_repository_instance(VendorNamespaceRepository)
 
     @property
     def odm_vendor_element_repository(self) -> VendorElementRepository:
-        return VendorElementRepository()
+        return self.get_repository_instance(VendorElementRepository)
 
     @property
     def odm_vendor_attribute_repository(self) -> VendorAttributeRepository:
-        return VendorAttributeRepository()
+        return self.get_repository_instance(VendorAttributeRepository)
 
     @property
     def criteria_repository(self) -> CriteriaRepository:
-        return CriteriaRepository()
+        return self.get_repository_instance(CriteriaRepository)
 
     @property
     def objective_repository(self) -> ObjectiveRepository:
-        return ObjectiveRepository()
+        return self.get_repository_instance(ObjectiveRepository)
 
     @property
     def endpoint_repository(self) -> EndpointRepository:
-        return EndpointRepository()
+        return self.get_repository_instance(EndpointRepository)
 
     @property
     def timeframe_repository(self) -> TimeframeRepository:
-        return TimeframeRepository()
+        return self.get_repository_instance(TimeframeRepository)
 
     @property
     def footnote_repository(self) -> FootnoteRepository:
-        return FootnoteRepository()
+        return self.get_repository_instance(FootnoteRepository)
 
     @property
     def parameter_repository(self) -> TemplateParameterRepository:
-        return TemplateParameterRepository()
+        return self.get_repository_instance(TemplateParameterRepository)
 
     @property
     def footnote_template_repository(
         self,
     ) -> FootnoteTemplateRepository:
-        return FootnoteTemplateRepository(self._author_id)
+        return self.get_repository_instance(
+            FootnoteTemplateRepository, user=self._author_id
+        )
 
     @property
     def activity_instruction_template_repository(
         self,
     ) -> ActivityInstructionTemplateRepository:
-        return ActivityInstructionTemplateRepository(self._author_id)
+        return self.get_repository_instance(
+            ActivityInstructionTemplateRepository, user=self._author_id
+        )
 
     @property
     def criteria_template_repository(self) -> CriteriaTemplateRepository:
-        return CriteriaTemplateRepository(self._author_id)
+        return self.get_repository_instance(
+            CriteriaTemplateRepository, user=self._author_id
+        )
 
     @property
     def endpoint_template_repository(self) -> EndpointTemplateRepository:
-        return EndpointTemplateRepository(self._author_id)
+        return self.get_repository_instance(
+            EndpointTemplateRepository, user=self._author_id
+        )
 
     @property
     def objective_template_repository(self) -> ObjectiveTemplateRepository:
-        return ObjectiveTemplateRepository(self._author_id)
+        return self.get_repository_instance(
+            ObjectiveTemplateRepository, user=self._author_id
+        )
 
     @property
     def timeframe_template_repository(self) -> TimeframeTemplateRepository:
-        return TimeframeTemplateRepository(self._author_id)
+        return self.get_repository_instance(
+            TimeframeTemplateRepository, user=self._author_id
+        )
 
     @property
     def activity_instruction_pre_instance_repository(
         self,
     ) -> ActivityInstructionPreInstanceRepository:
-        return ActivityInstructionPreInstanceRepository(self._author_id)
+        return self.get_repository_instance(
+            ActivityInstructionPreInstanceRepository, user=self._author_id
+        )
 
     @property
     def footnote_pre_instance_repository(self) -> FootnotePreInstanceRepository:
-        return FootnotePreInstanceRepository(self._author_id)
+        return self.get_repository_instance(
+            FootnotePreInstanceRepository, user=self._author_id
+        )
 
     @property
     def criteria_pre_instance_repository(self) -> CriteriaPreInstanceRepository:
-        return CriteriaPreInstanceRepository(self._author_id)
+        return self.get_repository_instance(
+            CriteriaPreInstanceRepository, user=self._author_id
+        )
 
     @property
     def endpoint_pre_instance_repository(self) -> EndpointPreInstanceRepository:
-        return EndpointPreInstanceRepository(self._author_id)
+        return self.get_repository_instance(
+            EndpointPreInstanceRepository, user=self._author_id
+        )
 
     @property
     def objective_pre_instance_repository(self) -> ObjectivePreInstanceRepository:
-        return ObjectivePreInstanceRepository(self._author_id)
+        return self.get_repository_instance(
+            ObjectivePreInstanceRepository, user=self._author_id
+        )
 
     @property
     def library_repository(self) -> LibraryRepository:
-        return LibraryRepository()
+        return self.get_repository_instance(LibraryRepository)
 
     @property
     def ct_catalogue_repository(self) -> CTCatalogueRepository:
-        return CTCatalogueRepository()
+        return self.get_repository_instance(CTCatalogueRepository)
 
     @property
     def ct_package_repository(self) -> CTPackageRepository:
-        return CTPackageRepository()
+        return self.get_repository_instance(CTPackageRepository)
 
     @property
     def ct_codelist_name_repository(self) -> CTCodelistNameRepository:
-        return CTCodelistNameRepository()
+        return self.get_repository_instance(CTCodelistNameRepository)
 
     @property
     def ct_codelist_attribute_repository(self) -> CTCodelistAttributesRepository:
-        return CTCodelistAttributesRepository()
+        return self.get_repository_instance(CTCodelistAttributesRepository)
 
     @property
     def ct_codelist_aggregated_repository(self) -> CTCodelistAggregatedRepository:
-        return CTCodelistAggregatedRepository()
+        return self.get_repository_instance(CTCodelistAggregatedRepository)
 
     @property
     def ct_term_name_repository(self) -> CTTermNameRepository:
-        return CTTermNameRepository()
+        return self.get_repository_instance(CTTermNameRepository)
 
     @property
     def ct_term_attributes_repository(self) -> CTTermAttributesRepository:
-        return CTTermAttributesRepository()
+        return self.get_repository_instance(CTTermAttributesRepository)
 
     @property
     def ct_term_aggregated_repository(self) -> CTTermAggregatedRepository:
-        return CTTermAggregatedRepository()
+        return self.get_repository_instance(CTTermAggregatedRepository)
 
     @property
     def dictionary_codelist_generic_repository(
         self,
     ) -> DictionaryCodelistGenericRepository:
-        return DictionaryCodelistGenericRepository()
+        return self.get_repository_instance(DictionaryCodelistGenericRepository)
 
     @property
     def dictionary_term_generic_repository(self) -> DictionaryTermGenericRepository:
-        return DictionaryTermGenericRepository()
+        return self.get_repository_instance(DictionaryTermGenericRepository)
 
     @property
     def dictionary_term_substance_repository(self) -> DictionaryTermSubstanceRepository:
-        return DictionaryTermSubstanceRepository()
+        return self.get_repository_instance(DictionaryTermSubstanceRepository)
 
     @property
     def study_definition_repository(self) -> StudyDefinitionRepository:
@@ -636,150 +671,154 @@ class MetaRepository:
 
     @property
     def study_definition_document_repository(self) -> StudyDefinitionDocumentRepository:
-        return StudyDefinitionDocumentRepository()
+        return self.get_repository_instance(StudyDefinitionDocumentRepository)
 
     @property
     def study_version_repository(self) -> StudyVersionRepository:
-        return StudyVersionRepository()
+        return self.get_repository_instance(StudyVersionRepository)
 
     @property
     def project_repository(self) -> ProjectRepository:
-        return ProjectRepository()
+        return self.get_repository_instance(ProjectRepository)
 
     @property
     def brand_repository(self) -> BrandRepository:
-        return BrandRepository()
+        return self.get_repository_instance(BrandRepository)
 
     @property
     def comments_repository(self) -> CommentsRepository:
-        return CommentsRepository()
+        return self.get_repository_instance(CommentsRepository)
 
     @property
     def clinical_programme_repository(self) -> ClinicalProgrammeRepository:
-        return ClinicalProgrammeRepository()
+        return self.get_repository_instance(ClinicalProgrammeRepository)
 
     @property
     def study_data_supplier_repository(self) -> StudyDataSupplierRepository:
-        return StudyDataSupplierRepository()
+        return self.get_repository_instance(StudyDataSupplierRepository)
 
     @property
     def study_objective_repository(self) -> StudySelectionObjectiveRepository:
-        return StudySelectionObjectiveRepository()
+        return self.get_repository_instance(StudySelectionObjectiveRepository)
 
     @property
     def study_endpoint_repository(self) -> StudySelectionEndpointRepository:
-        return StudySelectionEndpointRepository()
+        return self.get_repository_instance(StudySelectionEndpointRepository)
 
     @property
     def study_compound_repository(self) -> StudySelectionCompoundRepository:
-        return StudySelectionCompoundRepository()
+        return self.get_repository_instance(StudySelectionCompoundRepository)
 
     @property
     def study_compound_dosing_repository(self) -> StudyCompoundDosingRepository:
-        return StudyCompoundDosingRepository()
+        return self.get_repository_instance(StudyCompoundDosingRepository)
 
     @property
     def study_criteria_repository(self) -> StudySelectionCriteriaRepository:
-        return StudySelectionCriteriaRepository()
+        return self.get_repository_instance(StudySelectionCriteriaRepository)
 
     @property
     def study_activity_instance_repository(
         self,
     ) -> StudySelectionActivityInstanceRepository:
-        return StudySelectionActivityInstanceRepository()
+        return self.get_repository_instance(StudySelectionActivityInstanceRepository)
 
     @property
     def study_activity_repository(
         self,
     ) -> StudySelectionActivityRepository:
-        return StudySelectionActivityRepository()
+        return self.get_repository_instance(StudySelectionActivityRepository)
 
     @property
     def study_activity_subgroup_repository(
         self,
     ) -> StudySelectionActivitySubGroupRepository:
-        return StudySelectionActivitySubGroupRepository()
+        return self.get_repository_instance(StudySelectionActivitySubGroupRepository)
 
     @property
     def study_activity_group_repository(
         self,
     ) -> StudySelectionActivityGroupRepository:
-        return StudySelectionActivityGroupRepository()
+        return self.get_repository_instance(StudySelectionActivityGroupRepository)
 
     @property
     def study_soa_group_repository(
         self,
     ) -> StudySoAGroupRepository:
-        return StudySoAGroupRepository()
+        return self.get_repository_instance(StudySoAGroupRepository)
 
     @property
     def study_activity_schedule_repository(self) -> StudyActivityScheduleRepository:
-        return StudyActivityScheduleRepository()
+        return self.get_repository_instance(StudyActivityScheduleRepository)
 
     @property
     def study_soa_footnote_repository(self) -> StudySoAFootnoteRepository:
-        return StudySoAFootnoteRepository()
+        return self.get_repository_instance(StudySoAFootnoteRepository)
 
     @property
     def study_design_cell_repository(self) -> StudyDesignCellRepository:
-        return StudyDesignCellRepository()
+        return self.get_repository_instance(StudyDesignCellRepository)
 
     @property
     def study_activity_instruction_repository(
         self,
     ) -> StudyActivityInstructionRepository:
-        return StudyActivityInstructionRepository()
+        return self.get_repository_instance(StudyActivityInstructionRepository)
 
     @property
     def study_title_repository(self) -> StudyTitleRepository:
-        return StudyTitleRepository()
+        return self.get_repository_instance(StudyTitleRepository)
 
     @property
     def study_epoch_repository(self) -> StudyEpochRepository:
-        return StudyEpochRepository()
+        return self.get_repository_instance(StudyEpochRepository)
 
     @property
     def study_disease_milestone_repository(self) -> StudyDiseaseMilestoneRepository:
-        return StudyDiseaseMilestoneRepository(self._author_id)
+        return self.get_repository_instance(
+            StudyDiseaseMilestoneRepository, author_id=self._author_id
+        )
 
     @property
     def study_standard_version_repository(self) -> StudyStandardVersionRepository:
-        return StudyStandardVersionRepository(self._author_id)
+        return self.get_repository_instance(
+            StudyStandardVersionRepository, author_id=self._author_id
+        )
 
     @property
     def study_visit_repository(self) -> StudyVisitRepository:
-        return StudyVisitRepository()
+        return self.get_repository_instance(StudyVisitRepository)
 
     @property
     def ct_config_repository(self) -> CTConfigRepository:
-        return CTConfigRepository(self._author_id)
+        return self.get_repository_instance(CTConfigRepository, user=self._author_id)
 
     @property
     def study_arm_repository(self) -> StudySelectionArmRepository:
-        return StudySelectionArmRepository()
+        return self.get_repository_instance(StudySelectionArmRepository)
 
     @property
     def study_element_repository(self) -> StudySelectionElementRepository:
-        return StudySelectionElementRepository()
+        return self.get_repository_instance(StudySelectionElementRepository)
 
     @property
     def study_branch_arm_repository(
         self,
     ) -> StudySelectionBranchArmRepository:
-        return StudySelectionBranchArmRepository()
+        return self.get_repository_instance(StudySelectionBranchArmRepository)
 
     @property
     def study_cohort_repository(self) -> StudySelectionCohortRepository:
-        return StudySelectionCohortRepository()
+        return self.get_repository_instance(StudySelectionCohortRepository)
 
     @property
     def study_design_class_repository(self) -> StudyDesignClassRepository:
-        return StudyDesignClassRepository()
+        return self.get_repository_instance(StudyDesignClassRepository)
 
     @property
     def study_source_variable_repository(self) -> StudySourceVariableRepository:
-        return StudySourceVariableRepository()
+        return self.get_repository_instance(StudySourceVariableRepository)
 
     @property
     def user_repository(self) -> UserRepository:
-        return UserRepository()
+        return self.get_repository_instance(UserRepository)

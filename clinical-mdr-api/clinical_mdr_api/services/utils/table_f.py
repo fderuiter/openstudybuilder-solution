@@ -328,7 +328,9 @@ def table_to_html(table: TableWithFootnotes, css_style: str | None = None) -> st
 
 @trace_calls
 def tables_to_html(
-    tables: Iterable[TableWithFootnotes], css_style: str | None = None
+    tables: Iterable[TableWithFootnotes],
+    css_style: str | None = None,
+    include_uids: bool = False,
 ) -> str:
     """Renders a list of TableWithFootnotes into an HTML document with multiple tables
 
@@ -356,7 +358,7 @@ def tables_to_html(
                             if cell.span == 0:
                                 continue
 
-                            with tag("th", **_cell_to_attrs(cell)):
+                            with tag("th", **_cell_to_attrs(cell, include_uids)):
                                 render_cell_contents(cell)
 
             with tag("tbody"):
@@ -371,7 +373,7 @@ def tables_to_html(
 
                             with tag(
                                 ("th" if i < table.num_header_cols else "td"),
-                                **_cell_to_attrs(cell),
+                                **_cell_to_attrs(cell, include_uids),
                             ):
                                 render_cell_contents(cell)
 
@@ -417,7 +419,7 @@ def tables_to_html(
     return yattag.indent(doc.getvalue())
 
 
-def _cell_to_attrs(cell):
+def _cell_to_attrs(cell, include_uids: bool = False):
     attrs = {}
 
     if cell.style:
@@ -425,6 +427,15 @@ def _cell_to_attrs(cell):
 
     if cell.span > 1:
         attrs["colspan"] = cell.span
+
+    if include_uids and cell.refs:
+        # add data attributes for each reference in the cell
+        for i, ref in enumerate(cell.refs):
+            prefix = "object"
+            suffix = f"-{i}" if len(cell.refs) > 1 else ""
+            if ref.type:
+                attrs[f"{prefix}-type{suffix}"] = ref.type
+            attrs[f"{prefix}-uid{suffix}"] = ref.uid
 
     return attrs
 
@@ -434,6 +445,7 @@ def table_to_xlsx(
     table: TableWithFootnotes,
     styles: Mapping[str, str] | None = None,
     template: str | None = None,
+    hide_rows_without_checkmarks: bool = False,
 ) -> Workbook:
     if template:
         template = os.path.join(os.path.dirname(__file__), template)
@@ -447,8 +459,12 @@ def table_to_xlsx(
     if table.title:
         worksheet.title = table.title
 
+    visible_rows = [
+        row for row in table.rows if not (hide_rows_without_checkmarks and row.hide)
+    ]
+
     column_widths = defaultdict(list)
-    for r, row in enumerate(table.rows, start=1):
+    for r, row in enumerate(visible_rows, start=1):
         worksheet.append([cell.text for cell in row.cells])
 
         for c, cell in enumerate(row.cells, start=1):
@@ -479,17 +495,17 @@ def table_to_xlsx(
         for r, row in enumerate(worksheet.iter_rows()):
             for c, rowcell in enumerate(row):
                 if (
-                    c < len(table.rows[r].cells)
-                    and table.rows[r].cells[c].style in styles
+                    c < len(visible_rows[r].cells)
+                    and visible_rows[r].cells[c].style in styles
                 ):
-                    style_index = table.rows[r].cells[c].style
+                    style_index = visible_rows[r].cells[c].style
                     if style_index is not None:
                         rowcell.style = styles[style_index]
 
     # define table
     tab = Table(
         displayName="Table1",
-        ref=f"A1:{get_column_letter(len(table.rows[-1].cells))}{len(table.rows)}",
+        ref=f"A1:{get_column_letter(len(visible_rows[-1].cells))}{len(visible_rows)}",
     )
     tab.tableStyleInfo = TableStyleInfo(name="TableStyleMedium2")
 

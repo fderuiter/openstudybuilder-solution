@@ -123,22 +123,25 @@ class StudyVisitService(StudySelectionMixin):
         self,
         study_uid: str,
         study_value_version: str | None = None,
+        load_terms: bool = True,
     ):
         self._repos = MetaRepository()
         self.repo = self._repos.study_visit_repository
         self.author = user().id()
 
         self.check_if_study_exists(study_uid=study_uid)
-        self.terms_at_specific_datetime = (
-            self.get_study_standard_version_ct_terms_datetime(
-                study_uid=study_uid,
-                study_value_version=study_value_version,
+
+        if load_terms:
+            self.terms_at_specific_datetime = (
+                self.get_study_standard_version_ct_terms_datetime(
+                    study_uid=study_uid,
+                    study_value_version=study_value_version,
+                )
             )
-        )
 
-        self.update_ctterm_maps(self.terms_at_specific_datetime)
+            self.update_ctterm_maps(self.terms_at_specific_datetime)
 
-        self._day_unit, self._week_unit = self.repo.get_day_week_units()
+            self._day_unit, self._week_unit = self.repo.get_day_week_units()
 
     def get_allowed_time_references_for_study(self, study_uid: str):
         resp = []
@@ -198,8 +201,11 @@ class StudyVisitService(StudySelectionMixin):
     def get_global_anchor_visit(self, study_uid: str) -> SimpleStudyVisit | None:
         global_anchor_visit = (
             StudyVisitNeoModel.nodes.traverse(
-                "has_visit_name__has_latest_value",
-                "has_visit_type__has_selected_term__has_name_root__has_latest_value",
+                Path("has_visit_name__has_latest_value", include_rels_in_return=False),
+                Path(
+                    "has_visit_type__has_selected_term__has_name_root__has_latest_value",
+                    include_rels_in_return=False,
+                ),
             )
             .filter(
                 has_study_visit__latest_value__uid=study_uid,
@@ -269,7 +275,7 @@ class StudyVisitService(StudySelectionMixin):
                     Path(
                         "has_study_visit__latest_value",
                         include_rels_in_return=False,
-                        include_nodes_in_return=True,  # Set to False when migrating to neomodel 6.x
+                        include_nodes_in_return=False,
                     ),
                     Path(
                         "has_study_activity_schedule__study_value__latest_value",
@@ -1037,7 +1043,11 @@ class StudyVisitService(StudySelectionMixin):
             window_unit_object=window_unit_object,
             time_unit_object=time_unit_object,
             description=create_input.description,
-            start_rule=create_input.start_rule,
+            start_rule=(
+                settings.unscheduled_visit_start_rule
+                if create_input.visit_class == VisitClass.UNSCHEDULED_VISIT
+                else create_input.start_rule
+            ),
             end_rule=create_input.end_rule,
             visit_contact_mode=visit_contact_mode,
             epoch_allocation=(

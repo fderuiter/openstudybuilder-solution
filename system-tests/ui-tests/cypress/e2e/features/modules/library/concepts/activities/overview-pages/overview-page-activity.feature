@@ -81,7 +81,7 @@ Feature: Library - Concepts - Activities - Activity Overview Page
         And The Start date value is saved
         Then The correct End date should be displayed
         And The Activity linked group, subgroup and instance are displayed in the Activity groupings table
-        And The Activity Instances table is empty
+        And The linked activity instance is found in the Acivity Instances table with status 'Final' and version '1.0'
         When Version '1.0' is selected from the Version dropdown list
         And The status displayed on the summary has value 'Final' and version is '1.0'
         And User waits for linked 'Activity instances' table data to load
@@ -108,7 +108,7 @@ Feature: Library - Concepts - Activities - Activity Overview Page
     Scenario: [Approve] Approve the Activity
         When The approve button is clicked
         And The status displayed on the summary has value 'Final' and version is '2.0'
-        And The linked activity instance is found in the Acivity Instances table with status 'Final' and version '2.0'
+        And The linked activity instance is found in the Acivity Instances table with status 'Final' and version '1.0'
 
     Scenario: [Edit][2.1] Edit the activity with draft instance
         When The new version plus button is clicked
@@ -119,7 +119,7 @@ Feature: Library - Concepts - Activities - Activity Overview Page
         And The status displayed on the summary has value 'Draft' and version is '2.2'
         When The approve button is clicked
         And The status displayed on the summary has value 'Final' and version is '3.0'
-        And The linked activity instance is found in the Acivity Instances table with status 'Final' and version '3.0'
+        And The linked activity instance is found in the Acivity Instances table with status 'Final' and version '1.0'
 
     Scenario: [Table][Search][Negative case] User must be able to search not existing grouping and table will be correctly filtered
         When User searches for non-existing item in 'Activity groupings' table

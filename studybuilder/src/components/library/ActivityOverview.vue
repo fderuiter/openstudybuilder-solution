@@ -18,15 +18,16 @@
           :show-author="true"
           class="activity-summary"
           @version-change="(value) => manualChangeVersion(value)"
-        />
-
-        <!-- Activity Groupings section -->
-        <ActivityGroupings
-          :item-data="itemOverview"
-          :activity-id="$route.params.id"
-          :version="$route.params.version"
-          @refresh="refreshData"
-        />
+        >
+          <template #content>
+            <ActivityGroupings
+              :item-data="itemOverview"
+              :activity-id="$route.params.id"
+              :version="$route.params.version"
+              @refresh="refreshData"
+            />
+          </template>
+        </ActivitySummary>
 
         <v-row
           v-if="itemOverview && itemOverview.activity"
@@ -34,7 +35,7 @@
         >
           <v-col cols="12" class="px-0">
             <div class="section-header mb-1">
-              <h3 class="text-h6 font-weight-bold text-primary">
+              <h3 class="text-headline-small font-weight-bold text-primary">
                 {{ $t('ActivityOverview.instances') }}
               </h3>
             </div>

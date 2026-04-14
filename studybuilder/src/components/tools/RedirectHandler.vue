@@ -5,7 +5,7 @@
         color="nnBaseBlue"
         rounded="xl"
         class="mr-2"
-        elevation="2"
+        elevation="1"
         @click="openSelectStudyDialog"
       >
         {{ $t('_global.select_study') }}
@@ -13,7 +13,7 @@
       <v-btn
         color="nnBaseBlue"
         rounded="xl"
-        elevation="2"
+        elevation="1"
         @click="redirectToStudyTable"
       >
         {{ $t('_global.add_study') }}

@@ -19,6 +19,7 @@
           :item-title="(value) => getStudyLabel(value)"
           item-value="uid"
           :label="t('StudyDataCompleteness.admin_select_study')"
+          data-cy="select-study-to-tag"
           class="mx-4 mt-12 mb-2"
           return-object
         ></v-autocomplete>
@@ -27,6 +28,7 @@
           <v-text-field
             v-model="newTagName"
             :label="t('StudyDataCompleteness.admin_new_tag')"
+            data-cy="tag-name"
             hide-details
             :loading="addingTag"
             autocomplete="off"
@@ -36,13 +38,19 @@
             color="primary"
             :loading="addingTag"
             :disabled="!canAddTag"
+            data-cy="save-tag"
             @click="addTag"
           >
             {{ $t('_global.save') }}
           </v-btn>
         </div>
 
-        <v-data-table :headers="headers" :items="tags" class="mx-4 my-6">
+        <v-data-table
+          :headers="headers"
+          :items="tags"
+          :items-per-page="-1"
+          class="mx-4 my-6"
+        >
           <template #[`item.actions`]="{ item }">
             <v-switch
               v-model="item.enabled"

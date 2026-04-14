@@ -40,6 +40,7 @@
           <v-col>
             <v-autocomplete
               v-model="studyEpoch"
+              autocomplete="off"
               data-cy="study-period"
               :label="$t('StudyVisitForm.period')"
               :items="filteredPeriods"
@@ -365,7 +366,7 @@
                     </v-col>
                   </v-row>
                 </div>
-                <div class="mr-2 text-secondary text-h4">/</div>
+                <div class="mr-2 text-secondary text-headline-large">/</div>
                 <div class="mr-2 flex-grow-1">
                   <v-row>
                     <v-col>
@@ -1032,7 +1033,7 @@ function getVisitPreview() {
       payload.visit_class !== visitConstants.CLASS_SINGLE_VISIT &&
       payload.visit_class !== visitConstants.CLASS_MANUALLY_DEFINED_VISIT
     ) {
-      payload.time_reference_uid = timeReferences.value.find(
+      payload.time_reference.term_uid = timeReferences.value.find(
         (item) =>
           item.sponsor_preferred_name ===
           visitConstants.TIMEREF_GLOBAL_ANCHOR_VISIT
@@ -1043,7 +1044,7 @@ function getVisitPreview() {
       payload.visit_subclass ===
       visitConstants.SUBCLASS_ADDITIONAL_SUBVISIT_IN_A_GROUP_OF_SUBV
     ) {
-      payload.time_reference_uid = timeReferences.value.find(
+      payload.time_reference.term_uid = timeReferences.value.find(
         (item) =>
           item.sponsor_preferred_name ===
           visitConstants.TIMEREF_GLOBAL_ANCHOR_VISIT
@@ -1075,6 +1076,7 @@ function getVisitPreview() {
             'visit_short_name',
             'visit_number',
             'unique_visit_number',
+            'start_rule',
           ])
         }
         fields = fields.concat(['study_day_label', 'study_week_label'])

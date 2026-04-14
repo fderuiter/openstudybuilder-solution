@@ -44,7 +44,10 @@
       <div class="page-title ml-4">
         {{ i.title }}
       </div>
-      <div v-if="i.value === 'arms'" class="text-h6 font-weight-bold ml-4 mb-1">
+      <div
+        v-if="i.value === 'arms'"
+        class="text-headline-small font-weight-bold ml-4 mb-1"
+      >
         {{ $t('StudyDisclosure.intervention_type') }}:
         {{ data.intervention_type }}
       </div>

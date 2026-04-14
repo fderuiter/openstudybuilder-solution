@@ -15,7 +15,7 @@
       <v-btn
         v-if="formUrl"
         color="secondary"
-        class="ml-2"
+        class="ml-2 text-label-large"
         size="small"
         @click="copyUrl"
       >

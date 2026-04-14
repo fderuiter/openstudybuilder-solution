@@ -56,7 +56,7 @@
               <v-row class="mx-5 mt-3 mb-2">
                 <v-col cols="8" class="py-1 px-0">
                   {{ thread.author_display_name }}
-                  <span class="timestamp text-subtitle-1">
+                  <span class="timestamp text-body-large">
                     {{ $filters.date(thread.created_at) }}
                     {{ isModified(thread.modified_at) }}
                   </span>
@@ -164,7 +164,7 @@
                 <v-row class="mx-5 mt-3 mb-2">
                   <v-col cols="8" class="py-1 px-0">
                     {{ reply.author_display_name }}
-                    <span class="timestamp text-subtitle-1">
+                    <span class="timestamp text-body-large">
                       {{ $filters.date(reply.created_at) }}
                       {{ isModified(reply.modified_at) }}
                     </span>

@@ -17,6 +17,8 @@ class ActivitySubGroupVO(ConceptVO):
 
     name: str
     name_sentence_case: str
+    nci_concept_id: str | None = None
+    nci_concept_name: str | None = None
 
     @classmethod
     def from_repository_values(
@@ -25,6 +27,8 @@ class ActivitySubGroupVO(ConceptVO):
         name_sentence_case: str,
         definition: str | None,
         abbreviation: str | None,
+        nci_concept_id: str | None = None,
+        nci_concept_name: str | None = None,
     ) -> Self:
         activity_subgroup_vo = cls(
             name=name,
@@ -32,6 +36,8 @@ class ActivitySubGroupVO(ConceptVO):
             definition=definition,
             abbreviation=abbreviation,
             is_template_parameter=True,
+            nci_concept_id=nci_concept_id,
+            nci_concept_name=nci_concept_name,
         )
 
         return activity_subgroup_vo

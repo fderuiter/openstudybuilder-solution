@@ -62,13 +62,7 @@
               </v-tooltip>
             </v-badge>
             <v-spacer />
-            <v-btn
-              icon
-              :title="$t('DetailedFlowchart.toggle_soa_group_display')"
-              disabled
-              variant="text"
-              style="height: auto"
-            >
+            <v-btn icon disabled variant="text" style="height: auto">
               <v-icon v-if="!row.hide" size="x-small" color="success">
                 mdi-eye-outline
               </v-icon>

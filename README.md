@@ -225,6 +225,9 @@ docker compose down --remove-orphans --volumes # DESTROYS THE DATABASE volume
 docker compose up -d  # the database service re-creates the database volume on the first start 
 ```
 
+For hosted environments with database migrations and sequential upgrades,
+see the [Environment Update Process](./update_process.md).
+
 ## Cleaning up the Docker environment
 
 To clean up the entire Docker environment use the following commands:

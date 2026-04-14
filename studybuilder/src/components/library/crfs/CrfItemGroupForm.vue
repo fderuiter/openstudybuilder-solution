@@ -14,8 +14,8 @@
   >
     <template #[`step.form`]="{ step }">
       <v-form :ref="`observer${step}`">
-        <v-card elevation="4" class="mx-auto pa-4">
-          <div class="text-h5 mb-4">
+        <v-card elevation="1" class="mx-auto pa-4">
+          <div class="text-headline-medium mb-4">
             {{ $t('CRFForms.definition') }}
           </div>
           <v-row>
@@ -52,8 +52,8 @@
             </v-col>
           </v-row>
         </v-card>
-        <v-card elevation="4" class="mx-auto mt-3 pa-4">
-          <div class="text-h5 mb-4">
+        <v-card elevation="1" class="mx-auto mt-3 pa-4">
+          <div class="text-headline-medium mb-4">
             {{ $t('CRFForms.annotations') }}
           </div>
           <v-row>
@@ -70,6 +70,18 @@
                 multiple
                 :readonly="isReadOnly"
               >
+                <template #menu-header>
+                  <div class="border-b w-100 pa-2" @keydown.stop>
+                    <v-text-field
+                      v-model="domainSearch"
+                      :placeholder="$t('_global.search')"
+                      prepend-inner-icon="mdi-magnify"
+                      hide-details
+                      clearable
+                    />
+                  </div>
+                </template>
+
                 <template #item="{ props }">
                   <v-list-item
                     v-bind="props"
@@ -98,26 +110,12 @@
                       form.sdtm_domains[0].term_name
                     }}</span>
                   </div>
-                  <span v-if="index === 1" class="grey--text text-caption mr-1">
+                  <span
+                    v-if="index === 1"
+                    class="grey--text text-body-small mr-1"
+                  >
                     (+{{ form.sdtm_domains.length - 1 }})
                   </span>
-                </template>
-
-                <template #prepend-item>
-                  <v-row @keydown.stop>
-                    <v-text-field
-                      v-model="domainSearch"
-                      class="pl-6"
-                      :placeholder="$t('_global.search')"
-                    />
-                    <v-btn
-                      variant="text"
-                      size="small"
-                      icon="mdi-close"
-                      class="mr-3 mt-3"
-                      @click="domainSearch = ''"
-                    />
-                  </v-row>
                 </template>
               </v-select>
             </v-col>

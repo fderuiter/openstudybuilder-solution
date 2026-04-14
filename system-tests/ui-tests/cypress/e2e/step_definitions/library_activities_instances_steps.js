@@ -6,6 +6,11 @@ const { getShortUniqueId } = require("../../support/helper_functions");
 let activityInstance, topicCode = `Topic${getShortUniqueId()}`
 let nciconceptid = "NCI-ID", nciname = 'NCI-name', adamcode = "Adam-code"
 
+Then('The activity instance groupings has status {string} and version {string}', (status, version) => {
+    cy.checkRowByIndex(0, 'Groupings status', status)
+    cy.checkRowByIndex(0, 'Groupings version', version)
+})
+
 When('User intercepts create instance request', () => cy.intercept('/api/concepts/activities/activity-instances').as('createInstance'))
 
 When('User intercepts update instance request', () => cy.intercept(`/api/concepts/activities/activity-instances/${activityInstance_uid}`).as('updateInstance'))
@@ -105,7 +110,7 @@ Given('[API] First activity instance for search test is created', () => createAc
 
 Given('[API] Second activity instance for search test is created', () => cy.createActivityInstance(`SearchTest${getShortUniqueId()}`))
 
-Then('[API] Activity instance is updated with new name', () => cy.updateActivityInstance(`New Activity Instance name ${getShortUniqueId()}`))
+Then('[API] Activity instance is updated with new name', () => cy.updateActivityInstanceAttributes(`New Activity Instance name ${getShortUniqueId()}`))
 
 function fillInstanceMandatoryData(code = topicCode) {
     activityInstance = `Instance${getShortUniqueId()}`

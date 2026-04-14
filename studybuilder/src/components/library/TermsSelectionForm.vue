@@ -2,143 +2,141 @@
   <SimpleFormDialog
     ref="dialog"
     content-class="h-100"
-    :title="title"
+    :title="props.title"
     :open="props.open"
     @close="close"
     @submit="submit"
   >
     <template #body>
-      <v-row class="mb-6 align-center">
-        <v-col cols="6">
-          <v-text-field
-            v-model="codelistSearch"
-            clearable
-            clear-icon="mdi-close"
-            prepend-inner-icon="mdi-magnify"
-            :label="$t('TermsSelectionForm.search_for_codelists')"
-            color="nnBaseBlue"
-            hide-details
-            @update:model-value="fetchCodelists"
+      <div class="mb-6">
+        <v-text-field
+          v-if="!props.pairedCodelistMode"
+          v-model="codelistSearch"
+          clearable
+          clear-icon="mdi-close"
+          prepend-inner-icon="mdi-magnify"
+          :label="$t('TermsSelectionForm.search_for_codelists')"
+          color="nnBaseBlue"
+          hide-details
+          @update:model-value="fetchCodelists"
+        />
+        <v-text-field
+          v-else
+          v-model="termSearch"
+          clearable
+          clear-icon="mdi-close"
+          prepend-inner-icon="mdi-magnify"
+          :label="$t('TermsSelectionForm.search_for_term')"
+          color="nnBaseBlue"
+          hide-details
+          @update:model-value="fetchTerms"
+        />
+        <v-radio-group
+          v-if="!props.pairedCodelistMode"
+          v-model="searchMode"
+          inline
+          class="mt-2"
+        >
+          <v-radio
+            value="name"
+            :label="$t('TermsSelectionForm.search_by_codelist')"
           />
-          <v-radio-group v-model="searchMode" inline>
-            <v-radio
-              value="name"
-              :label="$t('TermsSelectionForm.search_by_codelist')"
+          <v-radio
+            value="term"
+            :label="$t('TermsSelectionForm.search_by_term')"
+          />
+        </v-radio-group>
+        <div class="d-flex px-2">
+          <template v-if="!props.pairedCodelistMode">
+            <v-switch
+              v-model="searchParams.only_ordinal_codelists"
+              :label="$t('TermsSelectionForm.ordinal_codelists')"
+              class="mr-4"
+              hide-details
+              @update:model-value="_fetchCodelists"
             />
-            <v-radio
-              value="term"
-              :label="$t('TermsSelectionForm.search_by_term')"
+            <v-switch
+              v-model="searchParams.only_response_codelists"
+              :label="$t('TermsSelectionForm.response_codelists')"
+              class="mr-4"
+              hide-details
+              @update:model-value="_fetchCodelists"
             />
-          </v-radio-group>
-        </v-col>
-        <v-col cols="6" class="pl-8">
+          </template>
           <v-switch
-            v-model="searchParams.only_ordinal_codelists"
-            :label="$t('TermsSelectionForm.ordinal_codelists')"
-            class="mr-4"
-            hide-details
-            @update:model-value="_fetchCodelists"
-          />
-          <v-switch
-            v-model="searchParams.only_response_codelists"
-            :label="$t('TermsSelectionForm.response_codelists')"
-            class="mr-4"
-            hide-details
-            @update:model-value="_fetchCodelists"
-          />
-          <v-switch
+            v-if="!props.pairedCodelistMode"
             v-model="searchParams.match_whole_words"
             :label="$t('TermsSelectionForm.whole_word_match')"
             hide-details
           />
-        </v-col>
-      </v-row>
-      <div class="d-flex">
-        <div class="w-50">
-          <v-sheet border="thin" rounded="lg">
-            <div class="dialog-sub-title px-2 pb-2">
+          <!-- <v-switch
+               v-if="props.pairedCodelistMode"
+               v-model="useFullTextSearch"
+               :label="$t('TermsSelectionForm.semantic_search')"
+               class="ml-4"
+               hide-details
+               /> -->
+        </div>
+      </div>
+      <div>
+        <NNTable
+          v-if="!props.pairedCodelistMode"
+          key="codelistsTable"
+          ref="codelistsTable"
+          :headers="codelistHeaders"
+          :items="codelists"
+          :items-length="totalCodelists"
+          item-value="uid"
+          :hide-default-switches="true"
+          :hide-search-field="true"
+          :hide-export-button="true"
+          :disable-filtering="true"
+          :modifiable-table="false"
+          elevation="0"
+          :loading="loadingCodelists"
+          @filter="handleCodelistsFilter"
+        >
+          <template #beforeSearch>
+            <div class="dialog-title">
               {{ $t('TermsSelectionForm.select_codelist') }}
             </div>
-            <v-data-iterator
-              :items="codelists"
-              :page="codelistPage"
-              :items-per-page="10"
-            >
-              <template #default="{ items }">
-                <div
-                  v-for="item in items"
-                  :key="item.raw.uid"
-                  class="pa-2 border-t-thin codelist"
-                  :class="{
-                    'bg-primary': selectedCodelist?.uid === item.raw.uid,
-                  }"
-                  @click="selectCodelist(item.raw)"
-                >
-                  {{ item.raw.submission_value }} ({{ item.raw.library_name
-                  }}<template v-if="item.raw.is_ordinal">
-                    <strong>{{ $gettext('_global.ordinal') }}</strong></template
-                  >)
-                  <div class="text-grey">
-                    {{ truncate(item.raw.sponsor_preferred_name) }}
-                  </div>
-                </div>
-              </template>
-              <template #footer>
-                <v-pagination
-                  v-model="codelistPage"
-                  class="border-t-thin px-2"
-                  size="small"
-                  :length="codelistPages"
-                  :total-visible="5"
-                  @update:model-value="_fetchCodelists()"
-                />
-              </template>
-            </v-data-iterator>
-          </v-sheet>
-        </div>
-        <div v-if="selectedCodelist" class="ml-4 w-50">
-          <v-sheet border="thin" rounded="lg">
-            <div class="dialog-sub-title px-2 pb-2">
+          </template>
+          <template #[`item.select`]="{ item }">
+            <v-radio-group v-model="selectedCodelistUid" hide-details>
+              <v-radio :value="item.uid" />
+            </v-radio-group>
+          </template>
+        </NNTable>
+        <NNTable
+          v-if="selectedCodelistUid || props.pairedCodelistMode"
+          key="termsTable"
+          ref="termsTable"
+          class="mt-4"
+          :headers="termHeaders"
+          :items="terms"
+          :items-length="totalTerms"
+          item-value="term_uid"
+          :show-select="props.multiple"
+          :hide-default-switches="true"
+          :hide-search-field="true"
+          :hide-export-button="true"
+          :disable-filtering="true"
+          :modifiable-table="false"
+          elevation="0"
+          :loading="loadingTerms"
+          @filter="handleTermsFilter"
+        >
+          <template #beforeSearch>
+            <div class="dialog-title">
               {{ $t('TermsSelectionForm.select_terms') }}
             </div>
-            <v-data-iterator
-              :items="terms"
-              :page="termPage"
-              :items-per-page="10"
-            >
-              <template #default="{ items }">
-                <div
-                  v-for="item in items"
-                  :key="item.raw.term_uid"
-                  class="pa-2 border-t-thin codelist d-flex items-center"
-                >
-                  <v-checkbox
-                    v-model="selectedTerms"
-                    :value="item.raw.term_uid"
-                    hide-details
-                    class="mr-2"
-                  />
-                  <div>
-                    {{ item.raw.submission_value }}
-                    <div class="text-grey">
-                      {{ truncate(item.raw.sponsor_preferred_name) }}
-                    </div>
-                  </div>
-                </div>
-              </template>
-              <template #footer>
-                <v-pagination
-                  v-model="termPage"
-                  class="border-t-thin px-2"
-                  size="small"
-                  :length="termPages"
-                  :total-visible="5"
-                  @update:model-value="_fetchTerms()"
-                />
-              </template>
-            </v-data-iterator>
-          </v-sheet>
-        </div>
+          </template>
+          <template v-if="!props.multiple" #[`item.select`]="{ item }">
+            <v-radio-group v-model="selectedTerm" hide-details>
+              <v-radio :value="item.term_uid" />
+            </v-radio-group>
+          </template>
+        </NNTable>
       </div>
     </template>
   </SimpleFormDialog>
@@ -149,35 +147,81 @@ import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import _debounce from 'lodash/debounce'
 import codelistApi from '@/api/controlledTerminology/codelists'
+import pairedCodelistApi from '@/api/controlledTerminology/pairedCodelists'
+import NNTable from '@/components/tools/NNTable.vue'
 import SimpleFormDialog from '@/components/tools/SimpleFormDialog.vue'
-
-const pageSize = 10
 
 const props = defineProps({
   open: Boolean,
+  title: {
+    type: String,
+    default: null,
+  },
+  pairedCodelistMode: {
+    type: Boolean,
+    default: false,
+  },
+  multiple: {
+    type: Boolean,
+    default: false,
+  },
 })
 const emit = defineEmits(['close', 'selected'])
 
 const codelist = defineModel('codelist', { type: String })
-const termSelection = defineModel('termSelection', { type: Array })
+const termSelection = defineModel('termSelection', { type: [String, Array] })
 
 const { t } = useI18n()
 
-const codelistPages = computed(() => {
-  return totalCodelists.value > pageSize
-    ? Math.floor(totalCodelists.value / pageSize)
-    : 1
-})
-const termPages = computed(() => {
-  return totalTerms.value > pageSize
-    ? Math.floor(totalTerms.value / pageSize)
-    : 1
-})
-const title = computed(() => {
-  return t('TermsSelectionForm.title')
+const codelistHeaders = [
+  { title: '', key: 'select', sortable: false, width: '50px' },
+  { title: t('TermsSelectionForm.library'), key: 'library_name' },
+  {
+    title: t('TermsSelectionForm.sponsor_name'),
+    key: 'sponsor_preferred_name',
+  },
+  { title: t('TermsSelectionForm.submission_value'), key: 'submission_value' },
+  { title: 'UID', key: 'uid' },
+]
+const termHeaders = computed(() => {
+  const headers = props.pairedCodelistMode
+    ? [
+        { title: t('TermsSelectionForm.library'), key: 'library_name' },
+        {
+          title: t('TermsSelectionForm.name_submission_value'),
+          key: 'name_submission_value',
+        },
+        {
+          title: t('TermsSelectionForm.code_submission_value'),
+          key: 'code_submission_value',
+        },
+        { title: t('TermsSelectionForm.concept_id'), key: 'concept_id' },
+      ]
+    : [
+        { title: t('TermsSelectionForm.library'), key: 'library_name' },
+        {
+          title: t('TermsSelectionForm.sponsor_name'),
+          key: 'sponsor_preferred_name',
+        },
+        {
+          title: t('TermsSelectionForm.submission_value'),
+          key: 'submission_value',
+        },
+        { title: t('TermsSelectionForm.concept_id'), key: 'concept_id' },
+      ]
+  if (!props.multiple) {
+    headers.unshift({
+      title: '',
+      key: 'select',
+      sortable: false,
+      width: '50px',
+    })
+  }
+  return headers
 })
 
 const codelists = ref([])
+const codelistsTable = ref()
 const dialog = ref()
 const codelistPage = ref(1)
 const codelistSearch = ref('')
@@ -187,13 +231,15 @@ const searchMode = ref('name')
 const searchParams = ref({
   only_response_codelists: true,
 })
-const selectedCodelist = ref(null)
-const selectedTerms = ref([])
+const selectedCodelistUid = ref(null)
+const selectedTerm = ref(null)
 const termPage = ref(1)
 const termSearch = ref([])
 const terms = ref([])
+const termsTable = ref()
 const totalCodelists = ref(0)
 const totalTerms = ref(0)
+// const useFullTextSearch = ref(true)
 
 async function _fetchCodelists() {
   if (!codelistSearch.value || codelistSearch.value === '') {
@@ -201,8 +247,9 @@ async function _fetchCodelists() {
     return
   }
   loadingCodelists.value = true
-  selectedCodelist.value = null
-  selectedTerms.value = []
+  selectedCodelistUid.value = null
+  selectedTerm.value = null
+  if (termsTable.value) termsTable.value.selected = []
   try {
     const params = {
       ...searchParams.value,
@@ -233,10 +280,15 @@ async function _fetchTerms() {
     if (termSearch.value && termSearch.value.length) {
       params.filters = { '*': { v: [termSearch.value] } }
     }
-    const resp = await codelistApi.getCodelistTerms(
-      selectedCodelist.value.uid,
-      params
-    )
+    let resp
+    if (props.pairedCodelistMode) {
+      resp = await pairedCodelistApi.getCodelistTerms(codelist.value, params)
+    } else {
+      resp = await codelistApi.getCodelistTerms(
+        selectedCodelistUid.value,
+        params
+      )
+    }
     terms.value = resp.data.items
     totalTerms.value = resp.data.total
   } finally {
@@ -244,9 +296,16 @@ async function _fetchTerms() {
   }
 }
 
-function truncate(name) {
-  const limit = 50
-  return name.length < limit ? name : `${name.substr(0, limit)}...`
+const fetchTerms = _debounce(_fetchTerms, 300)
+
+function handleCodelistsFilter(filters, options) {
+  codelistPage.value = options.page
+  _fetchCodelists()
+}
+
+function handleTermsFilter(filters, options) {
+  termPage.value = options.page
+  _fetchTerms()
 }
 
 function reset() {
@@ -256,8 +315,9 @@ function reset() {
   terms.value = []
   totalTerms.value = 0
   termPage.value = 1
-  selectedTerms.value = []
-  selectedCodelist.value = null
+  if (termsTable.value) termsTable.value.selected = []
+  selectedTerm.value = null
+  selectedCodelistUid.value = null
   codelistSearch.value = ''
   termSearch.value = []
 }
@@ -267,19 +327,22 @@ function close() {
   emit('close')
 }
 
-function selectCodelist(codelist) {
-  selectedCodelist.value = codelist
-}
-
 function submit() {
-  codelist.value = selectedCodelist.value.uid
-  termSelection.value = [...selectedTerms.value]
+  if (!props.pairedCodelistMode) {
+    codelist.value = selectedCodelistUid.value
+  }
+  if (props.multiple) {
+    const selected = termsTable.value?.selected || []
+    termSelection.value = selected.map((item) => item.term_uid)
+  } else {
+    termSelection.value = selectedTerm.value
+  }
   emit('selected')
   close()
 }
 
-watch(selectedCodelist, () => {
-  if (selectedCodelist.value) {
+watch(selectedCodelistUid, () => {
+  if (selectedCodelistUid.value) {
     _fetchTerms()
   }
 })

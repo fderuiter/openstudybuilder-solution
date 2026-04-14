@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-card-title class="text-h6 mx-2">
+    <v-card-title class="text-headline-small mx-2">
       {{ $t('UserPreferencesView.title') }}
     </v-card-title>
     <v-card-text class="pb-4">

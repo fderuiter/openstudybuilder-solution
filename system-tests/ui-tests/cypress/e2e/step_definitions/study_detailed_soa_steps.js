@@ -217,13 +217,13 @@ Then('Activity is not visible in the protocol SoA', () => cy.contains('th.activi
 
 When('User switches to the {string} view', (view) => cy.get(`button[value="${view}"]`).click())
 
-When('User clicks eye icon on SoA group level for {string}', (flowchart) => cy.contains('tr.flowchart', flowchart).find('[title^="Show/hide SoA"]').click())
+When('User clicks eye icon on SoA group level for {string}', (flowchart) => cy.contains('tr.flowchart', flowchart).find('.v-icon--size-x-small').click())
 
-When('User clicks eye icon on group level', () => cy.contains('tr.group', groupName).find('[title^="Show/hide SoA"]').click())
+When('User clicks eye icon on group level', () => cy.contains('tr.group', groupName).find('.v-icon--size-x-small').click())
 
-When('User clicks eye icon on subgroup level', () => cy.contains('tr.subgroup', subgroupName).find('[title^="Show/hide SoA"]').click())
+When('User clicks eye icon on subgroup level', () => cy.contains('tr.subgroup', subgroupName).find('.v-icon--size-x-small').click())
 
-When('User clicks eye icon on activity level', () => cy.contains('tr[id*="StudyActivity_"]', activityName).find('[title^="Show/hide SoA"]').click())
+When('User clicks eye icon on activity level', () => cy.contains('tr[id*="StudyActivity_"]', activityName).find('.v-icon--size-x-small').click())
 
 When('User waits for the protocol SoA table to load', () => cy.get('[id="protocolFlowchart"]').should('be.visible'))
 

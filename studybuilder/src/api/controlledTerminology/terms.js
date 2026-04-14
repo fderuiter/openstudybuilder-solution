@@ -106,6 +106,14 @@ const knownCodelists = {
     attribute: 'codelist_submission_value',
     value: 'FINDSCAT',
   },
+  eventCategoryDefinition: {
+    attribute: 'codelist_submission_value',
+    value: 'EVNTCAT',
+  },
+  eventSubCategoryDefinition: {
+    attribute: 'codelist_submission_value',
+    value: 'EVNTSCAT',
+  },
   developmentStageCodes: {
     attribute: 'codelist_submission_value',
     value: 'DEVELOPMENT_STAGE',
@@ -122,7 +130,7 @@ const knownCodelists = {
 
 export default {
   getKnownCodelist(name) {
-    return [knownCodelists[name]['attribute'], knownCodelists[name]['value']]
+    return knownCodelists[name]
   },
   getAll(params) {
     return repository.get(resource, { params })

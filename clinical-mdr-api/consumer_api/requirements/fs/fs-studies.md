@@ -29,6 +29,7 @@ Each item in the response must include basic information about a study (`uid`, `
 | tests/v1/test_api_studies.py | test_get_studies_all                       |
 | tests/v1/test_api_studies.py | test_get_studies_filtering                 |
 | tests/v1/test_api_studies.py | test_get_studies_invalid_pagination_params |
+| tests/v1/test_api_studies.py | test_get_studies_returns_data_suppliers    |
 
 # Study Structure
 

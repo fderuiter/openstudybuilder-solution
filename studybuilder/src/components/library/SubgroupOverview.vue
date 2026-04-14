@@ -24,7 +24,7 @@
             :activity="props.itemOverview.activity_subgroup"
             :all-versions="allVersions(props.itemOverview)"
             :show-library="true"
-            :show-nci-concept-id="false"
+            :show-nci-concept-id="true"
             :show-data-collection="false"
             :show-abbreviation="false"
             :show-author="true"
@@ -39,7 +39,7 @@
         <!-- Activity Groups Section -->
         <div class="my-5">
           <div class="section-header mb-1">
-            <h3 class="text-h6 font-weight-bold text-primary">
+            <h3 class="text-headline-small font-weight-bold text-primary">
               {{ $t('ActivityOverview.activity_group') }}
             </h3>
           </div>
@@ -84,7 +84,7 @@
             </template>
             <template #no-data>
               <div class="text-center py-4">
-                <span class="text-body-1 text-grey-darken-1">
+                <span class="text-body-large text-grey-darken-1">
                   {{ $t('SubgroupOverview.noItemsAvailable') }}
                 </span>
               </div>
@@ -95,7 +95,7 @@
         <!-- Activities Section -->
         <div class="my-5">
           <div class="section-header mb-1">
-            <h3 class="text-h6 font-weight-bold text-primary">
+            <h3 class="text-headline-small font-weight-bold text-primary">
               {{ $t('ActivityOverview.activities') }}
             </h3>
           </div>
@@ -148,7 +148,7 @@
             </template>
             <template #no-data>
               <div class="text-center py-4">
-                <span class="text-body-1 text-grey-darken-1">
+                <span class="text-body-large text-grey-darken-1">
                   {{ $t('SubgroupOverview.noItemsAvailable') }}
                 </span>
               </div>

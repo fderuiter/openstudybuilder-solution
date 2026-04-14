@@ -5,134 +5,171 @@
       :transform-func="transformItem"
       :navigate-to-version="changeVersion"
       :history-headers="historyHeaders"
+      :action-subitem-map="actionSubitemMap"
       v-bind="$attrs"
       @refresh="refreshData"
     >
       <template #htmlContent="{ itemOverview }">
         <div v-if="itemOverview">
-          <!-- Activity Instance Summary -->
-          <ActivitySummary
-            v-if="itemOverview.activity_instance"
-            :activity="
-              adaptActivityInstanceForSummary(
-                itemOverview.activity_instance,
-                activityGroupings
-              )
-            "
-            :all-versions="allVersions(itemOverview)"
-            :activity-groupings="activityGroupings"
-            :show-data-collection="false"
-            :show-author="true"
-            class="activity-summary"
-            @version-change="(value) => manualChangeVersion(value)"
-          />
+          <div class="activity-instance-attributes-section">
+            <div class="section-header mb-1">
+              <h3 class="text-h6 font-weight-bold text-primary">
+                {{
+                  $t('ActivityInstanceOverview.activity_instance_attributes')
+                }}
+              </h3>
+            </div>
+
+            <!-- Activity Instance Summary -->
+            <ActivitySummary
+              v-if="itemOverview.activity_instance"
+              :activity="
+                adaptActivityInstanceForSummary(
+                  itemOverview.activity_instance,
+                  activityGroupings
+                )
+              "
+              :all-versions="allVersions(itemOverview)"
+              :activity-groupings="activityGroupings"
+              :show-data-collection="false"
+              :show-author="true"
+              class="activity-summary"
+              @version-change="(value) => manualChangeVersion(value)"
+            >
+              <template #content>
+                <ActivityItemsTable
+                  :activity-instance-id="route.params.id"
+                  :version="route.params.version"
+                />
+              </template>
+            </ActivitySummary>
+          </div>
+
+          <v-divider class="section-divider" />
 
           <!-- Activity Groupings section -->
           <div class="activity-section">
-            <div class="section-header mb-1">
-              <h3 class="text-h6 font-weight-bold text-primary">
+            <div class="section-header section-header--with-actions mb-1">
+              <h3 class="text-headline-small font-weight-bold text-primary">
                 {{ $t('ActivityInstanceOverview.activity_groupings') }}
               </h3>
+              <div class="groupings-action-buttons">
+                <template v-for="action in groupingsActions" :key="action.key">
+                  <v-btn
+                    v-if="isGroupingActionVisible(action)"
+                    variant="outlined"
+                    class="ml-2"
+                    :color="action.iconColor"
+                    icon
+                    size="small"
+                    @click="onGroupingActionClick(action.key)"
+                  >
+                    <v-icon left>{{ action.icon }}</v-icon>
+                    <v-tooltip activator="parent" location="top">
+                      {{ action.label }}
+                    </v-tooltip>
+                  </v-btn>
+                </template>
+              </div>
             </div>
-            <div>
-              <NNTable
-                :headers="groupingsHeaders"
-                :items="displayedGroupings"
-                :items-length="displayedGroupings.length"
-                :items-per-page="10"
-                :hide-export-button="false"
-                :hide-default-switches="true"
-                :disable-filtering="true"
-                :hide-search-field="false"
-                :modifiable-table="true"
-                :no-padding="true"
-                elevation="0"
-                class="groupings-table"
-                item-value="uid"
-                :disable-sort="false"
-                :loading="loadingGroupings"
-                :items-per-page-options="[10, 25, 50, 100]"
-                :server-items-length="displayedGroupings.length"
-                :export-data-url="`concepts/activities/activity-instances/${route.params.id}/activity-groupings`"
-                export-object-label="Activity Groupings"
-                @filter="handleGroupingsFilter"
-                @update:options="handleGroupingsFilter"
-              >
-                <template #[`item.activity_group_name`]="{ item }">
-                  <router-link
-                    v-if="item.activity_group_id"
-                    :to="{
-                      name: 'GroupOverview',
-                      params: {
-                        id: item.activity_group_id,
-                        version: item.activity_group_version,
-                      },
-                    }"
-                    class="d-block"
-                  >
-                    {{ item.activity_group_name }}
-                  </router-link>
-                  <div class="text-caption text-grey-darken-1">
-                    {{ $t('_global.version') }}
-                    {{ item.activity_group_version }}
-                    <span v-if="item.activity_group_status" class="ml-2"
-                      >- {{ item.activity_group_status }}</span
+            <ActivityGroupingsSummary
+              v-model="selectedGroupingsVersion"
+              :label="$t('ActivityInstanceOverview.groupings_version')"
+              :all-groupings-versions="groupingsVersionChoices"
+              :summary-data="groupingsSummaryData"
+            >
+              <template #content>
+                <NNTable
+                  :headers="groupingsHeaders"
+                  :items="displayedGroupings"
+                  :items-length="displayedGroupings.length"
+                  :items-per-page="10"
+                  :hide-export-button="false"
+                  :hide-default-switches="true"
+                  :disable-filtering="true"
+                  :hide-search-field="false"
+                  :modifiable-table="true"
+                  :no-padding="true"
+                  elevation="0"
+                  class="groupings-table"
+                  item-value="uid"
+                  :disable-sort="false"
+                  :loading="loadingGroupings"
+                  :items-per-page-options="[10, 25, 50, 100]"
+                  :server-items-length="displayedGroupings.length"
+                  :export-data-url="groupingsExportDataUrl"
+                  export-object-label="Activity Groupings"
+                  @filter="handleGroupingsFilter"
+                  @update:options="handleGroupingsFilter"
+                >
+                  <template #[`item.activity_group_name`]="{ item }">
+                    <router-link
+                      v-if="item.activity_group_id"
+                      :to="{
+                        name: 'GroupOverview',
+                        params: {
+                          id: item.activity_group_id,
+                          version: item.activity_group_version,
+                        },
+                      }"
+                      class="d-block"
                     >
-                  </div>
-                </template>
-                <template #[`item.activity_subgroup_name`]="{ item }">
-                  <router-link
-                    v-if="item.activity_subgroup_id"
-                    :to="{
-                      name: 'SubgroupOverview',
-                      params: {
-                        id: item.activity_subgroup_id,
-                        version: item.activity_subgroup_version,
-                      },
-                    }"
-                    class="d-block"
-                  >
-                    {{ item.activity_subgroup_name }}
-                  </router-link>
-                  <div class="text-caption text-grey-darken-1">
-                    {{ $t('_global.version') }}
-                    {{ item.activity_subgroup_version }}
-                    <span v-if="item.activity_subgroup_status" class="ml-2"
-                      >- {{ item.activity_subgroup_status }}</span
+                      {{ item.activity_group_name }}
+                    </router-link>
+                    <div class="text-body-small text-grey-darken-1">
+                      {{ $t('_global.version') }}
+                      {{ item.activity_group_version }}
+                      <span v-if="item.activity_group_status" class="ml-2"
+                        >- {{ item.activity_group_status }}</span
+                      >
+                    </div>
+                  </template>
+                  <template #[`item.activity_subgroup_name`]="{ item }">
+                    <router-link
+                      v-if="item.activity_subgroup_id"
+                      :to="{
+                        name: 'SubgroupOverview',
+                        params: {
+                          id: item.activity_subgroup_id,
+                          version: item.activity_subgroup_version,
+                        },
+                      }"
+                      class="d-block"
                     >
-                  </div>
-                </template>
-                <template #[`item.activity_name`]="{ item }">
-                  <router-link
-                    v-if="item.activity_id"
-                    :to="{
-                      name: 'ActivityOverview',
-                      params: {
-                        id: item.activity_id,
-                        version: item.activity_version,
-                      },
-                    }"
-                    class="d-block"
-                  >
-                    {{ item.activity_name }}
-                  </router-link>
-                  <div class="text-caption text-grey-darken-1">
-                    {{ $t('_global.version') }} {{ item.activity_version }}
-                    <span v-if="item.activity_status" class="ml-2"
-                      >- {{ item.activity_status }}</span
+                      {{ item.activity_subgroup_name }}
+                    </router-link>
+                    <div class="text-body-small text-grey-darken-1">
+                      {{ $t('_global.version') }}
+                      {{ item.activity_subgroup_version }}
+                      <span v-if="item.activity_subgroup_status" class="ml-2"
+                        >- {{ item.activity_subgroup_status }}</span
+                      >
+                    </div>
+                  </template>
+                  <template #[`item.activity_name`]="{ item }">
+                    <router-link
+                      v-if="item.activity_id"
+                      :to="{
+                        name: 'ActivityOverview',
+                        params: {
+                          id: item.activity_id,
+                          version: item.activity_version,
+                        },
+                      }"
+                      class="d-block"
                     >
-                  </div>
-                </template>
-              </NNTable>
-            </div>
-          </div>
-
-          <!-- Activity Items section -->
-          <div class="activity-section mt-8">
-            <ActivityItemsTable
-              :activity-instance-id="route.params.id"
-              :version="route.params.version"
-            />
+                      {{ item.activity_name }}
+                    </router-link>
+                    <div class="text-body-small text-grey-darken-1">
+                      {{ $t('_global.version') }} {{ item.activity_version }}
+                      <span v-if="item.activity_status" class="ml-2"
+                        >- {{ item.activity_status }}</span
+                      >
+                    </div>
+                  </template>
+                </NNTable>
+              </template>
+            </ActivityGroupingsSummary>
           </div>
         </div>
         <div v-else class="d-flex justify-center align-center pa-8">
@@ -142,21 +179,24 @@
           ></v-progress-circular>
         </div>
       </template>
-      <template #itemForm="{ show, item, close }">
+      <template #itemForm="{ show, item, actionSubitem, close }">
         <v-dialog
           :model-value="show"
           persistent
           fullscreen
-          content-class="top-dialog"
+          content-class="fullscreen-dialog"
         >
-          <ActivitiesInstantiationsForm
-            v-if="!newWizardStepper"
-            :edited-activity="item"
+          <FeatureDisabledDialog
+            v-if="
+              (!item?.uid && !newWizardStepper) ||
+              (item?.uid && !newWizardStepperEditMode)
+            "
             @close="close"
           />
           <Suspense v-else>
             <ActivityInstanceForm
               :activity-instance-uid="item?.uid"
+              :edit-mode="item?.uid ? actionSubitem || 'attributes' : 'create'"
               @close="close"
             />
             <template #fallback>
@@ -169,20 +209,47 @@
         </v-dialog>
       </template>
     </BaseActivityOverview>
+
+    <!-- Groupings edit dialog (separate from BaseActivityOverview form) -->
+    <v-dialog
+      v-model="showGroupingsForm"
+      persistent
+      fullscreen
+      content-class="fullscreen-dialog"
+    >
+      <FeatureDisabledDialog
+        v-if="showGroupingsForm && !newWizardStepperEditMode"
+        @close="closeGroupingsForm"
+      />
+      <Suspense v-else-if="showGroupingsForm">
+        <ActivityInstanceForm
+          :activity-instance-uid="route.params.id"
+          edit-mode="groupings"
+          @close="closeGroupingsForm"
+        />
+        <template #fallback>
+          <v-skeleton-loader
+            class="fullscreen-dialog"
+            type="card"
+          ></v-skeleton-loader>
+        </template>
+      </Suspense>
+    </v-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch, computed, inject } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { useFeatureFlagsStore } from '@/stores/feature-flags'
 import BaseActivityOverview from './BaseActivityOverview.vue'
 import ActivitySummary from './ActivitySummary.vue'
+import ActivityGroupingsSummary from './ActivityGroupingsSummary.vue'
 import NNTable from '@/components/tools/NNTable.vue'
 import ActivityInstanceForm from './ActivityInstanceForm.vue'
-import ActivitiesInstantiationsForm from './ActivitiesInstantiationsForm.vue'
+import FeatureDisabledDialog from '@/components/tools/FeatureDisabledDialog.vue'
 import ActivityItemsTable from './ActivityItemsTable.vue'
 import activities from '@/api/activities'
 
@@ -191,11 +258,27 @@ const appStore = useAppStore()
 const featureFlagsStore = useFeatureFlagsStore()
 const route = useRoute()
 const router = useRouter()
+const notificationHub = inject('notificationHub')
 
 const overview = ref(null)
 // Separate data sources for the new endpoints
 const activityGroupings = ref([])
 const loadingGroupings = ref(false)
+const selectedGroupingsVersion = ref(null)
+const groupingsSummaryData = ref({})
+const showGroupingsForm = ref(false)
+const pendingGroupingsVersionSwitch = ref(false)
+
+const GROUPINGS_SOURCE = 'activity-instances'
+const GROUPINGS_SUBITEM = 'groupings'
+
+const actionSubitemMap = {
+  edit: 'attributes',
+  approve: 'attributes',
+  inactivate: 'attributes',
+  reactivate: 'attributes',
+  newVersion: 'attributes',
+}
 
 const emit = defineEmits(['refresh'])
 
@@ -221,10 +304,199 @@ const groupingsHeaders = [
   },
 ]
 
+const groupingsActions = computed(() => {
+  return [
+    {
+      key: 'approve',
+      label: t('_global.approve'),
+      icon: 'mdi-check-decagram',
+      iconColor: 'success',
+    },
+    {
+      key: 'edit',
+      label: t('_global.edit'),
+      icon: 'mdi-pencil-outline',
+      iconColor: 'nnBaseBlue',
+    },
+    {
+      key: 'new_version',
+      label: t('_global.new_version'),
+      icon: 'mdi-plus-circle-outline',
+      iconColor: 'nnBaseBlue',
+    },
+    {
+      key: 'inactivate',
+      label: t('_global.inactivate'),
+      icon: 'mdi-close-octagon-outline',
+      iconColor: 'nnBaseBlue',
+    },
+    {
+      key: 'reactivate',
+      label: t('_global.reactivate'),
+      icon: 'mdi-undo-variant',
+      iconColor: 'nnBaseBlue',
+    },
+    {
+      key: 'history',
+      label: t('_global.history'),
+      icon: 'mdi-history',
+      iconColor: 'nnBaseBlue',
+    },
+  ]
+})
+
+const groupingPossibleActions = computed(() => {
+  return groupingsSummaryData.value?.possible_actions || []
+})
+
+const isGroupingDraft = computed(() => {
+  return groupingsSummaryData.value?.status === 'Draft'
+})
+
+function isGroupingActionVisible(action) {
+  if (!action || !action.key) return false
+
+  if (action.key === 'history') {
+    return true
+  }
+
+  if (action.key === 'approve') {
+    return (
+      isGroupingDraft.value && groupingPossibleActions.value.includes('approve')
+    )
+  }
+
+  return groupingPossibleActions.value.includes(action.key)
+}
+
+async function refreshAfterGroupingMutation({
+  switchToLatestVersion = false,
+} = {}) {
+  if (switchToLatestVersion) {
+    pendingGroupingsVersionSwitch.value = true
+  }
+
+  if (overview.value?.fetchItem) {
+    await overview.value.fetchItem()
+    return
+  }
+
+  if (switchToLatestVersion) {
+    initializeSelectedGroupingsVersion()
+  }
+  await fetchActivityGroupings()
+}
+
+async function openGroupingsHistory() {
+  const activityInstanceId = route.params.id
+  if (!activityInstanceId || !overview.value) return
+
+  const response = await activities.getVersions(
+    GROUPINGS_SOURCE,
+    activityInstanceId,
+    GROUPINGS_SUBITEM
+  )
+  overview.value.historyItems = overview.value.transformItems(response.data)
+  overview.value.showHistory = true
+}
+
+async function onGroupingActionClick(actionKey) {
+  const activityInstanceId = route.params.id
+
+  if (actionKey === 'edit') {
+    showGroupingsForm.value = true
+    return
+  }
+
+  if (!activityInstanceId) {
+    return
+  }
+
+  try {
+    if (actionKey === 'approve') {
+      await activities.approve(
+        activityInstanceId,
+        GROUPINGS_SOURCE,
+        {},
+        GROUPINGS_SUBITEM
+      )
+      notificationHub?.add({
+        msg: t('ActivitiesTable.approve_activity-instances_success'),
+        type: 'success',
+      })
+      await refreshAfterGroupingMutation()
+      return
+    }
+
+    if (actionKey === 'new_version') {
+      await activities.newVersion(
+        activityInstanceId,
+        GROUPINGS_SOURCE,
+        GROUPINGS_SUBITEM
+      )
+      notificationHub?.add({
+        msg: t('_global.new_version_success'),
+        type: 'success',
+      })
+      await refreshAfterGroupingMutation({ switchToLatestVersion: true })
+      return
+    }
+
+    if (actionKey === 'inactivate') {
+      await activities.inactivate(
+        activityInstanceId,
+        GROUPINGS_SOURCE,
+        GROUPINGS_SUBITEM
+      )
+      notificationHub?.add({
+        msg: t('ActivitiesTable.inactivate_activity-instances_success'),
+        type: 'success',
+      })
+      await refreshAfterGroupingMutation()
+      return
+    }
+
+    if (actionKey === 'reactivate') {
+      await activities.reactivate(
+        activityInstanceId,
+        GROUPINGS_SOURCE,
+        GROUPINGS_SUBITEM
+      )
+      notificationHub?.add({
+        msg: t('ActivitiesTable.reactivate_activity-instances_success'),
+        type: 'success',
+      })
+      await refreshAfterGroupingMutation()
+      return
+    }
+
+    if (actionKey === 'history') {
+      await openGroupingsHistory()
+    }
+  } catch (error) {
+    console.error(`Error performing grouping action "${actionKey}":`, error)
+  }
+}
+
+async function closeGroupingsForm() {
+  showGroupingsForm.value = false
+  // Signal that we need to switch to the latest groupings version
+  // once the overview data refreshes (the prop update is async)
+  pendingGroupingsVersionSwitch.value = true
+  // Also refresh the main overview data
+  if (overview.value) {
+    await overview.value.fetchItem()
+  }
+}
+
 // Methods for ActivitySummary component
 function refreshData() {
-  // Refresh the activity groupings
-  fetchActivityGroupings()
+  // Skip the groupings fetch when a version switch is pending – the
+  // itemOverview watcher will trigger a fresh fetch with the correct version
+  // once the parent View finishes re-fetching the overview data.
+  if (!pendingGroupingsVersionSwitch.value) {
+    fetchActivityGroupings()
+  }
   emit('refresh')
 }
 
@@ -233,14 +505,37 @@ async function fetchActivityGroupings() {
   try {
     loadingGroupings.value = true
     const activityInstanceId = route.params.id
-    const version = route.params.version
+    const version = selectedGroupingsVersion.value
+
+    // Don't fetch if we don't have a valid groupings version yet —
+    // the itemOverview watcher will trigger a fetch once versions are known.
+    if (!activityInstanceId || !version) {
+      loadingGroupings.value = false
+      return
+    }
+
+    // If known versions are available, validate the selected one
+    const knownVersions = groupingsVersionChoices.value
+    if (knownVersions.length && !knownVersions.includes(version)) {
+      loadingGroupings.value = false
+      selectedGroupingsVersion.value = knownVersions[0]
+      return // version watcher will re-trigger the fetch
+    }
 
     if (activityInstanceId) {
       const response = await activities.getActivityInstanceGroupings(
         activityInstanceId,
         version
       )
-      activityGroupings.value = response.data || []
+      groupingsSummaryData.value = {
+        start_date: response.data.start_date,
+        end_date: response.data.end_date,
+        status: response.data.status,
+        change_description: response.data.change_description,
+        author_username: response.data.author_username,
+        possible_actions: response.data.possible_actions || [],
+      }
+      activityGroupings.value = response.data.activity_groupings || []
       // Initialize filtered groupings
       filteredGroupings.value = convertActivityGroupingsToTableItems(
         activityGroupings.value
@@ -248,11 +543,36 @@ async function fetchActivityGroupings() {
     }
   } catch (error) {
     console.error('Error fetching activity groupings:', error)
+    groupingsSummaryData.value = {}
     activityGroupings.value = []
     filteredGroupings.value = []
   } finally {
     loadingGroupings.value = false
   }
+}
+
+function initializeSelectedGroupingsVersion() {
+  const versions = groupingsVersionChoices.value
+  if (!versions.length) {
+    selectedGroupingsVersion.value = null
+    return false
+  }
+
+  if (
+    !selectedGroupingsVersion.value ||
+    !versions.includes(selectedGroupingsVersion.value)
+  ) {
+    const routeVersion = route.params.version
+      ? String(route.params.version)
+      : null
+    selectedGroupingsVersion.value =
+      routeVersion && versions.includes(routeVersion)
+        ? routeVersion
+        : versions[0]
+    return true
+  }
+
+  return false
 }
 
 // Convert activity instance to format expected by ActivitySummary
@@ -290,6 +610,7 @@ function adaptActivityInstanceForSummary(
     is_data_sharing: activityInstance.is_data_sharing,
     is_legacy_usage: activityInstance.is_legacy_usage,
     topic_code: activityInstance.topic_code,
+    molecular_weight: activityInstance.molecular_weight,
     activity_name: activityName,
     author_username:
       activityInstance.author_username || activityInstance.author_id,
@@ -413,9 +734,29 @@ const displayedGroupings = computed(() => {
     : convertActivityGroupingsToTableItems(activityGroupings.value)
 })
 
+const groupingsVersionChoices = computed(() => {
+  const versions = overview.value?.itemOverview?.activity_groupings_versions
+  if (!Array.isArray(versions)) {
+    return []
+  }
+  return versions.map(String)
+})
+
+const groupingsExportDataUrl = computed(() => {
+  const baseUrl = `concepts/activities/activity-instances/${route.params.id}/activity-groupings`
+  if (!selectedGroupingsVersion.value) return baseUrl
+  return `${baseUrl}?version=${encodeURIComponent(selectedGroupingsVersion.value)}`
+})
+
 const newWizardStepper = computed(() => {
   return featureFlagsStore.getFeatureFlag(
     'new_activity_instance_wizard_stepper'
+  )
+})
+
+const newWizardStepperEditMode = computed(() => {
+  return featureFlagsStore.getFeatureFlag(
+    'activity_instance_wizard_stepper_edit_mode'
   )
 })
 
@@ -491,10 +832,38 @@ const historyHeaders = [
 watch(
   () => [route.params.id, route.params.version],
   () => {
-    fetchActivityGroupings()
+    const didUpdateSelectedVersion = initializeSelectedGroupingsVersion()
+    if (!didUpdateSelectedVersion) {
+      fetchActivityGroupings()
+    }
   },
   { immediate: true }
 )
+
+watch(
+  () => overview.value?.itemOverview,
+  () => {
+    if (pendingGroupingsVersionSwitch.value) {
+      pendingGroupingsVersionSwitch.value = false
+      const versions = groupingsVersionChoices.value
+      const latestVersion = versions[0] ?? null
+      if (latestVersion) {
+        selectedGroupingsVersion.value = latestVersion
+      }
+      // Always fetch with the (now correct) version
+      fetchActivityGroupings()
+    } else {
+      initializeSelectedGroupingsVersion()
+    }
+  },
+  { immediate: true }
+)
+
+watch(selectedGroupingsVersion, (newVersion, oldVersion) => {
+  if (newVersion && newVersion !== oldVersion) {
+    fetchActivityGroupings()
+  }
+})
 
 // Setup on mount
 onMounted(() => {
@@ -528,9 +897,6 @@ onMounted(() => {
       true
     )
   }
-
-  // Initial fetch of new endpoint data
-  fetchActivityGroupings()
 })
 </script>
 
@@ -556,6 +922,27 @@ onMounted(() => {
   margin-top: 16px;
   margin-bottom: 8px;
   padding-left: 0;
+}
+
+.section-header--with-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.activity-instance-attributes-section {
+  margin-bottom: 8px;
+}
+
+.section-divider {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.groupings-action-buttons {
+  display: flex;
+  align-items: center;
 }
 
 /* Tables styling */

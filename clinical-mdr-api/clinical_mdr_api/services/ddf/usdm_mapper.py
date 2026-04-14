@@ -1,6 +1,6 @@
 import re
 import uuid
-from datetime import date
+from datetime import date, datetime, timezone
 from itertools import chain
 from typing import Any, Callable
 
@@ -13,6 +13,7 @@ from usdm_model import Encounter as USDMEncounter
 from usdm_model import Endpoint as USDMEndpoint
 from usdm_model import Indication as USDMIndication
 from usdm_model import Objective as USDMObjective
+from usdm_model import Organization as USDMOrganization
 from usdm_model import Procedure as USDMProcedure
 from usdm_model import Quantity as USDMQuantity
 from usdm_model import Range as USDMRange
@@ -43,7 +44,8 @@ from clinical_mdr_api.models.study_selections.study import Study as OSBStudy
 from clinical_mdr_api.services.ddf.usdm_utils import IdManager
 from common.telemetry import trace_calls
 
-DDF_CT_PACKAGE_EFFECTIVE_DATE = "2023-12-15"
+DDF_ORGANIZATION_TYPE_STUDY_REGISTRY = "C93453"
+DDF_ORGANIZATION_TYPE_REGULATORY_AGENCY = "C188863"
 DDF_STUDY_ARM_DATA_ORIGIN_TYPE_GENERATED_WITHIN_STUDY = "C188866"
 DDF_STUDY_POPULATION_DURATION_UNIT_DAYS = "C25301"
 DDF_STUDY_POPULATION_DURATION_UNIT_WEEKS = "C29844"
@@ -131,6 +133,64 @@ class USDMMapper:
         self._get_osb_study_activities = get_osb_study_activities
         self._get_osb_activity_schedules = get_osb_activity_schedules
         self._id_manager = IdManager()
+        self._ct_package_effective_date: str = str(date.today())
+        self._ct_terms_datetime: datetime | None = None
+        self._registid_labels: dict[str, str] = {}
+
+    @staticmethod
+    def _effective_date_to_str(effective_date) -> str:
+        """Convert a Neo4j date value to a date-only string (YYYY-MM-DD)."""
+        # Neo4j may return neo4j.time.Date or datetime — ensure date-only format
+        return str(effective_date)[:10]
+
+    @staticmethod
+    def _effective_date_to_datetime(effective_date_str: str) -> datetime:
+        """Convert effective date string (YYYY-MM-DD) to a timezone-aware datetime for version-aware CT term resolution."""
+        d = date.fromisoformat(effective_date_str)
+        return datetime(d.year, d.month, d.day, 23, 59, 59, 999999, tzinfo=timezone.utc)
+
+    @staticmethod
+    def _resolve_ct_package_effective_date(study_uid: str) -> str:
+        """Resolve CT package effective date from study's selected CT package, falling back to latest CDISC CT package."""
+        # Try study's own CT package first
+        query = """
+            MATCH (sr:StudyRoot {uid: $study_uid})-[:LATEST]->(sv:StudyValue)
+                  -[:HAS_STUDY_STANDARD_VERSION]->(ssv:StudyStandardVersion)
+                  -[:HAS_CT_PACKAGE]->(ct_pkg:CTPackage)
+            RETURN ct_pkg.effective_date AS effective_date
+            ORDER BY ct_pkg.effective_date DESC
+            LIMIT 1
+        """
+        result, _ = db.cypher_query(query, {"study_uid": study_uid})
+        if result and result[0][0] is not None:
+            return USDMMapper._effective_date_to_str(result[0][0])
+
+        # Fallback: latest CDISC CT package (from DDF CT or SDTM CT catalogues, excluding sponsor extensions)
+        fallback_query = """
+            MATCH (cat:CTCatalogue)-[:CONTAINS_PACKAGE]->(ct_pkg:CTPackage)
+            WHERE cat.name IN ['DDF CT', 'SDTM CT'] AND NOT (ct_pkg)-[:EXTENDS_PACKAGE]->()
+            RETURN ct_pkg.effective_date AS effective_date
+            ORDER BY ct_pkg.effective_date DESC
+            LIMIT 1
+        """
+        result, _ = db.cypher_query(fallback_query)
+        if result and result[0][0] is not None:
+            return USDMMapper._effective_date_to_str(result[0][0])
+
+        # Ultimate fallback
+        return str(date.today())
+
+    @staticmethod
+    def _load_registid_labels() -> dict[str, str]:
+        """Load registry identifier term labels from the REGISTID sponsor codelist (CTCodelist_000038)."""
+        query = """
+            MATCH (cl:CTCodelistRoot {uid: 'CTCodelist_000038'})-[:HAS_TERM]->(clt:CTCodelistTerm)
+                  -[:HAS_TERM_ROOT]->(tr:CTTermRoot)
+            MATCH (tr)-[:HAS_NAME_ROOT]->(:CTTermNameRoot)-[:LATEST]->(tnv:CTTermNameValue)
+            RETURN tr.uid AS term_uid, tnv.name AS term_name
+        """
+        result, _ = db.cypher_query(query)
+        return {row[0]: row[1] for row in result}
 
     def get_void_usdm_code(self):
         return USDMCode(
@@ -146,15 +206,26 @@ class USDMMapper:
     def get_ct_package_term_as_usdm_code(self, concept_id: str | None) -> USDMCode:
         if concept_id is None:
             return self.get_void_usdm_code()
+        # Version-aware term resolution: resolve term name at the study's CT package effective date.
+        # Uses the ct_term_name_at_datetime pattern from common/queries.py — orders by dates_match DESC
+        # so an exact version match is preferred, but falls back gracefully to the latest version.
         query = """
-            MATCH (l:Library)-[:CONTAINS_TERM]->(cttr:CTTermRoot)-[:HAS_NAME_ROOT]->()-[:LATEST]->(cttav)
+            MATCH (l:Library)-[:CONTAINS_TERM]->(cttr:CTTermRoot)
             WHERE cttr.uid STARTS WITH $concept_id
-            RETURN l, cttav
+            MATCH (cttr)-[:HAS_NAME_ROOT]->(:CTTermNameRoot)-[version:HAS_VERSION]->(value:CTTermNameValue)
+            WHERE version.status IN ['Final', 'Retired']
+            WITH l, cttr, version, value,
+                ($ct_terms_datetime IS NULL OR version.start_date <= $ct_terms_datetime
+                    AND (version.end_date IS NULL OR version.end_date > $ct_terms_datetime)) AS dates_match
+            ORDER BY dates_match DESC, version.start_date DESC
+            LIMIT 1
+            RETURN l, value
         """
         result, _ = db.cypher_query(
             query,
             {
                 "concept_id": concept_id,
+                "ct_terms_datetime": self._ct_terms_datetime,
             },
         )
         if len(result) == 0:
@@ -165,7 +236,7 @@ class USDMMapper:
             id=self._id_manager.get_id(USDMCode.__name__, concept_id),
             code=concept_id,
             codeSystem=library["name"],
-            codeSystemVersion=str(date.today()),
+            codeSystemVersion=self._ct_package_effective_date,
             decode=ct_term_name_value["name"],
             instanceType="Code",
         )
@@ -263,7 +334,7 @@ class USDMMapper:
             id=self._id_manager.get_id(USDMCode.__name__, term_uid),
             code=term_uid,
             codeSystem=library["name"],
-            codeSystemVersion=str(date.today()),
+            codeSystemVersion=self._ct_package_effective_date,
             decode=ct_term_attributes_value["name"],
             instanceType="Code",
         )
@@ -271,6 +342,14 @@ class USDMMapper:
 
     @trace_calls
     def map(self, study: OSBStudy) -> dict[str, Any]:
+        self._ct_package_effective_date = self._resolve_ct_package_effective_date(
+            study.uid
+        )
+        self._ct_terms_datetime = self._effective_date_to_datetime(
+            self._ct_package_effective_date
+        )
+        self._registid_labels = self._load_registid_labels()
+
         usdm_study = USDMStudy(name=self._get_study_name(study), instanceType="Study")
         usdm_study.id = uuid.uuid4()
         usdm_study.label = self._get_study_label(study)
@@ -290,10 +369,15 @@ class USDMMapper:
             instanceType="StudyTitle",
         )
 
+        study_identifiers, organizations = (
+            self._get_study_identifiers_and_organizations(study)
+        )
+
         usdm_version = USDMStudyVersion(
             id=self._id_manager.get_id(USDMStudyVersion.__name__),
             titles=[ddf_study_title],
-            studyIdentifiers=self._get_study_identifiers(study),
+            studyIdentifiers=study_identifiers,
+            organizations=organizations,
             versionIdentifier="",
             rationale="Missing metadata",
             instanceType="StudyVersion",
@@ -562,8 +646,107 @@ class USDMMapper:
         osb_study_id = getattr(osb_identification_metadata, "study_id", "")
         return osb_study_id
 
+    # Registry identifier field names mapped to organization metadata.
+    # Organization type codes (from DDF CT codelist C188724): C93453 = Study Registry, C188863 = Regulatory Agency
+    # Labels are resolved at runtime from the REGISTID sponsor codelist (CTCodelist_000038) in the database.
+    # org_name and id_scheme have no DB source and remain as configuration.
+    REGISTRY_ORGANIZATIONS: dict[str, tuple[str, str | None, str, str, str]] = {
+        # field_name: (org_name, registid_term_uid, id_scheme, org_type_code, fallback_label)
+        "ct_gov_id": (
+            "CT-GOV",
+            "CTTerm_000212",
+            "USGOV",
+            DDF_ORGANIZATION_TYPE_STUDY_REGISTRY,
+            "ClinicalTrials.gov ID",
+        ),
+        "eudract_id": (
+            "EUDRACT",
+            "CTTerm_000215",
+            "EU",
+            DDF_ORGANIZATION_TYPE_STUDY_REGISTRY,
+            "EUDRACT ID",
+        ),
+        "eu_trial_number": (
+            "EU-CT",
+            "CTTerm_000218",
+            "EU",
+            DDF_ORGANIZATION_TYPE_STUDY_REGISTRY,
+            "EU Trial Number",
+        ),
+        "universal_trial_number_utn": (
+            "WHO-UTN",
+            "CTTerm_000214",
+            "UTN",
+            DDF_ORGANIZATION_TYPE_STUDY_REGISTRY,
+            "Universal Trial Number (UTN)",
+        ),
+        "japanese_trial_registry_id_japic": (
+            "JAPIC",
+            "CTTerm_000213",
+            "JAPIC",
+            DDF_ORGANIZATION_TYPE_STUDY_REGISTRY,
+            "Japanese Trial Registry ID (JAPIC)",
+        ),
+        "japanese_trial_registry_number_jrct": (
+            "JRCT",
+            "CTTerm_000221",
+            "JRCT",
+            DDF_ORGANIZATION_TYPE_STUDY_REGISTRY,
+            "Japanese Trial Registry Number (jRCT)",
+        ),
+        "investigational_new_drug_application_number_ind": (
+            "FDA-IND",
+            "CTTerm_000217",
+            "USGOV",
+            DDF_ORGANIZATION_TYPE_REGULATORY_AGENCY,
+            "Investigational New Drug Application (IND) Number",
+        ),
+        "investigational_device_exemption_ide_number": (
+            "FDA-IDE",
+            "CTTerm_000224",
+            "USGOV",
+            DDF_ORGANIZATION_TYPE_REGULATORY_AGENCY,
+            "Investigational Device Exemption (IDE) Number",
+        ),
+        "civ_id_sin_number": (
+            "CIV-SIN",
+            "CTTerm_000216",
+            "EU",
+            DDF_ORGANIZATION_TYPE_STUDY_REGISTRY,
+            "CIV-ID/SIN Number",
+        ),
+        "national_clinical_trial_number": (
+            "NCT-REG",
+            "CTTerm_000220",
+            "NATIONAL",
+            DDF_ORGANIZATION_TYPE_STUDY_REGISTRY,
+            "National Clinical Trial Number",
+        ),
+        "national_medical_products_administration_nmpa_number": (
+            "NMPA",
+            "CTTerm_000222",
+            "NMPA",
+            DDF_ORGANIZATION_TYPE_REGULATORY_AGENCY,
+            "National Medical Products Administration (NMPA) Number",
+        ),
+        "eudamed_srn_number": (
+            "EUDAMED",
+            "CTTerm_000223",
+            "EU",
+            DDF_ORGANIZATION_TYPE_REGULATORY_AGENCY,
+            "EUDAMED SRN Number",
+        ),
+        "eu_pas_number": (
+            "EU-PAS",
+            None,
+            "EU",
+            DDF_ORGANIZATION_TYPE_STUDY_REGISTRY,
+            "EU PAS Register",
+        ),
+    }
+
     @trace_calls
-    def _get_study_identifiers(self, study: OSBStudy):
+    def _get_study_identifiers_and_organizations(self, study: OSBStudy):
         osb_identification_metadata = getattr(
             getattr(study, "current_metadata", None), "identification_metadata", None
         )
@@ -571,32 +754,49 @@ class USDMMapper:
             osb_identification_metadata, "registry_identifiers", []
         )
 
-        selected_registry_identifiers = [
-            "civ_id_sin_number",
-            "ct_gov_id",
-            "eudamed_srn_number",
-            "eudract_id",
-            "eu_trial_number",
-            "investigational_device_exemption_ide_number",
-            "investigational_new_drug_application_number_ind",
-            "japanese_trial_registry_id_japic",
-            "japanese_trial_registry_number_jrct",
-            "national_clinical_trial_number",
-            "national_medical_products_administration_nmpa_number",
-            "universal_trial_number_utn",
-            "eu_pas_number",
-        ]
+        study_identifiers = []
+        organizations = []
 
-        return [
-            USDMStudyIdentifier(
-                id=self._id_manager.get_id(USDMStudyIdentifier.__name__),
-                text=osb_curr_id,
-                scopeId=selected_id,
-                instanceType="StudyIdentifier",
+        for field_name, (
+            org_name,
+            registid_term_uid,
+            id_scheme,
+            org_type_concept_id,
+            fallback_label,
+        ) in self.REGISTRY_ORGANIZATIONS.items():
+            value = getattr(osb_registry_identifiers, field_name, None)
+            if not value:
+                continue
+
+            # Resolve label from REGISTID codelist in DB, falling back to static label
+            org_label = (
+                self._registid_labels.get(registid_term_uid, fallback_label)
+                if registid_term_uid
+                else fallback_label
             )
-            for selected_id in selected_registry_identifiers
-            if (osb_curr_id := getattr(osb_registry_identifiers, selected_id, None))
-        ]
+
+            org_id = self._id_manager.get_id(USDMOrganization.__name__)
+            organizations.append(
+                USDMOrganization(
+                    id=org_id,
+                    name=org_name,
+                    label=org_label,
+                    type=self.get_ct_package_term_as_usdm_code(org_type_concept_id),
+                    identifierScheme=id_scheme,
+                    identifier=org_name,
+                    instanceType="Organization",
+                )
+            )
+            study_identifiers.append(
+                USDMStudyIdentifier(
+                    id=self._id_manager.get_id(USDMStudyIdentifier.__name__),
+                    text=value,
+                    scopeId=org_id,
+                    instanceType="StudyIdentifier",
+                )
+            )
+
+        return study_identifiers, organizations
 
     @trace_calls
     def _get_study_indications(self, study: OSBStudy):

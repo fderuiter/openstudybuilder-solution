@@ -5,11 +5,11 @@
 |--------------------------|--------------|--------------------------------------------------------------|
 | annotated-doc            | 0.0.4        | [MIT](#annotated-doc)                                        |
 | annotated-types          | 0.6.0        | [see below](#annotated-types)                                |
-| anyio                    | 4.12.1       | [MIT](#anyio)                                                |
+| anyio                    | 4.13.0       | [MIT](#anyio)                                                |
 | asyncache                | 0.3.1        | [MIT](#asyncache)                                            |
-| attrs                    | 25.4.0       | [MIT](#attrs)                                                |
+| attrs                    | 26.1.0       | [MIT](#attrs)                                                |
 | Authlib                  | 1.6.9        | [BSD-3-Clause](#authlib)                                     |
-| azure-core               | 1.38.3       | [MIT](#azure-core)                                           |
+| azure-core               | 1.39.0       | [MIT](#azure-core)                                           |
 | azure-identity           | 1.25.3       | [MIT](#azure-identity)                                       |
 | beautifulsoup4           | 4.12.3       | [MIT License](#beautifulsoup4)                               |
 | brotli                   | 1.2.0        | [MIT](#brotli)                                               |
@@ -19,14 +19,14 @@
 | charset-normalizer       | 3.4.6        | [MIT](#charset-normalizer)                                   |
 | click                    | 8.3.1        | [BSD-3-Clause](#click)                                       |
 | colour                   | 0.1.5        | [BSD 3-Clause License](#colour)                              |
-| cryptography             | 46.0.5       | [Apache-2.0 OR BSD-3-Clause](#cryptography)                  |
+| cryptography             | 46.0.6       | [Apache-2.0 OR BSD-3-Clause](#cryptography)                  |
 | cssselect2               | 0.9.0        | [see below](#cssselect2)                                     |
-| deepdiff                 | 8.6.1        | [see below](#deepdiff)                                       |
+| deepdiff                 | 8.6.2        | [see below](#deepdiff)                                       |
 | dict2xml                 | 1.7.8        | [MIT](#dict2xml)                                             |
 | docraptor                | 3.1.0        | [MIT](#docraptor)                                            |
 | et_xmlfile               | 2.0.0        | [MIT](#et_xmlfile)                                           |
 | fastapi                  | 0.131.0      | [MIT](#fastapi)                                              |
-| fhir_core                | 1.1.5        | [BSD license](#fhir_core)                                    |
+| fhir_core                | 1.1.7        | [BSD license](#fhir_core)                                    |
 | fhir.resources           | 8.2.0        | [BSD license](#fhirresources)                                |
 | fonttools                | 4.62.1       | [MIT](#fonttools)                                            |
 | google-api-core          | 2.30.0       | [Apache 2.0](#google-api-core)                               |
@@ -54,9 +54,9 @@
 | pandas                   | 3.0.1        | [see below](#pandas)                                         |
 | pillow                   | 12.1.1       | [MIT-CMU](#pillow)                                           |
 | proto-plus               | 1.27.1       | [Apache 2.0](#proto-plus)                                    |
-| protobuf                 | 6.33.5       | [3-Clause BSD License](#protobuf)                            |
+| protobuf                 | 6.33.6       | [3-Clause BSD License](#protobuf)                            |
 | psutil                   | 7.2.2        | [BSD-3-Clause](#psutil)                                      |
-| pyasn1                   | 0.6.2        | [BSD-2-Clause](#pyasn1)                                      |
+| pyasn1                   | 0.6.3        | [BSD-2-Clause](#pyasn1)                                      |
 | pyasn1_modules           | 0.4.2        | [BSD](#pyasn1_modules)                                       |
 | pycparser                | 3.0          | [BSD-3-Clause](#pycparser)                                   |
 | pydantic                 | 2.12.5       | [MIT](#pydantic)                                             |
@@ -71,7 +71,7 @@
 | python-multipart         | 0.0.22       | [Apache-2.0](#python-multipart)                              |
 | pytz                     | 2026.1.post1 | [MIT](#pytz)                                                 |
 | PyYAML                   | 6.0.3        | [MIT](#pyyaml)                                               |
-| requests                 | 2.32.5       | [Apache-2.0](#requests)                                      |
+| requests                 | 2.33.0       | [Apache-2.0](#requests)                                      |
 | six                      | 1.17.0       | [MIT](#six)                                                  |
 | sniffio                  | 1.3.1        | [MIT OR Apache-2.0](#sniffio)                                |
 | sortedcontainers         | 2.4.0        | [Apache 2.0](#sortedcontainers)                              |
@@ -9329,6 +9329,9 @@
        defend, and hold each Contributor harmless for any liability
        incurred by, or claims asserted against, such Contributor by reason
        of your accepting any such warranty or additional liability.
+
+    Requests
+    Copyright 2019 Kenneth Reitz
 
 ---
 ### six

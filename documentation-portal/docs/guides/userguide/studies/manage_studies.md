@@ -154,7 +154,7 @@ This option is to create a new study as a subpart. Make sure to have the study s
 
 1. Select ‘Create new study to be study subpart’
 1. Select ‘continue’
-1. Write study subpart acronym (could be Multi Dose, or part 2 or something else, this field is required)
+1. Write study subpart acronym (could be MULTIDOSE, or PART2 or something else, this field is required)
 1. Write study acronym (this is the basic acronym for the study similar to the acronym for normal studies, the field is optional)
 1. Write a description (optional)
 1. Press ‘Save’
@@ -189,7 +189,7 @@ Only studies within same project ID can be add as subpart to the ‘main’ stud
 1. Select ‘Add existing study as study subpart’
 1. Select ‘continue’
 1. Select existing study by using the copy button ![Copy](~@source/images/user_guides/copy_button.png)
-1. Write study subpart acronym (could be Multi Dose, or part 2 or something else, this field is required)
+1. Write study subpart acronym (could be MULTIDOSE, or PART2 or something else, this field is required)
 1. Write a description (optional) or reuse any existing description
 1. Press ‘Save’
 
@@ -218,10 +218,10 @@ Then go to Manage study/Study/Study Subparts to get the overview – see Figure 
 
 | Column | Explanation | Example |
 | --- | --------- | --- |
-| Study ID | The study ID number including project ID | CDISC DEV-5555 |
+| Study ID | The study ID number including project ID and subpart acronym | CDISC DEV-5555-SINGLEDOSE |
 | Study Acronym | The acronym for the whole study | DEFINE6 |
 | Subpart ID | The unique ID for the subpart | a   |
-| Subpart acronym | An acronym that describes the subpart | SD/Single Dose |
+| Subpart acronym | An acronym that describes the subpart | SINGLEDOSE |
 | Description | Free text description as needed | Lorem ipsum etc |
 
 
@@ -230,4 +230,5 @@ Then go to Manage study/Study/Study Subparts to get the overview – see Figure 
 A study subpart cannot be released or locked individually - a subpart can only be released or locked together with the parent study. This ensures a multiple parts study always is versioned as a bundle of a parent study and its subparts.
 
 See more on [study versioning](#maintain-study-status-and-versioning).
+
 

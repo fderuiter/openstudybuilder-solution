@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="mt-2 mb-8">
-      <div class="mb-2 text-secondary text-h6">
+      <div class="mb-2 text-secondary text-headline-small">
         <template v-if="previewText">
           {{ previewText }}
         </template>
@@ -225,7 +225,7 @@
     </div>
 
     <template v-if="withUnformattedVersion">
-      <p class="text-secondary text-h6">
+      <p class="text-secondary text-headline-small">
         {{ unformattedTextLabel }}
         <v-tooltip
           v-if="maxTemplateLength && namePlainPreview.length > 200"

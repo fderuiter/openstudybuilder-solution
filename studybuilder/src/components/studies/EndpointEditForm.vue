@@ -15,7 +15,7 @@
   >
     <template #formFields="{ editTemplate, form }">
       <v-form ref="observer">
-        <p class="mt-6 text-secondary text-h6">
+        <p class="mt-6 text-secondary text-headline-small">
           {{ $t('StudyEndpointEditForm.units_section') }}
         </p>
         <v-row>
@@ -41,7 +41,7 @@
             />
           </v-col>
         </v-row>
-        <p class="mt-6 text-secondary text-h6">
+        <p class="mt-6 text-secondary text-headline-small">
           {{ $t('StudyEndpointEditForm.timeframe_section') }}
         </p>
         <v-row>
@@ -77,7 +77,7 @@
             />
           </template>
         </div>
-        <p class="mt-6 text-secondary text-h6">
+        <p class="mt-6 text-secondary text-headline-small">
           {{ $t('StudyEndpointEditForm.level_section') }}
         </p>
         <v-row>
@@ -104,7 +104,7 @@
             />
           </v-col>
         </v-row>
-        <p class="mt-6 text-secondary text-h6">
+        <p class="mt-6 text-secondary text-headline-small">
           {{ $t('StudyEndpointEditForm.objective_section') }}
         </p>
         <v-row>

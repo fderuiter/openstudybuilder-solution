@@ -36,6 +36,7 @@ from clinical_mdr_api.domains.study_definition_aggregates.root import (
     StudyDefinitionAR,
 )
 from clinical_mdr_api.domains.study_definition_aggregates.study_metadata import (
+    _STUDY_SUBPART_ACRONYM_PATTERN,
     HighLevelStudyDesignVO,
     StudyCompactComponentEnum,
     StudyComponentEnum,
@@ -137,6 +138,19 @@ def validate_if_study_is_not_locked(
         return wrapper
 
     return decorator
+
+
+def validate_study_subpart_acronym(study_subpart_acronym: str):
+    """Check if provided study subpart acronym respects business rules."""
+    BusinessLogicException.raise_if(
+        study_subpart_acronym is not None and len(study_subpart_acronym) > 10,
+        msg=f"Study Subpart Acronym must not exceed 10 characters, got {len(study_subpart_acronym) if study_subpart_acronym else 0}.",
+    )
+    BusinessLogicException.raise_if(
+        study_subpart_acronym is not None
+        and not _STUDY_SUBPART_ACRONYM_PATTERN.fullmatch(study_subpart_acronym),
+        msg=f"Study Subpart Acronym must contain only alphanumeric characters (no blanks or special characters), got '{study_subpart_acronym}'.",
+    )
 
 
 class StudyService:
@@ -994,6 +1008,7 @@ class StudyService:
         deleted: bool = False,
     ) -> list[StudySimple | StudyMinimal]:
         items = self._repos.study_definition_repository.get_studies_list(
+            minimal_response,
             has_study_objective,
             has_study_footnote,
             has_study_endpoint,
@@ -1358,6 +1373,9 @@ class StudyService:
                     parent_part_ar.study_parent_part_uid,
                     msg=f"Provided study_parent_part_uid '{study_create_input.study_parent_part_uid}' is a Study Subpart UID.",
                 )
+                study_subpart_acronym = study_create_input.study_subpart_acronym
+                validate_study_subpart_acronym(study_subpart_acronym)
+
                 project_number = (
                     parent_part_ar.current_metadata.id_metadata.project_number
                 )
@@ -1458,7 +1476,10 @@ class StudyService:
             self._repos.study_definition_repository.post_soa_preferences(
                 study_uid=study_definition.uid,
                 soa_preferences=StudySoaPreferencesInput(
-                    baseline_as_time_zero=True, show_epochs=True, show_milestones=False
+                    baseline_as_time_zero=True,
+                    show_epochs=True,
+                    show_milestones=False,
+                    show_all_visits_lab_table=True,
                 ),
             )
 
@@ -1977,6 +1998,13 @@ class StudyService:
                     != parent_part_ar.current_metadata.id_metadata.project_number,
                     msg="Project number of Study Parent Part and Study Subpart must be same.",
                 )
+                if (
+                    study_patch_request.current_metadata.identification_metadata
+                    and study_patch_request.current_metadata.identification_metadata.study_subpart_acronym
+                ):
+                    validate_study_subpart_acronym(
+                        study_patch_request.current_metadata.identification_metadata.study_subpart_acronym
+                    )
 
                 if not study_patch_request.current_metadata:
                     study_patch_request.current_metadata = StudyMetadataJsonModel(

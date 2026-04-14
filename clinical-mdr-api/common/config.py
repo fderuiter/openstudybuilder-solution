@@ -200,6 +200,8 @@ class Settings(BaseSettings):
 
     non_visit_number: int = 29999
     unscheduled_visit_number: int = 29500
+    unscheduled_visit_name: str = "Unscheduled"
+    unscheduled_visit_start_rule: str = "Unplanned unscheduled"
     visit_0_number: int = 0
     fixed_week_period: int = 7
 
@@ -251,12 +253,14 @@ class Settings(BaseSettings):
     study_field_soa_preferred_time_unit_name: str = "soa_preferred_time_unit"
     study_field_soa_show_epochs: str = "soa_show_epochs"
     study_field_soa_show_milestones: str = "soa_show_milestones"
+    study_field_soa_show_all_visits_lab_table: str = "soa_show_all_visits_lab_table"
     study_field_soa_baseline_as_time_zero: str = "baseline_as_time_zero"
-    study_soa_preferences_fields: tuple[str, str, str] = (
+    study_soa_preferences_fields: tuple[str, str, str, str] = (
         # can't be a set: Neomodel's transform_operator_to_filter is strict for IN operator only accepts list or tuple
         study_field_soa_show_epochs,
         study_field_soa_show_milestones,
         study_field_soa_baseline_as_time_zero,
+        study_field_soa_show_all_visits_lab_table,
     )
     study_soa_split_uids_field: str = "soa_split_uids"
 

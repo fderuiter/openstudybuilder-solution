@@ -1,4 +1,4 @@
-from typing import Annotated, Callable, Self
+from typing import Annotated, Any, Callable, Self
 
 from pydantic import ConfigDict, Field, ValidationInfo, field_validator
 
@@ -13,6 +13,7 @@ from clinical_mdr_api.domains.versioned_object_aggregate import (
 from clinical_mdr_api.models.concepts.concept import VersionProperties
 from clinical_mdr_api.models.libraries.library import Library
 from clinical_mdr_api.models.utils import BaseModel, InputModel, PatchInputModel
+from common.utils import convert_to_datetime
 
 
 class ParentActivityItemClass(BaseModel):
@@ -140,6 +141,24 @@ class CompactActivityItemClassForInstanceClass(BaseModel):
             }
         ),
     ] = False
+    data_type_uid: Annotated[
+        str | None,
+        Field(
+            json_schema_extra={
+                "source": "has_activity_item_class.has_latest_value.has_data_type.has_selected_term.uid",
+                "nullable": True,
+            }
+        ),
+    ] = None
+    data_type_name: Annotated[
+        str | None,
+        Field(
+            json_schema_extra={
+                "source": "has_activity_item_class.has_latest_value.has_data_type.has_selected_term.has_name_root.has_latest_value.name",
+                "nullable": True,
+            }
+        ),
+    ] = None
 
 
 class CompactActivityInstanceClass(BaseModel):
@@ -271,6 +290,25 @@ class ActivityInstanceClass(VersionProperties):
             possible_actions=sorted(
                 [_.value for _ in activity_instance_class_ar.get_possible_actions()]
             ),
+        )
+
+    @classmethod
+    def from_cypher_row(cls, row: dict[str, Any]) -> Self:
+        return cls(
+            uid=row["uid"],
+            name=row["name"],
+            order=row.get("order_val"),
+            definition=row.get("definition"),
+            is_domain_specific=row.get("is_domain_specific"),
+            level=row.get("level"),
+            library_name=row.get("library_name"),
+            start_date=convert_to_datetime(row.get("start_date")),
+            end_date=convert_to_datetime(row.get("end_date")),
+            status=row.get("status"),
+            version=row.get("version"),
+            change_description=row.get("change_description"),
+            author_username=row.get("author_username"),
+            possible_actions=[],
         )
 
 

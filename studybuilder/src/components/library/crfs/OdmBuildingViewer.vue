@@ -107,12 +107,12 @@
             <v-divider class="mt-2"></v-divider>
           </template>
 
-          <template #selection="{ item, index }">
+          <template #selection="{ internalItem: item, index }">
             <v-chip v-if="index < 2" :text="item.title" />
 
             <span
               v-if="index === 2"
-              class="text-grey text-caption align-self-center"
+              class="text-grey text-body-small align-self-center"
             >
               (+{{ selectedNamespaces.length - 2 }}
               {{ selectedNamespaces.length - 2 === 1 ? 'other' : 'others' }})
@@ -188,9 +188,12 @@
       ></v-switch>
     </v-row>
     <div v-show="loading">
-      <v-row align="center" justify="center" style="text-align: -webkit-center">
+      <v-row
+        class="align-center justify-center"
+        style="text-align: -webkit-center"
+      >
         <v-col cols="12" sm="4">
-          <div class="text-h5">
+          <div class="text-headline-medium">
             {{ $t('OdmViewer.loading_message') }}
           </div>
           <v-progress-circular

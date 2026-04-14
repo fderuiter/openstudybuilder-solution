@@ -31,9 +31,16 @@
         <v-row>
           <v-col>
             <v-text-field
-              v-model="form.study_subpart_acronym"
+              :model-value="form.study_subpart_acronym"
               :label="$t('StudySubparts.study_subpart_acronym')"
-              hide-details
+              :rules="[
+                formRules.required,
+                formRules.uppercaseAlphanumeric,
+                (v) => formRules.max(v, 10),
+              ]"
+              @update:model-value="
+                form.study_subpart_acronym = $event?.toUpperCase().trim()
+              "
             />
           </v-col>
         </v-row>
@@ -70,6 +77,7 @@ const props = defineProps({
 
 const { t } = useI18n()
 const notificationHub = inject('notificationHub')
+const formRules = inject('formRules')
 const emit = defineEmits(['close'])
 const studiesGeneralStore = useStudiesGeneralStore()
 

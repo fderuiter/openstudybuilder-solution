@@ -1064,6 +1064,21 @@ class OdmGenericService(Generic[_AggregateRootType], ABC):
 
         return self.get_by_uid(uid)
 
+    def renumber_items_sequentially(
+        self, items: Sequence[BaseModel], order_field_name: str, start: int = 1
+    ):
+        sorted_items = sorted(items, key=lambda x: getattr(x, order_field_name))
+
+        for idx, item in enumerate(sorted_items, start=start):
+            if isinstance(item, BaseModel):
+                if getattr(item, order_field_name, None) != idx:
+                    setattr(item, order_field_name, idx)
+            else:
+                raise ValueError(
+                    f"Items must be a Pydantic model. Found item of type {type(item)}."
+                )
+        return sorted_items
+
     def cascade_inactivate(self, item: _AggregateRootType):
         pass
 

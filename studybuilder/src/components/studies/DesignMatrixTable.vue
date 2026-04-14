@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p class="text-grey text-subtitle-1 font-weight-bold ml-3">
+    <p class="text-grey text-body-large font-weight-bold ml-3">
       {{ $t('DesignMatrix.matrix_guide') }}
     </p>
     <NNTable

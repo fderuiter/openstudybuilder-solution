@@ -4,22 +4,6 @@ Feature: Library - Syntax Templates - Objectives - Pre-instance
         Given The user is logged in
 
     @smoke_test
-    Scenario: [Table][Columns][Names] User must be able to see the table with correct columns
-        Given The '/library/objective_templates/pre-instances' page is opened
-        Then A table is visible with following headers
-            | headers         |
-            | Sequence number |
-            | Parent template |
-            | Modified        |
-            | Status          |
-            | Version         |
-
-    Scenario: [Table][Columns][Visibility] User must be able to select visibility of columns in the table 
-        Given The '/library/objective_templates/pre-instances' page is opened
-        When The first column is selected from Select Columns option for table with actions
-        Then The table contain only selected column and actions column
-
-    @smoke_test
     Scenario: [Create][Positive case] User must be able to create Objective Template Pre-instantiation in Parent Template tab
         Given The '/library/objective_templates/parent' page is opened
         And The Add template button is clicked

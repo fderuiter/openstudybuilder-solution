@@ -76,7 +76,12 @@ const fetchItems = (filters, options, filtersUpdated) => {
 }
 
 const fetchAuditTrail = async (options) => {
-  const resp = await api.getVersions(options)
+  const data = {
+    page_number: options.page,
+    page_size: options.itemsPerPage,
+    total_count: true,
+  }
+  const resp = await api.getVersions(data)
   return resp.data
 }
 </script>

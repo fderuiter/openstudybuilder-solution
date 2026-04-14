@@ -90,8 +90,8 @@
         <v-row>
           <v-col cols="12">
             <v-text-field
+              v-model="studyId"
               :label="$t('StudyForm.study_id')"
-              :value="studyId"
               disabled
               hide-details
               data-cy="study-id"

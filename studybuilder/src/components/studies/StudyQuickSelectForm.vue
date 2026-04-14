@@ -11,13 +11,13 @@
 
     <v-card-actions class="pb-4">
       <v-spacer />
-      <v-btn class="secondary-btn" color="white" elevation="3" @click="close">
+      <v-btn class="secondary-btn" color="white" elevation="1" @click="close">
         {{ $t('_global.cancel') }}
       </v-btn>
       <v-btn
         color="secondary"
         variant="flat"
-        elevation="3"
+        elevation="1"
         :loading="loading"
         @click="select"
       >

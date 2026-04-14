@@ -7,30 +7,22 @@
     hide-details
     :loading="loading"
   >
-    <template #prepend-item>
-      <v-row @keydown.stop>
-        <v-text-field
-          v-model="search"
-          class="pl-6"
-          :placeholder="$t('_global.search')"
-          @update:model-value="fetchTerms()"
-        />
-        <v-btn
-          variant="text"
-          size="small"
-          icon="mdi-close"
-          class="mr-3 mt-3"
-          @click="reset"
-        />
-      </v-row>
+    <template #menu-header>
+      <SelectMenuSearch
+        v-model="search"
+        :placeholder="$t('_global.search')"
+        @update:model-value="fetchTerms()"
+        @clear="reset"
+      />
     </template>
   </v-select>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import _debounce from 'lodash/debounce'
 import termsApi from '@/api/controlledTerminology/terms'
+import SelectMenuSearch from '@/components/tools/SelectMenuSearch.vue'
 
 const props = defineProps({
   codelist: {
@@ -44,7 +36,20 @@ const loading = ref(false)
 const search = ref('')
 const terms = ref([])
 
+watch(
+  () => props.codelist,
+  () => {
+    search.value = ''
+    fetchTerms()
+  }
+)
+
 const fetchTerms = _debounce(function () {
+  if (!props.codelist) {
+    terms.value = []
+    loading.value = false
+    return
+  }
   loading.value = true
   const params = {
     page_size: 50,
@@ -74,5 +79,16 @@ const reset = () => {
   }
 }
 
-fetchTerms()
+watch(
+  () => props.codelist,
+  (value) => {
+    if (value) {
+      fetchTerms()
+    }
+  }
+)
+
+if (props.codelist) {
+  fetchTerms()
+}
 </script>

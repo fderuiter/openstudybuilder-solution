@@ -1,232 +1,135 @@
-@REQ_ID:1074260
-Feature: Studies - Define Study - Study Activities - Study Activities Placeholder
+    @REQ_ID:1074260
+    Feature: Studies - Define Study - Study Activities - Study Activities Placeholders
+
+    As a system user,
+    I want the system to ensure [Scenario],
+    So that I can make complete and consistent specification of study activities.
 
     Background: User is logged in and study has been selected
         Given The user is logged in
         And A test study is selected
-        And The test study '/activities/list' page is opened
 
-    Scenario: [Update][Positive Case][Shared Activity Request] User must be able to accept changes to activity request copied from other study
+    Scenario: [TestData] Old placeholder activity workflow feature flag is disabled and all activities are deleted from study
+        When The '/administration/featureflags' page is opened
+        Then Old placeholder workflow feature flag is turned off
+        And [API] All Activities are deleted from study
+
+    @smoke_test
+    Scenario: [Create][Placeholder] User must be able to create a Study Activity placeholder as an activity concept request
+        Given The test study '/activities/list' page is opened
         When Study activity add button is clicked
         And Activity from placeholder is selected
         And Form continue button is clicked
-        And User selects option to create placeholder without submitting
         When Activity placeholder data is filled in
-        And Selected study id is saved
-        And Form save button is clicked
-        And User waits for 3 seconds
-        When Get study 'CDISC DEV-9879' uid
-        When The page 'activities/list' is opened for selected study
-        And User intercepts available studies request
-        When Study activity add button is clicked
-        And User waits for available studies request
-        And Activity from studies is selected
-        And User selects select study 'CDISC DEV-9876'
-        And Form continue button is clicked
-        And Activity placeholder is searched for
-        And The existing activity request is selected
         And Form save button is clicked
         And The form is no longer available
         And Activity placeholder is found
-        And The 'Edit' option is clicked from the three dot menu list
-        And The study activity request is edited
-        And Modal window 'Save' button is clicked
-        And The form is no longer available
-        And The test study '/activities/list' page is opened
-        And Activity placeholder is found
-        And The 'Update activity version' option is clicked for flagged item
-        And The user is presented with the changes to request
-        And Modal window 'Accept' button is clicked
-        And The form is no longer available
-        Then The activity request changes are applied
-        And The Study Activity Placeholder is not available
+        Then The Study Activity placeholder is visible within the Study Activities table
 
-    Scenario: [Update][Positive Case][Shared Activity Request] User must be able to decline and keep changes to activity request copied from other study
-        When Study activity add button is clicked
-        And Activity from placeholder is selected
-        And Form continue button is clicked
-        And User selects option to create placeholder without submitting
-        When Activity placeholder data is filled in
-        And Selected study id is saved
-        And Form save button is clicked
-        When Get study 'CDISC DEV-9879' uid
-        When The page 'activities/list' is opened for selected study
-        And User intercepts available studies request
-        When Study activity add button is clicked
-        And User waits for available studies request
-        And Activity from studies is selected
-        And User selects select study 'CDISC DEV-9876'
-        And Form continue button is clicked
-        And Activity placeholder is searched for
-        And The existing activity request is selected
-        And Form save button is clicked
-        And The form is no longer available
+    Scenario: [Actions][Delete][Placeholder] User must be able to delete a Study Activity placeholder
+        Given The test study '/activities/list' page is opened
         And Activity placeholder is found
-        And The 'Edit' option is clicked from the three dot menu list
-        And The study activity request is edited
-        And Modal window 'Save' button is clicked
-        And The form is no longer available
-        And The test study '/activities/list' page is opened
-        And Activity placeholder is found
-        And The 'Update activity version' option is clicked for flagged item
-        Then The user is presented with the changes to request
-        And Modal window 'Decline and keep' button is clicked
-        And The form is no longer available
-        Then Activity placeholder is found
-
-    Scenario: [Update][Positive Case][Shared Activity Request] User must be able to decline changes and remove activity request copied from other study
-        When Study activity add button is clicked
-        And Activity from placeholder is selected
-        And Form continue button is clicked
-        And User selects option to create placeholder without submitting
-        When Activity placeholder data is filled in
-        And Selected study id is saved
-        And Form save button is clicked
-        When Get study 'CDISC DEV-9879' uid
-        When The page 'activities/list' is opened for selected study
-        And User intercepts available studies request
-        When Study activity add button is clicked
-        And User waits for available studies request
-        And Activity from studies is selected
-        And User selects select study 'CDISC DEV-9876'
-        And Form continue button is clicked
-        And Activity placeholder is searched for
-        And The existing activity request is selected
-        And Form save button is clicked
-        And The form is no longer available
-        And Activity placeholder is found
-        And The 'Edit' option is clicked from the three dot menu list
-        And The study activity request is edited
-        And Modal window 'Save' button is clicked
-        And The form is no longer available
-        And The test study '/activities/list' page is opened
-        And Activity placeholder is found
-        And The 'Update activity version' option is clicked for flagged item
-        And The user is presented with the changes to request
-        And Modal window 'Decline and keep' button is clicked        
-        Then The form is no longer available
-        When The 'Remove Activity' option is clicked for flagged item
+        When The 'Remove Activity' option is clicked from the three dot menu list
         And Action is confirmed by clicking continue
-        Then The activity request is removed from the study
-        And The Study Activity Placeholder is not available
-
-    Scenario: [Positive Case][Shared Activity Request] User must be able to approve activity request created from placeholder
-        When Study activity add button is clicked
-        And Activity from placeholder is selected
-        And Form continue button is clicked
-        And User selects option to create placeholder with submitting
-        When Activity placeholder data is filled in
-        And Form save button is clicked
-        Then Activity placeholder is found
-        When The '/library/activities/requested-activities' page is opened
-        Then Activity placeholder is found
-        When The 'Handle placeholder request' option is clicked from the three dot menu list
-        And User waits for 1 seconds
-        And The request continue button is clicked
-        And The activity request approval form is filled with definition
-        And The sponsor continue button is clicked
-        And The confirm continue button is clicked
         Then The Study Activity Placeholder is not available
-        When The test study '/activities/list' page is opened
-        Then Activity placeholder is found
-        When The 'Update to approved activity' option is clicked for flagged item
-        And Modal window 'Accept' button is clicked
-        And The item actions button is clicked
-        Then The form is no longer available
-        And 'Update to approved activity' action is not available
 
-    Scenario: [Update][Positive Case][Shared Activity Request] User must not be notified of changes when SoA group has been updated
+    Scenario: [Create][Placeholder] User must be able to create a Study Activity placeholder with already existing name if group/subgroup is different
+        Given The test study '/activities/list' page is opened
         When Study activity add button is clicked
         And Activity from placeholder is selected
         And Form continue button is clicked
-        And User selects option to create placeholder without submitting
-        When Activity placeholder data is filled in
-        And Selected study id is saved
+        And User sets Activity Placeholder name
+        When User selects first group for placeholder
+        And User selects first subgroup for placeholder
+        And User selects Activity Placeholder SoA group as 'EFFICACY'
+        And User sets Activity Placeholder rationale
         And Form save button is clicked
-        And User waits for 3 seconds
-        When Get study 'CDISC DEV-9879' uid
-        When The page 'activities/list' is opened for selected study
-        And User intercepts available studies request
-        When Study activity add button is clicked
-        And User waits for available studies request
-        And Activity from studies is selected
-        And User selects select study 'CDISC DEV-9876'
-        And Form continue button is clicked
-        And Activity placeholder is searched for
-        And The existing activity request is selected
-        And Form save button is clicked
-        And The form is no longer available
-        And User waits for table to load
-        And Activity placeholder is found
-        And The 'Edit' option is clicked from the three dot menu list
-        And The study activity request SoA group field is edited
-        And Modal window 'Save' button is clicked
-        And The form is no longer available
-        And The test study '/activities/list' page is opened
-        And Activity placeholder is found
-        And The updated notification icon and update option are not present
-
-    Scenario: [Update][Positive Case][Shared Activity Request] User must not be notified of changes when Data Collection flag has been updated
+        Then The pop up displays 'Study activity added'
         When Study activity add button is clicked
         And Activity from placeholder is selected
         And Form continue button is clicked
-        And User selects option to create placeholder without submitting
-        When Activity placeholder data is filled in
-        And Selected study id is saved
+        And User sets Activity Placeholder name that is already used
+        When User selects first group for placeholder
+        And User selects second subgroup for placeholder
+        And User selects Activity Placeholder SoA group as 'EFFICACY'
+        And User sets Activity Placeholder rationale
         And Form save button is clicked
-        And User waits for 3 seconds
-        When Get study 'CDISC DEV-9879' uid
-        When The page 'activities/list' is opened for selected study
-        And User intercepts available studies request
-        When Study activity add button is clicked
-        And User waits for available studies request
-        And Activity from studies is selected
-        And User selects select study 'CDISC DEV-9876'
-        And Form continue button is clicked
-        And Activity placeholder is searched for
-        And The existing activity request is selected
-        And Form save button is clicked
-        And The form is no longer available
-        And Activity placeholder is found
-        And The 'Edit' option is clicked from the three dot menu list
-        And The study activity request data collection field is edited
-        And Modal window 'Save' button is clicked
-        And The form is no longer available
-        And The test study '/activities/list' page is opened
-        And Activity placeholder is found
-        And The updated notification icon and update option are not present
-
-    Scenario: [Update][Positive Case][Shared Activity Request] User must not be notified of changes when Rationale for activity request has been updated
+        Then The pop up displays 'Study activity added'
         When Study activity add button is clicked
         And Activity from placeholder is selected
         And Form continue button is clicked
-        And User selects option to create placeholder without submitting
-        When Activity placeholder data is filled in
-        And Selected study id is saved
+        And User sets Activity Placeholder name that is already used
+        When User selects second group for placeholder
+        And User selects first subgroup for placeholder
+        And User selects Activity Placeholder SoA group as 'EFFICACY'
+        And User sets Activity Placeholder rationale
         And Form save button is clicked
-        And User waits for 3 seconds
-        When Get study 'CDISC DEV-9879' uid
+        Then The pop up displays 'Study activity added'
+
+    Scenario: [Create][Placeholder] User must be able to reuse already existing placeholder
+        When Get study 'CDISC DEV-9877' uid
         When The page 'activities/list' is opened for selected study
-        And User intercepts available studies request
         When Study activity add button is clicked
-        And User waits for available studies request
-        And Activity from studies is selected
-        And User selects select study 'CDISC DEV-9876'
+        And Activity from placeholder is selected
         And Form continue button is clicked
-        And Activity placeholder is searched for
-        And The existing activity request is selected
-        And Form save button is clicked
+        And User sets Activity Placeholder name that is already used
+        When User selects first group for placeholder
+        And User selects first subgroup for placeholder
+        And User selects Activity Placeholder SoA group as 'EFFICACY'
+        And User sets Activity Placeholder rationale
+        And Action is confirmed by clicking save
+        Then Pop-up displays that there is already existing placeholder with such name, group and subgroup
+        And Action is confirmed by clicking continue
         And The form is no longer available
         And Activity placeholder is found
-        And The 'Edit' option is clicked from the three dot menu list
-        And The study activity request rationale for activity field is edited
+
+    Scenario: [Actions][Edit][version 0.1][Placeholder] User must be able to edit a Study Activity placeholder
+        And [API] Get SoA Group 'BIOMARKERS' id
+        When [API] Create Submitted Requested Activity
+        And [API] Requested Activity is added to the study
+        Given The test study '/activities/list' page is opened
+        And Activity placeholder is found
+        When The 'Edit' option is clicked from the three dot menu list
+        And The SoA group can be changed
         And Modal window 'Save' button is clicked
         And The form is no longer available
-        And The test study '/activities/list' page is opened
+        Then The pop up displays 'Study activity updated'
         And Activity placeholder is found
-        And The updated notification icon and update option are not present
+        Then The edited Study Activity data is reflected within the Study Activity table
 
-    @pending_implementation
-    Scenario: [Create][Positive case] System must select 'Multiple instances allowed' true as default for placeholder requests
-        Given The activity placeholder request is created
-        Then The checkbox 'Multiple instances allowed' is set true by default
+    @BUG_ID:2722627
+    Scenario: [Actions][Edit][version 0.1][Placeholder] User must be able to edit data collection flag
+        Given The test study '/activities/list' page is opened
+        When Study activity add button is clicked
+        And Activity from placeholder is selected
+        And Form continue button is clicked
+        When Activity placeholder data is filled in
+        And Data collection flag is unchecked
+        And Form save button is clicked
+        And The form is no longer available
+        And Activity placeholder is found
+        When The 'Edit' option is clicked from the three dot menu list
+        And Data collection flag is checked
+        And Modal window 'Save' button is clicked
+        And The form is no longer available
+        Then The pop up displays 'Study activity updated'
+        And Activity placeholder is found
+        Then The study activity table is displaying updated value for data collection
+
+    Scenario: [Create][Mandatory fields][Placeholder] User must not be able to create Study Activity placeholder without SoA group selected
+        Given The test study '/activities/list' page is opened
+        And Study activity add button is clicked
+        And Activity from placeholder is selected
+        And Form continue button is clicked
+        And The user tries to go further in activity placeholder creation without SoA group chosen
+        And Form save button is clicked
+        Then The validation appears under empty SoA group selection
+
+    Scenario: [Create][Mandatory fields][Placeholder] User must not be able to create Study Activity placeholder without SoA group selected
+        Given The test study '/activities/list' page is opened
+        And Study activity add button is clicked
+        And Activity from placeholder is selected
+        And Form continue button is clicked
+        And The user tries to go further in activity placeholder creation without SoA group chosen
+        And Form save button is clicked
+        Then The validation appears under empty SoA group selection

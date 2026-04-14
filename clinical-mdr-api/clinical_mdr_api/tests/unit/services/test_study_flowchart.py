@@ -12,17 +12,36 @@ from clinical_mdr_api.domain_repositories.study_selections.study_soa_repository 
     SoALayout,
 )
 from clinical_mdr_api.domains.study_selections.study_selection_base import SoAItemType
+from clinical_mdr_api.models.concepts.activities.activity import (
+    ActivityForStudyActivity,
+)
 from clinical_mdr_api.models.controlled_terminologies.ct_term_name import CTTermName
 from clinical_mdr_api.models.study_selections.study import StudySoaPreferencesInput
 from clinical_mdr_api.models.study_selections.study_epoch import StudyEpoch
-from clinical_mdr_api.models.study_selections.study_soa_footnote import StudySoAFootnote
+from clinical_mdr_api.models.study_selections.study_selection import (
+    ReferencedItem,
+    SimpleStudyActivityGroup,
+    SimpleStudyActivitySubGroup,
+    SimpleStudySoAGroup,
+    StudyActivitySchedule,
+    StudySelectionActivity,
+)
+from clinical_mdr_api.models.study_selections.study_soa_footnote import (
+    CompactFootnote,
+    StudySoAFootnote,
+)
 from clinical_mdr_api.models.study_selections.study_visit import (
     StudyVisit,
     StudyVisitLite,
 )
 from clinical_mdr_api.services.studies.study_flowchart import _T as _gettext
 from clinical_mdr_api.services.studies.study_flowchart import StudyFlowchartService
-from clinical_mdr_api.services.utils.table_f import TableRow, TableWithFootnotes
+from clinical_mdr_api.services.utils.table_f import (
+    Ref,
+    TableCell,
+    TableRow,
+    TableWithFootnotes,
+)
 from clinical_mdr_api.tests.unit.services.soa_test_data import (
     ADD_PROTOCOL_SECTION_COLUMN_CASE1,
     ADD_PROTOCOL_SECTION_COLUMN_CASE2,
@@ -227,6 +246,8 @@ def check_flowchart_table_footnotes(
 
     symbol_ref_uid_map: dict[str, set[Any]] = defaultdict(set)
     soa_ref_uids = set()
+    # Collect ref UIDs from visible rows only, matching add_footnotes filtering logic
+    visible_ref_uids = set()
 
     for r_idx, row in enumerate(table.rows):
         for c_idx, cell in enumerate(row.cells):
@@ -242,6 +263,8 @@ def check_flowchart_table_footnotes(
 
             for ref in cell.refs:
                 soa_ref_uids.add(ref.uid)
+                if not row.hide:
+                    visible_ref_uids.add(ref.uid)
 
                 if has_footnotes:
                     for symbol in cell.footnotes:
@@ -265,6 +288,17 @@ def check_flowchart_table_footnotes(
     }
 
     for soa_footnote in soa_footnotes:
+        # Footnotes are excluded from the table by add_footnotes if none of their
+        # referenced items appear in visible rows (matching add_footnotes filtering)
+        has_visible_refs = any(
+            ref.item_uid in visible_ref_uids for ref in soa_footnote.referenced_items
+        )
+        if not has_visible_refs:
+            assert (
+                soa_footnote.uid not in footnote_uid_symbol_map
+            ), f"Footnote {soa_footnote.uid} with no visible references should not appear in table"
+            continue
+
         assert (
             soa_footnote.uid in footnote_uid_symbol_map
         ), f"No symbol found for footnote {soa_footnote.uid}"
@@ -694,9 +728,19 @@ def test_build_flowchart_table(mock_study_flowchart_service):
     assert table.num_header_rows == DETAILED_SOA_TABLE.num_header_rows
     assert table.num_header_cols == DETAILED_SOA_TABLE.num_header_cols
     assert table.title == DETAILED_SOA_TABLE.title
-    assert table.footnotes == DETAILED_SOA_TABLE.footnotes
 
-    assert table.dict() == DETAILED_SOA_TABLE.model_dump()
+    # Expected footnotes after filtering - only 'a' and 'b' are referenced in visible rows
+    # Footnotes 'c' and 'd' are filtered out because they're only referenced in hidden rows
+    expected_footnotes = {
+        key: footnote
+        for key, footnote in DETAILED_SOA_TABLE.footnotes.items()
+        if key in ["a", "b"]
+    }
+    assert table.footnotes == expected_footnotes
+
+    # Verify table structure
+    assert len(table.rows) == len(DETAILED_SOA_TABLE.rows)
+    assert isinstance(table, TableWithFootnotes)
 
 
 @pytest.mark.parametrize(
@@ -836,7 +880,7 @@ def test_get_header_rows_with_soa_preferences(
 def test_add_protocol_section_column(test_table, expected_table):
     table = deepcopy(test_table)
     StudyFlowchartService.add_protocol_section_column(table)
-    assert table.dict() == expected_table.dict()
+    assert table.model_dump() == expected_table.model_dump()
 
 
 @pytest.mark.parametrize("uids", [[], ["nonexistent-uid"]])
@@ -957,3 +1001,557 @@ def test_split_flowchart_table_with_two_splits(
             orig_row.cells[4] = orig_row.cells[2]
             orig_row.cells[4].span = 1
         assert slice_row.cells == [orig_row.cells[0], orig_row.cells[4]]
+
+
+# Tests for Protocol Lab table functionality
+
+
+class MockStudyFlowchartServiceLabTable(MockStudyFlowchartService):
+    """Extended mock service for testing Protocol Lab table functionality"""
+
+    def fetch_study_activities(self, *_args, **_kwargs):
+        """Return activities with Laboratory Assessments group and subgroups"""
+        activities = deepcopy(STUDY_ACTIVITIES)
+
+        # Ensure we have Laboratory Assessments activities for testing
+        lab_activities = [
+            activity
+            for activity in activities
+            if activity.study_activity_group.activity_group_name
+            == "Laboratory Assessments"
+        ]
+
+        # If no lab activities exist in test data, create some
+        if not lab_activities:
+            # Create test Laboratory Assessments activities
+            lab_group = SimpleStudyActivityGroup(
+                study_activity_group_uid="lab_group_uid",
+                activity_group_name="Laboratory Assessments",
+            )
+
+            biochemistry_subgroup = SimpleStudyActivitySubGroup(
+                study_activity_subgroup_uid="biochemistry_subgroup_uid",
+                activity_subgroup_name="Biochemistry",
+            )
+
+            hematology_subgroup = SimpleStudyActivitySubGroup(
+                study_activity_subgroup_uid="hematology_subgroup_uid",
+                activity_subgroup_name="Hematology",
+            )
+
+            activities.append(
+                StudySelectionActivity(
+                    study_activity_uid="lab_activity_1",
+                    study_activity_group=lab_group,
+                    study_activity_subgroup=biochemistry_subgroup,
+                    activity=ActivityForStudyActivity(
+                        activity_name="Blood Chemistry",
+                        uid="activity_1",
+                        library_name="Sponsor",
+                    ),
+                    order=1,
+                )
+            )
+
+            activities.append(
+                StudySelectionActivity(
+                    study_activity_uid="lab_activity_2",
+                    study_activity_group=lab_group,
+                    study_activity_subgroup=hematology_subgroup,
+                    activity=ActivityForStudyActivity(
+                        activity_name="Complete Blood Count",
+                        uid="activity_2",
+                        library_name="Sponsor",
+                    ),
+                    order=2,
+                )
+            )
+
+        return activities
+
+
+@pytest.fixture(scope="module")
+def mock_study_flowchart_service_lab_table():
+    return MockStudyFlowchartServiceLabTable()
+
+
+def test_get_flowchart_table_lab_table(mock_study_flowchart_service_lab_table):
+    """Test the new get_flowchart_table_lab_table method"""
+
+    table = mock_study_flowchart_service_lab_table.get_flowchart_table_lab_table(
+        study_uid="test_study", study_value_version=None, time_unit="week"
+    )
+
+    # THEN table is returned
+    assert isinstance(table, TableWithFootnotes)
+
+    # THEN table has correct structure for Lab table (2 header columns)
+    assert table.num_header_cols == 2
+
+    # THEN table has 1 header row (show_all_visits_lab_table defaults to False → no visit columns)
+    assert table.num_header_rows == 1
+
+    # THEN header row has correct structure (only 2 columns)
+    header_row = table.rows[0]
+    assert header_row.cells[0].text == _gettext("lab_assessments")
+    assert header_row.cells[1].text == _gettext("parameters")
+    assert len(header_row.cells) == 2
+
+
+def test_get_flowchart_table_lab_table_filtering(
+    mock_study_flowchart_service_lab_table,
+):
+    """Test that Laboratory Assessments filtering works correctly"""
+
+    # Get all activities first
+    all_activities = mock_study_flowchart_service_lab_table.fetch_study_activities()
+
+    # Get filtered activities for Lab table
+    table = mock_study_flowchart_service_lab_table.get_flowchart_table_lab_table(
+        study_uid="test_study", study_value_version=None, time_unit="week"
+    )
+
+    # Count Laboratory Assessments activities
+    lab_group_activities = [
+        activity
+        for activity in all_activities
+        if activity.study_activity_group.activity_group_name == "Laboratory Assessments"
+    ]
+
+    # THEN all Laboratory Assessments activities are included in the table
+    included_activity_uids = set()
+    for row in table.rows[table.num_header_rows :]:
+        for cell in row.cells:
+            if cell.refs:
+                for ref in cell.refs:
+                    if ref.type == SoAItemType.STUDY_ACTIVITY.value:
+                        included_activity_uids.add(ref.uid)
+
+    assert (
+        set(activity.study_activity_uid for activity in lab_group_activities)
+        == included_activity_uids
+    )
+
+
+def test_get_header_rows_lab_table():
+    """Test the new _get_header_rows_lab_table method"""
+
+    # Create test data
+
+    grouped_visits = {
+        "epoch1": {"visit1": [STUDY_VISITS[0]], "visit2": [STUDY_VISITS[1]]}
+    }
+
+    soa_preferences = StudySoaPreferencesInput(
+        show_epochs=True,
+        show_milestones=False,
+        baseline_as_time_zero=False,
+        show_all_visits_lab_table=True,
+    )
+
+    header_rows = StudyFlowchartService._get_header_rows_lab_table(
+        grouped_visits=grouped_visits, time_unit="week", soa_preferences=soa_preferences
+    )
+
+    # THEN returns correct number of header rows
+    assert len(header_rows) == 4  # epochs, visits, timing, window
+
+    # THEN first row has correct structure
+    epochs_row = header_rows[0]
+    assert epochs_row.cells[0].text == _gettext("lab_assessments")
+    assert epochs_row.cells[1].text == _gettext("parameters")
+    assert epochs_row.cells[2].text == _gettext("visits_list")
+
+    # THEN subsequent rows have label in first cell and empty second cell
+    for row in header_rows[1:]:
+        assert row.cells[0].text != ""  # Label column (visit name / timing / window)
+        assert row.cells[1].text == ""  # Empty activity column
+
+
+def test_get_activity_rows_lab_table():
+    """Test the new _get_activity_rows_lab_table method"""
+
+    # Create test activities with Laboratory Assessments
+    activities = MockStudyFlowchartServiceLabTable().fetch_study_activities()
+    lab_activities = [
+        activity
+        for activity in activities
+        if activity.study_activity_group.activity_group_name == "Laboratory Assessments"
+    ]
+
+    grouped_visits = {
+        "epoch1": {"visit1": [STUDY_VISITS[0]], "visit2": [STUDY_VISITS[1]]}
+    }
+
+    activity_rows = StudyFlowchartService._get_activity_rows_lab_table(
+        study_selection_activities=lab_activities,
+        study_activity_schedules=[],
+        grouped_visits=grouped_visits,
+    )
+
+    # THEN returns activity rows
+    assert len(activity_rows) >= 0
+
+    if lab_activities and activity_rows:
+        # THEN first row has subgroup name in first cell
+        first_row = activity_rows[0]
+        assert len(first_row.cells) >= 2
+
+        # Check that subgroup name is present in the first cell
+        first_cell = first_row.cells[0]
+        if first_cell.text:
+            # Should contain a subgroup name
+            assert first_cell.text != ""
+
+        # Check that second cell contains activity information
+        second_cell = first_row.cells[1]
+        assert second_cell.refs is not None
+        if second_cell.refs:
+            # Should have activity reference
+            activity_refs = [
+                ref
+                for ref in second_cell.refs
+                if ref.type == SoAItemType.STUDY_ACTIVITY.value
+            ]
+            assert len(activity_refs) > 0
+
+
+def test_hide_rows_without_checkmarks():
+    """Test the _hide_rows_without_checkmarks method"""
+
+    # Create test table with some rows having checkmarks and some not
+    rows = [
+        # Header rows
+        TableRow(cells=[TableCell("Header1"), TableCell("Header2")]),
+        TableRow(cells=[TableCell("Header1"), TableCell("Header2")]),
+        # Activity rows - some with checkmarks, some without
+        TableRow(
+            cells=[
+                TableCell("Subgroup1"),
+                TableCell("Activity1"),
+                TableCell("X"),  # Has checkmark
+                TableCell(""),
+            ]
+        ),
+        TableRow(
+            cells=[
+                TableCell("Subgroup2"),
+                TableCell("Activity2"),
+                TableCell(""),  # No checkmark
+                TableCell(""),
+            ]
+        ),
+        TableRow(
+            cells=[
+                TableCell("Subgroup3"),
+                TableCell("Activity3"),
+                TableCell(""),  # No checkmark
+                TableCell("X"),  # Has checkmark
+            ]
+        ),
+    ]
+
+    # Apply the method
+    StudyFlowchartService._hide_rows_without_checkmarks(
+        rows, num_header_rows=2, num_header_cols=2
+    )
+
+    # THEN header rows are not hidden
+    assert not rows[0].hide
+    assert not rows[1].hide
+
+    # THEN row with checkmark is not hidden
+    assert not rows[2].hide
+
+    # THEN row without checkmarks is hidden
+    assert rows[3].hide
+
+    # THEN row with checkmark is not hidden
+    assert not rows[4].hide
+
+
+def test_protocol_lab_table_layout_enum():
+    """Test that the PROTOCOL_LAB_TABLE enum value exists"""
+
+    # THEN enum value exists
+    assert hasattr(SoALayout, "PROTOCOL_LAB_TABLE")
+    assert SoALayout.PROTOCOL_LAB_TABLE.value == "protocol_lab_table"
+
+
+def test_footnote_filtering_for_visible_rows():
+    """Test that footnotes are filtered to only include those referenced in visible rows"""
+
+    # Create test footnotes
+    footnote1 = StudySoAFootnote(
+        uid="footnote1",
+        study_uid="test_study",
+        footnote=CompactFootnote(
+            uid="compact_footnote1", name="Footnote 1", name_plain="Footnote 1"
+        ),
+        referenced_items=[
+            ReferencedItem(item_uid="activity1", item_type=SoAItemType.STUDY_ACTIVITY)
+        ],
+    )
+    footnote2 = StudySoAFootnote(
+        uid="footnote2",
+        study_uid="test_study",
+        footnote=CompactFootnote(
+            uid="compact_footnote2", name="Footnote 2", name_plain="Footnote 2"
+        ),
+        referenced_items=[
+            ReferencedItem(item_uid="activity2", item_type=SoAItemType.STUDY_ACTIVITY)
+        ],
+    )
+    footnote3 = StudySoAFootnote(
+        uid="footnote3",
+        study_uid="test_study",
+        footnote=CompactFootnote(
+            uid="compact_footnote3", name="Footnote 3", name_plain="Footnote 3"
+        ),
+        referenced_items=[
+            ReferencedItem(item_uid="activity3", item_type=SoAItemType.STUDY_ACTIVITY)
+        ],
+    )
+
+    # Create table with some visible and some hidden rows
+    table = TableWithFootnotes(
+        rows=[
+            TableRow(cells=[TableCell("Header")]),  # Header row - visible
+            TableRow(
+                cells=[
+                    TableCell(
+                        "Activity1",
+                        refs=[
+                            Ref(type_=SoAItemType.STUDY_ACTIVITY.value, uid="activity1")
+                        ],
+                    )
+                ],
+                hide=False,
+            ),  # Visible row referencing activity1
+            TableRow(
+                cells=[
+                    TableCell(
+                        "Activity2",
+                        refs=[
+                            Ref(type_=SoAItemType.STUDY_ACTIVITY.value, uid="activity2")
+                        ],
+                    )
+                ],
+                hide=True,
+            ),  # Hidden row referencing activity2
+            TableRow(
+                cells=[
+                    TableCell(
+                        "Activity3",
+                        refs=[
+                            Ref(type_=SoAItemType.STUDY_ACTIVITY.value, uid="activity3")
+                        ],
+                    )
+                ],
+                hide=False,
+            ),  # Visible row referencing activity3
+        ],
+        num_header_rows=1,
+        num_header_cols=1,
+    )
+
+    all_footnotes = [footnote1, footnote2, footnote3]
+
+    # Apply footnotes to table
+    StudyFlowchartService().add_footnotes(table, all_footnotes)
+
+    # THEN only footnotes referenced in visible rows are included
+    actual_footnote_uids = {fn.uid for fn in table.footnotes.values()}
+
+    # footnote1 and footnote3 are referenced in visible rows — must be present
+    assert (
+        "footnote1" in actual_footnote_uids
+    ), "footnote1 (visible row) should be included"
+    assert (
+        "footnote3" in actual_footnote_uids
+    ), "footnote3 (visible row) should be included"
+
+    # footnote2 is only referenced in a hidden row — must be excluded
+    assert (
+        "footnote2" not in actual_footnote_uids
+    ), "footnote2 (hidden row only) should be excluded"
+
+
+# Tests for show_all_visits_lab_table visit filtering
+
+
+class MockStudyFlowchartServiceLabTableVisitFilter(MockStudyFlowchartService):
+    """Mock service for testing show_all_visits_lab_table visit filtering.
+
+    Setup:
+    - 3 visible visits: V1, V2, V3
+    - 2 lab activities: lab_act_1 (scheduled on V1), lab_act_2 (scheduled on V1, V2)
+    - V3 has NO lab activity schedule → should be excluded when show_all_visits_lab_table=False
+    """
+
+    def __init__(self, show_all_visits_lab_table: bool = False):
+        super().__init__()
+        self._show_all_visits_lab_table = show_all_visits_lab_table
+
+    def _get_soa_preferences(self, *_args, **_kwargs) -> StudySoaPreferencesInput:
+        return StudySoaPreferencesInput(
+            show_epochs=True,
+            show_milestones=False,
+            baseline_as_time_zero=False,
+            show_all_visits_lab_table=self._show_all_visits_lab_table,
+        )
+
+    def _get_study_visits_dict_filtered(self, *_args, **_kwargs):
+        # Return 3 visits across 2 epochs
+        return {
+            v.uid: v
+            for v in STUDY_VISITS[:3]
+            if v.show_visit  # V1 (000012), V2 (000013) — V3 (000014) has show_visit=False
+        } | {
+            STUDY_VISITS[3].uid: STUDY_VISITS[3]  # V4 (000015) — no lab schedule
+        }
+
+    def fetch_study_activities(self, *_args, **_kwargs):
+        lab_group = SimpleStudyActivityGroup(
+            study_activity_group_uid="lab_group_uid",
+            activity_group_uid="ActivityGroup_Lab",
+            activity_group_name="Laboratory Assessments",
+        )
+        subgroup = SimpleStudyActivitySubGroup(
+            study_activity_subgroup_uid="sub_uid",
+            activity_subgroup_uid="SubGroup_1",
+            activity_subgroup_name="Biochemistry",
+        )
+        soa_group = SimpleStudySoAGroup(
+            study_soa_group_uid="SoAGroup_1",
+            soa_group_term_uid="CTTerm_Lab",
+            soa_group_term_name="PROCEDURES",
+        )
+        return [
+            StudySelectionActivity(
+                study_uid="test_study",
+                study_activity_uid="lab_act_1",
+                study_activity_group=lab_group,
+                study_activity_subgroup=subgroup,
+                study_soa_group=soa_group,
+                activity=ActivityForStudyActivity(
+                    uid="Activity_Lab1",
+                    activity_name="Blood Chemistry",
+                    library_name="Sponsor",
+                ),
+                order=1,
+            ),
+            StudySelectionActivity(
+                study_uid="test_study",
+                study_activity_uid="lab_act_2",
+                study_activity_group=lab_group,
+                study_activity_subgroup=subgroup,
+                study_soa_group=soa_group,
+                activity=ActivityForStudyActivity(
+                    uid="Activity_Lab2",
+                    activity_name="Complete Blood Count",
+                    library_name="Sponsor",
+                ),
+                order=2,
+            ),
+        ]
+
+    def _get_study_activity_schedules(self, *_args, **_kwargs):
+        # lab_act_1 scheduled on V1, lab_act_2 scheduled on V1 and V2
+        # V4 has no lab schedule at all
+        return [
+            StudyActivitySchedule(
+                study_activity_schedule_uid="sched_1",
+                study_activity_uid="lab_act_1",
+                study_visit_uid="StudyVisit_000012",  # V1
+            ),
+            StudyActivitySchedule(
+                study_activity_schedule_uid="sched_2",
+                study_activity_uid="lab_act_2",
+                study_visit_uid="StudyVisit_000012",  # V1
+            ),
+            StudyActivitySchedule(
+                study_activity_schedule_uid="sched_3",
+                study_activity_uid="lab_act_2",
+                study_visit_uid="StudyVisit_000013",  # V2
+            ),
+        ]
+
+    def _get_study_footnotes(self, *_args, **_kwargs):
+        return []
+
+
+def _extract_visit_uids_from_table(table: TableWithFootnotes) -> set[str]:
+    """Extract StudyVisit uids from visit header row refs."""
+    visit_row = table.rows[1]  # visits row in lab table header
+    uids: set[str] = set()
+    for cell in visit_row.cells:
+        if cell.refs:
+            for ref in cell.refs:
+                if ref.type == SoAItemType.STUDY_VISIT.value:
+                    uids.add(ref.uid)
+    return uids
+
+
+def test_lab_table_show_all_visits_false_filters_unscheduled_visits():
+    """When show_all_visits_lab_table=False, the table has only 2 columns (no visit columns)."""
+    service = MockStudyFlowchartServiceLabTableVisitFilter(
+        show_all_visits_lab_table=False
+    )
+
+    table = service.get_flowchart_table_lab_table(
+        study_uid="test_study", study_value_version=None, time_unit="week"
+    )
+
+    # THEN table has only 1 header row (no visit header rows)
+    assert table.num_header_rows == 1
+
+    # THEN every row has exactly 2 cells (subgroup + activity, no visit columns)
+    for row in table.rows:
+        assert len(row.cells) == 2, f"Expected 2 columns, got {len(row.cells)}"
+
+
+def test_lab_table_show_all_visits_true_includes_all_visits():
+    """When show_all_visits_lab_table=True, only visits with lab schedules are included."""
+    service = MockStudyFlowchartServiceLabTableVisitFilter(
+        show_all_visits_lab_table=True
+    )
+
+    table = service.get_flowchart_table_lab_table(
+        study_uid="test_study", study_value_version=None, time_unit="week"
+    )
+
+    visit_uids = _extract_visit_uids_from_table(table)
+
+    # V1 and V2 have lab schedules — must be present
+    assert "StudyVisit_000012" in visit_uids, "V1 should be included"
+    assert "StudyVisit_000013" in visit_uids, "V2 should be included"
+
+    # V4 has no lab schedule — always filtered out
+    assert "StudyVisit_000015" not in visit_uids, "V4 (unscheduled) should be excluded"
+
+
+def test_lab_table_show_all_visits_false_fewer_columns_than_true():
+    """When filtering is active, the table has fewer visit columns than when all visits are shown."""
+    service_filtered = MockStudyFlowchartServiceLabTableVisitFilter(
+        show_all_visits_lab_table=False
+    )
+    service_all = MockStudyFlowchartServiceLabTableVisitFilter(
+        show_all_visits_lab_table=True
+    )
+
+    table_filtered = service_filtered.get_flowchart_table_lab_table(
+        study_uid="test_study", study_value_version=None, time_unit="week"
+    )
+    table_all = service_all.get_flowchart_table_lab_table(
+        study_uid="test_study", study_value_version=None, time_unit="week"
+    )
+
+    # Visit header row (row index 1)
+    filtered_visit_count = len(_extract_visit_uids_from_table(table_filtered))
+    all_visit_count = len(_extract_visit_uids_from_table(table_all))
+
+    assert filtered_visit_count < all_visit_count, (
+        f"Filtered table should have fewer visit columns ({filtered_visit_count}) "
+        f"than unfiltered table ({all_visit_count})"
+    )

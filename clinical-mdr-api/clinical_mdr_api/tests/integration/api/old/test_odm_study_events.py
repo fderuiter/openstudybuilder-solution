@@ -260,11 +260,11 @@ def test_overriding_odm_forms_from_a_specific_odm_study_event(api_client):
     data = [
         {
             "uid": "odm_form2",
-            "order_number": 2,
+            "order_number": 2,  # this order number should be overridden by the API to 1, since it's the only form in the request
             "mandatory": "Yes",
             "locked": "Yes",
             "collection_exception_condition_oid": "None",
-        }
+        },
     ]
     response = api_client.post(
         "odms/study-events/OdmStudyEvent_000001/forms?override=true", json=data
@@ -293,7 +293,7 @@ def test_overriding_odm_forms_from_a_specific_odm_study_event(api_client):
             "oid": "oid2",
             "name": "name2",
             "version": "1.0",
-            "order_number": 2,
+            "order_number": 1,
             "mandatory": "Yes",
             "locked": "Yes",
             "collection_exception_condition_oid": "None",
@@ -328,7 +328,7 @@ def test_approving_an_odm_study_event(api_client):
             "oid": "oid2",
             "name": "name2",
             "version": "1.0",
-            "order_number": 2,
+            "order_number": 1,
             "mandatory": "Yes",
             "locked": "Yes",
             "collection_exception_condition_oid": "None",
@@ -363,7 +363,7 @@ def test_inactivating_a_specific_odm_study_event(api_client):
             "oid": "oid2",
             "name": "name2",
             "version": "1.0",
-            "order_number": 2,
+            "order_number": 1,
             "mandatory": "Yes",
             "locked": "Yes",
             "collection_exception_condition_oid": "None",
@@ -398,7 +398,7 @@ def test_reactivating_a_specific_odm_study_event(api_client):
             "oid": "oid2",
             "name": "name2",
             "version": "1.0",
-            "order_number": 2,
+            "order_number": 1,
             "mandatory": "Yes",
             "locked": "Yes",
             "collection_exception_condition_oid": "None",
@@ -433,7 +433,7 @@ def test_creating_a_new_odm_study_event_version(api_client):
             "oid": "oid2",
             "name": "name2",
             "version": "1.0",
-            "order_number": 2,
+            "order_number": 1,
             "mandatory": "Yes",
             "locked": "Yes",
             "collection_exception_condition_oid": "None",

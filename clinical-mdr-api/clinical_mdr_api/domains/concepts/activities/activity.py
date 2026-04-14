@@ -105,7 +105,7 @@ class ActivityVO(ConceptVO):
 
     def validate(
         self,
-        activity_exists_by_name_callback: Callable[[str, str], bool],
+        activity_exists_by_name_callback: Callable[..., bool],
         activity_subgroup_exists: Callable[[str], bool],
         activity_group_exists: Callable[[str], bool],
         get_activity_uids_by_synonyms_callback: Callable[
@@ -121,7 +121,9 @@ class ActivityVO(ConceptVO):
         self.validate_name_sentence_case()
 
         if self.name and library_name is not None:
-            existing_name = activity_exists_by_name_callback(library_name, self.name)
+            existing_name = activity_exists_by_name_callback(
+                library_name, self.name, self.activity_groupings
+            )
 
             AlreadyExistsException.raise_if(
                 existing_name and previous_name != self.name,
@@ -185,8 +187,8 @@ class ActivityAR(ConceptARBase):
             [str, str, bool], bool
         ] = lambda x, y, z: True,
         concept_exists_by_library_and_name_callback: Callable[
-            [str, str], bool
-        ] = lambda x, y: True,
+            ..., bool
+        ] = lambda x, y, z: True,
         activity_subgroup_exists: Callable[[str], bool] = lambda _: False,
         activity_group_exists: Callable[[str], bool] = lambda _: False,
         get_activity_uids_by_synonyms_callback: Callable[
@@ -226,8 +228,8 @@ class ActivityAR(ConceptARBase):
             [str, str, bool], bool
         ] = lambda x, y, z: True,
         concept_exists_by_library_and_name_callback: Callable[
-            [str, str], bool
-        ] = lambda x, y: True,
+            ..., bool
+        ] = lambda x, y, z: True,
         activity_subgroup_exists: Callable[[str], bool] = lambda _: False,
         activity_group_exists: Callable[[str], bool] = lambda _: False,
         get_activity_uids_by_synonyms_callback: Callable[

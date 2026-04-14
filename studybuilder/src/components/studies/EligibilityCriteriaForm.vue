@@ -40,7 +40,7 @@
       </v-form>
     </template>
     <template #[`step.select`]>
-      <p class="text-grey text-subtitle-1 font-weight-bold">
+      <p class="text-grey text-body-large font-weight-bold">
         {{ $t('EligibilityCriteriaForm.selected_criteria') }}
       </p>
       <v-data-table :headers="selectionHeaders" :items="selectedCriteria">
@@ -85,7 +85,7 @@
       </v-data-table>
     </template>
     <template #[`step.select.after`]>
-      <p class="text-grey text-subtitle-1 font-weight-bold mb-0 ml-3">
+      <p class="text-grey text-body-large font-weight-bold mb-0 ml-3">
         {{ $t('StudyObjectiveForm.copy_instructions') }}
       </p>
       <v-col cols="12">
@@ -146,7 +146,7 @@
     </template>
     <template #[`step.createFromTemplate.after`]>
       <div class="d-flex align-center">
-        <p class="text-grey text-subtitle-1 font-weight-bold mb-0 ml-3">
+        <p class="text-grey text-body-large font-weight-bold mb-0 ml-3">
           {{ $t('StudyObjectiveForm.copy_instructions') }}
         </p>
         <v-switch

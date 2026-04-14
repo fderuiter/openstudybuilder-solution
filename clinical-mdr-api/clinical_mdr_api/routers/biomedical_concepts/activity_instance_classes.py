@@ -101,6 +101,63 @@ def get_activity_instance_classes(
 
 
 @router.get(
+    "/versions",
+    dependencies=[security, rbac.LIBRARY_READ],
+    summary="List all versions of activity instance classes",
+    description=f"""
+State before:
+ - The library must exist (if specified)
+
+Business logic:
+ - List version history of activity instance classes
+ - The returned versions are ordered by version start_date descending (newest entries first).
+
+State after:
+ - No change
+
+Possible errors:
+ - Invalid library name specified.
+
+{_generic_descriptions.DATA_EXPORTS_HEADER}
+""",
+    response_model_exclude_unset=True,
+    status_code=200,
+    responses={
+        403: _generic_descriptions.ERROR_403,
+        404: _generic_descriptions.ERROR_404,
+    },
+)
+@decorators.allow_exports(
+    {
+        "defaults": ["uid", "name", "start_date", "status", "version"],
+        "formats": [
+            "text/csv",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "text/xml",
+            "application/json",
+        ],
+    }
+)
+# pylint: disable=unused-argument
+def get_activity_instance_classes_versions(
+    request: Request,  # request is actually required by the allow_exports decorator
+    page_number: _generic_descriptions.PAGE_NUMBER_QUERY = settings.default_page_number,
+    page_size: _generic_descriptions.PAGE_SIZE_QUERY = settings.default_page_size,
+    total_count: _generic_descriptions.TOTAL_COUNT_QUERY = False,
+) -> CustomPage[ActivityInstanceClass]:
+    activity_instance_class_service = ActivityInstanceClassService()
+    results = activity_instance_class_service.get_all_item_versions(
+        sort_by={"start_date": False},
+        page_number=page_number,
+        page_size=page_size,
+        total_count=total_count,
+    )
+    return CustomPage(
+        items=results.items, total=results.total, page=page_number, size=page_size
+    )
+
+
+@router.get(
     "/headers",
     dependencies=[security, rbac.LIBRARY_READ],
     summary="Returns possible values from the database for a given header",

@@ -36,6 +36,8 @@ class FeatureFlags(BaseImporter):
 
         for feature_flag_name, feature_flag_data in feature_flags_in_csv.items():
             body = {
+                "section": feature_flag_data["section"],
+                "feature": feature_flag_data["feature"],
                 "name": feature_flag_data["name"],
                 "enabled": map_boolean(feature_flag_data["enabled"]),
                 "description": feature_flag_data["description"] or None,

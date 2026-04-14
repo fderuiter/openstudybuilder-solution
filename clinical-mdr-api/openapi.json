@@ -3,7 +3,7 @@
   "info": {
     "title": "OpenStudyBuilder API",
     "description": "\n## NOTICE\n\nThis license information is applicable to the swagger documentation of the clinical-mdr-api, that is the openapi.json.\n\n## License Terms (MIT)\n\nCopyright (C) 2025 Novo Nordisk A/S, Danish company registration no. 24256790\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n## Licenses and Acknowledgements for Incorporated Software\n\nThis component contains software licensed under different licenses when compiled, please refer to the third-party-licenses.md file for further information and full license texts.\n\n## Authentication\n\nSupports OAuth2 [Authorization Code Flow](https://datatracker.ietf.org/doc/html/rfc6749#section-4.1),\nat paths described in the OpenID Connect Discovery metadata document (whose URL is defined by the `OAUTH_METADATA_URL` environment variable).\n\nMicrosoft Identity Platform documentation can be read \n([here](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)).\n\nAuthentication can be turned off with `OAUTH_ENABLED=false` environment variable. \n\nWhen authentication is turned on, all requests to protected API endpoints must provide a valid bearer (JWT) token inside the `Authorization` http header. \n",
-    "version": "3.0.628"
+    "version": "3.0.642"
   },
   "paths": {
     "/": {
@@ -2561,11 +2561,11 @@
             "required": false,
             "schema": {
               "type": "boolean",
-              "description": "If true, all existing form relationships will be replaced with the provided form relationships.",
+              "description": "\nWhen true, replaces all existing item relationships with the provided ones.\nWhen false, appends the provided item relationships to existing ones, continuing the order sequence.\n            ",
               "default": false,
               "title": "Override"
             },
-            "description": "If true, all existing form relationships will be replaced with the provided form relationships."
+            "description": "\nWhen true, replaces all existing item relationships with the provided ones.\nWhen false, appends the provided item relationships to existing ones, continuing the order sequence.\n            "
           }
         ],
         "requestBody": {
@@ -3845,11 +3845,11 @@
             "required": false,
             "schema": {
               "type": "boolean",
-              "description": "If true, all existing item group relationships will be replaced with the provided item group relationships.",
+              "description": "\nWhen true, replaces all existing item relationships with the provided ones.  \nWhen false, appends the provided item relationships to existing ones, continuing the order sequence.\n            ",
               "default": false,
               "title": "Override"
             },
-            "description": "If true, all existing item group relationships will be replaced with the provided item group relationships."
+            "description": "\nWhen true, replaces all existing item relationships with the provided ones.  \nWhen false, appends the provided item relationships to existing ones, continuing the order sequence.\n            "
           }
         ],
         "requestBody": {
@@ -5129,11 +5129,11 @@
             "required": false,
             "schema": {
               "type": "boolean",
-              "description": "If true, all existing item relationships will be replaced with the provided item relationships.",
+              "description": "\nWhen true, replaces all existing item relationships with the provided ones.  \nWhen false, appends the provided item relationships to existing ones, continuing the order sequence.\n            ",
               "default": false,
               "title": "Override"
             },
-            "description": "If true, all existing item relationships will be replaced with the provided item relationships."
+            "description": "\nWhen true, replaces all existing item relationships with the provided ones.  \nWhen false, appends the provided item relationships to existing ones, continuing the order sequence.\n            "
           }
         ],
         "requestBody": {
@@ -38439,6 +38439,190 @@
         }
       }
     },
+    "/ct/paired-codelists/{codelist_uid}/terms": {
+      "get": {
+        "tags": [
+          "CT Codelists"
+        ],
+        "summary": "Returns terms from the paired codelists identified by the given codelist UID.",
+        "description": "Returns the list of all terms coming from the codelist specified by the given UID and its paired codelist. Each term includes both the code_submission_value (from the codes codelist) and the name_submission_value (from the names codelist).",
+        "operationId": "get_paired_codelist_terms_ct_paired_codelists__codelist_uid__terms_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "codelist_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique id of the CTCodelistRoot",
+              "title": "Codelist Uid"
+            },
+            "description": "The unique id of the CTCodelistRoot"
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "description": "\nJSON dictionary of field names and boolean flags specifying the sort order. Supported values for sort order are:\n- `true` - ascending order\n\n- `false` - descending order\n\n\nDefault: `{}` (no sorting).\n\nFormat: `{\"field_1\": true, \"field_2\": false, ...}`.\n\nFunctionality: Sorts the results by `field_1` with sort order indicated by its boolean value, then by `field_2` etc.\n\nExample: `{\"topic_code\": true, \"name\": false}` sorts the returned list by `topic_code ascending`, then by `name descending`.\n",
+              "title": "Sort By"
+            },
+            "description": "\nJSON dictionary of field names and boolean flags specifying the sort order. Supported values for sort order are:\n- `true` - ascending order\n\n- `false` - descending order\n\n\nDefault: `{}` (no sorting).\n\nFormat: `{\"field_1\": true, \"field_2\": false, ...}`.\n\nFunctionality: Sorts the results by `field_1` with sort order indicated by its boolean value, then by `field_2` etc.\n\nExample: `{\"topic_code\": true, \"name\": false}` sorts the returned list by `topic_code ascending`, then by `name descending`.\n"
+          },
+          {
+            "name": "page_number",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000000000,
+              "minimum": 1,
+              "description": "\nPage number of the returned list of entities.\n\nFunctionality : provided together with `page_size`, selects a page to retrieve for paginated results.\n\nErrors: `page_size` not provided, `page_number` must be equal or greater than 1.\n",
+              "default": 1,
+              "title": "Page Number"
+            },
+            "description": "\nPage number of the returned list of entities.\n\nFunctionality : provided together with `page_size`, selects a page to retrieve for paginated results.\n\nErrors: `page_size` not provided, `page_number` must be equal or greater than 1.\n"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 0,
+              "description": "\nNumber of items to be returned per page.\n\nDefault: 10\n\nFunctionality: Provided together with `page_number`, selects the number of results per page.\n\nIn case the value is set to `0`, all rows will be returned.\n\nErrors: `page_number` not provided.\n",
+              "default": 10,
+              "title": "Page Size"
+            },
+            "description": "\nNumber of items to be returned per page.\n\nDefault: 10\n\nFunctionality: Provided together with `page_number`, selects the number of results per page.\n\nIn case the value is set to `0`, all rows will be returned.\n\nErrors: `page_number` not provided.\n"
+          },
+          {
+            "name": "filters",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "description": "\nJSON dictionary of field names and search strings, with a choice of operators for building complex filtering queries.\n\nDefault: `{}` (no filtering).\n\nFunctionality: filters the queried entities based on the provided search strings and operators.\n\nFormat:\n`{\"field_name\":{\"v\":[\"search_str_1\", \"search_str_1\"], \"op\":\"comparison_operator\"}, \"other_field_name\":{...}}`\n\n- `v` specifies the list of values to match against the specified `field_name` field\n\n    - If multiple values are provided in the `v` list, a logical OR filtering operation will be performed using these values.\n\n- `op` specifies the type of string match/comparison operation to perform on the specified `field_name` field. Supported values are:\n\n    - `eq` (default, equals)\n\n    - `ne` (not equals)\n\n    - `co` (string contains)\n\n    - `ge` (greater or equal to)\n\n    - `gt` (greater than)\n\n    - `le` (less or equal to)\n\n    - `lt` (less than)\n\n    - `bw` (between - exactly two values are required)\n\n    - `in` (value in list).\n\n\nNote that filtering can also be performed on non-string field types. \nFor example, this works as filter on a boolean field: `{\"is_global_standard\": {\"v\": [false]}}`.\n\n\nWildcard filtering is also supported. To do this, provide `*` value for `field_name`, for example: `{\"*\":{\"v\":[\"search_string\"]}}`.\n\nWildcard only supports string search (with implicit `contains` operator) on fields of type string.\n\n\nFinally, you can filter on items that have an empty value for a field. To achieve this, set the value of `v` list to an empty array - `[]`.\n\n\nComplex filtering example:\n\n`{\"name\":{\"v\": [\"Jimbo\", \"Jumbo\"], \"op\": \"co\"}, \"start_date\": {\"v\": [\"2021-04-01T12:00:00+00.000\"], \"op\": \"ge\"}, \"*\":{\"v\": [\"wildcard_search\"], \"op\": \"co\"}}`\n\n",
+              "title": "Filters"
+            },
+            "description": "\nJSON dictionary of field names and search strings, with a choice of operators for building complex filtering queries.\n\nDefault: `{}` (no filtering).\n\nFunctionality: filters the queried entities based on the provided search strings and operators.\n\nFormat:\n`{\"field_name\":{\"v\":[\"search_str_1\", \"search_str_1\"], \"op\":\"comparison_operator\"}, \"other_field_name\":{...}}`\n\n- `v` specifies the list of values to match against the specified `field_name` field\n\n    - If multiple values are provided in the `v` list, a logical OR filtering operation will be performed using these values.\n\n- `op` specifies the type of string match/comparison operation to perform on the specified `field_name` field. Supported values are:\n\n    - `eq` (default, equals)\n\n    - `ne` (not equals)\n\n    - `co` (string contains)\n\n    - `ge` (greater or equal to)\n\n    - `gt` (greater than)\n\n    - `le` (less or equal to)\n\n    - `lt` (less than)\n\n    - `bw` (between - exactly two values are required)\n\n    - `in` (value in list).\n\n\nNote that filtering can also be performed on non-string field types. \nFor example, this works as filter on a boolean field: `{\"is_global_standard\": {\"v\": [false]}}`.\n\n\nWildcard filtering is also supported. To do this, provide `*` value for `field_name`, for example: `{\"*\":{\"v\":[\"search_string\"]}}`.\n\nWildcard only supports string search (with implicit `contains` operator) on fields of type string.\n\n\nFinally, you can filter on items that have an empty value for a field. To achieve this, set the value of `v` list to an empty array - `[]`.\n\n\nComplex filtering example:\n\n`{\"name\":{\"v\": [\"Jimbo\", \"Jumbo\"], \"op\": \"co\"}, \"start_date\": {\"v\": [\"2021-04-01T12:00:00+00.000\"], \"op\": \"ge\"}, \"*\":{\"v\": [\"wildcard_search\"], \"op\": \"co\"}}`\n\n",
+            "examples": {
+              "none": {
+                "summary": "No Filters",
+                "description": "No filters are applied.",
+                "value": "{}"
+              },
+              "wildcard": {
+                "summary": "Wildcard Filter",
+                "description": "Apply a wildcard filter.",
+                "value": "{\"*\":{ \"v\": [\"\"], \"op\": \"co\"}}"
+              },
+              "uid__contains": {
+                "summary": "Partial Match on UID",
+                "description": "Apply a filter to display records **containing** specified UIDs.",
+                "value": "{\"uid\":{ \"v\": [\"\"], \"op\": \"co\"}}"
+              },
+              "uid": {
+                "summary": "Exact Match on UID",
+                "description": "Apply a filter to display only those records with **exact** matching UIDs.",
+                "value": "{\"uid\":{ \"v\": [\"\"], \"op\": \"eq\"}}"
+              },
+              "name__contains": {
+                "summary": "Partial Match on Name",
+                "description": "Apply a filter to display records **containing** specified names.",
+                "value": "{\"name\":{ \"v\": [\"\"], \"op\": \"co\"}}"
+              },
+              "name": {
+                "summary": "Exact Match on Name",
+                "description": "Apply a filter to display only those records with **exact** matching names.",
+                "value": "{\"name\":{ \"v\": [\"\"], \"op\": \"eq\"}}"
+              }
+            }
+          },
+          {
+            "name": "operator",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Specifies which logical operation - `and` or `or` - should be used in case filtering is done on several fields.\n\nDefault: `and` (all fields have to match their filter).\n\nFunctionality: `and` will return entities having all filters matching, `or` will return entities with any matches.\n\n",
+              "default": "and",
+              "title": "Operator"
+            },
+            "description": "Specifies which logical operation - `and` or `or` - should be used in case filtering is done on several fields.\n\nDefault: `and` (all fields have to match their filter).\n\nFunctionality: `and` will return entities having all filters matching, `or` will return entities with any matches.\n\n"
+          },
+          {
+            "name": "total_count",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Boolean flag to include the total count of entities in the response.\n\nDefault: `false`\n\nFunctionality: When set to `true`, returns the total number of entities that match the query.\n\nWhen combined with filters, the count reflects only the entities matching those filters.\n\nNote: This operation can be expensive for large datasets.\n\nSpecial case: A value of `-1` indicates that the exact count is unavailable due to performance constraints, but confirms that at least one more entity exists beyond the current page.",
+              "default": false,
+              "title": "Total Count"
+            },
+            "description": "Boolean flag to include the total count of entities in the response.\n\nDefault: `false`\n\nFunctionality: When set to `true`, returns the total number of entities that match the query.\n\nWhen combined with filters, the count reflects only the entities matching those filters.\n\nNote: This operation can be expensive for large datasets.\n\nSpecial case: A value of `-1` indicates that the exact count is unavailable due to performance constraints, but confirms that at least one more entity exists beyond the current page."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomPage_CTPairedCodelistTerm_"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - The codelist does not have a paired codelist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Entity not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/ct/codelists/headers": {
       "get": {
         "tags": [
@@ -47273,6 +47457,24 @@
             "description": "A list of activity_instance_class names to use as a specific filter"
           },
           {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by status, matching either activity instance status or groupings status",
+              "title": "Status"
+            },
+            "description": "Filter by status, matching either activity instance status or groupings status"
+          },
+          {
             "name": "sort_by",
             "in": "query",
             "required": false,
@@ -47489,14 +47691,14 @@
         }
       }
     },
-    "/concepts/activities/activity-instances/versions": {
+    "/concepts/activities/activity-instances/attributes/versions": {
       "get": {
         "tags": [
           "Activity Instances"
         ],
         "summary": "List all versions of all activity instances (for a given library)",
         "description": "State before:\n - The library must exist (if specified)\n \nBusiness logic:\n - List version history of all activity instances\n - The returned versions are ordered by version start_date descending (newest entries first).\n\nState after:\n - No change\n \nPossible errors:\n - Invalid library name specified.\n\n\n\nResponse format:\n\n- In addition to retrieving data in JSON format (default behaviour), \nit is possible to request data to be returned in CSV, XML or Excel formats \nby sending the `Accept` http request header with one of the following values:\n  - `text/csv`\n\n  - `text/xml`\n\n  - `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`",
-        "operationId": "get_activity_instances_versions_concepts_activities_activity_instances_versions_get",
+        "operationId": "get_activity_instances_versions_concepts_activities_activity_instances_attributes_versions_get",
         "security": [
           {
             "OAuth2AuthorizationCodeBearer": []
@@ -47665,7 +47867,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CustomPage_ActivityInstance_"
+                  "$ref": "#/components/schemas/CustomPage_ActivityInstanceAttributes_"
                 }
               }
             }
@@ -47956,87 +48158,6 @@
           }
         }
       },
-      "patch": {
-        "tags": [
-          "Activity Instances"
-        ],
-        "summary": "Update activity instance",
-        "description": "State before:\n - uid must exist and activity instance must exist in status draft.\n - The activity instance must belongs to a library that allows deleting (the 'is_editable' property of the library needs to be true).\n\nBusiness logic:\n - If activity instance exist in status draft then attributes are updated.\n- If the linked activity instance is updated, the relationships are updated to point to the activity instance value node.\n\nState after:\n - attributes are updated for the activity instance.\n - Audit trail entry must be made with update of attributes.\n\nPossible errors:\n - Invalid uid.",
-        "operationId": "edit_concepts_activities_activity_instances__activity_instance_uid__patch",
-        "security": [
-          {
-            "OAuth2AuthorizationCodeBearer": []
-          },
-          {
-            "BearerJwtAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "activity_instance_uid",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "description": "The unique id of the ActivityInstance",
-              "title": "Activity Instance Uid"
-            },
-            "description": "The unique id of the ActivityInstance"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ActivityInstanceEditInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ActivityInstance"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Forbidden - Reasons include e.g.: \n- The activity instance is not in draft status.\n- The activity instance had been in 'Final' status before.\n- The library doesn't allow to edit draft versions.\n",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found - The activity instance with the specified 'activity_instance_uid' wasn't found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      },
       "delete": {
         "tags": [
           "Activity Instances"
@@ -48193,14 +48314,168 @@
         }
       }
     },
-    "/concepts/activities/activity-instances/{activity_instance_uid}/activity-groupings": {
+    "/concepts/activities/activity-instances/{activity_instance_uid}/attributes": {
       "get": {
         "tags": [
           "Activity Instances"
         ],
-        "summary": "Get activity groupings for a specific activity instance",
-        "description": "Returns activity groupings (hierarchy) for an activity instance, including:\n - Activity information with version and library details\n - Activity groups with name and definition\n - Activity subgroups with name and definition\n\nState before:\n - an activity instance with uid must exist.\n\nState after:\n - No change\n\nPossible errors:\n - Invalid uid.\n\n{_generic_descriptions.DATA_EXPORTS_HEADER}",
-        "operationId": "get_activity_instance_groupings_concepts_activities_activity_instances__activity_instance_uid__activity_groupings_get",
+        "summary": "Get details on a specific activity instance attributes (in a specific version)",
+        "description": "State before:\n - a activity instance with uid must exist.\n\nBusiness logic:\n - If parameter at_specified_date_time is specified then the latest/newest representation of the concept at this point in time is returned. The point in time needs to be specified in ISO 8601 format including the timezone, e.g.: '2020-10-31T16:00:00+02:00' for October 31, 2020 at 4pm in UTC+2 timezone. If the timezone is ommitted, UTC\ufffd0 is assumed.\n - If parameter status is specified then the representation of the concept in that status is returned (if existent). This is useful if the concept has a status 'Draft' and a status 'Final'.\n - If parameter version is specified then the latest/newest representation of the concept in that version is returned. Only exact matches are considered. The version is specified in the following format: <major>.<minor> where <major> and <minor> are digits. E.g. '0.1', '0.2', '1.0', ...\n\nState after:\n - No change\n\nPossible errors:\n - Invalid uid, at_specified_date_time, status or version.",
+        "operationId": "get_activity_instance_attributes_concepts_activities_activity_instances__activity_instance_uid__attributes_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activity_instance_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique id of the ActivityInstance",
+              "title": "Activity Instance Uid"
+            },
+            "description": "The unique id of the ActivityInstance"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityInstanceAttributes"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Entity not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Activity Instances"
+        ],
+        "summary": "Update activity instance attributes",
+        "description": "State before:\n - uid must exist and activity instance attributes must exist in status draft.\n - The activity instance must belongs to a library that allows deleting (the 'is_editable' property of the library needs to be true).\n\nBusiness logic:\n - If activity instance exist in status draft then attributes are updated.\n- If the linked activity instance is updated, the relationships are updated to point to the activity instance value node.\n\nState after:\n - attributes are updated for the activity instance.\n - Audit trail entry must be made with update of attributes.\n\nPossible errors:\n - Invalid uid.",
+        "operationId": "edit_concepts_activities_activity_instances__activity_instance_uid__attributes_patch",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activity_instance_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique id of the ActivityInstance",
+              "title": "Activity Instance Uid"
+            },
+            "description": "The unique id of the ActivityInstance"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivityInstanceAttributesEditInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityInstanceAttributes"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Forbidden - Reasons include e.g.: \n- The activity instance is not in draft status.\n- The activity instance had been in 'Final' status before.\n- The library doesn't allow to edit draft versions.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - The activity instance with the specified 'activity_instance_uid' wasn't found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/concepts/activities/activity-instances/{activity_instance_uid}/groupings": {
+      "get": {
+        "tags": [
+          "Activity Instances"
+        ],
+        "summary": "Get details on a specific activity instance groupings (in a specific version)",
+        "description": "State before:\n - a activity instance with uid must exist.\n\nBusiness logic:\n - If parameter at_specified_date_time is specified then the latest/newest representation of the concept at this point in time is returned. The point in time needs to be specified in ISO 8601 format including the timezone, e.g.: '2020-10-31T16:00:00+02:00' for October 31, 2020 at 4pm in UTC+2 timezone. If the timezone is ommitted, UTC\ufffd0 is assumed.\n - If parameter status is specified then the representation of the concept in that status is returned (if existent). This is useful if the concept has a status 'Draft' and a status 'Final'.\n - If parameter version is specified then the latest/newest representation of the concept in that version is returned. Only exact matches are considered. The version is specified in the following format: <major>.<minor> where <major> and <minor> are digits. E.g. '0.1', '0.2', '1.0', ...\n\nState after:\n - No change\n\nPossible errors:\n - Invalid uid, at_specified_date_time, status or version.",
+        "operationId": "get_activity_instance_groupings_concepts_activities_activity_instances__activity_instance_uid__groupings_get",
         "security": [
           {
             "OAuth2AuthorizationCodeBearer": []
@@ -48244,11 +48519,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SimpleActivityInstanceGrouping"
-                  },
-                  "title": "Response 200 Get Activity Instance Groupings Concepts Activities Activity Instances  Activity Instance Uid  Activity Groupings Get"
+                  "$ref": "#/components/schemas/ActivityInstanceGroupings"
                 }
               }
             }
@@ -48275,6 +48546,87 @@
           },
           "400": {
             "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Activity Instances"
+        ],
+        "summary": "Update activity instance groupings",
+        "description": "State before:\n - uid must exist and activity instance groupings must exist in status draft.\n - The activity instance must belongs to a library that allows deleting (the 'is_editable' property of the library needs to be true).\n\nBusiness logic:\n - If activity instance exist in status draft then groupings are updated.\n- If the linked activity instance is updated, the relationships are updated to point to the activity instance value node.\n\nState after:\n - groupings are updated for the activity instance.\n - Audit trail entry must be made with update of groupings.\n\nPossible errors:\n - Invalid uid.",
+        "operationId": "edit_groupings_concepts_activities_activity_instances__activity_instance_uid__groupings_patch",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activity_instance_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique id of the ActivityInstance",
+              "title": "Activity Instance Uid"
+            },
+            "description": "The unique id of the ActivityInstance"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivityInstanceGroupingsEditInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityInstanceGroupings"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Forbidden - Reasons include e.g.: \n- The activity instance is not in draft status.\n- The activity instance had been in 'Final' status before.\n- The library doesn't allow to edit draft versions.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - The activity instance with the specified 'activity_instance_uid' wasn't found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -48451,14 +48803,14 @@
         }
       }
     },
-    "/concepts/activities/activity-instances/{activity_instance_uid}/versions": {
+    "/concepts/activities/activity-instances/{activity_instance_uid}/attributes/versions": {
       "get": {
         "tags": [
           "Activity Instances"
         ],
-        "summary": "List version history for activity instance",
+        "summary": "List version history for activity instance attributes",
         "description": "State before:\n - uid must exist.\n\nBusiness logic:\n - List version history for activity instance.\n - The returned versions are ordered by start_date descending (newest entries first).\n\nState after:\n - No change\n\nPossible errors:\n - Invalid uid.",
-        "operationId": "get_versions_concepts_activities_activity_instances__activity_instance_uid__versions_get",
+        "operationId": "get_versions_concepts_activities_activity_instances__activity_instance_uid__attributes_versions_get",
         "security": [
           {
             "OAuth2AuthorizationCodeBearer": []
@@ -48488,9 +48840,9 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/ActivityInstance"
+                    "$ref": "#/components/schemas/ActivityInstanceAttributes"
                   },
-                  "title": "Response Get Versions Concepts Activities Activity Instances  Activity Instance Uid  Versions Get"
+                  "title": "Response Get Versions Concepts Activities Activity Instances  Activity Instance Uid  Attributes Versions Get"
                 }
               }
             }
@@ -48531,9 +48883,9 @@
         "tags": [
           "Activity Instances"
         ],
-        "summary": " Create a new version of an activity instance",
+        "summary": " Create a new version of an activity instance attributes",
         "description": "State before:\n - uid must exist and the activity instance must be in status Final.\n \nBusiness logic:\n- The activity instance is changed to a draft state.\n\nState after:\n - Activity instance changed status to Draft and assigned a new minor version number.\n - Audit trail entry must be made with action of creating a new draft version.\n \nPossible errors:\n - Invalid uid or status not Final.",
-        "operationId": "create_new_version_concepts_activities_activity_instances__activity_instance_uid__versions_post",
+        "operationId": "create_new_version_concepts_activities_activity_instances__activity_instance_uid__attributes_versions_post",
         "security": [
           {
             "OAuth2AuthorizationCodeBearer": []
@@ -48561,7 +48913,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ActivityInstance"
+                  "$ref": "#/components/schemas/ActivityInstanceAttributes"
                 }
               }
             }
@@ -48670,14 +49022,14 @@
         ]
       }
     },
-    "/concepts/activities/activity-instances/{activity_instance_uid}/approvals": {
+    "/concepts/activities/activity-instances/{activity_instance_uid}/attributes/approvals": {
       "post": {
         "tags": [
           "Activity Instances"
         ],
-        "summary": "Approve draft version of an activity instance",
+        "summary": "Approve draft version of an activity instance attributes",
         "description": "State before:\n - uid must exist and activity instance must be in status Draft.\n \nBusiness logic:\n - The latest 'Draft' version will remain the same as before.\n - The status of the new approved version will be automatically set to 'Final'.\n - The 'version' property of the new version will be automatically set to the version of the latest 'Final' version increased by +1.0.\n - The 'change_description' property will be set automatically 'Approved version'.\n \nState after:\n - Activity instance changed status to Final and assigned a new major version number.\n - Audit trail entry must be made with action of approving to new Final version.\n \nPossible errors:\n - Invalid uid or status not Draft.",
-        "operationId": "approve_concepts_activities_activity_instances__activity_instance_uid__approvals_post",
+        "operationId": "approve_concepts_activities_activity_instances__activity_instance_uid__attributes_approvals_post",
         "security": [
           {
             "OAuth2AuthorizationCodeBearer": []
@@ -48705,7 +49057,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ActivityInstance"
+                  "$ref": "#/components/schemas/ActivityInstanceAttributes"
                 }
               }
             }
@@ -48743,14 +49095,14 @@
         }
       }
     },
-    "/concepts/activities/activity-instances/{activity_instance_uid}/activations": {
+    "/concepts/activities/activity-instances/{activity_instance_uid}/attributes/activations": {
       "delete": {
         "tags": [
           "Activity Instances"
         ],
-        "summary": " Inactivate final version of an activity instance",
+        "summary": " Inactivate final version of an activity instance attributes",
         "description": "State before:\n - uid must exist and activity instance must be in status Final.\n \nBusiness logic:\n - The latest 'Final' version will remain the same as before.\n - The status will be automatically set to 'Retired'.\n - The 'change_description' property will be set automatically.\n - The 'version' property will remain the same as before.\n \nState after:\n - Activity instance changed status to Retired.\n - Audit trail entry must be made with action of inactivating to retired version.\n \nPossible errors:\n - Invalid uid or status not Final.",
-        "operationId": "inactivate_concepts_activities_activity_instances__activity_instance_uid__activations_delete",
+        "operationId": "inactivate_concepts_activities_activity_instances__activity_instance_uid__attributes_activations_delete",
         "security": [
           {
             "OAuth2AuthorizationCodeBearer": []
@@ -48778,7 +49130,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ActivityInstance"
+                  "$ref": "#/components/schemas/ActivityInstanceAttributes"
                 }
               }
             }
@@ -48819,9 +49171,9 @@
         "tags": [
           "Activity Instances"
         ],
-        "summary": "Reactivate retired version of an activity instance",
+        "summary": "Reactivate retired version of an activity instance attributes",
         "description": "State before:\n - uid must exist and activity instance must be in status Retired.\n \nBusiness logic:\n - The latest 'Retired' version will remain the same as before.\n - The status will be automatically set to 'Final'.\n - The 'change_description' property will be set automatically.\n - The 'version' property will remain the same as before.\n\nState after:\n - Activity instance changed status to Final.\n - An audit trail entry must be made with action of reactivating to final version.\n \nPossible errors:\n - Invalid uid or status not Retired.",
-        "operationId": "reactivate_concepts_activities_activity_instances__activity_instance_uid__activations_post",
+        "operationId": "reactivate_concepts_activities_activity_instances__activity_instance_uid__attributes_activations_post",
         "security": [
           {
             "OAuth2AuthorizationCodeBearer": []
@@ -48849,7 +49201,372 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ActivityInstance"
+                  "$ref": "#/components/schemas/ActivityInstanceAttributes"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Forbidden - Reasons include e.g.: \n- The activity instance is not in retired status.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - The activity instance with the specified 'activity_instance_uid' could not be found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/concepts/activities/activity-instances/{activity_instance_uid}/groupings/versions": {
+      "get": {
+        "tags": [
+          "Activity Instances"
+        ],
+        "summary": "List version history for activity instance groupings",
+        "description": "State before:\n - uid must exist.\n\nBusiness logic:\n - List version history for activity instance groupings.\n - The returned versions are ordered by start_date descending (newest entries first).\n\nState after:\n - No change\n\nPossible errors:\n - Invalid uid.",
+        "operationId": "get_groupings_versions_concepts_activities_activity_instances__activity_instance_uid__groupings_versions_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activity_instance_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique id of the ActivityInstance",
+              "title": "Activity Instance Uid"
+            },
+            "description": "The unique id of the ActivityInstance"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ActivityInstanceGroupings"
+                  },
+                  "title": "Response Get Groupings Versions Concepts Activities Activity Instances  Activity Instance Uid  Groupings Versions Get"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - The activity isntance with the specified 'activity_instance_uid' wasn't found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Activity Instances"
+        ],
+        "summary": " Create a new version of an activity instance groupings",
+        "description": "State before:\n - uid must exist and the activity instance must be in status Final.\n \nBusiness logic:\n- The activity instance is changed to a draft state.\n\nState after:\n - Activity instance changed status to Draft and assigned a new minor version number.\n - Audit trail entry must be made with action of creating a new draft version.\n \nPossible errors:\n - Invalid uid or status not Final.",
+        "operationId": "create_new_groupings_version_concepts_activities_activity_instances__activity_instance_uid__groupings_versions_post",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activity_instance_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique id of the ActivityInstance",
+              "title": "Activity Instance Uid"
+            },
+            "description": "The unique id of the ActivityInstance"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "OK.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityInstanceGroupings"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Forbidden - Reasons include e.g.: \n- The library doesn't allow to create activity instances.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Reasons include e.g.: \n- The activity instance is not in final status.\n- The activity instance with the specified 'activity_instance_uid' could not be found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/concepts/activities/activity-instances/{activity_instance_uid}/groupings/approvals": {
+      "post": {
+        "tags": [
+          "Activity Instances"
+        ],
+        "summary": "Approve draft version of an activity instance groupings",
+        "description": "State before:\n - uid must exist and activity instance must be in status Draft.\n \nBusiness logic:\n - The latest 'Draft' version will remain the same as before.\n - The status of the new approved version will be automatically set to 'Final'.\n - The 'version' property of the new version will be automatically set to the version of the latest 'Final' version increased by +1.0.\n - The 'change_description' property will be set automatically 'Approved version'.\n \nState after:\n - Activity instance changed status to Final and assigned a new major version number.\n - Audit trail entry must be made with action of approving to new Final version.\n \nPossible errors:\n - Invalid uid or status not Draft.",
+        "operationId": "approve_groupings_concepts_activities_activity_instances__activity_instance_uid__groupings_approvals_post",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activity_instance_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique id of the ActivityInstance",
+              "title": "Activity Instance Uid"
+            },
+            "description": "The unique id of the ActivityInstance"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "OK.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityInstanceGroupings"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Forbidden - Reasons include e.g.: \n- The activity instance is not in draft status.\n- The library doesn't allow to approve activity instance.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - The activity instance with the specified 'activity_instance_uid' wasn't found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/concepts/activities/activity-instances/{activity_instance_uid}/groupings/activations": {
+      "delete": {
+        "tags": [
+          "Activity Instances"
+        ],
+        "summary": " Inactivate final version of an activity instance groupings",
+        "description": "State before:\n - uid must exist and activity instance must be in status Final.\n \nBusiness logic:\n - The latest 'Final' version will remain the same as before.\n - The status will be automatically set to 'Retired'.\n - The 'change_description' property will be set automatically.\n - The 'version' property will remain the same as before.\n \nState after:\n - Activity instance changed status to Retired.\n - Audit trail entry must be made with action of inactivating to retired version.\n \nPossible errors:\n - Invalid uid or status not Final.",
+        "operationId": "inactivate_groupings_concepts_activities_activity_instances__activity_instance_uid__groupings_activations_delete",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activity_instance_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique id of the ActivityInstance",
+              "title": "Activity Instance Uid"
+            },
+            "description": "The unique id of the ActivityInstance"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityInstanceGroupings"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Forbidden - Reasons include e.g.: \n- The activity instance is not in final status.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - The activity instance with the specified 'activity_instance_uid' could not be found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Activity Instances"
+        ],
+        "summary": "Reactivate retired version of an activity instance groupings",
+        "description": "State before:\n - uid must exist and activity instance must be in status Retired.\n \nBusiness logic:\n - The latest 'Retired' version will remain the same as before.\n - The status will be automatically set to 'Final'.\n - The 'change_description' property will be set automatically.\n - The 'version' property will remain the same as before.\n\nState after:\n - Activity instance changed status to Final.\n - An audit trail entry must be made with action of reactivating to final version.\n \nPossible errors:\n - Invalid uid or status not Retired.",
+        "operationId": "reactivate_groupings_concepts_activities_activity_instances__activity_instance_uid__groupings_activations_post",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activity_instance_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique id of the ActivityInstance",
+              "title": "Activity Instance Uid"
+            },
+            "description": "The unique id of the ActivityInstance"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityInstanceGroupings"
                 }
               }
             }
@@ -49100,6 +49817,108 @@
           },
           "400": {
             "description": "Forbidden - Reasons include e.g.: \n- The library doesn't exist.\n- The library doesn't allow to add new items.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activity-instance-classes/versions": {
+      "get": {
+        "tags": [
+          "Activity Instance Classes"
+        ],
+        "summary": "List all versions of activity instance classes",
+        "description": "State before:\n - The library must exist (if specified)\n\nBusiness logic:\n - List version history of activity instance classes\n - The returned versions are ordered by version start_date descending (newest entries first).\n\nState after:\n - No change\n\nPossible errors:\n - Invalid library name specified.\n\n\n\nResponse format:\n\n- In addition to retrieving data in JSON format (default behaviour), \nit is possible to request data to be returned in CSV, XML or Excel formats \nby sending the `Accept` http request header with one of the following values:\n  - `text/csv`\n\n  - `text/xml`\n\n  - `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`",
+        "operationId": "get_activity_instance_classes_versions_activity_instance_classes_versions_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page_number",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000000000,
+              "minimum": 1,
+              "description": "\nPage number of the returned list of entities.\n\nFunctionality : provided together with `page_size`, selects a page to retrieve for paginated results.\n\nErrors: `page_size` not provided, `page_number` must be equal or greater than 1.\n",
+              "default": 1,
+              "title": "Page Number"
+            },
+            "description": "\nPage number of the returned list of entities.\n\nFunctionality : provided together with `page_size`, selects a page to retrieve for paginated results.\n\nErrors: `page_size` not provided, `page_number` must be equal or greater than 1.\n"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 0,
+              "description": "\nNumber of items to be returned per page.\n\nDefault: 10\n\nFunctionality: Provided together with `page_number`, selects the number of results per page.\n\nIn case the value is set to `0`, all rows will be returned.\n\nErrors: `page_number` not provided.\n",
+              "default": 10,
+              "title": "Page Size"
+            },
+            "description": "\nNumber of items to be returned per page.\n\nDefault: 10\n\nFunctionality: Provided together with `page_number`, selects the number of results per page.\n\nIn case the value is set to `0`, all rows will be returned.\n\nErrors: `page_number` not provided.\n"
+          },
+          {
+            "name": "total_count",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Boolean flag to include the total count of entities in the response.\n\nDefault: `false`\n\nFunctionality: When set to `true`, returns the total number of entities that match the query.\n\nWhen combined with filters, the count reflects only the entities matching those filters.\n\nNote: This operation can be expensive for large datasets.\n\nSpecial case: A value of `-1` indicates that the exact count is unavailable due to performance constraints, but confirms that at least one more entity exists beyond the current page.",
+              "default": false,
+              "title": "Total Count"
+            },
+            "description": "Boolean flag to include the total count of entities in the response.\n\nDefault: `false`\n\nFunctionality: When set to `true`, returns the total number of entities that match the query.\n\nWhen combined with filters, the count reflects only the entities matching those filters.\n\nNote: This operation can be expensive for large datasets.\n\nSpecial case: A value of `-1` indicates that the exact count is unavailable due to performance constraints, but confirms that at least one more entity exists beyond the current page."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomPage_ActivityInstanceClass_"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Entity not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -50815,6 +51634,108 @@
           },
           "400": {
             "description": "Forbidden - Reasons include e.g.: \n- The library doesn't exist.\n- The library doesn't allow to add new items.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activity-item-classes/versions": {
+      "get": {
+        "tags": [
+          "Activity Item Classes"
+        ],
+        "summary": "List all versions of activity item classes",
+        "description": "State before:\n - The library must exist (if specified)\n\nBusiness logic:\n - List version history of activity item classes\n - The returned versions are ordered by version start_date descending (newest entries first).\n\nState after:\n - No change\n\nPossible errors:\n - Invalid library name specified.\n\n\n\nResponse format:\n\n- In addition to retrieving data in JSON format (default behaviour), \nit is possible to request data to be returned in CSV, XML or Excel formats \nby sending the `Accept` http request header with one of the following values:\n  - `text/csv`\n\n  - `text/xml`\n\n  - `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`",
+        "operationId": "get_activity_item_classes_versions_activity_item_classes_versions_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page_number",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000000000,
+              "minimum": 1,
+              "description": "\nPage number of the returned list of entities.\n\nFunctionality : provided together with `page_size`, selects a page to retrieve for paginated results.\n\nErrors: `page_size` not provided, `page_number` must be equal or greater than 1.\n",
+              "default": 1,
+              "title": "Page Number"
+            },
+            "description": "\nPage number of the returned list of entities.\n\nFunctionality : provided together with `page_size`, selects a page to retrieve for paginated results.\n\nErrors: `page_size` not provided, `page_number` must be equal or greater than 1.\n"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 0,
+              "description": "\nNumber of items to be returned per page.\n\nDefault: 10\n\nFunctionality: Provided together with `page_number`, selects the number of results per page.\n\nIn case the value is set to `0`, all rows will be returned.\n\nErrors: `page_number` not provided.\n",
+              "default": 10,
+              "title": "Page Size"
+            },
+            "description": "\nNumber of items to be returned per page.\n\nDefault: 10\n\nFunctionality: Provided together with `page_number`, selects the number of results per page.\n\nIn case the value is set to `0`, all rows will be returned.\n\nErrors: `page_number` not provided.\n"
+          },
+          {
+            "name": "total_count",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Boolean flag to include the total count of entities in the response.\n\nDefault: `false`\n\nFunctionality: When set to `true`, returns the total number of entities that match the query.\n\nWhen combined with filters, the count reflects only the entities matching those filters.\n\nNote: This operation can be expensive for large datasets.\n\nSpecial case: A value of `-1` indicates that the exact count is unavailable due to performance constraints, but confirms that at least one more entity exists beyond the current page.",
+              "default": false,
+              "title": "Total Count"
+            },
+            "description": "Boolean flag to include the total count of entities in the response.\n\nDefault: `false`\n\nFunctionality: When set to `true`, returns the total number of entities that match the query.\n\nWhen combined with filters, the count reflects only the entities matching those filters.\n\nNote: This operation can be expensive for large datasets.\n\nSpecial case: A value of `-1` indicates that the exact count is unavailable due to performance constraints, but confirms that at least one more entity exists beyond the current page."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomPage_ActivityItemClass_"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Entity not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -75124,6 +76045,18 @@
               "title": "Debug Propagation"
             },
             "description": "Debug propagations without hiding rows"
+          },
+          {
+            "name": "include_uids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Include uids in the HTML as data attributes",
+              "default": false,
+              "title": "Include Uids"
+            },
+            "description": "Include uids in the HTML as data attributes"
           }
         ],
         "responses": {
@@ -76198,6 +77131,18 @@
               "title": "Study Value Version"
             },
             "description": "If specified, study data with specified version is returned.\n\n    Only exact matches are considered. \n\n    E.g. 1, 2, 2.1, ..."
+          },
+          {
+            "name": "protocol_lab_table",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Whether to export Protocol Lab table SoA",
+              "default": false,
+              "title": "Protocol Lab Table"
+            },
+            "description": "Whether to export Protocol Lab table SoA"
           }
         ],
         "responses": {
@@ -116815,6 +117760,30 @@
             ],
             "title": "Possible Actions",
             "description": "Holds those actions that can be performed on the ActivityInstances. Actions are: 'approve', 'edit', 'new_version'."
+          },
+          "nci_concept_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Concept Id",
+            "nullable": true
+          },
+          "nci_concept_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Concept Name",
+            "nullable": true
           }
         },
         "type": "object",
@@ -116865,6 +117834,30 @@
             "type": "string",
             "minLength": 1,
             "title": "Library Name"
+          },
+          "nci_concept_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Concept Id"
+          },
+          "nci_concept_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Concept Name"
           }
         },
         "type": "object",
@@ -116891,6 +117884,28 @@
               }
             ],
             "title": "Name Sentence Case"
+          },
+          "nci_concept_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Concept Id"
+          },
+          "nci_concept_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Concept Name"
           },
           "library_name": {
             "anyOf": [
@@ -117037,6 +118052,30 @@
             "minLength": 1,
             "title": "Library Name",
             "default": "Sponsor"
+          },
+          "nci_concept_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Concept Id"
+          },
+          "nci_concept_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Concept Name"
           }
         },
         "type": "object",
@@ -117468,6 +118507,25 @@
             "title": "Legacy Description",
             "nullable": true
           },
+          "activity_instance_class": {
+            "$ref": "#/components/schemas/CompactActivityInstanceClass",
+            "description": "The uid and the name of the linked activity instance class"
+          },
+          "activity_items": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ActivityItem"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activity Items",
+            "description": "List of activity items"
+          },
           "activity_groupings": {
             "anyOf": [
               {
@@ -117492,6 +118550,345 @@
               }
             ],
             "title": "Activity Name",
+            "nullable": true
+          },
+          "groupings_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Groupings Status"
+          },
+          "groupings_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Groupings Version"
+          },
+          "groupings_start_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Groupings Start Date"
+          },
+          "groupings_end_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Groupings End Date",
+            "nullable": true
+          },
+          "groupings_change_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Groupings Change Description"
+          },
+          "groupings_author_username": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Groupings Author Username",
+            "nullable": true
+          },
+          "groupings_possible_actions": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Groupings Possible Actions",
+            "description": "Holds those actions that can be performed on the ActivityInstance groupings. Actions are: 'approve', 'edit', 'new_version'."
+          }
+        },
+        "type": "object",
+        "required": [
+          "uid",
+          "library_name",
+          "activity_instance_class"
+        ],
+        "title": "ActivityInstance"
+      },
+      "ActivityInstanceAttributes": {
+        "properties": {
+          "start_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Date"
+          },
+          "end_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Date",
+            "nullable": true
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
+          },
+          "change_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Change Description"
+          },
+          "author_username": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Author Username",
+            "nullable": true
+          },
+          "uid": {
+            "type": "string",
+            "title": "Uid"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "The name or the actual value. E.g. 'Systolic Blood Pressure', 'Body Temperature', 'Metformin', ..."
+          },
+          "name_sentence_case": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name Sentence Case",
+            "nullable": true
+          },
+          "definition": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Definition",
+            "nullable": true
+          },
+          "abbreviation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abbreviation",
+            "nullable": true
+          },
+          "library_name": {
+            "type": "string",
+            "title": "Library Name"
+          },
+          "possible_actions": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Possible Actions",
+            "description": "Holds those actions that can be performed on the ActivityInstances. Actions are: 'approve', 'edit', 'new_version'."
+          },
+          "nci_concept_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Concept Id",
+            "nullable": true
+          },
+          "nci_concept_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Concept Name",
+            "nullable": true
+          },
+          "topic_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Code",
+            "nullable": true
+          },
+          "adam_param_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adam Param Code",
+            "nullable": true
+          },
+          "is_research_lab": {
+            "type": "boolean",
+            "title": "Is Research Lab",
+            "default": false
+          },
+          "molecular_weight": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Molecular Weight",
+            "nullable": true
+          },
+          "is_required_for_activity": {
+            "type": "boolean",
+            "title": "Is Required For Activity",
+            "default": false
+          },
+          "is_default_selected_for_activity": {
+            "type": "boolean",
+            "title": "Is Default Selected For Activity",
+            "default": false
+          },
+          "is_data_sharing": {
+            "type": "boolean",
+            "title": "Is Data Sharing",
+            "default": false
+          },
+          "is_legacy_usage": {
+            "type": "boolean",
+            "title": "Is Legacy Usage",
+            "default": false
+          },
+          "is_derived": {
+            "type": "boolean",
+            "title": "Is Derived",
+            "default": false
+          },
+          "legacy_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Legacy Description",
             "nullable": true
           },
           "activity_instance_class": {
@@ -117520,7 +118917,251 @@
           "library_name",
           "activity_instance_class"
         ],
-        "title": "ActivityInstance"
+        "title": "ActivityInstanceAttributes"
+      },
+      "ActivityInstanceAttributesEditInput": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "The name or the actual value. E.g. 'Systolic Blood Pressure', 'Body Temperature', 'Metformin', ..."
+          },
+          "name_sentence_case": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name Sentence Case"
+          },
+          "definition": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Definition"
+          },
+          "abbreviation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abbreviation"
+          },
+          "library_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Library Name"
+          },
+          "nci_concept_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Concept Id"
+          },
+          "nci_concept_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Concept Name"
+          },
+          "topic_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Code"
+          },
+          "is_research_lab": {
+            "type": "boolean",
+            "title": "Is Research Lab",
+            "default": false
+          },
+          "molecular_weight": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Molecular Weight"
+          },
+          "adam_param_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adam Param Code"
+          },
+          "is_required_for_activity": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Required For Activity"
+          },
+          "is_default_selected_for_activity": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Default Selected For Activity"
+          },
+          "is_data_sharing": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Data Sharing"
+          },
+          "is_legacy_usage": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Legacy Usage"
+          },
+          "is_derived": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Derived"
+          },
+          "legacy_description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Legacy Description"
+          },
+          "activity_instance_class_uid": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activity Instance Class Uid"
+          },
+          "activity_items": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ActivityItemCreateInput"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activity Items"
+          },
+          "strict_mode": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strict Mode",
+            "description": "If True, enforces strict validation for parent mandatory activity item classes. Defaults to False (relaxed mode) when not provided."
+          },
+          "change_description": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Change Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "change_description"
+        ],
+        "title": "ActivityInstanceAttributesEditInput"
       },
       "ActivityInstanceClass": {
         "properties": {
@@ -118466,264 +120107,6 @@
         "title": "ActivityInstanceDetail",
         "description": "Model for activity instance detail information with pagination support."
       },
-      "ActivityInstanceEditInput": {
-        "properties": {
-          "name": {
-            "anyOf": [
-              {
-                "type": "string",
-                "minLength": 1
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Name",
-            "description": "The name or the actual value. E.g. 'Systolic Blood Pressure', 'Body Temperature', 'Metformin', ..."
-          },
-          "name_sentence_case": {
-            "anyOf": [
-              {
-                "type": "string",
-                "minLength": 1
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Name Sentence Case"
-          },
-          "definition": {
-            "anyOf": [
-              {
-                "type": "string",
-                "minLength": 1
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Definition"
-          },
-          "abbreviation": {
-            "anyOf": [
-              {
-                "type": "string",
-                "minLength": 1
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Abbreviation"
-          },
-          "library_name": {
-            "anyOf": [
-              {
-                "type": "string",
-                "minLength": 1
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Library Name"
-          },
-          "nci_concept_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "minLength": 1
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Nci Concept Id"
-          },
-          "nci_concept_name": {
-            "anyOf": [
-              {
-                "type": "string",
-                "minLength": 1
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Nci Concept Name"
-          },
-          "topic_code": {
-            "anyOf": [
-              {
-                "type": "string",
-                "minLength": 1
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Topic Code"
-          },
-          "is_research_lab": {
-            "type": "boolean",
-            "title": "Is Research Lab",
-            "default": false
-          },
-          "molecular_weight": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Molecular Weight"
-          },
-          "adam_param_code": {
-            "anyOf": [
-              {
-                "type": "string",
-                "minLength": 1
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Adam Param Code"
-          },
-          "is_required_for_activity": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Is Required For Activity"
-          },
-          "is_default_selected_for_activity": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Is Default Selected For Activity"
-          },
-          "is_data_sharing": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Is Data Sharing"
-          },
-          "is_legacy_usage": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Is Legacy Usage"
-          },
-          "is_derived": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Is Derived"
-          },
-          "legacy_description": {
-            "anyOf": [
-              {
-                "type": "string",
-                "minLength": 1
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Legacy Description"
-          },
-          "activity_instance_class_uid": {
-            "anyOf": [
-              {
-                "type": "string",
-                "minLength": 1
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Activity Instance Class Uid"
-          },
-          "activity_groupings": {
-            "anyOf": [
-              {
-                "items": {
-                  "$ref": "#/components/schemas/ActivityInstanceGrouping"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Activity Groupings"
-          },
-          "activity_items": {
-            "anyOf": [
-              {
-                "items": {
-                  "$ref": "#/components/schemas/ActivityItemCreateInput"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Activity Items"
-          },
-          "strict_mode": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Strict Mode",
-            "description": "If True, enforces strict validation for parent mandatory activity item classes. Defaults to False (relaxed mode) when not provided."
-          },
-          "change_description": {
-            "type": "string",
-            "minLength": 1,
-            "title": "Change Description"
-          }
-        },
-        "type": "object",
-        "required": [
-          "change_description"
-        ],
-        "title": "ActivityInstanceEditInput"
-      },
       "ActivityInstanceGrouping": {
         "properties": {
           "activity_group_uid": {
@@ -118747,6 +120130,151 @@
         ],
         "title": "ActivityInstanceGrouping"
       },
+      "ActivityInstanceGroupings": {
+        "properties": {
+          "start_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Date"
+          },
+          "end_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Date",
+            "nullable": true
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
+          },
+          "change_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Change Description"
+          },
+          "author_username": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Author Username",
+            "nullable": true
+          },
+          "possible_actions": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Possible Actions",
+            "description": "Holds those actions that can be performed on the ActivityInstances. Actions are: 'approve', 'edit', 'new_version'."
+          },
+          "activity_groupings": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ActivityInstanceHierarchySimpleModel"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activity Groupings"
+          },
+          "activity_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activity Name",
+            "nullable": true
+          }
+        },
+        "type": "object",
+        "title": "ActivityInstanceGroupings"
+      },
+      "ActivityInstanceGroupingsEditInput": {
+        "properties": {
+          "activity_groupings": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ActivityInstanceGrouping"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activity Groupings"
+          },
+          "change_description": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Change Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "change_description"
+        ],
+        "title": "ActivityInstanceGroupingsEditInput"
+      },
       "ActivityInstanceHierarchySimpleModel": {
         "properties": {
           "activity": {
@@ -118769,12 +120297,12 @@
       },
       "ActivityInstanceOverview": {
         "properties": {
-          "activity_groupings": {
+          "activity_groupings_versions": {
             "items": {
-              "$ref": "#/components/schemas/SimpleActivityInstanceGrouping"
+              "type": "string"
             },
             "type": "array",
-            "title": "Activity Groupings"
+            "title": "Activity Groupings Versions"
           },
           "activity_instance": {
             "$ref": "#/components/schemas/SimpleActivityInstance"
@@ -118796,7 +120324,7 @@
         },
         "type": "object",
         "required": [
-          "activity_groupings",
+          "activity_groupings_versions",
           "activity_instance",
           "activity_items",
           "all_versions"
@@ -121063,6 +122591,17 @@
             "type": "boolean",
             "title": "Is Adam Param Specific"
           },
+          "is_activity_instance_id_specific": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Activity Instance Id Specific"
+          },
           "text_value": {
             "anyOf": [
               {
@@ -121778,6 +123317,17 @@
             "type": "boolean",
             "title": "Is Adam Param Specific"
           },
+          "is_activity_instance_id_specific": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Activity Instance Id Specific"
+          },
           "text_value": {
             "anyOf": [
               {
@@ -122003,6 +123553,30 @@
             ],
             "title": "Possible Actions",
             "description": "Holds those actions that can be performed on the ActivityInstances. Actions are: 'approve', 'edit', 'new_version'."
+          },
+          "nci_concept_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Concept Id",
+            "nullable": true
+          },
+          "nci_concept_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Concept Name",
+            "nullable": true
           }
         },
         "type": "object",
@@ -122053,6 +123627,30 @@
             "type": "string",
             "minLength": 1,
             "title": "Library Name"
+          },
+          "nci_concept_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Concept Id"
+          },
+          "nci_concept_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Concept Name"
           }
         },
         "type": "object",
@@ -122086,6 +123684,28 @@
               }
             ],
             "title": "Name Sentence Case"
+          },
+          "nci_concept_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Concept Id"
+          },
+          "nci_concept_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Concept Name"
           },
           "library_name": {
             "anyOf": [
@@ -122237,6 +123857,30 @@
             "type": "string",
             "minLength": 1,
             "title": "Library Name"
+          },
+          "nci_concept_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Concept Id"
+          },
+          "nci_concept_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Concept Name"
           }
         },
         "type": "object",
@@ -124376,10 +126020,6 @@
             "type": "string",
             "title": "Term Uid"
           },
-          "submission_value": {
-            "type": "string",
-            "title": "Submission Value"
-          },
           "order": {
             "anyOf": [
               {
@@ -124486,12 +126126,15 @@
             ],
             "title": "End Date",
             "nullable": true
+          },
+          "submission_value": {
+            "type": "string",
+            "title": "Submission Value"
           }
         },
         "type": "object",
         "required": [
           "term_uid",
-          "submission_value",
           "order",
           "library_name",
           "sponsor_preferred_name",
@@ -124504,7 +126147,8 @@
           "attributes_date",
           "attributes_status",
           "start_date",
-          "end_date"
+          "end_date",
+          "submission_value"
         ],
         "title": "CTCodelistTerm"
       },
@@ -125307,6 +126951,165 @@
           "effective_dates"
         ],
         "title": "CTPackageDates"
+      },
+      "CTPairedCodelistTerm": {
+        "properties": {
+          "term_uid": {
+            "type": "string",
+            "title": "Term Uid"
+          },
+          "order": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order",
+            "nullable": true
+          },
+          "ordinal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ordinal",
+            "nullable": true
+          },
+          "library_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Library Name"
+          },
+          "sponsor_preferred_name": {
+            "type": "string",
+            "title": "Sponsor Preferred Name"
+          },
+          "sponsor_preferred_name_sentence_case": {
+            "type": "string",
+            "title": "Sponsor Preferred Name Sentence Case"
+          },
+          "concept_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Concept Id",
+            "nullable": true
+          },
+          "nci_preferred_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Preferred Name",
+            "nullable": true
+          },
+          "definition": {
+            "type": "string",
+            "title": "Definition"
+          },
+          "name_date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Name Date"
+          },
+          "name_status": {
+            "type": "string",
+            "title": "Name Status"
+          },
+          "attributes_date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Attributes Date"
+          },
+          "attributes_status": {
+            "type": "string",
+            "title": "Attributes Status"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start Date"
+          },
+          "end_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Date",
+            "nullable": true
+          },
+          "code_submission_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code Submission Value",
+            "nullable": true
+          },
+          "name_submission_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name Submission Value",
+            "nullable": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "term_uid",
+          "order",
+          "library_name",
+          "sponsor_preferred_name",
+          "sponsor_preferred_name_sentence_case",
+          "concept_id",
+          "nci_preferred_name",
+          "definition",
+          "name_date",
+          "name_status",
+          "attributes_date",
+          "attributes_status",
+          "start_date",
+          "end_date",
+          "code_submission_value",
+          "name_submission_value"
+        ],
+        "title": "CTPairedCodelistTerm"
       },
       "CTStats": {
         "properties": {
@@ -126473,6 +128276,8 @@
           },
           "order": {
             "type": "integer",
+            "maximum": 9.223372036854776e+18,
+            "minimum": 0.0,
             "title": "Order"
           },
           "submission_value": {
@@ -127343,6 +129148,30 @@
             ],
             "title": "Is Default Linked",
             "default": false,
+            "nullable": true
+          },
+          "data_type_uid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Type Uid",
+            "nullable": true
+          },
+          "data_type_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Type Name",
             "nullable": true
           }
         },
@@ -131245,6 +133074,40 @@
         ],
         "title": "CustomPage[ActivityGroup]"
       },
+      "CustomPage_ActivityInstanceAttributes_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ActivityInstanceAttributes"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": -1.0,
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Page"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "size"
+        ],
+        "title": "CustomPage[ActivityInstanceAttributes]"
+      },
       "CustomPage_ActivityInstanceClass_": {
         "properties": {
           "items": {
@@ -131924,6 +133787,40 @@
           "size"
         ],
         "title": "CustomPage[CTCodelistTerm]"
+      },
+      "CustomPage_CTPairedCodelistTerm_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CTPairedCodelistTerm"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": -1.0,
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Page"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "size"
+        ],
+        "title": "CustomPage[CTPairedCodelistTerm]"
       },
       "CustomPage_CTTermAttributes_": {
         "properties": {
@@ -151617,123 +153514,6 @@
         ],
         "title": "SimpleActivity"
       },
-      "SimpleActivityForActivityInstance": {
-        "properties": {
-          "uid": {
-            "type": "string",
-            "title": "Uid"
-          },
-          "nci_concept_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Nci Concept Id",
-            "nullable": true
-          },
-          "nci_concept_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Nci Concept Name",
-            "nullable": true
-          },
-          "name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Name",
-            "nullable": true
-          },
-          "definition": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Definition",
-            "nullable": true
-          },
-          "synonyms": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Synonyms"
-          },
-          "is_data_collected": {
-            "type": "boolean",
-            "title": "Is Data Collected",
-            "description": "Boolean flag indicating whether data is collected for this activity",
-            "default": false
-          },
-          "is_multiple_selection_allowed": {
-            "type": "boolean",
-            "title": "Is Multiple Selection Allowed",
-            "description": "Boolean flag indicating whether multiple selections are allowed for this activity",
-            "default": true
-          },
-          "library_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Library Name",
-            "nullable": true
-          },
-          "version": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Version",
-            "nullable": true
-          },
-          "status": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Status",
-            "nullable": true
-          }
-        },
-        "type": "object",
-        "required": [
-          "uid",
-          "synonyms"
-        ],
-        "title": "SimpleActivityForActivityInstance"
-      },
       "SimpleActivityGroup": {
         "properties": {
           "uid": {
@@ -152215,26 +153995,6 @@
         ],
         "title": "SimpleActivityInstanceClassForItem",
         "description": "Simple representation of an Activity Instance Class that uses an Activity Item Class"
-      },
-      "SimpleActivityInstanceGrouping": {
-        "properties": {
-          "activity_group": {
-            "$ref": "#/components/schemas/SimpleActivityGroup"
-          },
-          "activity_subgroup": {
-            "$ref": "#/components/schemas/SimpleActivitySubGroup"
-          },
-          "activity": {
-            "$ref": "#/components/schemas/SimpleActivityForActivityInstance"
-          }
-        },
-        "type": "object",
-        "required": [
-          "activity_group",
-          "activity_subgroup",
-          "activity"
-        ],
-        "title": "SimpleActivityInstanceGrouping"
       },
       "SimpleActivityItemClass": {
         "properties": {
@@ -153642,6 +155402,17 @@
             "type": "boolean",
             "title": "Is Adam Param Specific"
           },
+          "is_activity_instance_id_specific": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Activity Instance Id Specific"
+          },
           "text_value": {
             "anyOf": [
               {
@@ -153680,6 +155451,7 @@
         "type": "string",
         "enum": [
           "protocol",
+          "protocol_lab_table",
           "detailed",
           "operational"
         ],
@@ -160228,6 +162000,18 @@
               }
             ],
             "title": "Acronym",
+            "nullable": true
+          },
+          "subpart_acronym": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subpart Acronym",
             "nullable": true
           }
         },
@@ -169242,6 +171026,31 @@
             "title": "Acronym",
             "nullable": true
           },
+          "subpart_acronym": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subpart Acronym",
+            "nullable": true
+          },
+          "main_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Main Id",
+            "description": "Main ID of the study, e.g. 'NN1234-56789'",
+            "nullable": true
+          },
           "number": {
             "anyOf": [
               {
@@ -169276,18 +171085,6 @@
               }
             ],
             "title": "Subpart Id",
-            "nullable": true
-          },
-          "subpart_acronym": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Subpart Acronym",
             "nullable": true
           },
           "clinical_programme_name": {
@@ -170018,6 +171815,12 @@
             "description": "Show the baseline visit as time 0 in all SoA layouts",
             "default": false
           },
+          "soa_show_all_visits_lab_table": {
+            "type": "boolean",
+            "title": "Soa Show All Visits Lab Table",
+            "description": "Show all visits in protocol lab table SoA (incl. those without lab assessments)",
+            "default": false
+          },
           "study_uid": {
             "type": "string",
             "title": "Study Uid",
@@ -170048,6 +171851,12 @@
             "type": "boolean",
             "title": "Baseline As Time Zero",
             "description": "Show the baseline visit as time 0 in all SoA layouts",
+            "default": false
+          },
+          "soa_show_all_visits_lab_table": {
+            "type": "boolean",
+            "title": "Soa Show All Visits Lab Table",
+            "description": "Show all visits in protocol lab table SoA (incl. those without lab assessments)",
             "default": false
           }
         },
@@ -170717,7 +172526,9 @@
         "properties": {
           "study_subpart_acronym": {
             "type": "string",
+            "maxLength": 10,
             "minLength": 1,
+            "pattern": "^[A-Za-z0-9]+$",
             "title": "Study Subpart Acronym"
           },
           "description": {

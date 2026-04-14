@@ -180,7 +180,7 @@
       <v-form :ref="`observer_${step}`">
         <v-row>
           <v-col cols="6">
-            <div class="text-h5 mb-8">
+            <div class="text-headline-medium mb-8">
               {{ $t('ActivityFormsRequested.requested_activity') }}
             </div>
             <v-text-field
@@ -209,7 +209,7 @@
             />
           </v-col>
           <v-col cols="6">
-            <div class="text-h5 mb-8">
+            <div class="text-headline-medium mb-8">
               {{ $t('ActivityFormsRequested.new_sponsor_concept') }}
             </div>
             <v-text-field
@@ -239,7 +239,7 @@
     <template #extraActions>
       <v-btn
         color="error"
-        elevation="2"
+        elevation="1"
         class="ml-2"
         width="120px"
         @click="openRejectForm"

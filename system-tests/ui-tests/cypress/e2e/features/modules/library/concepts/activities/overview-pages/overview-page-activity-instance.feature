@@ -71,43 +71,52 @@ Feature: Library - Concepts - Activities - Activity Instance Overview Page
         And The free text search field should be displayed in the 'Activity groupings' table
         And The free text search field should be displayed in the 'Activity Items' table
 
+    @pending_implmentation
     Scenario: [History] Verify that the activity group overview page displays correctly
         When The history button is clicked
         Then The history page is opened
 
     Scenario: [Linking] Verify that the activities instance overview page can link to the correct groups, subgroups and activities
         When Version '0.1' is selected from the Version dropdown list
-        And The status displayed on the summary has value 'Draft' and version is '0.1'
+        And The status displayed on the summary for Activity Instance Attributes is 'Draft' and version is '0.1'
         And The Start date value is saved
         Then The correct End date should be displayed
         And The Instance linked group, subgroup and instance are displayed in the Activity groupings table
         And The Activity Items table is empty
         When Version '1.0' is selected from the Version dropdown list
-        And The status displayed on the summary has value 'Final' and version is '1.0'
+        And The status displayed on the summary for Activity Instance Attributes is 'Final' and version is '1.0'
         Then The Instance linked group, subgroup and instance are displayed in the Activity groupings table
 
-    Scenario: [Edit] Edit the Instance
+    Scenario: [Edit] Edit the Instance Attributes
         Given The '/administration/featureflags' page is opened
         And Activity instance wizard feature flag is turned on
         And Activity instance wizard edit mode feature flag is turned on
         And Overview page for activity instance created via API is opened
         And Instance overview page is opened
-        When The new version plus button is clicked
-        And The status displayed on the summary has value 'Draft' and version is '1.1'
+        When Activity instance attributes new version button is clicked
+        And The status displayed on the summary for Activity Instance Attributes is 'Draft' and version is '1.1'
         And The Instance linked group, subgroup and instance are displayed in the Activity groupings table
         And The Instance linked activity has status 'Final' and version '1.0'
         And The pencil button is clicked
-        Then The Activity Instance Wizard Stepper 'Select activity' page is displayed
+        Then The Activity Instance Attributes edition page is displayed
 
-    Scenario: [Approve] Approve the Instance
-        When The approve button is clicked
-        Then The status displayed on the summary has value 'Final' and version is '2.0'
+    Scenario: [Approve] Approve the Instance Attributes
+        When Activity instance approve attributes button is clicked
+        Then The status displayed on the summary for Activity Instance Attributes is 'Final' and version is '2.0'
+        And The Instance linked group, subgroup and instance are displayed in the Activity groupings table
+        And The Instance linked activity has status 'Final' and version '1.0'
+
+    Scenario: [Approve] Approve the Instance Groupings
+        Given Activity instance groupings new version button is clicked
+        Then User waits for 3 seconds
+        When Activity instance approve groupings button is clicked
+        Then The status displayed on the summary for Activity Instance Groupings is 'Final' and version is '2.0'
         And The Instance linked group, subgroup and instance are displayed in the Activity groupings table
         And The Instance linked activity has status 'Final' and version '1.0'
 
     Scenario: [Table][Search][Negative case] User must be able to search not existing grouping and table will be correctly filtered
         When User searches for non-existing item in 'Activity groupings' table
-        Then The Activity groupings table is empty
+        Then The Activity groupings table for Instance is empty
 
     Scenario: [Table][Search][Negative case] User must be able to search not existing activity items and table will be correctly filtered
         And User waits for linked 'Activity Items' table data to load

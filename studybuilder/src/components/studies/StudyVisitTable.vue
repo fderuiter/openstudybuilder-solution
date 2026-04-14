@@ -1,7 +1,9 @@
 <template>
   <div>
     <div id="visjs" class="pa-6">
-      <span class="text-h6 ml-2">{{ $t('StudyVisitTable.title') }}</span>
+      <span class="text-headline-small ml-2">{{
+        $t('StudyVisitTable.title')
+      }}</span>
       <v-expansion-panels accordion tile class="mt-2">
         <v-expansion-panel>
           <v-expansion-panel-title>{{

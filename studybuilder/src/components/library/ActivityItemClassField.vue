@@ -12,14 +12,12 @@
           item-value="uid"
           return-object
           :disabled="selectValueOnly || props.disabled"
+          :rules="[formRules.required]"
           class="w-50"
           @update:model-value="resetAndUpdate"
         />
         <SelectActivityItemTermField
-          v-if="
-            !form.activity_item_class ||
-            form.activity_item_class.name !== 'standard_unit'
-          "
+          v-if="!form.activity_item_class || (!isUnitClass && isCTTerm)"
           ref="termField"
           v-model="form.ct_term_uid"
           v-model:codelist="codelist"
@@ -30,28 +28,31 @@
           class="ml-4 w-50"
           :multiple="props.multiple"
           :disabled="props.disabled"
-          :rules="[formRules.required]"
+          :rules="isAllTermsSelected ? [] : [formRules.required]"
           @update:model-value="update"
           @update:codelist="update"
         />
         <v-select
-          v-else
+          v-else-if="isUnitClass"
+          ref="unitSelectRef"
           v-model="form.unit_definition_uid"
           :label="$t('ActivityInstanceForm.value')"
-          :items="allowedUnits"
+          :items="unitDropdownItems"
           item-title="name"
           item-value="uid"
           bg-color="white"
           class="ml-4 w-50"
           :loading="loading"
+          :multiple="props.multiple"
           :disabled="props.disabled"
-          :rules="[formRules.required]"
-          @update:model-value="update"
+          :rules="[formRules.required, validateUnitSelection]"
+          @update:model-value="onUnitSelected"
         />
         <slot name="append" />
         <v-btn
           v-if="props.withAdvancedSearch"
-          variant="flat"
+          color="primary"
+          variant="outlined"
           class="ml-4"
           icon="mdi-text-box-search-outline"
           size="small"
@@ -65,17 +66,28 @@
     v-model:codelist="codelist"
     v-model:term-selection="form.ct_term_uid"
     :open="showTermsSelectionForm"
+    :title="$t('TermsSelectionForm.title')"
     max-width="1200px"
+    multiple
     @selected="update"
     @close="closeTermsSelectionForm"
   />
 </template>
 
 <script setup>
-import { computed, inject, ref, watch } from 'vue'
+import { computed, inject, nextTick, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import SelectActivityItemTermField from './SelectActivityItemTermField.vue'
 import TermsSelectionForm from '@/components/library/TermsSelectionForm.vue'
 import unitsApi from '@/api/units'
+
+const hasInvalidTerms = computed(
+  () => termField.value?.hasInvalidTerms ?? false
+)
+
+defineExpose({
+  hasInvalidTerms,
+})
 
 const props = defineProps({
   modelValue: {
@@ -114,6 +126,10 @@ const props = defineProps({
     type: String,
     default: null,
   },
+  preselectedUnitName: {
+    type: String,
+    default: null,
+  },
   withAdvancedSearch: {
     type: Boolean,
     default: false,
@@ -121,6 +137,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:modelValue'])
+const { t } = useI18n()
 const formRules = inject('formRules')
 
 const form = ref({})
@@ -130,6 +147,29 @@ const loading = ref(false)
 const search = ref('')
 const showTermsSelectionForm = ref(false)
 const termField = ref(null)
+const selectedUnitName = ref(null)
+const unitSelectRef = ref(null)
+
+const ALL_TERMS_UID = '__ALL_TERMS__'
+
+const isAllTermsSelected = computed(
+  () =>
+    Array.isArray(form.value.ct_term_uid) &&
+    form.value.ct_term_uid.includes(ALL_TERMS_UID)
+)
+
+const isUnitClass = computed(() => {
+  // There is not yet a separate data type for Unit, so for now we check
+  // if the activity item class name ends with '_unit'.
+  return !!form.value.activity_item_class?.name?.endsWith('_unit')
+})
+
+const isCTTerm = computed(() => {
+  if (!form.value.activity_item_class) return true
+  return (
+    form.value.activity_item_class.data_type_name?.toLowerCase() === 'ctterm'
+  )
+})
 
 const selectedTerm = computed(() => {
   if (!termField.value) {
@@ -148,23 +188,82 @@ function closeTermsSelectionForm() {
   showTermsSelectionForm.value = false
 }
 
-function fetchUnits() {
-  if (!props.unitDimension) {
-    allowedUnits.value = []
-    return
+const unitDropdownItems = computed(() => {
+  if (props.multiple) {
+    const selectedUids = form.value.unit_definition_uid || []
+    if (allowedUnits.value.length) {
+      const missing = selectedUids.filter(
+        (uid) => !allowedUnits.value.some((u) => u.uid === uid)
+      )
+      if (missing.length) {
+        return [
+          ...missing.map((uid) => ({ uid, name: uid })),
+          ...allowedUnits.value,
+        ]
+      }
+      return allowedUnits.value
+    }
+    if (selectedUids.length) {
+      return selectedUids.map((uid) => ({ uid, name: uid }))
+    }
+    return []
   }
+  const currentName =
+    selectedUnitName.value ||
+    props.preselectedUnitName ||
+    form.value.unit_definition_uid
+  if (allowedUnits.value.length) {
+    // If the pre-selected unit is not in the fetched list, prepend it
+    if (
+      form.value.unit_definition_uid &&
+      !allowedUnits.value.some((u) => u.uid === form.value.unit_definition_uid)
+    ) {
+      return [
+        { uid: form.value.unit_definition_uid, name: currentName },
+        ...allowedUnits.value,
+      ]
+    }
+    return allowedUnits.value
+  }
+  // No dimension selected yet — show placeholder for the pre-selected unit
+  if (form.value.unit_definition_uid) {
+    return [{ uid: form.value.unit_definition_uid, name: currentName }]
+  }
+  return []
+})
+
+function validateUnitSelection() {
+  const selected = form.value.unit_definition_uid
+  if (!selected || (Array.isArray(selected) && !selected.length)) return true
+  if (!props.unitDimension) {
+    return t('ActivityInstanceForm.unit_dimension_not_selected')
+  }
+  if (loading.value) return true
+  const uids = Array.isArray(selected) ? selected : [selected]
+  const hasInvalid = uids.some(
+    (uid) => !allowedUnits.value.some((u) => u.uid === uid)
+  )
+  if (hasInvalid) {
+    return t('ActivityInstanceForm.unit_not_in_dimension')
+  }
+  return true
+}
+
+function fetchUnits() {
   loading.value = true
-  unitsApi
-    .get({
-      params: {
-        dimension: props.unitDimension,
-        page_size: 0,
-      },
+  const params = {
+    page_size: 0,
+  }
+  if (props.unitDimension) {
+    params.dimension = props.unitDimension
+  }
+  unitsApi.get({ params }).then((resp) => {
+    allowedUnits.value = resp.data.items
+    loading.value = false
+    nextTick(() => {
+      unitSelectRef.value?.validate()
     })
-    .then((resp) => {
-      allowedUnits.value = resp.data.items
-      loading.value = false
-    })
+  })
 }
 
 function update() {
@@ -176,8 +275,11 @@ function update() {
   }
   if (form.value.activity_item_class) {
     value.activity_item_class_uid = form.value.activity_item_class.uid
-    if (form.value.activity_item_class.name !== 'standard_unit') {
-      if (!props.multiple) {
+    if (!isUnitClass.value) {
+      if (isAllTermsSelected.value && codelist.value) {
+        // "All terms in codelist" selected — send ct_codelist_uid, no ct_terms
+        value.ct_codelist_uid = codelist.value
+      } else if (!props.multiple) {
         if (selectedTerm.value) {
           value.ct_terms = [
             { term_uid: form.value.ct_term_uid, codelist_uid: codelist.value },
@@ -186,15 +288,31 @@ function update() {
         }
       } else {
         // We assume there won't be any unit based activity item class in multiple mode
-        value.ct_terms = form.value.ct_term_uid.map((term_uid) => {
-          return { term_uid, codelist_uid: codelist.value }
-        })
+        value.ct_terms = (form.value.ct_term_uid || [])
+          .filter((uid) => uid !== ALL_TERMS_UID)
+          .map((term_uid) => {
+            return { term_uid, codelist_uid: codelist.value }
+          })
       }
     } else if (form.value.unit_definition_uid) {
-      value.unit_definition_uids = [form.value.unit_definition_uid]
+      if (props.multiple) {
+        value.unit_definition_uids = form.value.unit_definition_uid
+      } else {
+        value.unit_definition_uids = [form.value.unit_definition_uid]
+      }
     }
   }
   emit('update:modelValue', value)
+}
+
+function onUnitSelected(uidOrUids) {
+  if (!props.multiple) {
+    const unit = allowedUnits.value.find((u) => u.uid === uidOrUids)
+    if (unit) {
+      selectedUnitName.value = unit.name
+    }
+  }
+  update()
 }
 
 function resetAndUpdate() {
@@ -216,7 +334,21 @@ watch(
         )
       }
       if (value.unit_definition_uids && value.unit_definition_uids.length) {
-        form.value.unit_definition_uid = value.unit_definition_uids[0]
+        if (props.multiple) {
+          form.value.unit_definition_uid = [...value.unit_definition_uids]
+        } else {
+          form.value.unit_definition_uid = value.unit_definition_uids[0]
+          if (!selectedUnitName.value) {
+            selectedUnitName.value = props.preselectedUnitName || null
+          }
+        }
+      } else if (
+        value.ct_codelist_uid &&
+        (!value.ct_terms || !value.ct_terms.length)
+      ) {
+        // "All terms in codelist" — ct_codelist_uid set without specific ct_terms
+        codelist.value = value.ct_codelist_uid
+        form.value.ct_term_uid = [ALL_TERMS_UID]
       } else if (value.ct_terms && value.ct_terms.length) {
         if (!props.multiple) {
           form.value.ct_term_uid =
@@ -233,6 +365,7 @@ watch(
       form.value = {}
       if (props.multiple) {
         form.value.ct_term_uid = []
+        form.value.unit_definition_uid = []
       }
     }
   },
@@ -242,10 +375,7 @@ watch(
 watch(
   () => props.unitDimension,
   () => {
-    if (form.value?.activity_item_class?.name === 'standard_unit') {
-      if (allowedUnits.value.length) {
-        form.value.unit_definition_uid = null
-      }
+    if (isUnitClass.value) {
       fetchUnits()
     }
   },
@@ -254,8 +384,12 @@ watch(
 
 watch(
   () => props.dataDomain,
-  () => {
-    form.value.ct_term_uid = null
+  (newVal, oldVal) => {
+    // Only clear the term selection when actively changing from one domain to another,
+    // not when setting domain for the first time (from null)
+    if (oldVal) {
+      form.value.ct_term_uid = null
+    }
   }
 )
 </script>

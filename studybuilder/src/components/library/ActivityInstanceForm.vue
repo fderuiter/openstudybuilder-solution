@@ -11,14 +11,84 @@
     @save="submit"
   >
     <template #header>
-      <v-alert v-if="selectedActivity" type="info" variant="tonal">
-        {{ $t('ActivityInstanceForm.selected_activity') }}
-        {{ selectedActivityName }}
+      <v-alert v-if="!selectedActivity.length" type="info" variant="tonal">
+        {{ $t('ActivityInstanceForm.no_grouping_selected') }}
+      </v-alert>
+      <v-alert
+        v-if="selectedActivity.length"
+        :type="hasMixedActivitySelection ? 'warning' : 'info'"
+        variant="tonal"
+      >
+        <template v-if="hasMixedActivitySelection">
+          <div>{{ $t('ActivityInstanceForm.activity_mixed_selection') }}</div>
+          <div
+            v-for="(
+              activityGroupings, activityName
+            ) in selectedActivityDetails.groupingsByActivity"
+            :key="activityName"
+            class="mt-2"
+          >
+            <div>
+              {{ $t('ActivityInstanceForm.selected_activity') }}
+              {{ activityName }}
+            </div>
+            <div
+              v-for="grouping in activityGroupings"
+              :key="grouping.selectionUid"
+              class="d-flex align-center"
+            >
+              {{ $t('ActivityInstanceForm.activity_group') }}:
+              {{ grouping.activityGroupName }},
+              {{ $t('ActivityInstanceForm.activity_subgroup') }}:
+              {{ grouping.activitySubgroupName }}
+              <v-btn
+                v-if="isOnFirstStep"
+                icon="mdi-delete"
+                variant="text"
+                size="x-small"
+                density="compact"
+                class="ml-2"
+                :title="$t('_global.remove')"
+                @click="removeGroupingSelection(grouping.selectionUid)"
+              />
+            </div>
+          </div>
+        </template>
+        <template v-else>
+          <div>
+            {{ $t('ActivityInstanceForm.selected_activity') }}
+            {{ selectedActivityDetails.activityName }}
+          </div>
+          <div
+            v-for="grouping in selectedActivityDetails.groupings"
+            :key="grouping.selectionUid"
+            class="d-flex align-center"
+          >
+            {{ $t('ActivityInstanceForm.activity_group') }}:
+            {{ grouping.activityGroupName }},
+            {{ $t('ActivityInstanceForm.activity_subgroup') }}:
+            {{ grouping.activitySubgroupName }}
+            <v-btn
+              v-if="isOnFirstStep"
+              icon="mdi-delete"
+              variant="text"
+              size="x-small"
+              density="compact"
+              class="ml-2"
+              :title="$t('_global.remove')"
+              @click="removeGroupingSelection(grouping.selectionUid)"
+            />
+          </div>
+        </template>
       </v-alert>
     </template>
     <template #[`step.activities`]>
       <div class="dialog-title">
-        {{ $t('ActivityInstanceForm.step1_long_title') }}
+        {{
+          props.editMode === 'groupings'
+            ? $t('ActivityInstanceForm.step1_long_title_edit_groupings')
+            : $t('ActivityInstanceForm.step1_long_title')
+        }}
       </div>
       <v-alert
         color="nnLightBlue200"
@@ -42,13 +112,11 @@
           @filter="fetchActivities"
         >
           <template #[`item.selection`]="{ item }">
-            <v-radio-group
+            <v-checkbox
               v-model="selectedActivity"
+              :value="getFullActivityUid(item)"
               hide-details
-              @update:model-value="setSelectedActivityName"
-            >
-              <v-radio :value="getFullActivityUid(item)"></v-radio>
-            </v-radio-group>
+            />
           </template>
           <template #[`item.activity_instances`]="{ item }">
             <div v-html="sanitizeHTML(showInstances(item))"></div>
@@ -62,7 +130,7 @@
           <v-select
             v-model="step2Form.activity_instance_class"
             :label="$t('ActivityInstanceForm.activity_instance_class')"
-            :items="activityInstanceClasses"
+            :items="activityInstanceClassOptions"
             item-title="name"
             item-value="uid"
             return-object
@@ -70,26 +138,37 @@
             :loading="loadingActivityInstances"
             :disabled="activityInstanceUid !== null"
             :rules="[formRules.required]"
+            :error-messages="activityInstanceClassWarningMessages"
             @update:model-value="fetchActivityItemClasses"
           />
           <v-select
             v-model="step2Form.data_domain"
             :label="$t('ActivityInstanceForm.data_domain')"
-            :items="dataDomains"
+            :items="filteredDataDomains"
+            item-title="title"
+            item-value="value"
             class="ml-4 w-50"
             :rules="[formRules.required]"
             :disabled="
               props.activityInstanceUid !== undefined &&
-              props.activityInstanceUid !== null
+              props.activityInstanceUid !== null &&
+              hasExistingDataDomain
             "
             @update:model-value="filterActivityInstanceClasses"
-          />
+          >
+            <template #menu-header>
+              <SelectMenuSearch
+                v-model="domainSearch"
+                :placeholder="$t('_global.search')"
+              />
+            </template>
+          </v-select>
         </div>
         <div class="d-flex w-50">
           <SelectCTTermField
             v-model="step2Form.data_category"
             :label="$t('ActivityInstanceForm.data_category')"
-            codelist="findingCategoryDefinition"
+            :codelist="categoryCodelistName"
             item-title="submission_value"
             class="mr-4 w-50"
             clearable
@@ -98,7 +177,7 @@
           <SelectCTTermField
             v-model="step2Form.data_subcategory"
             :label="$t('ActivityInstanceForm.data_subcategory')"
-            codelist="findingSubCategoryDefinition"
+            :codelist="subcategoryCodelistName"
             item-title="submission_value"
             class="w-50"
             clearable
@@ -109,7 +188,7 @@
           v-if="
             ((testCodeAic && testNameAic) ||
               mandatoryActivityItemClasses.length) &&
-            step2Form.data_domain
+            (step2Form.data_domain || hasExistingMandatoryItems)
           "
         >
           <div class="dialog-title my-4">
@@ -125,6 +204,9 @@
               :unit-dimension="selectedUnitDimension"
               :adam-specific="activityItemClass.is_adam_param_specific_enabled"
               :data-domain="step2Form.data_domain"
+              :preselected-unit-name="
+                step2Form.activityItems[index]?.preselected_unit_name
+              "
               select-value-only
               class="mb-4 w-50"
             />
@@ -149,6 +231,9 @@
               :unit-dimension="selectedUnitDimension"
               :adam-specific="activityItemClass.is_adam_param_specific_enabled"
               :data-domain="step2Form.data_domain"
+              :preselected-unit-name="
+                step2Form.activityItems[index]?.preselected_unit_name
+              "
               select-value-only
               class="mb-4"
               :class="{
@@ -182,18 +267,26 @@
       </v-form>
     </template>
     <template #[`step.optional`]>
-      <div class="dialog-title mb-4">
-        {{ $t('ActivityInstanceForm.step3_long_title') }}
-      </div>
       <v-form ref="step3FormRef">
+        <div class="dialog-title mb-4">
+          {{
+            step2Form.activity_instance_class?.name === 'Events'
+              ? $t('ActivityInstanceForm.step3_events_long_title')
+              : $t('ActivityInstanceForm.step3_long_title')
+          }}
+        </div>
         <ActivityItemClassField
           v-for="(activityItemClass, index) in step3Form.activityItems"
           :key="activityItemClass.uid"
           v-model="step3Form.activityItems[index]"
           :all-activity-item-classes="filteredActivityItemClasses"
           :compatible-activity-item-classes="optionalActivityItemClasses"
-          :disabled="props.activityInstanceUid !== null"
+          :disabled="
+            props.activityInstanceUid !== null &&
+            !step3EmptyItemIndices.has(index)
+          "
           :data-domain="step2Form.data_domain"
+          :unit-dimension="selectedUnitDimension"
           adam-specific
           class="mb-4 w-50"
           @update:model-value="updateAIFields"
@@ -295,6 +388,7 @@
         </div>
         <div class="d-flex">
           <v-checkbox
+            v-if="showIsResearchLab"
             v-model="step3Form.is_research_lab"
             :label="$t('ActivityInstanceForm.data_from_research_lab')"
             :disabled="activityInstanceUid !== null"
@@ -312,51 +406,8 @@
       </v-form>
     </template>
     <template #[`step.dataspec`]>
-      <div class="dialog-title mb-4">
-        {{ $t('ActivityInstanceForm.step4_long_title') }}
-      </div>
       <v-form ref="step4FormRef">
-        <v-alert
-          color="nnLightBlue200"
-          icon="$info"
-          class="my-4 text-nnTrueBlue"
-          type="info"
-          rounded="lg"
-          width="fit-content"
-          :text="$t('ActivityInstanceForm.step4_help')"
-        />
-        <ActivityItemClassField
-          v-for="(activityItemClass, index) in step4Form.activityItems"
-          :key="activityItemClass.uid"
-          v-model="step4Form.activityItems[index]"
-          :all-activity-item-classes="filteredActivityItemClasses"
-          :compatible-activity-item-classes="otherAvailableActivityItemClasses"
-          :data-domain="step2Form.data_domain"
-          class="mb-4 w-50"
-          multiple
-        >
-          <template #append>
-            <v-btn
-              color="red"
-              variant="flat"
-              class="ml-4"
-              @click="removeDataSpecActivityItemClass(index)"
-            >
-              {{ $t('_global.remove') }}
-            </v-btn>
-          </template>
-        </ActivityItemClassField>
-        <v-btn
-          color="secondary"
-          variant="outlined"
-          rounded="xl"
-          prepend-icon="mdi-plus"
-          class="mb-4"
-          @click="addDataSpecActivityItemClass"
-        >
-          {{ $t('ActivityInstanceForm.add_activity_item_class') }}
-        </v-btn>
-        <div class="dialog-title my-4">
+        <div class="dialog-title mb-4">
           {{ $t('ActivityInstanceForm.step3_second_title') }}
         </div>
         <div class="d-flex">
@@ -403,6 +454,81 @@
             </template>
           </v-checkbox>
         </div>
+        <div class="dialog-title my-4">
+          {{ $t('ActivityInstanceForm.step4_long_title') }}
+        </div>
+        <v-alert
+          color="nnLightBlue200"
+          icon="$info"
+          class="my-4 text-nnTrueBlue"
+          type="info"
+          rounded="lg"
+          width="fit-content"
+          :text="$t('ActivityInstanceForm.step4_help')"
+        />
+        <v-card
+          v-for="aic in defaultLinkedActivityItemClasses"
+          :key="'default-' + aic.uid"
+          class="bg-nnBaseLight mb-4 w-50"
+          rounded="lg"
+          border="sm"
+          flat
+        >
+          <v-card-text>
+            <div class="d-flex">
+              <v-select
+                :model-value="aic.uid"
+                :label="$t('ActivityInstanceForm.activity_item_class')"
+                :items="[aic]"
+                item-title="display_name"
+                item-value="uid"
+                bg-color="white"
+                class="w-50"
+                disabled
+              />
+              <v-chip
+                class="ml-4 mt-3"
+                color="info"
+                variant="tonal"
+                size="small"
+              >
+                {{ $t('ActivityInstanceForm.default_linked') }}
+              </v-chip>
+            </div>
+          </v-card-text>
+        </v-card>
+        <ActivityItemClassField
+          v-for="(activityItemClass, index) in step4Form.activityItems"
+          :key="activityItemClass.uid"
+          v-model="step4Form.activityItems[index]"
+          :all-activity-item-classes="filteredActivityItemClasses"
+          :compatible-activity-item-classes="otherAvailableActivityItemClasses"
+          :data-domain="step2Form.data_domain"
+          :unit-dimension="selectedUnitDimension"
+          class="mb-4 w-50"
+          multiple
+        >
+          <template #append>
+            <v-btn
+              color="red"
+              variant="flat"
+              class="ml-4"
+              @click="removeDataSpecActivityItemClass(index)"
+            >
+              {{ $t('_global.remove') }}
+            </v-btn>
+          </template>
+        </ActivityItemClassField>
+        <v-btn
+          color="secondary"
+          variant="outlined"
+          rounded="xl"
+          prepend-icon="mdi-plus"
+          class="mb-4"
+          @click="addDataSpecActivityItemClass"
+        >
+          {{ $t('ActivityInstanceForm.add_activity_item_class') }}
+        </v-btn>
         <template v-if="props.activityInstanceUid">
           <div class="dialog-title my-4">
             {{ $t('_global.change_description') }}
@@ -415,11 +541,23 @@
         </template>
       </v-form>
     </template>
+    <template #[`step.groupings_change`]>
+      <v-form ref="groupingsChangeFormRef">
+        <div class="dialog-title my-4">
+          {{ $t('_global.change_description') }}
+        </div>
+        <v-text-field
+          v-model="groupingsChangeForm.change_description"
+          :rules="[formRules.required]"
+          class="w-50"
+        />
+      </v-form>
+    </template>
   </HorizontalStepperForm>
 </template>
 
 <script setup>
-import { computed, inject, ref, watch } from 'vue'
+import { computed, inject, ref, watch, watchEffect } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useFeatureFlagsStore } from '@/stores/feature-flags'
@@ -428,6 +566,7 @@ import ActivityItemClassField from './ActivityItemClassField.vue'
 import HorizontalStepperForm from '@/components/tools/HorizontalStepperForm.vue'
 import NNTable from '@/components/tools/NNTable.vue'
 import SelectCTTermField from '@/components/tools/SelectCTTermField.vue'
+import SelectMenuSearch from '@/components/tools/SelectMenuSearch.vue'
 import TestActivityItemClassField from './TestActivityItemClassField.vue'
 import activitiesApi from '@/api/activities'
 import activityInstanceClassesApi from '@/api/activityInstanceClasses'
@@ -445,6 +584,11 @@ const props = defineProps({
     type: String,
     default: null,
   },
+  editMode: {
+    type: String,
+    default: 'create',
+    validator: (value) => ['create', 'groupings', 'attributes'].includes(value),
+  },
 })
 
 const router = useRouter()
@@ -460,28 +604,43 @@ const activityInstance = ref(null)
 const allowManualEdit = ref(false)
 const dataDomainCTTermUid = ref(null)
 const datasets = ref([])
+const domainNames = ref({})
 const loadingActivityInstances = ref(false)
 const loadingPreview = ref(false)
+const isOnFirstStep = computed(() => stepper.value?.currentStep === 1)
 const step2Form = ref({})
 const step3Form = ref({})
 const step4Form = ref({})
-const selectedActivity = ref(null)
-const selectedActivityName = ref(null)
+const selectedActivity = ref([])
 const stepper = ref()
 const totalActivities = ref(0)
 const testValue = ref(null)
 const testCodeCodelistValue = ref(null)
 const testNameCodelistValue = ref(null)
+const hasExistingDataDomain = ref(false)
+const step3EmptyItemIndices = ref(new Set())
+const selectionDetailsCache = ref(new Map())
 
 const step1FormRef = ref()
 const step2FormRef = ref()
 const step3FormRef = ref()
 const step4FormRef = ref()
+const groupingsChangeFormRef = ref()
+const groupingsChangeForm = ref({ change_description: '' })
 
 const title = computed(() => {
-  return props.activityInstanceUid
-    ? t('ActivityInstanceForm.edit_title')
-    : t('ActivityInstanceForm.add_title')
+  const instanceName = activityInstance.value?.name
+  let base
+  if (props.editMode === 'groupings') {
+    base = t('ActivityInstanceForm.edit_groupings_title')
+  } else if (props.editMode === 'attributes') {
+    base = t('ActivityInstanceForm.edit_attributes_title')
+  } else if (props.activityInstanceUid) {
+    base = t('ActivityInstanceForm.edit_title')
+  } else {
+    return t('ActivityInstanceForm.add_title')
+  }
+  return instanceName ? `${base}: ${instanceName}` : base
 })
 
 const allowedInstanceClasses = []
@@ -508,37 +667,184 @@ if (
   allowedInstanceClasses.push('TextualFindings')
 }
 
+const domainSearch = ref('')
+
 const dataDomains = computed(() => {
+  let abbreviations
   if (!datasets.value.length) {
     return []
   }
   if (datasets.value.length === 1) {
-    return datasets.value[0].datasets
-  }
-  const allValues = new Set()
-  for (const item of datasets.value) {
-    for (const domain of item.datasets) {
-      if (!allValues.has(domain)) {
+    abbreviations = datasets.value[0].datasets
+  } else {
+    const allValues = new Set()
+    for (const item of datasets.value) {
+      for (const domain of item.datasets) {
         allValues.add(domain)
       }
     }
+    abbreviations = Array.from(allValues.values())
   }
-  return Array.from(allValues.values())
+  return abbreviations.map((abbr) => {
+    const name = domainNames.value[abbr]
+    return {
+      value: abbr,
+      title: name ? `${abbr} - ${name}` : abbr,
+    }
+  })
+})
+
+const filteredDataDomains = computed(() => {
+  if (!domainSearch.value) return dataDomains.value
+  const query = domainSearch.value.toLowerCase()
+  return dataDomains.value.filter((d) => d.title.toLowerCase().includes(query))
+})
+
+function parseSelectedActivityUid(value) {
+  const [activityGroupUid, activitySubgroupUid, activityUid] =
+    value?.split('|') || []
+  return {
+    activityGroupUid: activityGroupUid || '',
+    activitySubgroupUid: activitySubgroupUid || '',
+    activityUid: activityUid || '',
+  }
+}
+
+function getGroupingUids(grouping = {}) {
+  return {
+    activityGroupUid:
+      grouping.activity_group_uid || grouping.activity_group?.uid || '',
+    activitySubgroupUid:
+      grouping.activity_subgroup_uid || grouping.activity_subgroup?.uid || '',
+    activityUid: grouping.activity_uid || grouping.activity?.uid || '',
+  }
+}
+
+function formatSelectedActivityDetails(
+  grouping = {},
+  fallbackActivityName = ''
+) {
+  const activityGroupName =
+    grouping.activity_group_name || grouping.activity_group?.name || ''
+  const activitySubgroupName =
+    grouping.activity_subgroup_name || grouping.activity_subgroup?.name || ''
+  const activityName =
+    grouping.activity_name || grouping.activity?.name || fallbackActivityName
+
+  return {
+    activityName,
+    activityGroupName,
+    activitySubgroupName,
+  }
+}
+
+const selectedActivityDetails = computed(() => {
+  if (!selectedActivity.value.length) {
+    return {
+      activityName: '',
+      groupings: [],
+      distinctActivityNames: [],
+      groupingsByActivity: {},
+    }
+  }
+
+  let activityName = ''
+  const groupings = []
+
+  for (const selection of selectedActivity.value) {
+    const cached = selectionDetailsCache.value.get(selection)
+    if (cached) {
+      if (!activityName && cached.activityName) {
+        activityName = cached.activityName
+      }
+      groupings.push({ ...cached, selectionUid: selection })
+      continue
+    }
+
+    // Fallback for entries not yet cached (should be rare)
+    const details = formatSelectedActivityDetails()
+    groupings.push({ ...details, selectionUid: selection })
+  }
+
+  const distinctActivityNames = [
+    ...new Set(groupings.map((g) => g.activityName).filter(Boolean)),
+  ]
+
+  const groupingsByActivity = {}
+  for (const g of groupings) {
+    const name = g.activityName || ''
+    if (!groupingsByActivity[name]) {
+      groupingsByActivity[name] = []
+    }
+    groupingsByActivity[name].push(g)
+  }
+
+  return { activityName, groupings, distinctActivityNames, groupingsByActivity }
+})
+
+// Maintain a cache of selection details so names survive table re-fetches
+watchEffect(() => {
+  for (const selection of selectedActivity.value) {
+    if (selectionDetailsCache.value.has(selection)) continue
+
+    const { activityGroupUid, activitySubgroupUid, activityUid } =
+      parseSelectedActivityUid(selection)
+
+    const fromTable = activities.value.find(
+      (item) => getFullActivityUid(item) === selection
+    )
+    if (fromTable) {
+      const grouping =
+        fromTable.activity_groupings?.find((item) => {
+          const uids = getGroupingUids(item)
+          return (
+            uids.activityGroupUid === activityGroupUid &&
+            uids.activitySubgroupUid === activitySubgroupUid
+          )
+        }) || fromTable.activity_groupings?.[0]
+      selectionDetailsCache.value.set(
+        selection,
+        formatSelectedActivityDetails(grouping, fromTable.name)
+      )
+      continue
+    }
+
+    const fromInstance = activityInstance.value?.activity_groupings?.find(
+      (item) => {
+        const uids = getGroupingUids(item)
+        return (
+          uids.activityGroupUid === activityGroupUid &&
+          uids.activitySubgroupUid === activitySubgroupUid &&
+          uids.activityUid === activityUid
+        )
+      }
+    )
+    if (fromInstance) {
+      selectionDetailsCache.value.set(
+        selection,
+        formatSelectedActivityDetails(fromInstance)
+      )
+    }
+  }
+
+  // Clean up deselected entries
+  for (const key of selectionDetailsCache.value.keys()) {
+    if (!selectedActivity.value.includes(key)) {
+      selectionDetailsCache.value.delete(key)
+    }
+  }
+})
+
+const hasMixedActivitySelection = computed(() => {
+  if (selectedActivity.value.length < 2) return false
+  const activityUids = selectedActivity.value.map(
+    (val) => parseSelectedActivityUid(val).activityUid
+  )
+  return new Set(activityUids).size > 1
 })
 
 const availableActivityItemClasses = ref([])
 const filteredActivityItemClasses = ref([])
-
-const setSelectedActivityName = () => {
-  if (selectedActivity.value) {
-    const parts = selectedActivity.value.split('|')
-    selectedActivityName.value = activities.value.find(
-      (item) => item.uid === parts[2]
-    ).name
-  } else {
-    selectedActivityName.value = null
-  }
-}
 
 // List of activity item classes that should not be proposed to end users
 const activityItemClassExceptions = computed(() => {
@@ -596,9 +902,10 @@ const otherAvailableActivityItemClasses = computed(() => {
 })
 
 const defaultLinkedActivityItemClasses = computed(() => {
-  return filteredActivityItemClasses.value.filter(
+  const result = filteredActivityItemClasses.value.filter(
     (item) => item.is_default_linked
   )
+  return result
 })
 
 const testCodeAic = computed(() => {
@@ -636,6 +943,74 @@ const showAdamParamCode = computed(() => {
   return step2Form.value.activity_instance_class?.name !== 'Events'
 })
 
+const showIsResearchLab = computed(() => {
+  return step2Form.value.activity_instance_class?.name !== 'Events'
+})
+
+// Helper to determine if we should show existing mandatory items when editing an instance,
+// even if data domain is not selected yet
+const hasExistingMandatoryItems = computed(() => {
+  if (!activityInstance.value) return false
+  if (testValue.value) return true
+  return step2Form.value.activityItems?.some(
+    (item) =>
+      item &&
+      item.activity_item_class_uid &&
+      (item.ct_terms?.length > 0 ||
+        item.unit_definition_uids?.length > 0 ||
+        item.ct_term_name ||
+        item.ct_codelist_uid)
+  )
+})
+
+// ----- Helper methods for managing editing of instance classes that are not (yet) supported by this form -----
+
+// Include the currently selected class in the options even if it's not in the fetched list
+const activityInstanceClassOptions = computed(() => {
+  const selectedClass = step2Form.value.activity_instance_class
+  if (!selectedClass?.uid) {
+    return activityInstanceClasses.value
+  }
+
+  const hasSelectedClassInOptions = activityInstanceClasses.value.some(
+    (item) => item.uid === selectedClass.uid
+  )
+  if (hasSelectedClassInOptions) {
+    return activityInstanceClasses.value
+  }
+
+  return [...activityInstanceClasses.value, selectedClass]
+})
+
+// Determine if the currently selected class is unsupported (not in the fetched list)
+const isSelectedActivityInstanceClassUnsupported = computed(() => {
+  const selectedClass = step2Form.value.activity_instance_class
+  if (!selectedClass?.uid) {
+    return false
+  }
+
+  return !activityInstanceClasses.value.some(
+    (item) => item.uid === selectedClass.uid
+  )
+})
+
+// Generate warning messages if the selected class is unsupported,
+// but only when editing an existing instance (not during creation)
+const activityInstanceClassWarningMessages = computed(() => {
+  const selectedClass = step2Form.value.activity_instance_class
+  const isEditing = !!props.activityInstanceUid
+  if (!isEditing || !isSelectedActivityInstanceClassUnsupported.value) {
+    return []
+  }
+
+  return [
+    t('ActivityInstanceForm.activity_instance_class_not_supported', {
+      name: selectedClass.name,
+    }),
+  ]
+})
+
+// ----- End of helper methods for unsupported instance classes -----
 watch(showMolecularWeight, (value) => {
   if (!value) {
     delete step2Form.value.molecular_weight
@@ -669,6 +1044,19 @@ const subcategoryAic = computed(() => {
   )
 })
 
+const categoryCodelistName = computed(() => {
+  const aicName = step2Form.value.activity_instance_class?.name
+  if (!aicName) return null
+  if (aicName === 'Events') return 'eventCategoryDefinition'
+  return 'findingCategoryDefinition'
+})
+const subcategoryCodelistName = computed(() => {
+  const aicName = step2Form.value.activity_instance_class?.name
+  if (!aicName) return null
+  if (aicName === 'Events') return 'eventSubCategoryDefinition'
+  return 'findingSubCategoryDefinition'
+})
+
 const activitiesHeaders = [
   { title: '', key: 'selection', sortable: false, noFilter: true },
   {
@@ -698,19 +1086,56 @@ const activitiesHeaders = [
     noFilter: true,
   },
 ]
-const steps = [
-  { name: 'activities', title: t('ActivityInstanceForm.step1_title') },
-  { name: 'required', title: t('ActivityInstanceForm.step2_title') },
-  { name: 'optional', title: t('ActivityInstanceForm.step3_title') },
-  { name: 'dataspec', title: t('ActivityInstanceForm.step4_title') },
+const stepDefinitions = [
+  { name: 'activities', titleKey: 'ActivityInstanceForm.step1_title' },
+  { name: 'required', titleKey: 'ActivityInstanceForm.step2_title' },
+  { name: 'optional', titleKey: 'ActivityInstanceForm.step3_title' },
+  { name: 'dataspec', titleKey: 'ActivityInstanceForm.step4_title' },
+  { name: 'groupings_change', titleKey: '_global.change_description' },
 ]
-const helpItems = [
+const allHelpItems = [
   'ActivityInstanceForm.general',
   'ActivityInstanceForm.step1_description',
   'ActivityInstanceForm.step2_description',
   'ActivityInstanceForm.step3_description',
   'ActivityInstanceForm.step4_description',
+  'ActivityInstanceForm.groupings_change_description',
 ]
+
+function getStepTitle(stepName) {
+  const className = step2Form.value.activity_instance_class?.name
+  if (stepName === 'optional' && className === 'Events') {
+    return t('ActivityInstanceForm.step3_events_title')
+  }
+  const def = stepDefinitions.find((s) => s.name === stepName)
+  return def ? t(def.titleKey) : ''
+}
+
+const allSteps = computed(() =>
+  stepDefinitions.map((def) => ({
+    name: def.name,
+    title: getStepTitle(def.name),
+  }))
+)
+
+const steps = computed(() => {
+  if (props.editMode === 'groupings') {
+    return [allSteps.value[0], allSteps.value[4]] // Groupings selection + change description
+  }
+  if (props.editMode === 'attributes') {
+    return allSteps.value.slice(1, 4) // Steps 2-4: required, optional, dataspec
+  }
+  return allSteps.value.slice(0, 4) // All steps for creation (excludes groupings_change)
+})
+const helpItems = computed(() => {
+  if (props.editMode === 'groupings') {
+    return [allHelpItems[0], allHelpItems[1], allHelpItems[5]]
+  }
+  if (props.editMode === 'attributes') {
+    return [allHelpItems[0], ...allHelpItems.slice(2, 5)]
+  }
+  return allHelpItems.slice(0, 5)
+})
 
 function fetchActivities(filters, options, filtersUpdated) {
   const params = filteringParameters.prepareParameters(
@@ -730,14 +1155,21 @@ function fetchActivities(filters, options, filtersUpdated) {
       params.sort_by = `{"${sortKey}":${options.sortBy[0].order === 'asc'}}`
     }
   }
-  if (!params.filters) {
-    params.filters = {}
-  } else {
+  if (params.filters) {
     params.filters = JSON.parse(params.filters)
+  } else {
+    params.filters = {}
   }
   params.filters.status = { v: [statuses.FINAL] }
   params.filters.library_name = { v: [libraryConstants.LIBRARY_SPONSOR] }
   params.filters.is_data_collected = { v: [true] }
+  if (props.editMode === 'groupings' && activityInstance.value) {
+    const activityUid =
+      activityInstance.value.activity_groupings?.[0]?.activity?.uid
+    if (activityUid) {
+      params.filters.uid = { v: [activityUid] }
+    }
+  }
   if (params.filters['activity_groupings.0.activity_group_name']) {
     params.activity_group_names = []
     params.filters['activity_groupings.0.activity_group_name'].v.forEach(
@@ -796,23 +1228,38 @@ async function fetchActivityItemClasses(activityInstanceClass) {
         // Handle mandatory activity items here because we must
         // respect the order of activity items classes received from the
         // API
-        const matched = activityInstance.value.activity_items.find(
-          (item) => item.activity_item_class.uid === aic.uid
+        const existingActivityItems = Array.isArray(
+          activityInstance.value.activity_items
+        )
+          ? activityInstance.value.activity_items
+          : []
+        const matched = existingActivityItems.find(
+          (item) => item?.activity_item_class?.uid === aic.uid
         )
         if (matched) {
           activityItem = {
-            activity_item_class_uid: matched.activity_item_class.uid,
+            activity_item_class_uid: matched.activity_item_class?.uid,
             is_adam_param_specific: matched.is_adam_param_specific,
             unit_definition_uids: [],
             ct_terms: [],
           }
-          if (matched.activity_item_class.name === 'standard_unit') {
-            activityItem.unit_definition_uids = matched.unit_definitions.map(
-              (unit) => unit.uid
-            )
+          if (
+            matched.ct_codelist?.uid &&
+            (!matched.ct_terms || !matched.ct_terms.length)
+          ) {
+            activityItem.ct_codelist_uid = matched.ct_codelist.uid
+          } else if (matched.activity_item_class?.name === 'standard_unit') {
+            activityItem.unit_definition_uids = (matched.unit_definitions || [])
+              .map((unit) => unit?.uid)
+              .filter(Boolean)
+            activityItem.preselected_unit_name =
+              matched.unit_definitions?.[0]?.name || null
           } else {
-            activityItem.ct_terms = matched.ct_terms
-            if (matched.activity_item_class.name === 'unit_dimension') {
+            activityItem.ct_terms = matched.ct_terms || []
+            if (
+              matched.activity_item_class?.name === 'unit_dimension' &&
+              matched.ct_terms?.[0]?.name
+            ) {
               activityItem.ct_term_name = matched.ct_terms[0].name
             }
           }
@@ -841,6 +1288,20 @@ async function fetchDatasets(activityInstanceClassUid) {
   }
   const resp = await activityInstanceClassesApi.getModelMappingDatasets(params)
   datasets.value = resp.data
+  await fetchDomainNames()
+}
+
+async function fetchDomainNames() {
+  const codelistUid =
+    activityItemClassesConstants.sdtmDomainAbbreviationCodelistUid
+  const resp = await codelistsApi.getCodelistTerms(codelistUid, {
+    page_size: 0,
+  })
+  const names = {}
+  for (const term of resp.data.items) {
+    names[term.submission_value] = term.sponsor_preferred_name
+  }
+  domainNames.value = names
 }
 
 function filterActivityInstanceClasses(dataDomainUid) {
@@ -888,8 +1349,14 @@ function filterActivityInstanceClasses(dataDomainUid) {
 }
 
 function getFullActivityUid(activity) {
-  const grouping = activity.activity_groupings[0]
-  return `${grouping.activity_group_uid}|${grouping.activity_subgroup_uid}|${activity.uid}`
+  const grouping = activity?.activity_groupings?.[0]
+  return `${grouping?.activity_group_uid || ''}|${grouping?.activity_subgroup_uid || ''}|${activity?.uid || ''}`
+}
+
+function removeGroupingSelection(selectionUid) {
+  selectedActivity.value = selectedActivity.value.filter(
+    (uid) => uid !== selectionUid
+  )
 }
 
 function addOptionalActivityItemClass() {
@@ -912,7 +1379,12 @@ function removeDataSpecActivityItemClass(index) {
 }
 
 function resetForms() {
-  selectedActivity.value = null
+  selectedActivity.value = []
+  selectionDetailsCache.value.clear()
+  hasExistingDataDomain.value = false
+  groupingsChangeForm.value = {
+    change_description: '',
+  }
   step2Form.value = {
     activityItems: [],
   }
@@ -925,9 +1397,27 @@ function resetForms() {
 }
 
 function showInstances(item) {
-  return item.activity_instances
+  return (item.activity_instances || [])
     .map((instance) => escapeHTML(instance.name))
     .join('<br/>')
+}
+
+function hasActivityItemValue(item) {
+  if (!item) return false
+  return (
+    (item.ct_terms && item.ct_terms.length > 0) ||
+    (item.unit_definition_uids && item.unit_definition_uids.length > 0) ||
+    !!item.ct_codelist_uid
+  )
+}
+
+function recordStep3EmptyItems() {
+  step3EmptyItemIndices.value = new Set()
+  step3Form.value.activityItems.forEach((item, index) => {
+    if (!hasActivityItemValue(item)) {
+      step3EmptyItemIndices.value.add(index)
+    }
+  })
 }
 
 function close() {
@@ -967,21 +1457,44 @@ function validateMolecularWeight(value) {
 }
 
 function getObserver(step) {
-  const observers = {
-    1: step1FormRef,
-    2: step2FormRef,
-    3: step3FormRef,
-    4: step4FormRef,
+  const stepName = steps.value[step - 1]?.name
+  const observersByName = {
+    activities: step1FormRef,
+    required: step2FormRef,
+    optional: step3FormRef,
+    dataspec: step4FormRef,
+    groupings_change: groupingsChangeFormRef,
   }
-  return observers[step]?.value
+  return observersByName[stepName]?.value
 }
 
 function extraStepValidation(step) {
-  if (step === 1 && !selectedActivity.value) {
-    notificationHub.add({
-      msg: t('ActivityInstanceForm.activity_not_selected'),
-      type: 'error',
-    })
+  const stepName = steps.value[step - 1]?.name
+  if (stepName === 'activities') {
+    if (!selectedActivity.value.length) {
+      notificationHub.add({
+        msg: t('ActivityInstanceForm.activity_not_selected'),
+        type: 'error',
+      })
+      return false
+    }
+    // Verify all selected rows reference the same activity
+    const activityUids = selectedActivity.value.map(
+      (val) => parseSelectedActivityUid(val).activityUid
+    )
+    const uniqueActivityUids = new Set(activityUids)
+    if (uniqueActivityUids.size > 1) {
+      notificationHub.add({
+        msg: t('ActivityInstanceForm.activity_mixed_selection'),
+        type: 'error',
+      })
+      return false
+    }
+  }
+  if (
+    stepName === 'required' &&
+    isSelectedActivityInstanceClassUnsupported.value
+  ) {
     return false
   }
   return true
@@ -989,9 +1502,18 @@ function extraStepValidation(step) {
 
 async function prepareActivityItems() {
   const activityItems = [
-    ...step2Form.value.activityItems,
-    ...step3Form.value.activityItems,
-    ...step4Form.value.activityItems,
+    ...step2Form.value.activityItems.map((item) => ({
+      ...item,
+      is_activity_instance_id_specific: true,
+    })),
+    ...step3Form.value.activityItems.map((item) => ({
+      ...item,
+      is_activity_instance_id_specific: true,
+    })),
+    ...step4Form.value.activityItems.map((item) => ({
+      ...item,
+      is_activity_instance_id_specific: false,
+    })),
   ].filter((item) => item && item.activity_item_class_uid)
 
   function addActivityItem(uid, codelistUid, term_uids) {
@@ -1004,6 +1526,7 @@ async function prepareActivityItems() {
       odm_item_uids: [],
       unit_definition_uids: [],
       is_adam_param_specific: false,
+      is_activity_instance_id_specific: true,
     })
   }
 
@@ -1016,9 +1539,15 @@ async function prepareActivityItems() {
     ])
   }
 
-  if (step2Form.value.data_category) {
-    const resp = await codelistsApi.getAll({
-      filters: { 'attributes.submission_value': { v: ['FINDCAT'] } },
+  const aicName = step2Form.value.activity_instance_class?.name
+  const catSubmissionValue =
+    activityItemClassesConstants.categoryCodelistSubmissionValues[aicName]
+  const subcatSubmissionValue =
+    activityItemClassesConstants.subcategoryCodelistSubmissionValues[aicName]
+
+  if (step2Form.value.data_category && catSubmissionValue) {
+    const resp = await codelistsApi.getAttributes({
+      filters: { submission_value: { v: [catSubmissionValue] } },
     })
     if (resp.data.items.length) {
       const codelistUid = resp.data.items[0].codelist_uid
@@ -1028,9 +1557,9 @@ async function prepareActivityItems() {
     }
   }
 
-  if (step2Form.value.data_subcategory) {
-    const resp = await codelistsApi.getAll({
-      filters: { 'attributes.submission_value': { v: ['FINDSCAT'] } },
+  if (step2Form.value.data_subcategory && subcatSubmissionValue) {
+    const resp = await codelistsApi.getAttributes({
+      filters: { submission_value: { v: [subcatSubmissionValue] } },
     })
     if (resp.data.items.length) {
       const codelistUid = resp.data.items[0].codelist_uid
@@ -1040,7 +1569,6 @@ async function prepareActivityItems() {
     }
   }
   if (domainAic.value && dataDomainCTTermUid.value) {
-    // Manually add domain activity item based on selected dataset
     addActivityItem(
       domainAic.value.uid,
       activityItemClassesConstants.sdtmDomainAbbreviationCodelistUid,
@@ -1056,6 +1584,11 @@ async function prepareActivityItems() {
 
   // Thanks to API inconsistency, we have to do this...
   for (const activityItem of activityItems) {
+    // API requires either ct_terms OR ct_codelist_uid, not both
+    if (activityItem.ct_codelist_uid) {
+      activityItem.ct_terms = []
+      continue
+    }
     if (!activityItem.ct_terms) {
       continue
     }
@@ -1070,8 +1603,15 @@ async function prepareActivityItems() {
 }
 
 async function prepareCreationPayload(forPreview) {
-  const [activityGroupUid, activitySubgroupUid, activityUid] =
-    selectedActivity.value.split('|')
+  const activityGroupings = selectedActivity.value.map((selection) => {
+    const [activityGroupUid, activitySubgroupUid, activityUid] =
+      selection.split('|')
+    return {
+      activity_group_uid: activityGroupUid,
+      activity_subgroup_uid: activitySubgroupUid,
+      activity_uid: activityUid,
+    }
+  })
   const activityItems = await prepareActivityItems()
   const result = {
     library_name: libraryConstants.LIBRARY_SPONSOR,
@@ -1084,13 +1624,7 @@ async function prepareCreationPayload(forPreview) {
       step4Form.value.is_default_selected_for_activity,
     is_data_sharing: step4Form.value.is_data_sharing,
     is_research_lab: step3Form.value.is_research_lab,
-    activity_groupings: [
-      {
-        activity_group_uid: activityGroupUid,
-        activity_subgroup_uid: activitySubgroupUid,
-        activity_uid: activityUid,
-      },
-    ],
+    activity_groupings: activityGroupings,
     strict_mode: true,
   }
   if (step2Form.value.molecular_weight) {
@@ -1106,17 +1640,8 @@ async function prepareCreationPayload(forPreview) {
 }
 
 async function prepareUpdatePayload() {
-  const [activityGroupUid, activitySubgroupUid, activityUid] =
-    selectedActivity.value.split('|')
   const result = {
     library_name: libraryConstants.LIBRARY_SPONSOR,
-    activity_groupings: [
-      {
-        activity_group_uid: activityGroupUid,
-        activity_subgroup_uid: activitySubgroupUid,
-        activity_uid: activityUid,
-      },
-    ],
     nci_concept_name: step3Form.value.nci_concept_name,
     nci_concept_id: step3Form.value.nci_concept_id,
     activity_instance_class_uid: step2Form.value.activity_instance_class.uid,
@@ -1130,12 +1655,29 @@ async function prepareUpdatePayload() {
     name_sentence_case: step3Form.value.name_sentence_case,
     adam_param_code: step3Form.value.adam_param_code,
     topic_code: step3Form.value.topic_code,
-    change_description: 'Update',
+    change_description: step4Form.value.change_description || 'Update',
   }
   if (step2Form.value.molecular_weight) {
     result.molecular_weight = step2Form.value.molecular_weight
   }
   return result
+}
+
+function prepareGroupingsPayload() {
+  const activityGroupings = selectedActivity.value.map((selection) => {
+    const [activityGroupUid, activitySubgroupUid, activityUid] =
+      selection.split('|')
+    return {
+      activity_group_uid: activityGroupUid,
+      activity_subgroup_uid: activitySubgroupUid,
+      activity_uid: activityUid,
+    }
+  })
+  return {
+    activity_groupings: activityGroupings,
+    change_description:
+      groupingsChangeForm.value.change_description || 'Update',
+  }
 }
 
 async function sendPreviewRequest() {
@@ -1147,7 +1689,9 @@ async function sendPreviewRequest() {
   const resp = await activitiesApi.getPreview(payload, 'activity-instances')
   step3Form.value.name = resp.data.name
   step3Form.value.name_sentence_case = resp.data.name_sentence_case
-  step3Form.value.topic_code = resp.data.topic_code
+  if (!props.activityInstanceUid) {
+    step3Form.value.topic_code = resp.data.topic_code
+  }
   step3Form.value.adam_param_code = resp.data.adam_param_code
   loadingPreview.value = false
 }
@@ -1161,13 +1705,18 @@ function onAllowManualEditChange(value) {
 }
 
 async function updateAIFields(value) {
-  if (value.ct_terms.length || value.unit_definition_uids.length) {
+  if (
+    value.ct_terms.length ||
+    value.unit_definition_uids.length ||
+    value.ct_codelist_uid
+  ) {
     await sendPreviewRequestDebounced()
   }
 }
 
 async function initStep(step) {
-  if (step === 3) {
+  const stepName = steps.value[step - 1]?.name
+  if (stepName === 'optional') {
     // Check if required fields have been selected (param/paramcd)
     const hasRequiredFields =
       // Check test value (test_code/test_name)
@@ -1178,7 +1727,8 @@ async function initStep(step) {
           item &&
           (item.ct_terms?.length > 0 ||
             item.ct_term_uids?.length > 0 ||
-            item.unit_definition_uids?.length > 0)
+            item.unit_definition_uids?.length > 0 ||
+            !!item.ct_codelist_uid)
       )
 
     // Refresh preview if:
@@ -1203,7 +1753,33 @@ async function submit() {
 
   try {
     let resp
-    if (props.activityInstanceUid) {
+    if (props.editMode === 'groupings') {
+      const payload = prepareGroupingsPayload()
+      resp = await activitiesApi.update(
+        props.activityInstanceUid,
+        payload,
+        {},
+        'activity-instances',
+        'groupings'
+      )
+      notificationHub.add({
+        msg: t('ActivityInstanceForm.update_groupings_success'),
+      })
+      close()
+      return
+    } else if (props.editMode === 'attributes') {
+      const payload = await prepareUpdatePayload()
+      resp = await activitiesApi.update(
+        props.activityInstanceUid,
+        payload,
+        {},
+        'activity-instances',
+        'attributes'
+      )
+      notificationHub.add({
+        msg: t('ActivityInstanceForm.update_attributes_success'),
+      })
+    } else if (props.activityInstanceUid) {
       const payload = await prepareUpdatePayload()
       resp = await activitiesApi.update(
         props.activityInstanceUid,
@@ -1235,7 +1811,11 @@ async function submit() {
 }
 
 async function initiateDomainFromActivityItem(activityItem) {
-  const resp = await ctApi.getTermCodelists(activityItem.ct_terms[0].uid)
+  const firstTermUid = activityItem?.ct_terms?.[0]?.uid
+  if (!firstTermUid) {
+    return
+  }
+  const resp = await ctApi.getTermCodelists(firstTermUid)
   for (const codelist of resp.data.codelists) {
     if (
       codelist.codelist_uid ===
@@ -1244,7 +1824,7 @@ async function initiateDomainFromActivityItem(activityItem) {
       step2Form.value.data_domain = codelist.submission_value
     }
   }
-  dataDomainCTTermUid.value = activityItem.ct_terms[0].uid
+  dataDomainCTTermUid.value = firstTermUid
 }
 
 async function initFromActivityInstance() {
@@ -1253,73 +1833,219 @@ async function initFromActivityInstance() {
     props.activityInstanceUid
   )
   activityInstance.value = resp.data
-  // FIXME: Can we have imported activity instances linked to multiple groupings?
-  const grouping = activityInstance.value.activity_groupings[0]
-  selectedActivity.value = `${grouping.activity_group.uid}|${grouping.activity_subgroup.uid}|${grouping.activity.uid}`
-  resp = await activitiesApi.getObject('activities', grouping.activity.uid)
-  selectedActivityName.value = resp.data.name
-  step2Form.value.activity_instance_class = activityInstanceClasses.value.find(
-    (item) => item.uid === activityInstance.value.activity_instance_class.uid
+  const existingGroupings = activityInstance.value?.activity_groupings || []
+  selectedActivity.value = existingGroupings
+    .filter((g) => g?.activity_group?.uid && g?.activity_subgroup?.uid)
+    .map(
+      (g) =>
+        `${g.activity_group.uid}|${g.activity_subgroup.uid}|${g.activity?.uid || ''}`
+    )
+
+  const activityInstanceClassUid =
+    activityInstance.value?.activity_instance_class?.uid
+  const supportedActivityInstanceClass = activityInstanceClasses.value.find(
+    (item) => item.uid === activityInstanceClassUid
   )
-  await fetchActivityItemClasses(step2Form.value.activity_instance_class)
-  step3Form.value.name = activityInstance.value.name
-  step3Form.value.name_sentence_case = activityInstance.value.name_sentence_case
-  step3Form.value.nci_concept_name = activityInstance.value.nci_concept_name
-  step3Form.value.topic_code = activityInstance.value.topic_code
-  step3Form.value.adam_param_code = activityInstance.value.adam_param_code
-  step3Form.value.nci_concept_id = activityInstance.value.nci_concept_id
-  step3Form.value.is_research_lab = activityInstance.value.is_research_lab
+  step2Form.value.activity_instance_class =
+    supportedActivityInstanceClass ||
+    activityInstance.value?.activity_instance_class
+  if (supportedActivityInstanceClass) {
+    await fetchActivityItemClasses(supportedActivityInstanceClass)
+  }
+
+  if (
+    activityInstance.value?.molecular_weight !== undefined &&
+    activityInstance.value?.molecular_weight !== null
+  ) {
+    step2Form.value.molecular_weight = activityInstance.value.molecular_weight
+  }
+
+  step3Form.value.name = activityInstance.value?.name || ''
+  step3Form.value.name_sentence_case =
+    activityInstance.value?.name_sentence_case || ''
+  step3Form.value.nci_concept_name = activityInstance.value?.nci_concept_name
+  step3Form.value.topic_code = activityInstance.value?.topic_code || ''
+  step3Form.value.adam_param_code =
+    activityInstance.value?.adam_param_code || ''
+  step3Form.value.nci_concept_id = activityInstance.value?.nci_concept_id
+  step3Form.value.is_research_lab = activityInstance.value?.is_research_lab
 
   step4Form.value.is_required_for_activity =
-    activityInstance.value.is_required_for_activity
-  step4Form.value.is_data_sharing = activityInstance.value.is_data_sharing
+    activityInstance.value?.is_required_for_activity
+  step4Form.value.is_data_sharing = activityInstance.value?.is_data_sharing
   step4Form.value.is_default_selected_for_activity =
-    activityInstance.value.is_default_selected_for_activity
+    activityInstance.value?.is_default_selected_for_activity
 
-  for (const activityItem of activityInstance.value.activity_items) {
-    if (activityItem.activity_item_class.name === 'domain') {
+  const existingActivityItems = Array.isArray(
+    activityInstance.value?.activity_items
+  )
+    ? activityInstance.value.activity_items
+    : []
+  hasExistingDataDomain.value = existingActivityItems.some(
+    (item) =>
+      item?.activity_item_class?.name === 'domain' && !!item?.ct_terms?.[0]?.uid
+  )
+
+  for (const activityItem of existingActivityItems) {
+    const itemClass = activityItem?.activity_item_class
+    const itemClassName = itemClass?.name
+    const firstCtTermUid = activityItem?.ct_terms?.[0]?.uid
+
+    if (!itemClassName) {
+      continue
+    }
+
+    if (itemClassName === 'domain') {
       await initiateDomainFromActivityItem(activityItem)
+      // Re-fetch filtered activity item classes now that domain is known
+      // (fetchActivityItemClasses ran before domain was extracted, so
+      // filteredActivityItemClasses contains the unfiltered superset)
+      if (step2Form.value.data_domain && supportedActivityInstanceClass) {
+        const respFiltered =
+          await activityInstanceClassesApi.getActivityItemClasses(
+            supportedActivityInstanceClass.uid,
+            {
+              dataset_uid: step2Form.value.data_domain,
+              ig_uid: 'SDTMIG',
+            }
+          )
+        filteredActivityItemClasses.value = respFiltered.data
+      }
       continue
     }
-    if (activityItem.activity_item_class.name === categoryAic.value.name) {
-      step2Form.value.data_category = activityItem.ct_terms[0].uid
+    if (itemClassName === categoryAic.value?.name && firstCtTermUid) {
+      step2Form.value.data_category = firstCtTermUid
       continue
     }
-    if (activityItem.activity_item_class.name === subcategoryAic.value.name) {
-      step2Form.value.data_subcategory = activityItem.ct_terms[0].uid
+    if (itemClassName === subcategoryAic.value?.name && firstCtTermUid) {
+      step2Form.value.data_subcategory = firstCtTermUid
+      continue
+    }
+    if (testCodeAic.value && itemClass?.uid === testCodeAic.value.uid) {
+      testCodeCodelistValue.value =
+        activityItem?.ct_terms?.[0]?.codelist_uid || null
       continue
     }
     if (
       testNameAic.value &&
-      activityItem.activity_item_class.uid === testNameAic.value.uid
+      itemClass?.uid === testNameAic.value.uid &&
+      firstCtTermUid
     ) {
-      testValue.value = activityItem.ct_terms[0].uid
+      testValue.value = firstCtTermUid
+      testNameCodelistValue.value =
+        activityItem?.ct_terms?.[0]?.codelist_uid || null
       continue
     }
+
+    // Skip default-linked items — they are displayed as read-only cards
+    if (
+      defaultLinkedActivityItemClasses.value.some(
+        (aic) => aic.uid === itemClass?.uid
+      )
+    ) {
+      continue
+    }
+
+    const classMeta =
+      filteredActivityItemClasses.value.find(
+        (aic) => aic.uid === itemClass?.uid
+      ) ||
+      availableActivityItemClasses.value.find(
+        (aic) => aic.uid === itemClass?.uid
+      )
+
+    // Use is_activity_instance_id_specific to determine step placement when available
+    const alreadyInStep2 = step2Form.value.activityItems.some(
+      (item) => item.activity_item_class_uid === itemClass?.uid
+    )
+    if (alreadyInStep2) {
+      continue
+    }
+
+    if (activityItem.is_activity_instance_id_specific === true) {
+      const step3Item = {
+        activity_item_class_uid: itemClass?.uid,
+        is_adam_param_specific: !!classMeta?.is_adam_param_specific_enabled,
+        unit_definition_uids: [],
+        ct_terms: activityItem.ct_terms || [],
+      }
+      if (
+        activityItem.ct_codelist?.uid &&
+        (!activityItem.ct_terms || !activityItem.ct_terms.length)
+      ) {
+        step3Item.ct_codelist_uid = activityItem.ct_codelist.uid
+      }
+      step3Form.value.activityItems.push(step3Item)
+      continue
+    }
+    if (activityItem.is_activity_instance_id_specific === false) {
+      const step4Item = {
+        activity_item_class_uid: itemClass?.uid,
+        is_adam_param_specific: !!classMeta?.is_adam_param_specific_enabled,
+        unit_definition_uids: [],
+        ct_terms: activityItem.ct_terms || [],
+      }
+      if (
+        activityItem.ct_codelist?.uid &&
+        (!activityItem.ct_terms || !activityItem.ct_terms.length)
+      ) {
+        step4Item.ct_codelist_uid = activityItem.ct_codelist.uid
+      }
+      step4Form.value.activityItems.push(step4Item)
+      continue
+    }
+
+    // Fallback: use existing heuristic when is_activity_instance_id_specific is null/undefined
     let matched = optionalActivityItemClasses.value.find(
-      (aic) => aic.uid === activityItem.activity_item_class.uid
+      (aic) => aic.uid === itemClass?.uid
     )
     if (matched) {
-      step3Form.value.activityItems.push({
+      const step3Item = {
         activity_item_class_uid: matched.uid,
         is_adam_param_specific: matched.is_adam_param_specific_enabled,
         unit_definition_uids: [],
-        ct_terms: activityItem.ct_terms,
-      })
+        ct_terms: activityItem.ct_terms || [],
+      }
+      if (
+        activityItem.ct_codelist?.uid &&
+        (!activityItem.ct_terms || !activityItem.ct_terms.length)
+      ) {
+        step3Item.ct_codelist_uid = activityItem.ct_codelist.uid
+      }
+      step3Form.value.activityItems.push(step3Item)
       continue
     }
+
     matched = otherAvailableActivityItemClasses.value.find(
-      (aic) => aic.uid === activityItem.activity_item_class.uid
+      (aic) => aic.uid === itemClass?.uid
     )
-    if (matched) {
-      step4Form.value.activityItems.push({
-        activity_item_class_uid: matched.uid,
-        is_adam_param_specific: matched.is_adam_param_specific_enabled,
+
+    const alreadySelectedInStep4 = step4Form.value.activityItems.some(
+      (item) => item.activity_item_class_uid === itemClass?.uid
+    )
+    const eligibleFallbackForStep4 =
+      !!classMeta &&
+      !classMeta.mandatory &&
+      !activityItemClassExceptions.value.includes(classMeta.name)
+
+    if ((matched || eligibleFallbackForStep4) && !alreadySelectedInStep4) {
+      const step4Item = {
+        activity_item_class_uid: itemClass?.uid,
+        is_adam_param_specific: !!classMeta?.is_adam_param_specific_enabled,
         unit_definition_uids: [],
-        ct_terms: activityItem.ct_terms,
-      })
+        ct_terms: activityItem.ct_terms || [],
+      }
+      if (
+        activityItem.ct_codelist?.uid &&
+        (!activityItem.ct_terms || !activityItem.ct_terms.length)
+      ) {
+        step4Item.ct_codelist_uid = activityItem.ct_codelist.uid
+      }
+      step4Form.value.activityItems.push(step4Item)
     }
   }
+
+  recordStep3EmptyItems()
 }
 
 resetForms()

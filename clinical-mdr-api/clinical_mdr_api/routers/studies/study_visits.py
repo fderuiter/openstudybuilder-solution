@@ -415,7 +415,7 @@ def delete_study_visit(
     study_uid: Annotated[str, studyUID],
     study_visit_uid: Annotated[str, study_visit_uid_description],
 ):
-    service = StudyVisitService(study_uid=study_uid)
+    service = StudyVisitService(study_uid=study_uid, load_terms=False)
     service.delete(study_uid=study_uid, study_visit_uid=study_visit_uid)
 
 
@@ -575,7 +575,7 @@ def get_amount_of_visits_in_given_epoch(
         str, Path(description="The unique uid of the study epoch")
     ],
 ) -> int:
-    service = StudyVisitService(study_uid=study_uid)
+    service = StudyVisitService(study_uid=study_uid, load_terms=False)
     return service.get_amount_of_visits_in_given_epoch(
         study_uid=study_uid, study_epoch_uid=study_epoch_uid
     )
@@ -608,7 +608,7 @@ Possible errors:
 def get_global_anchor_visit(
     study_uid: Annotated[str, studyUID],
 ) -> SimpleStudyVisit | None:
-    service = StudyVisitService(study_uid=study_uid)
+    service = StudyVisitService(study_uid=study_uid, load_terms=False)
     return service.get_global_anchor_visit(study_uid=study_uid)
 
 
@@ -639,7 +639,7 @@ Possible errors:
 def get_anchor_visits_in_group_of_subvisits(
     study_uid: Annotated[str, studyUID],
 ) -> list[SimpleStudyVisit]:
-    service = StudyVisitService(study_uid=study_uid)
+    service = StudyVisitService(study_uid=study_uid, load_terms=False)
     return service.get_anchor_visits_in_a_group_of_subvisits(study_uid=study_uid)
 
 
@@ -674,7 +674,7 @@ def get_anchor_visits_for_special_visit(
         description="The uid of StudyEpoch from which StudyVisits are returned.",
     ),
 ) -> list[SimpleStudyVisit]:
-    service = StudyVisitService(study_uid=study_uid)
+    service = StudyVisitService(study_uid=study_uid, load_terms=False)
     return service.get_anchor_for_special_visit(
         study_uid=study_uid, study_epoch_uid=study_epoch_uid
     )
@@ -700,7 +700,7 @@ def get_study_visits_for_specific_activity_instance(
         str, Path(description="The unique id of the study activity instance.")
     ],
 ) -> list[SimpleStudyVisit]:
-    service = StudyVisitService(study_uid=study_uid)
+    service = StudyVisitService(study_uid=study_uid, load_terms=False)
     return service.get_study_visits_for_specific_activity_instance(
         study_uid=study_uid,
         study_activity_instance_uid=study_activity_instance_uid,
@@ -747,7 +747,7 @@ def assign_consecutive_visit_group_for_selected_study_visit(
         ),
     ] = False,
 ) -> list[StudyVisit]:
-    service = StudyVisitService(study_uid=study_uid)
+    service = StudyVisitService(study_uid=study_uid, load_terms=False)
     return service.assign_visit_consecutive_group(
         study_uid=study_uid,
         visits_to_assign=consecutive_visit_group_input.visits_to_assign,
@@ -787,7 +787,7 @@ def remove_consecutive_group(
         str, Path(description="The name of the consecutive-visit-group that is removed")
     ],
 ):
-    service = StudyVisitService(study_uid=study_uid)
+    service = StudyVisitService(study_uid=study_uid, load_terms=False)
     service.remove_visit_consecutive_group(
         study_uid=study_uid, consecutive_visit_group_uid=consecutive_visit_group_uid
     )

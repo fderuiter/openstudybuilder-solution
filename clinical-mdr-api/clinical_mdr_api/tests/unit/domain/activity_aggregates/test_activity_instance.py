@@ -85,6 +85,7 @@ def create_random_activity_instance_vo() -> ActivityInstanceVO:
                     )
                 ],
                 is_adam_param_specific=False,
+                is_activity_instance_id_specific=False,
             ),
             ActivityItemVO.from_repository_values(
                 activity_item_class_uid=random_str(),
@@ -101,6 +102,7 @@ def create_random_activity_instance_vo() -> ActivityInstanceVO:
                     )
                 ],
                 is_adam_param_specific=False,
+                is_activity_instance_id_specific=True,
             ),
         ],
     )
@@ -325,6 +327,7 @@ class TestActivityInstanceNegative(unittest.TestCase):
                                 )
                             ],
                             is_adam_param_specific=False,
+                            is_activity_instance_id_specific=False,
                         ),
                         ActivityItemVO.from_repository_values(
                             activity_item_class_uid=random_str(),
@@ -338,6 +341,7 @@ class TestActivityInstanceNegative(unittest.TestCase):
                                 )
                             ],
                             is_adam_param_specific=False,
+                            is_activity_instance_id_specific=False,
                         ),
                     ],
                 ),

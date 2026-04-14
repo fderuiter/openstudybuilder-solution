@@ -237,7 +237,7 @@ export default {
       }
       const params = filteringParameters.prepareParameters(
         options,
-        filters,
+        this.filters,
         filtersUpdated
       )
       activeSubstances.getFiltered(params).then((resp) => {

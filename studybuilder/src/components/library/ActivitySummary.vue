@@ -89,6 +89,11 @@
         </tr>
       </tbody>
     </table>
+    <div v-if="$slots.content || $slots.default" class="summary-content">
+      <slot name="content">
+        <slot></slot>
+      </slot>
+    </div>
   </div>
 </template>
 
@@ -207,7 +212,6 @@ const organizedRows = computed(() => {
     label: t('_global.version'),
     value: props.activity.version || '-',
   })
-
   // Definition is always shown
   fields.push({
     key: 'definition',
@@ -247,7 +251,7 @@ const organizedRows = computed(() => {
   if (props.showNciConceptId) {
     fields.push({
       key: 'nci_concept_id',
-      label: t('ActivityForms.nci_concept_id') || 'NCI Concept ID',
+      label: t('ActivityForms.nci_concept_id'),
       value: props.activity.nci_concept_id || '-',
     })
   }
@@ -255,7 +259,7 @@ const organizedRows = computed(() => {
   if (props.showNciConceptId) {
     fields.push({
       key: 'nci_concept_name',
-      label: t('ActivityForms.nci_concept_name') || 'NCI Concept Name',
+      label: t('ActivityForms.nci_concept_name'),
       value: props.activity.nci_concept_name || '-',
     })
   }
@@ -278,7 +282,7 @@ const organizedRows = computed(() => {
   if (props.activity.is_legacy_usage !== undefined) {
     fields.push({
       key: 'legacy_usage',
-      label: t('ActivityInstanceOverview.is_legacy_usage') || 'Legacy usage',
+      label: t('ActivityInstanceOverview.is_legacy_usage'),
       value: $filters.yesno(props.activity.is_legacy_usage),
     })
   }
@@ -286,7 +290,7 @@ const organizedRows = computed(() => {
   if (props.activity.adam_param_code !== undefined) {
     fields.push({
       key: 'adam_param_code',
-      label: t('ActivityInstanceOverview.adam_code') || 'ADoM parameter code',
+      label: t('ActivityInstanceOverview.adam_code'),
       value: props.activity.adam_param_code || '-',
     })
   }
@@ -294,9 +298,7 @@ const organizedRows = computed(() => {
   if (props.activity.activity_instance_class !== undefined) {
     fields.push({
       key: 'activity_instance_class',
-      label:
-        t('ActivityInstanceOverview.activity_instance_class') ||
-        'Activity instance class',
+      label: t('ActivityInstanceOverview.activity_instance_class'),
       value: props.activity.activity_instance_class || '-',
     })
   }
@@ -304,9 +306,7 @@ const organizedRows = computed(() => {
   if (props.activity.is_required_for_activity !== undefined) {
     fields.push({
       key: 'required_for_activity',
-      label:
-        t('ActivityInstanceOverview.is_required_for_activity') ||
-        'Required for activity',
+      label: t('ActivityInstanceOverview.is_required_for_activity'),
       value: $filters.yesno(props.activity.is_required_for_activity),
     })
   }
@@ -314,9 +314,7 @@ const organizedRows = computed(() => {
   if (props.activity.is_default_selected_for_activity !== undefined) {
     fields.push({
       key: 'default_selected_for_activity',
-      label:
-        t('ActivityInstanceOverview.is_default_selected_for_activity') ||
-        'Default selected for activity',
+      label: t('ActivityInstanceOverview.is_default_selected_for_activity'),
       value: $filters.yesno(props.activity.is_default_selected_for_activity),
     })
   }
@@ -324,7 +322,7 @@ const organizedRows = computed(() => {
   if (props.activity.topic_code !== undefined) {
     fields.push({
       key: 'topic_code',
-      label: t('ActivityInstanceOverview.topic_code') || 'Topic code',
+      label: t('ActivityInstanceOverview.topic_code'),
       value: props.activity.topic_code || '-',
     })
   }
@@ -332,15 +330,26 @@ const organizedRows = computed(() => {
   if (props.activity.is_data_sharing !== undefined) {
     fields.push({
       key: 'data_sharing',
-      label: t('ActivityInstanceOverview.is_data_sharing') || 'Data sharing',
+      label: t('ActivityInstanceOverview.is_data_sharing'),
       value: $filters.yesno(props.activity.is_data_sharing),
+    })
+  }
+
+  if (
+    props.activity.molecular_weight !== undefined &&
+    props.activity.molecular_weight !== null
+  ) {
+    fields.push({
+      key: 'molecular_weight',
+      label: t('ActivityInstanceOverview.molecular_weight'),
+      value: `${props.activity.molecular_weight} g/mol`,
     })
   }
 
   if (props.activity.activity_name !== undefined) {
     fields.push({
       key: 'activity_name',
-      label: t('ActivityInstanceOverview.activity_name') || 'Activity',
+      label: t('ActivityInstanceOverview.activity_name'),
       value: props.activity.activity_name || '-',
     })
   }
@@ -357,8 +366,7 @@ const organizedRows = computed(() => {
   if (props.activity.domain_specific !== undefined) {
     fields.push({
       key: 'domain_specific',
-      label:
-        t('ActivityInstanceClassOverview.domain_specific') || 'Domain specific',
+      label: t('ActivityInstanceClassOverview.domain_specific'),
       value: props.activity.domain_specific || '-',
     })
   }
@@ -367,7 +375,7 @@ const organizedRows = computed(() => {
   if (props.activity.hierarchy_label !== undefined) {
     fields.push({
       key: 'hierarchy',
-      label: t('ActivityInstanceClassOverview.hierarchy') || 'Hierarchy',
+      label: t('ActivityInstanceClassOverview.hierarchy'),
       value: props.activity.hierarchy_label || '-',
     })
   }
@@ -376,7 +384,7 @@ const organizedRows = computed(() => {
   if (props.activity.modified_by !== undefined) {
     fields.push({
       key: 'modified_by',
-      label: t('_global.modified_by') || 'Modified by',
+      label: t('_global.modified_by'),
       value: props.activity.modified_by || '-',
     })
   }
@@ -425,6 +433,11 @@ const organizedRows = computed(() => {
 .activity-summary-table td.empty-cell {
   padding: 0;
   background: transparent;
+}
+
+.summary-content {
+  border-top: 1px solid #e0e0e0;
+  padding: 0 16px 16px;
 }
 
 .summary-label {

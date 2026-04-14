@@ -1,5 +1,6 @@
 const clickLastElement = () => cy.get('.v-list-item').last().click()
 const clickFirstElement = () => cy.get('.v-list-item').first().click()
+const clickSecondElement = () => cy.get('.v-list-item').eq(1).click()
 const checkLastElement = () => cy.get('.v-list-item input').last().check()
 const checkFirstElement = () => cy.get('.v-list-item input').first().check()
 const clickElementByValue = (value) => cy.contains('.v-list-item', value).click()
@@ -18,6 +19,10 @@ Cypress.Commands.add('selectVSelect', (dropdownName, value) => {
 
 Cypress.Commands.add('selectFirstVSelect', (dropdownName) => {
     selectFromDropdown(dropdownName, '.v-field__input', clickFirstElement)
+})
+
+Cypress.Commands.add('selectSecondVSelect', (dropdownName) => {
+    selectFromDropdown(dropdownName, '.v-field__input', clickSecondElement)
 })
 
 Cypress.Commands.add('selectLastVSelect', (dropdownName) => {

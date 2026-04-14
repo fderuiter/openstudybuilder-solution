@@ -60,7 +60,11 @@
         <StatusChip :status="item.status" />
       </template>
       <template #[`item.actions`]="{ item }">
-        <ActionsMenu :actions="actions" :item="item" />
+        <ActionsMenu
+          :actions="actions"
+          :item="item"
+          :badge="actionsMenuBadge(item)"
+        />
       </template>
     </NNTable>
     <v-dialog v-model="showForm" persistent content-class="fullscreen-dialog">
@@ -161,6 +165,21 @@ const itemHistoryTitle = computed(() => {
   return ''
 })
 
+function actionsMenuBadge(item) {
+  if (item.terms?.some((term) => isTermRemoved(term))) {
+    return {
+      color: 'warning',
+      icon: 'mdi-alert-outline',
+      tooltip: t('CRFItems.update_terms_tooltip'),
+    }
+  }
+  return undefined
+}
+
+function isTermRemoved(term) {
+  return !(term.name ?? term.submission_value)
+}
+
 function closeForm() {
   showForm.value = false
   selectedItem.value = null
@@ -240,11 +259,13 @@ async function newVersion(item) {
 }
 
 function manageActivityInstancesLinks(item) {
-  view(item)
-  openStep.value = 'activity_instance_links'
+  view(item, 'activity_instance_links')
 }
 
-function view(item) {
+function view(item, step) {
+  if (step) {
+    openStep.value = step
+  }
   crfs.getItem(item.uid).then((resp) => {
     selectedItem.value = resp.data
     showForm.value = true
@@ -277,9 +298,19 @@ function getItems(filterString, options, filtersUpdated) {
 
 const actions = computed(() => [
   {
+    label: t('CRFItems.update_terms'),
+    icon: 'mdi-alert',
+    iconColor: () => 'warning',
+    condition: (item) =>
+      item.possible_actions.find((action) => action === 'edit') &&
+      item.terms?.some((term) => isTermRemoved(term)),
+    accessRole: roles.LIBRARY_WRITE,
+    click: (item) => view(item, 'terms'),
+  },
+  {
     label: t('_global.approve'),
     icon: 'mdi-check-decagram',
-    iconColor: 'success',
+    iconColor: () => 'success',
     condition: (item) =>
       item.possible_actions.find((action) => action === 'approve'),
     accessRole: roles.LIBRARY_WRITE,

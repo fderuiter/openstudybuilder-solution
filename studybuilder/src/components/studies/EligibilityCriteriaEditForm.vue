@@ -16,7 +16,7 @@
     @close="$emit('close')"
   >
     <template #formFields="{ editTemplate, form }">
-      <p class="mt-6 text-secondary text-h6">
+      <p class="mt-6 text-secondary text-headline-small">
         {{ $t('EligibilityCriteriaEditForm.key_criteria') }}
       </p>
       <v-row>

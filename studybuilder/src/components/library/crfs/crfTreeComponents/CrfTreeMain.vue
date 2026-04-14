@@ -565,7 +565,7 @@ async function newVersionAll(item) {
   }
 }
 </script>
-<style>
+<style scoped>
 .hide {
   opacity: 0;
   cursor: default;

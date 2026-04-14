@@ -1,7 +1,9 @@
 <template>
   <div v-if="selectedStudyVersion === null" class="pa-4">
     <div class="mt-6 d-flex align-center">
-      <span class="text-h6">{{ $t('ProtocolInterventionsTable.title') }}</span>
+      <span class="text-headline-small">{{
+        $t('ProtocolInterventionsTable.title')
+      }}</span>
       <v-spacer />
       <span class="text-center font-italic">{{ loadingMessage }}</span>
       <v-spacer />

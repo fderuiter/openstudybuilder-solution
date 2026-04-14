@@ -939,47 +939,53 @@ class Activities(BaseImporter):
         await asyncio.gather(*api_tasks)
         # await session.close()
 
+    def _normalize_instance_item(self, item):
+        activity_item_class_uid = item.get("activity_item_class_uid") or (
+            item.get("activity_item_class") or {}
+        ).get("uid")
+
+        unit_definition_uids = item.get("unit_definition_uids")
+        if unit_definition_uids is None:
+            unit_definition_uids = [
+                unit.get("uid") for unit in item.get("unit_definitions", [])
+            ]
+
+        term_uids = item.get("ct_term_uids")
+        if term_uids is None:
+            term_uids = []
+            for term in item.get("ct_terms", []):
+                term_uid = term.get("term_uid") or term.get("uid")
+                if term_uid:
+                    term_uids.append(term_uid)
+
+        return (
+            activity_item_class_uid,
+            frozenset(term_uids),
+            frozenset(uid for uid in unit_definition_uids if uid is not None),
+        )
+
     def compare_instance_items(self, old, new):
-        new_items = set(
-            (
-                item.get("activity_item_class_uid"),
-                frozenset(item.get("ct_term_uids", [])),
-                frozenset(item.get("unit_definition_uids", [])),
-            )
-            for item in new
-        )
-        old_items = set(
-            (
-                item.get("activity_item_class", {}).get("uid"),
-                frozenset(term["uid"] for term in item.get("ct_terms", [])),
-                frozenset(unit["uid"] for unit in item.get("unit_definitions", [])),
-            )
-            for item in old
-        )
+        new_items = {self._normalize_instance_item(item) for item in new}
+        old_items = {self._normalize_instance_item(item) for item in old}
         return new_items == old_items
+
+    def _normalize_instance_grouping(self, item):
+        return (
+            item.get("activity_uid") or (item.get("activity") or {}).get("uid"),
+            item.get("activity_group_uid")
+            or (item.get("activity_group") or {}).get("uid"),
+            item.get("activity_subgroup_uid")
+            or (item.get("activity_subgroup") or {}).get("uid"),
+        )
 
     def compare_instance_groupings(self, old, new):
         # Convert both old and new to lists of tuples, (activity_uid, group_uid, subgroup_uid)
         # These are hashable so the lists can be made into sets for easy comparison
-        new_groupings = set(
-            (
-                item["activity_uid"],
-                item["activity_group_uid"],
-                item["activity_subgroup_uid"],
-            )
-            for item in new
-        )
-        old_groupings = set(
-            (
-                item.get("activity", {}).get("uid"),
-                item.get("activity_group", {}).get("uid"),
-                item.get("activity_subgroup", {}).get("uid"),
-            )
-            for item in old
-        )
+        new_groupings = {self._normalize_instance_grouping(item) for item in new}
+        old_groupings = {self._normalize_instance_grouping(item) for item in old}
         return new_groupings == old_groupings
 
-    def are_instances_equal(self, new, existing):
+    def are_instance_attributes_equal(self, new, existing):
         # Define properties to compare directly
         properties_to_compare = [
             "activity_instance_class_uid",
@@ -1003,18 +1009,127 @@ class Activities(BaseImporter):
 
         # Compare complex structures
         if not self.compare_instance_items(
-            existing["activity_items"], new["activity_items"]
+            existing.get("activity_items", []), new.get("activity_items", [])
         ):
             self.log.debug("Difference found in activity_items")
             return False
 
+        return True
+
+    def are_instance_groupings_equal(self, new, existing):
         if not self.compare_instance_groupings(
-            existing["activity_groupings"], new["activity_groupings"]
+            existing.get("activity_groupings", []), new.get("activity_groupings", [])
         ):
             self.log.debug("Difference found in activity_groupings")
             return False
 
         return True
+
+    def are_instances_equal(self, new, existing):
+        return self.are_instance_attributes_equal(
+            new, existing
+        ) and self.are_instance_groupings_equal(new, existing)
+
+    def _split_activity_instance_payload(self, body):
+        attributes_payload = {
+            key: value for key, value in body.items() if key != "activity_groupings"
+        }
+        groupings_payload = {"activity_groupings": body.get("activity_groupings", [])}
+        return attributes_payload, groupings_payload
+
+    async def _patch_activity_instance_part(
+        self,
+        activity_instance_name,
+        activity_instance_uid,
+        part,
+        payload,
+        session,
+    ):
+        part_path = path_join(ACTIVITY_INSTANCES_PATH, activity_instance_uid, part)
+        body = dict(payload)
+        body["change_description"] = "Migration modification"
+
+        status, response = await self.api.new_version_to_api_async(
+            path=path_join(part_path, "versions"),
+            session=session,
+        )
+        if status >= 400:
+            error_message = (
+                response.get("message") or response.get("detail") or str(response)
+            )
+            if "New draft version can be created only for FINAL versions" in str(
+                error_message
+            ):
+                self.log.warning(
+                    f"Skipping new {part} version for '{activity_instance_name}' because it is already in draft"
+                )
+            else:
+                self.log.error(
+                    f"Failed to create new {part} version for activity instance '{activity_instance_name}': {error_message}"
+                )
+                return
+
+        status, response = await self.api.patch_to_api_async(
+            path=part_path,
+            body=body,
+            session=session,
+        )
+        if status >= 400:
+            error_message = (
+                response.get("message") or response.get("detail") or str(response)
+            )
+            self.log.error(
+                f"Failed to patch activity instance '{activity_instance_name}' ({part}): {error_message}"
+            )
+            return
+
+        status, _ = await self.api.approve_async(
+            path_join(part_path, "approvals"), session=session
+        )
+        if status >= 400:
+            self.log.error(
+                f"Failed to approve activity instance '{activity_instance_name}' ({part})"
+            )
+
+    async def _patch_activity_instance_parts(
+        self,
+        activity_instance_name,
+        activity_instance_uid,
+        attributes_payload,
+        groupings_payload,
+        patch_attributes,
+        patch_groupings,
+        session,
+    ):
+        if not patch_attributes and not patch_groupings:
+            self.log.info(
+                f"Identical activity instance '{activity_instance_name}' already exists"
+            )
+            return
+
+        if patch_attributes:
+            self.log.info(
+                f"Patch activity instance attributes '{activity_instance_name}'"
+            )
+            await self._patch_activity_instance_part(
+                activity_instance_name=activity_instance_name,
+                activity_instance_uid=activity_instance_uid,
+                part="attributes",
+                payload=attributes_payload,
+                session=session,
+            )
+
+        if patch_groupings:
+            self.log.info(
+                f"Patch activity instance groupings '{activity_instance_name}'"
+            )
+            await self._patch_activity_instance_part(
+                activity_instance_name=activity_instance_name,
+                activity_instance_uid=activity_instance_uid,
+                part="groupings",
+                payload=groupings_payload,
+                session=session,
+            )
 
     @open_file_async()
     async def handle_activity_instances(self, csvfile, session):
@@ -1273,31 +1388,43 @@ class Activities(BaseImporter):
                     f" since instance with name {activity_instance_name} already exists"
                     f" with different topic code {existing_rows_by_name[activity_instance_name]['topic_code']}"
                 )
-            elif not self.are_instances_equal(
-                activity_instance_data["body"], existing_rows_by_tc[topic_code]
-            ):
-                self.log.info(f"Patch activity instance '{activity_instance_name}'")
-                activity_instance_data["patch_path"] = path_join(
-                    ACTIVITY_INSTANCES_PATH,
-                    existing_rows_by_tc[topic_code].get("uid"),
-                )
-                activity_instance_data["new_path"] = path_join(
-                    ACTIVITY_INSTANCES_PATH,
-                    existing_rows_by_tc[topic_code].get("uid"),
-                    "versions",
-                )
-                activity_instance_data["body"][
-                    "change_description"
-                ] = "Migration modification"
-                api_tasks.append(
-                    self.api.new_version_patch_then_approve(
-                        data=activity_instance_data, session=session, approve=True
-                    )
-                )
             else:
-                self.log.info(
-                    f"Identical activity instance '{activity_instance_name}' already exists"
+                existing_instance = existing_rows_by_tc.get(topic_code)
+                if existing_instance is None:
+                    self.log.warning(
+                        f"Cannot patch activity instance '{activity_instance_name}' because no existing instance was found for topic code '{topic_code}'"
+                    )
+                    continue
+                existing_uid = existing_instance.get("uid")
+
+                patch_attributes = not self.are_instance_attributes_equal(
+                    activity_instance_data["body"], existing_instance
                 )
+                patch_groupings = not self.are_instance_groupings_equal(
+                    activity_instance_data["body"], existing_instance
+                )
+
+                if patch_attributes or patch_groupings:
+                    attributes_payload, groupings_payload = (
+                        self._split_activity_instance_payload(
+                            activity_instance_data["body"]
+                        )
+                    )
+                    api_tasks.append(
+                        self._patch_activity_instance_parts(
+                            activity_instance_name=activity_instance_name,
+                            activity_instance_uid=existing_uid,
+                            attributes_payload=attributes_payload,
+                            groupings_payload=groupings_payload,
+                            patch_attributes=patch_attributes,
+                            patch_groupings=patch_groupings,
+                            session=session,
+                        )
+                    )
+                else:
+                    self.log.info(
+                        f"Identical activity instance '{activity_instance_name}' already exists"
+                    )
         await asyncio.gather(*api_tasks)
 
     # Get the item class for combination of column name and domain

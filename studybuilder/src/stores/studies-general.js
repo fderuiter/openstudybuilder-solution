@@ -166,13 +166,15 @@ export const useStudiesGeneralStore = defineStore('studiesGeneral', {
         this.soaPreferences = resp.data
       })
     },
-    setSoaPreferences({ show_epochs, show_milestones, baseline_as_time_zero }) {
+    setSoaPreferences(soaPreferences) {
+      const payload = Object.fromEntries(
+        Object.entries(soaPreferences).filter(
+          ([, value]) => value !== undefined
+        )
+      )
+
       return study
-        .updateSoaPreferences(this.selectedStudy.uid, {
-          show_epochs,
-          show_milestones,
-          baseline_as_time_zero,
-        })
+        .updateSoaPreferences(this.selectedStudy.uid, payload)
         .then((resp) => {
           this.soaPreferences = resp.data
         })

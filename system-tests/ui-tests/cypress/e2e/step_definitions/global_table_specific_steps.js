@@ -96,6 +96,24 @@ Then('Only actions that should be avaiable for the Retired item are displayed', 
     checkActionsAvailability(allowedActions, notAllowedActions)
 })
 
+Then('Only actions that should be avaiable for the Draft Activity Instance are displayed', () => {
+    const allowedActions = ['Approve attributes', 'Approve groupings', 'Edit attributes', 'Edit groupings', 'Delete', 'History (attributes)', 'History (groupings)']
+    const notAllowedActions = ['New version (attributes)', 'New version (groupings)', 'Inactivate attributes', 'Inactivate groupings', 'Reactivate attributes', 'Reactivate groupings']
+    checkActionsAvailability(allowedActions, notAllowedActions)
+})
+
+Then('Only actions that should be avaiable for the Final Activity Instance are displayed', () => {
+    const allowedActions = ['New version (attributes)', 'New version (groupings)', 'Inactivate attributes', 'Inactivate groupings', 'History (attributes)', 'History (groupings)']
+    const notAllowedActions = ['Edit attributes', 'Edit groupings', 'Delete', 'Approve attributes', 'Approve groupings', 'Reactivate attributes', 'Reactivate groupings']
+    checkActionsAvailability(allowedActions, notAllowedActions)
+})
+
+Then('Only actions that should be avaiable for the Retired Activity Instance are displayed', () => {
+    const allowedActions = ['Reactivate attributes', 'Reactivate groupings', 'History (attributes)', 'History (groupings)']
+    const notAllowedActions = ['New version (attributes)', 'New version (groupings)', 'Inactivate attributes', 'Inactivate groupings', 'Edit attributes', 'Edit groupings', 'Delete', 'Approve attributes', 'Approve groupings']
+    checkActionsAvailability(allowedActions, notAllowedActions)
+})
+
 When('The user switches pages of the table', () => {
     cy.waitForTable()
     cy.intercept('**page_number=2**').as('tablePage')

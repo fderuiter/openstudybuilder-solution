@@ -95,10 +95,17 @@
         <v-row>
           <v-col cols="8">
             <v-text-field
-              v-model="form.study_subpart_acronym"
+              :model-value="form.study_subpart_acronym"
               :label="$t('StudyForm.subpart_acronym')"
               clearable
-              :rules="[formRules.required]"
+              :rules="[
+                formRules.required,
+                formRules.uppercaseAlphanumeric,
+                (v) => formRules.max(v, 10),
+              ]"
+              @update:model-value="
+                form.study_subpart_acronym = $event?.toUpperCase().trim()
+              "
             />
           </v-col>
         </v-row>
@@ -146,7 +153,7 @@
           </v-card-title>
           <v-card-text>
             <v-row>
-              <v-col cols="3" class="text-h6 dialog-title">
+              <v-col cols="3" class="text-headline-small dialog-title">
                 {{ $t('StudySubparts.derived_subpart_id') }}
               </v-col>
               <v-col cols="4">
@@ -158,19 +165,23 @@
               </v-col>
             </v-row>
             <v-row>
-              <v-col cols="3" class="dialog-title text-h6">
+              <v-col cols="3" class="dialog-title text-headline-small">
                 {{ $t('StudySubparts.study_subpart_acronym') }}
               </v-col>
               <v-col cols="4">
                 <v-text-field
                   v-model="form.study_subpart_acronym"
-                  :rules="[formRules.required]"
+                  :rules="[
+                    formRules.required,
+                    formRules.uppercaseAlphanumeric,
+                    (v) => formRules.max(v, 10),
+                  ]"
                 />
               </v-col>
             </v-row>
             <v-row>
               <v-col cols="8">
-                <span class="dialog-title text-h6">
+                <span class="dialog-title text-headline-small">
                   {{ $t('_global.description') }}
                 </span>
                 <v-textarea

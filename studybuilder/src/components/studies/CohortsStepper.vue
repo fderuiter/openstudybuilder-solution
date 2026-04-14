@@ -95,7 +95,7 @@
           </v-row>
           <v-row
             v-if="creationMode === cohortConstants.MANUAL"
-            justify="center"
+            class="justify-center"
           >
             <v-col cols="4">
               <v-text-field
@@ -384,11 +384,11 @@
             >
               <v-row class="mt-1">
                 <v-col class="text-nnTrueBlue">
-                  <div class="text-body-2">
+                  <div class="text-body-medium">
                     {{ $t('CohortsStepper.cohort_name') }}
                   </div>
                   <div
-                    class="text-subtitle-1 font-weight-bold"
+                    class="text-body-large font-weight-bold"
                     style="line-height: 1.25"
                   >
                     {{ cohort.name }}
@@ -435,11 +435,11 @@
             >
               <v-row class="mt-1">
                 <v-col class="text-nnTrueBlue">
-                  <div class="text-body-2">
+                  <div class="text-body-medium">
                     {{ $t('CohortsStepper.arm_name') }}
                   </div>
                   <div
-                    class="text-subtitle-1 font-weight-bold"
+                    class="text-body-large font-weight-bold"
                     style="line-height: 1.25"
                   >
                     {{ arm.name }}
@@ -480,16 +480,16 @@
                 border
                 :class="
                   cohort.study_branch_arms[0].number_of_subjects > 0
-                    ? 'mb-2 mr-2 tile pa-2'
-                    : 'mb-2 mr-2 tile pa-2 bg-greyBackground'
+                    ? 'mb-2 mr-2 tile'
+                    : 'mb-2 mr-2 tile bg-greyBackground'
                 "
                 style="justify-content: center"
               >
-                <div class="mb-2 text-nnTrueBlue">
-                  <p class="text-body-2 ml-3" style="height: 40px">
+                <div class="text-nnTrueBlue">
+                  <p class="text-body-medium ml-3 mt-n4">
                     {{ cohort.study_branch_arms[0].name }}
                   </p>
-                  <div style="display: flex" class="mb-5">
+                  <div style="display: flex; justify-content: center">
                     <v-number-input
                       :key="cohort.study_branch_arms[0].name"
                       v-model="cohort.study_branch_arms[0].number_of_subjects"
@@ -498,7 +498,7 @@
                       control-variant="split"
                       :min="0"
                       inset
-                      style="width: 160px"
+                      style="max-width: 160px"
                       @update:model-value="
                         (value) => updateParticipants(value, index, armIndex)
                       "
@@ -844,7 +844,7 @@ async function saveDesignClass() {
     }
     const options = {
       type: 'warning',
-      width: 600,
+      width: 800,
       cancelLabel: t('CohortsStepper.keep_class'),
       agreeLabel: t('CohortsStepper.change_class'),
     }

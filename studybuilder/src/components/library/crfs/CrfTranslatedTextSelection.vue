@@ -2,7 +2,7 @@
   <div id="translated-text-container">
     <v-row>
       <v-col>
-        <div class="text-h5 mb-4">
+        <div class="text-headline-medium mb-4">
           {{ $t('CRFTranslatedTexts.add') }}
         </div>
       </v-col>
@@ -84,7 +84,7 @@
 
     <v-row>
       <v-col>
-        <div class="text-h5 mb-4">
+        <div class="text-headline-medium mb-4">
           {{ $t('CRFTranslatedTexts.select') }}
         </div>
       </v-col>

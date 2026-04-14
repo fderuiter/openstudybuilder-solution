@@ -14,8 +14,8 @@
   >
     <template #[`step.form`]="{ step }">
       <v-form :ref="`observer${step}`">
-        <v-card elevation="4" class="mx-auto pa-4">
-          <div class="text-h5 mb-4">
+        <v-card elevation="1" class="mx-auto pa-4">
+          <div class="text-headline-medium mb-4">
             {{ $t('CRFForms.definition') }}
           </div>
           <v-row>

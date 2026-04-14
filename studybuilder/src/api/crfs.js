@@ -94,33 +94,6 @@ export default {
       data
     )
   },
-  overwriteFormsInCollection(data, uid) {
-    return repository.post(`${resource}/study-events/${uid}/forms`, data)
-  },
-  overwriteItemGroupsInForm(data, uid) {
-    return repository.post(`${resource}/forms/${uid}/item-groups`, data)
-  },
-  overwriteItemsInItemGroup(data, uid) {
-    return repository.post(`${resource}/item-groups/${uid}/items`, data)
-  },
-  addActivityGroupsToForm(data, uid) {
-    return repository.post(
-      `${resource}/forms/${uid}/activity-groups?override=true`,
-      data
-    )
-  },
-  addActivitySubGroupsToItemGroup(data, uid) {
-    return repository.post(
-      `${resource}/item-groups/${uid}/activity-sub-groups?override=true`,
-      data
-    )
-  },
-  addActivitiesToItem(data, uid) {
-    return repository.post(
-      `${resource}/items/${uid}/activities?override=true`,
-      data
-    )
-  },
   getReport(params) {
     return repository.post(
       `${resource}/metadata/report?${params.targets}target_type=${params.target_type}${params.allowed_namespaces}`
@@ -151,21 +124,6 @@ export default {
   },
   getTranslatedTexts(params) {
     return repository.get(`${resource}/metadata/translated-texts`, { params })
-  },
-  getExpressions(params) {
-    return repository.get(`${resource}/metadata/formal-expressions`, { params })
-  },
-  getConditionByOid(params) {
-    return repository.get(`${resource}/conditions`, { params })
-  },
-  createCondition(data) {
-    return repository.post(`${resource}/conditions`, data)
-  },
-  editCondition(uid, data) {
-    return repository.patch(`${resource}/conditions/${uid}`, data)
-  },
-  deleteCondition(uid) {
-    return repository.delete(`${resource}/conditions/${uid}`)
   },
   getRelationships(uid, type) {
     return repository.get(`${resource}/${type}/${uid}/relationships`)

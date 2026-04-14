@@ -4,7 +4,7 @@
       {{ $t('ProtocolProcessView.title') }}
     </div>
     <v-card flat>
-      <v-card-title class="text-h6">
+      <v-card-title class="text-headline-small">
         {{ $t('ProtocolProcessView.sub_title') }}
       </v-card-title>
       <v-card-text>
@@ -79,7 +79,7 @@
           color="nnBaseBlue"
           rounded="xl"
           class="mr-2"
-          elevation="2"
+          elevation="1"
           @click="openSelectStudyDialog"
         >
           {{ $t('_global.select_study') }}
@@ -87,7 +87,7 @@
         <v-btn
           color="nnBaseBlue"
           rounded="xl"
-          elevation="2"
+          elevation="1"
           @click="redirectToStudyTable"
         >
           {{ $t('_global.add_study') }}

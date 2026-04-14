@@ -1,6 +1,6 @@
 <template>
   <div class="mt-6 d-flex align-center">
-    <span class="text-h6">{{
+    <span class="text-headline-small">{{
       $t('StudyProtocolElementsView.study_design')
     }}</span>
     <v-spacer />

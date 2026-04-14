@@ -1180,6 +1180,7 @@ function getPaginationTotalDisplay() {
 
 defineExpose({
   filterTable,
+  selected,
   setExternalColumns,
   search,
   selectedColumns,

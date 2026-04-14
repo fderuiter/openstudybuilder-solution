@@ -53,6 +53,7 @@ Response must include basic information about each activity instance, together w
 | tests/v1/test_api_library.py | test_get_library_activity_instances_all                       |
 | tests/v1/test_api_library.py | test_get_library_activity_instances_filtering                 |
 | tests/v1/test_api_library.py | test_get_library_activity_instances_invalid_pagination_params |
+| tests/v1/test_api_library.py | test_get_library_activity_instances_activity_items            |
 
 # Library CT Codelists
 
@@ -86,19 +87,23 @@ Items are sorted by ascending codelist name.
 
 ## FS-ConsumerApi-Library-CodelistTerms-Get-010 [`URS-ConsumerApi-Library-ControlledTerminology`]
 
-Consumers must be able to retrieve a paginated list of CT codelist terms for a specified codelist by calling the `GET /library/ct/codelist-terms` endpoint with the required `codelist_submission_value` query parameter.
+Consumers must be able to retrieve a paginated list of CT codelist terms by calling the `GET /library/ct/codelist-terms` endpoint.
 
 ### Request
 
-The `codelist_submission_value` query parameter is required and filters terms by codelist submission value (e.g. `TIMELB`, `TIMEREF`, `VISCNTMD`, `FLWCRTGRP`, `EPOCHSTP`).
+The optional `codelist_submission_value` query parameter filters terms by codelist submission value (e.g. `TIMELB`, `TIMEREF`, `VISCNTMD`, `FLWCRTGRP`, `EPOCHSTP`).
+
+The optional `codelist_uid` query parameter filters terms by codelist UID.
+
+Both `codelist_submission_value` and `codelist_uid` can be provided together. If neither is provided, all terms are returned.
 
 It must be possible to filter items by `name_status` and `attributes_status` (_Final, Draft, Retired_). Both filters default to _Final_.
 
 ### Response
 
-Response must include basic information about each codelist term: UID, submission value, sponsor preferred name, concept ID, NCI preferred name, and library name.
+Response must include basic information about each codelist term: term UID, codelist UID, order, ordinal, submission value, sponsor preferred name, concept ID, NCI preferred name, and library name.
 
-Items are sorted by ascending sponsor preferred name.
+Items are sorted by ascending codelist UID, then term UID.
 
 If the specified codelist does not exist, an empty list is returned.
 
@@ -109,7 +114,10 @@ If the specified codelist does not exist, an empty list is returned.
 | tests/v1/test_api_library_ct.py | test_get_codelist_terms                                |
 | tests/v1/test_api_library_ct.py | test_get_codelist_terms_nonexistent_codelist           |
 | tests/v1/test_api_library_ct.py | test_get_codelist_terms_pagination                     |
-| tests/v1/test_api_library_ct.py | test_get_codelist_terms_missing_required_param         |
+| tests/v1/test_api_library_ct.py | test_get_codelist_terms_no_filters                     |
+| tests/v1/test_api_library_ct.py | test_get_codelist_terms_filter_by_codelist_uid         |
+| tests/v1/test_api_library_ct.py | test_get_codelist_terms_filter_by_both_params          |
+| tests/v1/test_api_library_ct.py | test_get_codelist_terms_filter_by_nonexistent_codelist_uid |
 | tests/v1/test_api_library_ct.py | test_get_codelist_terms_invalid_pagination_params      |
 | tests/v1/test_api_library_ct.py | test_get_codelist_terms_default_status_filter          |
 | tests/v1/test_api_library_ct.py | test_get_codelist_terms_filter_name_status_draft       |

@@ -1,12 +1,15 @@
 <template>
   <div class="fullscreen-bg">
-    <h1>{{ $t('_global.library') }}</h1>
+    <h1 class="text-display-medium">
+      <span class="font-weight-bold">{{ $t('_global.library') }}</span>
+    </h1>
     <p>
       {{ $t('Library.description_top_before') }}
       <strong>{{ $t('_global.library') }}</strong>
       {{ $t('Library.description_top_after') }}
+      <br />
+      {{ $t('Library.description_bottom') }}
     </p>
-    <p>{{ $t('Library.description_bottom') }}</p>
     <v-row data-cy="tiles-box" class="mt-6 justify-center box-container">
       <v-col
         v-for="item in startFrom(appStore.libraryMenu.items, 1)"
@@ -26,7 +29,7 @@
                 <v-icon size="large" color="white">
                   {{ item.icon }}
                 </v-icon>
-                <span class="mx-2 text-h6">{{ item.title }}</span>
+                <span class="mx-2 text-title-large">{{ item.title }}</span>
                 <v-spacer />
                 <v-btn
                   v-if="item.children"

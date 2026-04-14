@@ -71,26 +71,21 @@
               {{ termslabel }}
             </span>
           </div>
-          <span v-if="index === 1" class="text-grey text-caption mr-1">
+          <span v-if="index === 1" class="text-grey text-body-small mr-1">
             (+{{ selectedTerms.length - 1 }})
           </span>
         </template>
-        <template #prepend-item>
-          <v-row @keydown.stop>
+        <template #menu-header>
+          <div class="border-b w-100 pa-2" @keydown.stop>
             <v-text-field
               v-model="search"
-              class="pl-6"
               :placeholder="$t('_global.search')"
+              prepend-inner-icon="mdi-magnify"
+              hide-details
+              clearable
               @update:model-value="updateTerms"
             />
-            <v-btn
-              variant="text"
-              size="small"
-              icon="mdi-close"
-              class="mr-3 mt-3"
-              @click="search = ''"
-            />
-          </v-row>
+          </div>
         </template>
       </v-select>
       <v-select
@@ -424,6 +419,9 @@ function closeHistory() {
 
 const updateTerms = _debounce(function () {
   loading.value = true
+  if (search.value === null) {
+    search.value = ''
+  }
   const filters = { '*': { v: [search.value] } }
 
   if (props.library) {

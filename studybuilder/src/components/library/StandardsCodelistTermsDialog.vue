@@ -10,7 +10,7 @@
     <v-card-text>
       <v-expansion-panels v-model="panel" flat tile accordion>
         <v-expansion-panel>
-          <v-expansion-panel-title class="text-h6 grey--text">
+          <v-expansion-panel-title class="text-headline-small grey--text">
             {{ $t('CodelistSummary.title') }}
           </v-expansion-panel-title>
           <v-expansion-panel-text>

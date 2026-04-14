@@ -2037,7 +2037,7 @@ def test_get_complete_audit_trail_for_study_fields(api_client):
     assert res[7]["actions"] == [
         {
             "section": "Unknown",
-            "field": "baseline_as_time_zero",
+            "field": "soa_show_all_visits_lab_table",
             "before_value": None,
             "after_value": {"term_uid": "true", "name": None},
             "action": "Create",
@@ -2049,9 +2049,9 @@ def test_get_complete_audit_trail_for_study_fields(api_client):
     assert res[8]["actions"] == [
         {
             "section": "Unknown",
-            "field": "soa_show_milestones",
+            "field": "baseline_as_time_zero",
             "before_value": None,
-            "after_value": {"term_uid": "false", "name": None},
+            "after_value": {"term_uid": "true", "name": None},
             "action": "Create",
         }
     ]
@@ -2061,9 +2061,9 @@ def test_get_complete_audit_trail_for_study_fields(api_client):
     assert res[9]["actions"] == [
         {
             "section": "Unknown",
-            "field": "soa_show_epochs",
+            "field": "soa_show_milestones",
             "before_value": None,
-            "after_value": {"term_uid": "true", "name": None},
+            "after_value": {"term_uid": "false", "name": None},
             "action": "Create",
         }
     ]
@@ -2073,9 +2073,9 @@ def test_get_complete_audit_trail_for_study_fields(api_client):
     assert res[10]["actions"] == [
         {
             "section": "Unknown",
-            "field": "soa_preferred_time_unit",
+            "field": "soa_show_epochs",
             "before_value": None,
-            "after_value": {"term_uid": "UnitDefinition_000003", "name": None},
+            "after_value": {"term_uid": "true", "name": None},
             "action": "Create",
         }
     ]
@@ -2085,9 +2085,9 @@ def test_get_complete_audit_trail_for_study_fields(api_client):
     assert res[11]["actions"] == [
         {
             "section": "Unknown",
-            "field": "preferred_time_unit",
+            "field": "soa_preferred_time_unit",
             "before_value": None,
-            "after_value": {"term_uid": "UnitDefinition_000002", "name": None},
+            "after_value": {"term_uid": "UnitDefinition_000003", "name": None},
             "action": "Create",
         }
     ]
@@ -2095,6 +2095,18 @@ def test_get_complete_audit_trail_for_study_fields(api_client):
     assert res[12]["author_username"] == "unknown-user@example.com"
     assert res[12]["date"]
     assert res[12]["actions"] == [
+        {
+            "section": "Unknown",
+            "field": "preferred_time_unit",
+            "before_value": None,
+            "after_value": {"term_uid": "UnitDefinition_000002", "name": None},
+            "action": "Create",
+        }
+    ]
+    assert res[13]["study_uid"] == "Study_000001"
+    assert res[13]["author_username"] == "unknown-user@example.com"
+    assert res[13]["date"]
+    assert res[13]["actions"] == [
         {
             "section": "identification_metadata",
             "field": "project_number",

@@ -1,16 +1,14 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Self
+from typing import Any, Generic, Self, TypeVar
 
 from clinical_mdr_api.domain_repositories.models._utils import convert_to_datetime
 from clinical_mdr_api.domains.versioned_object_aggregate import LibraryItemStatus
 
 
 @dataclass(frozen=True)
-class CTCodelistTermVO:
-    """
-    The CTCodelistNameVO acts as the value object for a single CTCodelist name
-    """
+class CTCodelistTermBaseVO:
+    """Base value object with fields common to all codelist term variants."""
 
     term_uid: str
     sponsor_preferred_name: str
@@ -21,7 +19,6 @@ class CTCodelistTermVO:
     end_date: datetime | None
     attributes_status: LibraryItemStatus
     attributes_date: datetime
-    submission_value: str
     order: int | None
     ordinal: float | None
     concept_id: str | None
@@ -30,52 +27,97 @@ class CTCodelistTermVO:
     library_name: str | None
 
     @classmethod
-    def from_result_dict(cls, result: dict[str, Any]) -> Self:
-        ct_codelist_term_vo = cls(
-            term_uid=result["term_uid"],
-            sponsor_preferred_name=result["sponsor_preferred_name"],
-            sponsor_preferred_name_sentence_case=result[
+    def _common_kwargs_from_result_dict(cls, result: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "term_uid": result["term_uid"],
+            "sponsor_preferred_name": result["sponsor_preferred_name"],
+            "sponsor_preferred_name_sentence_case": result[
                 "sponsor_preferred_name_sentence_case"
             ],
-            name_status=LibraryItemStatus(result["name_status"]),
-            name_date=convert_to_datetime(result["name_date"]),
-            attributes_status=LibraryItemStatus(result["attributes_status"]),
-            attributes_date=convert_to_datetime(result["attributes_date"]),
+            "name_status": LibraryItemStatus(result["name_status"]),
+            "name_date": convert_to_datetime(result["name_date"]),
+            "attributes_status": LibraryItemStatus(result["attributes_status"]),
+            "attributes_date": convert_to_datetime(result["attributes_date"]),
+            "order": result.get("order"),
+            "ordinal": result.get("ordinal"),
+            "start_date": convert_to_datetime(result["start_date"]),
+            "end_date": convert_to_datetime(result.get("end_date")),
+            "concept_id": result.get("concept_id"),
+            "nci_preferred_name": result.get("nci_preferred_name"),
+            "definition": result["definition"],
+            "library_name": result.get("library_name"),
+        }
+
+
+@dataclass(frozen=True)
+class CTCodelistTermVO(CTCodelistTermBaseVO):
+    submission_value: str
+
+    @classmethod
+    def from_result_dict(cls, result: dict[str, Any]) -> Self:
+        return cls(
+            **cls._common_kwargs_from_result_dict(result),
             submission_value=result["submission_value"],
-            order=result.get("order"),
-            ordinal=result.get("ordinal"),
-            start_date=convert_to_datetime(result["start_date"]),
-            end_date=convert_to_datetime(result.get("end_date")),
-            concept_id=result.get("concept_id"),
-            nci_preferred_name=result.get("nci_preferred_name"),
-            definition=result["definition"],
-            library_name=result.get("library_name"),
         )
 
-        return ct_codelist_term_vo
+
+_VOType = TypeVar("_VOType", bound=CTCodelistTermBaseVO)  # pylint: disable=invalid-name
 
 
 @dataclass
-class CTCodelistTermAR:
-    _ct_codelist_term_vo: CTCodelistTermVO
+class CTCodelistTermBaseAR(Generic[_VOType]):
+    _vo: _VOType
 
     @property
-    def ct_codelist_term_vo(self) -> CTCodelistTermVO:
-        return self._ct_codelist_term_vo
+    def vo(self) -> _VOType:
+        return self._vo
 
     @classmethod
-    def from_repository_values(
-        cls,
-        ct_codelist_term_vo: CTCodelistTermVO,
-    ) -> Self:
-        ct_codelist_term_ar = cls(
-            _ct_codelist_term_vo=ct_codelist_term_vo,
-        )
-        return ct_codelist_term_ar
+    def from_repository_values(cls, vo: _VOType) -> Self:
+        return cls(_vo=vo)
+
+
+@dataclass
+class CTCodelistTermAR(CTCodelistTermBaseAR[CTCodelistTermVO]):
+    @property
+    def ct_codelist_term_vo(self) -> CTCodelistTermVO:
+        return self._vo
 
     @classmethod
     def from_result_dict(cls, result: dict[str, Any]) -> Self:
         return cls.from_repository_values(CTCodelistTermVO.from_result_dict(result))
+
+
+@dataclass(frozen=True)
+class CTPairedCodelistTermVO(CTCodelistTermBaseVO):
+    """
+    Value object for a term in a paired codelist context,
+    containing submission values from both the names and codes codelists.
+    """
+
+    code_submission_value: str | None
+    name_submission_value: str | None
+
+    @classmethod
+    def from_result_dict(cls, result: dict[str, Any]) -> Self:
+        return cls(
+            **cls._common_kwargs_from_result_dict(result),
+            code_submission_value=result.get("code_submission_value"),
+            name_submission_value=result.get("name_submission_value"),
+        )
+
+
+@dataclass
+class CTPairedCodelistTermAR(CTCodelistTermBaseAR[CTPairedCodelistTermVO]):
+    @property
+    def ct_paired_codelist_term_vo(self) -> CTPairedCodelistTermVO:
+        return self._vo
+
+    @classmethod
+    def from_result_dict(cls, result: dict[str, Any]) -> Self:
+        return cls.from_repository_values(
+            CTPairedCodelistTermVO.from_result_dict(result)
+        )
 
 
 @dataclass(frozen=True)

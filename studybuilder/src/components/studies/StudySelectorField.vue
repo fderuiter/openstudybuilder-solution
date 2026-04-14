@@ -73,9 +73,31 @@ const sortedStudies = computed(() => {
 function getStudyDisplayName(study) {
   const id =
     study?.id ?? study?.current_metadata?.identification_metadata?.study_id
+
   const acronym =
     study?.acronym ??
     study?.current_metadata?.identification_metadata?.study_acronym
-  return id && acronym ? `${id} (${acronym})` : id || acronym || null
+
+  const subpartAcronym =
+    study?.subpart_acronym ??
+    study?.current_metadata?.identification_metadata?.subpart_acronym ??
+    ''
+
+  if (id && subpartAcronym) {
+    return `${id} (${subpartAcronym})`
+  }
+  if (id && acronym) {
+    return `${id} (${acronym})`
+  }
+  if (subpartAcronym) {
+    return subpartAcronym
+  }
+  if (acronym) {
+    return acronym
+  }
+  if (id) {
+    return id
+  }
+  return null
 }
 </script>

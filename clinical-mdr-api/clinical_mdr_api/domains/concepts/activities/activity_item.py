@@ -28,6 +28,7 @@ class ActivityItemVO:
     """
 
     is_adam_param_specific: bool
+    is_activity_instance_id_specific: bool | None
     activity_item_class_uid: str
     activity_item_class_name: str | None
     ct_codelist: CTCodelistItem | None
@@ -45,9 +46,11 @@ class ActivityItemVO:
         ct_terms: list[CTTermItem],
         unit_definitions: list[CompactUnitDefinition],
         text_value: str | None = None,
+        is_activity_instance_id_specific: bool | None = None,
     ) -> Self:
         activity_item_vo = cls(
             is_adam_param_specific=is_adam_param_specific,
+            is_activity_instance_id_specific=is_activity_instance_id_specific,
             activity_item_class_uid=activity_item_class_uid,
             activity_item_class_name=activity_item_class_name,
             ct_codelist=ct_codelist,

@@ -47,6 +47,13 @@
         @input="getColumnData(item.columnDataKey || item.key)"
         @update:model-value="filterTable"
       >
+        <template #menu-header>
+          <SelectMenuSearch
+            v-model="searchString"
+            :placeholder="$t('FilterAutocomplete.search')"
+          />
+        </template>
+
         <template #item="{ props }">
           <v-list-item
             class="fixed-width"
@@ -70,22 +77,7 @@
             </v-tooltip>
           </v-list-item>
         </template>
-        <template #prepend-item>
-          <v-row @keydown.stop>
-            <v-text-field
-              v-model="searchString"
-              class="pl-6 mt-3"
-              :placeholder="$t('FilterAutocomplete.search')"
-            />
-            <v-btn
-              variant="text"
-              size="small"
-              icon="mdi-close"
-              class="mr-3 mt-3"
-              @click="searchString = ''"
-            />
-          </v-row>
-        </template>
+
         <template #selection="{ index }">
           <div v-if="index === 0">
             <span class="items-font-size">{{
@@ -96,7 +88,7 @@
                 : data[0]
             }}</span>
           </div>
-          <span v-if="index === 1" class="text-grey text-caption mr-1">
+          <span v-if="index === 1" class="text-grey text-body-small mr-1">
             (+{{ data.length - 1 }})
           </span>
         </template>
@@ -109,6 +101,7 @@
 import { ref, watch } from 'vue'
 import _isEmpty from 'lodash/isEmpty'
 import columnData from '@/api/columnData'
+import SelectMenuSearch from '@/components/tools/SelectMenuSearch.vue'
 import { useDate } from 'vuetify'
 
 const props = defineProps({

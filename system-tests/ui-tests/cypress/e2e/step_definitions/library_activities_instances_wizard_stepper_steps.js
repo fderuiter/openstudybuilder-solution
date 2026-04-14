@@ -23,7 +23,7 @@ When('User waits for activity instance creation request with strict_mode verific
     cy.wait('@createInstanceWithStrictMode')
 })
 
-When('User intecepts activity groupings request', () => cy.intercept('/api/concepts/activities/activity-instances/*/activity-groupings').as('activityGroupings'))
+When('User intecepts activity groupings request', () => cy.intercept('/api/concepts/activities/activity-instances/*/groupings?version=0.1').as('activityGroupings'))
 
 When('User intecepts activity items request', () => cy.intercept('/api/concepts/activities/activity-instances/*/activity-items?*').as('activityItemClasses'))
 
@@ -49,9 +49,17 @@ Given("The Activity Instance Wizard Stepper {string} page is displayed", (steppe
     cy.contains('.v-stepper-item', stepperPage).should('have.class', 'v-stepper-item--selected')
 })
 
+Given("The Activity Instance Attributes edition page is displayed", () => {
+    cy.contains('.dialog-title', 'Edit activity instance attributes').should('be.visible')
+})
+
+Given("The Activity Instance Groupings edition page is displayed", () => {
+    cy.contains('.dialog-title', 'Edit activity instance groupings').should('be.visible')
+})
+
 Given("Add activity item class button is clicked", () => cy.get('.v-window-item button').filter(':visible').contains('Add Activity Item Class').eq(0).click())
 
-When("First activity is selected from the activity list", () => cy.get('.v-overlay-container table tbody tr [type="radio"]').eq(0).check())
+When("First activity is selected from the activity list", () => cy.get('.v-overlay-container table tbody tr [type="checkbox"]').eq(0).check())
 
 When("The {string} is selected from the Activity instance class field", name => requiredTabSelection('Activity instance', name))
 

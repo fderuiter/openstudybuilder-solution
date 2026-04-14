@@ -142,28 +142,19 @@ Feature: Library - Concepts - Activities - Activities - Extended Scope
         Then The form is no longer available
         And Activity is searched for and not found
 
-    Scenario: [Actions][Availability][Draft item] User must only have access to aprove, edit, delete, history actions for Drafted version of the activity
+    Scenario: [Actions][Availability] User must only have access correct actions depending on item state
         And [API] Activity in status Draft exists
         Given The '/library/activities/activities' page is opened
-        And User sets status filter to 'draft'
+        And User sets status filter to 'all'
         And Activity is searched for and found
         And The item actions button is clicked
         Then Only actions that should be avaiable for the Draft item are displayed
-
-    Scenario: [Actions][Availability][Final item] User must only have access to new version, inactivate, history actions for Final version of the activity
-        When [API] Activity in status Draft exists
         And [API] Activity is approved
-        Given The '/library/activities/activities' page is opened
         And Activity is searched for and found
         And The item actions button is clicked
         Then Only actions that should be avaiable for the Final item are displayed
-
-    Scenario: [Actions][Availability][Retired item] User must only have access to reactivate, history actions for Retired version of the activity
-        When [API] Activity in status Draft exists
-        And [API] Activity is approved
         And [API] Activity is inactivated
-        Given The '/library/activities/activities' page is opened
-        And User sets status filter to 'retired'
         And Activity is searched for and found
         And The item actions button is clicked
         Then Only actions that should be avaiable for the Retired item are displayed
+

@@ -1065,7 +1065,7 @@ class TestStudyDefinitionRepository(unittest.TestCase):
         assert study_id is None
 
     def test__get_study_id__with_subpart__returns_study_id_with_subpart(self):
-        """Test that get_study_id returns study_id including subpart_id when present"""
+        """Test that get_study_id returns study_id including study_subpart_acronym when present"""
         # given
         with db.transaction:
             repo = StudyDefinitionRepositoryImpl(current_function_name())
@@ -1080,21 +1080,21 @@ class TestStudyDefinitionRepository(unittest.TestCase):
             repo.save(created_study)
             repo.close()
 
-        # Manually add subpart_id to the study
-        subpart_id = "SP1"
+        # Manually add study_subpart_acronym to the study
+        study_subpart_acronym = "SUB1"
         db.cypher_query(
             """
             MATCH (sr:StudyRoot {uid: $uid})-[:LATEST]->(sv:StudyValue)
-            SET sv.subpart_id = $subpart_id
+            SET sv.study_subpart_acronym = $study_subpart_acronym
             """,
-            {"uid": created_study.uid, "subpart_id": subpart_id},
+            {"uid": created_study.uid, "study_subpart_acronym": study_subpart_acronym},
         )
 
         # when
         study_id = StudyDefinitionRepositoryImpl.get_study_id(created_study.uid)
 
         # then
-        expected_id = f"{created_study.current_metadata.id_metadata.study_id_prefix}-{created_study.current_metadata.id_metadata.study_number}"
+        expected_id = f"{created_study.current_metadata.id_metadata.study_id_prefix}-{created_study.current_metadata.id_metadata.study_number}-{study_subpart_acronym}"
         assert study_id == expected_id
 
     def test__get_study_id__after_release__returns_study_id(self):
@@ -1138,6 +1138,7 @@ class TestStudyDefinitionRepository(unittest.TestCase):
                 "soa_show_epochs": True,
                 "soa_show_milestones": False,
                 "baseline_as_time_zero": False,
+                "soa_show_all_visits_lab_table": False,
             },
         ),
         (  # 1
@@ -1146,6 +1147,7 @@ class TestStudyDefinitionRepository(unittest.TestCase):
                 "soa_show_epochs": True,
                 "soa_show_milestones": True,
                 "baseline_as_time_zero": False,
+                "soa_show_all_visits_lab_table": False,
             },
         ),
         (  # 2
@@ -1156,6 +1158,7 @@ class TestStudyDefinitionRepository(unittest.TestCase):
                 "soa_show_epochs": False,
                 "soa_show_milestones": True,
                 "baseline_as_time_zero": True,
+                "soa_show_all_visits_lab_table": False,
             },
         ),
         (  # 3
@@ -1164,6 +1167,7 @@ class TestStudyDefinitionRepository(unittest.TestCase):
                 "soa_show_epochs": True,
                 "soa_show_milestones": False,
                 "baseline_as_time_zero": True,
+                "soa_show_all_visits_lab_table": False,
             },
         ),
         (  # 4
@@ -1174,6 +1178,7 @@ class TestStudyDefinitionRepository(unittest.TestCase):
                 "soa_show_epochs": False,
                 "soa_show_milestones": False,
                 "baseline_as_time_zero": False,
+                "soa_show_all_visits_lab_table": False,
             },
         ),
         (  # 5
@@ -1182,6 +1187,7 @@ class TestStudyDefinitionRepository(unittest.TestCase):
                 "soa_show_epochs": True,
                 "soa_show_milestones": True,
                 "baseline_as_time_zero": False,
+                "soa_show_all_visits_lab_table": False,
             },
         ),
         (  # 6
@@ -1190,6 +1196,7 @@ class TestStudyDefinitionRepository(unittest.TestCase):
                 "soa_show_epochs": True,
                 "soa_show_milestones": False,
                 "baseline_as_time_zero": False,
+                "soa_show_all_visits_lab_table": False,
             },
         ),
         (  # 7
@@ -1200,6 +1207,7 @@ class TestStudyDefinitionRepository(unittest.TestCase):
                 "soa_show_epochs": True,
                 "soa_show_milestones": False,
                 "baseline_as_time_zero": True,
+                "soa_show_all_visits_lab_table": False,
             },
         ),
         (  # 8
@@ -1208,6 +1216,7 @@ class TestStudyDefinitionRepository(unittest.TestCase):
                 "soa_show_epochs": True,
                 "soa_show_milestones": False,
                 "baseline_as_time_zero": True,
+                "soa_show_all_visits_lab_table": False,
             },
         ),
     ),
@@ -1222,9 +1231,9 @@ def test_post_soa_preferences(
 
     study = TestUtils.create_study(project_number=tst_project.project_number)
 
-    # should have two StudySoaPreferencesInput created at Study creation
+    # should have four StudySoaPreferencesInput created at Study creation
     nodes = repo.get_soa_preferences(study.uid)
-    assert len(nodes) == 3
+    assert len(nodes) == 4
 
     unlink_study_soa_properties(study.uid, repo)
 
@@ -1245,7 +1254,7 @@ def test_post_soa_preferences(
         "expected_num_actions",
     ),
     (
-        (None, StudySoaPreferencesInput(), {}, 3),  # 0
+        (None, StudySoaPreferencesInput(), {}, 4),  # 0
         (  # 1
             StudySoaPreferencesInput(show_epochs=False, show_milestones=True),
             StudySoaPreferencesInput(),
@@ -1253,8 +1262,9 @@ def test_post_soa_preferences(
                 "soa_show_epochs": False,
                 "soa_show_milestones": True,
                 "baseline_as_time_zero": False,
+                "soa_show_all_visits_lab_table": False,
             },
-            6,
+            8,
         ),
         (  # 2
             StudySoaPreferencesInput(
@@ -1265,8 +1275,9 @@ def test_post_soa_preferences(
                 "soa_show_epochs": False,
                 "soa_show_milestones": False,
                 "baseline_as_time_zero": False,
+                "soa_show_all_visits_lab_table": False,
             },
-            6,
+            8,
         ),
         (  # 3
             StudySoaPreferencesInput(
@@ -1277,8 +1288,9 @@ def test_post_soa_preferences(
                 "soa_show_epochs": True,
                 "soa_show_milestones": False,
                 "baseline_as_time_zero": True,
+                "soa_show_all_visits_lab_table": False,
             },
-            6,
+            8,
         ),
         (  # 4
             StudySoaPreferencesInput(
@@ -1289,8 +1301,9 @@ def test_post_soa_preferences(
                 "soa_show_epochs": True,
                 "soa_show_milestones": True,
                 "baseline_as_time_zero": True,
+                "soa_show_all_visits_lab_table": False,
             },
-            6,
+            8,
         ),
         (  # 5
             StudySoaPreferencesInput(),
@@ -1299,8 +1312,9 @@ def test_post_soa_preferences(
                 "soa_show_epochs": True,
                 "soa_show_milestones": False,
                 "baseline_as_time_zero": False,
+                "soa_show_all_visits_lab_table": False,
             },
-            6,
+            8,
         ),
         (  # 6
             StudySoaPreferencesInput(show_milestones=False),
@@ -1309,8 +1323,9 @@ def test_post_soa_preferences(
                 "soa_show_epochs": True,
                 "soa_show_milestones": False,
                 "baseline_as_time_zero": False,
+                "soa_show_all_visits_lab_table": False,
             },
-            6,
+            8,
         ),
         (  # 7
             StudySoaPreferencesInput(show_milestones=True, show_epochs=False),
@@ -1319,8 +1334,9 @@ def test_post_soa_preferences(
                 "soa_show_epochs": False,
                 "soa_show_milestones": True,
                 "baseline_as_time_zero": False,
+                "soa_show_all_visits_lab_table": False,
             },
-            6,
+            8,
         ),
         (  # 8
             StudySoaPreferencesInput(show_epochs=True),
@@ -1329,8 +1345,9 @@ def test_post_soa_preferences(
                 "soa_show_epochs": False,
                 "soa_show_milestones": False,
                 "baseline_as_time_zero": False,
+                "soa_show_all_visits_lab_table": False,
             },
-            7,
+            9,
         ),
         (  # 9
             StudySoaPreferencesInput(show_epochs=True),
@@ -1339,8 +1356,9 @@ def test_post_soa_preferences(
                 "soa_show_epochs": False,
                 "soa_show_milestones": False,
                 "baseline_as_time_zero": False,
+                "soa_show_all_visits_lab_table": False,
             },
-            7,
+            9,
         ),
         (  # 10
             StudySoaPreferencesInput(show_milestones=True, show_epochs=False),
@@ -1349,8 +1367,9 @@ def test_post_soa_preferences(
                 "soa_show_epochs": True,
                 "soa_show_milestones": False,
                 "baseline_as_time_zero": False,
+                "soa_show_all_visits_lab_table": False,
             },
-            8,
+            10,
         ),
         (  # 11
             StudySoaPreferencesInput(
@@ -1361,8 +1380,9 @@ def test_post_soa_preferences(
                 "soa_show_epochs": False,
                 "soa_show_milestones": True,
                 "baseline_as_time_zero": True,
+                "soa_show_all_visits_lab_table": False,
             },
-            6,
+            8,
         ),
         (  # 12
             StudySoaPreferencesInput(show_epochs=True, baseline_as_time_zero=False),
@@ -1371,8 +1391,9 @@ def test_post_soa_preferences(
                 "soa_show_epochs": False,
                 "soa_show_milestones": False,
                 "baseline_as_time_zero": False,
+                "soa_show_all_visits_lab_table": False,
             },
-            7,
+            9,
         ),
         (  # 13
             StudySoaPreferencesInput(show_epochs=True, baseline_as_time_zero=True),
@@ -1381,8 +1402,9 @@ def test_post_soa_preferences(
                 "soa_show_epochs": False,
                 "soa_show_milestones": False,
                 "baseline_as_time_zero": False,
+                "soa_show_all_visits_lab_table": False,
             },
-            8,
+            10,
         ),
         (  # 14
             StudySoaPreferencesInput(show_milestones=True, show_epochs=False),
@@ -1393,8 +1415,9 @@ def test_post_soa_preferences(
                 "soa_show_epochs": True,
                 "soa_show_milestones": False,
                 "baseline_as_time_zero": True,
+                "soa_show_all_visits_lab_table": False,
             },
-            9,
+            11,
         ),
     ),
 )

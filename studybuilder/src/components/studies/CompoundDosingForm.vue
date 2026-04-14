@@ -122,10 +122,10 @@
               clearable
               class="required"
             >
-              <template #item="{ item, props }">
+              <template #item="{ internalItem: item, props }">
                 <v-list-item v-bind="props">
                   <v-list-item-subtitle>{{
-                    item.raw.medicinal_product?.name ||
+                    item.medicinal_product?.name ||
                     $t('StudyCompoundDosingForm.no_product_name')
                   }}</v-list-item-subtitle>
                 </v-list-item>

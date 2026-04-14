@@ -1,6 +1,6 @@
 <template>
   <div class="mt-6 text-center">
-    <h1>{{ message }}</h1>
+    <h2 class="text-headline-large">{{ message }}</h2>
     <v-btn class="mt-4" color="primary" variant="text" @click="navigateToRoot">
       {{ $t('UnderConstruction.back_home') }}
     </v-btn>

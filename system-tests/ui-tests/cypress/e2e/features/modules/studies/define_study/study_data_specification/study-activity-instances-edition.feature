@@ -47,6 +47,9 @@ Feature: Studies - Define Study - Study Data Specifications - Study Activity Ins
         And [API] Activity with data collection set to 1 and 'DefaultForActivity' included in the name is created and approved
         And [API] The activity instance with isDefaultForActivity set to true is created and approved
         And [API] Activity is added to the study
+        When The '/administration/featureflags' page is opened
+        Then Study data supplier feature flag is turned on
+        And Userdefined study data supplier feature flag is turned on
         When User intercepts data supplier request
         And The test study '/data-suppliers' page is opened
         And The 'Overview' tab is selected

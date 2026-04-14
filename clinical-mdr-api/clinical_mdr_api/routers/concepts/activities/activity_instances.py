@@ -7,11 +7,13 @@ from starlette.requests import Request
 
 from clinical_mdr_api.models.concepts.activities.activity_instance import (
     ActivityInstance,
+    ActivityInstanceAttributes,
+    ActivityInstanceAttributesEditInput,
     ActivityInstanceCreateInput,
-    ActivityInstanceEditInput,
+    ActivityInstanceGroupings,
+    ActivityInstanceGroupingsEditInput,
     ActivityInstanceOverview,
     ActivityInstancePreviewInput,
-    SimpleActivityInstanceGrouping,
     SimplifiedActivityItem,
 )
 from clinical_mdr_api.models.utils import CustomPage
@@ -19,6 +21,8 @@ from clinical_mdr_api.repositories._utils import FilterOperator
 from clinical_mdr_api.routers import _generic_descriptions, decorators
 from clinical_mdr_api.routers.responses import YAMLResponse
 from clinical_mdr_api.services.concepts.activities.activity_instance_service import (
+    ActivityInstanceAttributesService,
+    ActivityInstanceGroupingsService,
     ActivityInstanceService,
 )
 from common.auth import rbac
@@ -127,6 +131,12 @@ def get_activities(
             alias="activity_instance_class_names[]",
         ),
     ] = None,
+    status: Annotated[
+        str | None,
+        Query(
+            description="Filter by status, matching either activity instance status or groupings status",
+        ),
+    ] = None,
     sort_by: _generic_descriptions.SORT_BY_QUERY = None,
     page_number: _generic_descriptions.PAGE_NUMBER_QUERY = settings.default_page_number,
     page_size: _generic_descriptions.PAGE_SIZE_QUERY = settings.default_page_size,
@@ -142,6 +152,7 @@ def get_activities(
         activity_group_names=activity_group_names,
         activity_instance_class_names=activity_instance_class_names,
         activity_instance_names=names,
+        status=status,
         sort_by=sort_by,
         page_number=page_number,
         page_size=page_size,
@@ -155,7 +166,7 @@ def get_activities(
 
 
 @router.get(
-    "/versions",
+    "/attributes/versions",
     dependencies=[security, rbac.LIBRARY_READ],
     summary="List all versions of all activity instances (for a given library)",
     description=f"""
@@ -235,8 +246,8 @@ def get_activity_instances_versions(
     filters: _generic_descriptions.FILTERS_QUERY = None,
     operator: _generic_descriptions.FILTER_OPERATOR_QUERY = settings.default_filter_operator,
     total_count: _generic_descriptions.TOTAL_COUNT_QUERY = False,
-) -> CustomPage[ActivityInstance]:
-    activity_instance_service = ActivityInstanceService()
+) -> CustomPage[ActivityInstanceAttributes]:
+    activity_instance_service = ActivityInstanceAttributesService()
     results = activity_instance_service.get_all_concept_versions(
         library=library_name,
         activity_names=activity_names,
@@ -398,57 +409,72 @@ def get_activity_instance_overview(
 
 
 @router.get(
-    "/{activity_instance_uid}/activity-groupings",
+    "/{activity_instance_uid}/attributes",
     dependencies=[security, rbac.LIBRARY_READ],
-    summary="Get activity groupings for a specific activity instance",
-    status_code=200,
+    summary="Get details on a specific activity instance attributes (in a specific version)",
     description="""
-Returns activity groupings (hierarchy) for an activity instance, including:
- - Activity information with version and library details
- - Activity groups with name and definition
- - Activity subgroups with name and definition
-
 State before:
- - an activity instance with uid must exist.
+ - a activity instance with uid must exist.
+
+Business logic:
+ - If parameter at_specified_date_time is specified then the latest/newest representation of the concept at this point in time is returned. The point in time needs to be specified in ISO 8601 format including the timezone, e.g.: '2020-10-31T16:00:00+02:00' for October 31, 2020 at 4pm in UTC+2 timezone. If the timezone is ommitted, UTC�0 is assumed.
+ - If parameter status is specified then the representation of the concept in that status is returned (if existent). This is useful if the concept has a status 'Draft' and a status 'Final'.
+ - If parameter version is specified then the latest/newest representation of the concept in that version is returned. Only exact matches are considered. The version is specified in the following format: <major>.<minor> where <major> and <minor> are digits. E.g. '0.1', '0.2', '1.0', ...
 
 State after:
  - No change
 
 Possible errors:
- - Invalid uid.
-
-{_generic_descriptions.DATA_EXPORTS_HEADER}
+ - Invalid uid, at_specified_date_time, status or version.
  """,
+    status_code=200,
     responses={
         403: _generic_descriptions.ERROR_403,
-        200: {"model": list[SimpleActivityInstanceGrouping]},
+        404: _generic_descriptions.ERROR_404,
+    },
+)
+def get_activity_instance_attributes(
+    activity_instance_uid: Annotated[str, ActivityInstanceUID],
+) -> ActivityInstanceAttributes:
+    activity_instance_service = ActivityInstanceAttributesService()
+    return activity_instance_service.get_by_uid(uid=activity_instance_uid)
+
+
+@router.get(
+    "/{activity_instance_uid}/groupings",
+    dependencies=[security, rbac.LIBRARY_READ],
+    summary="Get details on a specific activity instance groupings (in a specific version)",
+    description="""
+State before:
+ - a activity instance with uid must exist.
+
+Business logic:
+ - If parameter at_specified_date_time is specified then the latest/newest representation of the concept at this point in time is returned. The point in time needs to be specified in ISO 8601 format including the timezone, e.g.: '2020-10-31T16:00:00+02:00' for October 31, 2020 at 4pm in UTC+2 timezone. If the timezone is ommitted, UTC�0 is assumed.
+ - If parameter status is specified then the representation of the concept in that status is returned (if existent). This is useful if the concept has a status 'Draft' and a status 'Final'.
+ - If parameter version is specified then the latest/newest representation of the concept in that version is returned. Only exact matches are considered. The version is specified in the following format: <major>.<minor> where <major> and <minor> are digits. E.g. '0.1', '0.2', '1.0', ...
+
+State after:
+ - No change
+
+Possible errors:
+ - Invalid uid, at_specified_date_time, status or version.
+ """,
+    status_code=200,
+    responses={
+        403: _generic_descriptions.ERROR_403,
         404: _generic_descriptions.ERROR_404,
     },
 )
 @decorators.allow_exports(
     {
         "defaults": [
-            "activity_group_uid=activity_group.uid",
-            "activity_group_name=activity_group.name",
-            "activity_group_definition=activity_group.definition",
-            "activity_group_version=activity_group.version",
-            "activity_group_status=activity_group.status",
-            "activity_subgroup_uid=activity_subgroup.uid",
-            "activity_subgroup_name=activity_subgroup.name",
-            "activity_subgroup_definition=activity_subgroup.definition",
-            "activity_subgroup_version=activity_subgroup.version",
-            "activity_subgroup_status=activity_subgroup.status",
-            "activity_uid=activity.uid",
-            "activity_name=activity.name",
-            "activity_definition=activity.definition",
-            "activity_nci_concept_id=activity.nci_concept_id",
-            "activity_nci_concept_name=activity.nci_concept_name",
-            "activity_is_data_collected=activity.is_data_collected",
-            "activity_library_name=activity.library_name",
-            "activity_version=activity.version",
-            "activity_status=activity.status",
+            "status=activity_instance.status",
+            "version=activity_instance.version",
+            "activity_groupings_count=activity_groupings",
+            "all_versions",
         ],
         "formats": [
+            "application/x-yaml",
             "text/csv",
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             "text/xml",
@@ -461,10 +487,10 @@ def get_activity_instance_groupings(
     request: Request,  # request is actually required by the allow_exports decorator
     activity_instance_uid: Annotated[str, ActivityInstanceUID],
     version: Annotated[str | None, Query()] = None,
-):
-    activity_instance_service = ActivityInstanceService()
-    return activity_instance_service.get_activity_instance_groupings(
-        activity_instance_uid=activity_instance_uid, version=version
+) -> ActivityInstanceGroupings:
+    activity_instance_service = ActivityInstanceGroupingsService()
+    return activity_instance_service.get_by_uid(
+        uid=activity_instance_uid, version=version
     )
 
 
@@ -576,9 +602,9 @@ def get_cosmos_activity_instance_overview(
 
 
 @router.get(
-    "/{activity_instance_uid}/versions",
+    "/{activity_instance_uid}/attributes/versions",
     dependencies=[security, rbac.LIBRARY_READ],
-    summary="List version history for activity instance",
+    summary="List version history for activity instance attributes",
     description="""
 State before:
  - uid must exist.
@@ -604,8 +630,8 @@ Possible errors:
 )
 def get_versions(
     activity_instance_uid: Annotated[str, ActivityInstanceUID],
-) -> list[ActivityInstance]:
-    activity_instance_service = ActivityInstanceService()
+) -> list[ActivityInstanceAttributes]:
+    activity_instance_service = ActivityInstanceAttributesService()
     return activity_instance_service.get_version_history(uid=activity_instance_uid)
 
 
@@ -709,12 +735,12 @@ def preview(
 
 
 @router.patch(
-    "/{activity_instance_uid}",
+    "/{activity_instance_uid}/attributes",
     dependencies=[security, rbac.LIBRARY_WRITE],
-    summary="Update activity instance",
+    summary="Update activity instance attributes",
     description="""
 State before:
- - uid must exist and activity instance must exist in status draft.
+ - uid must exist and activity instance attributes must exist in status draft.
  - The activity instance must belongs to a library that allows deleting (the 'is_editable' property of the library needs to be true).
 
 Business logic:
@@ -748,9 +774,11 @@ Possible errors:
 )
 def edit(
     activity_instance_uid: Annotated[str, ActivityInstanceUID],
-    activity_instance_edit_input: Annotated[ActivityInstanceEditInput, Body()],
-) -> ActivityInstance:
-    activity_instance_service = ActivityInstanceService()
+    activity_instance_edit_input: Annotated[
+        ActivityInstanceAttributesEditInput, Body()
+    ],
+) -> ActivityInstanceAttributes:
+    activity_instance_service = ActivityInstanceAttributesService()
     return activity_instance_service.edit_draft(
         uid=activity_instance_uid,
         concept_edit_input=activity_instance_edit_input,
@@ -759,9 +787,9 @@ def edit(
 
 
 @router.post(
-    "/{activity_instance_uid}/versions",
+    "/{activity_instance_uid}/attributes/versions",
     dependencies=[security, rbac.LIBRARY_WRITE],
-    summary=" Create a new version of an activity instance",
+    summary=" Create a new version of an activity instance attributes",
     description="""
 State before:
  - uid must exist and the activity instance must be in status Final.
@@ -795,15 +823,15 @@ Possible errors:
 )
 def create_new_version(
     activity_instance_uid: Annotated[str, ActivityInstanceUID],
-) -> ActivityInstance:
-    activity_instance_service = ActivityInstanceService()
+) -> ActivityInstanceAttributes:
+    activity_instance_service = ActivityInstanceAttributesService()
     return activity_instance_service.create_new_version(uid=activity_instance_uid)
 
 
 @router.post(
-    "/{activity_instance_uid}/approvals",
+    "/{activity_instance_uid}/attributes/approvals",
     dependencies=[security, rbac.LIBRARY_WRITE],
-    summary="Approve draft version of an activity instance",
+    summary="Approve draft version of an activity instance attributes",
     description="""
 State before:
  - uid must exist and activity instance must be in status Draft.
@@ -839,15 +867,15 @@ Possible errors:
 )
 def approve(
     activity_instance_uid: Annotated[str, ActivityInstanceUID],
-) -> ActivityInstance:
-    activity_instance_service = ActivityInstanceService()
+) -> ActivityInstanceAttributes:
+    activity_instance_service = ActivityInstanceAttributesService()
     return activity_instance_service.approve(uid=activity_instance_uid)
 
 
 @router.delete(
-    "/{activity_instance_uid}/activations",
+    "/{activity_instance_uid}/attributes/activations",
     dependencies=[security, rbac.LIBRARY_WRITE],
-    summary=" Inactivate final version of an activity instance",
+    summary=" Inactivate final version of an activity instance attributes",
     description="""
 State before:
  - uid must exist and activity instance must be in status Final.
@@ -882,15 +910,15 @@ Possible errors:
 )
 def inactivate(
     activity_instance_uid: Annotated[str, ActivityInstanceUID],
-) -> ActivityInstance:
-    activity_instance_service = ActivityInstanceService()
+) -> ActivityInstanceAttributes:
+    activity_instance_service = ActivityInstanceAttributesService()
     return activity_instance_service.inactivate_final(uid=activity_instance_uid)
 
 
 @router.post(
-    "/{activity_instance_uid}/activations",
+    "/{activity_instance_uid}/attributes/activations",
     dependencies=[security, rbac.LIBRARY_WRITE],
-    summary="Reactivate retired version of an activity instance",
+    summary="Reactivate retired version of an activity instance attributes",
     description="""
 State before:
  - uid must exist and activity instance must be in status Retired.
@@ -925,8 +953,264 @@ Possible errors:
 )
 def reactivate(
     activity_instance_uid: Annotated[str, ActivityInstanceUID],
-) -> ActivityInstance:
-    activity_instance_service = ActivityInstanceService()
+) -> ActivityInstanceAttributes:
+    activity_instance_service = ActivityInstanceAttributesService()
+    return activity_instance_service.reactivate_retired(uid=activity_instance_uid)
+
+
+@router.patch(
+    "/{activity_instance_uid}/groupings",
+    dependencies=[security, rbac.LIBRARY_WRITE],
+    summary="Update activity instance groupings",
+    description="""
+State before:
+ - uid must exist and activity instance groupings must exist in status draft.
+ - The activity instance must belongs to a library that allows deleting (the 'is_editable' property of the library needs to be true).
+
+Business logic:
+ - If activity instance exist in status draft then groupings are updated.
+- If the linked activity instance is updated, the relationships are updated to point to the activity instance value node.
+
+State after:
+ - groupings are updated for the activity instance.
+ - Audit trail entry must be made with update of groupings.
+
+Possible errors:
+ - Invalid uid.
+
+""",
+    status_code=200,
+    responses={
+        403: _generic_descriptions.ERROR_403,
+        200: {"description": "OK."},
+        400: {
+            "model": ErrorResponse,
+            "description": "Forbidden - Reasons include e.g.: \n"
+            "- The activity instance is not in draft status.\n"
+            "- The activity instance had been in 'Final' status before.\n"
+            "- The library doesn't allow to edit draft versions.\n",
+        },
+        404: {
+            "model": ErrorResponse,
+            "description": "Not Found - The activity instance with the specified 'activity_instance_uid' wasn't found.",
+        },
+    },
+)
+def edit_groupings(
+    activity_instance_uid: Annotated[str, ActivityInstanceUID],
+    activity_instance_edit_input: Annotated[ActivityInstanceGroupingsEditInput, Body()],
+) -> ActivityInstanceGroupings:
+    activity_instance_service = ActivityInstanceGroupingsService()
+    return activity_instance_service.edit_draft(
+        uid=activity_instance_uid,
+        concept_edit_input=activity_instance_edit_input,
+        patch_mode=True,
+    )
+
+
+@router.get(
+    "/{activity_instance_uid}/groupings/versions",
+    dependencies=[security, rbac.LIBRARY_READ],
+    summary="List version history for activity instance groupings",
+    description="""
+State before:
+ - uid must exist.
+
+Business logic:
+ - List version history for activity instance groupings.
+ - The returned versions are ordered by start_date descending (newest entries first).
+
+State after:
+ - No change
+
+Possible errors:
+ - Invalid uid.
+    """,
+    status_code=200,
+    responses={
+        403: _generic_descriptions.ERROR_403,
+        404: {
+            "model": ErrorResponse,
+            "description": "Not Found - The activity isntance with the specified 'activity_instance_uid' wasn't found.",
+        },
+    },
+)
+def get_groupings_versions(
+    activity_instance_uid: Annotated[str, ActivityInstanceUID],
+) -> list[ActivityInstanceGroupings]:
+    activity_instance_service = ActivityInstanceGroupingsService()
+    return activity_instance_service.get_version_history(uid=activity_instance_uid)
+
+
+@router.post(
+    "/{activity_instance_uid}/groupings/versions",
+    dependencies=[security, rbac.LIBRARY_WRITE],
+    summary=" Create a new version of an activity instance groupings",
+    description="""
+State before:
+ - uid must exist and the activity instance must be in status Final.
+ 
+Business logic:
+- The activity instance is changed to a draft state.
+
+State after:
+ - Activity instance changed status to Draft and assigned a new minor version number.
+ - Audit trail entry must be made with action of creating a new draft version.
+ 
+Possible errors:
+ - Invalid uid or status not Final.
+""",
+    status_code=201,
+    responses={
+        403: _generic_descriptions.ERROR_403,
+        201: {"description": "OK."},
+        400: {
+            "model": ErrorResponse,
+            "description": "Forbidden - Reasons include e.g.: \n"
+            "- The library doesn't allow to create activity instances.\n",
+        },
+        404: {
+            "model": ErrorResponse,
+            "description": "Not Found - Reasons include e.g.: \n"
+            "- The activity instance is not in final status.\n"
+            "- The activity instance with the specified 'activity_instance_uid' could not be found.",
+        },
+    },
+)
+def create_new_groupings_version(
+    activity_instance_uid: Annotated[str, ActivityInstanceUID],
+) -> ActivityInstanceGroupings:
+    activity_instance_service = ActivityInstanceGroupingsService()
+    return activity_instance_service.create_new_version(uid=activity_instance_uid)
+
+
+@router.post(
+    "/{activity_instance_uid}/groupings/approvals",
+    dependencies=[security, rbac.LIBRARY_WRITE],
+    summary="Approve draft version of an activity instance groupings",
+    description="""
+State before:
+ - uid must exist and activity instance must be in status Draft.
+ 
+Business logic:
+ - The latest 'Draft' version will remain the same as before.
+ - The status of the new approved version will be automatically set to 'Final'.
+ - The 'version' property of the new version will be automatically set to the version of the latest 'Final' version increased by +1.0.
+ - The 'change_description' property will be set automatically 'Approved version'.
+ 
+State after:
+ - Activity instance changed status to Final and assigned a new major version number.
+ - Audit trail entry must be made with action of approving to new Final version.
+ 
+Possible errors:
+ - Invalid uid or status not Draft.
+    """,
+    status_code=201,
+    responses={
+        403: _generic_descriptions.ERROR_403,
+        201: {"description": "OK."},
+        400: {
+            "model": ErrorResponse,
+            "description": "Forbidden - Reasons include e.g.: \n"
+            "- The activity instance is not in draft status.\n"
+            "- The library doesn't allow to approve activity instance.\n",
+        },
+        404: {
+            "model": ErrorResponse,
+            "description": "Not Found - The activity instance with the specified 'activity_instance_uid' wasn't found.",
+        },
+    },
+)
+def approve_groupings(
+    activity_instance_uid: Annotated[str, ActivityInstanceUID],
+) -> ActivityInstanceGroupings:
+    activity_instance_service = ActivityInstanceGroupingsService()
+    return activity_instance_service.approve(uid=activity_instance_uid)
+
+
+@router.delete(
+    "/{activity_instance_uid}/groupings/activations",
+    dependencies=[security, rbac.LIBRARY_WRITE],
+    summary=" Inactivate final version of an activity instance groupings",
+    description="""
+State before:
+ - uid must exist and activity instance must be in status Final.
+ 
+Business logic:
+ - The latest 'Final' version will remain the same as before.
+ - The status will be automatically set to 'Retired'.
+ - The 'change_description' property will be set automatically.
+ - The 'version' property will remain the same as before.
+ 
+State after:
+ - Activity instance changed status to Retired.
+ - Audit trail entry must be made with action of inactivating to retired version.
+ 
+Possible errors:
+ - Invalid uid or status not Final.
+    """,
+    status_code=200,
+    responses={
+        403: _generic_descriptions.ERROR_403,
+        200: {"description": "OK."},
+        400: {
+            "model": ErrorResponse,
+            "description": "Forbidden - Reasons include e.g.: \n"
+            "- The activity instance is not in final status.",
+        },
+        404: {
+            "model": ErrorResponse,
+            "description": "Not Found - The activity instance with the specified 'activity_instance_uid' could not be found.",
+        },
+    },
+)
+def inactivate_groupings(
+    activity_instance_uid: Annotated[str, ActivityInstanceUID],
+) -> ActivityInstanceGroupings:
+    activity_instance_service = ActivityInstanceGroupingsService()
+    return activity_instance_service.inactivate_final(uid=activity_instance_uid)
+
+
+@router.post(
+    "/{activity_instance_uid}/groupings/activations",
+    dependencies=[security, rbac.LIBRARY_WRITE],
+    summary="Reactivate retired version of an activity instance groupings",
+    description="""
+State before:
+ - uid must exist and activity instance must be in status Retired.
+ 
+Business logic:
+ - The latest 'Retired' version will remain the same as before.
+ - The status will be automatically set to 'Final'.
+ - The 'change_description' property will be set automatically.
+ - The 'version' property will remain the same as before.
+
+State after:
+ - Activity instance changed status to Final.
+ - An audit trail entry must be made with action of reactivating to final version.
+ 
+Possible errors:
+ - Invalid uid or status not Retired.
+    """,
+    status_code=200,
+    responses={
+        403: _generic_descriptions.ERROR_403,
+        200: {"description": "OK."},
+        400: {
+            "model": ErrorResponse,
+            "description": "Forbidden - Reasons include e.g.: \n"
+            "- The activity instance is not in retired status.",
+        },
+        404: {
+            "model": ErrorResponse,
+            "description": "Not Found - The activity instance with the specified 'activity_instance_uid' could not be found.",
+        },
+    },
+)
+def reactivate_groupings(
+    activity_instance_uid: Annotated[str, ActivityInstanceUID],
+) -> ActivityInstanceGroupings:
+    activity_instance_service = ActivityInstanceGroupingsService()
     return activity_instance_service.reactivate_retired(uid=activity_instance_uid)
 
 

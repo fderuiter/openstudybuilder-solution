@@ -265,7 +265,7 @@ class StudyActivityInstanceSelectionService(
             activity_subgroup_uid=study_activity_selection.activity_subgroup_uid,
             activity_group_uid=study_activity_selection.activity_group_uid,
             generate_uid_callback=self.repository.generate_uid,
-            is_reviewed=activity_instance_ar.concept_vo.is_required_for_activity
+            is_reviewed=activity_instance_ar.concept_vo.activity_instance_attributes.is_required_for_activity
             or selection_create_input.is_reviewed,
             study_data_supplier_uid=selection_create_input.study_data_supplier_uid,
             origin_type_uid=selection_create_input.origin_type_uid,

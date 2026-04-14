@@ -2,7 +2,7 @@
   <div id="alias-container">
     <v-row>
       <v-col>
-        <div class="text-h5 mb-4">
+        <div class="text-headline-medium mb-4">
           {{ $t('CRFAliases.add') }}
         </div>
       </v-col>
@@ -41,7 +41,7 @@
 
     <v-row>
       <v-col>
-        <div class="text-h5 mb-4">
+        <div class="text-headline-medium mb-4">
           {{ $t('CRFAliases.select') }}
         </div>
       </v-col>

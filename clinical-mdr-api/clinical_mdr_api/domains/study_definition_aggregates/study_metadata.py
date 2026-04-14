@@ -58,6 +58,7 @@ class StudyCompactComponentEnum(str, Enum):
 
 
 _STUDY_NUMBER_PATTERN = re.compile(r"\d{1,4}")
+_STUDY_SUBPART_ACRONYM_PATTERN = re.compile(r"[A-Z0-9]+")
 
 
 FIX_SOME_VALUE_DEFAULT = """
@@ -97,7 +98,11 @@ class StudyIdentificationMetadataVO:
             study_number=normalize_string(study_number),
             subpart_id=normalize_string(subpart_id),
             study_acronym=normalize_string(study_acronym),
-            study_subpart_acronym=normalize_string(study_subpart_acronym),
+            study_subpart_acronym=normalize_string(
+                study_subpart_acronym.upper()
+                if study_subpart_acronym
+                else study_subpart_acronym
+            ),
             study_id_prefix=normalize_string(_study_id_prefix),
             description=normalize_string(description),
             registry_identifiers=registry_identifiers,
@@ -180,6 +185,20 @@ class StudyIdentificationMetadataVO:
         exceptions.ValidationException.raise_if(
             is_subpart and not self.study_subpart_acronym,
             msg="Study Subpart Acronym must be provided for Study Subpart.",
+        )
+
+        exceptions.ValidationException.raise_if(
+            self.study_subpart_acronym is not None
+            and len(self.study_subpart_acronym) > 10,
+            msg=f"Study Subpart Acronym must not exceed 10 characters, got {len(self.study_subpart_acronym) if self.study_subpart_acronym else 0}.",
+        )
+
+        exceptions.ValidationException.raise_if(
+            self.study_subpart_acronym is not None
+            and not _STUDY_SUBPART_ACRONYM_PATTERN.fullmatch(
+                self.study_subpart_acronym
+            ),
+            msg=f"Study Subpart Acronym must contain only alphanumeric characters (no blanks or special characters), got '{self.study_subpart_acronym}'.",
         )
 
         exceptions.ValidationException.raise_if(

@@ -4216,7 +4216,6 @@ def test_cross_soa_group_duplicate_study_activity_blocked_on_patch(api_client):
     assert_response_status_code(response, 201)
 
     # Second study activity: subgroup B under a *different* SoA group (Safety)
-    # Different SoA group → different study_activity_subgroup_uid → invisible to AR validate()
     response = api_client.post(
         f"/studies/{test_study.uid}/study-activities",
         json={
@@ -4229,8 +4228,7 @@ def test_cross_soa_group_duplicate_study_activity_blocked_on_patch(api_client):
     assert_response_status_code(response, 201)
     second_study_activity_uid = response.json()["study_activity_uid"]
 
-    # Patch second: subgroup B → A.  Now both share (activity, subgroup A, group)
-    # but they remain under separate SoA groups so AR validate() still can't see them.
+    # Patch second: subgroup B → A. Same groupings but different SoA groups → 409
     response = api_client.patch(
         f"/studies/{test_study.uid}/study-activities/{second_study_activity_uid}",
         json={

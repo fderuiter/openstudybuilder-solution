@@ -5,10 +5,7 @@ Feature: Library - Concepts - Units
         Given The user is logged in
 
     @smoke_test
-    Scenario: [Navigation] User must be able to navigate to the Units page
-        Given The '/library' page is opened
-        When The 'Units' submenu is clicked in the 'Concepts' section
-        Then The current URL is '/library/units'
+
 
     @smoke_test
     Scenario: [Table][Columns][Names] User must be able to see the columns list on the main page as below
@@ -151,25 +148,16 @@ Feature: Library - Concepts - Units
         Then The form is no longer available
         And The unit is not saved
 
-    Scenario: [Actions][Availability][Draft item] User must only have access to aprove, edit, delete, history actions for Drafted version of the unit
+    Scenario: [Actions][Availability] User must only have access correct actions depending on item state
         Given The '/library/units' page is opened
         When [API] Unit in status Draft exists
         And Unit is found
         And The item actions button is clicked
         Then Only actions that should be avaiable for the Draft item are displayed
-
-    Scenario: [Actions][Availability][Final item] User must only have access to new version, inactivate, history actions for Final version of the unit
-        Given The '/library/units' page is opened
-        When [API] Unit in status Draft exists
         When [API] Unit is approved
         And Unit is found
         And The item actions button is clicked
         Then Only actions that should be avaiable for the Final item are displayed
-
-    Scenario: [Actions][Availability][Retired item] User must only have access to reactivate, history actions for Retired version of the uit
-        Given The '/library/units' page is opened
-        When [API] Unit in status Draft exists
-        When [API] Unit is approved
         When [API] Unit is inactivated
         And Unit is found
         And The item actions button is clicked

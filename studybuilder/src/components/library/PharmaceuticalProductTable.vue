@@ -113,6 +113,7 @@ const showHistory = ref(false)
 const showForm = ref(false)
 const selectedItem = ref(null)
 const confirm = ref()
+const savedFilters = ref()
 
 const actions = [
   {
@@ -219,9 +220,12 @@ function closeForm() {
 }
 
 function fetchItems(filters, options, filtersUpdated) {
+  if (filters !== undefined) {
+    savedFilters.value = filters
+  }
   const params = filteringParameters.prepareParameters(
     options,
-    filters,
+    savedFilters.value,
     filtersUpdated
   )
   api.getFiltered(params).then((resp) => {

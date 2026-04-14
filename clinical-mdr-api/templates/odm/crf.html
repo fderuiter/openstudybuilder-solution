@@ -822,13 +822,13 @@
                     {% set border_style = 'border-dashed' if 'note:' in alias.name|lower or 'not submitted' in
                     alias.name|lower else '' %}
                     {% if ':' in alias.name %}
-                    {% set sub_val, _ = alias.name.rsplit(':', maxsplit=1) %}
+                    {% set sub_val, _ = alias.name.split(':', maxsplit=1) %}
                     {% set group_domain = group_domains.get(sub_val, none) %}
                     {% set name = group_domain[0] %}
                     {% set color = group_domain[1] %}
                     <span class="inline-block text-xs p-1 rounded border-black border {{ border_style }}"
                         style="background-color: {{color}};">
-                        {{ alias.name.rsplit(':', maxsplit=1) | last }}
+                        {{ alias.name.split(':', maxsplit=1) | last }}
                     </span>
                     {% else %}
                     <span class="inline-block text-xs p-1 rounded border-black border {{ border_style }}">
@@ -1036,13 +1036,13 @@
                             {% set border_style = 'border-dashed' if 'note:' in alias.name|lower or 'not submitted' in
                             alias.name|lower else '' %}
                             {% if ':' in alias.name %}
-                            {% set sub_val, _ = alias.name.rsplit(':', maxsplit=1) %}
+                            {% set sub_val, _ = alias.name.split(':', maxsplit=1) %}
                             {% set group_domain = group_domains.get(sub_val, none) %}
                             {% set name = group_domain[0] %}
                             {% set color = group_domain[1] %}
                             <span class="inline-block text-xs p-1 rounded border-black border {{ border_style }}"
                                 style="background-color: {{color}};">
-                                {{ alias.name.rsplit(':', maxsplit=1) | last }}
+                                {{ alias.name.split(':', maxsplit=1) | last }}
                             </span>
                             {% else %}
                             <span class="inline-block text-xs p-1 rounded border-black border {{ border_style }}">
@@ -1077,7 +1077,8 @@
             first | default(none) if item_group_in.vendor else none %}
             <thead>
                 <tr class="bg-gray-300">
-                    <th class="border border-gray-600 p-2 text-left" colspan="{{ 3 if display_as_table.value != 'Yes' else item_group.items|length }}">
+                    <th class="border border-gray-600 p-2 text-left"
+                        colspan="{{ 3 if display_as_table.value != 'Yes' else item_group.items|length }}">
                         <h3 class="inline-block font-medium my-2 text-md">
                             <svg xmlns="http://www.w3.org/2000/svg" style="display: inline-block;" viewBox="0 0 24 24"
                                 width="20" height="20">
@@ -1107,6 +1108,29 @@
                                 class="inline-block text-lg p-2 font-medium border-black border rounded">
                                 {{ sub_val }} ({{ name }})
                             </span>
+                        </div>
+                        {% endfor %}
+
+                        {% for alias in item_group.aliases %}
+                        <div class="sdtm-container mb-2 hidden">
+                            {% if alias.context|lower == 'sdtm' %}
+                            {% set border_style = 'border-dashed' if 'note:' in alias.name|lower or 'not submitted' in
+                            alias.name|lower else '' %}
+                            {% if ':' in alias.name %}
+                            {% set sub_val, _ = alias.name.split(':', maxsplit=1) %}
+                            {% set group_domain = domains.get(sub_val, none) %}
+                            {% set name = group_domain[0] %}
+                            {% set color = group_domain[1] %}
+                            <span class="inline-block text-xs p-1 rounded border-black border {{ border_style }}"
+                                style="background-color: {{color}};">
+                                {{ alias.name.split(':', maxsplit=1) | last }}
+                            </span>
+                            {% else %}
+                            <span class="inline-block text-xs p-1 rounded border-black border {{ border_style }}">
+                                {{ alias.name }}
+                            </span>
+                            {% endif %}
+                            {% endif %}
                         </div>
                         {% endfor %}
                     </th>

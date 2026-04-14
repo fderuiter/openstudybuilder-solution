@@ -112,6 +112,12 @@ class Study(BaseModel):
                 version_description=val.get("version_description", None),
             )
 
+    class StudyDataSupplier(BaseModel):
+        uid: Annotated[str, Field()]
+        name: Annotated[str, Field()]
+        type: Annotated["SimpleCodelistTerm", Field()]
+        order: Annotated[int | None, Field(json_schema_extra={"nullable": True})] = None
+
     uid: Annotated[str, Field(description="Study UID")]
     id: Annotated[str, Field(description="Study ID")]
     id_prefix: Annotated[str, Field(description="Study ID prefix")]
@@ -126,6 +132,10 @@ class Study(BaseModel):
     versions: Annotated[list[StudyVersion], Field(description="Study versions")]
     data_completeness_tags: list[str] = Field(
         description="List of data completeness tag names assigned to the study.",
+        default_factory=list,
+    )
+    data_suppliers: list[StudyDataSupplier] = Field(
+        description="List of data suppliers of the study.",
         default_factory=list,
     )
 
@@ -143,6 +153,21 @@ class Study(BaseModel):
                 for version in val.get("versions", [])
             ],
             data_completeness_tags=val.get("data_completeness_tags", []),
+            data_suppliers=sorted(
+                [
+                    Study.StudyDataSupplier(
+                        uid=study_data_supplier["uid"],
+                        name=study_data_supplier["name"],
+                        type=SimpleCodelistTerm(
+                            codelist_uid=study_data_supplier["type_codelist_uid"],
+                            term_uid=study_data_supplier["type_uid"],
+                        ),
+                        order=study_data_supplier.get("order", None),
+                    )
+                    for study_data_supplier in val.get("study_data_suppliers", [])
+                ],
+                key=lambda x: x.order if x.order is not None else float("inf"),
+            ),
         )
 
 
@@ -803,6 +828,64 @@ class LibraryActivity(BaseModel):
         )
 
 
+class LibraryActivityItemUnitDefinition(BaseModel):
+    uid: Annotated[str, Field(description="Unit Definition UID")]
+
+
+class LibraryActivityItemClass(BaseModel):
+    uid: Annotated[str, Field(description="Activity Item Class UID")]
+    name: Annotated[str, Field(description="Activity Item Class Name")]
+
+
+class LibraryActivityItemCTCodelist(BaseModel):
+    uid: Annotated[str, Field(description="CT Codelist UID")]
+    submission_value: Annotated[str, Field(description="CT Codelist Submission Value")]
+
+
+class LibraryActivityItem(BaseModel):
+    activity_item_class: Annotated[
+        LibraryActivityItemClass,
+        Field(description="Activity Item Class"),
+    ]
+    data_type: Annotated[
+        str,
+        Field(description="Data type of the activity item"),
+    ]
+    ct_codelist: Annotated[
+        LibraryActivityItemCTCodelist | None,
+        Field(description="CT Codelist", json_schema_extra={"nullable": True}),
+    ] = None
+    ct_terms: Annotated[
+        list[SimpleCodelistTerm],
+        Field(description="CT Terms"),
+    ] = []
+    unit_definitions: Annotated[
+        list[LibraryActivityItemUnitDefinition],
+        Field(description="Unit Definitions"),
+    ] = []
+    text_value: Annotated[
+        str | None,
+        Field(description="Text Value", json_schema_extra={"nullable": True}),
+    ] = None
+    is_adam_param_specific: Annotated[
+        bool, Field(description="Is ADaM Parameter Specific")
+    ] = False
+    is_activity_instance_id_specific: Annotated[
+        bool | None, Field(description="Is Activity Instance ID Specific")
+    ] = None
+
+
+class LibraryActivityInstanceClass(BaseModel):
+    uid: Annotated[str, Field(description="Activity Instance Class UID")]
+    name: Annotated[
+        str | None,
+        Field(
+            description="Activity Instance Class Name",
+            json_schema_extra={"nullable": True},
+        ),
+    ] = None
+
+
 class LibraryActivityInstance(BaseModel):
     uid: Annotated[str, Field(description="Activity UID")]
     library: Annotated[str, Field(description="Library Name")]
@@ -829,13 +912,29 @@ class LibraryActivityInstance(BaseModel):
     ] = None
     status: Annotated[LibraryItemStatus, Field(description="Activity Status")]
     version: Annotated[str, Field(description="Activity Version")]
+    activity_instance_class: Annotated[
+        LibraryActivityInstanceClass | None,
+        Field(
+            description="Activity Instance Class", json_schema_extra={"nullable": True}
+        ),
+    ] = None
     groupings: Annotated[
         list[LibraryActivityGroupingWithActivity],
         Field(description="Activity Groups/Subgroups"),
     ] = []
+    groupings_status: Annotated[
+        LibraryItemStatus, Field(description="Activity Groupings Status")
+    ]
+    groupings_version: Annotated[str, Field(description="Activity Groupings Version")]
+    activity_items: Annotated[
+        list[LibraryActivityItem],
+        Field(description="Activity Items"),
+    ] = []
 
     @classmethod
     def from_input(cls, val: dict[str, Any]):
+        aic_uid = val.get("activity_instance_class_uid")
+        aic_name = val.get("activity_instance_class_name")
         return cls(
             uid=val["uid"],
             library=val["library_name"],
@@ -847,6 +946,11 @@ class LibraryActivityInstance(BaseModel):
             param_code=val.get("param_code", None),
             status=LibraryItemStatus(val["status"]),
             version=val["version"],
+            activity_instance_class=(
+                LibraryActivityInstanceClass(uid=aic_uid, name=aic_name)
+                if aic_uid
+                else None
+            ),
             groupings=[
                 LibraryActivityGroupingWithActivity(
                     activity_uid=grouping["activity"]["uid"],
@@ -857,6 +961,50 @@ class LibraryActivityInstance(BaseModel):
                     activity_subgroup_name=grouping["activity_subgroup"]["name"],
                 )
                 for grouping in val.get("activity_groupings", [])
+            ],
+            groupings_status=LibraryItemStatus(val["groupings_status"]),
+            groupings_version=val["groupings_version"],
+            activity_items=[
+                LibraryActivityItem(
+                    activity_item_class=LibraryActivityItemClass(
+                        uid=item.get("activity_item_class_uid", ""),
+                        name=item.get("activity_item_class_name", ""),
+                    ),
+                    data_type=item["data_type"],
+                    ct_codelist=(
+                        LibraryActivityItemCTCodelist(
+                            uid=item["ct_codelist"]["uid"],
+                            submission_value=item["ct_codelist"]["submission_value"],
+                        )
+                        if item.get("ct_codelist")
+                        else None
+                    ),
+                    ct_terms=sorted(
+                        [
+                            SimpleCodelistTerm(
+                                term_uid=t["uid"],
+                                codelist_uid=t["codelist_uid"],
+                            )
+                            for t in item.get("ct_terms", [])
+                        ],
+                        key=lambda x: x.term_uid or "",
+                    ),
+                    unit_definitions=sorted(
+                        [
+                            LibraryActivityItemUnitDefinition(
+                                uid=u.get("uid", ""),
+                            )
+                            for u in item.get("unit_definitions", [])
+                        ],
+                        key=lambda x: x.uid or "",
+                    ),
+                    text_value=item.get("text_value"),
+                    is_adam_param_specific=item.get("is_adam_param_specific", False),
+                    is_activity_instance_id_specific=item.get(
+                        "is_activity_instance_id_specific"
+                    ),
+                )
+                for item in val.get("activity_items", [])
             ],
         )
 
@@ -1015,8 +1163,28 @@ class SoACreateResponse(BaseModel):
     ]
 
 
+class SimpleCodelistTerm(BaseModel):
+    codelist_uid: Annotated[str, Field(description="Codelist Term UID")]
+    term_uid: Annotated[str, Field(description="Codelist Term UID")]
+
+
 class CodelistTerm(BaseModel):
-    uid: Annotated[str, Field(description="Codelist Term UID")]
+    codelist_uid: Annotated[str, Field(description="Codelist UID")]
+    term_uid: Annotated[str, Field(description="Codelist Term UID")]
+    order: Annotated[
+        int | None,
+        Field(
+            description="Term order within the codelist",
+            json_schema_extra={"nullable": True},
+        ),
+    ] = None
+    ordinal: Annotated[
+        float | None,
+        Field(
+            description="Term ordinal value (only for ordinal codelists)",
+            json_schema_extra={"nullable": True},
+        ),
+    ] = None
     submission_value: Annotated[str, Field(description="Submission Value")]
     sponsor_preferred_name: Annotated[
         str,
@@ -1046,7 +1214,10 @@ class CodelistTerm(BaseModel):
     @classmethod
     def from_input(cls, val: dict[str, Any]):
         return cls(
-            uid=val["uid"],
+            term_uid=val["term_uid"],
+            codelist_uid=val["codelist_uid"],
+            order=val.get("order"),
+            ordinal=val.get("ordinal"),
             submission_value=val["submission_value"],
             sponsor_preferred_name=val["sponsor_preferred_name"],
             concept_id=val.get("concept_id", None),

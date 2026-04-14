@@ -12,7 +12,11 @@
         style="height: auto; z-index: 100"
         class="pb-3 mr-n6 ml-n2"
       />
-      <v-badge v-else :color="badge.color" :icon="badge.icon" bordered inline>
+      <v-badge v-else :color="badge.color" :icon="badge.icon" inline>
+        <v-tooltip v-if="badge.tooltip" activator="parent">
+          <span v-html="badge.tooltip"></span>
+        </v-tooltip>
+
         <v-btn
           :disabled="disabled"
           icon="mdi-dots-vertical"

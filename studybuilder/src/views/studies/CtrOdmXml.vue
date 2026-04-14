@@ -1,7 +1,7 @@
 <template>
   <div class="pa-4">
     <div class="mt-6 d-flex align-center">
-      <span class="text-h6">{{ $t('CtrOdmXmlVue.title') }}</span>
+      <span class="text-headline-small">{{ $t('CtrOdmXmlVue.title') }}</span>
       <v-spacer />
       <span class="text-center font-italic">{{ loadingMessage }}</span>
       <v-spacer />

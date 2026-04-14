@@ -106,13 +106,14 @@ def get_studies(
         ORDER BY hv.start_date DESC
         WITH
             study_root,
+            study_value,
             study_root.uid as uid,
             study_value.study_acronym as acronym,
             study_value.study_id_prefix as id_prefix,
             study_value.study_number as number,
-            CASE study_value.subpart_id
+            CASE study_value.study_subpart_acronym
                 WHEN IS NULL THEN COALESCE(study_value.study_id_prefix, '') + "-" + COALESCE(study_value.study_number, '')
-                ELSE COALESCE(study_value.study_id_prefix, '') + "-" + COALESCE(study_value.study_number, '') + "-" + study_value.subpart_id
+                ELSE COALESCE(study_value.study_id_prefix, '') + "-" + COALESCE(study_value.study_number, '') + "-" + study_value.study_subpart_acronym
             END AS id,
             hv_ld as version_latest_draft,
             COLLECT(DISTINCT {{
@@ -131,14 +132,28 @@ def get_studies(
             [v IN versions_all 
                 WHERE v.version_status IN ['RELEASED', 'LOCKED']
                 OR (v.version_started_at = version_latest_draft.start_date AND v.version_ended_at is null)] as versions
-            
+
+        OPTIONAL MATCH (study_value)-[hsds:HAS_STUDY_DATA_SUPPLIER]->(sds:StudyDataSupplier)
+        OPTIONAL MATCH (sds)-[hds:HAS_DATA_SUPPLIER]->(dsv:DataSupplierValue)
+        OPTIONAL MATCH (sds)-[:HAS_STUDY_DATA_SUPPLIER_TYPE]->(ctc:CTTermContext)
+        OPTIONAL MATCH (ctc)-[:HAS_SELECTED_TERM]->(ctr:CTTermRoot)-[:HAS_NAME_ROOT]->(:CTTermNameRoot)-[:LATEST]->(ctnv:CTTermNameValue)
+        OPTIONAL MATCH (ctr)<-[:HAS_TERM_ROOT]-(:CTCodelistTerm)<-[:HAS_TERM]-(ccr:CTCodelistRoot)-[:HAS_ATTRIBUTES_ROOT]->
+        (:CTCodelistAttributesRoot)-[:LATEST]->(:CTCodelistAttributesValue {{submission_value: "DATA_SUPPLIER_TYPE"}})
+
         RETURN uid,
             acronym,
             id_prefix,
             number,
             id,
             versions,
-            [(study_root)-[:HAS_COMPLETENESS_TAG]->(t:DataCompletenessTag) | t.name] as data_completeness_tags
+            [(study_root)-[:HAS_COMPLETENESS_TAG]->(t:DataCompletenessTag) | t.name] as data_completeness_tags,
+            [ds IN COLLECT(DISTINCT {{
+                uid: sds.uid,
+                name: dsv.name,
+                type_uid: ctr.uid,
+                type_codelist_uid: ccr.uid,
+                order: sds.order
+            }}) WHERE ds.uid IS NOT NULL] AS study_data_suppliers
         """
 
     full_query = " ".join(
@@ -515,9 +530,9 @@ def get_study_operational_soa(
 
         RETURN DISTINCT
             study_root.uid AS study_uid,
-            CASE study_value.subpart_id
+            CASE study_value.study_subpart_acronym
                 WHEN IS NULL THEN toUpper(COALESCE(study_value.study_id_prefix, '') + "-" + COALESCE(study_value.study_number, ''))
-                ELSE toUpper(COALESCE(study_value.study_id_prefix, '') + "-" + COALESCE(study_value.study_number, '')) + "-" + study_value.subpart_id
+                ELSE toUpper(COALESCE(study_value.study_id_prefix, '') + "-" + COALESCE(study_value.study_number, '')) + "-" + study_value.study_subpart_acronym
             END AS study_id,
             study_visit.uid AS visit_uid,
             study_visit.short_visit_label AS visit_short_name,
@@ -673,10 +688,13 @@ def get_library_activity_instances(
             MATCH (library:Library)-[:CONTAINS_CONCEPT]->(concept_root:ActivityInstanceRoot)-[:LATEST]->(concept_value:ActivityInstanceValue)
         """
     )
+    base_query += """
+        MATCH (concept_root)-[:HAS_GROUPING_ROOT]->(grouping_root:ActivityInstanceGroupingRoot)-[:LATEST]->(grouping_value:ActivityInstanceGroupingValue)
+    """
 
     base_query += f"""
         WITH 
-            DISTINCT concept_root, concept_value, library
+            DISTINCT concept_root, concept_value, grouping_root, grouping_value, library
             CALL {{
                 WITH concept_root, concept_value
                 MATCH (concept_root)-[hv:HAS_VERSION]-(concept_value)
@@ -689,7 +707,19 @@ def get_library_activity_instances(
                 WITH collect(hv) as hvs
                 RETURN last(hvs) AS last_version_rel
             }}
-            WITH concept_root, concept_value, last_version_rel, library
+            CALL {{
+                WITH grouping_root, grouping_value
+                MATCH (grouping_root)-[hv:HAS_VERSION]-(grouping_value)
+                WITH hv
+                ORDER BY
+                    toInteger(split(hv.version, '.')[0]) ASC,
+                    toInteger(split(hv.version, '.')[1]) ASC,
+                    hv.end_date ASC,
+                    hv.start_date ASC
+                WITH collect(hv) as hvs
+                RETURN last(hvs) AS last_grouping_version_rel
+            }}
+            WITH concept_root, concept_value, grouping_root, grouping_value, last_version_rel, last_grouping_version_rel, library
 
             {status_filter}
 
@@ -697,15 +727,20 @@ def get_library_activity_instances(
                 concept_root.uid AS uid,
                 library.name AS library_name,
                 last_version_rel,
+                last_grouping_version_rel,
                 concept_value.nci_concept_id AS nci_concept_id,
                 concept_value.nci_concept_name AS nci_concept_name,
                 concept_value.name AS name,
                 concept_value.definition AS definition,
                 last_version_rel.status AS status,
                 last_version_rel.version AS version,
+                last_grouping_version_rel.status AS groupings_status,
+                last_grouping_version_rel.version AS groupings_version,
                 concept_value.topic_code AS topic_code,
                 concept_value.adam_param_code AS param_code,
-                apoc.coll.toSet([(concept_value)-[:HAS_ACTIVITY]->(activity_grouping:ActivityGrouping)
+                head([(concept_value)-[:ACTIVITY_INSTANCE_CLASS]->(aic_root:ActivityInstanceClassRoot) | aic_root.uid]) AS activity_instance_class_uid,
+                head([(concept_value)-[:ACTIVITY_INSTANCE_CLASS]->(:ActivityInstanceClassRoot)-[:LATEST]->(aic_val:ActivityInstanceClassValue) | aic_val.name]) AS activity_instance_class_name,
+                apoc.coll.toSet([(grouping_value)-[:HAS_ACTIVITY]->(activity_grouping:ActivityGrouping)
                 | {{
                     activity: head(apoc.coll.sortMulti([(activity_grouping)<-[:HAS_GROUPING]-(activity_value:ActivityValue)<-[has_version:HAS_VERSION]-
                         (activity_root:ActivityRoot) |
@@ -731,7 +766,28 @@ def get_library_activity_instances(
                             major_version: toInteger(split(has_version.version,'.')[0]),
                             minor_version: toInteger(split(has_version.version,'.')[1])
                         }}], ['major_version', 'minor_version']))
-                }}]) AS activity_groupings
+                }}]) AS activity_groupings,
+                [(concept_value)-[:CONTAINS_ACTIVITY_ITEM]->(ai)
+                    <-[:HAS_ACTIVITY_ITEM]-(aic_root)-[:LATEST]->(aic_val) | {{
+                    activity_item_class_uid: aic_root.uid,
+                    activity_item_class_name: aic_val.name,
+                    data_type: head([(aic_val)-[:HAS_DATA_TYPE]->(:CTTermContext)
+                        -[:HAS_SELECTED_TERM]->(:CTTermRoot)-[:HAS_NAME_ROOT]->
+                        (:CTTermNameRoot)-[:LATEST]->(dtv:CTTermNameValue) | dtv.name]),
+                    ct_codelist: head([(ai)-[:HAS_CODELIST]->(clr:CTCodelistRoot)
+                        -[:HAS_ATTRIBUTES_ROOT]->(:CTCodelistAttributesRoot)
+                        -[:LATEST]->(clav:CTCodelistAttributesValue)
+                        | {{uid: clr.uid, submission_value: clav.submission_value}}]),
+                    ct_terms: [(ai)-[:HAS_CT_TERM]->(:CTTermContext)-[:HAS_SELECTED_TERM]->
+                        (tr:CTTermRoot)<-[:HAS_TERM_ROOT]-(:CTCodelistTerm)
+                        <-[:HAS_TERM]-(clr:CTCodelistRoot)
+                        | {{uid: tr.uid, codelist_uid: clr.uid}}],
+                    unit_definitions: [(ai)-[:HAS_UNIT_DEFINITION]->(udr:UnitDefinitionRoot)
+                        | {{uid: udr.uid}}],
+                    text_value: ai.text_value,
+                    is_adam_param_specific: ai.is_adam_param_specific,
+                    is_activity_instance_id_specific: ai.is_activity_instance_id_specific
+                }}] AS activity_items
 
                 {activity_uid_filter}
 
@@ -743,9 +799,14 @@ def get_library_activity_instances(
                         nci_concept_name,
                         topic_code,
                         param_code,
+                        activity_instance_class_uid,
+                        activity_instance_class_name,
                         activity_groupings,
+                        activity_items,
                         status,
-                        version
+                        version,
+                        groupings_status,
+                        groupings_version
         """
 
     full_query = " ".join(
@@ -1044,7 +1105,8 @@ def get_codelists(
 
 
 def get_codelist_terms(
-    codelist_submission_value: str,
+    codelist_submission_value: str | None = None,
+    codelist_uid: str | None = None,
     page_size: int = 10,
     page_number: int = 1,
     name_status: models.LibraryItemStatus | None = None,
@@ -1071,15 +1133,34 @@ def get_codelist_terms(
     elif name_status_filter:
         status_filter = f"WHERE {name_status_filter}"
 
-    params = {
-        "codelist_submission_value": codelist_submission_value,
+    params: dict[str, Any] = {
         "status_attributes": attributes_status.value if attributes_status else None,
         "status_name": name_status.value if name_status else None,
     }
 
+    # Build the codelist match clause depending on which filters are provided
+    codelist_match_lines = [
+        "MATCH (codelist_root:CTCodelistRoot)-[:HAS_ATTRIBUTES_ROOT]->(:CTCodelistAttributesRoot)-[:LATEST]->(clav:CTCodelistAttributesValue)"
+    ]
+    codelist_where_parts = []
+
+    if codelist_submission_value is not None:
+        codelist_where_parts.append(
+            "clav.submission_value = $codelist_submission_value"
+        )
+        params["codelist_submission_value"] = codelist_submission_value
+
+    if codelist_uid is not None:
+        codelist_where_parts.append("codelist_root.uid = $codelist_uid")
+        params["codelist_uid"] = codelist_uid
+
+    if codelist_where_parts:
+        codelist_match_lines.append("WHERE " + " AND ".join(codelist_where_parts))
+
+    codelist_match = "\n        ".join(codelist_match_lines)
+
     base_query = f"""
-        MATCH (codelist_root:CTCodelistRoot)-[:HAS_ATTRIBUTES_ROOT]->
-        (:CTCodelistAttributesRoot)-[:LATEST]->(:CTCodelistAttributesValue {{submission_value: $codelist_submission_value}})
+        {codelist_match}
                             
         MATCH (codelist_root)-[ht:HAS_TERM]->(ct_cl_term:CTCodelistTerm)-[:HAS_TERM_ROOT]->(ct_term_root:CTTermRoot)<-[:CONTAINS_TERM]-(library:Library)
         WHERE ht.end_date IS NULL
@@ -1112,13 +1193,17 @@ def get_codelist_terms(
                 RETURN last(hvs) AS last_version_rel_name
             }}
 
-        WITH ct_term_root, ct_cl_term, tnv, tav, library,
+        WITH codelist_root, ct_term_root, ct_cl_term, ht, tnv, tav, library,
              last_version_rel_attributes, last_version_rel_name
 
         {status_filter}
 
         WITH
-        ct_term_root.uid AS uid,
+        codelist_root.uid as codelist_uid,
+        ct_term_root.uid AS term_uid,
+        codelist_root.uid + '_' + ct_term_root.uid AS sort_field,
+        ht.order AS order,
+        ht.ordinal AS ordinal,
         ct_cl_term.submission_value AS submission_value,
         tav.concept_id AS concept_id,
         tav.preferred_term AS nci_preferred_name,
@@ -1135,7 +1220,7 @@ def get_codelist_terms(
     full_query = " ".join(
         [
             base_query,
-            db_sort_clause("sponsor_preferred_name", "ASC"),
+            db_sort_clause("sort_field", "ASC", secondary_sort_fields="sort_field"),
             db_pagination_clause(page_size, page_number),
         ]
     )

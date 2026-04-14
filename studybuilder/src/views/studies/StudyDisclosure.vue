@@ -3,7 +3,7 @@
     <div class="page-title d-flex align-center">
       {{ $t('StudyDisclosure.study_disclosure') }}
     </div>
-    <div class="mt-4 pb-2 tableDiv elevation-4">
+    <div class="mt-4 pb-2 tableDiv elevation-1">
       <StudyDisclosureTable />
     </div>
   </div>

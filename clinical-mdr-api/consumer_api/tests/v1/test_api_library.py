@@ -6,6 +6,10 @@ from typing import Any
 import pytest
 from fastapi.testclient import TestClient
 
+from clinical_mdr_api.models.biomedical_concepts.activity_item_class import (
+    ActivityInstanceClassRelInput,
+)
+from clinical_mdr_api.models.controlled_terminologies.ct_term import CTTerm
 from clinical_mdr_api.tests.integration.utils.api import inject_base_data
 from clinical_mdr_api.tests.integration.utils.utils import TestUtils
 from common.config import settings
@@ -51,6 +55,10 @@ LIBRARY_ACTIVITY_INSTANCE_FIELDS_ALL = [
     "param_code",
     "status",
     "version",
+    "groupings_status",
+    "groupings_version",
+    "activity_instance_class",
+    "activity_items",
 ]
 
 LIBRARY_ACTIVITY_INSTANCE_FIELDS_NOT_NULL = [
@@ -62,6 +70,10 @@ LIBRARY_ACTIVITY_INSTANCE_FIELDS_NOT_NULL = [
     "param_code",
     "status",
     "version",
+    "groupings_status",
+    "groupings_version",
+    "activity_instance_class",
+    "activity_items",
 ]
 
 
@@ -71,6 +83,14 @@ total_activities: int = 25
 activity_group: Any
 activity_subgroup: Any
 activity_instances: list[models.LibraryActivityInstance]
+activity_instance_with_items: Any
+activity_item_class: Any
+activity_item_class_ct_term: Any
+activity_item_class_ct_codelist: Any
+activity_item_class_text: Any
+activity_item_codelist: Any
+activity_item_ct_terms: list[CTTerm]
+activity_item_unit_definition_uid: str
 
 
 @pytest.fixture(scope="module")
@@ -85,7 +105,7 @@ def test_data(api_client):
     """Initialize test data"""
     db_name = "consumer-api-v1-library"
     set_db(db_name)
-    inject_base_data()
+    inject_base_data(inject_unit_dimension=True)
     global activities
     global activity_group
     global activity_subgroup
@@ -100,6 +120,94 @@ def test_data(api_client):
 
     activity_group = TestUtils.create_activity_group("Activity Group")
     activity_subgroup = TestUtils.create_activity_subgroup("Activity Sub Group")
+
+    # Create activity item class prerequisites
+    global activity_item_class
+    global activity_item_class_ct_term
+    global activity_item_class_ct_codelist
+    global activity_item_class_text
+    global activity_instance_with_items
+    global activity_item_codelist
+    global activity_item_ct_terms
+    global activity_item_unit_definition_uid
+
+    data_type_codelist = TestUtils.create_ct_codelist(
+        name="DATATYPE", submission_value="DATATYPE", extensible=True, approve=True
+    )
+    data_type_term = TestUtils.create_ct_term(
+        sponsor_preferred_name="Data type", codelist_uid=data_type_codelist.codelist_uid
+    )
+    role_codelist = TestUtils.create_ct_codelist(
+        name="ROLE", submission_value="ROLE", extensible=True, approve=True
+    )
+    role_term = TestUtils.create_ct_term(
+        sponsor_preferred_name="Role", codelist_uid=role_codelist.codelist_uid
+    )
+
+    aic_rel = ActivityInstanceClassRelInput(
+        uid=activity_instance_class.uid,  # type: ignore[arg-type]
+        mandatory=True,
+        is_adam_param_specific_enabled=True,
+        is_additional_optional=False,
+        is_default_linked=False,
+    )
+
+    # Activity item class for unit definition type
+    activity_item_class = TestUtils.create_activity_item_class(
+        name="Test Activity Item Class",
+        order=1,
+        activity_instance_classes=[aic_rel],
+        role_uid=role_term.term_uid,
+        data_type_uid=data_type_term.term_uid,
+    )
+
+    # Activity item class for ct_term type
+    activity_item_class_ct_term = TestUtils.create_activity_item_class(
+        name="CT Term Item Class",
+        order=2,
+        activity_instance_classes=[aic_rel],
+        role_uid=role_term.term_uid,
+        data_type_uid=data_type_term.term_uid,
+    )
+
+    # Activity item class for ct_codelist type
+    activity_item_class_ct_codelist = TestUtils.create_activity_item_class(
+        name="CT Codelist Item Class",
+        order=3,
+        activity_instance_classes=[aic_rel],
+        role_uid=role_term.term_uid,
+        data_type_uid=data_type_term.term_uid,
+    )
+
+    # Activity item class for text type
+    activity_item_class_text = TestUtils.create_activity_item_class(
+        name="Text Item Class",
+        order=4,
+        activity_instance_classes=[aic_rel],
+        role_uid=role_term.term_uid,
+        data_type_uid=data_type_term.term_uid,
+    )
+
+    # Create a codelist and terms for activity items
+    activity_item_codelist = TestUtils.create_ct_codelist(
+        name="AI Codelist",
+        submission_value="AI_CODELIST",
+        extensible=True,
+        approve=True,
+    )
+    activity_item_ct_terms = [
+        TestUtils.create_ct_term(
+            codelist_uid=activity_item_codelist.codelist_uid,
+            sponsor_preferred_name="AI Term 1",
+        ),
+        TestUtils.create_ct_term(
+            codelist_uid=activity_item_codelist.codelist_uid,
+            sponsor_preferred_name="AI Term 2",
+        ),
+    ]
+
+    # Use the "day" unit definition created by inject_base_data
+    activity_item_unit_definition_uid = TestUtils.get_unit_uid_by_name("day")
 
     for idx in range(0, total_activities):
         # Create Final Activity
@@ -151,6 +259,69 @@ def test_data(api_client):
             approve=False,
         )
         activities.append(activity_draft)  # type: ignore[arg-type]
+
+    # Create one activity instance with all types of activity items
+    ai_activity = TestUtils.create_activity(
+        "Activity With Items",
+        activity_groups=[activity_group.uid],
+        activity_subgroups=[activity_subgroup.uid],
+        approve=True,
+    )
+    activities.append(ai_activity)  # type: ignore[arg-type]
+    activity_instance_with_items = TestUtils.create_activity_instance(
+        name="Activity instance with items",
+        activity_instance_class_uid=activity_instance_class.uid,  # type: ignore[arg-type]
+        name_sentence_case="activity instance with items",
+        topic_code="TC with items",
+        adam_param_code="adam_param_with_items",
+        is_required_for_activity=True,
+        activities=[ai_activity.uid],
+        activity_subgroups=[activity_subgroup.uid],
+        activity_groups=[activity_group.uid],
+        activity_items=[
+            # Unit definition type
+            {
+                "activity_item_class_uid": activity_item_class.uid,
+                "ct_terms": [],
+                "unit_definition_uids": [activity_item_unit_definition_uid],
+                "is_adam_param_specific": True,
+            },
+            # CT term type
+            {
+                "activity_item_class_uid": activity_item_class_ct_term.uid,
+                "ct_terms": [
+                    {
+                        "term_uid": activity_item_ct_terms[0].term_uid,
+                        "codelist_uid": activity_item_codelist.codelist_uid,
+                    },
+                    {
+                        "term_uid": activity_item_ct_terms[1].term_uid,
+                        "codelist_uid": activity_item_codelist.codelist_uid,
+                    },
+                ],
+                "unit_definition_uids": [],
+                "is_adam_param_specific": False,
+            },
+            # CT codelist type
+            {
+                "activity_item_class_uid": activity_item_class_ct_codelist.uid,
+                "ct_terms": [],
+                "ct_codelist_uid": activity_item_codelist.codelist_uid,
+                "unit_definition_uids": [],
+                "is_adam_param_specific": False,
+            },
+            # Text type
+            {
+                "activity_item_class_uid": activity_item_class_text.uid,
+                "ct_terms": [],
+                "unit_definition_uids": [],
+                "is_adam_param_specific": False,
+                "text_value": "Sample text value",
+            },
+        ],
+        approve=True,
+    )
+    activity_instances.append(activity_instance_with_items)  # type: ignore[arg-type]
 
     # sort activities by name
     activities.sort(key=lambda x: x.name)
@@ -259,7 +430,7 @@ def test_get_library_activities_filtering(api_client):
     for key in ["self", "prev", "next"]:
         assert "status=Final&" in res[key]
 
-    assert len(res["items"]) == len(activities) // 2
+    assert len(res["items"]) == total_activities + 1  # +1 for ai_activity
     for item in res["items"]:
         assert item["status"] == "Final"
 
@@ -271,7 +442,7 @@ def test_get_library_activities_filtering(api_client):
     for key in ["self", "prev", "next"]:
         assert "status=Draft&" in res[key]
 
-    assert len(res["items"]) == len(activities) // 2
+    assert len(res["items"]) == total_activities
     for item in res["items"]:
         assert item["status"] == "Draft"
 
@@ -312,7 +483,7 @@ def test_get_library_activities_filtering(api_client):
         assert "library=Sponsor&" in res[key]
         assert "status=Final&" in res[key]
 
-    assert len(res["items"]) == len(activities) // 2
+    assert len(res["items"]) == total_activities + 1  # +1 for ai_activity
     for item in res["items"]:
         assert item["library"] == "Sponsor"
         assert item["status"] == "Final"
@@ -457,7 +628,9 @@ def test_get_library_activity_instances_filtering(api_client):
     for key in ["self", "prev", "next"]:
         assert "status=Final&" in res[key]
 
-    assert len(res["items"]) == len(activity_instances) // 2
+    assert (
+        len(res["items"]) == total_activities + 1
+    )  # +1 for activity_instance_with_items
     for item in res["items"]:
         assert item["status"] == "Final"
 
@@ -469,7 +642,7 @@ def test_get_library_activity_instances_filtering(api_client):
     for key in ["self", "prev", "next"]:
         assert "status=Draft&" in res[key]
 
-    assert len(res["items"]) == len(activity_instances) // 2
+    assert len(res["items"]) == total_activities
     for item in res["items"]:
         assert item["status"] == "Draft"
 
@@ -512,7 +685,9 @@ def test_get_library_activity_instances_filtering(api_client):
         assert "library=Sponsor&" in res[key]
         assert "status=Final&" in res[key]
 
-    assert len(res["items"]) == len(activity_instances) // 2
+    assert (
+        len(res["items"]) == total_activities + 1
+    )  # +1 for activity_instance_with_items
     for item in res["items"]:
         assert item["library"] == "Sponsor"
         assert item["status"] == "Final"
@@ -535,6 +710,112 @@ def test_get_library_activity_instances_filtering(api_client):
         assert item["groupings"][0]["activity_uid"] == activity_uid
         assert item["groupings"][0]["activity_group_uid"] == activity_group.uid
         assert item["groupings"][0]["activity_subgroup_uid"] == activity_subgroup.uid
+
+
+def test_get_library_activity_instances_activity_items(api_client):
+    """Test that all types of activity items are properly returned."""
+    response = api_client.get(
+        f"{BASE_URL}/library/activity-instances?page_size=100&status=Final"
+    )
+    assert_response_status_code(response, 200)
+    res = response.json()
+
+    # Find the activity instance that has activity items
+    items_with_activity_items = [
+        item for item in res["items"] if len(item.get("activity_items", [])) > 0
+    ]
+    assert (
+        len(items_with_activity_items) > 0
+    ), "Expected at least one activity instance with activity items"
+
+    item = items_with_activity_items[0]
+    assert item["name"] == "Activity instance with items"
+    assert len(item["activity_items"]) == 4
+
+    expected_keys = {
+        "activity_item_class",
+        "data_type",
+        "ct_codelist",
+        "ct_terms",
+        "unit_definitions",
+        "text_value",
+        "is_adam_param_specific",
+        "is_activity_instance_id_specific",
+    }
+    for activity_item in item["activity_items"]:
+        assert set(activity_item.keys()) == expected_keys
+
+    # Build a lookup by activity_item_class uid for easier assertions
+    items_by_class = {
+        ai["activity_item_class"]["uid"]: ai for ai in item["activity_items"]
+    }
+
+    # --- Unit definition type ---
+    unit_item = items_by_class[activity_item_class.uid]
+    assert unit_item["activity_item_class"]["name"] == "Test Activity Item Class"
+    assert unit_item["data_type"] == "Data type"
+    assert len(unit_item["unit_definitions"]) == 1
+    assert unit_item["unit_definitions"][0]["uid"] == activity_item_unit_definition_uid
+    assert unit_item["ct_terms"] == []
+    assert unit_item["ct_codelist"] is None
+    assert unit_item["text_value"] is None
+    assert unit_item["is_adam_param_specific"] is True
+
+    # --- CT term type ---
+    ct_term_item = items_by_class[activity_item_class_ct_term.uid]
+    assert ct_term_item["activity_item_class"]["name"] == "CT Term Item Class"
+    assert ct_term_item["data_type"] == "Data type"
+    assert len(ct_term_item["ct_terms"]) == 2
+    ct_term_uids = {t["term_uid"] for t in ct_term_item["ct_terms"]}
+    assert ct_term_uids == {
+        activity_item_ct_terms[0].term_uid,
+        activity_item_ct_terms[1].term_uid,
+    }
+    for ct_term in ct_term_item["ct_terms"]:
+        assert ct_term["codelist_uid"] == activity_item_codelist.codelist_uid
+    assert ct_term_item["unit_definitions"] == []
+    assert ct_term_item["ct_codelist"] is None
+    assert ct_term_item["text_value"] is None
+    assert ct_term_item["is_adam_param_specific"] is False
+
+    # --- CT codelist type ---
+    codelist_item = items_by_class[activity_item_class_ct_codelist.uid]
+    assert codelist_item["activity_item_class"]["name"] == "CT Codelist Item Class"
+    assert codelist_item["data_type"] == "Data type"
+    assert codelist_item["ct_codelist"] is not None
+    assert codelist_item["ct_codelist"]["uid"] == activity_item_codelist.codelist_uid
+    assert codelist_item["ct_codelist"]["submission_value"] is not None
+    assert codelist_item["ct_terms"] == []
+    assert codelist_item["unit_definitions"] == []
+    assert codelist_item["text_value"] is None
+    assert codelist_item["is_adam_param_specific"] is False
+
+    # --- Text type ---
+    text_item = items_by_class[activity_item_class_text.uid]
+    assert text_item["activity_item_class"]["name"] == "Text Item Class"
+    assert text_item["data_type"] == "Data type"
+    assert text_item["text_value"] == "Sample text value"
+    assert text_item["ct_terms"] == []
+    assert text_item["ct_codelist"] is None
+    assert text_item["unit_definitions"] == []
+    assert text_item["is_adam_param_specific"] is False
+
+    # Verify activity_instance_class is present on the activity instance
+    assert item["activity_instance_class"] is not None
+    assert item["activity_instance_class"]["uid"] is not None
+    assert (
+        item["activity_instance_class"]["name"] == "Randomized activity instance class"
+    )
+
+    # Verify activity instances without items have empty list
+    items_without_activity_items = [
+        item for item in res["items"] if len(item.get("activity_items", [])) == 0
+    ]
+    assert (
+        len(items_without_activity_items) > 0
+    ), "Expected some activity instances without activity items"
+    for item in items_without_activity_items:
+        assert item["activity_items"] == []
 
 
 def test_get_library_activity_instances_invalid_pagination_params(api_client):

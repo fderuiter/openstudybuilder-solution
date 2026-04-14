@@ -14,10 +14,26 @@ const subcategoryActivityItemClasses = {
   Interventions: 'intervention_subcategory',
 }
 
+const categoryCodelistSubmissionValues = {
+  CategoricFindings: 'FINDCAT',
+  NumericFindings: 'FINDCAT',
+  TextualFindings: 'FINDCAT',
+  Events: 'EVNTCAT',
+}
+
+const subcategoryCodelistSubmissionValues = {
+  CategoricFindings: 'FINDSCAT',
+  NumericFindings: 'FINDSCAT',
+  TextualFindings: 'FINDSCAT',
+  Events: 'EVNTSCAT',
+}
+
 const sdtmDomainAbbreviationCodelistUid = 'C66734'
 
 export default {
   categoryActivityItemClasses,
   subcategoryActivityItemClasses,
+  categoryCodelistSubmissionValues,
+  subcategoryCodelistSubmissionValues,
   sdtmDomainAbbreviationCodelistUid,
 }

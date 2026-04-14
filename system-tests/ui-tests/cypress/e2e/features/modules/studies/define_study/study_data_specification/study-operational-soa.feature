@@ -12,6 +12,10 @@ Feature: Studies - Define Study - Study Data Specifications - Operational SoA
         Given The user is logged in
         And A test study is selected
 
+    Scenario: [TestData] Old placeholder activity workflow feature flag is disabled
+        When The '/administration/featureflags' page is opened
+        Then Old placeholder workflow feature flag is turned off
+        
     Scenario: [TestData] All activities are deleted from test study
         And [API] All Activities are deleted from study
 
@@ -38,28 +42,18 @@ Feature: Studies - Define Study - Study Data Specifications - Operational SoA
 
 
     Scenario: [Placeholder][Submitted] User must be able to see highlighted (yellow) submitted placeholder in the Operational SoA
-        Given The test study '/activities/list' page is opened
-        When Study activity add button is clicked
-        And Activity from placeholder is selected
-        And Form continue button is clicked
-        And User selects option to create placeholder with submitting
-        When Activity placeholder data is filled in
-        And Form save button is clicked
-        And The form is no longer available
+        And [API] Get SoA Group 'BIOMARKERS' id
+        When [API] Create Submitted Requested Activity
+        And [API] Requested Activity is added to the study
         And The test study '/data_specifications/operational' page is opened
         And User waits Operational SoA table
         And User expand table
         Then Row containing submitted placeholder is highlighted with yellow color in Operational SoA 
 
     Scenario: [Placeholder][Not-Submitted] User must be able to see highlighted (orange) not-submitted placeholder in the Operational SoA
-        Given The test study '/activities/list' page is opened
-        When Study activity add button is clicked
-        And Activity from placeholder is selected
-        And Form continue button is clicked
-        And User selects option to create placeholder without submitting
-        When Activity placeholder data is filled in
-        And Form save button is clicked
-        And The form is no longer available
+        And [API] Get SoA Group 'BIOMARKERS' id
+        When [API] Create Unsubmitted Requested Activity
+        And [API] Requested Activity is added to the study
         And The test study '/data_specifications/operational' page is opened
         And User waits Operational SoA table
         And User expand table

@@ -36,6 +36,7 @@ from clinical_mdr_api.models.biomedical_concepts.activity_instance_class import 
     ActivityInstanceClass,
     ActivityInstanceClassWithDataset,
 )
+from common.utils import validate_page_number_and_page_size
 
 
 class ActivityInstanceClassRepository(  # type: ignore[misc]
@@ -80,6 +81,59 @@ class ActivityInstanceClassRepository(  # type: ignore[misc]
                 initial_context=[NodeNameResolver("self")],
             )
         )
+
+    def find_all_versions(
+        self,
+        sort_by: dict[str, bool] | None = None,
+        page_number: int = 1,
+        page_size: int = 0,
+        total_count: bool = False,
+    ) -> tuple[list[ActivityInstanceClass], int]:
+        validate_page_number_and_page_size(page_number=page_number, page_size=page_size)
+        skip = (page_number - 1) * page_size
+        sort_order = "DESC" if sort_by and sort_by.get("start_date") is False else "ASC"
+
+        query = f"""
+            MATCH (lib:Library)-[:CONTAINS]->(root:ActivityInstanceClassRoot)-[ver:HAS_VERSION]->(val:ActivityInstanceClassValue)
+            OPTIONAL MATCH (author:User)
+            WHERE author.user_id = ver.author_id
+            WITH root, val, ver, lib, author
+            ORDER BY ver.start_date {sort_order}
+            SKIP $skip LIMIT $limit
+            RETURN
+                root.uid AS uid,
+                val.name AS name,
+                val.order AS order_val,
+                val.definition AS definition,
+                val.is_domain_specific AS is_domain_specific,
+                val.level AS level,
+                lib.name AS library_name,
+                ver.start_date AS start_date,
+                ver.end_date AS end_date,
+                ver.status AS status,
+                ver.version AS version,
+                ver.change_description AS change_description,
+                COALESCE(author.username, ver.author_id) AS author_username
+        """
+
+        count_query = """
+            MATCH (root:ActivityInstanceClassRoot)-[ver:HAS_VERSION]->(val:ActivityInstanceClassValue)
+            RETURN count(*) AS total
+        """
+
+        results, meta = db.cypher_query(query, {"skip": skip, "limit": page_size})
+
+        items = [
+            ActivityInstanceClass.from_cypher_row(dict(zip(meta, row)))
+            for row in results
+        ]
+
+        total = 0
+        if total_count:
+            count_result, _ = db.cypher_query(count_query)
+            total = count_result[0][0] if count_result else 0
+
+        return items, total
 
     def extend_distinct_headers_query(
         self,

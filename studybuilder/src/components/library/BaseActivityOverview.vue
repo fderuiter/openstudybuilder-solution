@@ -108,6 +108,8 @@
       name="itemForm"
       :show="showForm"
       :item="item"
+      :action-source="source"
+      :action-subitem="resolveActionSubitem('edit')"
       :close="closeForm"
     />
     <v-dialog
@@ -175,6 +177,10 @@ export default {
       type: String,
       default: null,
       required: false,
+    },
+    actionSubitemMap: {
+      type: Object,
+      default: () => ({}),
     },
   },
   emits: ['closePage', 'refresh'],
@@ -299,6 +305,9 @@ export default {
     this.fetchItem()
   },
   methods: {
+    resolveActionSubitem(actionName) {
+      return this.actionSubitemMap?.[actionName] || null
+    },
     async closeForm() {
       this.showForm = false
       this.navigateToVersion(this.item, null)
@@ -321,7 +330,11 @@ export default {
       this.showForm = true
     },
     async inactivateItem() {
-      await activities.inactivate(this.itemUid, this.source)
+      await activities.inactivate(
+        this.itemUid,
+        this.source,
+        this.resolveActionSubitem('inactivate')
+      )
       this.notificationHub.add({
         msg: this.$t(`ActivitiesTable.inactivate_${this.source}_success`),
         type: 'success',
@@ -330,7 +343,11 @@ export default {
       await this.fetchItem()
     },
     async reactivateItem() {
-      await activities.reactivate(this.itemUid, this.source)
+      await activities.reactivate(
+        this.itemUid,
+        this.source,
+        this.resolveActionSubitem('reactivate')
+      )
       this.notificationHub.add({
         msg: this.$t(`ActivitiesTable.reactivate_${this.source}_success`),
         type: 'success',
@@ -356,8 +373,10 @@ export default {
       ) {
         options.cascade_edit_and_approve = true
       }
+      const approveSource = this.source
+      const approveSubitem = this.resolveActionSubitem('approve')
       activities
-        .approve(this.itemUid, this.source, options)
+        .approve(this.itemUid, approveSource, options, approveSubitem)
         .then(async (resp) => {
           if (this.source === 'activity-sub-groups') {
             if (resp.data.was_cascade_update_performed) {
@@ -386,7 +405,11 @@ export default {
         })
     },
     async newItemVersion() {
-      await activities.newVersion(this.itemUid, this.source)
+      await activities.newVersion(
+        this.itemUid,
+        this.source,
+        this.resolveActionSubitem('newVersion')
+      )
       this.notificationHub.add({
         msg: this.$t('_global.new_version_success'),
         type: 'success',

@@ -5,11 +5,6 @@ from collections import deque
 from io import BytesIO
 
 import docx
-import docx.enum.section
-import docx.enum.text
-import docx.section
-import docx.table
-import docx.text.paragraph
 import lxml.etree
 import openpyxl
 import pytest
@@ -193,13 +188,18 @@ def test_integrity_checks_for_all_studies(api_client):
         (None, SoALayout.DETAILED),
         (None, SoALayout.DETAILED),
         (None, SoALayout.OPERATIONAL),
+        (None, SoALayout.PROTOCOL),
+        (None, SoALayout.PROTOCOL_LAB_TABLE),
         ("day", SoALayout.DETAILED),
         ("day", SoALayout.DETAILED),
         ("day", SoALayout.OPERATIONAL),
+        ("day", SoALayout.PROTOCOL),
+        ("day", SoALayout.PROTOCOL_LAB_TABLE),
         ("week", SoALayout.DETAILED),
         ("week", SoALayout.DETAILED),
         ("week", SoALayout.OPERATIONAL),
-        (None, SoALayout.PROTOCOL),
+        ("week", SoALayout.PROTOCOL),
+        ("week", SoALayout.PROTOCOL_LAB_TABLE),
     ],
 )
 def test_flowchart(
@@ -346,6 +346,7 @@ def test_flowchart_coordinates(soa_test_data: SoATestData, api_client):
         (SoALayout.PROTOCOL, "day"),
         (SoALayout.PROTOCOL, "week"),
         (SoALayout.PROTOCOL, "week"),
+        (SoALayout.PROTOCOL_LAB_TABLE, "week"),
         (SoALayout.DETAILED, "day"),
         (SoALayout.DETAILED, "week"),
         (SoALayout.OPERATIONAL, "day"),
@@ -368,15 +369,23 @@ def test_flowchart_html(
     service = StudyFlowchartService()
 
     # SoA table for comparison base
-    soa_table: TableWithFootnotes = service.build_flowchart_table(
-        study_uid=soa_test_data.study.uid,
-        study_value_version=None,
-        layout=layout,
-        time_unit=time_unit,
-    )
+    if layout == SoALayout.PROTOCOL_LAB_TABLE:
+        # Lab table uses its own table builder with different filtering and structure
+        soa_table: TableWithFootnotes = service.get_flowchart_table_lab_table(
+            study_uid=soa_test_data.study.uid,
+            study_value_version=None,
+            time_unit=time_unit,
+        )
+    else:
+        soa_table: TableWithFootnotes = service.build_flowchart_table(
+            study_uid=soa_test_data.study.uid,
+            study_value_version=None,
+            layout=layout,
+            time_unit=time_unit,
+        )
 
     # Layout alterations from get_flowchart_table
-    if layout == SoALayout.PROTOCOL:
+    if layout in (SoALayout.PROTOCOL, SoALayout.PROTOCOL_LAB_TABLE):
         service.propagate_hidden_rows(soa_table.rows)
         service.remove_hidden_rows(soa_table)
 
@@ -414,7 +423,7 @@ def test_flowchart_html(
     # Although table_f.table_to_html() has it's unit tests, we also run them on this SoA table
     # to increase the number of cases and to test on real-world scenarios.
 
-    if layout != SoALayout.PROTOCOL:
+    if layout not in (SoALayout.PROTOCOL, SoALayout.PROTOCOL_LAB_TABLE):
         # Detailed and Operation SoA show all rows
         StudyFlowchartService.show_hidden_rows(soa_table.rows)
 
@@ -432,6 +441,9 @@ def test_flowchart_html(
         (SoALayout.PROTOCOL, "day"),
         (SoALayout.PROTOCOL, "week"),
         (SoALayout.PROTOCOL, None),
+        (SoALayout.PROTOCOL_LAB_TABLE, "day"),
+        (SoALayout.PROTOCOL_LAB_TABLE, "week"),
+        (SoALayout.PROTOCOL_LAB_TABLE, None),
         (SoALayout.DETAILED, "day"),
         (SoALayout.DETAILED, "week"),
         (SoALayout.DETAILED, None),
@@ -455,23 +467,28 @@ def test_flowchart_docx(
     service = StudyFlowchartService()
 
     # SoA table for comparison base
-    soa_table: TableWithFootnotes = service.build_flowchart_table(
-        study_uid=soa_test_data.study.uid,
-        study_value_version=None,
-        layout=layout,
-        time_unit=time_unit,
-    )
-
-    # Layout alterations from get_flowchart_table
-    if layout == SoALayout.PROTOCOL:
-        service.propagate_hidden_rows(soa_table.rows)
-        service.remove_hidden_rows(soa_table)
-
-        # Layout alterations from get_study_flowchart_docx
-        service.add_protocol_section_column(soa_table)
-
+    if layout == SoALayout.PROTOCOL_LAB_TABLE:
+        # Lab table uses its own table builder with different filtering and structure
+        soa_table: TableWithFootnotes = service.get_flowchart_table_lab_table(
+            study_uid=soa_test_data.study.uid,
+            study_value_version=None,
+            time_unit=time_unit,
+        )
     else:
-        service.show_hidden_rows(soa_table.rows)
+        soa_table: TableWithFootnotes = service.build_flowchart_table(
+            study_uid=soa_test_data.study.uid,
+            study_value_version=None,
+            layout=layout,
+            time_unit=time_unit,
+        )
+
+        # Layout alterations from get_flowchart_table / get_study_flowchart_docx
+        if layout == SoALayout.PROTOCOL:
+            service.propagate_hidden_rows(soa_table.rows)
+            service.remove_hidden_rows(soa_table)
+            service.add_protocol_section_column(soa_table)
+        else:
+            service.show_hidden_rows(soa_table.rows)
 
     # Query parameters
     params = {"layout": layout.value}
@@ -517,6 +534,9 @@ def test_flowchart_docx(
         (SoALayout.PROTOCOL, "day"),
         (SoALayout.PROTOCOL, "week"),
         (SoALayout.PROTOCOL, None),
+        (SoALayout.PROTOCOL_LAB_TABLE, "day"),
+        (SoALayout.PROTOCOL_LAB_TABLE, "week"),
+        (SoALayout.PROTOCOL_LAB_TABLE, None),
         (SoALayout.DETAILED, "day"),
         (SoALayout.DETAILED, "week"),
         (SoALayout.DETAILED, None),
@@ -575,13 +595,33 @@ def test_flowchart_xlsx(
     assert len(workbook.worksheets) == 1, "expected exactly 1 worksheet in XLSX file"
     worksheet = workbook.worksheets[0]
 
-    # THEN worksheet has the same number of rows as SoA table
     xlsx_rows = list(worksheet.rows)
-    assert len(xlsx_rows) == len(soa_table.rows), "number of rows mismatch"
+    if layout == SoALayout.PROTOCOL_LAB_TABLE:
+        # For Lab table layouts:
+        # only activities from the "Laboratory Assessments" activity group which are assigned to some visits are shown in XLSX.
+        # With show_all_visits_lab_table=False (default), there is only 1 header row and no visit columns.
+        expected_num_rows = 1  # starts with 1 to account for header rows in the Lab table layout (show_all_visits_lab_table defaults to False)
+        for activity_data in soa_test_data.ACTIVITIES.values():
+            if (
+                activity_data.get("group", "").lower() == "laboratory assessments"
+                and len(activity_data.get("visits", [])) > 0
+            ):
+                expected_num_rows += 1
 
-    # THEN worksheet has the same number of columns as SoA table
-    num_xlsx_cols = sum(1 for _ in worksheet.columns)
-    assert num_xlsx_cols == len(soa_table.rows[-1].cells), "number of columns mismatch"
+        assert (
+            len(xlsx_rows) == expected_num_rows
+        ), "number of rows mismatch for Lab table layout"
+
+    else:
+
+        # For non-Lab table layouts, all rows are shown in XLSX, so we compare with all rows in the SoA table
+        assert len(xlsx_rows) == len(soa_table.rows), "number of rows mismatch"
+
+        # THEN worksheet has the same number of columns as SoA table
+        num_xlsx_cols = sum(1 for _ in worksheet.columns)
+        assert num_xlsx_cols == len(
+            soa_table.rows[-1].cells
+        ), "number of columns mismatch"
 
 
 @pytest.mark.parametrize(
@@ -688,50 +728,50 @@ def soa_test_data_for_exports(
             "/studies/{study_uid}/detailed-soa-exports",
             "text/csv",
             DETAILED_SOA_EXPORT_COLUMN_HEADERS,
-            [False, False],
+            [False, False, True],
         ),
         (
             "/studies/{study_uid}/detailed-soa-exports",
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             DETAILED_SOA_EXPORT_COLUMN_HEADERS,
-            [False, True],
+            [False, True, False],
         ),
         (
             "/studies/{study_uid}/detailed-soa-exports",
             "text/xml",
             DETAILED_SOA_EXPORT_COLUMN_HEADERS,
-            [True, False],
+            [True, False, False],
         ),
         (
             "/studies/{study_uid}/detailed-soa-exports",
             "application/json",
             DETAILED_SOA_JSON_EXPORT_COLUMN_HEADERS,
-            [True, True],
+            [True, True, False],
         ),
         (
             "/studies/{study_uid}/protocol-soa-exports",
             "text/csv",
             PROTOCOL_SOA_EXPORT_COLUMN_HEADERS,
-            [True, True],
+            [True, True, False],
         ),
         (
             "/studies/{study_uid}/protocol-soa-exports",
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             PROTOCOL_SOA_EXPORT_COLUMN_HEADERS,
-            [True, False],
+            [True, False, False],
         ),
         (
             "/studies/{study_uid}/protocol-soa-exports",
             "text/xml",
             PROTOCOL_SOA_EXPORT_COLUMN_HEADERS,
-            [False, True],
+            [False, True, False],
         ),
         (
             "/studies/{study_uid}/protocol-soa-exports",
             "application/json",
             # for JSON output, the exported properties are not filtered
             DETAILED_SOA_JSON_EXPORT_COLUMN_HEADERS,
-            [False, False],
+            [False, False, False],
         ),
         (
             "/studies/{study_uid}/operational-soa-exports",
@@ -770,15 +810,20 @@ def test_soa_exports(
     """Test the export endpoints return the expected data format"""
     expected_column_headers = column_headers.copy()
     if soa_preferences:
-        show_epochs, show_milestones = soa_preferences
+        show_epochs, show_milestones, show_all_visits_lab_table = soa_preferences
         response = api_client.patch(
             f"/studies/{soa_test_data_for_exports.study.uid}/soa-preferences",
-            json={"show_epochs": show_epochs, "show_milestones": show_milestones},
+            json={
+                "show_epochs": show_epochs,
+                "show_milestones": show_milestones,
+                "show_all_visits_lab_table": show_all_visits_lab_table,
+            },
         )
         assert_response_status_code(response, 200)
         res = response.json()
         assert res["show_epochs"] == show_epochs
         assert res["show_milestones"] == show_milestones
+        assert res["show_all_visits_lab_table"] == show_all_visits_lab_table
         if show_epochs:
             expected_column_headers.append("epoch")
         if show_milestones:
@@ -857,6 +902,140 @@ def test_soa_exports(
         # THEN worksheet has more than 1 row
         num_rows = sum(1 for _ in worksheet.rows)
         assert num_rows > 1, f"worksheet 0 has only {num_rows} rows"
+
+
+@pytest.mark.parametrize("data_format", ["text/csv", "application/json"])
+def test_protocol_soa_exports_default_filters_by_protocol_flowchart(
+    api_client: TestClient,
+    soa_test_data_for_exports: SoATestData,
+    data_format: str,
+):
+    """With no parameters, protocol-soa-exports returns the full Protocol SoA export"""
+    study_uid = soa_test_data_for_exports.study.uid
+
+    response = api_client.get(
+        f"/studies/{study_uid}/protocol-soa-exports",
+        headers={"Accept": data_format},
+    )
+
+    assert_response_status_code(response, 200)
+    assert_response_content_type(response, data_format)
+
+    if data_format == "application/json":
+        data = response.json()
+        assert isinstance(data, list)
+        # THEN returns data (protocol flowchart filter is active by default)
+        assert len(data) > 0, "expected non-empty results for protocol SoA export"
+
+
+@pytest.mark.parametrize("data_format", ["text/csv", "application/json"])
+def test_protocol_soa_exports_lab_table_filters_laboratory_assessments(
+    api_client: TestClient,
+    soa_test_data_for_exports: SoATestData,
+    data_format: str,
+):
+    """protocol_lab_table=true restricts results to Laboratory Assessments group only"""
+    study_uid = soa_test_data_for_exports.study.uid
+
+    # Get default protocol export (all activities in protocol flowchart)
+    default_response = api_client.get(
+        f"/studies/{study_uid}/protocol-soa-exports",
+        headers={"Accept": data_format},
+    )
+    # Get Lab table export
+    lab_table_response = api_client.get(
+        f"/studies/{study_uid}/protocol-soa-exports",
+        params={"protocol_lab_table": "true"},
+        headers={"Accept": data_format},
+    )
+
+    assert_response_status_code(default_response, 200)
+    assert_response_status_code(lab_table_response, 200)
+
+    if data_format == "application/json":
+        default_data = default_response.json()
+        lab_table_data = lab_table_response.json()
+        assert (
+            len(default_data) > 0
+        ), "expected non-empty results for default protocol SoA export"
+        assert (
+            len(lab_table_data) > 0
+        ), "expected non-empty results for Lab table protocol SoA export"
+
+        # THEN all Lab table records belong to the Laboratory Assessments group
+        for record in lab_table_data:
+            assert (
+                record.get("activity_group", "").lower() == "laboratory assessments"
+            ), f"Unexpected activity_group in Lab table export: {record.get('activity_group')!r}"
+
+
+def test_protocol_soa_exports_lab_table_and_default_are_mutually_exclusive(
+    api_client: TestClient,
+    soa_test_data_for_exports: SoATestData,
+):
+    """protocol_lab_table=false (default) and protocol_lab_table=true return disjoint activity sets"""
+    study_uid = soa_test_data_for_exports.study.uid
+
+    default_response = api_client.get(
+        f"/studies/{study_uid}/protocol-soa-exports",
+        params={"protocol_lab_table": "false"},
+        headers={"Accept": "application/json"},
+    )
+    lab_table_response = api_client.get(
+        f"/studies/{study_uid}/protocol-soa-exports",
+        params={"protocol_lab_table": "true"},
+        headers={"Accept": "application/json"},
+    )
+
+    assert_response_status_code(default_response, 200)
+    assert_response_status_code(lab_table_response, 200)
+
+    default_groups = {r["activity_group"] for r in default_response.json()}
+    lab_table_groups = {r["activity_group"] for r in lab_table_response.json()}
+
+    # THEN default export does NOT contain Laboratory Assessments
+    # (because protocol_flowchart filter applies, and Lab table filter does not)
+    assert (
+        "Laboratory Assessments" not in default_groups or len(default_groups) > 1
+    ), "Default export should not be restricted to Laboratory Assessments only"
+
+    # THEN Lab table export ONLY contains Laboratory Assessments
+    assert lab_table_groups <= {
+        "Laboratory Assessments"
+    }, f"Lab table export should only contain Laboratory Assessments, got: {lab_table_groups}"
+
+
+def test_protocol_soa_exports_column_headers_consistent_for_lab_table(
+    api_client: TestClient,
+    soa_test_data_for_exports: SoATestData,
+):
+    """Lab table export returns the same column structure as regular protocol export"""
+    study_uid = soa_test_data_for_exports.study.uid
+
+    default_response = api_client.get(
+        f"/studies/{study_uid}/protocol-soa-exports",
+        headers={"Accept": "text/csv"},
+    )
+    lab_table_response = api_client.get(
+        f"/studies/{study_uid}/protocol-soa-exports",
+        params={"protocol_lab_table": "true"},
+        headers={"Accept": "text/csv"},
+    )
+
+    assert_response_status_code(default_response, 200)
+    assert_response_status_code(lab_table_response, 200)
+
+    def _csv_headers(response):
+        reader = csv.reader(response.iter_lines(), dialect=csv.excel)
+        return next(reader, [])
+
+    default_headers = _csv_headers(default_response)
+    lab_table_headers = _csv_headers(lab_table_response)
+
+    # THEN both exports have identical column headers
+    assert (
+        default_headers == lab_table_headers
+    ), f"Column headers differ: default={default_headers}, lab_table={lab_table_headers}"
 
 
 def test_get_study_flowchart_versioned(api_client, temp_database_populated):
@@ -1273,3 +1452,198 @@ def test_detailed_soa_xlsx(
         for cell in row[num_header_cols:]
     )
     assert num_checkmarks == len(soa_test_data.study_activity_schedules)
+
+
+# Tests for Protocol Lab table functionality
+
+
+def test_study_flowchart_protocol_lab_table_layout(
+    soa_test_data: SoATestData,
+    api_client: TestClient,
+    temp_database_populated: TempDatabasePopulated,
+):
+    """Test Protocol Lab table layout returns correct HTML structure"""
+
+    study_uid = soa_test_data.study.uid
+
+    response = api_client.get(
+        f"/studies/{study_uid}/flowchart.html",
+        params={"layout": "protocol_lab_table", "time_unit": "week"},
+    )
+
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "text/html; charset=utf-8"
+
+    # Parse HTML to validate structure
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # THEN should contain a table
+    table = soup.find("table")
+    assert table is not None, "HTML should contain a table"
+
+    # THEN should have header structure for Lab table
+    # With show_all_visits_lab_table=False (default), there is only 1 header row and 2 columns (no visit columns).
+    header_rows = table.find("thead").find_all("tr")
+    assert len(header_rows) >= 1, "Should have at least 1 header row"
+
+    # THEN first header row should have correct structure
+    first_row_cells = header_rows[0].find_all(["th", "td"])
+    assert (
+        len(first_row_cells) >= 2
+    ), "Should have at least 2 columns (subgroup + activity)"
+
+
+def test_study_flowchart_protocol_lab_table_filters_activities(
+    soa_test_data: SoATestData,
+    api_client: TestClient,
+    temp_database_populated: TempDatabasePopulated,
+):
+    """Test that Protocol Lab table filters activities correctly"""
+    study_uid = soa_test_data.study.uid
+
+    # Get regular detailed layout for comparison
+    detailed_response = api_client.get(
+        f"/studies/{study_uid}/flowchart.html",
+        params={"layout": "detailed", "time_unit": "week"},
+    )
+
+    # Get Protocol Lab table layout
+    lab_table_response = api_client.get(
+        f"/studies/{study_uid}/flowchart.html",
+        params={"layout": "protocol_lab_table", "time_unit": "week"},
+    )
+
+    assert detailed_response.status_code == 200
+    assert lab_table_response.status_code == 200
+
+    detailed_soup = BeautifulSoup(detailed_response.content, "html.parser")
+    lab_table_soup = BeautifulSoup(lab_table_response.content, "html.parser")
+
+    # Count activity rows (non-header rows in tbody)
+    detailed_activity_rows = len(detailed_soup.find("tbody").find_all("tr"))
+    lab_table_activity_rows = len(lab_table_soup.find("tbody").find_all("tr"))
+
+    # THEN Protocol Lab table should have fewer or equal activity rows
+    # (since it filters to only Laboratory Assessments)
+    assert lab_table_activity_rows <= detailed_activity_rows
+
+
+@pytest.mark.parametrize(
+    "layout, time_unit",
+    [
+        (SoALayout.PROTOCOL, "day"),
+        (SoALayout.PROTOCOL, "week"),
+        (SoALayout.PROTOCOL, None),
+        (SoALayout.PROTOCOL_LAB_TABLE, "day"),
+        (SoALayout.PROTOCOL_LAB_TABLE, "week"),
+        (SoALayout.PROTOCOL_LAB_TABLE, None),
+        (SoALayout.DETAILED, "day"),
+        (SoALayout.DETAILED, "week"),
+        (SoALayout.DETAILED, None),
+        (SoALayout.OPERATIONAL, "day"),
+        (SoALayout.OPERATIONAL, "week"),
+        (SoALayout.OPERATIONAL, None),
+    ],
+)
+def test_study_flowchart_include_uids_parameter_html(
+    soa_test_data: SoATestData,
+    api_client: TestClient,
+    temp_database_populated: TempDatabasePopulated,
+    layout: SoALayout,
+    time_unit: str | None,
+):
+    """Test include_uids parameter adds data attributes to HTML"""
+
+    study_uid = soa_test_data.study.uid
+
+    params = {"layout": layout.value}
+    if time_unit is not None:
+        params["time_unit"] = time_unit
+
+    # Test without include_uids (default)
+    response_without_uids = api_client.get(
+        f"/studies/{study_uid}/flowchart.html",
+        params=params,
+    )
+
+    # Test with include_uids=true
+    response_with_uids = api_client.get(
+        f"/studies/{study_uid}/flowchart.html",
+        params={**params, "include_uids": "true"},
+    )
+
+    assert response_without_uids.status_code == 200
+    assert response_with_uids.status_code == 200
+
+    soup_without = BeautifulSoup(response_without_uids.content, "html.parser")
+    soup_with = BeautifulSoup(response_with_uids.content, "html.parser")
+
+    # Count cells with object-* attributes
+    cells_without_attrs = soup_without.find_all(
+        lambda tag: tag.name in ("th", "td")
+        and any(k.startswith("object-") for k in tag.attrs),
+    )
+    cells_with_attrs = soup_with.find_all(
+        lambda tag: tag.name in ("th", "td")
+        and any(k.startswith("object-") for k in tag.attrs),
+    )
+
+    # THEN default response should not have UID attributes
+    assert (
+        len(cells_without_attrs) == 0
+    ), "Default response should not include UID attributes"
+
+    # THEN response with include_uids should have UID attributes
+    assert (
+        len(cells_with_attrs) > 0
+    ), "Response with include_uids should have UID attributes"
+
+
+def test_study_flowchart_include_uids_with_protocol_lab_table_html(
+    soa_test_data: SoATestData,
+    api_client: TestClient,
+    temp_database_populated: TempDatabasePopulated,
+):
+    """Test include_uids parameter works with Protocol Lab table layout"""
+
+    study_uid = soa_test_data.study.uid
+
+    response = api_client.get(
+        f"/studies/{study_uid}/flowchart.html",
+        params={
+            "layout": "protocol_lab_table",
+            "time_unit": "week",
+            "include_uids": "true",
+        },
+    )
+
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # THEN should have cells with UID attributes
+    cells_with_uids = soup.find_all(
+        lambda tag: tag.name in ("th", "td")
+        and any(k.startswith("object-uid") for k in tag.attrs),
+    )
+
+    # Should have at least some cells with UIDs (visits, activities, etc.)
+    assert len(cells_with_uids) > 0, "Should have cells with UID attributes"
+
+
+def test_study_flowchart_invalid_layout_parameter(
+    soa_test_data: SoATestData,
+    api_client: TestClient,
+    temp_database_populated: TempDatabasePopulated,
+):
+    """Test that invalid layout parameter returns error"""
+
+    study_uid = soa_test_data.study.uid
+
+    response = api_client.get(
+        f"/studies/{study_uid}/flowchart.html",
+        params={"layout": "invalid-layout", "time_unit": "week"},
+    )
+
+    # Should return validation error
+    assert response.status_code == 400

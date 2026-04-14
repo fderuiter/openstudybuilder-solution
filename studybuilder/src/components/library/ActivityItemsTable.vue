@@ -3,7 +3,7 @@
     <v-row class="activity-items-row">
       <v-col cols="12" class="activity-items-col px-0">
         <div class="section-header mb-1">
-          <h3 class="text-h6 font-weight-bold text-primary">
+          <h3 class="text-headline-small font-weight-bold text-primary">
             {{ $t('ActivityOverview.activity_items') }}
           </h3>
         </div>
@@ -38,6 +38,13 @@
                       .join(', ')
                   }}
                 </span>
+                <span v-else-if="item.ct_codelist" class="font-italic">
+                  {{
+                    $t('ActivityInstanceForm.all_terms_in_codelist_named', {
+                      name: item.ct_codelist.name,
+                    })
+                  }}
+                </span>
                 <span
                   v-else-if="
                     item.unit_definitions && item.unit_definitions.length > 0
@@ -68,7 +75,13 @@
                 <span v-if="item.ct_terms && item.ct_terms.length > 0">
                   {{ item.ct_terms.map((term) => term.name).join(', ') }}
                 </span>
-                <span v-else-if="item.ct_codelist">*</span>
+                <span v-else-if="item.ct_codelist" class="font-italic">
+                  {{
+                    $t('ActivityInstanceForm.all_terms_in_codelist_named', {
+                      name: item.ct_codelist.name,
+                    })
+                  }}
+                </span>
                 <span v-else>-</span>
               </div>
             </template>
@@ -81,7 +94,13 @@
                       .join(', ')
                   }}
                 </span>
-                <span v-else-if="item.ct_codelist">*</span>
+                <span v-else-if="item.ct_codelist" class="font-italic">
+                  {{
+                    $t('ActivityInstanceForm.all_terms_in_codelist_named', {
+                      name: item.ct_codelist.name,
+                    })
+                  }}
+                </span>
                 <span v-else>-</span>
               </div>
             </template>

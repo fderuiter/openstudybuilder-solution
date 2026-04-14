@@ -5,7 +5,7 @@
     class="pa-4 bg-white"
     style="overflow-x: auto"
   >
-    <v-row style="justify-content: center">
+    <v-row style="justify-content: center" class="my-2">
       <v-btn-toggle
         v-model="layout"
         mandatory
@@ -13,7 +13,7 @@
         color="nnBaseBlue"
         divided
         variant="outlined"
-        class="layoutSelector"
+        class="layoutSelector text-body-medium"
         :disabled="sortMode || soaRows.length === 0"
       >
         <v-btn value="detailed">
@@ -22,10 +22,20 @@
         <v-btn value="protocol">
           {{ $t('DetailedFlowchart.protocol') }}
         </v-btn>
+        <v-btn
+          v-if="
+            featureFlagsStore.getFeatureFlag('soa_protocol_lab_table') === true
+          "
+          value="protocol_lab_table"
+        >
+          {{ $t('DetailedFlowchart.protocol_lab_table') }}
+        </v-btn>
       </v-btn-toggle>
     </v-row>
     <ProtocolFlowchart
-      v-if="['operational', 'protocol'].indexOf(layout) > -1"
+      v-if="
+        ['operational', 'protocol', 'protocol_lab_table'].indexOf(layout) > -1
+      "
       :layout="layout"
       :study-visits="studyVisits"
       :style="`max-height: ${tableHeight + 150}px;`"
@@ -473,7 +483,7 @@
                 v-if="row.cells"
                 :id="`row-scroll-${row.cells[0].refs[0]?.uid}`"
                 :key="`row-${row.cells[0].refs[0]?.uid}`"
-                :class="row.class"
+                :class="scheduleMethods.getSoaRowClasses(row)"
                 style="height: 35px"
               >
                 <td class="sticky-column" style="min-width: 320px">
@@ -551,14 +561,23 @@
                     <div class="ml-4 row-label-wrapper">
                       <span class="row-label-activator">
                         <span class="row-label-text">
-                          <span
-                            :class="{
-                              'search-match-cell': isSearchMatch(
+                          <span>
+                            <template
+                              v-for="(
+                                segment, segmentIndex
+                              ) in getSearchHighlightedSegments(
                                 row.cells[0].text
-                              ),
-                            }"
-                          >
-                            {{ row.cells[0].text }}
+                              )"
+                              :key="`row-${row.cells[0].refs[0]?.uid}-segment-${segmentIndex}`"
+                            >
+                              <span
+                                :class="{
+                                  'search-match-cell': segment.match,
+                                }"
+                              >
+                                {{ segment.text }}
+                              </span>
+                            </template>
                             <span
                               v-if="
                                 scheduleMethods.getElementFootnotesLetters(
@@ -623,7 +642,6 @@
                     <v-btn
                       v-if="!props.readOnly"
                       icon
-                      :title="$t('DetailedFlowchart.toggle_soa_group_display')"
                       :disabled="
                         footnoteMode ||
                         !accessGuard.checkPermission($roles.STUDY_WRITE) ||
@@ -634,6 +652,13 @@
                       :loading="row.loading"
                       @click="toggleLevelDisplay(row)"
                     >
+                      <v-tooltip activator="parent" location="right">
+                        {{
+                          $t('DetailedFlowchart.toggle_soa_group_display', {
+                            type: getProtocolSoaTypeLabel(row.cells[0].style),
+                          })
+                        }}
+                      </v-tooltip>
                       <v-icon
                         v-if="getLevelDisplayState(row)"
                         size="x-small"
@@ -802,7 +827,7 @@
         />
       </div>
     </div>
-    <v-card v-if="sortMode" id="bottomCard" elevation="24" class="bottomCard">
+    <v-card v-if="sortMode" id="bottomCard" elevation="1" class="bottomCard">
       <v-row>
         <v-col cols="8">
           <v-card
@@ -834,7 +859,7 @@
     <v-card
       v-if="footnoteMode"
       id="bottomCard"
-      elevation="24"
+      elevation="1"
       class="bottomCard"
     >
       <v-row>
@@ -1658,6 +1683,11 @@ function closeRemoveFootnoteForm() {
 
 function showSoaRow(index, row) {
   try {
+    const searchTerm = String(search.value ?? '').trim()
+    if (searchTerm.length >= 3) {
+      return true
+    }
+
     let key = `row-${index}`
     let result = true
 
@@ -1899,6 +1929,16 @@ function getDisplayButtonIcon(rowKey) {
 
 function getLevelDisplayState(row) {
   return !row.hide
+}
+
+function getProtocolSoaTypeLabel(style) {
+  if (style === 'soaGroup') {
+    return 'SoA group'
+  }
+  if (style === 'subGroup') {
+    return 'Subgroup'
+  }
+  return style.charAt(0).toUpperCase() + style.slice(1)
 }
 
 function highlightRow(row) {
@@ -2415,13 +2455,28 @@ function multipleVisitsSelected() {
   return selectedVisitIndexes.value.length > 1
 }
 
-function isSearchMatch(text) {
-  const searchTerm = search.value?.trim().toLowerCase()
-  if (!(searchTerm.length >= 3) || typeof text !== 'string') {
-    return false
+function getSearchHighlightedSegments(text) {
+  const rowText = typeof text === 'string' ? text : ''
+  const searchTerm = search.value?.trim()
+
+  if (!(searchTerm?.length >= 3) || !rowText) {
+    return [{ text: rowText, match: false }]
   }
 
-  return text.toLowerCase().includes(searchTerm)
+  if (!rowText.toLowerCase().includes(searchTerm.toLowerCase())) {
+    return [{ text: rowText, match: false }]
+  }
+
+  const escapedSearchTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const splitRegex = new RegExp(`(${escapedSearchTerm})`, 'gi')
+
+  return rowText
+    .split(splitRegex)
+    .filter((segment) => segment.length > 0)
+    .map((segment) => ({
+      text: segment,
+      match: segment.toLowerCase() === searchTerm.toLowerCase(),
+    }))
 }
 </script>
 
@@ -2463,7 +2518,6 @@ td {
 
 .sticky-header {
   overflow-y: auto;
-  overscroll-behavior-y: contain;
   overflow-anchor: none;
 
   thead th {

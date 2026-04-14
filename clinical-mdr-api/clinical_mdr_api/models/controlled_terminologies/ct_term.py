@@ -23,6 +23,7 @@ from clinical_mdr_api.models.controlled_terminologies.ct_term_codelist import (
 from clinical_mdr_api.models.controlled_terminologies.ct_term_name import CTTermName
 from clinical_mdr_api.models.libraries.library import Library
 from clinical_mdr_api.models.utils import BaseModel, PostInputModel
+from common.config import settings
 
 
 class CTTerm(BaseModel):
@@ -229,7 +230,7 @@ class CTTermNameAndAttributes(BaseModel):
 
 class CTTermNewCodelist(BaseModel):
     codelist_uid: Annotated[str, Field()]
-    order: Annotated[int, Field()]
+    order: Annotated[int, Field(ge=0, le=settings.max_int_neo4j)]
     submission_value: Annotated[str, Field()]
 
 

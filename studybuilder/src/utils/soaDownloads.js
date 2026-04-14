@@ -22,7 +22,8 @@ async function csvDownload(layout) {
       response = await study.exportStudyDetailedSoa(uid)
       break
     case 'protocol':
-      response = await study.exportStudyProtocolSoa(uid)
+    case 'protocol_lab_table':
+      response = await study.exportStudyProtocolSoa(uid, layout)
       break
     case 'operational':
       response = await study.exportStudyOperationalSoa(uid)
@@ -43,6 +44,7 @@ async function excelDownload(layout) {
       response = await study.exportStudyDetailedSoaExcel(uid)
       break
     case 'protocol':
+    case 'protocol_lab_table':
       response = await study.exportStudyProtocolSoaExcel(uid, { layout })
       break
     case 'operational':

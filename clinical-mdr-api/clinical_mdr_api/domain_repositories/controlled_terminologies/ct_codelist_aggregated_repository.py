@@ -22,8 +22,12 @@ from clinical_mdr_api.domains.controlled_terminologies.ct_codelist_name import (
 )
 from clinical_mdr_api.domains.controlled_terminologies.ct_codelist_term import (
     CTCodelistTermAR,
+    CTPairedCodelistTermAR,
 )
-from clinical_mdr_api.models.controlled_terminologies.ct_codelist import CTCodelistTerm
+from clinical_mdr_api.models.controlled_terminologies.ct_codelist import (
+    CTCodelistTerm,
+    CTPairedCodelistTerm,
+)
 from clinical_mdr_api.models.controlled_terminologies.ct_stats import CodelistCount
 from clinical_mdr_api.repositories._utils import (
     ComparisonOperator,
@@ -1076,3 +1080,125 @@ class CTCodelistAggregatedRepository:
         """
         result, _ = db.cypher_query(query, {"codelist_uid": codelist_uid})
         return result[0] if result else (None, None)
+
+    def find_paired_codelist_terms(
+        self,
+        names_codelist_uid: str,
+        codes_codelist_uid: str,
+        sort_by: dict[str, bool] | None = None,
+        page_number: int = 1,
+        page_size: int = 0,
+        filter_by: dict[str, dict[str, Any]] | None = None,
+        filter_operator: FilterOperator = FilterOperator.AND,
+        total_count: bool = False,
+    ) -> tuple[list[CTPairedCodelistTermAR], int]:
+        match_clause = """
+            CALL {
+                MATCH (:CTCodelistRoot {uid: $names_codelist_uid})-[ht:HAS_TERM]->(:CTCodelistTerm)-[:HAS_TERM_ROOT]->(tr:CTTermRoot)
+                WHERE ht.end_date IS NULL
+                RETURN tr
+                UNION
+                MATCH (:CTCodelistRoot {uid: $codes_codelist_uid})-[ht:HAS_TERM]->(:CTCodelistTerm)-[:HAS_TERM_ROOT]->(tr:CTTermRoot)
+                WHERE ht.end_date IS NULL
+                RETURN tr
+            }
+            WITH DISTINCT tr AS term_root
+            OPTIONAL MATCH (:CTCodelistRoot {uid: $names_codelist_uid})-[names_ht:HAS_TERM]->(names_clt:CTCodelistTerm)-[:HAS_TERM_ROOT]->(term_root)
+            WHERE names_ht.end_date IS NULL
+            OPTIONAL MATCH (:CTCodelistRoot {uid: $codes_codelist_uid})-[codes_ht:HAS_TERM]->(codes_clt:CTCodelistTerm)-[:HAS_TERM_ROOT]->(term_root)
+            WHERE codes_ht.end_date IS NULL
+            MATCH (term_root)<-[:CONTAINS_TERM]-(library:Library)
+            MATCH (term_root)-[:HAS_NAME_ROOT]->(tnr:CTTermNameRoot)-[:LATEST]->(tnv:CTTermNameValue)
+            MATCH (term_root)-[:HAS_ATTRIBUTES_ROOT]->(tar:CTTermAttributesRoot)-[:LATEST]->(tav:CTTermAttributesValue)
+        """
+
+        alias_clause = """
+            DISTINCT term_root, names_ht, codes_ht, names_clt, codes_clt, tnr, tnv, tar, tav, library
+            CALL {
+                WITH tar, tav
+                MATCH (tar)-[hv:HAS_VERSION]->(tav)
+                WITH hv
+                ORDER BY
+                    toInteger(split(hv.version, '.')[0]) ASC,
+                    toInteger(split(hv.version, '.')[1]) ASC,
+                    hv.end_date ASC,
+                    hv.start_date ASC
+                WITH collect(hv) as hvs
+                RETURN last(hvs) AS rel_data_attributes
+            }
+            CALL {
+                WITH tnr, tnv
+                MATCH (tnr)-[hv:HAS_VERSION]->(tnv)
+                WITH hv
+                ORDER BY
+                    toInteger(split(hv.version, '.')[0]) ASC,
+                    toInteger(split(hv.version, '.')[1]) ASC,
+                    hv.end_date ASC,
+                    hv.start_date ASC
+                WITH collect(hv) as hvs
+                RETURN last(hvs) AS rel_data_name
+            }
+            WITH
+            term_root.uid AS term_uid,
+            names_clt.submission_value AS name_submission_value,
+            codes_clt.submission_value AS code_submission_value,
+            COALESCE(names_ht.order, codes_ht.order) AS order,
+            COALESCE(names_ht.ordinal, codes_ht.ordinal) AS ordinal,
+            COALESCE(names_ht.start_date, codes_ht.start_date) AS start_date,
+            COALESCE(names_ht.end_date, codes_ht.end_date) AS end_date,
+            tav.definition AS definition,
+            tav.concept_id AS concept_id,
+            tav.preferred_term AS nci_preferred_name,
+            rel_data_attributes.start_date AS attributes_date,
+            rel_data_attributes.status AS attributes_status,
+            tnv.name AS sponsor_preferred_name,
+            tnv.name_sentence_case AS sponsor_preferred_name_sentence_case,
+            rel_data_name.start_date AS name_date,
+            rel_data_name.status AS name_status,
+            library.name AS library_name
+        """
+
+        if sort_by is None:
+            sort_by = {"order": True}
+
+        query = CypherQueryBuilder(
+            filter_by=FilterDict.model_validate({"elements": filter_by}),
+            filter_operator=filter_operator,
+            match_clause=match_clause,
+            alias_clause=alias_clause,
+            wildcard_properties_list=list_codelist_wildcard_properties(
+                target_model=CTPairedCodelistTerm, transform=False
+            ),
+            sort_by=sort_by,
+            page_number=page_number,
+            page_size=page_size,
+            total_count=total_count,
+        )
+        query.parameters.update(
+            {
+                "names_codelist_uid": names_codelist_uid,
+                "codes_codelist_uid": codes_codelist_uid,
+            }
+        )
+
+        result_array, attributes_names = query.execute()
+
+        paired_term_ars = []
+        for term in result_array:
+            term_dictionary = {}
+            for term_property, attribute_name in zip(term, attributes_names):
+                term_dictionary[attribute_name] = term_property
+            paired_term_ars.append(
+                CTPairedCodelistTermAR.from_result_dict(term_dictionary)
+            )
+
+        total = calculate_total_count_from_query_result(
+            len(paired_term_ars), page_number, page_size, total_count
+        )
+        if total is None:
+            count_result, _ = db.cypher_query(
+                query=query.count_query, params=query.parameters
+            )
+            total = count_result[0][0] if len(count_result) > 0 else 0
+
+        return paired_term_ars, total

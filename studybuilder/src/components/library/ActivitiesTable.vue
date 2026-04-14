@@ -95,7 +95,11 @@
       </template>
       <template #[`item.actions`]="{ item }">
         <div class="pr-0 mr-0">
-          <ActionsMenu :actions="actions" :item="item" :source="source" />
+          <ActionsMenu
+            :actions="currentActions"
+            :item="item"
+            :source="source"
+          />
         </div>
       </template>
       <template #[`item.name`]="{ item }">
@@ -170,6 +174,19 @@
           </template>
           {{ $filters.date(item.start_date) }}
         </v-tooltip>
+      </template>
+      <template #[`item.groupings_status`]="{ item }">
+        <StatusChip
+          v-if="item.groupings_status"
+          :status="item.groupings_status"
+        />
+      </template>
+      <template #[`item.groupings_start_date`]="{ item }">
+        {{
+          item.groupings_start_date
+            ? $filters.date(item.groupings_start_date)
+            : ''
+        }}
       </template>
       <template #[`item.used_by_studies`]="{ item }">
         {{ item.used_by_studies.join(', ') }}
@@ -538,14 +555,17 @@
       fullscreen
       content-class="fullscreen-dialog"
     >
-      <ActivitiesInstantiationsForm
-        v-if="!newWizardStepper || !newWizardStepperEditMode"
-        :edited-activity="activeItem"
+      <FeatureDisabledDialog
+        v-if="
+          (!instanceEditMode && !newWizardStepper) ||
+          (instanceEditMode && !newWizardStepperEditMode)
+        "
         @close="closeForm"
       />
       <Suspense v-else>
         <ActivityInstanceForm
           :activity-instance-uid="activeItem?.uid"
+          :edit-mode="instanceEditMode"
           @close="closeForm"
         />
         <template #fallback>
@@ -594,8 +614,8 @@ import StatusChip from '@/components/tools/StatusChip.vue'
 import ActivitiesForm from '@/components/library/ActivitiesForm.vue'
 import RequestedActivitiesForm from '@/components/library/RequestedActivitiesForm.vue'
 import ActivitiesGroupsForm from '@/components/library/ActivitiesGroupsForm.vue'
-import ActivitiesInstantiationsForm from '@/components/library/ActivitiesInstantiationsForm.vue'
 import ActivityInstanceForm from '@/components/library/ActivityInstanceForm.vue'
+import FeatureDisabledDialog from '@/components/tools/FeatureDisabledDialog.vue'
 import ActivitiesCreateSponsorFromRequestedForm from '@/components/library/ActivitiesCreateSponsorFromRequestedForm.vue'
 import libConstants from '@/constants/libraries'
 import { useAccessGuard } from '@/composables/accessGuard'
@@ -627,7 +647,7 @@ const roles = inject('roles')
 const tableRef = ref()
 const groupFormRef = ref()
 
-const actions = [
+const baseActions = [
   {
     label: t('ActivityTable.handle_placeholder_request'),
     icon: 'mdi-pencil-outline',
@@ -698,6 +718,120 @@ const actions = [
     click: openItemHistory,
   },
 ]
+
+const instanceActions = [
+  // --- Attributes actions ---
+  {
+    label: t('ActivitiesTable.approve_attributes'),
+    icon: 'mdi-check-decagram',
+    iconColor: 'success',
+    condition: (item) => item.possible_actions?.includes('approve'),
+    accessRole: roles.LIBRARY_WRITE,
+    click: (item) => approveItem(item, 'activity-instances', 'attributes'),
+  },
+  {
+    label: t('ActivitiesTable.edit_attributes'),
+    icon: 'mdi-pencil-outline',
+    iconColor: 'primary',
+    condition: (item) => item.possible_actions?.includes('edit'),
+    accessRole: roles.LIBRARY_WRITE,
+    click: (item) => editInstanceAttributes(item),
+  },
+  {
+    label: t('ActivitiesTable.new_version_attributes'),
+    icon: 'mdi-plus-circle-outline',
+    iconColor: 'primary',
+    condition: (item) => item.possible_actions?.includes('new_version'),
+    accessRole: roles.LIBRARY_WRITE,
+    click: (item) => newItemVersion(item, 'activity-instances', 'attributes'),
+  },
+  {
+    label: t('ActivitiesTable.inactivate_attributes'),
+    icon: 'mdi-close-octagon-outline',
+    iconColor: 'primary',
+    condition: (item) => item.possible_actions?.includes('inactivate'),
+    accessRole: roles.LIBRARY_WRITE,
+    click: (item) => inactivateItem(item, 'activity-instances', 'attributes'),
+  },
+  {
+    label: t('ActivitiesTable.reactivate_attributes'),
+    icon: 'mdi-undo-variant',
+    iconColor: 'primary',
+    condition: (item) => item.possible_actions?.includes('reactivate'),
+    accessRole: roles.LIBRARY_WRITE,
+    click: (item) => reactivateItem(item, 'activity-instances', 'attributes'),
+  },
+  // --- Groupings actions ---
+  {
+    label: t('ActivitiesTable.approve_groupings'),
+    icon: 'mdi-check-decagram',
+    iconColor: 'success',
+    condition: (item) => item.groupings_possible_actions?.includes('approve'),
+    accessRole: roles.LIBRARY_WRITE,
+    click: (item) => approveItem(item, 'activity-instances', 'groupings'),
+  },
+  {
+    label: t('ActivitiesTable.edit_groupings'),
+    icon: 'mdi-pencil-outline',
+    iconColor: 'primary',
+    condition: (item) => item.groupings_possible_actions?.includes('edit'),
+    accessRole: roles.LIBRARY_WRITE,
+    click: (item) => editInstanceGroupings(item),
+  },
+  {
+    label: t('ActivitiesTable.new_version_groupings'),
+    icon: 'mdi-plus-circle-outline',
+    iconColor: 'primary',
+    condition: (item) =>
+      item.groupings_possible_actions?.includes('new_version'),
+    accessRole: roles.LIBRARY_WRITE,
+    click: (item) => newItemVersion(item, 'activity-instances', 'groupings'),
+  },
+  {
+    label: t('ActivitiesTable.inactivate_groupings'),
+    icon: 'mdi-close-octagon-outline',
+    iconColor: 'primary',
+    condition: (item) =>
+      item.groupings_possible_actions?.includes('inactivate'),
+    accessRole: roles.LIBRARY_WRITE,
+    click: (item) => inactivateItem(item, 'activity-instances', 'groupings'),
+  },
+  {
+    label: t('ActivitiesTable.reactivate_groupings'),
+    icon: 'mdi-undo-variant',
+    iconColor: 'primary',
+    condition: (item) =>
+      item.groupings_possible_actions?.includes('reactivate'),
+    accessRole: roles.LIBRARY_WRITE,
+    click: (item) => reactivateItem(item, 'activity-instances', 'groupings'),
+  },
+  // --- Shared actions ---
+  {
+    label: t('_global.delete'),
+    icon: 'mdi-delete-outline',
+    iconColor: 'error',
+    condition: (item) => item.possible_actions?.includes('delete'),
+    accessRole: roles.LIBRARY_WRITE,
+    click: deleteItem,
+  },
+  {
+    label: t('ActivitiesTable.history_attributes'),
+    icon: 'mdi-history',
+    accessRole: roles.LIBRARY_READ,
+    click: (item) => openItemHistory(item, 'activity-instances', 'attributes'),
+  },
+  {
+    label: t('ActivitiesTable.history_groupings'),
+    icon: 'mdi-history',
+    accessRole: roles.LIBRARY_READ,
+    click: (item) => openItemHistory(item, 'activity-instances', 'groupings'),
+  },
+]
+
+const currentActions = computed(() => {
+  return props.source === 'activity-instances' ? instanceActions : baseActions
+})
+
 const activities = ref([])
 const activitiesHeaders = [
   { title: '', key: 'actions', width: '1%', noFilter: true },
@@ -838,6 +972,17 @@ const instantiationsHeaders = [
   { title: t('_global.modified_by'), key: 'author_username' },
   { title: t('_global.status'), key: 'status', noFilter: true },
   { title: t('_global.version'), key: 'version' },
+  { title: t('ActivityTable.groupings_modified'), key: 'groupings_start_date' },
+  {
+    title: t('ActivityTable.groupings_modified_by'),
+    key: 'groupings_author_username',
+  },
+  {
+    title: t('ActivityTable.groupings_status'),
+    key: 'groupings_status',
+    noFilter: true,
+  },
+  { title: t('ActivityTable.groupings_version'), key: 'groupings_version' },
 ]
 const groupsHeaders = [
   { title: t('ActivityTable.group_or_subgroup'), key: 'name' },
@@ -921,6 +1066,7 @@ const showRequestedActivityForm = ref(false)
 const showGroupsForm = ref(false)
 const showHistory = ref(false)
 const showInstantiationsForm = ref(false)
+const instanceEditMode = ref(null)
 const showSponsorFromRequestedForm = ref(false)
 const activeItem = ref(null)
 const showFinalised = ref(false)
@@ -1173,6 +1319,19 @@ function onStatusTabChange() {
   }
 }
 
+function getSelectedStatusValue() {
+  if (selectedStatusTab.value === 'final') {
+    return statuses.FINAL
+  }
+  if (selectedStatusTab.value === 'retired') {
+    return statuses.RETIRED
+  }
+  if (selectedStatusTab.value === 'draft') {
+    return statuses.DRAFT
+  }
+  return null
+}
+
 function fetchActivities(filters, options, filtersUpdated) {
   try {
     if (filters !== undefined) {
@@ -1180,7 +1339,7 @@ function fetchActivities(filters, options, filtersUpdated) {
     }
     const params = filteringParameters.prepareParameters(
       options,
-      filters,
+      savedFilters.value,
       filtersUpdated
     )
     if (options.sortBy[0] && options.sortBy[0].key === 'activity_group.name') {
@@ -1280,19 +1439,16 @@ function fetchActivities(filters, options, filtersUpdated) {
 
     // Apply status filtering based on selected tab
     if (!props.requested && showStatusTabs.value) {
-      let statusFilter = {}
+      const selectedStatusValue = getSelectedStatusValue()
 
-      if (selectedStatusTab.value === 'final') {
-        // Show only Final status
-        statusFilter = { status: { v: [statuses.FINAL] } }
-      } else if (selectedStatusTab.value === 'retired') {
-        statusFilter = { status: { v: [statuses.RETIRED] } }
-      } else if (selectedStatusTab.value === 'draft') {
-        statusFilter = { status: { v: [statuses.DRAFT] } }
-      }
-      // 'all' tab doesn't apply any status filter
-
-      if (selectedStatusTab.value !== 'all') {
+      if (props.source === 'activity-instances') {
+        if (selectedStatusValue) {
+          params.status = selectedStatusValue
+        } else {
+          delete params.status
+        }
+      } else if (selectedStatusValue) {
+        const statusFilter = { status: { v: [selectedStatusValue] } }
         if (_isEmpty(params.filters)) {
           params.filters = statusFilter
         } else {
@@ -1397,16 +1553,19 @@ function modifyFilters(jsonFilter, params) {
 
   // Apply status filtering based on selected tab for filter dropdowns
   if (!props.requested && showStatusTabs.value) {
-    if (selectedStatusTab.value === 'final') {
-      // Show only Final status
-      jsonFilter.status = { v: [statuses.FINAL] }
-    } else if (selectedStatusTab.value === 'retired') {
-      jsonFilter.status = { v: [statuses.RETIRED] }
-    } else if (selectedStatusTab.value === 'draft') {
-      jsonFilter.status = { v: [statuses.DRAFT] }
+    if (props.source === 'activity-instances') {
+      delete jsonFilter.status
+    } else {
+      const selectedStatusValue = getSelectedStatusValue()
+      if (selectedStatusValue) {
+        jsonFilter.status = { v: [selectedStatusValue] }
+      } else if (jsonFilter.status) {
+        // 'all' tab doesn't apply any status filter, so remove it if it exists.
+        delete jsonFilter.status
+      }
     }
-    // 'all' tab doesn't apply any status filter, so we remove it if it exists
-    else if (selectedStatusTab.value === 'all' && jsonFilter.status) {
+
+    if (selectedStatusTab.value === 'all' && jsonFilter.status) {
       delete jsonFilter.status
     }
   }
@@ -1474,9 +1633,9 @@ function activitiesDisplay(item) {
   return display.slice(0, -2)
 }
 
-function inactivateItem(item, source) {
+function inactivateItem(item, source, subitem) {
   source = source === undefined ? props.source : source
-  activitiesApi.inactivate(item.uid, source).then(() => {
+  activitiesApi.inactivate(item.uid, source, subitem).then(() => {
     notificationHub.add({
       msg: t(`ActivitiesTable.inactivate_${props.source}_success`),
       type: 'success',
@@ -1485,9 +1644,9 @@ function inactivateItem(item, source) {
   })
 }
 
-function reactivateItem(item, source) {
+function reactivateItem(item, source, subitem) {
   source = source === undefined ? props.source : source
-  activitiesApi.reactivate(item.uid, source).then(() => {
+  activitiesApi.reactivate(item.uid, source, subitem).then(() => {
     notificationHub.add({
       msg: t(`ActivitiesTable.reactivate_${props.source}_success`),
       type: 'success',
@@ -1507,7 +1666,7 @@ function deleteItem(item, source) {
   })
 }
 
-function approveItem(item, source) {
+function approveItem(item, source, subitem) {
   source = source === undefined ? props.source : source
   const options = {}
   if (
@@ -1516,7 +1675,7 @@ function approveItem(item, source) {
   ) {
     options.cascade_edit_and_approve = true
   }
-  activitiesApi.approve(item.uid, source, options).then(() => {
+  activitiesApi.approve(item.uid, source, options, subitem).then(() => {
     notificationHub.add({
       msg: t(`ActivitiesTable.approve_${props.source}_success`),
       type: 'success',
@@ -1525,9 +1684,9 @@ function approveItem(item, source) {
   })
 }
 
-function newItemVersion(item, source) {
+function newItemVersion(item, source, subitem) {
   source = source === undefined ? props.source : source
-  activitiesApi.newVersion(item.uid, source).then(() => {
+  activitiesApi.newVersion(item.uid, source, subitem).then(() => {
     notificationHub.add({
       msg: t('_global.new_version_success'),
       type: 'success',
@@ -1581,9 +1740,22 @@ function editItem(item) {
   }
 }
 
-async function openItemHistory(item) {
+function editInstanceAttributes(item) {
   activeItem.value = item
-  const resp = await activitiesApi.getVersions(props.source, item.uid)
+  instanceEditMode.value = 'attributes'
+  showInstantiationsForm.value = true
+}
+
+function editInstanceGroupings(item) {
+  activeItem.value = item
+  instanceEditMode.value = 'groupings'
+  showInstantiationsForm.value = true
+}
+
+async function openItemHistory(item, source, subitem) {
+  source = source === undefined ? props.source : source
+  activeItem.value = item
+  const resp = await activitiesApi.getVersions(source, item.uid, subitem)
   historyItems.value = transformItems(resp.data)
   showHistory.value = true
 }
@@ -1599,7 +1771,11 @@ function createSponsorFromRequested(item) {
 }
 
 function getSubGroups(items) {
-  for (const group of items) {
+  for (const expandedItem of items) {
+    const group = activities.value.find((a) => a.uid === expandedItem.uid)
+    if (!group || (group.subgroups && group.subgroups.length > 0)) {
+      continue
+    }
     group.subgroupsLoading = true
     activitiesApi.getSubGroups(group.uid).then((resp) => {
       group.subgroups = resp.data.items
@@ -1615,7 +1791,14 @@ function getSubGroups(items) {
 }
 
 function getSubgroupActivities(items) {
-  for (const subgroup of items) {
+  for (const expandedItem of items) {
+    const group = activities.value.find(
+      (a) => a.subgroups && a.subgroups.some((s) => s.uid === expandedItem.uid)
+    )
+    const subgroup = group?.subgroups?.find((s) => s.uid === expandedItem.uid)
+    if (!subgroup || (subgroup.activities && subgroup.activities.length > 0)) {
+      continue
+    }
     subgroup.activitiesLoading = true
     activitiesApi
       .getSubGroupActivities(subgroup.uid, subgroup.group_uid)
@@ -1640,6 +1823,7 @@ function closeForm() {
   showRequestedActivityForm.value = false
   showGroupsForm.value = false
   showInstantiationsForm.value = false
+  instanceEditMode.value = null
   showSponsorFromRequestedForm.value = false
   activeItem.value = null
   tableRef.value.filterTable()

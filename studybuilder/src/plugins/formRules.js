@@ -112,6 +112,14 @@ const formValidationRules = {
     return result || i18n.t('_errors.identical_name')
   },
 
+  uppercaseAlphanumeric: function (value) {
+    let result = true
+    if (value !== undefined && value !== null && String(value).length > 0) {
+      result = /^[A-Z0-9]+$/.test(String(value))
+    }
+    return result || i18n.t('_errors.uppercase_alphanumeric')
+  },
+
   oneOfTwo: function (first, second, errorMessage) {
     let result = false
     if (first || second) {

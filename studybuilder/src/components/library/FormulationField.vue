@@ -56,7 +56,7 @@
       />
     </v-col>
   </v-row>
-  <div class="text-subtitle-1 my-2 mt-6">
+  <div class="text-body-large my-2 mt-6">
     {{ $t('CompoundForm.lag_times') }}
     <v-btn
       color="primary"

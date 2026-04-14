@@ -15,7 +15,9 @@
           <div class="text-body-3">
             {{ $t('MedicinalProduct.medicinal_product') }}
           </div>
-          <div class="text-body-2 font-weight-bold">{{ product.name }}</div>
+          <div class="text-body-medium font-weight-bold">
+            {{ product.name }}
+          </div>
         </div>
         <div style="width: 10%">
           <div class="text-body-3">{{ $t('MedicinalProduct.dose') }}</div>
@@ -76,7 +78,7 @@
                 <div class="text-body-3">
                   {{ $t('PharmaceuticalProduct.title') }}
                 </div>
-                <div class="text-body-2 font-weight-bold">
+                <div class="text-body-medium font-weight-bold">
                   {{ getPharmaProductName(pharmaProduct) }}
                 </div>
               </div>
@@ -113,7 +115,7 @@
                       <div class="text-body-3">
                         {{ $t('Formulation.active_substance') }}
                       </div>
-                      <div class="text-body-2 font-weight-bold">
+                      <div class="text-body-medium font-weight-bold">
                         {{ ingredient.title }}
                       </div>
                     </div>

@@ -155,7 +155,7 @@ class OdmItemVO:
 
                 if activity_instance["activity_item_class_uid"] not in [
                     activity_item.activity_item_class_uid
-                    for activity_item in db_activity_instance.concept_vo.activity_items
+                    for activity_item in db_activity_instance.concept_vo.activity_instance_attributes.activity_items
                 ]:
                     raise BusinessLogicException(
                         msg=(

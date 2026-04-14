@@ -121,6 +121,7 @@ class ActivityItem(BaseModel):
     ct_terms: list[CompactCTTerm] = Field(default_factory=list)
     unit_definitions: list[CompactUnitDefinition] = Field(default_factory=list)
     is_adam_param_specific: Annotated[bool, Field()]
+    is_activity_instance_id_specific: Annotated[bool | None, Field()] = None
     text_value: Annotated[str | None, Field()] = None
 
 
@@ -134,6 +135,7 @@ class ActivityItemCreateInput(PostInputModel):
     ct_terms: Annotated[list[CTTermsInput], Field()]
     unit_definition_uids: Annotated[list[str], Field()]
     is_adam_param_specific: Annotated[bool, Field()]
+    is_activity_instance_id_specific: Annotated[bool | None, Field()] = None
     text_value: Annotated[str | None, Field()] = None
 
     @model_validator(mode="after")
@@ -142,4 +144,17 @@ class ActivityItemCreateInput(PostInputModel):
             raise ValueError(
                 "Both ct_terms and ct_codelist cannot be provided at the same time for an ActivityItem."
             )
+        if self.is_activity_instance_id_specific:
+            if self.ct_codelist_uid:
+                raise ValueError(
+                    "An ActivityItem with 'is_activity_instance_id_specific' set to true must not have a ct_codelist_uid."
+                )
+            if len(self.ct_terms) > 1:
+                raise ValueError(
+                    "An ActivityItem with 'is_activity_instance_id_specific' set to true must not have more than one ct_term."
+                )
+            if len(self.unit_definition_uids) > 1:
+                raise ValueError(
+                    "An ActivityItem with 'is_activity_instance_id_specific' set to true must not have more than one unit_definition."
+                )
         return self

@@ -9,6 +9,10 @@ Feature: Studies - Define Study - Study Activities - Exchange Activity
         Given The user is logged in
         And A test study is selected
 
+    Scenario: [TestData] Old placeholder activity workflow feature flag is disabled
+        When The '/administration/featureflags' page is opened
+        Then Old placeholder workflow feature flag is turned off
+
     Scenario: [TestData] Study visits, epochs and activities are created
         And [API] All Activities are deleted from study
 
@@ -20,14 +24,10 @@ Feature: Studies - Define Study - Study Activities - Exchange Activity
         Given [API] Activity in status Draft exists
         And [API] Activity is approved
         And Name of Activity from Library for exchaning placeholder is saved
+        And [API] Get SoA Group 'BIOMARKERS' id
+        When [API] Create Submitted Requested Activity
+        And [API] Requested Activity is added to the study
         Given The test study '/activities/list' page is opened
-        When Study activity add button is clicked
-        And Activity from placeholder is selected
-        And Form continue button is clicked
-        And User selects option to create placeholder with submitting
-        When Activity placeholder data is filled in
-        And Form save button is clicked
-        And The form is no longer available
         And Activity placeholder is found
         When The 'Exchange Activity' option is clicked from the three dot menu list
         And Form continue button is clicked
@@ -57,14 +57,10 @@ Feature: Studies - Define Study - Study Activities - Exchange Activity
         Given [API] Activity in status Draft exists
         And [API] Activity is approved
         And Name of Activity from Library for exchaning placeholder is saved
+        And [API] Get SoA Group 'BIOMARKERS' id
+        When [API] Create Unsubmitted Requested Activity
+        And [API] Requested Activity is added to the study
         Given The test study '/activities/list' page is opened
-        When Study activity add button is clicked
-        And Activity from placeholder is selected
-        And Form continue button is clicked
-        And User selects option to create placeholder without submitting
-        When Activity placeholder data is filled in
-        And Form save button is clicked
-        And The form is no longer available
         And Activity placeholder is found
         When The 'Exchange Activity' option is clicked from the three dot menu list
         And Form continue button is clicked
@@ -98,14 +94,12 @@ Feature: Studies - Define Study - Study Activities - Exchange Activity
         And Name of Activity from Library for exchaning placeholder is saved
         And [API] Get SoA Group 'INFORMED CONSENT' id
         And [API] Activity is added to the selected study
+        When Get study 'CDISC DEV-9876' uid
+        And Select study with uid saved in previous step
+        And [API] Get SoA Group 'BIOMARKERS' id
+        When [API] Create Submitted Requested Activity
+        And [API] Requested Activity is added to the study
         Given The test study '/activities/list' page is opened
-        When Study activity add button is clicked
-        And Activity from placeholder is selected
-        And Form continue button is clicked
-        And User selects option to create placeholder with submitting
-        When Activity placeholder data is filled in
-        And Form save button is clicked
-        And The form is no longer available
         And Activity placeholder is found
         And User intercepts available studies request
         When The 'Exchange Activity' option is clicked from the three dot menu list
@@ -141,14 +135,12 @@ Feature: Studies - Define Study - Study Activities - Exchange Activity
         And Name of Activity from Library for exchaning placeholder is saved
         And [API] Get SoA Group 'INFORMED CONSENT' id
         And [API] Activity is added to the selected study
+        When Get study 'CDISC DEV-9876' uid
+        And Select study with uid saved in previous step
+        And [API] Get SoA Group 'BIOMARKERS' id
+        When [API] Create Unsubmitted Requested Activity
+        And [API] Requested Activity is added to the study
         Given The test study '/activities/list' page is opened
-        When Study activity add button is clicked
-        And Activity from placeholder is selected
-        And Form continue button is clicked
-        And User selects option to create placeholder without submitting
-        When Activity placeholder data is filled in
-        And Form save button is clicked
-        And The form is no longer available
         And Activity placeholder is found
         And User intercepts available studies request
         When The 'Exchange Activity' option is clicked from the three dot menu list
@@ -198,7 +190,7 @@ Feature: Studies - Define Study - Study Activities - Exchange Activity
         When User selects 1 activity from Library to exchange placeholder with
         Then The second activity is disabled for selection
 
-    Scenario: [Actions][Exchange Activity] User must be able to exchange activity with more than activity from study
+    Scenario: [Actions][Exchange Activity] User must not be able to exchange activity with more than activity from study
         When User clears list of exchanged activities
         When Get study 'CDISC DEV-9881' uid
         And Select study with uid saved in previous step
@@ -240,14 +232,9 @@ Feature: Studies - Define Study - Study Activities - Exchange Activity
         Given [API] Activity in status Draft exists
         And [API] Activity is approved
         And Name of Activity from Library for exchaning placeholder is saved
-        Given The test study '/activities/list' page is opened
-        When Study activity add button is clicked
-        And Activity from placeholder is selected
-        And Form continue button is clicked
-        And User selects option to create placeholder with submitting
-        When Activity placeholder data is filled in
-        And Form save button is clicked
-        And The form is no longer available
+        And [API] Get SoA Group 'BIOMARKERS' id
+        When [API] Create Submitted Requested Activity
+        And [API] Requested Activity is added to the study
         And The test study '/activities/soa' page is opened
         And Detailed SoA table is loaded
         And User expand table

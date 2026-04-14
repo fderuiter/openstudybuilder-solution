@@ -15,16 +15,13 @@ Cypress.Commands.add('getEpochTypeAndSubType', (epoch_type_name, epoch_subtype_n
     })
 })
 
-Cypress.Commands.add('getEpochTerm', (study_uid) => {
-    cy.sendPostRequest(studyEpochsPreviewUrl(study_uid), epochPreviewBody(study_uid)).then((response) => {
-      epochTerm = response.body.epoch
-    })
-})
-
 Cypress.Commands.add('createEpoch', (study_uid) => {
   cy.sendGetRequest(studyEpochsUrl(study_uid)).then((response) => {
     if (!response.body.items.find(item => item.epoch_subtype_ctterm.term_uid == epochSubType)) {
-        cy.sendPostRequest(studyEpochsUrl(study_uid), createEpochBody(study_uid)).then(response => epoch_uid = response.body.uid)
+        cy.sendPostRequest(studyEpochsPreviewUrl(study_uid), epochPreviewBody(study_uid))
+          .then(response => epochTerm = response.body.epoch)
+            .then(() => cy.sendPostRequest(studyEpochsUrl(study_uid), createEpochBody(study_uid))
+                .then(response => epoch_uid = response.body.uid))
     } else {
       epoch_uid = response.body.items[0].uid
     }
