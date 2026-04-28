@@ -102,12 +102,12 @@ class TestStudyDiseaseMilestoneManagement(unittest.TestCase):
         self.assertEqual(dm3.order, 3)
 
         with self.assertRaises(exceptions.BusinessLogicException):
-            disease_milestone_service.reorder(dm3.uid, 0)
+            disease_milestone_service.reorder(dm3.study_uid, dm3.uid, 0)
 
         with self.assertRaises(exceptions.BusinessLogicException):
-            disease_milestone_service.reorder(dm3.uid, 4)
+            disease_milestone_service.reorder(dm3.study_uid, dm3.uid, 4)
 
-        disease_milestone_service.reorder(dm3.uid, 1)
+        disease_milestone_service.reorder(dm3.study_uid, dm3.uid, 1)
 
         dm_after1 = disease_milestone_service.find_by_uid(dm1.uid)
         dm_after2 = disease_milestone_service.find_by_uid(dm2.uid)
@@ -117,7 +117,7 @@ class TestStudyDiseaseMilestoneManagement(unittest.TestCase):
         self.assertEqual(dm_after2.order, 3)
         self.assertEqual(dm_after3.order, 1)
 
-        disease_milestone_service.reorder(dm1.uid, 3)
+        disease_milestone_service.reorder(dm1.study_uid, dm1.uid, 3)
 
         dm_after1 = disease_milestone_service.find_by_uid(dm1.uid)
         dm_after2 = disease_milestone_service.find_by_uid(dm2.uid)
@@ -137,7 +137,7 @@ class TestStudyDiseaseMilestoneManagement(unittest.TestCase):
         self.assertEqual(dm4.order, 4)
         dm5 = disease_milestone_service.find_by_uid(disease_milestone_subtype_3.uid)
         self.assertEqual(dm5.order, 5)
-        disease_milestone_service.reorder(dm5.uid, 4)
+        disease_milestone_service.reorder(dm5.study_uid, dm5.uid, 4)
         dm4 = disease_milestone_service.find_by_uid(disease_milestone_subtype_2.uid)
         self.assertEqual(dm4.order, 5)
         dm5 = disease_milestone_service.find_by_uid(disease_milestone_subtype_3.uid)
@@ -212,6 +212,7 @@ class TestStudyDiseaseMilestoneManagement(unittest.TestCase):
             reason_for_unlock_term_uid=self.reason_for_unlock_term_uid,
         )
         edited_disease_milestone = disease_milestone_service.edit(
+            study_uid=disease_milestone.study_uid,
             study_disease_milestone_uid=disease_milestone.uid,
             study_disease_milestone_input=edit_input,
         )
@@ -244,6 +245,7 @@ class TestStudyDiseaseMilestoneManagement(unittest.TestCase):
             disease_milestone_type="Disease_Milestone_Type_0002",
         )
         disease_milestone_service.edit(
+            study_uid=disease_milestone.study_uid,
             study_disease_milestone_uid=disease_milestone.uid,
             study_disease_milestone_input=edit_input,
         )
@@ -265,6 +267,7 @@ class TestStudyDiseaseMilestoneManagement(unittest.TestCase):
             change_description="rules change",
         )
         disease_milestone_service.edit(
+            study_uid=disease_milestone.study_uid,
             study_disease_milestone_uid=disease_milestone.uid,
             study_disease_milestone_input=edit_input,
         )
@@ -316,7 +319,9 @@ class TestStudyDiseaseMilestoneManagement(unittest.TestCase):
             reason_for_unlock_term_uid=self.reason_for_unlock_term_uid,
         )
 
-        disease_milestone_service.delete(study_disease_milestone_uid=dm1.uid)
+        disease_milestone_service.delete(
+            study_uid=dm1.study_uid, study_disease_milestone_uid=dm1.uid
+        )
 
         dm1 = disease_milestone_service.find_by_uid(disease_milestone2.uid)
         dm2 = disease_milestone_service.find_by_uid(disease_milestone3.uid)
@@ -324,7 +329,9 @@ class TestStudyDiseaseMilestoneManagement(unittest.TestCase):
         self.assertEqual(dm1.order, 2)
         self.assertEqual(dm2.order, 3)
 
-        disease_milestone_service.delete(study_disease_milestone_uid=dm1.uid)
+        disease_milestone_service.delete(
+            study_uid=dm1.study_uid, study_disease_milestone_uid=dm1.uid
+        )
         dm1 = disease_milestone_service.find_by_uid(dm2.uid)
         self.assertEqual(dm1.order, 2)
 

@@ -32,6 +32,7 @@
                   <v-btn
                     v-if="isExpanded(internalItem)"
                     icon="mdi-chevron-down"
+                    data-cy="expand-item"
                     variant="text"
                     class="mr-n2"
                     @click="toggleExpand(internalItem)"
@@ -39,6 +40,7 @@
                   <v-btn
                     v-else-if="item.attributes"
                     icon="mdi-chevron-right"
+                    data-cy="expand-item"
                     variant="text"
                     class="mr-n2"
                     @click="toggleExpand(internalItem)"
@@ -121,6 +123,7 @@
             <v-btn
               class="ml-2 mb-2"
               color="crfGroup"
+              data-cy="add-element"
               rounded
               :disabled="!accessGuard.checkPermission($roles.LIBRARY_WRITE)"
               @click="addElement"
@@ -131,6 +134,7 @@
             <v-btn
               class="ml-2 mb-2"
               color="crfItem"
+              data-cy="add-atribute"
               rounded
               :disabled="!accessGuard.checkPermission($roles.LIBRARY_WRITE)"
               @click="addAttribute"

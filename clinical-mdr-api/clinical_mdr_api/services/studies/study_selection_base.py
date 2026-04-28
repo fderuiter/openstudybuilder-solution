@@ -783,6 +783,17 @@ class StudySelectionMixin:
     def _extract_study_standards_effective_date(
         self, study_uid, study_value_version: str | None = None
     ) -> datetime | None:
+        cache_key = (study_uid, study_value_version)
+        # Use shared class-level cache for study standards effective dates
+        from clinical_mdr_api.services.studies.study_activity_selection_base import (
+            StudyActivitySelectionBaseService,
+        )
+
+        cache = StudyActivitySelectionBaseService._shared_terms_date_cache
+        with StudyActivitySelectionBaseService._shared_terms_date_cache_lock:
+            if cache_key in cache:
+                return cache[cache_key]
+
         repos = self._repos
         study_standard_versions = (
             repos.study_standard_version_repository.find_standard_versions_in_study(
@@ -811,6 +822,9 @@ class StudySelectionMixin:
                 59,
                 999999,
             )
+        # Save to shared class-level cache
+        with StudyActivitySelectionBaseService._shared_terms_date_cache_lock:
+            cache[cache_key] = terms_at_specific_datetime
         return terms_at_specific_datetime
 
     @trace_calls

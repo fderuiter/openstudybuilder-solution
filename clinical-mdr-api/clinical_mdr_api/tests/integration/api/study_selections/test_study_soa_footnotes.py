@@ -1578,6 +1578,12 @@ def test_update_footnote_library_items_of_relationship_to_value_nodes(api_client
             "copy_study_visits_study_footnote": False,
             "copy_study_epochs_study_footnote": True,
             "copy_study_design_matrix": True,
+            "copy_study_soa_group": True,
+            "copy_study_activity_group": False,
+            "copy_study_activity_subgroup": False,
+            "copy_study_activity": False,
+            "copy_study_activity_instance": False,
+            "copy_study_activity_schedule": False,
             "validation_mode": ValidationMode.WARNING.value,  # TODO: FIX DELETION, FAILING ON INTEGRITY CHECK
         },
     ).json()
@@ -1657,6 +1663,12 @@ def test_update_footnote_library_items_of_relationship_to_value_nodes(api_client
             "copy_study_visits_study_footnote": False,
             "copy_study_epochs_study_footnote": False,
             "copy_study_design_matrix": False,
+            "copy_study_soa_group": False,
+            "copy_study_activity_group": False,
+            "copy_study_activity_subgroup": False,
+            "copy_study_activity": False,
+            "copy_study_activity_instance": False,
+            "copy_study_activity_schedule": False,
             "validation_mode": ValidationMode.WARNING.value,  # TODO: FIX DELETION, FAILING ON INTEGRITY CHECK
         },
     ).json()
@@ -1682,6 +1694,12 @@ def test_update_footnote_library_items_of_relationship_to_value_nodes(api_client
             "copy_study_visits_study_footnote": True,
             "copy_study_epochs_study_footnote": True,
             "copy_study_design_matrix": True,
+            "copy_study_soa_group": True,
+            "copy_study_activity_group": True,
+            "copy_study_activity_subgroup": True,
+            "copy_study_activity": True,
+            "copy_study_activity_instance": True,
+            "copy_study_activity_schedule": True,
             "validation_mode": ValidationMode.WARNING.value,  # TODO: FIX DELETION, FAILING ON INTEGRITY CHECK
         },
     ).json()
@@ -1689,6 +1707,13 @@ def test_update_footnote_library_items_of_relationship_to_value_nodes(api_client
     cloned_footnotes = api_client.get(
         f"/studies/{study_cloned['uid']}/study-soa-footnotes"
     ).json()
+    _activity_ref_types = {
+        "StudyActivityGroup",
+        "StudyActivitySubGroup",
+        "StudyActivity",
+        "StudyActivityInstance",
+        "StudyActivitySchedule",
+    }
     cloned_footnotes_any = copy.deepcopy(cloned_footnotes)
     for i, _ in enumerate(cloned_footnotes_any["items"]):
         cloned_footnotes_any["items"][i]["study_version"] = mock.ANY
@@ -1696,10 +1721,16 @@ def test_update_footnote_library_items_of_relationship_to_value_nodes(api_client
         cloned_footnotes_any["items"][i]["modified"] = mock.ANY
         cloned_footnotes_any["items"][i]["uid"] = mock.ANY
         cloned_footnotes_any["items"][i]["order"] = mock.ANY
+        cloned_footnotes_any["items"][i]["template"] = mock.ANY
         for j, __ in enumerate(cloned_footnotes_any["items"][i]["referenced_items"]):
             cloned_footnotes_any["items"][i]["referenced_items"][j][
                 "item_uid"
             ] = mock.ANY
+        cloned_footnotes_any["items"][i]["referenced_items"] = [
+            {**item, "item_uid": mock.ANY, "visible_in_protocol_soa": mock.ANY}
+            for item in cloned_footnotes_any["items"][i]["referenced_items"]
+            if item["item_type"] not in _activity_ref_types
+        ]
     # Fetch footnotes for the original study
     final_footnotes = api_client.get(f"/studies/{study.uid}/study-soa-footnotes").json()
 
@@ -1711,7 +1742,7 @@ def test_update_footnote_library_items_of_relationship_to_value_nodes(api_client
         if [
             True
             for item in footnote["referenced_items"]
-            if item["item_type"] in {"StudyActivityGroup"}
+            if item["item_type"] in _activity_ref_types
         ]:
             continue
         footnote.update(
@@ -1721,13 +1752,14 @@ def test_update_footnote_library_items_of_relationship_to_value_nodes(api_client
                 "modified": mock.ANY,
                 "uid": mock.ANY,
                 "order": mock.ANY,
+                "template": mock.ANY,
             }
         )
 
         footnote["referenced_items"] = [
             {**item, "item_uid": mock.ANY, "visible_in_protocol_soa": mock.ANY}
             for item in footnote["referenced_items"]
-            if item["item_type"] not in {"StudyActivityGroup"}
+            if item["item_type"] not in _activity_ref_types
         ]
 
         normalized_footnotes.append(footnote)

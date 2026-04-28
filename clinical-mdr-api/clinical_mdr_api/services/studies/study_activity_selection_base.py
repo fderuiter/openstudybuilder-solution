@@ -1,8 +1,10 @@
 import abc
+import threading
 from collections import defaultdict
 from datetime import datetime
 from typing import Any, Callable, Generic, Iterable, TypeVar
 
+from cachetools import TTLCache
 from neomodel import db
 
 from clinical_mdr_api.domain_repositories.study_selections.study_activity_base_repository import (
@@ -29,6 +31,7 @@ from clinical_mdr_api.services._utils import (
 from clinical_mdr_api.services.studies.study_selection_base import StudySelectionMixin
 from common import exceptions
 from common.auth.user import user
+from common.config import settings
 from common.telemetry import trace_calls
 
 _AggregateRootType = TypeVar("_AggregateRootType", bound=StudySelectionBaseAR)
@@ -45,8 +48,33 @@ class StudyActivitySelectionBaseService(
 
     _vo_to_ar_filter_map: dict[Any, Any] = {}
 
+    # Shared class-level cache for study standards effective dates across all service instances
+    # Uses config values for consistent cache behavior across the application
+    _shared_terms_date_cache: TTLCache = TTLCache(
+        maxsize=settings.cache_max_size, ttl=settings.cache_ttl
+    )
+    # Thread lock for safe concurrent access to the shared cache
+    _shared_terms_date_cache_lock: threading.RLock = threading.RLock()
+
     def __init__(self):
         self._repos = MetaRepository()
+
+        # Unified batch cache - single TTLCache with namespaced keys for all batch operations.
+        # Uses dedicated batch_cache_* settings (NOT the cross-request cache_ttl which may be 0).
+        # Batch caches are instance-scoped and explicitly cleared in _clear_all_batch_caches.
+        self._batch_cache: TTLCache | None = None
+
+        # Single cached instance AR to avoid repeated find_by_study/save per POST
+        # Flushed to DB in the batch finally block (or on first PATCH/DELETE that needs DB state)
+        self._batch_instance_ar: Any | None = (
+            None  # Keep as single value - no TTL needed
+        )
+
+        # Cached selection list for _find_ar_to_patch operations
+        # Avoids repeated find_by_study(for_update=True) calls during batch PATCH
+        self._batch_patch_ar_selections: list | None = (
+            None  # Keep as list - single value per batch
+        )
 
     @property
     def author(self):
@@ -68,6 +96,136 @@ class StudyActivitySelectionBaseService(
         self,
     ) -> Callable[[str], bool]:
         return self.selected_object_repository.final_concept_exists
+
+    def _initialize_batch_caches(self) -> None:
+        """Initialize all batch-related caches and tracking sets for a new batch operation.
+
+        Cache Lifecycle Management:
+        - Called at the start of handle_batch_operations
+        - Caches persist throughout the entire batch for performance
+        - Individual operations may invalidate specific cache entries
+        - All caches are cleared in the finally block
+        """
+
+        self._batch_cache = TTLCache(
+            maxsize=settings.cache_max_size, ttl=settings.cache_ttl
+        )
+        self._batch_patch_ar_selections = []  # Keep as list - single value per batch
+
+    def _clear_all_batch_caches(self) -> None:
+        """Clear all batch-related caches and reset tracking state.
+
+        This method ensures a clean state after batch processing and prevents
+        memory leaks from retained cache references.
+        """
+        if self._batch_cache is not None:
+            try:
+                # Explicitly clear all entries to trigger internal cleanup
+                self._batch_cache.clear()
+                # Force garbage collection of expired entries
+                # TTLCache may have internal timers that need explicit cleanup
+                if hasattr(self._batch_cache, "expire"):
+                    self._batch_cache.expire()
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                # Log but don't fail - cleanup is best-effort
+                import logging
+
+                logging.warning("Error during batch cache cleanup: %s", e)
+            finally:
+                self._batch_cache = None
+
+        self._batch_instance_ar = None
+        self._batch_patch_ar_selections = None
+
+    # Unified Cache Access Helpers
+    def _get_batch_vo_cache_key(self, *args) -> tuple[str, ...]:
+        """Generate namespaced key for VO cache entries."""
+        return ("vo", *args)
+
+    def _get_batch_ar_cache_key(self, *args) -> tuple[str, ...]:
+        """Generate namespaced key for AR cache entries."""
+        return ("ar", *args)
+
+    def _get_batch_reordered_key(self, *args) -> tuple[str, ...]:
+        """Generate namespaced key for reordered parent tracking."""
+        return ("reordered", *args)
+
+    def _append_to_patch_ar_selections_cache(self, new_vo: _VOType) -> None:
+        """Append a newly created VO to the patch AR selections cache.
+
+        Called after POST so subsequent PATCHes see the new entity without
+        a DB reload. Uses immutable update to prevent cache coherence issues.
+        """
+        if self._batch_patch_ar_selections is None:
+            return
+        self._batch_patch_ar_selections = [*self._batch_patch_ar_selections, new_vo]
+
+    def _remove_from_patch_ar_selections_cache(self, study_selection_uid: str) -> None:
+        """Remove a deleted VO from the patch AR selections cache.
+
+        Called after DELETE so subsequent PATCHes no longer see the removed entity
+        without a DB reload.
+        """
+        if self._batch_patch_ar_selections is None:
+            return
+        self._batch_patch_ar_selections = [
+            vo
+            for vo in self._batch_patch_ar_selections
+            if vo.study_selection_uid != study_selection_uid
+        ]
+
+    def _clear_batch_caches(self) -> None:
+        """Clear unified batch cache for data consistency."""
+        if self._batch_cache is not None:
+            self._batch_cache.clear()
+
+    @classmethod
+    def clear_study_standards_cache_for_study(cls, study_uid: str) -> None:
+        """Clear cached study standards effective dates for a specific study.
+
+        Call this when study standards are modified (create/edit/delete operations)
+        to ensure subsequent queries see updated effective dates.
+
+        Args:
+            study_uid: The study whose standards cache entries should be cleared
+        """
+        with cls._shared_terms_date_cache_lock:
+            if not cls._shared_terms_date_cache:
+                return
+
+            # Remove all cache entries for this study (across all versions)
+            keys_to_remove = [
+                key
+                for key in cls._shared_terms_date_cache.keys()
+                if key[0]
+                == study_uid  # Cache key format: (study_uid, study_value_version)
+            ]
+            for key in keys_to_remove:
+                del cls._shared_terms_date_cache[key]
+
+    def _evict_ar_cache_for_scope(
+        self,
+        study_activity_subgroup_uid: str | None,
+        study_soa_group_uid: str,
+        activity_library_name: str,
+    ) -> None:
+        """Evict the specific scope's AR cache entry after DELETE.
+
+        Only the deleted entity's scope becomes stale. Other scopes remain valid.
+        Also clears reordered-parent tracking since the hierarchy may need re-compaction.
+        """
+        if self._batch_cache is None:
+            return
+        find_requested = activity_library_name == settings.requested_library_name
+        scope_key = self._get_batch_ar_cache_key(
+            study_activity_subgroup_uid, study_soa_group_uid, find_requested
+        )
+        self._batch_cache.pop(scope_key, None)
+
+        # Parent hierarchy may need re-compaction after deletion
+        reordered_keys = [k for k in self._batch_cache.keys() if k[0] == "reordered"]
+        for key in reordered_keys:
+            del self._batch_cache[key]
 
     @abc.abstractmethod
     def _transform_all_to_response_model(
@@ -327,12 +485,49 @@ class StudyActivitySelectionBaseService(
 
     @trace_calls(args=[1, 2], kwargs=["study_uid", "study_selection_uid"])
     def _find_ar_to_patch(
-        self, study_uid: str, study_selection_uid: str
+        self, study_uid: str, study_selection_uid: str, for_update: bool = True
     ) -> tuple[_AggregateRootType, _VOType]:
-        # Load aggregate
-        selection_aggregate = self.repository.find_by_study(
-            study_uid=study_uid, for_update=True
-        )
+        """Find aggregate root and value object for patching operations.
+
+        In batch mode, this method uses cached selection lists to avoid repeated
+        database queries. The cache is automatically invalidated when POST/DELETE
+        operations modify the entity set that PATCH operations need to see.
+
+        Args:
+            study_uid: Study identifier
+            study_selection_uid: Selection identifier to patch
+            for_update: Whether to acquire update locks
+
+        Returns:
+            Tuple of (selection_aggregate, current_vo) for the patch operation
+        """
+        # In batch mode, use cached selections if available and not invalidated.
+        # Three states for _batch_patch_ar_selections:
+        #   non-empty list → cache populated, use it
+        #   []             → batch initialised but not yet seeded → load from DB and store
+        #   None           → non-batch mode or cache was invalidated → load from DB without storing
+        if for_update and self._batch_patch_ar_selections:
+            # Build AR from cached selections — avoids DB round-trip
+            selections = self._batch_patch_ar_selections
+            selection_aggregate = (
+                self.repository._aggregate_root_type.from_repository_values(
+                    study_uid=study_uid, study_objects_selection=selections
+                )
+            )
+            selection_aggregate.repository_closure_data = selections
+        elif for_update and self._batch_patch_ar_selections is not None:
+            # Empty list [] — batch mode started, seed the cache from DB
+            selection_aggregate = self.repository.find_by_study(
+                study_uid=study_uid, for_update=for_update
+            )
+            self._batch_patch_ar_selections = list(
+                selection_aggregate.study_objects_selection
+            )
+        else:
+            # None — non-batch mode or cache was invalidated — load from database
+            selection_aggregate = self.repository.find_by_study(
+                study_uid=study_uid, for_update=for_update
+            )
 
         assert selection_aggregate is not None
 
@@ -341,17 +536,17 @@ class StudyActivitySelectionBaseService(
             study_selection_uid=study_selection_uid
         )
         selection_aggregate = self._filter_ars_from_same_parent(
-            selection_aggregate=selection_aggregate, selection_vo=current_vo
+            selection_aggregate=selection_aggregate, selection_vo=current_vo  # type: ignore[arg-type]
         )
         return selection_aggregate, current_vo
 
     def _update_aggregate(
         self,
         selection_aggregate: _AggregateRootType,
-        # pylint: disable=unused-argument
-        previous_selection: _VOType,
         updated_selection: _VOType,
-    ):
+        # pylint: disable=unused-argument
+        previous_selection: _VOType | None = None,
+    ) -> _VOType:
         # let the aggregate update the value object
         selection_aggregate.update_selection(
             updated_study_object_selection=updated_selection,
@@ -362,6 +557,11 @@ class StudyActivitySelectionBaseService(
 
         # sync with DB and save the update
         self.repository.save(selection_aggregate, self.author)
+        # After save(), the repository writeback has updated the in-memory VO with the correct order.
+        updated_vo, _ = selection_aggregate.get_specific_object_selection(
+            updated_selection.study_selection_uid
+        )
+        return updated_vo
 
     @ensure_transaction(db)
     def patch_selection(
@@ -383,10 +583,10 @@ class StudyActivitySelectionBaseService(
                 current_object=current_vo,
             )
 
-            self._update_aggregate(
+            updated_selection = self._update_aggregate(
                 selection_aggregate=selection_aggregate,
-                previous_selection=current_vo,
                 updated_selection=updated_selection,
+                previous_selection=current_vo,
             )
 
             # # sync related nodes
@@ -394,16 +594,26 @@ class StudyActivitySelectionBaseService(
                 study_selection=updated_selection, previous_study_selection=current_vo
             )
 
-            selection_aggregate, updated_selection = self._find_ar_to_patch(
-                study_uid=study_uid, study_selection_uid=study_selection_uid
-            )
+            # Keep the batch AR-selection cache current after each PATCH save.
+            # This ensures subsequent PATCH operations in the same batch see the updated state.
+            # Uses immutable update to prevent cache coherence issues.
+            if self._batch_patch_ar_selections is not None:
+                self._batch_patch_ar_selections = [
+                    (
+                        updated_selection
+                        if vo.study_selection_uid == study_selection_uid
+                        else vo
+                    )
+                    for vo in self._batch_patch_ar_selections
+                ]
+
             terms_at_specific_datetime = self._extract_study_standards_effective_date(
                 study_uid=study_uid
             )
 
             # add the activity and return
             return self._transform_from_vo_to_response_model(
-                study_uid=selection_aggregate.study_uid,
+                study_uid=study_uid,
                 specific_selection=updated_selection,
                 terms_at_specific_datetime=terms_at_specific_datetime,
             )
@@ -494,19 +704,41 @@ class StudyActivitySelectionBaseService(
         selection_vos: Iterable[StudySelectionBaseVO],
         filter_out_retired_groupings: bool = False,
     ) -> list[ActivityAR]:
-        version_specific_uids = defaultdict(set)
+        version_specific_uids: dict[str, set[str]] = defaultdict(set)
+        latest_uids: dict[str, set[str]] = defaultdict(set)
 
         for selection_vo in selection_vos:
             version_specific_uids[selection_vo.activity_uid].add(
                 selection_vo.activity_version
             )
-            version_specific_uids[selection_vo.activity_uid].add("LATEST")
+            latest_uids[selection_vo.activity_uid].add("LATEST")
 
         if not version_specific_uids:
             return []
 
-        return self._repos.activity_repository.get_all_optimized(
-            version_specific_uids=version_specific_uids,
-            include_retired_versions=True,
-            filter_out_retired_groupings=filter_out_retired_groupings,
-        )[0]
+        if not filter_out_retired_groupings:
+            for uid, versions in latest_uids.items():
+                version_specific_uids[uid].update(versions)
+            return self._repos.activity_repository.get_all_optimized(
+                version_specific_uids=version_specific_uids,
+                include_retired_versions=True,
+            )[0]
+
+        # When filtering retired groupings, fetch pinned versions unfiltered (so the study's
+        # pinned `activity` always shows all its original groupings) and fetch the LATEST
+        # versions with the filter applied (so `latest_activity` only shows active groupings).
+        # Combining both allows _find_versions to resolve each field independently.
+        pinned_results: list[ActivityAR] = (
+            self._repos.activity_repository.get_all_optimized(
+                version_specific_uids=version_specific_uids,
+                include_retired_versions=True,
+            )[0]
+        )
+        latest_results: list[ActivityAR] = (
+            self._repos.activity_repository.get_all_optimized(
+                version_specific_uids=latest_uids,
+                include_retired_versions=True,
+                filter_out_retired_groupings=True,
+            )[0]
+        )
+        return pinned_results + latest_results

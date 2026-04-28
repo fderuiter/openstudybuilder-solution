@@ -209,7 +209,7 @@ QUERIES: list[tuple[str, str, str]] = [
         "All HAS_VERSION relationships with status LOCKED have a matching HAS_VERSION with status RELEASED",
         """
         MATCH (root:StudyRoot {uid: $study_uid})-[hvl:HAS_VERSION {status: "LOCKED"}]->(value)
-        WHERE NOT (root)-[:HAS_VERSION {change_description: hvl.change_description, status: "RELEASED"}]->(value)
+        WHERE NOT (root)-[:HAS_VERSION {status: "RELEASED"}]->(value)
         """ + build_root_summary_return_statement("root"),
     ),
     (

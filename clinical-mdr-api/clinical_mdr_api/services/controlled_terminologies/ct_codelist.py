@@ -9,6 +9,7 @@ from clinical_mdr_api.domain_repositories.models.controlled_terminology import (
 from clinical_mdr_api.domains.controlled_terminologies.ct_codelist_attributes import (
     CTCodelistAttributesAR,
     CTCodelistAttributesVO,
+    CTPairedCodelists,
 )
 from clinical_mdr_api.domains.controlled_terminologies.ct_codelist_name import (
     CTCodelistNameAR,
@@ -23,6 +24,8 @@ from clinical_mdr_api.models.controlled_terminologies.ct_codelist import (
     CTCodelistPaired,
     CTCodelistPairedInput,
     CTCodelistTerm,
+    CTPairedCodelistCreateInput,
+    CTPairedCodelistInfo,
     CTPairedCodelistTerm,
 )
 from clinical_mdr_api.models.utils import GenericFilteringReturn
@@ -44,6 +47,20 @@ from common.exceptions import (
 )
 
 _AggregateRootType = TypeVar("_AggregateRootType")
+
+
+def _paired_codelist_info_from(
+    paired: CTPairedCodelists,
+) -> CTPairedCodelistInfo | None:
+    if paired.paired_codes_codelist_uid:
+        return CTPairedCodelistInfo(
+            uid=paired.paired_codes_codelist_uid, name=paired.paired_codes_codelist_name
+        )
+    if paired.paired_names_codelist_uid:
+        return CTPairedCodelistInfo(
+            uid=paired.paired_names_codelist_uid, name=paired.paired_names_codelist_name
+        )
+    return None
 
 
 class CTCodelistService:
@@ -221,6 +238,67 @@ class CTCodelistService:
             paired_names_codelist_uid=codelist_input.paired_names_codelist_uid,
         )
 
+    def create_paired_codelists(
+        self,
+        paired_codelist_input: CTPairedCodelistCreateInput,
+    ) -> CTCodelistPaired:
+        names_codelist_input = CTCodelistCreateInput(
+            catalogue_names=paired_codelist_input.catalogue_names,
+            name=paired_codelist_input.name_information.name,
+            submission_value=paired_codelist_input.name_information.submission_value,
+            nci_preferred_name=paired_codelist_input.name_information.nci_preferred_name,
+            definition=paired_codelist_input.name_information.definition,
+            extensible=paired_codelist_input.extensible,
+            is_ordinal=paired_codelist_input.is_ordinal,
+            codelist_type=paired_codelist_input.codelist_type,
+            sponsor_preferred_name=paired_codelist_input.name_information.sponsor_preferred_name,
+            template_parameter=paired_codelist_input.template_parameter,
+            parent_codelist_uid=paired_codelist_input.parent_codelist_uid,
+            terms=[],
+            library_name=paired_codelist_input.library_name,
+        )
+        codes_codelist_input = CTCodelistCreateInput(
+            catalogue_names=paired_codelist_input.catalogue_names,
+            name=paired_codelist_input.code_information.name,
+            submission_value=paired_codelist_input.code_information.submission_value,
+            nci_preferred_name=paired_codelist_input.code_information.nci_preferred_name,
+            definition=paired_codelist_input.code_information.definition,
+            extensible=paired_codelist_input.extensible,
+            is_ordinal=paired_codelist_input.is_ordinal,
+            codelist_type=paired_codelist_input.codelist_type,
+            sponsor_preferred_name=paired_codelist_input.code_information.sponsor_preferred_name,
+            template_parameter=paired_codelist_input.template_parameter,
+            parent_codelist_uid=paired_codelist_input.parent_codelist_uid,
+            terms=[],
+            library_name=paired_codelist_input.library_name,
+        )
+
+        names_codelist = self.create(names_codelist_input)
+        codes_codelist = self.create(codes_codelist_input)
+
+        self._repos.ct_codelist_aggregated_repository.merge_link_to_codes_codelist(
+            names_codelist.codelist_uid,
+            codes_codelist.codelist_uid,
+        )
+
+        attributes_service = CTCodelistAttributesService()
+        names_service = CTCodelistNameService()
+
+        return CTCodelistPaired.from_ct_codelists(
+            paired_names_codelist_name=names_service.get_by_uid(
+                names_codelist.codelist_uid
+            ),
+            paired_names_codelist_attrs=attributes_service.get_by_uid(
+                names_codelist.codelist_uid
+            ),
+            paired_codes_codelist_name=names_service.get_by_uid(
+                codes_codelist.codelist_uid
+            ),
+            paired_codes_codelist_attrs=attributes_service.get_by_uid(
+                codes_codelist.codelist_uid
+            ),
+        )
+
     def get_all_codelists(
         self,
         catalogue_name: str | None = None,
@@ -257,8 +335,7 @@ class CTCodelistService:
             CTCodelistNameAndAttributes.from_ct_codelist_ar(
                 ct_codelist_name_ar,
                 ct_codelist_attributes_ar,
-                paired_codes_codelist_uid=paired.paired_codes_codelist_uid,
-                paired_names_codelist_uid=paired.paired_names_codelist_uid,
+                paired_codelist=_paired_codelist_info_from(paired),
             )
             for ct_codelist_name_ar, ct_codelist_attributes_ar, paired in all_aggregated_codelists
         ]
@@ -378,8 +455,7 @@ class CTCodelistService:
             CTCodelistNameAndAttributes.from_ct_codelist_ar(
                 ct_codelist_name_ar,
                 ct_codelist_attributes_ar,
-                paired_codes_codelist_uid=paired.paired_codes_codelist_uid,
-                paired_names_codelist_uid=paired.paired_names_codelist_uid,
+                paired_codelist=_paired_codelist_info_from(paired),
             )
             for ct_codelist_name_ar, ct_codelist_attributes_ar, paired in all_aggregated_sub_codelists
             if ct_codelist_attributes_ar.uid in uid_of_sub_codelist_with_terms
@@ -456,20 +532,9 @@ class CTCodelistService:
             )
             BusinessLogicException.raise_if(
                 parent_codelist_uid
-                and len(
-                    self._repos.ct_term_aggregated_repository.find_all_aggregated_result(
-                        filter_by={
-                            "codelists.codelist_uid": {
-                                "v": [parent_codelist_uid],
-                                "op": "eq",
-                            },
-                            "term_uid": {"v": [term_uid], "op": "eq"},
-                        }
-                    )[
-                        0
-                    ]
-                )
-                <= 0,
+                and not self._repos.ct_codelist_attribute_repository.is_term_in_codelist(
+                    term_uid=term_uid, codelist_uid=parent_codelist_uid
+                ),
                 msg=f"Term with UID '{term_uid}' isn't in use by Parent Codelist with UID '{parent_codelist_uid}'.",
             )
 

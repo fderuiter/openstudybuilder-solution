@@ -978,6 +978,9 @@ export default {
   getComplexityScore(studyUid) {
     return repository.get(`${resource}/${studyUid}/complexity-score`)
   },
+  getComplexityScoreDetails(studyUid) {
+    return repository.get(`${resource}/${studyUid}/complexity-score-details`)
+  },
   // Study Data Suppliers
   getAllStudyDataSuppliers(params) {
     return repository.get('study-data-suppliers', { params })

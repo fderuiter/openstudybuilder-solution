@@ -86,7 +86,7 @@ from clinical_mdr_api.services.user_info import UserInfoService
 from common import exceptions
 from common.config import settings
 from common.telemetry import trace_calls
-from common.utils import convert_to_datetime
+from common.utils import convert_to_datetime, validate_max_skip_clause
 
 MAINTAIN_RELATIONSHIPS_FOR_NEW_STUDY_VALUE = {
     "belongs_to_study_parent_part",
@@ -2922,12 +2922,18 @@ MATCH (sr:StudyRoot)-[:LATEST]->(sv)
         return latest_version_relationship[2].version
 
     def _retrieve_study_subpart_with_history(
-        self, uid: str, is_subpart: bool = False, study_value_version: str | None = None
-    ) -> list[Any]:
+        self,
+        uid: str,
+        is_subpart: bool = False,
+        study_value_version: str | None = None,
+        page_number: int = 1,
+        page_size: int = 0,
+        total_count: bool = False,
+    ) -> GenericFilteringReturn:
         """
         returns the audit trail for all study subparts of the study
         """
-        params: dict[str, str | list[str]] = {}
+        params: dict[str, str | list[str] | int] = {}
         if not is_subpart:
             params = {"study_uid": uid}
             if study_value_version:
@@ -2960,14 +2966,27 @@ MATCH (sr:StudyRoot)-[:LATEST]->(sv)
         else:
             parent_in_version = ""
 
-        rs = db.cypher_query(
-            f"""
+        base_query = f"""
             MATCH (ssr:StudyRoot)-[h_rel:HAS_VERSION]->(ssv:StudyValue)
             {parent_in_version}
             WHERE ssr.uid IN $subpart_uids
             OPTIONAL MATCH (ssv)<-[:AFTER]-(asa:StudyAction)
             OPTIONAL MATCH (ssv)<-[:BEFORE]-(bsa:StudyAction)
             OPTIONAL MATCH (ssv)<-[:HAS_STUDY_SUBPART]-(psv:StudyValue)<-[p_h_rel:HAS_VERSION]-(psr:StudyRoot)
+        """
+
+        if page_size > 0:
+            validate_max_skip_clause(page_number=page_number, page_size=page_size)
+            skip = (page_number - 1) * page_size
+            params["skip"] = skip
+            params["limit"] = page_size
+            pagination_clause = "SKIP $skip LIMIT $limit"
+        else:
+            pagination_clause = ""
+
+        rs = db.cypher_query(
+            f"""
+            {base_query}
             RETURN DISTINCT
                 psr.uid AS parent_uid,
                 ssr.uid AS subpart_uid,
@@ -2979,11 +2998,33 @@ MATCH (sr:StudyRoot)-[:LATEST]->(sv)
                 h_rel.end_date AS end_date,
                 labels(asa) AS change_type
                 ORDER BY start_date DESC
+                {pagination_clause}
             """,
             params=params,
         )
         rs = utils.db_result_to_list(rs)
         rs.reverse()
+
+        total = -1
+        if total_count:
+            count_result = db.cypher_query(
+                f"""
+                {base_query}
+                WITH DISTINCT
+                    psr.uid AS parent_uid,
+                    ssr.uid AS subpart_uid,
+                    ssv.subpart_id AS subpart_id,
+                    ssv.study_acronym AS study_acronym,
+                    ssv.study_subpart_acronym AS study_subpart_acronym,
+                    h_rel.author_id AS author_id,
+                    h_rel.start_date AS start_date,
+                    h_rel.end_date AS end_date,
+                    labels(asa) AS change_type
+                RETURN count(*) AS total
+                """,
+                params=params,
+            )
+            total = count_result[0][0][0]
 
         result = []
         if not is_subpart:
@@ -3060,7 +3101,8 @@ MATCH (sr:StudyRoot)-[:LATEST]->(sv)
 
         result.reverse()
 
-        return calculate_diffs(result, StudySubpartAuditTrail)
+        items = calculate_diffs(result, StudySubpartAuditTrail)
+        return GenericFilteringReturn(items=items, total=total)
 
     @staticmethod
     def get_soa_preferences(

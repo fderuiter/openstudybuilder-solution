@@ -11,7 +11,8 @@ Feature: Studies - Define Study - Study Data Specifications - Study Activity Ins
 
     Scenario: [TestData] Old placeholder activity workflow feature flag is disabled
         When The '/administration/featureflags' page is opened
-        Then Old placeholder workflow feature flag is turned off
+        And User switch to 'Studies' feature flags
+        And User enables 'streamline_placeholder_activities' feature flag
 
     Scenario: [Test data] User creates test data via API
         And [API] The epoch with type 'Pre Treatment' and subtype 'Run-in' exists in selected study

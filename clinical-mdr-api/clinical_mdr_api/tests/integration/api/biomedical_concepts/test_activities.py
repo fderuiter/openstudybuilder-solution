@@ -459,9 +459,7 @@ def test_get_activity(api_client):
     response = api_client.get(
         f"/concepts/activities/activities/{activities_all[0].uid}"
     )
-    res = response.json()
-
-    assert_response_status_code(response, 200)
+    res = parse_json_response(response, assert_status=200)
 
     # Check fields included in the response
     assert set(res.keys()) == set(ACTIVITY_FIELDS_ALL)
@@ -508,7 +506,7 @@ def test_get_activity_pagination(api_client):
     sort_by = '{"name": true}'
     for page_number in range(1, 4):
         url = f"/concepts/activities/activities?page_number={page_number}&page_size=3&sort_by={sort_by}"
-        res = parse_json_response(api_client.get(url))
+        res = parse_json_response(api_client.get(url), assert_status=200)
         res_names = [item["name"] for item in res["items"]]
         results_paginated[page_number] = res_names
         log.info("Page %s: %s", page_number, res_names)
@@ -524,7 +522,8 @@ def test_get_activity_pagination(api_client):
     res_all = parse_json_response(
         api_client.get(
             f"/concepts/activities/activities?page_number=1&page_size=100&sort_by={sort_by}"
-        )
+        ),
+        assert_status=200,
     )
     results_all_in_one_page = list(map(lambda x: x["name"], res_all["items"]))
     log.info("All rows in one page: %s", results_all_in_one_page)
@@ -537,7 +536,8 @@ def test_get_activity_pagination(api_client):
     res_all = parse_json_response(
         api_client.get(
             f"/concepts/activities/activities?page_number=1&page_size=100&sort_by={sort_by}"
-        )
+        ),
+        assert_status=200,
     )
     all_results = list(
         map(
@@ -557,7 +557,8 @@ def test_get_activity_pagination(api_client):
     res_all = parse_json_response(
         api_client.get(
             f"/concepts/activities/activities?page_number=1&page_size=100&sort_by={sort_by}"
-        )
+        ),
+        assert_status=200,
     )
     all_results = list(
         map(
@@ -577,7 +578,8 @@ def test_get_activity_pagination(api_client):
     res_all = parse_json_response(
         api_client.get(
             f"/concepts/activities/activities?page_number=1&page_size=100&sort_by={sort_by}"
-        )
+        ),
+        assert_status=200,
     )
     all_results = list(
         map(
@@ -597,7 +599,8 @@ def test_get_activity_pagination(api_client):
     res_all = parse_json_response(
         api_client.get(
             f"/concepts/activities/activities?page_number=1&page_size=100&sort_by={sort_by}"
-        )
+        ),
+        assert_status=200,
     )
     all_results = list(
         map(
@@ -622,9 +625,7 @@ def test_get_activity_versions(api_client):
 
     # Get all versions of all activities
     response = api_client.get("/concepts/activities/activities/versions?page_size=100")
-    res = response.json()
-
-    assert_response_status_code(response, 200)
+    res = parse_json_response(response, assert_status=200)
 
     # Check fields included in the response
     assert set(res.keys()) == set(["items", "total", "page", "size"])
@@ -655,9 +656,8 @@ def test_filtering_versions_wildcard(
 ):
     url = f"/concepts/activities/activities/versions?filters={filter_by}"
     response = api_client.get(url)
-    res = response.json()
+    res = parse_json_response(response, assert_status=200)
 
-    assert_response_status_code(response, 200)
     if expected_result_prefix:
         assert len(res["items"]) > 0
         nested_path = None
@@ -708,9 +708,8 @@ def test_filtering_versions_exact(
 ):
     url = f"/concepts/activities/activities/versions?filters={filter_by}"
     response = api_client.get(url)
-    res = response.json()
+    res = parse_json_response(response, assert_status=200)
 
-    assert_response_status_code(response, 200)
     if expected_result:
         assert len(res["items"]) > 0
 
@@ -748,8 +747,7 @@ def test_explicit_filtering_by_activity_subgroup_and_group_uid(api_client):
             "activity_group_uid": activity_group.uid,
         },
     )
-    assert_response_status_code(response, 200)
-    res = response.json()["items"]
+    res = parse_json_response(response, assert_status=200)["items"]
     assert len(res) == 0
 
     response = api_client.get(
@@ -759,8 +757,7 @@ def test_explicit_filtering_by_activity_subgroup_and_group_uid(api_client):
             "activity_group_uid": different_activity_group.uid,
         },
     )
-    assert_response_status_code(response, 200)
-    res = response.json()["items"]
+    res = parse_json_response(response, assert_status=200)["items"]
     assert len(res) == 6
     assert res[0]["uid"] == activity_with_multiple_groupings.uid
 
@@ -785,8 +782,7 @@ def test_explicit_filtering_by_activity_subgroup_and_group_uid(api_client):
             "activity_group_uid": different_activity_group.uid,
         },
     )
-    assert_response_status_code(response, 200)
-    res = response.json()["items"]
+    res = parse_json_response(response, assert_status=200)["items"]
     assert len(res) == 0
 
 
@@ -803,24 +799,24 @@ def test_grouped_groupings_payload_flag(api_client):
             "page_size": 0,
         },
     )
-    assert_response_status_code(response, 200)
-    res = response.json()["items"]
+    items = parse_json_response(response, assert_status=200)["items"]
+
     assert any(
-        len(activity["activity_groupings"]) > 1 for activity in res
+        len(activity["activity_groupings"]) > 1 for activity in items
     ), "Test precondition failed: At least one activity should have multiple groupings"
     assert any(
-        len(activity["activity_instances"]) > 1 for activity in res
+        len(activity["activity_instances"]) > 1 for activity in items
     ), "Test precondition failed: At least one activity should have multiple instances"
 
     # Check that the activity with multiple groupings is present and has two instances linked to it
     assert any(
-        activity["uid"] == activity_with_multiple_groupings.uid for activity in res
+        activity["uid"] == activity_with_multiple_groupings.uid for activity in items
     ), "Test precondition failed: The activity with multiple groupings is not present in the response"
 
     # Collect groupings and number of instances for later comparison
     grouped_groupings = set()
     nbr_instances_grouped = 0
-    for activity in res:
+    for activity in items:
         if activity["uid"] == activity_with_multiple_groupings.uid:
             assert (
                 len(activity["activity_instances"]) == 2
@@ -847,12 +843,11 @@ def test_grouped_groupings_payload_flag(api_client):
             "page_size": 0,
         },
     )
-    assert_response_status_code(response, 200)
-    res = response.json()["items"]
+    items = parse_json_response(response, assert_status=200)["items"]
 
     ungrouped_groupings = set()
     nbr_instances_ungrouped = 0
-    for activity in res:
+    for activity in items:
         nbr_instances_ungrouped += len(activity["activity_instances"])
         if activity["uid"] == activity_with_multiple_groupings.uid:
             assert (
@@ -927,11 +922,8 @@ def test_create_activity_unique_name_validation(api_client):
             "library_name": archived_library["name"],
         },
     )
-    assert_response_status_code(response, 409)
-    assert (
-        response.json()["message"]
-        == f"Activity with Name '{activity_name}' already exists."
-    )
+    res = parse_json_response(response, assert_status=409)
+    assert res["message"] == f"Activity with Name '{activity_name}' already exists."
 
     # Create activity with the same name as the first one but in different Library
     response = api_client.post(
@@ -948,8 +940,7 @@ def test_create_activity_unique_name_validation(api_client):
             "library_name": "Sponsor",
         },
     )
-    assert_response_status_code(response, 201)
-    res = response.json()
+    res = parse_json_response(response, assert_status=201)
     assert res["name"] == activity_name
     assert res["library_name"] == "Sponsor"
 
@@ -968,11 +959,8 @@ def test_create_activity_unique_name_validation(api_client):
             "library_name": archived_library["name"],
         },
     )
-    assert_response_status_code(response, 409)
-    assert (
-        response.json()["message"]
-        == f"Activity with Name '{activity_name2}' already exists."
-    )
+    res = parse_json_response(response, assert_status=409)
+    assert res["message"] == f"Activity with Name '{activity_name2}' already exists."
 
 
 def test_update_activity_to_new_grouping(api_client):
@@ -1022,8 +1010,7 @@ def test_update_activity_to_new_grouping(api_client):
         f"/concepts/activities/activity-sub-groups/{subgroup.uid}"
     )
 
-    assert_response_status_code(response, 200)
-    res = response.json()
+    res = parse_json_response(response, assert_status=200)
 
     assert res["name"] == edited_subgroup_name
 
@@ -1062,8 +1049,7 @@ def test_update_activity_to_new_grouping(api_client):
 
     # Get the activity by uid and assert that it was updated to the new subgroup version
     response = api_client.get(f"/concepts/activities/activities/{activity.uid}")
-    assert_response_status_code(response, 200)
-    res = response.json()
+    res = parse_json_response(response, assert_status=200)
 
     assert res["version"] == "2.0"
     assert res["status"] == "Final"
@@ -1103,8 +1089,7 @@ def test_update_activity(api_client):
             "change_description": "Updated synonyms and groupings",
         },
     )
-    assert_response_status_code(response, 200)
-    res = response.json()
+    res = parse_json_response(response, assert_status=200)
 
     assert res["uid"] == activity.uid
     assert res["name"] == "name-CCC"
@@ -1157,7 +1142,7 @@ def test_cannot_create_activity_with_non_unique_synonyms(api_client):
         },
     )
     assert_response_status_code(response, 409)
-    res = response.json()
+    res = parse_json_response(response, assert_status=409)
 
     assert res["type"] == "AlreadyExistsException"
     assert (
@@ -1191,7 +1176,7 @@ def test_cannot_update_activity_with_non_unique_synonyms(api_client):
         },
     )
     assert_response_status_code(response, 409)
-    res = response.json()
+    res = parse_json_response(response, assert_status=409)
 
     assert res["type"] == "AlreadyExistsException"
     assert (
@@ -1259,8 +1244,7 @@ def test_cascade_edit_activities(api_client):
         f"/concepts/activities/activity-instances/{activity_instance.uid}"
     )
 
-    res = response.json()
-    assert_response_status_code(response, 200)
+    res = parse_json_response(response, assert_status=200)
     assert res["name"] == "Cascade Activity Instance"
     assert len(res["activity_groupings"]) == 1
     assert res["activity_groupings"][0]["activity"]["uid"] == activity.uid
@@ -1326,8 +1310,7 @@ def test_cascade_edit_activities(api_client):
     response = api_client.get(
         f"/concepts/activities/activity-instances/{activity_instance.uid}"
     )
-    assert_response_status_code(response, 200)
-    res = response.json()
+    res = parse_json_response(response, assert_status=200)
     assert len(res["activity_groupings"]) == 1
 
     # Update the activity by adding new activity groupings
@@ -1373,8 +1356,7 @@ def test_cascade_edit_activities(api_client):
     response = api_client.get(
         f"/concepts/activities/activity-instances/{activity_instance.uid}"
     )
-    assert_response_status_code(response, 200)
-    res = response.json()
+    res = parse_json_response(response, assert_status=200)
     assert len(res["activity_groupings"]) == 1
     assert res["groupings_version"] == "3.0"
     assert res["groupings_status"] == "Final"
@@ -1414,8 +1396,7 @@ def test_cascade_edit_activities(api_client):
     response = api_client.get(
         f"/concepts/activities/activity-instances/{activity_instance.uid}"
     )
-    assert_response_status_code(response, 200)
-    res = response.json()
+    res = parse_json_response(response, assert_status=200)
     assert len(res["activity_groupings"]) == 1
     assert res["groupings_version"] == "3.0"
     assert res["groupings_status"] == "Final"
@@ -1425,8 +1406,7 @@ def test_cascade_edit_activities(api_client):
     response = api_client.get(
         f"/concepts/activities/activity-instances/{activity_instance.uid}/groupings/versions"
     )
-    assert_response_status_code(response, 200)
-    res = response.json()
+    res = parse_json_response(response, assert_status=200)
     unchanged_draft = TestUtils._get_version_from_list(res, "1.1")
     updated_draft = TestUtils._get_version_from_list(res, "1.2")
     new_final = TestUtils._get_version_from_list(res, "2.0")
@@ -1475,8 +1455,7 @@ def test_cascade_edit_activities(api_client):
     response = api_client.get(
         f"/concepts/activities/activity-instances/{activity_instance.uid}"
     )
-    assert_response_status_code(response, 200)
-    res = response.json()
+    res = parse_json_response(response, assert_status=200)
 
     assert res["groupings_version"] == "3.0"
     assert res["groupings_status"] == "Final"
@@ -1798,8 +1777,7 @@ def test_create_activity_without_groupings_not_allowed(api_client):
             "activity_groupings": [],
         },
     )
-    assert_response_status_code(response, 400)
-    res = response.json()
+    res = parse_json_response(response, assert_status=400)
 
     assert res["type"] == "BusinessLogicException"
     assert res["message"] == "Sponsor activities must have at least one grouping."

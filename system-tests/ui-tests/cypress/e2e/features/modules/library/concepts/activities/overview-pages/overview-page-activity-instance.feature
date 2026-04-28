@@ -48,6 +48,7 @@ Feature: Library - Concepts - Activities - Activity Instance Overview Page
 
     Scenario: [COSMoS YAML] Verify that the instance overview page displays all sections correctly
         When I click on the COSMoS YAML tab
+        And User waits for 1 seconds
         When The download button is clicked
         Then The 'COSMoS-overview' file without timestamp is downloaded in 'yml' format
         # Ad the COSMoS YAML file should be saved with correct content (this step should be tested manually)
@@ -67,30 +68,36 @@ Feature: Library - Concepts - Activities - Activity Instance Overview Page
         |  Data type               |
         |  Name                    |
         |  Activity Item Class     |
+        |  Name submission value   |
+        |  Code submission value   |
         And The Instance linked group, subgroup and instance are displayed in the Activity groupings table
         And The free text search field should be displayed in the 'Activity groupings' table
         And The free text search field should be displayed in the 'Activity Items' table
 
-    @pending_implmentation
-    Scenario: [History] Verify that the activity group overview page displays correctly
-        When The history button is clicked
+    Scenario: [History] Verify that the activity instance attributes history page displays correctly
+        When Activity instance attributes history button is clicked
+        Then The history page is opened
+
+    Scenario: [History] Verify that the activity instance groupings history page displays correctly
+        When Activity instance groupings history button is clicked
         Then The history page is opened
 
     Scenario: [Linking] Verify that the activities instance overview page can link to the correct groups, subgroups and activities
-        When Version '0.1' is selected from the Version dropdown list
+        When Version '0.1' is selected from the Version dropdown list in the instance attributes section
         And The status displayed on the summary for Activity Instance Attributes is 'Draft' and version is '0.1'
         And The Start date value is saved
         Then The correct End date should be displayed
         And The Instance linked group, subgroup and instance are displayed in the Activity groupings table
         And The Activity Items table is empty
-        When Version '1.0' is selected from the Version dropdown list
+        When Version '1.0' is selected from the Version dropdown list in the instance attributes section
         And The status displayed on the summary for Activity Instance Attributes is 'Final' and version is '1.0'
         Then The Instance linked group, subgroup and instance are displayed in the Activity groupings table
 
     Scenario: [Edit] Edit the Instance Attributes
         Given The '/administration/featureflags' page is opened
-        And Activity instance wizard feature flag is turned on
-        And Activity instance wizard edit mode feature flag is turned on
+        And User switch to 'Library' feature flags
+        And User enables 'new_activity_instance_wizard_stepper' feature flag
+        And User enables 'activity_instance_wizard_stepper_edit_mode' feature flag
         And Overview page for activity instance created via API is opened
         And Instance overview page is opened
         When Activity instance attributes new version button is clicked

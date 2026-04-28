@@ -98,19 +98,19 @@ Then('Only actions that should be avaiable for the Retired item are displayed', 
 
 Then('Only actions that should be avaiable for the Draft Activity Instance are displayed', () => {
     const allowedActions = ['Approve attributes', 'Approve groupings', 'Edit attributes', 'Edit groupings', 'Delete', 'History (attributes)', 'History (groupings)']
-    const notAllowedActions = ['New version (attributes)', 'New version (groupings)', 'Inactivate attributes', 'Inactivate groupings', 'Reactivate attributes', 'Reactivate groupings']
+    const notAllowedActions = ['New version (attributes)', 'New version (groupings)', 'Inactivate', 'Reactivate']
     checkActionsAvailability(allowedActions, notAllowedActions)
 })
 
 Then('Only actions that should be avaiable for the Final Activity Instance are displayed', () => {
-    const allowedActions = ['New version (attributes)', 'New version (groupings)', 'Inactivate attributes', 'Inactivate groupings', 'History (attributes)', 'History (groupings)']
-    const notAllowedActions = ['Edit attributes', 'Edit groupings', 'Delete', 'Approve attributes', 'Approve groupings', 'Reactivate attributes', 'Reactivate groupings']
+    const allowedActions = ['New version (attributes)', 'New version (groupings)', 'Inactivate', 'History (attributes)', 'History (groupings)']
+    const notAllowedActions = ['Edit attributes', 'Edit groupings', 'Delete', 'Approve attributes', 'Approve groupings', 'Reactivate']
     checkActionsAvailability(allowedActions, notAllowedActions)
 })
 
 Then('Only actions that should be avaiable for the Retired Activity Instance are displayed', () => {
-    const allowedActions = ['Reactivate attributes', 'Reactivate groupings', 'History (attributes)', 'History (groupings)']
-    const notAllowedActions = ['New version (attributes)', 'New version (groupings)', 'Inactivate attributes', 'Inactivate groupings', 'Edit attributes', 'Edit groupings', 'Delete', 'Approve attributes', 'Approve groupings']
+    const allowedActions = ['Reactivate', 'History (attributes)', 'History (groupings)']
+    const notAllowedActions = ['New version (attributes)', 'New version (groupings)', 'Inactivate', 'Edit attributes', 'Edit groupings', 'Delete', 'Approve attributes', 'Approve groupings']
     checkActionsAvailability(allowedActions, notAllowedActions)
 })
 

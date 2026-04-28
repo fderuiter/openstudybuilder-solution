@@ -9,7 +9,7 @@ Finding,,--REFID,7,Character,80,"Unique sample identifier:  Sample ID, requisiti
 Finding,,TOPICCD,8,Character,80,"Topic code, see 'Lab, content' sheet."
 Finding,,SUPTEST,9,Character,100,Supplier assessment name.
 Finding,original_result,--ORRES,10,Character,200,Result. LBORRES should be NULL if a result is not obtained.  
-Finding,,--STRESC,11,Character,200,Character result in standardised format. LBSTRESC should be compliant with CDISC CT codelist LBSTRESC (e.g. 'NEGATIVE')  or Novo Nordisk-defined extensions.  LBSTRESC should be NULL for numeric results.
+Finding,,--STRESC,11,Character,200,Character result in standardised format. LBSTRESC should be compliant with CDISC CT codelist LBSTRESC (e.g. 'NEGATIVE')  or custom defined extensions.  LBSTRESC should be NULL for numeric results.
 Finding,original_unit,UNITCOLL,12,Character,40,"Collected unit. UNITCOLL should be compliant with CDISC CT codelist UNIT (e.g. 'mmol/L') or Novo Nordisk-defined extensions.  Supplier should not perform unit-based conversion of results.  UNITCOLL should be NULL for unitless data, e.g. pH."
 Finding,normal_range_lower_limit,--ORNRLO,13,Character,40,Lower limit of supplier reference range applicable to the subject in same unit as the result. LBORNRLO should be NULL if there is no lower limit. See 'Supplier guidance' sheet.
 Finding,normal_range_upper_limit,--ORNRHI,14,Character,40,Upper limit of supplier reference range applicable to the subject in same unit as the result. LBORNRHI should be NULL if there is no upper limit. See 'Supplier guidance' sheet.

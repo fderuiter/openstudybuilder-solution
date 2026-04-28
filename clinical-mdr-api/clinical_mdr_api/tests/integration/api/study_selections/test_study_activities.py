@@ -558,7 +558,6 @@ def test_update_library_items_of_relationship_to_value_nodes(api_client):
     response = api_client.post(
         f"/concepts/activities/activities/{library_activity_uid}/versions",
     )
-    res = response.json()
     assert_response_status_code(response, 201)
 
     response = api_client.put(
@@ -571,13 +570,11 @@ def test_update_library_items_of_relationship_to_value_nodes(api_client):
             "activity_groupings": initial_activity_groupings,
         },
     )
-    res = response.json()
     assert_response_status_code(response, 200)
 
     response = api_client.post(
         f"/concepts/activities/activity-sub-groups/{library_activity_grouping_subgroup_uid}/versions",
     )
-    res = response.json()
     assert_response_status_code(response, 201)
 
     response = api_client.put(
@@ -591,18 +588,15 @@ def test_update_library_items_of_relationship_to_value_nodes(api_client):
             "activity_groups": [library_activity_grouping_group_uid],
         },
     )
-    res = response.json()
     assert_response_status_code(response, 200)
     response = api_client.post(
         f"/concepts/activities/activities/{library_activity_uid}/approvals"
     )
-    res = response.json()
     assert_response_status_code(response, 201)
 
     response = api_client.post(
         f"/concepts/activities/activity-sub-groups/{library_activity_grouping_subgroup_uid}/approvals"
     )
-    res = response.json()
     assert_response_status_code(response, 201)
 
     # check that the Library item has been changed
@@ -636,7 +630,6 @@ def test_update_library_items_of_relationship_to_value_nodes(api_client):
     response = api_client.post(
         f"/concepts/activities/activities/{library_activity_uid}/versions",
     )
-    res = response.json()
     assert_response_status_code(response, 201)
     response = api_client.put(
         f"/concepts/activities/activities/{library_activity_uid}",
@@ -648,19 +641,16 @@ def test_update_library_items_of_relationship_to_value_nodes(api_client):
             "activity_groupings": initial_activity_groupings,
         },
     )
-    res = response.json()
     assert_response_status_code(response, 200)
     response = api_client.post(
         f"/concepts/activities/activities/{library_activity_uid}/approvals"
     )
-    res = response.json()
     assert_response_status_code(response, 201)
 
     # change activity name and approve the version
     response = api_client.post(
         f"/concepts/activities/activity-sub-groups/{library_activity_grouping_subgroup_uid}/versions",
     )
-    res = response.json()
     assert_response_status_code(response, 201)
     response = api_client.put(
         f"/concepts/activities/activity-sub-groups/{library_activity_grouping_subgroup_uid}",
@@ -673,12 +663,10 @@ def test_update_library_items_of_relationship_to_value_nodes(api_client):
             "activity_groups": [library_activity_grouping_group_uid],
         },
     )
-    res = response.json()
     assert_response_status_code(response, 200)
     response = api_client.post(
         f"/concepts/activities/activity-sub-groups/{library_activity_grouping_subgroup_uid}/approvals"
     )
-    res = response.json()
     assert_response_status_code(response, 201)
 
 
@@ -963,6 +951,19 @@ def test_maintain_outbound_rels(api_client):
     assert len(res) == 0
 
 
+def _normalize_versioned_study_data(
+    outer_list: list[dict[str, Any]],
+    visits_items: list[dict[str, Any]],
+    set_study_version: bool = True,
+) -> None:
+    for i, item in enumerate(outer_list):
+        if set_study_version:
+            item["study_version"] = mock.ANY
+        for j in visits_items[i]:
+            if isinstance(visits_items[i][j], dict):
+                visits_items[i][j]["queried_effective_date"] = mock.ANY
+
+
 def test_versioning_on_activity_activity_instruction_activity_schedule_as_group(
     api_client,
 ):
@@ -1160,44 +1161,32 @@ def test_versioning_on_activity_activity_instruction_activity_schedule_as_group(
     assert len(res) == 0
 
     # CHECK if data of locked study version was not changed
+    visits_items = expected_visits["items"]
     # compare study visits of locked study version
-    for i, _ in enumerate(expected_visits["items"]):
-        expected_visits["items"][i]["study_version"] = mock.ANY
-        for j in expected_visits["items"][i]:
-            if isinstance(expected_visits["items"][i][j], dict):
-                expected_visits["items"][i][j]["queried_effective_date"] = mock.ANY
+    _normalize_versioned_study_data(expected_visits["items"], visits_items)
     current_visits = api_client.get(
         f"/studies/{study_for_versioning.uid}/study-visits?study_value_version=1"
     ).json()
     assert current_visits == expected_visits
 
     # compare study activities of locked study version
-    for i, _ in enumerate(expected_activities["items"]):
-        expected_activities["items"][i]["study_version"] = mock.ANY
-        for j in expected_visits["items"][i]:
-            if isinstance(expected_visits["items"][i][j], dict):
-                expected_visits["items"][i][j]["queried_effective_date"] = mock.ANY
+    _normalize_versioned_study_data(expected_activities["items"], visits_items)
     current_activities = api_client.get(
         f"/studies/{study_for_versioning.uid}/study-activities?study_value_version=1"
     ).json()
     assert current_activities == expected_activities
 
     # compare study activity schedules of locked study version
-    for i, _ in enumerate(expected_activity_schedules):
-        for j in expected_visits["items"][i]:
-            if isinstance(expected_visits["items"][i][j], dict):
-                expected_visits["items"][i][j]["queried_effective_date"] = mock.ANY
+    _normalize_versioned_study_data(
+        expected_activity_schedules, visits_items, set_study_version=False
+    )
     current_activity_schedules = api_client.get(
         f"/studies/{study_for_versioning.uid}/study-activity-schedules?study_value_version=1"
     ).json()
     assert current_activity_schedules == expected_activity_schedules
 
     # compare study activity instructions of locked study version
-    for i, _ in enumerate(expected_activity_instructions):
-        expected_activity_instructions[i]["study_version"] = mock.ANY
-        for j in expected_visits["items"][i]:
-            if isinstance(expected_visits["items"][i][j], dict):
-                expected_visits["items"][i][j]["queried_effective_date"] = mock.ANY
+    _normalize_versioned_study_data(expected_activity_instructions, visits_items)
     current_activity_instructions = api_client.get(
         f"/studies/{study_for_versioning.uid}/study-activity-instructions?study_value_version=1"
     ).json()
@@ -2379,6 +2368,7 @@ def test_study_activity_version_selecting_ct_package(api_client):
             "change_description": "string",
         },
     )
+    assert_response_status_code(response, 200)
     response = api_client.post(f"/ct/terms/{ctterm_uid}/names/approvals")
     assert_response_status_code(response, 201)
 
@@ -4191,6 +4181,37 @@ def test_cross_soa_group_duplicate_study_activity_blocked_on_create(api_client):
     )
 
 
+def test_clone_big_study_with_study_activity_flags_enabled(api_client):
+    response = api_client.post(
+        "/studies/Study_000001/clone",
+        json={
+            "study_number": "9001",
+            "study_acronym": "9001",
+            "project_number": project.project_number,
+            "description": "Clone with study activity flags enabled",
+            "copy_study_arm": True,
+            "copy_study_branch_arm": True,
+            "copy_study_cohort": True,
+            "copy_study_element": True,
+            "copy_study_visit": True,
+            "copy_study_epoch": True,
+            "copy_study_visits_study_footnote": True,
+            "copy_study_epochs_study_footnote": True,
+            "copy_study_design_matrix": True,
+            "copy_study_soa_group": True,
+            "copy_study_activity_group": True,
+            "copy_study_activity_subgroup": True,
+            "copy_study_activity": True,
+            "copy_study_activity_instance": True,
+            "copy_study_activity_schedule": True,
+            "validation_mode": ValidationMode.WARNING.value,
+        },
+    )
+    assert_response_status_code(response, 201)
+    study_cloned = response.json()
+    assert study_cloned["uid"] != "Study_000001"
+
+
 def test_cross_soa_group_duplicate_study_activity_blocked_on_patch(api_client):
     test_study = TestUtils.create_study(project_number=project.project_number)
 
@@ -4821,9 +4842,9 @@ def test_study_activity_invalidate_keep_old_version(api_client):
     )
     assert_response_status_code(response, 200)
 
-    # TODO fix study-activities get by uid as it returns same activity for latest_activity and activity if activity is retired
-    # it should return Retired one as latest_activity and Final one as activity
-    # as temporary fix calling get all that works fine as for now.
+    # Known limitation: get by uid returns same activity for latest_activity and activity when activity is retired.
+    # It should return Retired one as latest_activity and Final one as activity.
+    # As temporary fix calling get all that works fine as for now.
     response = api_client.get(f"/studies/{test_study.uid}/study-activities")
     assert_response_status_code(response, 200)
     res = response.json()["items"]

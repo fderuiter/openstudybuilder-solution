@@ -47,9 +47,16 @@ def assert_json_response(response: httpx.Response):
 
 
 def parse_json_response(
-    response: httpx.Response, status: int | Iterable[int] = 200
+    response: httpx.Response, *, assert_status: int | Iterable[int] | None = None
 ) -> Any:
-    """Shorthand of checking status code and Content-Type header and returning parsed JSON response"""
-    assert_response_status_code(response, status)
+    """
+    Decode response body as JSON, checking Content-Type header, and optionally checking HTTP status code
+
+    :param response: httpx.Response to parse
+    :param assert_status: Optional HTTP status code or iterable of codes to assert before parsing
+    :return: Decoded JSON content of the response
+    """
+    if assert_status is not None:
+        assert_response_status_code(response, assert_status)
     assert_json_response(response)
     return response.json()

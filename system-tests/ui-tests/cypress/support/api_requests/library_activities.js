@@ -22,8 +22,7 @@ const approveActivityInstanceGroupingsUrl = (activityInstance_uid) => `${activit
 const approveActivityGroupUrl = (group_uid) => `${activityGroupUrl}/${group_uid}/approvals`
 const approveActivitySubGroupUrl = (subgroup_uid) => `${activitySubGroupUrl}/${subgroup_uid}/approvals`
 const activateActivityUrl = (activity_uid) => `${activityUrl}/${activity_uid}/activations`
-const activateActivityInstanceAttributesUrl = (activityInstance_uid) => `${activityInstanceUrl}/${activityInstance_uid}/attributes/activations`
-const activateActivityInstanceGroupingsUrl = (activityInstance_uid) => `${activityInstanceUrl}/${activityInstance_uid}/groupings/activations`
+const activateActivityInstanceUrl = (activityInstance_uid) => `${activityInstanceUrl}/${activityInstance_uid}/activations`
 const activateActivityGroupUrl = (group_uid) => `${activityGroupUrl}/${group_uid}/activations`
 const activateActivitySubGroupUrl = (subgroup_uid) => `${activitySubGroupUrl}/${subgroup_uid}/activations`
 const newVersionActivityUrl = (activity_uid) => `${activityUrl}/${activity_uid}/versions`
@@ -105,10 +104,7 @@ Cypress.Commands.add('subGroupNewVersion', () => cy.sendPostRequest(newVersionAc
 
 Cypress.Commands.add('inactivateActivity', () => cy.sendDeleteRequest(activateActivityUrl(activity_uid), {}))
 
-Cypress.Commands.add('inactivateActivityInstance', () => {
-    cy.sendDeleteRequest(activateActivityInstanceAttributesUrl(activityInstance_uid), {})
-    cy.sendDeleteRequest(activateActivityInstanceGroupingsUrl(activityInstance_uid), {})
-})
+Cypress.Commands.add('inactivateActivityInstance', () => cy.sendDeleteRequest(activateActivityInstanceUrl(activityInstance_uid), {}))
 
 Cypress.Commands.add('inactivateGroup', () => cy.sendDeleteRequest(activateActivityGroupUrl(group_uid), {}))
 

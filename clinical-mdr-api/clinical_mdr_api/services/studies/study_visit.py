@@ -1044,7 +1044,7 @@ class StudyVisitService(StudySelectionMixin):
             time_unit_object=time_unit_object,
             description=create_input.description,
             start_rule=(
-                settings.unscheduled_visit_start_rule
+                create_input.start_rule or settings.unscheduled_visit_start_rule
                 if create_input.visit_class == VisitClass.UNSCHEDULED_VISIT
                 else create_input.start_rule
             ),
@@ -1425,6 +1425,7 @@ class StudyVisitService(StudySelectionMixin):
 
     @ensure_transaction(db)
     def delete(self, study_uid: str, study_visit_uid: str):
+        acquire_write_lock_study_value(uid=study_uid)
         study_visits = self.repo.find_all_visits_by_study_uid(study_uid)
         timeline = TimelineAR(study_uid=study_uid, _visits=study_visits)
         ordered_visits = timeline.ordered_study_visits

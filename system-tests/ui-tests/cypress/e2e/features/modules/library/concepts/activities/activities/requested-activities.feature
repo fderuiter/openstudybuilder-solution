@@ -6,6 +6,11 @@ Feature: Library - Concepts - Activities - Requested Activities
     Background: User must be logged in
         Given The user is logged in
 
+    Scenario: [TestData] Old placeholder activity workflow feature flag is enabled
+        When The '/administration/featureflags' page is opened
+        And User switch to 'Studies' feature flags
+        And User disables 'streamline_placeholder_activities' feature flag
+        
     Scenario: [Create] User must not be able to create activity request from library level
         Given The '/library/activities/requested-activities' page is opened
         Then The add activity request button is not available
@@ -78,3 +83,29 @@ Feature: Library - Concepts - Activities - Requested Activities
         And Requested activity is found
         And The item actions button is clicked
         Then Only actions that should be avaiable for the Retired item are displayed
+
+    Scenario: [Overview Page] User must able to see the linked study on the activity placeholder overview page
+        Given A test study is selected
+        And [API] Get SoA Group 'BIOMARKERS' id
+        When [API] Create Unsubmitted Requested Activity
+        And [API] Requested Activity is added to the study
+        And The '/library/activities/activities' page is opened
+        And Activity placeholder is found
+        Then The Library value is set to 'Requested'
+        And User goes to activity placeholder overview page by clicking its name
+        Then The Library displayed on the summary has value 'Requested'
+        And The Study ID displayed on the summary has value 'CDISC DEV-9876'
+
+    Scenario: [Overview Page] User must able unlink study from the activity placeholder and see the change on the overview page
+        Given A test study is selected
+        Given The test study '/activities/list' page is opened
+        And Activity placeholder is found
+        When The 'Remove Activity' option is clicked from the three dot menu list
+        And Action is confirmed by clicking continue
+        Then The pop up displays 'Study activity deleted'
+        And The '/library/activities/activities' page is opened
+        And Activity placeholder is found
+        Then The Library value is set to 'Requested'
+        And User goes to activity placeholder overview page by clicking its name
+        Then The Library displayed on the summary has value 'Requested'
+        And The Study ID displayed on the summary has value '-'

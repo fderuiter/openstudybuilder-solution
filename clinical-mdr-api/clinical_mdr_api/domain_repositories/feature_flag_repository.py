@@ -12,6 +12,8 @@ class FeatureFlagRepository:
     def _transform_to_model(self, item: FeatureFlagNode) -> FeatureFlag:
         return FeatureFlag(
             sn=item.sn,
+            section=item.section,
+            feature=item.feature,
             name=item.name,
             enabled=item.enabled,
             description=item.description,
@@ -64,6 +66,8 @@ class FeatureFlagRepository:
 
     def create_feature_flag(
         self,
+        section: str,
+        feature: str,
         name: str,
         enabled: bool,
         description: str | None,
@@ -82,6 +86,8 @@ class FeatureFlagRepository:
             CREATE (n:FeatureFlag)
             SET
                 n.sn = $sn,
+                n.section = $section,
+                n.feature = $feature,
                 n.name = $name,
                 n.enabled = $enabled,
                 n.description = $description
@@ -89,6 +95,8 @@ class FeatureFlagRepository:
             """,
             params={
                 "sn": sn,
+                "section": section,
+                "feature": feature,
                 "name": name,
                 "enabled": enabled,
                 "description": description,
@@ -98,14 +106,37 @@ class FeatureFlagRepository:
 
         return self._transform_to_model(rs[0][0][0])
 
-    def update_feature_flag(self, sn: int, enabled: bool) -> FeatureFlag:
-        rs = db.cypher_query(
-            """
-            MATCH (n:FeatureFlag {sn: $sn})
-            SET n.enabled = $enabled
+    def update_feature_flag(self, sn: int, **updates) -> FeatureFlag:
+        """
+        Update a feature flag with only the provided fields.
+
+        Args:
+            sn: Serial number of the feature flag
+            **updates: Fields to update (section, feature, enabled)
+
+        Returns:
+            Updated FeatureFlag
+        """
+        if not updates:
+            # If no updates provided, just retrieve and return the existing flag
+            return self.retrieve_feature_flag(sn)
+
+        # Build SET clause dynamically for only the provided fields
+        set_clauses = [f"n.{key} = ${key}" for key in updates]
+        set_clause = ", ".join(set_clauses)
+
+        query = f"""
+            MATCH (n:FeatureFlag {{sn: $sn}})
+            SET
+                {set_clause}
             RETURN n
-            """,
-            params={"sn": sn, "enabled": enabled},
+            """
+
+        params = {"sn": sn, **updates}
+
+        rs = db.cypher_query(
+            query,
+            params=params,
             resolve_objects=True,
         )
 

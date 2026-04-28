@@ -91,7 +91,13 @@ def test_get_feature_flag(api_client):
 
 
 def test_create_feature_flag(api_client):
-    data = {"name": "Name", "enabled": False, "description": "Description"}
+    data = {
+        "section": "admin",
+        "feature": "Feature",
+        "name": "Name",
+        "enabled": False,
+        "description": "Description",
+    }
     response = api_client.post("/feature-flags", json=data)
 
     assert_response_status_code(response, 201)
@@ -103,13 +109,128 @@ def test_create_feature_flag(api_client):
 
 
 def test_update_feature_flag(api_client):
-    data = {"enabled": True}
+    data = {"section": "studies", "feature": "Feature XX", "enabled": True}
     response = api_client.patch("/feature-flags/11", json=data)
 
     assert_response_status_code(response, 200)
     res = response.json()
     assert res["sn"] == 11
-    assert res["enabled"] == data["enabled"]
+    for field, value in data.items():
+        assert res[field] == value
+
+
+def test_patch_feature_flag_only_section(api_client):
+    """Test that PATCH updates only the section field, leaving others unchanged"""
+    # Get the original feature flag
+    original = api_client.get(f"/feature-flags/{feature_flags[1].sn}").json()
+
+    # Update only the section
+    data = {"section": "library"}
+    response = api_client.patch(f"/feature-flags/{feature_flags[1].sn}", json=data)
+
+    assert_response_status_code(response, 200)
+    res = response.json()
+    assert res["sn"] == feature_flags[1].sn
+    assert res["section"] == "library"  # Updated field
+    # Verify other fields remain unchanged
+    assert res["feature"] == original["feature"]
+    assert res["name"] == original["name"]
+    assert res["enabled"] == original["enabled"]
+    assert res["description"] == original["description"]
+
+
+def test_patch_feature_flag_only_feature(api_client):
+    """Test that PATCH updates only the feature field, leaving others unchanged"""
+    # Get the original feature flag
+    original = api_client.get(f"/feature-flags/{feature_flags[2].sn}").json()
+
+    # Update only the feature
+    data = {"feature": "Updated Feature Name"}
+    response = api_client.patch(f"/feature-flags/{feature_flags[2].sn}", json=data)
+
+    assert_response_status_code(response, 200)
+    res = response.json()
+    assert res["sn"] == feature_flags[2].sn
+    assert res["feature"] == "Updated Feature Name"  # Updated field
+    # Verify other fields remain unchanged
+    assert res["section"] == original["section"]
+    assert res["name"] == original["name"]
+    assert res["enabled"] == original["enabled"]
+    assert res["description"] == original["description"]
+
+
+def test_patch_feature_flag_only_enabled(api_client):
+    """Test that PATCH updates only the enabled field, leaving others unchanged"""
+    # Get the original feature flag
+    original = api_client.get(f"/feature-flags/{feature_flags[3].sn}").json()
+    original_enabled_state = original["enabled"]
+
+    # Toggle the enabled state
+    data = {"enabled": not original_enabled_state}
+    response = api_client.patch(f"/feature-flags/{feature_flags[3].sn}", json=data)
+
+    assert_response_status_code(response, 200)
+    res = response.json()
+    assert res["sn"] == feature_flags[3].sn
+    assert res["enabled"] == (not original_enabled_state)  # Updated field
+    # Verify other fields remain unchanged
+    assert res["section"] == original["section"]
+    assert res["feature"] == original["feature"]
+    assert res["name"] == original["name"]
+    assert res["description"] == original["description"]
+
+
+def test_patch_feature_flag_multiple_fields(api_client):
+    """Test that PATCH can update multiple fields at once"""
+    # Get the original feature flag
+    original = api_client.get(f"/feature-flags/{feature_flags[4].sn}").json()
+
+    # Update multiple fields
+    data = {"section": "studies", "enabled": True}
+    response = api_client.patch(f"/feature-flags/{feature_flags[4].sn}", json=data)
+
+    assert_response_status_code(response, 200)
+    res = response.json()
+    assert res["sn"] == feature_flags[4].sn
+    assert res["section"] == "studies"  # Updated
+    assert res["enabled"] is True  # Updated
+    # Verify other fields remain unchanged
+    assert res["feature"] == original["feature"]
+    assert res["name"] == original["name"]
+    assert res["description"] == original["description"]
+
+
+def test_patch_feature_flag_empty_body(api_client):
+    """Test that PATCH with empty body returns the feature flag unchanged"""
+    # Get the original feature flag
+    original = api_client.get(f"/feature-flags/{feature_flags[5].sn}").json()
+
+    # Send empty patch
+    data = {}
+    response = api_client.patch(f"/feature-flags/{feature_flags[5].sn}", json=data)
+
+    assert_response_status_code(response, 200)
+    res = response.json()
+    # Verify all fields remain unchanged
+    assert res == original
+
+
+def test_patch_feature_flag_enabled_false(api_client):
+    """Test that PATCH can explicitly set enabled to False"""
+    # First set enabled to True
+    api_client.patch(f"/feature-flags/{feature_flags[6].sn}", json={"enabled": True})
+
+    # Verify it's True
+    current = api_client.get(f"/feature-flags/{feature_flags[6].sn}").json()
+    assert current["enabled"] is True
+
+    # Now set it to False
+    data = {"enabled": False}
+    response = api_client.patch(f"/feature-flags/{feature_flags[6].sn}", json=data)
+
+    assert_response_status_code(response, 200)
+    res = response.json()
+    assert res["enabled"] is False  # Should be explicitly False, not default
 
 
 def test_delete_feature_flag(api_client):
@@ -129,7 +250,13 @@ def test_delete_feature_flag(api_client):
 def test_cannot_create_feature_flag_with_existing_name(api_client):
     response = api_client.post(
         "/feature-flags",
-        json={"name": "Name", "enabled": False, "description": "Description"},
+        json={
+            "section": "admin",
+            "feature": "Feature",
+            "name": "Name",
+            "enabled": False,
+            "description": "Description",
+        },
     )
 
     assert_response_status_code(response, 409)

@@ -345,16 +345,17 @@ Possible errors:
     },
 )
 @decorators.validate_if_study_is_not_locked("study_uid")
-# pylint: disable=unused-argument
 def delete_study_disease_milestone(
-    study_uid: Annotated[str, studyUID],  # TODO: Use this argument!
+    study_uid: Annotated[str, studyUID],
     study_disease_milestone_uid: Annotated[
         str, study_disease_milestone_uid_description
     ],
 ):
     service = StudyDiseaseMilestoneService()
 
-    service.delete(study_disease_milestone_uid=study_disease_milestone_uid)
+    service.delete(
+        study_uid=study_uid, study_disease_milestone_uid=study_disease_milestone_uid
+    )
 
 
 @router.patch(
@@ -398,9 +399,8 @@ Possible errors:
     },
 )
 @decorators.validate_if_study_is_not_locked("study_uid")
-# pylint: disable=unused-argument
 def patch_reorder(
-    study_uid: Annotated[str, studyUID],  # TODO: Use this argument!
+    study_uid: Annotated[str, studyUID],
     study_disease_milestone_uid: Annotated[
         str, study_disease_milestone_uid_description
     ],
@@ -411,6 +411,7 @@ def patch_reorder(
 ) -> study_disease_milestone.StudyDiseaseMilestone:
     service = StudyDiseaseMilestoneService()
     return service.reorder(
+        study_uid=study_uid,
         study_disease_milestone_uid=study_disease_milestone_uid,
         new_order=new_order_input.new_order,
     )
@@ -461,6 +462,7 @@ def patch_update_disease_milestone(
 ) -> study_disease_milestone.StudyDiseaseMilestone:
     service = StudyDiseaseMilestoneService()
     return service.edit(
+        study_uid=study_uid,
         study_disease_milestone_uid=study_disease_milestone_uid,
         study_disease_milestone_input=selection,
     )

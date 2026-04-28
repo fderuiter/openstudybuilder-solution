@@ -69,11 +69,11 @@
               {{
                 typeof props.title === 'number'
                   ? props.title
-                  : props.title.replace(/<\/?[^>]+(>)/g, '')
+                  : props.title.replace(/[<>]/g, '')
               }}
             </template>
             <v-tooltip activator="parent" location="bottom">
-              {{ props.title.replace(/<\/?[^>]+(>)/g, '') }}
+              {{ props.title.replace(/[<>]/g, '') }}
             </v-tooltip>
           </v-list-item>
         </template>

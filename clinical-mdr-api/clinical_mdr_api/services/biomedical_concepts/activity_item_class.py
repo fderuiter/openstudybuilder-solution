@@ -37,6 +37,7 @@ from clinical_mdr_api.services.concepts.concept_generic_service import (
 )
 from clinical_mdr_api.services.controlled_terminologies.ct_codelist import (
     CTCodelistService,
+    _paired_codelist_info_from,
 )
 from common.exceptions import NotFoundException
 from common.utils import version_string_to_tuple
@@ -265,8 +266,7 @@ class ActivityItemClassService(ConceptGenericService[ActivityItemClassAR]):
                 CTCodelistNameAndAttributes.from_ct_codelist_ar(
                     name,
                     attrs,
-                    paired_codes_codelist_uid=paired.paired_codes_codelist_uid,
-                    paired_names_codelist_uid=paired.paired_names_codelist_uid,
+                    paired_codelist=_paired_codelist_info_from(paired),
                 ),
                 codelists_and_terms[attrs.uid],
             )

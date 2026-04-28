@@ -16,6 +16,7 @@ from clinical_mdr_api.models.controlled_terminologies.ct_codelist import (
     CTCodelistPairedInput,
     CTCodelistTerm,
     CTCodelistTermInput,
+    CTPairedCodelistCreateInput,
     CTPairedCodelistTerm,
 )
 from clinical_mdr_api.models.utils import CustomPage
@@ -382,6 +383,41 @@ def update_paired_codelist(
         paired_codelists=codelist_input,
     )
     return results
+
+
+@router.post(
+    "/paired-codelists",
+    dependencies=[security, rbac.LIBRARY_WRITE],
+    summary="Creates a new set of paired codelists.",
+    description="""Creates two codelists (one for names, one for codes) and links them as paired codelists.
+Each codelist gets its own name, submission_value, nci_preferred_name, definition, and sponsor_preferred_name
+via the name_information and code_information fields respectively.
+""",
+    status_code=201,
+    responses={
+        403: _generic_descriptions.ERROR_403,
+        201: {
+            "description": "Created - The paired codelists were successfully created."
+        },
+        400: {
+            "model": ErrorResponse,
+            "description": "Forbidden - Reasons include e.g.: \n"
+            "- The catalogue doesn't exist.\n"
+            "- The library doesn't exist.\n"
+            "- The library doesn't allow to add new items.\n",
+        },
+    },
+)
+def create_paired_codelists(
+    paired_codelist_input: Annotated[
+        CTPairedCodelistCreateInput,
+        Body(
+            description="Properties to create a set of paired codelists (names and codes).",
+        ),
+    ],
+) -> CTCodelistPaired:
+    ct_codelist_service = CTCodelistService()
+    return ct_codelist_service.create_paired_codelists(paired_codelist_input)
 
 
 @router.get(

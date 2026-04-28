@@ -4,7 +4,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Annotated, Any, Callable, Collection, Self, overload
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, model_validator
 
 from clinical_mdr_api.descriptions.general import CHANGES_FIELD_DESC
 from clinical_mdr_api.domain_repositories.controlled_terminologies import (
@@ -18,7 +18,7 @@ from clinical_mdr_api.domains.concepts.unit_definitions.unit_definition import (
 )
 from clinical_mdr_api.domains.controlled_terminologies.ct_term_name import CTTermNameAR
 from clinical_mdr_api.domains.dictionaries.dictionary_term import DictionaryTermAR
-from clinical_mdr_api.domains.enums import ValidationMode
+from clinical_mdr_api.domains.enums import LibraryItemStatus, ValidationMode
 from clinical_mdr_api.domains.projects.project import ProjectAR
 from clinical_mdr_api.domains.study_definition_aggregates.registry_identifiers import (
     RegistryIdentifiersVO,
@@ -40,7 +40,12 @@ from clinical_mdr_api.models.controlled_terminologies.ct_term import (
     SimpleTermModel,
 )
 from clinical_mdr_api.models.study_selections.duration import DurationJsonModel
-from clinical_mdr_api.models.utils import BaseModel, PatchInputModel, PostInputModel
+from clinical_mdr_api.models.utils import (
+    BaseModel,
+    EditInputModel,
+    PatchInputModel,
+    PostInputModel,
+)
 from common.config import settings
 from common.exceptions import (
     BusinessLogicException,
@@ -135,6 +140,49 @@ class StudySoaSplitInput(PatchInputModel):
 class StudySoaSplit(StudySoaSplitInput):
     model_config = ConfigDict(title="SoA Split uid")
     study_uid: Annotated[str, Field(description="Uid of study")]
+
+
+class StudyTemplateInput(PostInputModel):
+    study_uid: Annotated[str, Field(min_length=1, description="Uid of template study")]
+    study_value_version: Annotated[
+        str,
+        Field(
+            min_length=1,
+            description="Study value version of template study, e.g. '1.0'",
+        ),
+    ]
+
+
+class StudyTemplatePatchInput(EditInputModel):
+    study_uid: Annotated[
+        str,
+        Field(
+            description="Uid of template study; empty string clears the configured target",
+        ),
+    ]
+    study_value_version: Annotated[
+        str,
+        Field(
+            description="Released study value version; required when study_uid is non-empty",
+        ),
+    ]
+
+    @model_validator(mode="after")
+    def _study_version_required_when_study_uid_set(self) -> Self:
+        if self.study_uid.strip() and not self.study_value_version.strip():
+            raise ValueError(
+                "study_value_version is required when study_uid is non-empty"
+            )
+        return self
+
+
+class StudyTemplate(BaseModel):
+    uid: Annotated[str, Field(description="Uid of study template root")]
+    study_uid: Annotated[str, Field(description="Uid of template study")]
+    study_value_version: Annotated[str, Field(description="Study value version")]
+    status: Annotated[LibraryItemStatus, Field(description="Template item status")]
+    version: Annotated[str, Field(description="Template item version")]
+    change_description: Annotated[str, Field(description="Version change description")]
 
 
 class RegistryIdentifiersJsonModel(BaseModel):
@@ -1771,6 +1819,9 @@ class StudySimple(StudyMinimal):
     ] = None
     number: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = None
     title: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = None
+    description: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = (
+        None
+    )
     subpart_id: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = (
         None
     )
@@ -1810,6 +1861,7 @@ class StudySimple(StudyMinimal):
             id=val["id"],
             main_id=val["main_id"],
             title=val.get("title"),
+            description=val.get("description"),
             subpart_id=val.get("subpart_id"),
             subpart_acronym=val.get("subpart_acronym"),
             clinical_programme_name=val["clinical_programme_name"],
@@ -1936,6 +1988,70 @@ class StudyStructureStatistics(BaseModel):
     visit_footnote_count: Annotated[
         int, Field(description="Number of connected footnotes (visit level)")
     ]
+    study_activity_count: Annotated[
+        int, Field(description="Number of connected study activities")
+    ]
+    study_activity_schedule_count: Annotated[
+        int, Field(description="Number of connected study activity schedules")
+    ]
+
+
+class StudySelectionContainmentLabelRow(BaseModel):
+    """Per-label comparison when checking if target is contained in source."""
+
+    label: Annotated[str, Field(description="Concrete study selection label")]
+    target_selection_count: Annotated[int, Field(description="Selections on target")]
+    source_selection_count: Annotated[int, Field(description="Selections on source")]
+    target_distinct_ct_term_root_count: Annotated[
+        int,
+        Field(
+            description="Distinct CT term roots on target (via CTTermContext on selections)"
+        ),
+    ]
+    source_distinct_ct_term_root_count: Annotated[
+        int,
+        Field(
+            description="Distinct CT term roots on source (via CTTermContext on selections)"
+        ),
+    ]
+    label_contained: Annotated[
+        bool,
+        Field(
+            description="True if target selection and term counts are <= source for this label"
+        ),
+    ]
+
+
+class StudySelectionContainmentResult(BaseModel):
+    """
+    Whether the **target** study's selection statistics are contained in the **source**.
+
+    Only labels that appear on the **target** study are considered (except
+    ``StudySoAFootnote``, which is skipped because SoA footnotes are copied
+    conditionally). Containment means for each such label, target counts are less
+    than or equal to source counts (selection nodes and distinct CT term roots via
+    CTTermContext).
+    """
+
+    target_contained_in_source: Annotated[
+        bool,
+        Field(
+            description="True if containment holds for every compared label present on target"
+        ),
+    ]
+    labels_from_target: Annotated[
+        list[str],
+        Field(
+            description=(
+                "Concrete selection labels on the target used in the comparison "
+                "(excludes StudySoAFootnote)"
+            )
+        ),
+    ]
+    per_label: Annotated[
+        list[StudySelectionContainmentLabelRow],
+        Field(description="Breakdown per label"),
+    ]
 
 
 class StudyCreateInput(PostInputModel):
@@ -1958,6 +2074,12 @@ class StudyCloneInput(StudyCreateInput):
     copy_study_epoch: Annotated[bool, Field()] = False
     copy_study_epochs_study_footnote: Annotated[bool, Field()] = False
     copy_study_design_matrix: Annotated[bool, Field()] = False
+    copy_study_soa_group: Annotated[bool, Field()] = False
+    copy_study_activity: Annotated[bool, Field()] = False
+    copy_study_activity_instance: Annotated[bool, Field()] = False
+    copy_study_activity_group: Annotated[bool, Field()] = False
+    copy_study_activity_subgroup: Annotated[bool, Field()] = False
+    copy_study_activity_schedule: Annotated[bool, Field()] = False
     validation_mode: Annotated[ValidationMode, Field()] = ValidationMode.STRICT
 
 
@@ -2075,6 +2197,22 @@ class StudyFieldAuditTrailEntry(BaseModel):
             author_username=study_field_audit_trail_vo.author_username,
             date=study_field_audit_trail_vo.date,
         )
+
+
+class StudyProtocolHeaderVersion(BaseModel):
+    protocol_header_version: Annotated[
+        str | None,
+        Field(
+            description="The latest available protocol header version.",
+            json_schema_extra={"nullable": True},
+        ),
+    ] = None
+    has_final_protocol_locked_version: Annotated[
+        bool,
+        Field(
+            description="Indicates whether the study contains a locked version with 'Final Protocol' as the reason for lock.",
+        ),
+    ] = False
 
 
 class StudyProtocolTitle(BaseModel):

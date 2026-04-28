@@ -200,7 +200,7 @@ class StudyVisitVO:
                     ]
                 return visit_short_name + chosen_letter
             if self.visit_class in [VisitClass.UNSCHEDULED_VISIT, VisitClass.NON_VISIT]:
-                return visit_number
+                return f"V{visit_number}"
             return visit_short_name
         return self.vis_short_name
 

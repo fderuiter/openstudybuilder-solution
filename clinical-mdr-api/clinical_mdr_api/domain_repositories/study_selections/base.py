@@ -1,10 +1,12 @@
 import datetime
 from dataclasses import dataclass
 
+from neomodel import db
+
 from clinical_mdr_api.domain_repositories.generic_repository import (
     _manage_versioning_with_relations,
 )
-from clinical_mdr_api.domain_repositories.models.study import StudyRoot, StudyValue
+from clinical_mdr_api.domain_repositories.models.study import StudyValue
 from clinical_mdr_api.domain_repositories.models.study_audit_trail import (
     Create,
     Delete,
@@ -33,7 +35,7 @@ class StudySelectionRepository:
     We handle common operations here.
     """
 
-    def _from_repository_values(self, study_uid: str, selection):
+    def _from_repository_values(self, study_uid: str, selection, selection_vo=None):
         """Must be defined by subclasses."""
         raise NotImplementedError
 
@@ -51,13 +53,15 @@ class StudySelectionRepository:
         raise NotImplementedError
 
     def save(self, selection_vo, author_id: str):
-        study_root_node = StudyRoot.nodes.get_or_none(uid=selection_vo.study_uid)
-
-        NotFoundException.raise_if(
-            study_root_node is None, "Study", selection_vo.study_uid
+        # Single Cypher to fetch StudyRoot + latest StudyValue (replaces 2 neomodel lookups)
+        results, _ = db.cypher_query(
+            "MATCH (sr:StudyRoot {uid: $uid})-[:LATEST]->(sv:StudyValue) RETURN sr, sv",
+            {"uid": selection_vo.study_uid},
+            resolve_objects=True,
         )
+        NotFoundException.raise_if(not results, "Study", selection_vo.study_uid)
+        study_root_node, latest_study_value_node = results[0]
 
-        latest_study_value_node = study_root_node.latest_value.single()
         new_selection = self.perform_save(
             latest_study_value_node, selection_vo, author_id
         )
@@ -83,7 +87,9 @@ class StudySelectionRepository:
                 author_id=author_id,
             )
 
-        return self._from_repository_values(selection_vo.study_uid, new_selection)
+        return self._from_repository_values(
+            selection_vo.study_uid, new_selection, selection_vo=selection_vo
+        )
 
     def get_study_selection(self, study_value_node: StudyValue, selection_uid: str):
         """Must be defined by subclasses."""
@@ -91,17 +97,22 @@ class StudySelectionRepository:
 
     @trace_calls(args=[1, 2], kwargs=["study_uid", "selection_uid"])
     def delete(self, study_uid: str, selection_uid: str, author_id: str) -> None:
-        study_root_node = StudyRoot.nodes.get_or_none(uid=study_uid)
+        # Single Cypher to fetch StudyRoot + latest StudyValue (replaces 2 neomodel lookups)
+        results, _ = db.cypher_query(
+            "MATCH (sr:StudyRoot {uid: $uid})-[:LATEST]->(sv:StudyValue) RETURN sr, sv",
+            {"uid": study_uid},
+            resolve_objects=True,
+        )
+        NotFoundException.raise_if(not results, "Study", study_uid)
+        study_root_node, latest_study_value_node = results[0]
 
-        NotFoundException.raise_if(study_root_node is None, "Study", study_uid)
-
-        latest_study_value_node = study_root_node.latest_value.single()
         selection = self.get_study_selection(latest_study_value_node, selection_uid)
         selection_vo = self._from_repository_values(study_uid, selection)
         new_selection = self.perform_save(
             latest_study_value_node, selection_vo, author_id
         )
-        # Audit trail
+        # Audit trail — _manage_versioning_with_relations also disconnects `selection`
+        # from the StudyValue, so we only need to disconnect `new_selection` here.
         _manage_versioning_with_relations(
             study_root=study_root_node,
             action_type=Delete,
@@ -111,8 +122,6 @@ class StudySelectionRepository:
             author_id=author_id,
         )
         new_selection.study_value.disconnect(latest_study_value_node)
-        # Delete relation
-        selection.study_value.disconnect(latest_study_value_node)
 
     def _get_selection_with_history(
         self, study_uid: str, selection_uid: str | None = None

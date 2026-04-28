@@ -67,6 +67,7 @@
           <template #[`afterSearch`]>
             <v-checkbox
               v-model="operator"
+              data-cy="exact-match"
               :label="t('CRFTranslatedTexts.exact_match')"
               class="ms-5 mt-5"
             />
@@ -74,6 +75,7 @@
           <template #[`item.actions`]="{ item }">
             <v-btn
               icon="mdi-pencil"
+              data-cy="edit-item"
               variant="flat"
               :disabled="props.readOnly"
               @click.stop="edit(item)"

@@ -24,7 +24,7 @@ Feature: Library - About Library
         Given The '/library' page is opened
         Then A tile 'Dictionaries' is visible with following description
             """
-            Find relevant external dictionaries and thesaurus for clinical development such as SNOMED, MedDRA, MED-RT, UNII, LOINC, UCUM. Since some of these dictionaries are very large, only selected terms relevant for the Novo Nordisk pipeline are included.
+            Find relevant external dictionaries and thesaurus for clinical development such as SNOMED, MedDRA, MED-RT, UNII, LOINC, UCUM. Since some of these dictionaries are very large, only selected terms relevant for the sponsor pipeline are included.
             """
 
     Scenario: [Overview][Description] User must be able to view the description under 'Concepts' tile in library Module

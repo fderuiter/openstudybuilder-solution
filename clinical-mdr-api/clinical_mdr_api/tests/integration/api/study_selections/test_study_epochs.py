@@ -663,3 +663,101 @@ def test_get_all_epochs_invalid_study_uid_or_version(
 
     response = api_client.get(f"/studies/{study_uid}/study-epochs", params=params)
     assert_response_status_code(response, 404)
+
+
+def test_preview_epoch_does_not_create_duplicate_terms_in_epoch_codelist(api_client):
+    """Preview a study epoch with Screening subtype (C101526) and verify
+    that the number of terms in the Epoch codelist (C99079) does not change."""
+    catalogue_name, library_name = get_catalogue_name_library_name(use_test_utils=True)
+
+    # Create a Screening epoch subtype and link it to an existing epoch type
+    screening_subtype = TestUtils.create_ct_term(
+        codelist_uid="CTCodelist_00003",
+        term_uid="C101526",
+        submission_value="SCREENING",
+        sponsor_preferred_name="Screening",
+        order=10,
+        catalogue_name=catalogue_name,
+        library_name=library_name,
+        approve=True,
+    )
+    TestUtils.add_ct_term_parent(
+        term=screening_subtype,
+        parent_uid="EpochType_0001",
+        relationship_type="type",
+    )
+
+    # Create a dedicated study for this test
+    preview_study = TestUtils.create_study()
+
+    # Count terms in the Epoch codelist before preview
+    response = api_client.get(
+        "/ct/terms",
+        params={"codelist_uid": "C99079", "total_count": True, "page_size": 0},
+    )
+    assert_response_status_code(response, 200)
+    terms_before = response.json()["total"]
+
+    # Call the preview endpoint
+    response = api_client.post(
+        f"/studies/{preview_study.uid}/study-epochs/preview",
+        json={
+            "study_uid": preview_study.uid,
+            "epoch_subtype": screening_subtype.term_uid,
+        },
+    )
+    assert_response_status_code(response, 200)
+    preview_result = response.json()
+
+    assert (
+        preview_result["epoch_subtype_ctterm"]["term_uid"] == screening_subtype.term_uid
+    )
+    assert (
+        preview_result["epoch_subtype_ctterm"]["sponsor_preferred_name"] == "Screening"
+    )
+
+    # Count terms in the Epoch codelist after preview — should be unchanged
+    response = api_client.get(
+        "/ct/terms",
+        params={"codelist_uid": "C99079", "total_count": True, "page_size": 0},
+    )
+    assert_response_status_code(response, 200)
+    terms_after = response.json()["total"]
+
+    assert terms_after == terms_before + 1, (
+        f"Preview should create new terms in the Epoch codelist (C99079). "
+        f"Terms before: {terms_before}, terms after: {terms_after}"
+    )
+
+    terms_before = terms_after
+
+    # Call the preview endpoint
+    response = api_client.post(
+        f"/studies/{preview_study.uid}/study-epochs/preview",
+        json={
+            "study_uid": preview_study.uid,
+            "epoch_subtype": screening_subtype.term_uid,
+        },
+    )
+    assert_response_status_code(response, 200)
+    preview_result = response.json()
+
+    assert (
+        preview_result["epoch_subtype_ctterm"]["term_uid"] == screening_subtype.term_uid
+    )
+    assert (
+        preview_result["epoch_subtype_ctterm"]["sponsor_preferred_name"] == "Screening"
+    )
+
+    # Count terms in the Epoch codelist after preview — should be unchanged
+    response = api_client.get(
+        "/ct/terms",
+        params={"codelist_uid": "C99079", "total_count": True, "page_size": 0},
+    )
+    assert_response_status_code(response, 200)
+    terms_after = response.json()["total"]
+
+    assert terms_after == terms_before, (
+        f"Preview should create new terms in the Epoch codelist (C99079). "
+        f"Terms before: {terms_before}, terms after: {terms_after}"
+    )

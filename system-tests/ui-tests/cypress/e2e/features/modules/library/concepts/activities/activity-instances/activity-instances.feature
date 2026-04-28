@@ -6,6 +6,12 @@ Feature: Library - Concepts - Activities - Activity Instances
         Given The user is logged in
         And The '/library/activities/activity-instances' page is opened
 
+    Scenario: [Test data] Wizard stepper feature flags are enabled
+        Given The '/administration/featureflags' page is opened
+        And User switch to 'Library' feature flags
+        And User enables 'new_activity_instance_wizard_stepper' feature flag
+        And User enables 'activity_instance_wizard_stepper_edit_mode' feature flag
+
     Scenario: [Actions][Approve] User must be able to Approve the drafted version of the Activity Instance Attributes
         And [API] Activity Instance in status Draft exists
         When User sets status filter to 'all'
@@ -19,28 +25,18 @@ Feature: Library - Concepts - Activities - Activity Instances
         When The 'Approve groupings' option is clicked from the three dot menu list
         Then The activity instance groupings has status 'Final' and version '1.0'
 
-    Scenario: [Actions][Inactivate] User must be able to inactivate the approved version of the Activity Instance Attributes
+    Scenario: [Actions][Inactivate] User must be able to inactivate the approved version of the Activity Instance
         When User sets status filter to 'all'
         And Activity Instance is searched for and found
-        When The 'Inactivate attributes' option is clicked from the three dot menu list
+        When The 'Inactivate' option is clicked from the three dot menu list
         Then The item has status 'Retired' and version '1.0'
-
-    Scenario: [Actions][Inactivate] User must be able to inactivate the approved version of the Activity Instance Groupings
-        When User sets status filter to 'all'
-        And Activity Instance is searched for and found
-        When The 'Inactivate groupings' option is clicked from the three dot menu list
         Then The activity instance groupings has status 'Retired' and version '1.0'
 
-    Scenario: [Actions][Reactivate] User must be able to reactivate the inactivated version of the Activity Instance Attributes
+    Scenario: [Actions][Reactivate] User must be able to reactivate the inactivated version of the Activity Instance
         When User sets status filter to 'all'
         And Activity Instance is searched for and found
-        When The 'Reactivate attributes' option is clicked from the three dot menu list
+        When The 'Reactivate' option is clicked from the three dot menu list
         Then The item has status 'Final' and version '1.0'
-
-    Scenario: [Actions][Reactivate] User must be able to reactivate the inactivated version of the Activity Instance Groupings
-        When User sets status filter to 'all'
-        And Activity Instance is searched for and found
-        When The 'Reactivate groupings' option is clicked from the three dot menu list
         Then The activity instance groupings has status 'Final' and version '1.0'
 
     Scenario: [Actions][New version] User must be able to add a new version for the approved Activity Instance Attributes

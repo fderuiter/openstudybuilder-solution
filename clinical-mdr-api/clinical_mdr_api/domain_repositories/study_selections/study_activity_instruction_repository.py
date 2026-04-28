@@ -17,7 +17,7 @@ from common.exceptions import NotFoundException
 
 class StudyActivityInstructionRepository(base.StudySelectionRepository):
     def _from_repository_values(
-        self, study_uid: str, selection: StudyActivityInstruction
+        self, study_uid: str, selection: StudyActivityInstruction, selection_vo=None
     ) -> StudyActivityInstructionVO:
         study_action = selection.has_after.all()[0]
         study_activity = selection.study_activity.single()

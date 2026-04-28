@@ -5,8 +5,15 @@ Feature: Studies - Define Study - Study Interventions - Study Compounds
         Given The user is logged in
         And A test study is selected
 
-    Scenario: [Test Data] All study compounds must be removed prior to tests execution
-        Given The study compounds data is cleaned for testing purspose
+    Scenario: [Test data] Study compunds feature flag is enabled, data for compound creation is fetched and existing compounds are deleted
+        Given The '/administration/featureflags' page is opened
+        And User switch to 'Studies' feature flags
+        And User enables 'compounds_studies' feature flag
+        And [API] Study compound simple data is fetched
+        And [API] Study compound alias data is fetched
+        And [API] Study compound medical product data is fetched
+        And [API] Study compound type of treatment data is fetched is created
+        And The study compounds data is cleaned for testing purspose
 
     Scenario: [Navigaion] User must be able to navigate to the Study Compounds page
         Given The '/studies' page is opened
@@ -46,55 +53,17 @@ Feature: Studies - Define Study - Study Interventions - Study Compounds
         Then The study compound is present in the compounds table
 
     Scenario: [Edit] User must be able to edit a study compound
+        Given [API] Study compound is created
         Given The test study '/study_interventions/study_compounds' page is opened
-        When User clicks add study compund button
-        And User select first type of treatment
-        And Form continue button is clicked
-        And User select first compund
-        And User select first medicinal product
-        And Form continue button is clicked
-        And User fills other information
-        And User intercepts compund create request
-        When Form save button is clicked
+        When User searches the compound by the uid
         And The 'Edit' option is clicked from the three dot menu list
         And User select last type of treatment
         And Form continue button is clicked
         And User select last medicinal product
         And Form continue button is clicked
-        And User fills other information
         And User intercepts compund update request
         When Form save button is clicked
         Then The study compound is present in the compounds table
-
-    Scenario: [Create][Form behaviour] Compound alias must be automatically populated when selecting study compound
-        Given The test study '/study_interventions/study_compounds' page is opened
-        When User clicks add study compund button
-        And User select first type of treatment
-        And Form continue button is clicked
-        And User intercepts compund aliases request
-        And User intercepts compunds request
-        And User select first compund
-        Then The compound alias for this compound is automatically populated from library
-
-    Scenario: [Create][Form behaviour] Other aliases must be automatically populated when selecting study compound
-        Given The test study '/study_interventions/study_compounds' page is opened
-        When User clicks add study compund button
-        And User select first type of treatment
-        And Form continue button is clicked
-        And User intercepts compund aliases request
-        And User intercepts compunds request
-        And User select first compund
-        Then The other aliases for this compound is automatically populated from library
-
-    Scenario: [Create][Form behaviour] Sponsor compound must be automatically populated when selecting study compound
-        Given The test study '/study_interventions/study_compounds' page is opened
-        When User clicks add study compund button
-        And User select first type of treatment
-        And Form continue button is clicked
-        And User intercepts compund aliases request
-        And User intercepts compunds request
-        And User select first compund
-        Then The sponsor compound for this compound is automatically populated from library
 
     Scenario: [Create][Form behaviour] Compound definition must be automatically populated when selecting study compound
         Given The test study '/study_interventions/study_compounds' page is opened
@@ -104,9 +73,10 @@ Feature: Studies - Define Study - Study Interventions - Study Compounds
         And User intercepts compund aliases request
         And User intercepts compunds request
         And User select first compund
-        Then The compound definition for this compound is automatically populated from library
+        Then The compound alias data is automatically populated from library
+        And The sponsor compound data is automatically populated from library
 
-    Scenario: [Create][Form behaviour] Dispensed must be automatically populated when selecting medicinal product
+    Scenario: [Create][Form behaviour] Pharmacological and Medicinal Product data must be automatically populated when selecting medicinal product
         Given The test study '/study_interventions/study_compounds' page is opened
         When User clicks add study compund button
         And User select first type of treatment
@@ -115,73 +85,8 @@ Feature: Studies - Define Study - Study Interventions - Study Compounds
         And User intercepts pharmaceutical products request
         And User select first compund
         And User select first medicinal product
-        Then The dispensed in for this compound is automatically populated from library
-
-    Scenario: [Create][Form behaviour] INN must be automatically populated when selecting medicinal product
-        Given The test study '/study_interventions/study_compounds' page is opened
-        When User clicks add study compund button
-        And User select first type of treatment
-        And Form continue button is clicked
-        And User intercepts medicial products request
-        And User intercepts pharmaceutical products request
-        And User select first compund
-        And User select first medicinal product
-        Then The INN for this compound is automatically populated from library
-
-    Scenario: [Create][Form behaviour] Analyte number must be automatically populated when selecting medicinal product
-        Given The test study '/study_interventions/study_compounds' page is opened
-        When User clicks add study compund button
-        And User select first type of treatment
-        And Form continue button is clicked
-        And User intercepts medicial products request
-        And User intercepts pharmaceutical products request
-        And User select first compund
-        And User select first medicinal product
-        Then The analyte number for this compound is automatically populated from library
-
-    Scenario: [Create][Form behaviour] Substance ID must be automatically populated when selecting medicinal product
-        Given The test study '/study_interventions/study_compounds' page is opened
-        When User clicks add study compund button
-        And User select first type of treatment
-        And Form continue button is clicked
-        And User intercepts medicial products request
-        And User intercepts pharmaceutical products request
-        And User select first compund
-        And User select first medicinal product
-        Then The substance id for this compound is automatically populated from library
-
-    Scenario: [Create][Form behaviour] Substance name must be automatically populated when selecting medicinal product
-        Given The test study '/study_interventions/study_compounds' page is opened
-        When User clicks add study compund button
-        And User select first type of treatment
-        And Form continue button is clicked
-        And User intercepts medicial products request
-        And User intercepts pharmaceutical products request
-        And User select first compund
-        And User select first medicinal product
-        Then The substance name for this compound is automatically populated from library
-
-    Scenario: [Create][Form behaviour] UNII must be automatically populated when selecting medicinal product
-        Given The test study '/study_interventions/study_compounds' page is opened
-        When User clicks add study compund button
-        And User select first type of treatment
-        And Form continue button is clicked
-        And User intercepts medicial products request
-        And User intercepts pharmaceutical products request
-        And User select first compund
-        And User select first medicinal product
-        Then The UNII for this compound is automatically populated from library
-
-    Scenario: [Create][Form behaviour] Pharmacological class (MED-RT) must be automatically populated when selecting medicinal product
-        Given The test study '/study_interventions/study_compounds' page is opened
-        When User clicks add study compund button
-        And User select first type of treatment
-        And Form continue button is clicked
-        And User intercepts medicial products request
-        And User intercepts pharmaceutical products request
-        And User select first compund
-        And User select first medicinal product
-        Then The pharmacological class MED-RT for this compound is automatically populated from library
+        Then The Pharmaceutical Product data is automatically populated from library
+        And The Medicinal Product data is automatically populated from library
 
     Scenario: [Create] User must not be able to create a study compound without the type of treatment selected
         Given The test study '/study_interventions/study_compounds' page is opened
@@ -207,16 +112,9 @@ Feature: Studies - Define Study - Study Interventions - Study Compounds
         Then The user cannot save the form
 
     Scenario: [Delete] User must be able to delete a study compound
+        Given [API] Study compound is created
         Given The test study '/study_interventions/study_compounds' page is opened
-        When User clicks add study compund button
-        And User select first type of treatment
-        And Form continue button is clicked
-        And User select first compund
-        And User select first medicinal product
-        And Form continue button is clicked
-        And User fills other information
-        And User intercepts compund create request
-        When Form save button is clicked
+        When User searches the compound by the uid
         When The 'Delete' option is clicked from the three dot menu list
         And User intercepts compund delete request
         And Action is confirmed by clicking continue

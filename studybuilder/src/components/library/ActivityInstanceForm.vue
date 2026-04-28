@@ -268,7 +268,10 @@
     </template>
     <template #[`step.optional`]>
       <v-form ref="step3FormRef">
-        <div class="dialog-title mb-4">
+        <div
+          v-if="!props.activityInstanceUid || step3Form.activityItems?.length"
+          class="dialog-title mb-4"
+        >
           {{
             step2Form.activity_instance_class?.name === 'Events'
               ? $t('ActivityInstanceForm.step3_events_long_title')
@@ -323,6 +326,7 @@
           />
 
           <v-switch
+            v-if="!props.activityInstanceUid"
             v-model="allowManualEdit"
             :label="$t('ActivityInstanceForm.allow_manual_edit')"
             class="ml-4"
@@ -330,7 +334,7 @@
             @update:model-value="onAllowManualEditChange"
           />
         </div>
-        <div class="d-flex w-50">
+        <div class="d-flex">
           <v-text-field
             v-model="step3Form.name"
             :label="$t('ActivityInstancePreview.activity_instance_name')"
@@ -351,7 +355,7 @@
             ]"
           />
         </div>
-        <div class="d-flex w-50">
+        <div class="d-flex">
           <v-text-field
             v-model="step3Form.topic_code"
             :label="$t('ActivityInstancePreview.topic_code')"
@@ -374,7 +378,7 @@
             :rules="[formRules.required]"
           />
         </div>
-        <div class="d-flex w-50">
+        <div class="d-flex">
           <v-text-field
             v-model="step3Form.nci_concept_name"
             :label="$t('ActivityInstancePreview.nci_preferred_name')"
@@ -601,7 +605,7 @@ const featureFlagsStore = useFeatureFlagsStore()
 const activityInstanceClasses = ref([])
 const activities = ref([])
 const activityInstance = ref(null)
-const allowManualEdit = ref(false)
+const allowManualEdit = ref(true)
 const dataDomainCTTermUid = ref(null)
 const datasets = ref([])
 const domainNames = ref({})
@@ -1016,6 +1020,15 @@ watch(showMolecularWeight, (value) => {
     delete step2Form.value.molecular_weight
   }
 })
+
+watch(
+  () => step3Form.value.name,
+  (newName) => {
+    if (allowManualEdit.value && newName != null) {
+      step3Form.value.name_sentence_case = newName.toLowerCase()
+    }
+  }
+)
 
 watch(
   () => step3Form.value.is_research_lab,
@@ -1681,9 +1694,6 @@ function prepareGroupingsPayload() {
 }
 
 async function sendPreviewRequest() {
-  if (allowManualEdit.value) {
-    return
-  }
   loadingPreview.value = true
   const payload = await prepareCreationPayload(true)
   const resp = await activitiesApi.getPreview(payload, 'activity-instances')
@@ -1891,10 +1901,12 @@ async function initFromActivityInstance() {
     const itemClassName = itemClass?.name
     const firstCtTermUid = activityItem?.ct_terms?.[0]?.uid
 
+    // Skip items without a class name — cannot be placed
     if (!itemClassName) {
       continue
     }
 
+    // Step 2 — domain: populates the data_domain dropdown, not a form field
     if (itemClassName === 'domain') {
       await initiateDomainFromActivityItem(activityItem)
       // Re-fetch filtered activity item classes now that domain is known
@@ -1913,19 +1925,23 @@ async function initFromActivityInstance() {
       }
       continue
     }
+    // Step 2 — category: mapped to the data_category dropdown
     if (itemClassName === categoryAic.value?.name && firstCtTermUid) {
       step2Form.value.data_category = firstCtTermUid
       continue
     }
+    // Step 2 — subcategory: mapped to the data_subcategory dropdown
     if (itemClassName === subcategoryAic.value?.name && firstCtTermUid) {
       step2Form.value.data_subcategory = firstCtTermUid
       continue
     }
+    // Step 2 — test code: stored separately, paired with test name
     if (testCodeAic.value && itemClass?.uid === testCodeAic.value.uid) {
       testCodeCodelistValue.value =
         activityItem?.ct_terms?.[0]?.codelist_uid || null
       continue
     }
+    // Step 2 — test name: stored separately, paired with test code
     if (
       testNameAic.value &&
       itemClass?.uid === testNameAic.value.uid &&
@@ -1937,7 +1953,7 @@ async function initFromActivityInstance() {
       continue
     }
 
-    // Skip default-linked items — they are displayed as read-only cards
+    // Skip default-linked items — they are displayed as read-only cards in step 4
     if (
       defaultLinkedActivityItemClasses.value.some(
         (aic) => aic.uid === itemClass?.uid
@@ -1954,7 +1970,7 @@ async function initFromActivityInstance() {
         (aic) => aic.uid === itemClass?.uid
       )
 
-    // Use is_activity_instance_id_specific to determine step placement when available
+    // Step 2 — mandatory items: already populated by fetchActivityItemClasses, skip duplicates
     const alreadyInStep2 = step2Form.value.activityItems.some(
       (item) => item.activity_item_class_uid === itemClass?.uid
     )
@@ -1962,6 +1978,9 @@ async function initFromActivityInstance() {
       continue
     }
 
+    // When is_activity_instance_id_specific is explicitly set, use it directly:
+    // true  → step 3 (instance identity items: single term/unit per item)
+    // false → step 4 (data specification items: may link to codelists or multiple values)
     if (activityItem.is_activity_instance_id_specific === true) {
       const step3Item = {
         activity_item_class_uid: itemClass?.uid,
@@ -1995,40 +2014,44 @@ async function initFromActivityInstance() {
       continue
     }
 
-    // Fallback: use existing heuristic when is_activity_instance_id_specific is null/undefined
+    // Fallback heuristic when is_activity_instance_id_specific is null/undefined
+    // (legacy data that predates the flag).
+    // Try step 3 first: the item class must be in optionalActivityItemClasses
+    // (adam-param-specific, non-mandatory, non-exception).
     let matched = optionalActivityItemClasses.value.find(
       (aic) => aic.uid === itemClass?.uid
     )
     if (matched) {
-      const step3Item = {
-        activity_item_class_uid: matched.uid,
-        is_adam_param_specific: matched.is_adam_param_specific_enabled,
-        unit_definition_uids: [],
-        ct_terms: activityItem.ct_terms || [],
-      }
-      if (
-        activityItem.ct_codelist?.uid &&
+      // Step 3 items are part of instance identity and can only link to a
+      // single CT term or unit. If the item has multiple terms/units or a
+      // codelist reference, it belongs in step 4 instead.
+      const hasMultipleTermsOrUnits =
+        (activityItem.ct_terms?.length || 0) > 1 ||
+        (activityItem.unit_definitions?.length || 0) > 1
+      const hasCodelist =
+        !!activityItem.ct_codelist?.uid &&
         (!activityItem.ct_terms || !activityItem.ct_terms.length)
-      ) {
-        step3Item.ct_codelist_uid = activityItem.ct_codelist.uid
+
+      if (!hasMultipleTermsOrUnits && !hasCodelist) {
+        const step3Item = {
+          activity_item_class_uid: matched.uid,
+          is_adam_param_specific: matched.is_adam_param_specific_enabled,
+          unit_definition_uids: [],
+          ct_terms: activityItem.ct_terms || [],
+        }
+        step3Form.value.activityItems.push(step3Item)
+        continue
       }
-      step3Form.value.activityItems.push(step3Item)
-      continue
+      // Falls through to step 4 assignment below
     }
 
-    matched = otherAvailableActivityItemClasses.value.find(
-      (aic) => aic.uid === itemClass?.uid
-    )
-
+    // Step 4 catch-all: any item not claimed by previous steps goes here.
+    // This ensures no activity items are lost during edit mode.
     const alreadySelectedInStep4 = step4Form.value.activityItems.some(
       (item) => item.activity_item_class_uid === itemClass?.uid
     )
-    const eligibleFallbackForStep4 =
-      !!classMeta &&
-      !classMeta.mandatory &&
-      !activityItemClassExceptions.value.includes(classMeta.name)
 
-    if ((matched || eligibleFallbackForStep4) && !alreadySelectedInStep4) {
+    if (!alreadySelectedInStep4) {
       const step4Item = {
         activity_item_class_uid: itemClass?.uid,
         is_adam_param_specific: !!classMeta?.is_adam_param_specific_enabled,

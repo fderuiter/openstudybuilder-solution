@@ -463,8 +463,7 @@ class ActivityItemClassCodelist(CTCodelistNameAndAttributes):
             library_name=cl_name_and_attrs.library_name,
             name=cl_name_and_attrs.name,
             attributes=cl_name_and_attrs.attributes,
-            paired_codes_codelist_uid=cl_name_and_attrs.paired_codes_codelist_uid,
-            paired_names_codelist_uid=cl_name_and_attrs.paired_names_codelist_uid,
+            paired_codelist=cl_name_and_attrs.paired_codelist,
             term_uids=term_uids,
         )
 

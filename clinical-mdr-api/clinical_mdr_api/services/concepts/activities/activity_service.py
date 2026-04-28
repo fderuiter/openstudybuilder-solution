@@ -111,6 +111,7 @@ class ActivityService(ConceptGenericService[ActivityAR]):
     def _to_activity_grouping_vos(
         self,
         activity_groupings: Iterable[ActivityGrouping | ActivityGroupingVO],
+        existing_groupings: list[ActivityGroupingVO] | None = None,
     ) -> list[ActivityGroupingVO]:
         acg_and_acsg_by_uid: tuple[Any, ...] = (
             self._get_activity_groups_and_subgroups_from_activity_groupings(
@@ -120,8 +121,23 @@ class ActivityService(ConceptGenericService[ActivityAR]):
         activity_groups_by_uid: dict[Any, Any] = acg_and_acsg_by_uid[0]
         activity_subgroups_by_uid: dict[Any, Any] = acg_and_acsg_by_uid[1]
 
+        # Build set of existing (group, subgroup) pairs to skip validation for carried-over groupings
+        existing_pairs: set[tuple[str, str]] = set()
+        if existing_groupings:
+            existing_pairs = {
+                (g.activity_group_uid, g.activity_subgroup_uid)
+                for g in existing_groupings
+            }
+
         # Validate that all activity groups and subgroups are in Final status
         for activity_grouping in activity_groupings:
+            # Skip validation for groupings carried over from the previous version
+            if (
+                activity_grouping.activity_group_uid,
+                activity_grouping.activity_subgroup_uid,
+            ) in existing_pairs:
+                continue
+
             # Check activity group status
             if activity_grouping.activity_group_uid in activity_groups_by_uid:
                 activity_group = activity_groups_by_uid[
@@ -212,7 +228,10 @@ class ActivityService(ConceptGenericService[ActivityAR]):
         if "activity_groupings" in concept_edit_input.model_fields_set:
             # Use _to_activity_grouping_vos which includes validation
             activity_groupings = (
-                self._to_activity_grouping_vos(concept_edit_input.activity_groupings)
+                self._to_activity_grouping_vos(
+                    concept_edit_input.activity_groupings,
+                    existing_groupings=item.concept_vo.activity_groupings,
+                )
                 if concept_edit_input.activity_groupings
                 else []
             )

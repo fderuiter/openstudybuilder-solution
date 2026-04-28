@@ -40,4 +40,3 @@ be preserved.
 - `CTTermContext` (orphaned nodes with no incoming relationships)
 #### Expected changes: 646 terms deleted, 6 terms preserved
 
-

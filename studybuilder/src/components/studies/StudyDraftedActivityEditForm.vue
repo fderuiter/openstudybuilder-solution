@@ -149,7 +149,7 @@ export default {
   },
   computed: {
     streamlinePlaceholders() {
-      return !this.featureFlagsStore.getFeatureFlag(
+      return this.featureFlagsStore.getFeatureFlag(
         'streamline_placeholder_activities'
       )
     },

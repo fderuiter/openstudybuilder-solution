@@ -21,4 +21,11 @@ paths:
 - Shared utilities in `clinical_mdr_api/tests/utils/`
 - Integration tests run in parallel with `-n 4` flag
 
+## Writing Tests
+
+- **Use real workflows, not shortcuts** - tests should trigger the actual code paths users hit, not manually arrange the end state
+- **Use `TestUtils`** - check `clinical_mdr_api/tests/integration/utils/utils.py` before writing test setup from scratch
+- **Verify the test fails without the fix** - before committing a bug fix test, confirm it actually fails on the old code
+- **Search for existing test patterns** - look at similar test files in the same directory before writing a new test
+
 

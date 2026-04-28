@@ -2718,7 +2718,11 @@ class CompactActivityInstance(BaseModel):
             test_name_code=study_activity_instance_vo.activity_instance_test_name_code,
             standard_unit=study_activity_instance_vo.activity_instance_standard_unit,
             version=study_activity_instance_vo.activity_instance_version,
-            status=study_activity_instance_vo.activity_instance_status.value,
+            status=(
+                study_activity_instance_vo.activity_instance_status.value
+                if study_activity_instance_vo.activity_instance_status
+                else None
+            ),
             is_default_selected_for_activity=study_activity_instance_vo.activity_instance_is_default_selected_for_activity,
             is_required_for_activity=study_activity_instance_vo.activity_instance_is_required_for_activity,
         )
@@ -2736,7 +2740,11 @@ class CompactActivityInstance(BaseModel):
                 name=study_activity_instance_vo.latest_activity_instance_class_name,
             ),
             version=study_activity_instance_vo.latest_activity_instance_version,
-            status=study_activity_instance_vo.latest_activity_instance_status.value,
+            status=(
+                study_activity_instance_vo.latest_activity_instance_status.value
+                if study_activity_instance_vo.latest_activity_instance_status
+                else None
+            ),
         )
 
 
@@ -3088,8 +3096,8 @@ class StudySelectionActivityInstance(BaseModel):
                 [
                     SimpleStudyVisit(
                         uid=baseline_visit["uid"],
-                        visit_name=baseline_visit["visit_name"],
-                        visit_type_name=baseline_visit["visit_type_name"],
+                        visit_name=baseline_visit.get("visit_name") or "",
+                        visit_type_name=baseline_visit.get("visit_type_name") or "",
                     )
                     for baseline_visit in (
                         study_selection.study_activity_instance_baseline_visits or []

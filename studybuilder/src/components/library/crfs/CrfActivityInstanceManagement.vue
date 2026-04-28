@@ -3,6 +3,7 @@
     <v-card-title class="d-flex justify-end">
       <v-switch
         v-model="useFormView"
+        data-cy="switch-view"
         :label="
           useFormView
             ? t('CRFActivityInstanceManagement.form_view')
@@ -18,6 +19,7 @@
       <div v-if="!useFormView">
         <v-autocomplete
           v-model="activityInstance"
+          data-cy="select-activity-instance"
           item-title="name"
           item-value="uid"
           :label="t('CRFActivityInstanceManagement.select_activity_instance')"
@@ -45,6 +47,7 @@
                 hide-details
                 hide
                 control-variant="hidden"
+                data-cy="item-order"
                 min="1"
                 :rules="[formRules.required, formRules.numeric]"
                 :disabled="disableEdit(item)"
@@ -56,6 +59,7 @@
               <v-switch
                 v-model="item.primary"
                 hide-details
+                data-cy="item-primary"
                 :disabled="disableEdit(item)"
                 @change="removePrimary(item)"
               />
@@ -141,6 +145,7 @@
             <v-skeleton-loader :loading="formLoading" type="avatar">
               <v-btn
                 icon="mdi-delete-outline"
+                data-cy="remove-activity-instance"
                 size="small"
                 variant="outlined"
                 color="red"
@@ -161,6 +166,7 @@
                   <v-autocomplete
                     v-model="ai.activity_instance_uid"
                     :label="t('CRFItems.activity_instance')"
+                    data-cy="activity-instance"
                     :items="availableActivityInstances"
                     item-title="name"
                     item-value="uid"
@@ -183,6 +189,7 @@
                   <v-select
                     v-model="ai.activity_item_class_uid"
                     :label="t('CRFItems.activity_item_class')"
+                    data-cy="activity-item-class"
                     :items="ai.availableActivityItemClasses"
                     item-title="name"
                     item-value="uid"
@@ -209,6 +216,7 @@
                   <v-text-field
                     v-model="ai.preset_response_value"
                     :label="t('CRFItems.preset_response_value')"
+                    data-cy="preset-response-value"
                     :clearable="!readOnly"
                     :readonly="readOnly || !ai.activity_item_class_uid"
                   />
@@ -223,6 +231,7 @@
                   <v-text-field
                     v-model="ai.value_condition"
                     :label="t('CRFItems.value_condition')"
+                    data-cy="value-condition"
                     :clearable="!readOnly"
                     :readonly="readOnly || !ai.activity_item_class_uid"
                   />
@@ -237,6 +246,7 @@
                   <v-text-field
                     v-model="ai.value_dependent_map"
                     :label="t('CRFItems.value_dependent_map')"
+                    data-cy="value-dependent-map"
                     :clearable="!readOnly"
                     :readonly="readOnly || !ai.activity_item_class_uid"
                   />
@@ -251,6 +261,7 @@
                   <v-number-input
                     v-model="ai.order"
                     :label="t('_global.order')"
+                    data-cy="order"
                     :clearable="!readOnly"
                     :readonly="readOnly || !ai.activity_item_class_uid"
                   />
@@ -265,6 +276,7 @@
                   <v-checkbox
                     v-model="ai.primary"
                     :label="t('CRFItems.primary')"
+                    data-cy="primary-checkbox"
                     :readonly="readOnly || !ai.activity_item_class_uid"
                   />
                 </v-skeleton-loader>
@@ -295,10 +307,12 @@
                 <v-btn
                   :text="t('_global.reset')"
                   :disabled="readOnly || !hasFormChanged"
+                  data-cy="reset-activity-instances"
                   @click.stop="resetActivityInstances"
                 />
                 <v-btn
                   icon="mdi-plus"
+                  data-cy="add-activity-instances"
                   :disabled="
                     readOnly ||
                     (formInstances.length > 0 &&

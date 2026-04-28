@@ -746,20 +746,24 @@ const instanceActions = [
     click: (item) => newItemVersion(item, 'activity-instances', 'attributes'),
   },
   {
-    label: t('ActivitiesTable.inactivate_attributes'),
+    label: t('ActivitiesTable.inactivate'),
     icon: 'mdi-close-octagon-outline',
     iconColor: 'primary',
-    condition: (item) => item.possible_actions?.includes('inactivate'),
+    condition: (item) =>
+      item.possible_actions?.includes('inactivate') ||
+      item.groupings_possible_actions?.includes('inactivate'),
     accessRole: roles.LIBRARY_WRITE,
-    click: (item) => inactivateItem(item, 'activity-instances', 'attributes'),
+    click: (item) => inactivateInstance(item),
   },
   {
-    label: t('ActivitiesTable.reactivate_attributes'),
+    label: t('ActivitiesTable.reactivate'),
     icon: 'mdi-undo-variant',
     iconColor: 'primary',
-    condition: (item) => item.possible_actions?.includes('reactivate'),
+    condition: (item) =>
+      item.status === statuses.RETIRED &&
+      item.possible_actions?.includes('reactivate'),
     accessRole: roles.LIBRARY_WRITE,
-    click: (item) => reactivateItem(item, 'activity-instances', 'attributes'),
+    click: (item) => reactivateInstance(item),
   },
   // --- Groupings actions ---
   {
@@ -786,24 +790,6 @@ const instanceActions = [
       item.groupings_possible_actions?.includes('new_version'),
     accessRole: roles.LIBRARY_WRITE,
     click: (item) => newItemVersion(item, 'activity-instances', 'groupings'),
-  },
-  {
-    label: t('ActivitiesTable.inactivate_groupings'),
-    icon: 'mdi-close-octagon-outline',
-    iconColor: 'primary',
-    condition: (item) =>
-      item.groupings_possible_actions?.includes('inactivate'),
-    accessRole: roles.LIBRARY_WRITE,
-    click: (item) => inactivateItem(item, 'activity-instances', 'groupings'),
-  },
-  {
-    label: t('ActivitiesTable.reactivate_groupings'),
-    icon: 'mdi-undo-variant',
-    iconColor: 'primary',
-    condition: (item) =>
-      item.groupings_possible_actions?.includes('reactivate'),
-    accessRole: roles.LIBRARY_WRITE,
-    click: (item) => reactivateItem(item, 'activity-instances', 'groupings'),
   },
   // --- Shared actions ---
   {
@@ -1257,14 +1243,8 @@ function transformItems(items) {
           : item.activities || []
 
         for (const grouping of item.activity_groupings) {
-          groups.push({
-            name: grouping.activity_group.name,
-            uid: grouping.activity_group.uid,
-          })
-          subgroups.push({
-            name: grouping.activity_subgroup.name,
-            uid: grouping.activity_subgroup.uid,
-          })
+          groups.push(grouping.activity_group.name)
+          subgroups.push(grouping.activity_subgroup.name)
         }
         // Remove existing activity_group and activity_subgroup to avoid conflicts
         const cleanItem = { ...item }
@@ -1467,14 +1447,10 @@ function fetchActivities(filters, options, filtersUpdated) {
     }
 
     if (props.source === 'activities') {
-      const filtersObj = normalizeFiltersObject(params.filters)
-      if (!filtersObj.library_name) {
-        filtersObj.library_name = {
-          v: [libConstants.LIBRARY_ARCHIVED],
-          op: onlyArchivedLibrary.value ? 'eq' : 'ne',
-        }
+      params.filters = normalizeFiltersObject(params.filters)
+      if (onlyArchivedLibrary.value) {
+        params.library_name = libConstants.LIBRARY_ARCHIVED
       }
-      params.filters = filtersObj
     }
 
     // Ensure filters are stringified if they're objects
@@ -1644,9 +1620,29 @@ function inactivateItem(item, source, subitem) {
   })
 }
 
+function inactivateInstance(item) {
+  activitiesApi.inactivate(item.uid, 'activity-instances').then(() => {
+    notificationHub.add({
+      msg: t(`ActivitiesTable.inactivate_${props.source}_success`),
+      type: 'success',
+    })
+    tableRef.value.filterTable()
+  })
+}
+
 function reactivateItem(item, source, subitem) {
   source = source === undefined ? props.source : source
   activitiesApi.reactivate(item.uid, source, subitem).then(() => {
+    notificationHub.add({
+      msg: t(`ActivitiesTable.reactivate_${props.source}_success`),
+      type: 'success',
+    })
+    tableRef.value.filterTable()
+  })
+}
+
+function reactivateInstance(item) {
+  activitiesApi.reactivate(item.uid, 'activity-instances').then(() => {
     notificationHub.add({
       msg: t(`ActivitiesTable.reactivate_${props.source}_success`),
       type: 'success',
@@ -1811,7 +1807,7 @@ function getSubgroupActivities(items) {
 
 function updateArchivedView() {
   if (onlyArchivedLibrary.value) {
-    selectedStatusTab.value = 'retired'
+    selectedStatusTab.value = 'all'
   } else {
     selectedStatusTab.value = 'final'
   }

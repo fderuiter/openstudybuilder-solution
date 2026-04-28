@@ -36,6 +36,6 @@ Feature: Administration - Data Completeness Tags
         Given A test study '8016' for data completion tags test exists
         And The '/administration/data-completeness-tags' page is opened
         And The user creates multiple completion tags
-        And The user sets multiple tags to complete for selected study
+        And The user sets multiple tags to completed for selected study
         And The '/studies/select_or_add_study/active' page is opened
         Then All the completed tags are visible for the study        

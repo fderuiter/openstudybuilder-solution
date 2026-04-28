@@ -44,6 +44,10 @@ Then('The SoA split on {string} is removed', (visitNumber) => {
     cy.contains('.split-class', visitNumber).should('not.exist')
 })
 
+When('the SoA View is switched to {string}', (view) => {
+    cy.get(`button[value="${view}]"`).click()
+})
+
 function splitSoa(visitNumber, interceptPath) {
     cy.intercept(interceptPath).as('splitRequest')
     cy.contains('.v-btn__content', visitNumber).click()

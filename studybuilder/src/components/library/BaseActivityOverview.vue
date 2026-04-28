@@ -20,6 +20,7 @@
               <v-btn
                 v-if="
                   action.condition &&
+                  !hiddenActions.includes(action.key) &&
                   (!action.accessRole || checkPermission(action.accessRole))
                 "
                 :key="pos"
@@ -182,6 +183,10 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    hiddenActions: {
+      type: Array,
+      default: () => [],
+    },
   },
   emits: ['closePage', 'refresh'],
   setup() {
@@ -203,6 +208,7 @@ export default {
     actions() {
       return [
         {
+          key: 'approve',
           label: this.$t('_global.approve'),
           icon: 'mdi-check-decagram',
           iconColor: 'success',
@@ -214,6 +220,7 @@ export default {
           click: this.approveItem,
         },
         {
+          key: 'edit',
           label: this.$t('_global.edit'),
           icon: 'mdi-pencil-outline',
           iconColor: 'nnBaseBlue',
@@ -224,6 +231,7 @@ export default {
           click: this.editItem,
         },
         {
+          key: 'new_version',
           label: this.$t('_global.new_version'),
           icon: 'mdi-plus-circle-outline',
           iconColor: 'nnBaseBlue',
@@ -236,6 +244,7 @@ export default {
           click: this.newItemVersion,
         },
         {
+          key: 'inactivate',
           label: this.$t('_global.inactivate'),
           icon: 'mdi-close-octagon-outline',
           iconColor: 'nnBaseBlue',
@@ -248,6 +257,7 @@ export default {
           click: this.inactivateItem,
         },
         {
+          key: 'reactivate',
           label: this.$t('_global.reactivate'),
           icon: 'mdi-undo-variant',
           iconColor: 'nnBaseBlue',
@@ -260,6 +270,7 @@ export default {
           click: this.reactivateItem,
         },
         {
+          key: 'delete',
           label: this.$t('_global.delete'),
           icon: 'mdi-delete-outline',
           iconColor: 'error',
@@ -270,6 +281,7 @@ export default {
           click: this.deleteItem,
         },
         {
+          key: 'history',
           label: this.$t('_global.history'),
           iconColor: 'nnBaseBlue',
           icon: 'mdi-history',
@@ -278,6 +290,7 @@ export default {
           click: this.openHistory,
         },
         {
+          key: 'close',
           label: this.$t('_global.close'),
           iconColor: 'nnBaseBlue',
           icon: 'mdi-close',
@@ -418,7 +431,11 @@ export default {
       await this.fetchItem()
     },
     async openHistory() {
-      const resp = await activities.getVersions(this.source, this.itemUid)
+      const resp = await activities.getVersions(
+        this.source,
+        this.itemUid,
+        this.resolveActionSubitem('history')
+      )
       this.historyItems = this.transformItems(resp.data)
       this.showHistory = true
     },

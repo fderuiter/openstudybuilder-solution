@@ -6,6 +6,9 @@
 
     <NavigationTabs :tabs="tabs">
       <template #default="{ tabKeys }">
+        <v-window-item value="study-complexity-scores">
+          <StudyComplexityScoreDetails show-study-select />
+        </v-window-item>
         <v-window-item value="activity-burdens">
           <!-- Activity Subgroup Burdens Table -->
           <v-card :key="`burdens-${tabKeys['activity-burdens']}`" class="mt-0">
@@ -17,7 +20,18 @@
               >
                 {{ $t('ComplexityScore.admin_activity_burdens_info') }}
               </v-alert>
-              <div class="d-flex justify-end mb-4 pr-4">
+              <div class="d-flex justify-space-between align-center mb-4 px-4">
+                <v-text-field
+                  v-model="searchActivityBurdens"
+                  prepend-inner-icon="mdi-magnify"
+                  :label="$t('_global.search')"
+                  single-line
+                  hide-details
+                  clearable
+                  clear-icon="mdi-close"
+                  class="mr-4"
+                  style="max-width: 300px"
+                />
                 <DataTableExportButton
                   :object-label="'Activity Subgroup Burdens'"
                   :data-url="`admin/complexity-scores/activity-burdens`"
@@ -30,6 +44,7 @@
               <v-data-table
                 :headers="headersActivityBurdens"
                 :items="activityBurdens"
+                :search="searchActivityBurdens"
                 class="mx-4 my-6"
                 :loading="loadingActivityBurdens"
               >
@@ -48,7 +63,18 @@
               >
                 {{ $t('ComplexityScore.admin_burdens_info') }}
               </v-alert>
-              <div class="d-flex justify-end mb-4 pr-4">
+              <div class="d-flex justify-space-between align-center mb-4 px-4">
+                <v-text-field
+                  v-model="searchBurdens"
+                  prepend-inner-icon="mdi-magnify"
+                  :label="$t('_global.search')"
+                  single-line
+                  hide-details
+                  clearable
+                  clear-icon="mdi-close"
+                  class="mr-4"
+                  style="max-width: 300px"
+                />
                 <DataTableExportButton
                   :object-label="'Burdens'"
                   :data-url="`admin/complexity-scores/burdens`"
@@ -61,6 +87,7 @@
               <v-data-table
                 :headers="headersBurdens"
                 :items="burdens"
+                :search="searchBurdens"
                 class="mx-4 my-6"
                 :loading="loadingBurdens"
               >
@@ -79,13 +106,20 @@ import { useI18n } from 'vue-i18n'
 import adminApi from '@/api/admin'
 import DataTableExportButton from '@/components/tools/DataTableExportButton.vue'
 import NavigationTabs from '@/components/tools/NavigationTabs.vue'
+import StudyComplexityScoreDetails from '@/components/studies/StudyComplexityScoreDetails.vue'
 
 const { t } = useI18n()
 const activityBurdens = ref([])
+const searchActivityBurdens = ref('')
 const burdens = ref([])
+const searchBurdens = ref('')
 const loadingActivityBurdens = ref(false)
 const loadingBurdens = ref(false)
 const tabs = [
+  {
+    tab: 'study-complexity-scores',
+    name: t('ComplexityScore.admin_study_scores_tab'),
+  },
   {
     tab: 'activity-burdens',
     name: t('ComplexityScore.admin_activity_burdens_tab'),

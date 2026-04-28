@@ -7,6 +7,9 @@ from clinical_mdr_api.models.complexity_score import (
     Burden,
     BurdenIdInput,
     BurdenInput,
+    ComplexityScoreAssessment,
+    ComplexityScoreDetails,
+    ComplexityScoreVisit,
 )
 from common import exceptions
 from common.utils import get_db_result_as_dict
@@ -41,6 +44,15 @@ class SoaRow:
 class VisitsSummary:
     physical_visits: int
     non_physical_visits: int
+
+
+@dataclass
+class VisitTypeBurdens:
+    any: float
+    physical: float
+    virtual: float
+    initial: float
+    follow_up: float
 
 
 class ComplexityScoreService:
@@ -246,15 +258,95 @@ class ComplexityScoreService:
         total_score = (
             initial_visit_burden
             + follow_up_visit_burden
-            + self.get_visits_site_burden(visits_summary, activity_burden_dict)
-            + self.get_activities_site_burden(soa, activity_burden_dict)
+            + self.get_total_visits_site_burden(visits_summary, activity_burden_dict)
+            + self.get_total_activities_site_burden(soa, activity_burden_dict)
         )
 
         # Round total score to 3 decimal places
         return round(total_score, 3)
 
+    def get_complexity_score_details(
+        self, study_uid: str, study_version_number: str | None
+    ) -> ComplexityScoreDetails:
+        visits_summary = self.get_visits_summary(study_uid, study_version_number)
+        soa = self.get_soa(study_uid, study_version_number)
+        activity_burdens = self.get_activity_burdens()
+        activity_burden_dict = {ab.activity_subgroup_uid: ab for ab in activity_burdens}
+
+        burdens = self.get_visit_types_site_burdens(activity_burden_dict)
+
+        visits = [
+            ComplexityScoreVisit(
+                type="initial",
+                count=1,
+                burden=burdens.initial,
+            ),
+            ComplexityScoreVisit(
+                type="follow_up",
+                count=1,
+                burden=burdens.follow_up,
+            ),
+            ComplexityScoreVisit(
+                type="physical",
+                count=visits_summary.physical_visits,
+                burden=round(burdens.any + burdens.physical, 3),
+            ),
+            ComplexityScoreVisit(
+                type="virtual",
+                count=visits_summary.non_physical_visits,
+                burden=round(burdens.any + burdens.virtual, 3),
+            ),
+        ]
+
+        assessments = []
+        for row in soa:
+            if not row.activity_subgroup_name:
+                continue
+            activity_burden = activity_burden_dict.get(row.activity_subgroup_uid)
+            visit_count = len(row.visits)
+            burden = round(activity_burden.site_burden, 3) if activity_burden else 0.0
+            assessments.append(
+                ComplexityScoreAssessment(
+                    type=row.activity_subgroup_name,
+                    count=visit_count,
+                    burden=burden,
+                )
+            )
+
+        return ComplexityScoreDetails(visits=visits, assessments=assessments)
+
     @classmethod
-    def get_visits_site_burden(
+    def get_visit_types_site_burdens(cls, activity_burden_dict) -> VisitTypeBurdens:
+        return VisitTypeBurdens(
+            any=(
+                activity_burden_dict.get(ANY_VISIT_BURDEN_ID).site_burden
+                if ANY_VISIT_BURDEN_ID in activity_burden_dict
+                else ANY_VISIT_BURDEN_DEFAULT_VAL
+            ),
+            virtual=(
+                activity_burden_dict.get(NON_PHYSICAL_VISIT_BURDEN_ID).site_burden
+                if NON_PHYSICAL_VISIT_BURDEN_ID in activity_burden_dict
+                else NON_PHYSICAL_VISIT_BURDEN_DEFAULT_VAL
+            ),
+            physical=(
+                activity_burden_dict.get(PHYSICAL_VISIT_BURDEN_ID).site_burden
+                if PHYSICAL_VISIT_BURDEN_ID in activity_burden_dict
+                else PHYSICAL_VISIT_BURDEN_DEFAULT_VAL
+            ),
+            initial=(
+                activity_burden_dict.get(ROUTINE_INITIAL_VISIT_BURDEN_ID).site_burden
+                if ROUTINE_INITIAL_VISIT_BURDEN_ID in activity_burden_dict
+                else ROUTINE_INITIAL_VISIT_BURDEN_DEFAULT_VAL
+            ),
+            follow_up=(
+                activity_burden_dict.get(ROUTINE_FOLLOW_UP_VISIT_BURDEN_ID).site_burden
+                if ROUTINE_FOLLOW_UP_VISIT_BURDEN_ID in activity_burden_dict
+                else ROUTINE_FOLLOW_UP_VISIT_BURDEN_DEFAULT_VAL
+            ),
+        )
+
+    @classmethod
+    def get_total_visits_site_burden(
         cls, visits_summary: VisitsSummary, activity_burden_dict
     ) -> float:
         # Total =
@@ -262,33 +354,18 @@ class ComplexityScoreService:
         #   + non_physical_visits * "simple or brief tel. visit [NC008]" burden	= x * 0.60
         #   + physical_visits * "brief visit with vital signs [99211]" burden	= x * 0.18
 
-        burden_any_visit = (
-            activity_burden_dict.get(ANY_VISIT_BURDEN_ID).site_burden
-            if ANY_VISIT_BURDEN_ID in activity_burden_dict
-            else ANY_VISIT_BURDEN_DEFAULT_VAL
-        )
-        burden_non_physical = (
-            activity_burden_dict.get(NON_PHYSICAL_VISIT_BURDEN_ID).site_burden
-            if NON_PHYSICAL_VISIT_BURDEN_ID in activity_burden_dict
-            else NON_PHYSICAL_VISIT_BURDEN_DEFAULT_VAL
-        )
-        burden_physical = (
-            activity_burden_dict.get(PHYSICAL_VISIT_BURDEN_ID).site_burden
-            if PHYSICAL_VISIT_BURDEN_ID in activity_burden_dict
-            else PHYSICAL_VISIT_BURDEN_DEFAULT_VAL
-        )
+        burdens = cls.get_visit_types_site_burdens(activity_burden_dict)
 
         total_score = 0.0
-        total_score += (
-            visits_summary.non_physical_visits + visits_summary.physical_visits
-        ) * burden_any_visit
-        total_score += visits_summary.non_physical_visits * burden_non_physical
-        total_score += visits_summary.physical_visits * burden_physical
+        total_score += visits_summary.non_physical_visits * (
+            burdens.any + burdens.virtual
+        )
+        total_score += visits_summary.physical_visits * (burdens.any + burdens.physical)
 
         return total_score
 
     @classmethod
-    def get_activities_site_burden(cls, soa, activity_burden_dict) -> float:
+    def get_total_activities_site_burden(cls, soa, activity_burden_dict) -> float:
         # Activity burdens summed up over all visits
         #   - all activities under the same activity subgroup will be added once per visit
 

@@ -66,7 +66,8 @@ def test_get_snapshot_history(api_client):
     )
     assert_response_status_code(response, 200)
     res = response.json()
-    assert res is None
+    assert res["protocol_header_version"] is None
+    assert res["has_final_protocol_locked_version"] is False
 
     # snapshot history before lock
     response = api_client.get(
@@ -170,7 +171,8 @@ def test_get_snapshot_history(api_client):
     )
     assert_response_status_code(response, 200)
     res = response.json()
-    assert res is None
+    assert res["protocol_header_version"] is None
+    assert res["has_final_protocol_locked_version"] is False
 
     # get all standard versions
     response = api_client.get(
@@ -240,7 +242,8 @@ def test_get_snapshot_history(api_client):
     )
     assert_response_status_code(response, 200)
     res = response.json()
-    assert res is None
+    assert res["protocol_header_version"] is None
+    assert res["has_final_protocol_locked_version"] is False
 
     # get all standard versions
     response = api_client.get(
@@ -307,7 +310,8 @@ def test_get_snapshot_history(api_client):
     )
     assert_response_status_code(response, 200)
     res = response.json()
-    assert res == "0.1"
+    assert res["protocol_header_version"] == "0.1"
+    assert res["has_final_protocol_locked_version"] is False
 
     # snapshot history after release
     response = api_client.get(
@@ -371,7 +375,8 @@ def test_get_snapshot_history(api_client):
     )
     assert_response_status_code(response, 200)
     res = response.json()
-    assert res == "0.2"
+    assert res["protocol_header_version"] == "0.2"
+    assert res["has_final_protocol_locked_version"] is False
     # snapshot history after second release
     response = api_client.get(
         f"/studies/{study_with_history.uid}/snapshot-history",
@@ -444,7 +449,8 @@ def test_get_snapshot_history(api_client):
     )
     assert_response_status_code(response, 200)
     res = response.json()
-    assert res == "1.0"
+    assert res["protocol_header_version"] == "1.0"
+    assert res["has_final_protocol_locked_version"] is True
 
     # snapshot history after lock
     response = api_client.get(
@@ -593,7 +599,8 @@ def test_get_snapshot_history(api_client):
     )
     assert_response_status_code(response, 200)
     res = response.json()
-    assert res == "2.0"
+    assert res["protocol_header_version"] == "2.0"
+    assert res["has_final_protocol_locked_version"] is True
 
     # snapshot history excluding versions without protocol header version
     response = api_client.get(

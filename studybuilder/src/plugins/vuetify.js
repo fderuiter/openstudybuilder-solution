@@ -59,6 +59,7 @@ const NNCustomLightTheme = {
     tableChildRow: '#E6EFFB',
     nnTableRowExpanded: '#C2D8F4',
     nnTableRowChild: '#E6EFFB',
+    nnAlertRed: '#C44836',
   },
 }
 

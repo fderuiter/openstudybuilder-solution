@@ -26,7 +26,7 @@
         :rules="[formRules.required]"
         @update:model-value="update()"
       >
-        <template #item="{ props, item }">
+        <template #item="{ props, internalItem: item }">
           <v-list-item v-bind="props" :title="getSubstanceTitle(item.raw)">
             <v-list-item-subtitle class="pa-2">
               {{ getSubstanceSubtitle(item.raw) }}

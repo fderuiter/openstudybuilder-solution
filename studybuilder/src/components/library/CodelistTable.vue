@@ -235,6 +235,10 @@ const headers = ref([
     title: t('CtCatalogueTable.nci_pref_name'),
     key: 'attributes.nci_preferred_name',
   },
+  {
+    title: t('CtCatalogueTable.paired_with'),
+    key: 'paired_codelist.name',
+  },
   { title: t('CtCatalogueTable.extensible'), key: 'attributes.extensible' },
   { title: t('CtCatalogueTable.attr_status'), key: 'attributes.status' },
   {

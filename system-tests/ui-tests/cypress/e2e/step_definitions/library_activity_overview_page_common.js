@@ -1,5 +1,6 @@
 import { activityInstance_uid, activity_uid, group_uid, subgroup_uid} from "../../support/api_requests/library_activities";
 import { apiSubgroupName } from "./api_library_steps"
+import { activity_placeholder_name } from "./study_activities_steps";
 
 const { When, Then, Given } = require("@badeball/cypress-cucumber-preprocessor");
 
@@ -10,9 +11,13 @@ When('Activity instance approve attributes button is clicked', () => cy.get('but
 
 When('Activity instance approve groupings button is clicked', () => cy.get('.activity-section').within(() => cy.get('button .mdi-check-decagram').click()))
 
-When('Activity instance attributes new version button is clicked', () => cy.get('button .mdi-plus-circle-outline').eq(0).click())
+When('Activity instance attributes new version button is clicked', () => cy.get('.groupings-action-buttons .mdi-plus-circle-outline').eq(0).click())
 
-When('Activity instance groupings new version button is clicked', () => cy.get('.activity-section').within(() => cy.get('button .mdi-plus-circle-outline').click()))
+When('Activity instance groupings new version button is clicked', () =>  cy.get('.groupings-action-buttons .mdi-plus-circle-outline').eq(1).click())
+
+When('Activity instance attributes history button is clicked', () => cy.get('.groupings-action-buttons .mdi-history').eq(0).click())
+
+When('Activity instance groupings history button is clicked', () =>  cy.get('.groupings-action-buttons .mdi-history').eq(1).click())
 
 When('Activity name created via API is fetched', () => cy.getActivityNameByUid().then(text => activityName = text))
 
@@ -58,6 +63,8 @@ When('User goes to group overview page by clicking its name', () => cy.get('tabl
 When('User goes to subgroup overview page by clicking its name', () => cy.get('table tbody tr td').contains(subgroupName).click())
 
 When('User goes to activity overview page by clicking its name', () => cy.get('table tbody tr td').contains(activityName).click())
+
+When('User goes to activity placeholder overview page by clicking its name', () => cy.get('table tbody tr td').contains(activity_placeholder_name).click())
 
 When('User goes to instance overview page by clicking its name', () => cy.get('table tbody tr td').contains(instanceName).click())
 
@@ -169,6 +176,14 @@ Then('The Instance linked activity has status {string} and version {string}', (s
     })
 })
 
+Then('The Library displayed on the summary has value {string}', (value) => {
+    cy.contains('.summary-label', 'Library').parent().within(() => cy.get('.summary-value').should('have.text', value))
+})
+
+Then('The Study ID displayed on the summary has value {string}', (value) => {
+    cy.contains('.summary-label', 'Study ID').parent().within(() => cy.get('.summary-value').should('have.text', value))
+})
+
 Then('The status displayed on the summary has value {string} and version is {string}', (status, version) => {
     cy.contains('.summary-label', 'Status').parent().within(() => cy.get('.summary-value').should('have.text', status))
     cy.get('.v-select__selection-text').should('contain', version)
@@ -190,6 +205,11 @@ Then('The status displayed on the summary for Activity Instance Groupings is {st
 
 When('Version {string} is selected from the Version dropdown list', (version) => {
     cy.contains('.summary-label', 'Version').parent().within(() => cy.get('.v-field__input').click())
+    cy.get('.v-list-item').contains(version).click();
+})
+
+When('Version {string} is selected from the Version dropdown list in the instance attributes section', (version) => {
+    cy.get('.activity-instance-attributes-section').contains('.summary-label', 'Version').parent().within(() => cy.get('.v-field__input').click())
     cy.get('.v-list-item').contains(version).click();
 })
 

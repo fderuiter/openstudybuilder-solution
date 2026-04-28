@@ -158,6 +158,7 @@ When('The new Codelist is added', () => {
     termNciValue = `NCITerm${getShortUniqueId()}`
     termDefinition = `Definition ${getShortUniqueId()}`
     cy.clickButton('add-sponsor-codelist')
+    cy.clickButton('step.codelist_type_selection-continue-button')
     cy.selectAutoComplete('catalogue-dropdown', 'ADAM CT')
     cy.clickButton('step.catalogue-continue-button')
     cy.fillInput('sponsor-preffered-name', termSponsorName)

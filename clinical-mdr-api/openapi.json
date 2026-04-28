@@ -3,7 +3,7 @@
   "info": {
     "title": "OpenStudyBuilder API",
     "description": "\n## NOTICE\n\nThis license information is applicable to the swagger documentation of the clinical-mdr-api, that is the openapi.json.\n\n## License Terms (MIT)\n\nCopyright (C) 2025 Novo Nordisk A/S, Danish company registration no. 24256790\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n## Licenses and Acknowledgements for Incorporated Software\n\nThis component contains software licensed under different licenses when compiled, please refer to the third-party-licenses.md file for further information and full license texts.\n\n## Authentication\n\nSupports OAuth2 [Authorization Code Flow](https://datatracker.ietf.org/doc/html/rfc6749#section-4.1),\nat paths described in the OpenID Connect Discovery metadata document (whose URL is defined by the `OAUTH_METADATA_URL` environment variable).\n\nMicrosoft Identity Platform documentation can be read \n([here](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)).\n\nAuthentication can be turned off with `OAUTH_ENABLED=false` environment variable. \n\nWhen authentication is turned on, all requests to protected API endpoints must provide a valid bearer (JWT) token inside the `Authorization` http header. \n",
-    "version": "3.0.642"
+    "version": "3.0.657"
   },
   "paths": {
     "/": {
@@ -38439,6 +38439,67 @@
         }
       }
     },
+    "/ct/paired-codelists": {
+      "post": {
+        "tags": [
+          "CT Codelists"
+        ],
+        "summary": "Creates a new set of paired codelists.",
+        "description": "Creates two codelists (one for names, one for codes) and links them as paired codelists.\nEach codelist gets its own name, submission_value, nci_preferred_name, definition, and sponsor_preferred_name\nvia the name_information and code_information fields respectively.",
+        "operationId": "create_paired_codelists_ct_paired_codelists_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CTPairedCodelistCreateInput",
+                "description": "Properties to create a set of paired codelists (names and codes)."
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created - The paired codelists were successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CTCodelistPaired"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Forbidden - Reasons include e.g.: \n- The catalogue doesn't exist.\n- The library doesn't exist.\n- The library doesn't allow to add new items.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ]
+      }
+    },
     "/ct/paired-codelists/{codelist_uid}/terms": {
       "get": {
         "tags": [
@@ -49095,14 +49156,14 @@
         }
       }
     },
-    "/concepts/activities/activity-instances/{activity_instance_uid}/attributes/activations": {
+    "/concepts/activities/activity-instances/{activity_instance_uid}/activations": {
       "delete": {
         "tags": [
           "Activity Instances"
         ],
-        "summary": " Inactivate final version of an activity instance attributes",
-        "description": "State before:\n - uid must exist and activity instance must be in status Final.\n \nBusiness logic:\n - The latest 'Final' version will remain the same as before.\n - The status will be automatically set to 'Retired'.\n - The 'change_description' property will be set automatically.\n - The 'version' property will remain the same as before.\n \nState after:\n - Activity instance changed status to Retired.\n - Audit trail entry must be made with action of inactivating to retired version.\n \nPossible errors:\n - Invalid uid or status not Final.",
-        "operationId": "inactivate_concepts_activities_activity_instances__activity_instance_uid__attributes_activations_delete",
+        "summary": "Inactivate final version of an activity instance (attributes and groupings)",
+        "description": "State before:\n - uid must exist and both the activity instance attributes and groupings must be in status Final.\n\nBusiness logic:\n - The latest 'Final' version will remain the same as before (for both attributes and groupings).\n - The status will be automatically set to 'Retired' for both attributes and groupings.\n - The 'change_description' property will be set automatically.\n - The 'version' property will remain the same as before.\n\nState after:\n - Activity instance attributes and groupings changed status to Retired.\n - Audit trail entries must be made with action of inactivating to retired version.\n\nPossible errors:\n - Invalid uid, or attributes/groupings status not Final.",
+        "operationId": "inactivate_concepts_activities_activity_instances__activity_instance_uid__activations_delete",
         "security": [
           {
             "OAuth2AuthorizationCodeBearer": []
@@ -49146,7 +49207,7 @@
             }
           },
           "400": {
-            "description": "Forbidden - Reasons include e.g.: \n- The activity instance is not in final status.",
+            "description": "Forbidden - Reasons include e.g.: \n- The activity instance attributes are not in final status.\n- The activity instance groupings are not in final status.",
             "content": {
               "application/json": {
                 "schema": {
@@ -49171,9 +49232,9 @@
         "tags": [
           "Activity Instances"
         ],
-        "summary": "Reactivate retired version of an activity instance attributes",
-        "description": "State before:\n - uid must exist and activity instance must be in status Retired.\n \nBusiness logic:\n - The latest 'Retired' version will remain the same as before.\n - The status will be automatically set to 'Final'.\n - The 'change_description' property will be set automatically.\n - The 'version' property will remain the same as before.\n\nState after:\n - Activity instance changed status to Final.\n - An audit trail entry must be made with action of reactivating to final version.\n \nPossible errors:\n - Invalid uid or status not Retired.",
-        "operationId": "reactivate_concepts_activities_activity_instances__activity_instance_uid__attributes_activations_post",
+        "summary": "Reactivate retired version of an activity instance (attributes and groupings)",
+        "description": "State before:\n - uid must exist and both the activity instance attributes and groupings must be in status Retired.\n\nBusiness logic:\n - The latest 'Retired' version will remain the same as before (for both attributes and groupings).\n - The status will be automatically set to 'Final' for both attributes and groupings.\n - The 'change_description' property will be set automatically.\n - The 'version' property will remain the same as before.\n\nState after:\n - Activity instance attributes and groupings changed status to Final.\n - Audit trail entries must be made with action of reactivating to final version.\n\nPossible errors:\n - Invalid uid, or attributes/groupings status not Retired.",
+        "operationId": "reactivate_concepts_activities_activity_instances__activity_instance_uid__activations_post",
         "security": [
           {
             "OAuth2AuthorizationCodeBearer": []
@@ -49217,7 +49278,7 @@
             }
           },
           "400": {
-            "description": "Forbidden - Reasons include e.g.: \n- The activity instance is not in retired status.",
+            "description": "Forbidden - Reasons include e.g.: \n- The activity instance attributes are not in retired status.\n- The activity instance groupings are not in retired status.",
             "content": {
               "application/json": {
                 "schema": {
@@ -49449,150 +49510,6 @@
           },
           "404": {
             "description": "Not Found - The activity instance with the specified 'activity_instance_uid' wasn't found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/concepts/activities/activity-instances/{activity_instance_uid}/groupings/activations": {
-      "delete": {
-        "tags": [
-          "Activity Instances"
-        ],
-        "summary": " Inactivate final version of an activity instance groupings",
-        "description": "State before:\n - uid must exist and activity instance must be in status Final.\n \nBusiness logic:\n - The latest 'Final' version will remain the same as before.\n - The status will be automatically set to 'Retired'.\n - The 'change_description' property will be set automatically.\n - The 'version' property will remain the same as before.\n \nState after:\n - Activity instance changed status to Retired.\n - Audit trail entry must be made with action of inactivating to retired version.\n \nPossible errors:\n - Invalid uid or status not Final.",
-        "operationId": "inactivate_groupings_concepts_activities_activity_instances__activity_instance_uid__groupings_activations_delete",
-        "security": [
-          {
-            "OAuth2AuthorizationCodeBearer": []
-          },
-          {
-            "BearerJwtAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "activity_instance_uid",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "description": "The unique id of the ActivityInstance",
-              "title": "Activity Instance Uid"
-            },
-            "description": "The unique id of the ActivityInstance"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ActivityInstanceGroupings"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Forbidden - Reasons include e.g.: \n- The activity instance is not in final status.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found - The activity instance with the specified 'activity_instance_uid' could not be found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Activity Instances"
-        ],
-        "summary": "Reactivate retired version of an activity instance groupings",
-        "description": "State before:\n - uid must exist and activity instance must be in status Retired.\n \nBusiness logic:\n - The latest 'Retired' version will remain the same as before.\n - The status will be automatically set to 'Final'.\n - The 'change_description' property will be set automatically.\n - The 'version' property will remain the same as before.\n\nState after:\n - Activity instance changed status to Final.\n - An audit trail entry must be made with action of reactivating to final version.\n \nPossible errors:\n - Invalid uid or status not Retired.",
-        "operationId": "reactivate_groupings_concepts_activities_activity_instances__activity_instance_uid__groupings_activations_post",
-        "security": [
-          {
-            "OAuth2AuthorizationCodeBearer": []
-          },
-          {
-            "BearerJwtAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "activity_instance_uid",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "description": "The unique id of the ActivityInstance",
-              "title": "Activity Instance Uid"
-            },
-            "description": "The unique id of the ActivityInstance"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ActivityInstanceGroupings"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Forbidden - Reasons include e.g.: \n- The activity instance is not in retired status.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found - The activity instance with the specified 'activity_instance_uid' could not be found.",
             "content": {
               "application/json": {
                 "schema": {
@@ -72652,6 +72569,341 @@
         }
       }
     },
+    "/studies/template": {
+      "get": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "Returns the active study template, if any.",
+        "operationId": "get_study_template_studies_template_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/StudyTemplate"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Get Study Template Studies Template Get"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "Creates the study template configuration.",
+        "operationId": "create_study_template_studies_template_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudyTemplateInput",
+                "description": "Study template target study reference."
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudyTemplate"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "Updates the study template with a new version.",
+        "operationId": "patch_study_template_studies_template_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudyTemplatePatchInput",
+                "description": "Updated study template target."
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudyTemplate"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Entity not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ]
+      }
+    },
+    "/studies/template/activations": {
+      "post": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "Reactivates a retired study template.",
+        "operationId": "reactivate_study_template_studies_template_activations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/EditInputModel"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": " ",
+                "description": "Optional change description payload."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudyTemplate"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Entity not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "Retires the current study template.",
+        "operationId": "retire_study_template_studies_template_activations_delete",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/EditInputModel"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": " ",
+                "description": "Optional change description payload."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudyTemplate"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Entity not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ]
+      }
+    },
     "/studies/structure-overview": {
       "get": {
         "tags": [
@@ -73832,6 +74084,90 @@
         }
       }
     },
+    "/studies/{study_uid}/study-selection-containment/{target_study_uid}": {
+      "get": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "Whether target study selection statistics are contained in the source study.",
+        "description": "Compares selection counts (and distinct CT term roots) for each concrete selection label that appears on **target_study_uid** against **study_uid** (source). Returns whether target counts are <= source for every such label, plus per-label figures. **StudySoAFootnote** is excluded (conditional clone rules make footnote counts incomparable).",
+        "operationId": "get_study_selection_containment_studies__study_uid__study_selection_containment__target_study_uid__get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "study_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique id of the study.",
+              "title": "Study Uid"
+            },
+            "description": "The unique id of the study."
+          },
+          {
+            "name": "target_study_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique id of the target study (e.g. a clone). Only selection labels that appear on this study are included in the comparison.",
+              "title": "Target Study Uid"
+            },
+            "description": "The unique id of the target study (e.g. a clone). Only selection labels that appear on this study are included in the comparison."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudySelectionContainmentResult"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - source or target study uid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/studies/{study_uid}/pharma-cm": {
       "get": {
         "tags": [
@@ -74143,7 +74479,7 @@
         "tags": [
           "Studies"
         ],
-        "summary": "Returns the latest available protocol header version or the one associated with specified study value version.",
+        "summary": "Returns the latest available protocol header version and whether the study contains a 'Final Protocol' locked version.",
         "operationId": "get_protocol_header_version_studies__study_uid__protocol_header_versions_get",
         "security": [
           {
@@ -74172,15 +74508,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "anyOf": [
-                    {
-                      "type": "string"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ],
-                  "title": "Response Get Protocol Header Version Studies  Study Uid  Protocol Header Versions Get"
+                  "$ref": "#/components/schemas/StudyProtocolHeaderVersion"
                 }
               }
             }
@@ -74383,6 +74711,46 @@
               "title": "Study Value Version"
             },
             "description": "If specified, study data with specified version is returned.\n\n    Only exact matches are considered. \n\n    E.g. 1, 2, 2.1, ..."
+          },
+          {
+            "name": "page_number",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000000000,
+              "minimum": 1,
+              "description": "\nPage number of the returned list of entities.\n\nFunctionality : provided together with `page_size`, selects a page to retrieve for paginated results.\n\nErrors: `page_size` not provided, `page_number` must be equal or greater than 1.\n",
+              "default": 1,
+              "title": "Page Number"
+            },
+            "description": "\nPage number of the returned list of entities.\n\nFunctionality : provided together with `page_size`, selects a page to retrieve for paginated results.\n\nErrors: `page_size` not provided, `page_number` must be equal or greater than 1.\n"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 0,
+              "description": "\nNumber of items to be returned per page.\n\nDefault: 10\n\nFunctionality: Provided together with `page_number`, selects the number of results per page.\n\nIn case the value is set to `0`, all rows will be returned.\n\nErrors: `page_number` not provided.\n",
+              "default": 10,
+              "title": "Page Size"
+            },
+            "description": "\nNumber of items to be returned per page.\n\nDefault: 10\n\nFunctionality: Provided together with `page_number`, selects the number of results per page.\n\nIn case the value is set to `0`, all rows will be returned.\n\nErrors: `page_number` not provided.\n"
+          },
+          {
+            "name": "total_count",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Boolean flag to include the total count of entities in the response.\n\nDefault: `false`\n\nFunctionality: When set to `true`, returns the total number of entities that match the query.\n\nWhen combined with filters, the count reflects only the entities matching those filters.\n\nNote: This operation can be expensive for large datasets.\n\nSpecial case: A value of `-1` indicates that the exact count is unavailable due to performance constraints, but confirms that at least one more entity exists beyond the current page.",
+              "default": false,
+              "title": "Total Count"
+            },
+            "description": "Boolean flag to include the total count of entities in the response.\n\nDefault: `false`\n\nFunctionality: When set to `true`, returns the total number of entities that match the query.\n\nWhen combined with filters, the count reflects only the entities matching those filters.\n\nNote: This operation can be expensive for large datasets.\n\nSpecial case: A value of `-1` indicates that the exact count is unavailable due to performance constraints, but confirms that at least one more entity exists beyond the current page."
           }
         ],
         "responses": {
@@ -74391,11 +74759,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/StudySubpartAuditTrail"
-                  },
-                  "title": "Response Get Study Subpart Audit Trail Studies  Study Uid  Audit Trail Get"
+                  "$ref": "#/components/schemas/CustomPage_StudySubpartAuditTrail_"
                 }
               }
             }
@@ -75563,6 +75927,91 @@
                 "schema": {
                   "type": "number",
                   "title": "Response Get Complexity Score Studies  Study Uid  Complexity Score Get"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - study with the specified 'study_uid' doesn't exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/studies/{study_uid}/complexity-score-details": {
+      "get": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "Get detailed study complexity score breakdown",
+        "operationId": "get_complexity_score_details_studies__study_uid__complexity_score_details_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "study_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique id of the study.",
+              "title": "Study Uid"
+            },
+            "description": "The unique id of the study."
+          },
+          {
+            "name": "study_value_version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Study Version Number",
+              "title": "Study Value Version"
+            },
+            "description": "Study Version Number",
+            "examples": {
+              "2.1": {
+                "value": "2.1"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComplexityScoreDetails"
                 }
               }
             }
@@ -122870,28 +123319,15 @@
           "attributes": {
             "$ref": "#/components/schemas/CTCodelistAttributes"
           },
-          "paired_codes_codelist_uid": {
+          "paired_codelist": {
             "anyOf": [
               {
-                "type": "string"
+                "$ref": "#/components/schemas/CTPairedCodelistInfo"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Paired Codes Codelist Uid",
-            "nullable": true
-          },
-          "paired_names_codelist_uid": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Paired Names Codelist Uid",
             "nullable": true
           },
           "term_uids": {
@@ -125394,6 +125830,50 @@
         "title": "CTCodelistAttributesVersion",
         "description": "Class for storing CTCodelistAttributes and calculation of differences"
       },
+      "CTCodelistCodelistInformation": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name"
+          },
+          "submission_value": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Submission Value"
+          },
+          "nci_preferred_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nci Preferred Name"
+          },
+          "definition": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Definition"
+          },
+          "sponsor_preferred_name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Sponsor Preferred Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "submission_value",
+          "definition",
+          "sponsor_preferred_name"
+        ],
+        "title": "CTCodelistCodelistInformation"
+      },
       "CTCodelistCompact": {
         "properties": {
           "uid": {
@@ -125748,28 +126228,15 @@
           "attributes": {
             "$ref": "#/components/schemas/CTCodelistAttributes"
           },
-          "paired_codes_codelist_uid": {
+          "paired_codelist": {
             "anyOf": [
               {
-                "type": "string"
+                "$ref": "#/components/schemas/CTPairedCodelistInfo"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Paired Codes Codelist Uid",
-            "nullable": true
-          },
-          "paired_names_codelist_uid": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Paired Names Codelist Uid",
             "nullable": true
           }
         },
@@ -126951,6 +127418,93 @@
           "effective_dates"
         ],
         "title": "CTPackageDates"
+      },
+      "CTPairedCodelistCreateInput": {
+        "properties": {
+          "catalogue_names": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Catalogue Names"
+          },
+          "name_information": {
+            "$ref": "#/components/schemas/CTCodelistCodelistInformation"
+          },
+          "code_information": {
+            "$ref": "#/components/schemas/CTCodelistCodelistInformation"
+          },
+          "extensible": {
+            "type": "boolean",
+            "title": "Extensible"
+          },
+          "is_ordinal": {
+            "type": "boolean",
+            "title": "Is Ordinal"
+          },
+          "codelist_type": {
+            "type": "string",
+            "title": "Codelist Type",
+            "default": "Standard"
+          },
+          "template_parameter": {
+            "type": "boolean",
+            "title": "Template Parameter"
+          },
+          "parent_codelist_uid": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Codelist Uid"
+          },
+          "library_name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Library Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "catalogue_names",
+          "name_information",
+          "code_information",
+          "extensible",
+          "is_ordinal",
+          "template_parameter",
+          "library_name"
+        ],
+        "title": "CTPairedCodelistCreateInput"
+      },
+      "CTPairedCodelistInfo": {
+        "properties": {
+          "uid": {
+            "type": "string",
+            "title": "Uid"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "nullable": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "uid"
+        ],
+        "title": "CTPairedCodelistInfo"
       },
       "CTPairedCodelistTerm": {
         "properties": {
@@ -129962,6 +130516,76 @@
         },
         "type": "object",
         "title": "CompactUnitDefinition"
+      },
+      "ComplexityScoreAssessment": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "burden": {
+            "type": "number",
+            "title": "Burden"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "count",
+          "burden"
+        ],
+        "title": "ComplexityScoreAssessment"
+      },
+      "ComplexityScoreDetails": {
+        "properties": {
+          "visits": {
+            "items": {
+              "$ref": "#/components/schemas/ComplexityScoreVisit"
+            },
+            "type": "array",
+            "title": "Visits"
+          },
+          "assessments": {
+            "items": {
+              "$ref": "#/components/schemas/ComplexityScoreAssessment"
+            },
+            "type": "array",
+            "title": "Assessments"
+          }
+        },
+        "type": "object",
+        "required": [
+          "visits",
+          "assessments"
+        ],
+        "title": "ComplexityScoreDetails"
+      },
+      "ComplexityScoreVisit": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "burden": {
+            "type": "number",
+            "title": "Burden"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "count",
+          "burden"
+        ],
+        "title": "ComplexityScoreVisit"
       },
       "Compound": {
         "properties": {
@@ -136440,6 +137064,40 @@
         ],
         "title": "CustomPage[StudyStructureOverview]"
       },
+      "CustomPage_StudySubpartAuditTrail_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/StudySubpartAuditTrail"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": -1.0,
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Page"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "size"
+        ],
+        "title": "CustomPage[StudySubpartAuditTrail]"
+      },
       "CustomPage_StudySummaryListing_": {
         "properties": {
           "items": {
@@ -139105,6 +139763,20 @@
         "type": "object",
         "title": "Duration model to store ISO8601 duration"
       },
+      "EditInputModel": {
+        "properties": {
+          "change_description": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Change Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "change_description"
+        ],
+        "title": "EditInputModel"
+      },
       "Endpoint": {
         "properties": {
           "uid": {
@@ -141146,6 +141818,14 @@
             "type": "integer",
             "title": "Sn"
           },
+          "section": {
+            "type": "string",
+            "title": "Section"
+          },
+          "feature": {
+            "type": "string",
+            "title": "Feature"
+          },
           "name": {
             "type": "string",
             "title": "Name"
@@ -141170,6 +141850,8 @@
         "type": "object",
         "required": [
           "sn",
+          "section",
+          "feature",
           "name",
           "enabled"
         ],
@@ -141177,6 +141859,20 @@
       },
       "FeatureFlagInput": {
         "properties": {
+          "section": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "library",
+              "studies"
+            ],
+            "title": "Section"
+          },
+          "feature": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Feature"
+          },
           "name": {
             "type": "string",
             "minLength": 1,
@@ -141201,6 +141897,8 @@
         },
         "type": "object",
         "required": [
+          "section",
+          "feature",
           "name",
           "enabled"
         ],
@@ -141208,10 +141906,44 @@
       },
       "FeatureFlagPatchInput": {
         "properties": {
+          "section": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "admin",
+                  "library",
+                  "studies"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section"
+          },
+          "feature": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feature"
+          },
           "enabled": {
-            "type": "boolean",
-            "title": "Enabled",
-            "default": false
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enabled"
           }
         },
         "type": "object",
@@ -158148,6 +158880,36 @@
             "title": "Copy Study Design Matrix",
             "default": false
           },
+          "copy_study_soa_group": {
+            "type": "boolean",
+            "title": "Copy Study Soa Group",
+            "default": false
+          },
+          "copy_study_activity": {
+            "type": "boolean",
+            "title": "Copy Study Activity",
+            "default": false
+          },
+          "copy_study_activity_instance": {
+            "type": "boolean",
+            "title": "Copy Study Activity Instance",
+            "default": false
+          },
+          "copy_study_activity_group": {
+            "type": "boolean",
+            "title": "Copy Study Activity Group",
+            "default": false
+          },
+          "copy_study_activity_subgroup": {
+            "type": "boolean",
+            "title": "Copy Study Activity Subgroup",
+            "default": false
+          },
+          "copy_study_activity_schedule": {
+            "type": "boolean",
+            "title": "Copy Study Activity Schedule",
+            "default": false
+          },
           "validation_mode": {
             "$ref": "#/components/schemas/ValidationMode",
             "default": "strict"
@@ -162922,6 +163684,31 @@
           "unit_definition_uid"
         ],
         "title": "StudyPreferredTimeUnitInput"
+      },
+      "StudyProtocolHeaderVersion": {
+        "properties": {
+          "protocol_header_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Protocol Header Version",
+            "description": "The latest available protocol header version.",
+            "nullable": true
+          },
+          "has_final_protocol_locked_version": {
+            "type": "boolean",
+            "title": "Has Final Protocol Locked Version",
+            "description": "Indicates whether the study contains a locked version with 'Final Protocol' as the reason for lock.",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "StudyProtocolHeaderVersion"
       },
       "StudyProtocolTitle": {
         "properties": {
@@ -168301,6 +169088,84 @@
         ],
         "title": "StudySelectionCompoundNewOrder"
       },
+      "StudySelectionContainmentLabelRow": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "Concrete study selection label"
+          },
+          "target_selection_count": {
+            "type": "integer",
+            "title": "Target Selection Count",
+            "description": "Selections on target"
+          },
+          "source_selection_count": {
+            "type": "integer",
+            "title": "Source Selection Count",
+            "description": "Selections on source"
+          },
+          "target_distinct_ct_term_root_count": {
+            "type": "integer",
+            "title": "Target Distinct Ct Term Root Count",
+            "description": "Distinct CT term roots on target (via CTTermContext on selections)"
+          },
+          "source_distinct_ct_term_root_count": {
+            "type": "integer",
+            "title": "Source Distinct Ct Term Root Count",
+            "description": "Distinct CT term roots on source (via CTTermContext on selections)"
+          },
+          "label_contained": {
+            "type": "boolean",
+            "title": "Label Contained",
+            "description": "True if target selection and term counts are <= source for this label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "target_selection_count",
+          "source_selection_count",
+          "target_distinct_ct_term_root_count",
+          "source_distinct_ct_term_root_count",
+          "label_contained"
+        ],
+        "title": "StudySelectionContainmentLabelRow",
+        "description": "Per-label comparison when checking if target is contained in source."
+      },
+      "StudySelectionContainmentResult": {
+        "properties": {
+          "target_contained_in_source": {
+            "type": "boolean",
+            "title": "Target Contained In Source",
+            "description": "True if containment holds for every compared label present on target"
+          },
+          "labels_from_target": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Labels From Target",
+            "description": "Concrete selection labels on the target used in the comparison (excludes StudySoAFootnote)"
+          },
+          "per_label": {
+            "items": {
+              "$ref": "#/components/schemas/StudySelectionContainmentLabelRow"
+            },
+            "type": "array",
+            "title": "Per Label",
+            "description": "Breakdown per label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "target_contained_in_source",
+          "labels_from_target",
+          "per_label"
+        ],
+        "title": "StudySelectionContainmentResult",
+        "description": "Whether the **target** study's selection statistics are contained in the **source**.\n\nOnly labels that appear on the **target** study are considered (except\n``StudySoAFootnote``, which is skipped because SoA footnotes are copied\nconditionally). Containment means for each such label, target counts are less\nthan or equal to source counts (selection nodes and distinct CT term roots via\nCTTermContext)."
+      },
       "StudySelectionCriteria": {
         "properties": {
           "study_uid": {
@@ -171075,6 +171940,18 @@
             "title": "Title",
             "nullable": true
           },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "nullable": true
+          },
           "subpart_id": {
             "anyOf": [
               {
@@ -172400,6 +173277,16 @@
             "type": "integer",
             "title": "Visit Footnote Count",
             "description": "Number of connected footnotes (visit level)"
+          },
+          "study_activity_count": {
+            "type": "integer",
+            "title": "Study Activity Count",
+            "description": "Number of connected study activities"
+          },
+          "study_activity_schedule_count": {
+            "type": "integer",
+            "title": "Study Activity Schedule Count",
+            "description": "Number of connected study activity schedules"
           }
         },
         "type": "object",
@@ -172411,7 +173298,9 @@
           "epoch_count",
           "epoch_footnote_count",
           "visit_count",
-          "visit_footnote_count"
+          "visit_footnote_count",
+          "study_activity_count",
+          "study_activity_schedule_count"
         ],
         "title": "StudyStructureStatistics"
       },
@@ -172690,6 +173579,97 @@
           "DOMAIN"
         ],
         "title": "StudySummaryListing"
+      },
+      "StudyTemplate": {
+        "properties": {
+          "uid": {
+            "type": "string",
+            "title": "Uid",
+            "description": "Uid of study template root"
+          },
+          "study_uid": {
+            "type": "string",
+            "title": "Study Uid",
+            "description": "Uid of template study"
+          },
+          "study_value_version": {
+            "type": "string",
+            "title": "Study Value Version",
+            "description": "Study value version"
+          },
+          "status": {
+            "$ref": "#/components/schemas/LibraryItemStatus",
+            "description": "Template item status"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "Template item version"
+          },
+          "change_description": {
+            "type": "string",
+            "title": "Change Description",
+            "description": "Version change description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "uid",
+          "study_uid",
+          "study_value_version",
+          "status",
+          "version",
+          "change_description"
+        ],
+        "title": "StudyTemplate"
+      },
+      "StudyTemplateInput": {
+        "properties": {
+          "study_uid": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Study Uid",
+            "description": "Uid of template study"
+          },
+          "study_value_version": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Study Value Version",
+            "description": "Study value version of template study, e.g. '1.0'"
+          }
+        },
+        "type": "object",
+        "required": [
+          "study_uid",
+          "study_value_version"
+        ],
+        "title": "StudyTemplateInput"
+      },
+      "StudyTemplatePatchInput": {
+        "properties": {
+          "change_description": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Change Description"
+          },
+          "study_uid": {
+            "type": "string",
+            "title": "Study Uid",
+            "description": "Uid of template study; empty string clears the configured target"
+          },
+          "study_value_version": {
+            "type": "string",
+            "title": "Study Value Version",
+            "description": "Released study value version; required when study_uid is non-empty"
+          }
+        },
+        "type": "object",
+        "required": [
+          "change_description",
+          "study_uid",
+          "study_value_version"
+        ],
+        "title": "StudyTemplatePatchInput"
       },
       "StudyTypeListingModel": {
         "properties": {

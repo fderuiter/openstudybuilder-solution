@@ -8,6 +8,7 @@
 - **Naming**: Follow PEP 8, public API = no leading underscore
 - **Disabled Pylint Checks**: Missing docstrings, fixme, too-few-public-methods, too-many-ancestors, cyclic-import, etc. (see `pyproject.toml`)
 - **Descriptive variable names over clever abbreviations**
+- **Imports always at the top of the file** - never use inline/local imports inside functions or test methods
 
 ## FastAPI Best Practices
 

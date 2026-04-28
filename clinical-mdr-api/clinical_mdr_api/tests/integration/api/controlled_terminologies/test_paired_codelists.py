@@ -29,6 +29,7 @@ log = logging.getLogger(__name__)
 catalogue: str
 
 URL = "/ct/codelists"
+PAIRED_URL = "/ct/paired-codelists"
 
 
 @pytest.fixture(scope="module")
@@ -84,10 +85,8 @@ def test_get_paired_codelist(api_client):
     response_json = response.json()
     print(response_json)
     assert len(response_json["items"]) == 1
-    assert response_json["items"][0]["paired_names_codelist_uid"] is None
-    assert (
-        response_json["items"][0]["paired_codes_codelist_uid"] == codes_cl.codelist_uid
-    )
+    assert response_json["items"][0]["paired_codelist"]["uid"] == codes_cl.codelist_uid
+    assert response_json["items"][0]["paired_codelist"]["name"] is not None
 
     # Check the codelist with codes
     response = api_client.get(f"{URL}/{codes_cl.codelist_uid}/paired")
@@ -108,10 +107,8 @@ def test_get_paired_codelist(api_client):
     response_json = response.json()
     print(response_json)
     assert len(response_json["items"]) == 1
-    assert (
-        response_json["items"][0]["paired_names_codelist_uid"] == names_cl.codelist_uid
-    )
-    assert response_json["items"][0]["paired_codes_codelist_uid"] is None
+    assert response_json["items"][0]["paired_codelist"]["uid"] == names_cl.codelist_uid
+    assert response_json["items"][0]["paired_codelist"]["name"] is not None
 
 
 def test_post_paired_codelist(api_client):
@@ -211,3 +208,104 @@ def test_unlink_paired_codelists(api_client):
     response_json = response.json()
     assert response_json["codes"] is None
     assert response_json["names"] is None
+
+
+def test_create_paired_codelists(api_client):
+    response = api_client.post(
+        PAIRED_URL,
+        json={
+            "catalogue_names": [catalogue],
+            "name_information": {
+                "name": "paired names codelist",
+                "submission_value": "PAIRED_NAMES_SV",
+                "nci_preferred_name": "Names NCI Preferred",
+                "definition": "Names codelist definition",
+                "sponsor_preferred_name": "Names Sponsor Preferred",
+            },
+            "code_information": {
+                "name": "paired codes codelist",
+                "submission_value": "PAIRED_CODES_SV",
+                "nci_preferred_name": "Codes NCI Preferred",
+                "definition": "Codes codelist definition",
+                "sponsor_preferred_name": "Codes Sponsor Preferred",
+            },
+            "extensible": True,
+            "is_ordinal": False,
+            "template_parameter": False,
+            "library_name": "Sponsor",
+        },
+    )
+    assert_response_status_code(response, 201)
+    res = response.json()
+
+    # Response should have both names and codes codelists
+    assert res["names"] is not None
+    assert res["codes"] is not None
+
+    names_uid = res["names"]["codelist_uid"]
+    codes_uid = res["codes"]["codelist_uid"]
+    assert names_uid != codes_uid
+
+    # Verify names codelist attributes
+    names_attrs = res["names"]["attributes"]
+    assert names_attrs["name"] == "paired names codelist"
+    assert names_attrs["submission_value"] == "PAIRED_NAMES_SV"
+    assert names_attrs["nci_preferred_name"] == "Names NCI Preferred"
+    assert names_attrs["definition"] == "Names codelist definition"
+    names_name = res["names"]["name"]
+    assert names_name["name"] == "Names Sponsor Preferred"
+
+    # Verify codes codelist attributes
+    codes_attrs = res["codes"]["attributes"]
+    assert codes_attrs["name"] == "paired codes codelist"
+    assert codes_attrs["submission_value"] == "PAIRED_CODES_SV"
+    assert codes_attrs["nci_preferred_name"] == "Codes NCI Preferred"
+    assert codes_attrs["definition"] == "Codes codelist definition"
+    codes_name = res["codes"]["name"]
+    assert codes_name["name"] == "Codes Sponsor Preferred"
+
+    # Verify pairing from the names codelist side
+    response = api_client.get(f"{URL}/{names_uid}/paired")
+    assert_response_status_code(response, 200)
+    paired = response.json()
+    assert paired["codes"]["codelist_uid"] == codes_uid
+    assert paired["names"] is None
+
+    # Verify pairing from the codes codelist side
+    response = api_client.get(f"{URL}/{codes_uid}/paired")
+    assert_response_status_code(response, 200)
+    paired = response.json()
+    assert paired["names"]["codelist_uid"] == names_uid
+    assert paired["codes"] is None
+
+
+def test_create_paired_codelists_minimal(api_client):
+    """Test creating paired codelists with minimal optional fields."""
+    response = api_client.post(
+        PAIRED_URL,
+        json={
+            "catalogue_names": [catalogue],
+            "name_information": {
+                "name": "minimal names codelist",
+                "submission_value": "MIN_NAMES_SV",
+                "definition": "Minimal names definition",
+                "sponsor_preferred_name": "Min Names Sponsor",
+            },
+            "code_information": {
+                "name": "minimal codes codelist",
+                "submission_value": "MIN_CODES_SV",
+                "definition": "Minimal codes definition",
+                "sponsor_preferred_name": "Min Codes Sponsor",
+            },
+            "extensible": False,
+            "is_ordinal": False,
+            "template_parameter": False,
+            "library_name": "Sponsor",
+        },
+    )
+    assert_response_status_code(response, 201)
+    res = response.json()
+    assert res["names"] is not None
+    assert res["codes"] is not None
+    assert res["names"]["attributes"]["nci_preferred_name"] is None
+    assert res["codes"]["attributes"]["nci_preferred_name"] is None

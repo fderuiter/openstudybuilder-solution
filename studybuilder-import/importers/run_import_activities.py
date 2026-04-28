@@ -1037,6 +1037,46 @@ class Activities(BaseImporter):
         groupings_payload = {"activity_groupings": body.get("activity_groupings", [])}
         return attributes_payload, groupings_payload
 
+    async def _approve_activity_instance_part(
+        self, activity_instance_name, activity_instance_uid, part, session
+    ):
+        part_path = path_join(
+            ACTIVITY_INSTANCES_PATH, activity_instance_uid, part, "approvals"
+        )
+        status, _ = await self.api.approve_async(part_path, session=session)
+        if status >= 400:
+            self.log.error(
+                f"Failed to approve activity instance '{activity_instance_name}' ({part})"
+            )
+
+    async def _post_and_approve_activity_instance(self, data, session):
+        """Post a new activity instance and approve both attributes and groupings separately."""
+        self.log.debug(f"Post to {data['path']}")
+        status, response = await self.api.post_to_api_async(
+            url=data["path"], body=data["body"], session=session
+        )
+        if status >= 400:
+            error_message = (
+                response.get("message") or response.get("detail") or str(response)
+            )
+            name = data["body"].get("name", str(data["body"]))
+            self.log.error(
+                f"Failed to post '{name}' to '{data['path']}', error: {error_message}"
+            )
+            return
+        uid = response.get("uid")
+        if uid is None:
+            self.log.error("No uid returned, unable to approve")
+            return response
+        activity_instance_name = data["body"].get("name", uid)
+        await self._approve_activity_instance_part(
+            activity_instance_name, uid, "attributes", session
+        )
+        await self._approve_activity_instance_part(
+            activity_instance_name, uid, "groupings", session
+        )
+        return response
+
     async def _patch_activity_instance_part(
         self,
         activity_instance_name,
@@ -1374,8 +1414,8 @@ class Activities(BaseImporter):
             ):
                 self.log.info(f"Adding activity instance '{activity_instance_name}'")
                 api_tasks.append(
-                    self.api.post_then_approve(
-                        data=activity_instance_data, session=session, approve=True
+                    self._post_and_approve_activity_instance(
+                        data=activity_instance_data, session=session
                     )
                 )
             elif (

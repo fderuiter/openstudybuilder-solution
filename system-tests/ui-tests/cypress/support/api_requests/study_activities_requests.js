@@ -1,8 +1,11 @@
+import { getCurrStudyUid } from "../helper_functions"
+
 let soaGroup_uid
 const studyActivityUrl = (study_uid, study_activity_uid) => `/studies/${study_uid}/study-activities/${study_activity_uid}`
 const studyActivitiesUrl = (study_uid) => `/studies/${study_uid}/study-activities?page_number=1&page_size=0`
 const studyActivityBatchUrl = (study_uid) => `/studies/${study_uid}/study-activities/batch`
 const flowchartGroupUrl = () => '/ct/codelists/terms?page_size=100&codelist_submission_value=FLWCRTGRP'
+const activityWithActivityGroupFilterUrl = (activity_group_name) => `/concepts/activities/activities?library_name=Sponsor&activity_group_names%5B%5D=${activity_group_name}&filters=%7B%22status%22:%7B%22v%22:%5B%22Final%22%5D%7D%7D`
 
 Cypress.Commands.add('deleteActivityFromStudy', (study_uid, activity_uid) => cy.sendDeleteRequest(studyActivityUrl(study_uid, activity_uid)))
 
@@ -19,9 +22,21 @@ Cypress.Commands.add('addActivityToStudy', (study_uid, activity_uid, activityGro
 })
 
 Cypress.Commands.add('getSoaGroupUid', (soaGroup_name) => {
-    cy.sendGetRequest(flowchartGroupUrl()).then((response) => {
-      soaGroup_uid = response.body.items.find(item => item.sponsor_preferred_name == soaGroup_name).term_uid
+  cy.sendGetRequest(flowchartGroupUrl()).then((response) => {
+    soaGroup_uid = response.body.items.find(item => item.sponsor_preferred_name == soaGroup_name).term_uid
   })
+})
+
+Cypress.Commands.add('addActivityToCurrentStudyFromActivityGroup', (soa_group, group_name) => {
+  let activity_uid
+  cy.getSoaGroupUid(soa_group)
+  cy.sendGetRequest(activityWithActivityGroupFilterUrl(group_name)).then((response) => {
+    activity_uid = response.body.items[0].uid
+    let activityGroup_uid = response.body.items[0].activity_groupings[0].activity_group_uid
+    let activitySubgroup_uid = response.body.items[0].activity_groupings[0].activity_subgroup_uid
+    cy.addActivityToStudy(getCurrStudyUid(), activity_uid, activityGroup_uid, activitySubgroup_uid)
+  })
+  return activity_uid
 })
 
 const addActivityToStudyBody = (soaGroup_uid, activity_uid, activityGroup_uid, activitySubgroup_uid) => {
@@ -32,7 +47,7 @@ const addActivityToStudyBody = (soaGroup_uid, activity_uid, activityGroup_uid, a
         "soa_group_term_uid": soaGroup_uid,
         "activity_uid": activity_uid,
         "order": null,
-        "activity_group_uid":activityGroup_uid,
+        "activity_group_uid": activityGroup_uid,
         "activity_subgroup_uid": activitySubgroup_uid
       }
     }

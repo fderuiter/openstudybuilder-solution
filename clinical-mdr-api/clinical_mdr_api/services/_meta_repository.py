@@ -156,6 +156,9 @@ from clinical_mdr_api.domain_repositories.standard_data_models.dataset_repositor
 from clinical_mdr_api.domain_repositories.standard_data_models.dataset_variable_repository import (
     DatasetVariableRepository,
 )
+from clinical_mdr_api.domain_repositories.studies.study_template_repository import (
+    StudyTemplateRepository,
+)
 from clinical_mdr_api.domain_repositories.study_definitions.study_definition_repository import (
     StudyDefinitionRepository,
 )
@@ -818,6 +821,12 @@ class MetaRepository:
     @property
     def study_source_variable_repository(self) -> StudySourceVariableRepository:
         return self.get_repository_instance(StudySourceVariableRepository)
+
+    @property
+    def study_template_repository(self) -> StudyTemplateRepository:
+        return self.get_repository_instance(
+            StudyTemplateRepository, user=self._author_id
+        )
 
     @property
     def user_repository(self) -> UserRepository:

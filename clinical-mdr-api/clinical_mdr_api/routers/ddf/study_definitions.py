@@ -101,8 +101,17 @@ def get_study_m11_protocol(
         study_uid, study_value_version=None
     )
 
+    with open(
+        str(M11_TEMPLATES_DIR_PATH)
+        + "/ICH_Step4_M11_Final_TechnicalSpecification_2025_1119.json",
+        "r",
+        encoding="utf-8",
+    ) as f:
+        specification = f.read()
+
     with trace_block("context_creation", "Creating context for M11 template rendering"):
         context = {
+            "specification_20251119": specification,
             "study_id": study_uid,
             "study_indications": ddf_study.versions[0].studyDesigns[0].indications,
             "study_interventions": ddf_study.versions[0].studyInterventions[0],

@@ -8,7 +8,8 @@ Feature: Library - Concepts - Activities - Activity instances - new wizard stepp
 
     Scenario: [Feature flag] User must be able to turn on wizard stepper for activity instance creation
         When The '/administration/featureflags' page is opened
-        Then Activity instance wizard feature flag is turned on
+        And User switch to 'Library' feature flags
+        And User enables 'new_activity_instance_wizard_stepper' feature flag
 
     Scenario: [Create][Selected Activity] User must be able to see which activity has been selected in the first step
         And [API] Study Activity is created and approved

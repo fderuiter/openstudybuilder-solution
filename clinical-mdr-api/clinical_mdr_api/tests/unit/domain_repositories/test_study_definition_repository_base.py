@@ -245,7 +245,13 @@ class StudyDefinitionRepositoryFake(StudyDefinitionRepository):
         raise NotImplementedError("Study fields audit trail is not yet mocked.")
 
     def _retrieve_study_subpart_with_history(
-        self, uid: str, is_subpart: bool = False, study_value_version: str | None = None
+        self,
+        uid: str,
+        is_subpart: bool = False,
+        study_value_version: str | None = None,
+        page_number: int = 1,
+        page_size: int = 0,
+        total_count: bool = False,
     ):
         raise NotImplementedError("Study Subpart audit trail is not yet mocked.")
 

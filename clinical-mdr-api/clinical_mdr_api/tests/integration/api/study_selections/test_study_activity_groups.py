@@ -366,6 +366,7 @@ def test_modify_visibility_flag_in_protocol_flowchart(
     assert_response_status_code(response, 201)
     locked_results = res
     locked_results["study_version"] = ANY
+    locked_results["start_date"] = ANY
 
     response = api_client.patch(
         f"/studies/{study.uid}/study-activities/{study_activity_uid}",

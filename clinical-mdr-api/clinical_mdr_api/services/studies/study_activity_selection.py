@@ -268,13 +268,22 @@ class StudyActivitySelectionService(
     def _update_aggregate(
         self,
         selection_aggregate: StudySelectionActivityAR,
-        previous_selection: StudySelectionActivityVO,
         updated_selection: StudySelectionActivityVO,
-    ):
-        self._validate_no_study_wide_duplicate(
-            study_uid=selection_aggregate.study_uid,
-            updated_selection=updated_selection,
-        )
+        previous_selection: StudySelectionActivityVO | None = None,
+    ) -> StudySelectionActivityVO:
+        updated_vo: StudySelectionActivityVO | None = None
+        # Only re-validate uniqueness when fields that affect duplicate detection have actually changed
+        if (
+            previous_selection.activity_name != updated_selection.activity_name
+            or previous_selection.activity_subgroup_uid
+            != updated_selection.activity_subgroup_uid
+            or previous_selection.activity_group_uid
+            != updated_selection.activity_group_uid
+        ):
+            self._validate_no_study_wide_duplicate(
+                study_uid=selection_aggregate.study_uid,
+                updated_selection=updated_selection,
+            )
         if (
             previous_selection.study_activity_subgroup_uid
             != updated_selection.study_activity_subgroup_uid
@@ -284,14 +293,28 @@ class StudyActivitySelectionService(
             and previous_selection.study_soa_group_uid
             != updated_selection.study_soa_group_uid
         ):
-            new_selection_aggregate = self.repository.find_by_study(
-                study_uid=selection_aggregate.study_uid,
-                for_update=True,
-                study_activity_subgroup_uid=updated_selection.study_activity_subgroup_uid,
-                study_soa_group_uid=updated_selection.study_soa_group_uid,
-                find_requested_study_activities=updated_selection.activity_library_name
-                == settings.requested_library_name,
+            find_requested = (
+                updated_selection.activity_library_name
+                == settings.requested_library_name
             )
+            activity_ar_cache_key = (
+                updated_selection.study_activity_subgroup_uid,
+                updated_selection.study_soa_group_uid,
+                find_requested,
+            )
+            ar_cache_key = self._get_batch_ar_cache_key(*activity_ar_cache_key)
+            if self._batch_cache is not None and ar_cache_key in self._batch_cache:
+                new_selection_aggregate = self._batch_cache[ar_cache_key]
+            else:
+                new_selection_aggregate = self.repository.find_by_study(
+                    study_uid=selection_aggregate.study_uid,
+                    for_update=True,
+                    study_activity_subgroup_uid=updated_selection.study_activity_subgroup_uid,
+                    study_soa_group_uid=updated_selection.study_soa_group_uid,
+                    find_requested_study_activities=find_requested,
+                )
+                if self._batch_cache is not None:
+                    self._batch_cache[ar_cache_key] = new_selection_aggregate
             new_selection_aggregate.add_object_selection(
                 updated_selection,
                 object_exist_callback=self._get_selected_object_exist_check(),
@@ -302,6 +325,22 @@ class StudyActivitySelectionService(
             )
             new_selection_aggregate.validate()
             self.repository.save(new_selection_aggregate, author_id=self.author)
+            # Invalidate Activity cache only when activity_uid changed (used_by_studies affected)
+            if previous_selection.activity_uid != updated_selection.activity_uid:
+                with self._repos.activity_repository.lock_store_item_by_uid:
+                    self._repos.activity_repository.cache_store_item_by_uid.clear()
+            # Grab the VO with the correct order written back by save()
+            updated_vo = new_selection_aggregate.get_specific_object_selection(
+                updated_selection.study_selection_uid
+            )[
+                0
+            ]  # type: ignore[assignment]
+            # Keep closure current so the next batch-mode PATCH with the same destination scope
+            # sees the already-saved state and only diffs its own new selection.
+            if self._batch_cache is not None:
+                new_selection_aggregate.repository_closure_data = (
+                    new_selection_aggregate.study_objects_selection
+                )
 
             selection_aggregate.remove_object_selection(
                 updated_selection.study_selection_uid
@@ -309,39 +348,60 @@ class StudyActivitySelectionService(
             selection_aggregate.add_selection_to_closure_from_other_ar(
                 updated_selection
             )
-            # The SoAGroup of previous StudyActivity should be updated if currently there is none StudyActivities in that SoAGroup
-            study_soa_group_aggregate = (
-                self._repos.study_soa_group_repository.find_by_study(
-                    study_uid=previous_selection.study_uid,
-                    for_update=True,
+            # Evict the old-scope AR from the activity cache. The moved activity is no longer in
+            # that scope on DB, but the cached AR's repository_closure_data still contains it.
+            # A subsequent batch POST to the old scope would reuse the stale AR and the save diff
+            # would try to issue a redundant Delete audit node for the already-moved activity.
+            if self._batch_cache is not None:
+                old_find_requested = (
+                    previous_selection.activity_library_name
+                    == settings.requested_library_name
                 )
+                old_scope_key = (
+                    previous_selection.study_activity_subgroup_uid,
+                    previous_selection.study_soa_group_uid,
+                    old_find_requested,
+                )
+                old_cache_key = self._get_batch_ar_cache_key(*old_scope_key)
+                self._batch_cache.pop(old_cache_key, None)
+            # Recompact SoAGroup / ActivitySubGroup / ActivityGroup orders under the *old* parent
+            # in case this SA was the last one there and the hierarchy node becomes invisible.
+            # In batch mode, each unique old-parent scope is reordered at most once.
+            soa_reorder_key = self._get_batch_reordered_key("soa")
+            if self._batch_cache is None or soa_reorder_key not in self._batch_cache:
+                study_soa_group_aggregate = (
+                    self._repos.study_soa_group_repository.find_by_study(
+                        study_uid=previous_selection.study_uid,
+                        for_update=True,
+                    )
+                )
+                is_soa_group_update_needed = False
+                for new_order, study_soa_group_selection in enumerate(
+                    study_soa_group_aggregate.study_objects_selection, start=1
+                ):
+                    if study_soa_group_selection.order != new_order:
+                        is_soa_group_update_needed = True
+                        reordered_study_soa_group_selection = dataclasses.replace(
+                            study_soa_group_selection, order=new_order
+                        )
+                        study_soa_group_aggregate.update_selection(
+                            updated_study_object_selection=reordered_study_soa_group_selection,
+                        )
+                if is_soa_group_update_needed:
+                    study_soa_group_aggregate.validate()
+                    self._repos.study_soa_group_repository.save(
+                        study_soa_group_aggregate, self.author
+                    )
+                if self._batch_cache is not None:
+                    self._batch_cache[soa_reorder_key] = True
+
+            subgroup_reorder_key = self._get_batch_reordered_key(
+                "subgroup", previous_selection.study_activity_group_uid
             )
-
-            is_soa_group_update_needed = False
-            for new_order, study_soa_group_selection in enumerate(
-                study_soa_group_aggregate.study_objects_selection, start=1
+            if previous_selection.study_activity_subgroup_uid and (
+                self._batch_cache is None
+                or subgroup_reorder_key not in self._batch_cache
             ):
-                reordered_study_soa_group_selection = dataclasses.replace(
-                    study_soa_group_selection, order=new_order
-                )
-                if study_soa_group_selection.order != new_order:
-                    is_soa_group_update_needed = True
-                study_soa_group_aggregate.update_selection(
-                    updated_study_object_selection=reordered_study_soa_group_selection,
-                    object_exist_callback=self._repos.activity_subgroup_repository.final_concept_exists,
-                    ct_term_level_exist_callback=self._repos.ct_term_name_repository.term_specific_exists_by_uid,
-                )
-            # if some StudySoAGroup order was changed
-            if is_soa_group_update_needed:
-                study_soa_group_aggregate.validate()
-                # sync with DB and save the update
-                self._repos.study_soa_group_repository.save(
-                    study_soa_group_aggregate, self.author
-                )
-
-            # If previous StudyActivity was assigned with some StudyActivitySubGroup
-            # The past StudyActivitySubGroup orders should be updated
-            if previous_selection.study_activity_subgroup_uid:
                 study_activity_subgroup_aggregate = self._repos.study_activity_subgroup_repository.find_by_study(
                     study_uid=previous_selection.study_uid,
                     for_update=True,
@@ -351,27 +411,30 @@ class StudyActivitySelectionService(
                 for new_order, study_activity_subgroup_selection in enumerate(
                     study_activity_subgroup_aggregate.study_objects_selection, start=1
                 ):
-                    reordered_study_activity_subgroup_selection = dataclasses.replace(
-                        study_activity_subgroup_selection, order=new_order
-                    )
-                    study_activity_subgroup_aggregate.update_selection(
-                        updated_study_object_selection=reordered_study_activity_subgroup_selection,
-                        object_exist_callback=self._repos.activity_subgroup_repository.final_concept_exists,
-                        ct_term_level_exist_callback=self._repos.ct_term_name_repository.term_specific_exists_by_uid,
-                    )
                     if study_activity_subgroup_selection.order != new_order:
                         is_study_activity_subgroup_update_needed = True
-                # if some StudyActivitySubGroup order was changed
+                        reordered_study_activity_subgroup_selection = (
+                            dataclasses.replace(
+                                study_activity_subgroup_selection, order=new_order
+                            )
+                        )
+                        study_activity_subgroup_aggregate.update_selection(
+                            updated_study_object_selection=reordered_study_activity_subgroup_selection,
+                        )
                 if is_study_activity_subgroup_update_needed:
                     study_activity_subgroup_aggregate.validate()
-                    # sync with DB and save the update
                     self._repos.study_activity_subgroup_repository.save(
                         study_activity_subgroup_aggregate, self.author
                     )
+                if self._batch_cache is not None:
+                    self._batch_cache[subgroup_reorder_key] = True
 
-            # If previous StudyActivitySelection was assigned with some StudyActivityGroup
-            # The past StudyActivityGroup orders should be updated
-            if previous_selection.study_activity_group_uid:
+            group_reorder_key = self._get_batch_reordered_key(
+                "group", previous_selection.study_soa_group_uid
+            )
+            if previous_selection.study_activity_group_uid and (
+                self._batch_cache is None or group_reorder_key not in self._batch_cache
+            ):
                 study_activity_group_aggregate = (
                     self._repos.study_activity_group_repository.find_by_study(
                         study_uid=previous_selection.study_uid,
@@ -383,23 +446,21 @@ class StudyActivitySelectionService(
                 for new_order, study_activity_group_selection in enumerate(
                     study_activity_group_aggregate.study_objects_selection, start=1
                 ):
-                    reordered_study_activity_group_selection = dataclasses.replace(
-                        study_activity_group_selection, order=new_order
-                    )
-                    study_activity_group_aggregate.update_selection(
-                        updated_study_object_selection=reordered_study_activity_group_selection,
-                        object_exist_callback=self._repos.activity_group_repository.final_concept_exists,
-                        ct_term_level_exist_callback=self._repos.ct_term_name_repository.term_specific_exists_by_uid,
-                    )
                     if study_activity_group_selection.order != new_order:
                         is_study_activity_group_update_needed = True
-                # if some StudyActivityGroup order was changed
+                        reordered_study_activity_group_selection = dataclasses.replace(
+                            study_activity_group_selection, order=new_order
+                        )
+                        study_activity_group_aggregate.update_selection(
+                            updated_study_object_selection=reordered_study_activity_group_selection,
+                        )
                 if is_study_activity_group_update_needed:
                     study_activity_group_aggregate.validate()
-                    # sync with DB and save the update
                     self._repos.study_activity_group_repository.save(
                         study_activity_group_aggregate, self.author
                     )
+                if self._batch_cache is not None:
+                    self._batch_cache[group_reorder_key] = True
         else:
             # let the aggregate update the value object
             selection_aggregate.update_selection(
@@ -409,6 +470,22 @@ class StudyActivitySelectionService(
             )
         selection_aggregate.validate()
         self.repository.save(selection_aggregate, self.author)
+        # Invalidate Activity cache only when activity_uid changed (used_by_studies affected).
+        if (
+            previous_selection is not None
+            and previous_selection.activity_uid != updated_selection.activity_uid
+        ):
+            with self._repos.activity_repository.lock_store_item_by_uid:
+                self._repos.activity_repository.cache_store_item_by_uid.clear()
+        # In the no-parent-change case the activity stayed in selection_aggregate;
+        # grab the VO with the correct order written back by save().
+        if updated_vo is None:
+            updated_vo = selection_aggregate.get_specific_object_selection(
+                updated_selection.study_selection_uid
+            )[
+                0
+            ]  # type: ignore[assignment]
+        return updated_vo
 
     def update_dependent_objects(
         self,
@@ -472,8 +549,7 @@ class StudyActivitySelectionService(
         - First item in the list replaces the original StudyActivity
         - Remaining items create new StudyActivities
         - Schedules are preserved for the replaced StudyActivity and replicated to all new ones
-        - StudyActivityInstances are recreated for the replaced StudyActivity only (existing behavior)
-        - StudyActivityInstances are NOT created for newly created StudyActivities
+        - StudyActivityInstances are recreated for the replaced StudyActivity and newly created StudyActivities
         """
         if not replacements:
             raise ValidationException(
@@ -523,8 +599,8 @@ class StudyActivitySelectionService(
         # Process remaining items: Create new StudyActivities
         for replacement in replacements[1:]:
             # Validate activity groupings using the same validation as patch_selection
-            activity_ar = self._repos.activity_repository.find_by_uid_2(
-                replacement.activity_uid, for_update=True
+            activity_ar = self._repos.activity_repository.find_by_uid(
+                replacement.activity_uid
             )
             NotFoundException.raise_if_not(
                 activity_ar, "Activity", replacement.activity_uid
@@ -566,29 +642,6 @@ class StudyActivitySelectionService(
                 study_uid=study_uid, selection_create_input=create_input
             )
 
-            # Remove StudyActivityInstances that were automatically created by make_selection
-            # We don't want instances for newly created StudyActivities, only for the replaced one
-            study_activity_instances = self._repos.study_activity_instance_repository.get_all_study_activity_instances_for_study_activity(
-                study_uid=study_uid,
-                study_activity_uid=new_study_activity.study_activity_uid,
-            )
-            for study_activity_instance in study_activity_instances:
-                (
-                    study_activity_instance_ar,
-                    _,
-                    _,
-                ) = self._get_specific_activity_instance_selection_by_uids(
-                    study_uid=study_uid,
-                    study_selection_uid=study_activity_instance.uid,
-                    for_update=True,
-                )
-                study_activity_instance_ar.remove_object_selection(
-                    study_activity_instance.uid
-                )
-                self._repos.study_activity_instance_repository.save(
-                    study_activity_instance_ar, self.author
-                )
-
             # Replicate schedules to the new StudyActivity
             # Use the schedules we fetched before replacement (they're still valid)
             assert (
@@ -605,8 +658,8 @@ class StudyActivitySelectionService(
         return results
 
     def _validate_activity(self, activity_uid: str) -> ActivityAR:
-        activity_ar: ActivityAR = self._repos.activity_repository.find_by_uid_2(
-            activity_uid, for_update=True
+        activity_ar: ActivityAR | None = self._repos.activity_repository.find_by_uid(
+            activity_uid
         )
 
         NotFoundException.raise_if_not(activity_ar, "Activity", activity_uid)
@@ -630,11 +683,25 @@ class StudyActivitySelectionService(
     ):
         # activity_ar: ActivityAR = kwargs.get("activity_ar")
         study_soa_group_selection_uid = kwargs["study_soa_group_selection_uid"]
+        study_soa_group_order = kwargs.get("study_soa_group_order")
         study_activity_subgroup_selection_uid = kwargs.get(
             "study_activity_subgroup_selection_uid"
         )
+        study_activity_subgroup_order = kwargs.get("study_activity_subgroup_order")
         study_activity_group_selection_uid = kwargs.get(
             "study_activity_group_selection_uid"
+        )
+        study_activity_group_order = kwargs.get("study_activity_group_order")
+        activity_group_name = kwargs.get("activity_group_name")
+        activity_subgroup_name = kwargs.get("activity_subgroup_name")
+        show_soa_group_in_protocol_flowchart = kwargs.get(
+            "show_soa_group_in_protocol_flowchart", False
+        )
+        show_activity_group_in_protocol_flowchart = kwargs.get(
+            "show_activity_group_in_protocol_flowchart", True
+        )
+        show_activity_subgroup_in_protocol_flowchart = kwargs.get(
+            "show_activity_subgroup_in_protocol_flowchart", True
         )
 
         BusinessLogicException.raise_if(
@@ -673,8 +740,16 @@ class StudyActivitySelectionService(
             activity_library_name=activity_ar.library.name,
             soa_group_term_uid=selection_create_input.soa_group_term_uid,
             study_soa_group_uid=study_soa_group_selection_uid,
+            study_soa_group_order=study_soa_group_order,
             study_activity_subgroup_uid=study_activity_subgroup_selection_uid,
+            study_activity_subgroup_order=study_activity_subgroup_order,
             study_activity_group_uid=study_activity_group_selection_uid,
+            study_activity_group_order=study_activity_group_order,
+            activity_group_name=activity_group_name,
+            activity_subgroup_name=activity_subgroup_name,
+            show_soa_group_in_protocol_flowchart=show_soa_group_in_protocol_flowchart,
+            show_activity_group_in_protocol_flowchart=show_activity_group_in_protocol_flowchart,
+            show_activity_subgroup_in_protocol_flowchart=show_activity_subgroup_in_protocol_flowchart,
             order=None,
             generate_uid_callback=self.repository.generate_uid,
             activity_subgroup_uid=selection_create_input.activity_subgroup_uid,
@@ -829,12 +904,12 @@ class StudyActivitySelectionService(
     @classmethod
     def _validate_activity_subgroup(
         cls,
-        activity_subgroup_uid: str | None,
+        activity_subgroup_uid: str,
         perform_subgroup_validation: bool = True,
         activity_subgroup_version: str | None = None,
     ) -> ActivitySubGroupAR:
         activity_subgroup_service = ActivitySubGroupService()
-        activity_subgroup_ar = activity_subgroup_service.repository.find_by_uid_2(
+        activity_subgroup_ar = activity_subgroup_service.repository.find_by_uid(
             activity_subgroup_uid, version=activity_subgroup_version
         )
         NotFoundException.raise_if_not(
@@ -857,12 +932,12 @@ class StudyActivitySelectionService(
     @classmethod
     def _validate_activity_group(
         cls,
-        activity_group_uid: str | None,
+        activity_group_uid: str,
         perform_group_validation: bool = True,
         activity_group_version: str | None = None,
     ) -> ActivityGroupAR:
         activity_group_service = ActivityGroupService()
-        activity_group_ar = activity_group_service.repository.find_by_uid_2(
+        activity_group_ar = activity_group_service.repository.find_by_uid(
             activity_group_uid, version=activity_group_version
         )
 
@@ -1015,36 +1090,35 @@ class StudyActivitySelectionService(
         is_soa_group_changed: bool,
     ):
         soa_group_term_uid = str(selection_create_input.soa_group_term_uid)
-        selection_aggregate = self._repos.study_soa_group_repository.find_by_study(
-            study_uid=study_uid
+        if not is_soa_group_changed:
+            # SoA group unchanged — build a lightweight VO from known values; avoids find_by_study round-trip
+            return StudySoAGroupVO.from_input_values(
+                study_uid=study_uid,
+                author_id=self.author,
+                soa_group_term_uid=current_study_activity.soa_group_term_uid,
+                study_selection_uid=current_study_activity.study_soa_group_uid,
+                order=current_study_activity.study_soa_group_order,
+                show_soa_group_in_protocol_flowchart=current_study_activity.show_soa_group_in_protocol_flowchart,
+            )
+
+        ct_term_ar = self._repos.ct_term_name_repository.find_by_uid(soa_group_term_uid)
+
+        NotFoundException.raise_if_not(
+            ct_term_ar, "SoA Group CT Term", soa_group_term_uid
         )
-        assert selection_aggregate is not None
-        new_selection, _ = selection_aggregate.get_specific_object_selection(
-            study_selection_uid=current_study_activity.study_soa_group_uid
+
+        NotFoundException.raise_if(
+            ct_term_ar.item_metadata.status
+            in [
+                LibraryItemStatus.DRAFT,
+                LibraryItemStatus.RETIRED,
+            ],
+            msg=f"There is no approved SoAGroup CTTerm with UID '{soa_group_term_uid}'.",
         )
-        if is_soa_group_changed:
-            ct_term_ar = self._repos.ct_term_name_repository.find_by_uid(
-                soa_group_term_uid
-            )
-
-            NotFoundException.raise_if_not(
-                ct_term_ar, "SoA Group CT Term", soa_group_term_uid
-            )
-
-            NotFoundException.raise_if(
-                ct_term_ar.item_metadata.status
-                in [
-                    LibraryItemStatus.DRAFT,
-                    LibraryItemStatus.RETIRED,
-                ],
-                msg=f"There is no approved SoAGroup CTTerm with UID '{soa_group_term_uid}'.",
-            )
-            # get VO if possible or create it
-            new_selection = self._get_or_create_study_soa_group(
-                study_uid=study_uid, soa_group_term_uid=soa_group_term_uid
-            )
-
-        return new_selection
+        # get VO if possible or create it
+        return self._get_or_create_study_soa_group(
+            study_uid=study_uid, soa_group_term_uid=soa_group_term_uid
+        )
 
     def _create_soa_group_selection_value_object(
         self, study_uid: str, soa_group_term_uid: str
@@ -1076,6 +1150,10 @@ class StudyActivitySelectionService(
     def _get_or_create_study_soa_group(
         self, study_uid: str, soa_group_term_uid: str
     ) -> StudySoAGroupVO:
+        cache_key = self._get_batch_vo_cache_key("soa", study_uid, soa_group_term_uid)
+        if self._batch_cache is not None and cache_key in self._batch_cache:
+            return self._batch_cache[cache_key]
+
         study_soa_group_node = (
             self._repos.study_soa_group_repository.find_study_soa_group_in_a_study(
                 study_uid=study_uid,
@@ -1083,12 +1161,15 @@ class StudyActivitySelectionService(
             )
         )
         if study_soa_group_node:
-            (
-                _,
-                study_soa_group_selection,
-                _,
-            ) = self._get_specific_soa_group_selection_by_uids(
-                study_uid=study_uid, study_selection_uid=study_soa_group_node.uid
+            # Node already found — construct a lightweight VO directly; avoids a second find_by_study.
+            # Pass the node's order and show_* flag so the VO carries them without a reload.
+            study_soa_group_selection = StudySoAGroupVO.from_input_values(
+                study_uid=study_uid,
+                author_id=self.author,
+                soa_group_term_uid=soa_group_term_uid,
+                study_selection_uid=study_soa_group_node.uid,
+                order=study_soa_group_node.order,
+                show_soa_group_in_protocol_flowchart=study_soa_group_node.show_soa_group_in_protocol_flowchart,
             )
         else:
             study_soa_group_selection = self._create_soa_group_selection_value_object(
@@ -1109,6 +1190,14 @@ class StudyActivitySelectionService(
             self._repos.study_soa_group_repository.save(
                 study_soa_group_aggregate, self.author
             )
+            # save() writes the DB-assigned order back into the aggregate; read the updated VO.
+            study_soa_group_selection, _ = (
+                study_soa_group_aggregate.get_specific_object_selection(
+                    study_soa_group_selection.study_selection_uid
+                )
+            )
+        if self._batch_cache is not None:
+            self._batch_cache[cache_key] = study_soa_group_selection
         return study_soa_group_selection
 
     def _get_or_create_study_activity_subgroup(
@@ -1128,23 +1217,25 @@ class StudyActivitySelectionService(
         )
 
         if activity_subgroup_uid and activity_group_uid and soa_group_term_uid:
-            study_activity_subgroup_node = self._repos.study_activity_subgroup_repository.find_study_activity_subgroup_with_same_groupings(
+            cache_key = self._get_batch_vo_cache_key(
+                "subgroup",
+                study_uid,
+                activity_subgroup_uid,
+                activity_group_uid,
+                soa_group_term_uid,
+                sync_latest_version,
+            )
+            if self._batch_cache is not None and cache_key in self._batch_cache:
+                return self._batch_cache[cache_key]
+
+            study_activity_subgroup_selection = self._repos.study_activity_subgroup_repository.find_study_activity_subgroup_vo_with_same_groupings(
                 study_uid=study_uid,
                 activity_subgroup_uid=activity_subgroup_uid,
                 activity_group_uid=activity_group_uid,
                 soa_group_term_uid=soa_group_term_uid,
                 sync_latest_version=sync_latest_version,
             )
-            if study_activity_subgroup_node:
-                (
-                    _,
-                    study_activity_subgroup_selection,
-                    _,
-                ) = self._get_specific_activity_subgroup_selection_by_uids(
-                    study_uid=study_uid,
-                    study_selection_uid=study_activity_subgroup_node.uid,
-                )
-            else:
+            if study_activity_subgroup_selection is None:
                 # create new VO to add
                 study_activity_subgroup_selection = (
                     self._create_activity_subgroup_selection_value_object(
@@ -1172,6 +1263,14 @@ class StudyActivitySelectionService(
                 self._repos.study_activity_subgroup_repository.save(
                     study_activity_subgroup_aggregate, self.author
                 )
+                # save() writes the DB-assigned order back into the aggregate; read the updated VO.
+                study_activity_subgroup_selection, _ = (
+                    study_activity_subgroup_aggregate.get_specific_object_selection(
+                        study_activity_subgroup_selection.study_selection_uid
+                    )
+                )
+            if self._batch_cache is not None:
+                self._batch_cache[cache_key] = study_activity_subgroup_selection
         return study_activity_subgroup_selection
 
     def _get_or_create_study_activity_group(
@@ -1193,22 +1292,23 @@ class StudyActivitySelectionService(
             and soa_group_term_uid
             and study_soa_group_uid
         ):
-            study_activity_group_node = self._repos.study_activity_group_repository.find_study_activity_group_with_same_groupings(
+            cache_key = self._get_batch_vo_cache_key(
+                "group",
+                study_uid,
+                activity_group_uid,
+                soa_group_term_uid,
+                sync_latest_version,
+            )
+            if self._batch_cache is not None and cache_key in self._batch_cache:
+                return self._batch_cache[cache_key]
+
+            study_activity_group_selection = self._repos.study_activity_group_repository.find_study_activity_group_vo_with_same_groupings(
                 study_uid=study_uid,
                 activity_group_uid=activity_group_uid,
                 soa_group_term_uid=soa_group_term_uid,
                 sync_latest_version=sync_latest_version,
             )
-            if study_activity_group_node:
-                (
-                    _,
-                    study_activity_group_selection,
-                    _,
-                ) = self._get_specific_activity_group_selection_by_uids(
-                    study_uid=study_uid,
-                    study_selection_uid=study_activity_group_node.uid,
-                )
-            else:
+            if study_activity_group_selection is None:
                 # create new VO to add
                 study_activity_group_selection = (
                     self._create_activity_group_selection_value_object(
@@ -1236,6 +1336,14 @@ class StudyActivitySelectionService(
                 self._repos.study_activity_group_repository.save(
                     study_activity_group_aggregate, self.author
                 )
+                # save() writes the DB-assigned order back into the aggregate; read the updated VO.
+                study_activity_group_selection, _ = (
+                    study_activity_group_aggregate.get_specific_object_selection(
+                        study_activity_group_selection.study_selection_uid
+                    )
+                )
+            if self._batch_cache is not None:
+                self._batch_cache[cache_key] = study_activity_group_selection
         return study_activity_group_selection
 
     def _create_study_activity_instances(
@@ -1266,6 +1374,20 @@ class StudyActivitySelectionService(
         if len(linked_activity_instances) == 0:
             linked_activity_instances[None] = False
 
+        # In batch mode reuse the cached AR so all POSTs share one find_by_study + one save;
+        # in non-batch mode load fresh and save immediately as before.
+        if self._batch_instance_ar is not None:
+            study_activity_instance_aggregate = self._batch_instance_ar
+        else:
+            study_activity_instance_aggregate = (
+                self._repos.study_activity_instance_repository.find_by_study(
+                    study_uid=study_uid, for_update=True
+                )
+            )
+            assert study_activity_instance_aggregate is not None
+            if self._batch_cache is not None:
+                # Batch mode — cache for reuse by subsequent POST operations
+                self._batch_instance_ar = study_activity_instance_aggregate
         for (
             activity_instance_uid,
             is_required_for_activity,
@@ -1281,45 +1403,43 @@ class StudyActivitySelectionService(
                 generate_uid_callback=self._repos.study_activity_instance_repository.generate_uid,
                 is_reviewed=is_required_for_activity,
             )  # add VO to aggregate
-
-            study_activity_instance_aggregate = (
-                self._repos.study_activity_instance_repository.find_by_study(
-                    study_uid=study_uid, for_update=True
-                )
-            )
-            assert study_activity_instance_aggregate is not None
             study_activity_instance_aggregate.add_object_selection(
                 activity_instance_selection,
                 self._repos.activity_instance_repository.check_exists_final_version,
             )
-            study_activity_instance_aggregate.validate()
-            # sync with DB and save the update
+        study_activity_instance_aggregate.validate()
+        if self._batch_instance_ar is None:
+            # Non-batch mode — save immediately
             self._repos.study_activity_instance_repository.save(
                 study_activity_instance_aggregate, self.author
             )
+        # Batch mode: AR is already cached; the batch finally block flushes once at the end
 
     def _recreate_study_activity_instances_after_activity_replacement(
         self, study_uid: str, study_activity_selection: StudySelectionActivityVO
     ):
-        # Remove related Study activity instances
+        # Flush any deferred batch-mode instance saves so the DB query below sees current state
+        if self._batch_instance_ar is not None:
+            self._repos.study_activity_instance_repository.save(
+                self._batch_instance_ar, self.author
+            )
+            self._batch_instance_ar = None
+        # Remove related Study activity instances — load aggregate once, remove all, save once
         study_activity_instances = self._repos.study_activity_instance_repository.get_all_study_activity_instances_for_study_activity(
             study_uid=study_uid,
             study_activity_uid=study_activity_selection.study_selection_uid,
         )
-        for study_activity_instance in study_activity_instances:
-            # delete study activity instance
-            (
-                study_activity_instance_ar,
-                _,
-                _,
-            ) = self._get_specific_activity_instance_selection_by_uids(
-                study_uid=study_uid,
-                study_selection_uid=study_activity_instance.uid,
-                for_update=True,
+        if study_activity_instances:
+            study_activity_instance_ar = (
+                self._repos.study_activity_instance_repository.find_by_study(
+                    study_uid, for_update=True
+                )
             )
-            study_activity_instance_ar.remove_object_selection(
-                study_activity_instance.uid
-            )
+            assert study_activity_instance_ar is not None
+            for study_activity_instance in study_activity_instances:
+                study_activity_instance_ar.remove_object_selection(
+                    study_activity_instance.uid
+                )
             self._repos.study_activity_instance_repository.save(
                 study_activity_instance_ar, self.author
             )
@@ -1350,10 +1470,13 @@ class StudyActivitySelectionService(
     ) -> StudySelectionActivity:
         repos = self._repos
         try:
-            study_soa_group_selection_uid = self._get_or_create_study_soa_group(
+            study_soa_group_selection = self._get_or_create_study_soa_group(
                 study_uid=study_uid,
                 soa_group_term_uid=selection_create_input.soa_group_term_uid,
-            ).study_selection_uid
+            )
+            study_soa_group_selection_uid = (
+                study_soa_group_selection.study_selection_uid
+            )
 
             activity_ar = self._validate_activity(selection_create_input.activity_uid)
 
@@ -1402,18 +1525,67 @@ class StudyActivitySelectionService(
                 selection_create_input=selection_create_input,
                 activity_ar=activity_ar,
                 study_soa_group_selection_uid=study_soa_group_selection_uid,
+                study_soa_group_order=study_soa_group_selection.order,
                 study_activity_subgroup_selection_uid=study_activity_subgroup_selection_uid,
+                study_activity_subgroup_order=(
+                    study_activity_subgroup_selection.order
+                    if study_activity_subgroup_selection
+                    else None
+                ),
                 study_activity_group_selection_uid=study_activity_group_selection_uid,
+                study_activity_group_order=(
+                    study_activity_group_selection.order
+                    if study_activity_group_selection
+                    else None
+                ),
+                activity_group_name=(
+                    study_activity_group_selection.activity_group_name
+                    if study_activity_group_selection
+                    else None
+                ),
+                activity_subgroup_name=(
+                    study_activity_subgroup_selection.activity_subgroup_name
+                    if study_activity_subgroup_selection
+                    else None
+                ),
+                show_soa_group_in_protocol_flowchart=study_soa_group_selection.show_soa_group_in_protocol_flowchart,
+                show_activity_group_in_protocol_flowchart=(
+                    study_activity_group_selection.show_activity_group_in_protocol_flowchart
+                    if study_activity_group_selection
+                    else True
+                ),
+                show_activity_subgroup_in_protocol_flowchart=(
+                    study_activity_subgroup_selection.show_activity_subgroup_in_protocol_flowchart
+                    if study_activity_subgroup_selection
+                    else True
+                ),
             )
             # add VO to aggregate
-            study_activity_aggregate = self.repository.find_by_study(
-                study_uid=study_uid,
-                for_update=True,
-                study_activity_subgroup_uid=study_activity_subgroup_selection_uid,
-                study_soa_group_uid=study_soa_group_selection_uid,
-                find_requested_study_activities=study_activity_selection.activity_library_name
-                == settings.requested_library_name,
+            # In batch mode reuse the cached AR so all POSTs with the same (subgroup, soa) grouping
+            # share one find_by_study(for_update) + acquire._write_lock; the AR is saved per-POST
+            # but closure_data is updated after each save so the diff stays correct.
+            find_requested = (
+                study_activity_selection.activity_library_name
+                == settings.requested_library_name
             )
+            activity_ar_cache_key = (
+                study_activity_subgroup_selection_uid,
+                study_soa_group_selection_uid,
+                find_requested,
+            )
+            ar_cache_key = self._get_batch_ar_cache_key(*activity_ar_cache_key)
+            if self._batch_cache is not None and ar_cache_key in self._batch_cache:
+                study_activity_aggregate = self._batch_cache[ar_cache_key]
+            else:
+                study_activity_aggregate = self.repository.find_by_study(
+                    study_uid=study_uid,
+                    for_update=True,
+                    study_activity_subgroup_uid=study_activity_subgroup_selection_uid,
+                    study_soa_group_uid=study_soa_group_selection_uid,
+                    find_requested_study_activities=find_requested,
+                )
+                if self._batch_cache is not None:
+                    self._batch_cache[ar_cache_key] = study_activity_aggregate
             assert study_activity_aggregate is not None
             study_activity_aggregate.add_object_selection(
                 study_activity_selection,
@@ -1425,8 +1597,16 @@ class StudyActivitySelectionService(
                 updated_selection=study_activity_selection,
             )
             study_activity_aggregate.validate()
-            # sync with DB and save the update
             self.repository.save(study_activity_aggregate, self.author)
+            # Invalidate Activity cache so GET /concepts/activities/... will recalculate used_by_studies
+            with repos.activity_repository.lock_store_item_by_uid:
+                repos.activity_repository.cache_store_item_by_uid.clear()
+            # Update closure so the cached AR reflects the just-saved state; the next POST
+            # in the same batch will then only diff its own new selection.
+            if self._batch_cache is not None:
+                study_activity_aggregate.repository_closure_data = (
+                    study_activity_aggregate.study_objects_selection
+                )
 
             # create StudyActivityInstance selection
             if (
@@ -1439,23 +1619,24 @@ class StudyActivitySelectionService(
                     study_activity_selection=study_activity_selection,
                 )
 
-            study_activity_aggregate = self.repository.find_by_study(
-                study_uid=study_uid,
-            )
-            # Fetch the new selection which was just added
-            (
-                new_selection,
-                _,
-            ) = study_activity_aggregate.get_specific_object_selection(
+            # save() writes the computed order back into the in-memory aggregate,
+            # so we can read the fully-populated VO directly without a DB round-trip.
+            new_selection, _ = study_activity_aggregate.get_specific_object_selection(
                 study_activity_selection.study_selection_uid
             )
+
+            # In batch mode, update the patch AR selections cache with the new VO
+            # so subsequent PATCHes see the newly created entity without a DB reload.
+            if self._batch_cache is not None:
+                self._append_to_patch_ar_selections_cache(new_selection)
+
             terms_at_specific_datetime = self._extract_study_standards_effective_date(
                 study_uid=study_uid
             )
             # add the activity and return
             return self._transform_from_vo_to_response_model(
                 study_uid=study_activity_aggregate.study_uid,
-                specific_selection=new_selection,
+                specific_selection=new_selection,  # type: ignore[arg-type]
                 terms_at_specific_datetime=terms_at_specific_datetime,
             )
         finally:
@@ -1472,8 +1653,8 @@ class StudyActivitySelectionService(
 
         repos = self._repos
         try:
-            # Load aggregate
-            selection_aggregate, _ = self._find_ar_to_patch(
+            # Load aggregate and capture the VO being deleted (needed for cache updates)
+            selection_aggregate, deleted_vo = self._find_ar_to_patch(
                 study_uid=study_uid, study_selection_uid=study_selection_uid
             )
 
@@ -1562,26 +1743,29 @@ class StudyActivitySelectionService(
 
             # Remove related Study activity instances
             with trace_block("Removing related study activity instances"):
+                # Flush any deferred batch-mode instance saves so the DB query below sees current state
+                if self._batch_instance_ar is not None:
+                    repos.study_activity_instance_repository.save(
+                        self._batch_instance_ar, self.author
+                    )
+                    self._batch_instance_ar = None
                 study_activity_instances = repos.study_activity_instance_repository.get_all_study_activity_instances_for_study_activity(
                     study_uid=study_uid, study_activity_uid=study_selection_uid
                 )
-                for study_activity_instance in study_activity_instances:
-                    # Skip placeholders (they don't have a database node to delete)
-                    if study_activity_instance.uid is None:
-                        continue
-                    # delete study activity instance
-                    (
-                        study_activity_instance_ar,
-                        _,
-                        _,
-                    ) = self._get_specific_activity_instance_selection_by_uids(
-                        study_uid=study_uid,
-                        study_selection_uid=study_activity_instance.uid,
-                        for_update=True,
+                non_placeholder_instances = [
+                    inst for inst in study_activity_instances if inst.uid is not None
+                ]
+                if non_placeholder_instances:
+                    study_activity_instance_ar = (
+                        repos.study_activity_instance_repository.find_by_study(
+                            study_uid, for_update=True
+                        )
                     )
-                    study_activity_instance_ar.remove_object_selection(
-                        study_activity_instance.uid
-                    )
+                    assert study_activity_instance_ar is not None
+                    for study_activity_instance in non_placeholder_instances:
+                        study_activity_instance_ar.remove_object_selection(
+                            study_activity_instance.uid
+                        )
                     repos.study_activity_instance_repository.save(
                         study_activity_instance_ar, self.author
                     )
@@ -1593,7 +1777,17 @@ class StudyActivitySelectionService(
             # sync with DB and save the update
             repos.study_activity_repository.save(selection_aggregate, self.author)
             # Invalidate Activity cache so GET /concepts/activities/... will recalculate used_by_studies
-            repos.activity_repository.cache_store_item_by_uid.clear()
+            with repos.activity_repository.lock_store_item_by_uid:
+                repos.activity_repository.cache_store_item_by_uid.clear()
+
+            # In batch mode, update caches with targeted eviction instead of blanket invalidation.
+            if self._batch_cache is not None:
+                self._remove_from_patch_ar_selections_cache(study_selection_uid)
+                self._evict_ar_cache_for_scope(
+                    study_activity_subgroup_uid=deleted_vo.study_activity_subgroup_uid,
+                    study_soa_group_uid=deleted_vo.study_soa_group_uid,
+                    activity_library_name=deleted_vo.activity_library_name,
+                )
         finally:
             repos.close()
 
@@ -1607,6 +1801,7 @@ class StudyActivitySelectionService(
             | UpdateActivityPlaceholderToSponsorActivity
         ),
     ):
+        activity_ar: ActivityAR | None
         # update underlying Activity
         if isinstance(request_object, StudySelectionActivityRequestEditInput):
             activity_ar = self._patch_selected_activity(
@@ -1623,7 +1818,7 @@ class StudyActivitySelectionService(
             )
             and request_object.activity_uid
         ):
-            activity_ar = self._repos.activity_repository.find_by_uid_2(
+            activity_ar = self._repos.activity_repository.find_by_uid(
                 request_object.activity_uid
             )
             ValidationException.raise_if_not(
@@ -1631,7 +1826,14 @@ class StudyActivitySelectionService(
                 msg=f"The Activity with UID '{current_object.activity_uid}' doesn't exist.",
             )
         else:
-            activity_ar = self._repos.activity_repository.find_by_uid_2(
+            # Skip fetching activity AR when no grouping-related fields are changing;
+            # _patch_prepare_new_value_object falls back to current_object values in that case
+            if (
+                request_object.activity_group_uid is None
+                and request_object.activity_subgroup_uid is None
+            ):
+                return None
+            activity_ar = self._repos.activity_repository.find_by_uid(
                 current_object.activity_uid,
                 version=current_object.activity_version,
             )
@@ -1645,9 +1847,11 @@ class StudyActivitySelectionService(
             | StudySelectionActivityRequestEditInput
             | UpdateActivityPlaceholderToSponsorActivity
         ),
-        activity_ar: ActivityAR,
+        activity_ar: ActivityAR | None,
         current_object: StudySelectionActivityVO,
     ):
+        if activity_ar is None:
+            return
         ValidationException.raise_if(
             request_object.activity_group_uid is None
             and request_object.activity_subgroup_uid is not None
@@ -1706,10 +1910,7 @@ class StudyActivitySelectionService(
         is_soa_group_changed: bool,
         study_soa_group_uid: str,
         sync_latest_version: bool = False,
-    ):
-        activity_group_uid = current_object.activity_group_uid
-        activity_group_name = current_object.activity_group_name
-        study_activity_group_uid = current_object.study_activity_group_uid
+    ) -> StudySelectionActivityGroupVO:
         soa_group_term_uid = (
             request_object.soa_group_term_uid
             if not isinstance(request_object, StudyActivitySyncLatestVersionInput)
@@ -1719,8 +1920,7 @@ class StudyActivitySelectionService(
             request_object.activity_group_uid
             and current_object.activity_group_uid != request_object.activity_group_uid
         ) or sync_latest_version:
-            activity_group_uid = request_object.activity_group_uid
-            study_activity_group = self._get_or_create_study_activity_group(
+            return self._get_or_create_study_activity_group(
                 study_uid=current_object.study_uid,
                 activity_subgroup_uid=request_object.activity_subgroup_uid,
                 activity_group_uid=request_object.activity_group_uid,
@@ -1729,30 +1929,29 @@ class StudyActivitySelectionService(
                 sync_latest_version=sync_latest_version,
                 current_object=current_object,
             )
-            study_activity_group_uid = study_activity_group.study_selection_uid
-            activity_group_name = study_activity_group.activity_group_name
         # When SoAGroup is changed we need to update StudyActivityGroup for other shared nodes if given StudyActivity contains StudyActivityGroup
-        elif is_soa_group_changed and activity_group_uid:
-            activity_group_selection = self._get_or_create_study_activity_group(
+        if is_soa_group_changed and current_object.activity_group_uid:
+            return self._get_or_create_study_activity_group(
                 study_uid=current_object.study_uid,
                 activity_subgroup_uid=current_object.activity_subgroup_uid,
-                activity_group_uid=activity_group_uid,
+                activity_group_uid=current_object.activity_group_uid,
                 soa_group_term_uid=soa_group_term_uid,
                 study_soa_group_uid=study_soa_group_uid,
                 perform_group_validation=False,
                 sync_latest_version=sync_latest_version,
                 current_object=current_object,
             )
-            (
-                activity_group_uid,
-                activity_group_name,
-                study_activity_group_uid,
-            ) = (
-                activity_group_selection.activity_group_uid,
-                None,
-                activity_group_selection.study_selection_uid,
-            )
-        return activity_group_uid, activity_group_name, study_activity_group_uid
+        # Unchanged — build lightweight VO from current_object
+        return StudySelectionActivityGroupVO.from_input_values(
+            study_uid=current_object.study_uid,
+            author_id=self.author,
+            activity_group_uid=current_object.activity_group_uid,  # type: ignore[arg-type]
+            activity_group_name=current_object.activity_group_name,
+            activity_group_version=None,
+            study_selection_uid=current_object.study_activity_group_uid,
+            order=current_object.study_activity_group_order,
+            show_activity_group_in_protocol_flowchart=current_object.show_activity_group_in_protocol_flowchart,
+        )
 
     def _patch_or_get_study_activity_subgroup(
         self,
@@ -1768,10 +1967,7 @@ class StudyActivitySelectionService(
         is_study_activity_group_changed: bool,
         study_activity_group_uid: str | None,
         sync_latest_version: bool = False,
-    ):
-        activity_subgroup_uid = current_object.activity_subgroup_uid
-        activity_subgroup_name = current_object.activity_subgroup_name
-        study_activity_subgroup_uid = current_object.study_activity_subgroup_uid
+    ) -> StudySelectionActivitySubGroupVO:
         soa_group_term_uid = (
             request_object.soa_group_term_uid
             if not isinstance(request_object, StudyActivitySyncLatestVersionInput)
@@ -1782,9 +1978,7 @@ class StudyActivitySelectionService(
             and current_object.activity_subgroup_uid
             != request_object.activity_subgroup_uid
         ) or sync_latest_version:
-            activity_subgroup_uid = request_object.activity_subgroup_uid
-
-            study_activity_subgroup = self._get_or_create_study_activity_subgroup(
+            return self._get_or_create_study_activity_subgroup(
                 study_uid=current_object.study_uid,
                 activity_subgroup_uid=request_object.activity_subgroup_uid,
                 activity_group_uid=request_object.activity_group_uid
@@ -1794,15 +1988,13 @@ class StudyActivitySelectionService(
                 sync_latest_version=sync_latest_version,
                 current_object=current_object,
             )
-            study_activity_subgroup_uid = study_activity_subgroup.study_selection_uid
-            activity_subgroup_name = study_activity_subgroup.activity_subgroup_name
         # When SoAGroup or StudyActivityGroup is changed we need to update StudyActivitySubGroup for other shared nodes if given StudyActivity contains StudyActivitySubGroup
-        elif (
+        if (
             is_soa_group_changed or is_study_activity_group_changed
-        ) and activity_subgroup_uid:
-            activity_subgroup_selection = self._get_or_create_study_activity_subgroup(
+        ) and current_object.activity_subgroup_uid:
+            return self._get_or_create_study_activity_subgroup(
                 study_uid=current_object.study_uid,
-                activity_subgroup_uid=activity_subgroup_uid,
+                activity_subgroup_uid=current_object.activity_subgroup_uid,
                 activity_group_uid=current_object.activity_group_uid,
                 soa_group_term_uid=soa_group_term_uid,
                 perform_subgroup_validation=False,
@@ -1810,20 +2002,16 @@ class StudyActivitySelectionService(
                 sync_latest_version=sync_latest_version,
                 current_object=current_object,
             )
-            (
-                activity_subgroup_uid,
-                activity_subgroup_name,
-                study_activity_subgroup_uid,
-            ) = (
-                activity_subgroup_selection.activity_subgroup_uid,
-                None,
-                activity_subgroup_selection.study_selection_uid,
-            )
-
-        return (
-            activity_subgroup_uid,
-            activity_subgroup_name,
-            study_activity_subgroup_uid,
+        # Unchanged — build lightweight VO from current_object
+        return StudySelectionActivitySubGroupVO.from_input_values(
+            study_uid=current_object.study_uid,
+            author_id=self.author,
+            activity_subgroup_uid=current_object.activity_subgroup_uid,  # type: ignore[arg-type]
+            activity_subgroup_name=current_object.activity_subgroup_name,
+            activity_subgroup_version=None,
+            study_selection_uid=current_object.study_activity_subgroup_uid,
+            order=current_object.study_activity_subgroup_order,
+            show_activity_subgroup_in_protocol_flowchart=current_object.show_activity_subgroup_in_protocol_flowchart,
         )
 
     def _patch_prepare_new_value_object(
@@ -1877,11 +2065,7 @@ class StudyActivitySelectionService(
         )
 
         # update StudyActivityGroup
-        (
-            activity_group_uid,
-            activity_group_name,
-            study_activity_group_uid,
-        ) = self._patch_or_get_study_activity_group(
+        updated_group = self._patch_or_get_study_activity_group(
             request_object=request_object,
             current_object=current_object,
             is_soa_group_changed=is_soa_group_changed,
@@ -1889,34 +2073,44 @@ class StudyActivitySelectionService(
         )
 
         is_study_activity_group_changed = (
-            study_activity_group_uid != current_object.study_activity_group_uid
+            updated_group.study_selection_uid != current_object.study_activity_group_uid
         )
         # update StudyActivitySubGroup
-        (
-            activity_subgroup_uid,
-            activity_subgroup_name,
-            study_activity_subgroup_uid,
-        ) = self._patch_or_get_study_activity_subgroup(
+        updated_subgroup = self._patch_or_get_study_activity_subgroup(
             request_object=request_object,
             current_object=current_object,
             is_soa_group_changed=is_soa_group_changed,
             is_study_activity_group_changed=is_study_activity_group_changed,
-            study_activity_group_uid=study_activity_group_uid,
+            study_activity_group_uid=updated_group.study_selection_uid,
         )
         updated_study_activity_vo = StudySelectionActivityVO.from_input_values(
             study_uid=current_object.study_uid,
-            activity_uid=activity_ar.uid,
-            activity_version=activity_ar.item_metadata.version,
-            activity_name=activity_ar.name,
+            activity_uid=(
+                activity_ar.uid if activity_ar else current_object.activity_uid
+            ),
+            activity_version=(
+                activity_ar.item_metadata.version
+                if activity_ar
+                else current_object.activity_version  # type: ignore[arg-type]
+            ),
+            activity_name=(
+                activity_ar.name if activity_ar else current_object.activity_name
+            ),
             soa_group_term_uid=updated_soa_selection.soa_group_term_uid,
             study_soa_group_uid=updated_soa_selection.study_selection_uid,
+            study_soa_group_order=updated_soa_selection.order,
             study_selection_uid=current_object.study_selection_uid,
-            study_activity_subgroup_uid=study_activity_subgroup_uid,
-            activity_subgroup_uid=activity_subgroup_uid,
-            activity_subgroup_name=activity_subgroup_name,
-            study_activity_group_uid=study_activity_group_uid,
-            activity_group_uid=activity_group_uid,
-            activity_group_name=activity_group_name,
+            study_activity_subgroup_uid=updated_subgroup.study_selection_uid,
+            study_activity_subgroup_order=updated_subgroup.order,
+            activity_subgroup_uid=updated_subgroup.activity_subgroup_uid,
+            activity_subgroup_name=updated_subgroup.activity_subgroup_name,
+            study_activity_group_uid=updated_group.study_selection_uid,
+            study_activity_group_order=updated_group.order,
+            activity_group_uid=updated_group.activity_group_uid,
+            activity_group_name=updated_group.activity_group_name,
+            show_soa_group_in_protocol_flowchart=updated_soa_selection.show_soa_group_in_protocol_flowchart,
+            show_activity_group_in_protocol_flowchart=updated_group.show_activity_group_in_protocol_flowchart,
+            show_activity_subgroup_in_protocol_flowchart=updated_subgroup.show_activity_subgroup_in_protocol_flowchart,
             show_activity_in_protocol_flowchart=request_object.show_activity_in_protocol_flowchart,
             keep_old_version=request_object.keep_old_version,
             keep_old_version_date=keep_old_version_date,
@@ -1933,46 +2127,87 @@ class StudyActivitySelectionService(
         study_uid: str,
         operations: list[StudySelectionActivityBatchInput],
     ) -> list[StudySelectionActivityBatchOutput]:
+        """Handle a batch of study activity selection operations with proper cache management.
+
+        This method processes POST, PATCH, and DELETE operations in sequence while
+        maintaining cache consistency. Each operation may invalidate caches that
+        affect subsequent operations in the batch.
+
+        Cache Lifecycle:
+        1. Initialize all caches at batch start
+        2. Each operation may invalidate related cache entries
+        3. Cache state is preserved between operations for performance
+        4. All caches are cleared in finally block
+
+        Args:
+            study_uid: Study identifier for all operations
+            operations: List of batch operations to execute
+
+        Returns:
+            List of batch operation results with status codes and content
+        """
         results = []
-        for operation in operations:
-            item = None
-            try:
-                if operation.method == "PATCH":
-                    item = self.patch_selection(
-                        study_uid,
-                        operation.content.study_activity_uid,
-                        operation.content.content,
-                    )
-                    response_code = status.HTTP_200_OK
-                elif operation.method == "DELETE":
-                    self.delete_selection(
-                        study_uid, operation.content.study_activity_uid
-                    )
-                    response_code = status.HTTP_204_NO_CONTENT
-                elif operation.method == "POST":
-                    if isinstance(operation.content, StudySelectionActivityCreateInput):
-                        item = self.make_selection(study_uid, operation.content)
-                        response_code = status.HTTP_201_CREATED
-                    else:
-                        raise ValidationException(
-                            msg="POST operation requires StudySelectionActivityCreateInput as request payload."
+
+        # Initialize all batch caches and tracking
+        self._initialize_batch_caches()
+
+        try:
+            for operation in operations:
+                item = None
+                try:
+                    if operation.method == "PATCH":
+                        item = self.patch_selection(
+                            study_uid,
+                            operation.content.study_activity_uid,
+                            operation.content.content,
                         )
-                else:
-                    raise MethodNotAllowedException(method=operation.method)
-                results.append(
-                    StudySelectionActivityBatchOutput(
-                        response_code=response_code,
-                        content=item,
+                        response_code = status.HTTP_200_OK
+
+                    elif operation.method == "DELETE":
+                        self.delete_selection(
+                            study_uid, operation.content.study_activity_uid
+                        )
+                        response_code = status.HTTP_204_NO_CONTENT
+
+                    elif operation.method == "POST":
+                        if isinstance(
+                            operation.content, StudySelectionActivityCreateInput
+                        ):
+                            item = self.make_selection(study_uid, operation.content)
+                            response_code = status.HTTP_201_CREATED
+                        else:
+                            raise ValidationException(
+                                msg="POST operation requires StudySelectionActivityCreateInput as request payload."
+                            )
+                    else:
+                        raise MethodNotAllowedException(method=operation.method)
+
+                    results.append(
+                        StudySelectionActivityBatchOutput.model_construct(
+                            response_code=response_code,
+                            content=item,
+                        )
                     )
-                )
-            except MDRApiBaseException as error:
-                results.append(
-                    StudySelectionActivityBatchOutput.model_construct(
-                        response_code=error.status_code,
-                        content=BatchErrorResponse(message=str(error)),
+
+                except MDRApiBaseException as error:
+                    results.append(
+                        StudySelectionActivityBatchOutput.model_construct(
+                            response_code=error.status_code,
+                            content=BatchErrorResponse(message=str(error)),
+                        )
                     )
+                    raise error
+
+        finally:
+            # Save any pending batch instance AR before clearing caches
+            if self._batch_instance_ar is not None:
+                self._repos.study_activity_instance_repository.save(
+                    self._batch_instance_ar, self.author
                 )
-                raise error
+
+            # Clear all caches and tracking state
+            self._clear_all_batch_caches()
+
         return results
 
     @ensure_transaction(db)
@@ -1981,42 +2216,63 @@ class StudyActivitySelectionService(
         study_uid: str,
         operations: list[StudySelectionActivityReviewBatchInput],
     ) -> list[StudySelectionActivityBatchOutput]:
+        """Handle a batch of review changes with proper cache management.
+
+        Review operations are simpler than full batch operations but still
+        require cache management for consistency between operations.
+        """
         results = []
-        for operation in operations:
-            item = None
-            try:
-                if operation.action == StudySelectionReviewAction.ACCEPT:
-                    item = self.update_selection_to_latest_version(
-                        study_uid=study_uid,
-                        study_selection_uid=operation.uid,
-                        sync_latest_version_input=StudyActivitySyncLatestVersionInput(
-                            activity_group_uid=operation.content.activity_group_uid,
-                            activity_subgroup_uid=operation.content.activity_subgroup_uid,
-                        ),
+
+        # Initialize all batch caches for review operations
+        self._initialize_batch_caches()
+
+        try:
+            for operation in operations:
+                item = None
+                try:
+                    if operation.action == StudySelectionReviewAction.ACCEPT:
+                        item = self.update_selection_to_latest_version(
+                            study_uid=study_uid,
+                            study_selection_uid=operation.uid,
+                            sync_latest_version_input=StudyActivitySyncLatestVersionInput(
+                                activity_group_uid=operation.content.activity_group_uid,
+                                activity_subgroup_uid=operation.content.activity_subgroup_uid,
+                            ),
+                        )
+                        response_code = status.HTTP_200_OK
+                    elif operation.action == StudySelectionReviewAction.DECLINE:
+                        self.patch_selection(
+                            study_uid=study_uid,
+                            study_selection_uid=operation.uid,
+                            selection_update_input=operation.content,
+                        )
+                        response_code = status.HTTP_204_NO_CONTENT
+                    else:
+                        raise MethodNotAllowedException(method=operation.action)
+                    results.append(
+                        StudySelectionActivityBatchOutput(
+                            response_code=response_code,
+                            content=item,
+                        )
                     )
-                    response_code = status.HTTP_200_OK
-                elif operation.action == StudySelectionReviewAction.DECLINE:
-                    self.patch_selection(
-                        study_uid=study_uid,
-                        study_selection_uid=operation.uid,
-                        selection_update_input=operation.content,
+                except MDRApiBaseException as error:
+                    results.append(
+                        StudySelectionActivityBatchOutput.model_construct(
+                            response_code=error.status_code,
+                            content=BatchErrorResponse(message=str(error)),
+                        )
                     )
-                    response_code = status.HTTP_204_NO_CONTENT
-                else:
-                    raise MethodNotAllowedException(method=operation.action)
-                results.append(
-                    StudySelectionActivityBatchOutput(
-                        response_code=response_code,
-                        content=item,
-                    )
+                    raise error
+        finally:
+            # Save any pending batch instance AR before clearing caches
+            if self._batch_instance_ar is not None:
+                self._repos.study_activity_instance_repository.save(
+                    self._batch_instance_ar, self.author
                 )
-            except MDRApiBaseException as error:
-                results.append(
-                    StudySelectionActivityBatchOutput.model_construct(
-                        response_code=error.status_code,
-                        content=BatchErrorResponse(message=str(error)),
-                    )
-                )
+
+            # Clear all caches and tracking state
+            self._clear_all_batch_caches()
+
         return results
 
     @ensure_transaction(db)
@@ -2025,66 +2281,93 @@ class StudyActivitySelectionService(
         study_uid: str,
         operations: list[StudySoAEditBatchInput],
     ) -> list[StudySoAEditBatchOutput]:
+        """Handle a batch of SoA edit operations with proper cache management.
+
+        SoA edit operations can modify study activities and schedules, requiring
+        comprehensive cache invalidation to maintain consistency.
+        """
         study_activity_schedules_service = StudyActivityScheduleService()
         results = []
-        for operation in operations:
-            item = None
-            try:
-                if (
-                    operation.method == "PATCH"
-                    and operation.object == SoAItemType.STUDY_ACTIVITY.value
-                ):
-                    item = self.patch_selection(
-                        study_uid,
-                        operation.content.study_activity_uid,
-                        operation.content.content,
-                    )
-                    response_code = status.HTTP_200_OK
-                elif operation.method == "POST":
-                    if operation.object == SoAItemType.STUDY_ACTIVITY.value:
-                        if isinstance(
-                            operation.content, StudySelectionActivityCreateInput
-                        ):
-                            item = self.make_selection(study_uid, operation.content)
-                        else:
-                            raise ValidationException(
-                                msg="POST operation requires StudySelectionActivityCreateInput as request payload."
-                            )
-                    elif operation.object == SoAItemType.STUDY_ACTIVITY_SCHEDULE.value:
-                        if isinstance(
-                            operation.content, StudyActivityScheduleCreateInput
-                        ):
-                            item = study_activity_schedules_service.create(
-                                study_uid, operation.content
-                            )
-                        else:
-                            raise ValidationException(
-                                msg="POST operation requires StudyActivityScheduleCreateInput as request payload."
-                            )
 
-                    response_code = status.HTTP_201_CREATED
-                elif operation.method == "DELETE":
-                    if operation.object == SoAItemType.STUDY_ACTIVITY.value:
-                        self.delete_selection(
-                            study_uid, operation.content.study_activity_uid
+        # Initialize all batch caches and tracking
+        self._initialize_batch_caches()
+        try:
+            for operation in operations:
+                item = None
+                try:
+                    if (
+                        operation.method == "PATCH"
+                        and operation.object == SoAItemType.STUDY_ACTIVITY.value
+                    ):
+                        item = self.patch_selection(
+                            study_uid,
+                            operation.content.study_activity_uid,
+                            operation.content.content,
                         )
-                    elif operation.object == SoAItemType.STUDY_ACTIVITY_SCHEDULE.value:
-                        item = study_activity_schedules_service.delete(
-                            study_uid, operation.content.uid
+                        response_code = status.HTTP_200_OK
+                    elif operation.method == "POST":
+                        if operation.object == SoAItemType.STUDY_ACTIVITY.value:
+                            if isinstance(
+                                operation.content, StudySelectionActivityCreateInput
+                            ):
+                                item = self.make_selection(study_uid, operation.content)
+                            else:
+                                raise ValidationException(
+                                    msg="POST operation requires StudySelectionActivityCreateInput as request payload."
+                                )
+                        elif (
+                            operation.object
+                            == SoAItemType.STUDY_ACTIVITY_SCHEDULE.value
+                        ):
+                            if isinstance(
+                                operation.content, StudyActivityScheduleCreateInput
+                            ):
+                                item = study_activity_schedules_service.create(
+                                    study_uid, operation.content
+                                )
+                            else:
+                                raise ValidationException(
+                                    msg="POST operation requires StudyActivityScheduleCreateInput as request payload."
+                                )
+
+                        response_code = status.HTTP_201_CREATED
+                    elif operation.method == "DELETE":
+                        if operation.object == SoAItemType.STUDY_ACTIVITY.value:
+                            self.delete_selection(
+                                study_uid, operation.content.study_activity_uid
+                            )
+                        elif (
+                            operation.object
+                            == SoAItemType.STUDY_ACTIVITY_SCHEDULE.value
+                        ):
+                            item = study_activity_schedules_service.delete(
+                                study_uid, operation.content.uid
+                            )
+                        response_code = status.HTTP_204_NO_CONTENT
+                    else:
+                        raise MethodNotAllowedException(method=operation.method)
+                    results.append(
+                        StudySoAEditBatchOutput(
+                            response_code=response_code, content=item
                         )
-                    response_code = status.HTTP_204_NO_CONTENT
-                else:
-                    raise MethodNotAllowedException(method=operation.method)
-                results.append(
-                    StudySoAEditBatchOutput(response_code=response_code, content=item)
-                )
-            except MDRApiBaseException as error:
-                results.append(
-                    StudySoAEditBatchOutput.model_construct(
-                        response_code=error.status_code,
-                        content=BatchErrorResponse(message=str(error)),
                     )
+                except MDRApiBaseException as error:
+                    results.append(
+                        StudySoAEditBatchOutput.model_construct(
+                            response_code=error.status_code,
+                            content=BatchErrorResponse(message=str(error)),
+                        )
+                    )
+        finally:
+            # Save any pending batch instance AR before clearing caches
+            if self._batch_instance_ar is not None:
+                self._repos.study_activity_instance_repository.save(
+                    self._batch_instance_ar, self.author
                 )
+
+            # Clear all caches and tracking state
+            self._clear_all_batch_caches()
+
         return results
 
     @ensure_transaction(db)
@@ -2100,11 +2383,17 @@ class StudyActivitySelectionService(
         assert selection_aggregate is not None
 
         # Load the current VO for updates
-        activity_ar = self._repos.activity_repository.find_by_uid_2(
+        activity_ar = self._repos.activity_repository.find_by_uid(
             current_vo.activity_uid
         )
-        replaced_activity_ar = self._repos.activity_repository.find_by_uid_2(
-            activity_ar.concept_vo.replaced_by_activity
+        NotFoundException.raise_if_not(activity_ar, "Activity", current_vo.activity_uid)
+        replaced_activity_ar = self._repos.activity_repository.find_by_uid(
+            activity_ar.concept_vo.replaced_by_activity  # type: ignore[arg-type]
+        )
+        NotFoundException.raise_if_not(
+            replaced_activity_ar,
+            "Activity",
+            activity_ar.concept_vo.replaced_by_activity,
         )
         updated_study_activity = self.patch_selection(
             study_uid=study_uid,
@@ -2208,7 +2497,6 @@ class StudyActivitySelectionService(
         )
 
         # update StudyActivityGroup
-        study_activity_group_uid = selection.study_activity_group_uid
         is_study_activity_group_changed: bool = False
         sync_activity_group_version: bool = False
         if sync_latest_version_input and sync_latest_version_input.activity_group_uid:
@@ -2220,11 +2508,7 @@ class StudyActivitySelectionService(
             if latest_activity_group_name != current_selection.activity_group_name:
                 sync_activity_group_version = True
         if sync_latest_version_input and sync_latest_version_input.activity_group_uid:
-            (
-                activity_group_uid,
-                _,
-                study_activity_group_uid,
-            ) = self._patch_or_get_study_activity_group(
+            updated_group = self._patch_or_get_study_activity_group(
                 request_object=sync_latest_version_input,
                 current_object=selection,
                 is_soa_group_changed=False,
@@ -2232,17 +2516,17 @@ class StudyActivitySelectionService(
                 sync_latest_version=sync_activity_group_version,
             )
             is_study_activity_group_changed = (
-                selection.study_activity_group_uid != study_activity_group_uid
+                selection.study_activity_group_uid != updated_group.study_selection_uid
             )
 
-            if study_activity_group_uid is None:
+            if not updated_group.study_selection_uid:
                 raise BusinessLogicException(
                     msg="Study Activity Group UID cannot be None when syncing to latest version."
                 )
 
             selection = selection.update_activity_group(
-                activity_group_uid=activity_group_uid,
-                study_activity_group_uid=study_activity_group_uid,
+                activity_group_uid=updated_group.activity_group_uid,
+                study_activity_group_uid=updated_group.study_selection_uid,
             )
 
         sync_activity_subgroup_version: bool = False
@@ -2269,22 +2553,18 @@ class StudyActivitySelectionService(
                 raise ValidationException(
                     msg="Sync latest version input can't be None at this point"
                 )
-            (
-                activity_subgroup_uid,
-                _,
-                study_activity_subgroup_uid,
-            ) = self._patch_or_get_study_activity_subgroup(
+            updated_subgroup = self._patch_or_get_study_activity_subgroup(
                 request_object=sync_latest_version_input,
                 current_object=selection,
                 is_soa_group_changed=False,
                 is_study_activity_group_changed=is_study_activity_group_changed,
-                study_activity_group_uid=study_activity_group_uid,
+                study_activity_group_uid=updated_group.study_selection_uid,
                 sync_latest_version=sync_activity_subgroup_version
                 or is_study_activity_group_changed,
             )
             selection = selection.update_activity_subgroup(
-                activity_subgroup_uid=activity_subgroup_uid,
-                study_activity_subgroup_uid=study_activity_subgroup_uid,
+                activity_subgroup_uid=updated_subgroup.activity_subgroup_uid,
+                study_activity_subgroup_uid=updated_subgroup.study_selection_uid,
             )
         self._update_aggregate(
             selection_aggregate=selection_ar,
@@ -2297,11 +2577,21 @@ class StudyActivitySelectionService(
         selection_aggregate = self.repository.find_by_study(
             study_uid=study_uid,
         )
-        # Fetch the new selection which was just added
+        # Fetch the new selection which was just updated
         (
             new_selection,
             _,
         ) = selection_aggregate.get_specific_object_selection(study_selection_uid)
+
+        # Keep _batch_patch_ar_selections current for subsequent operations in the same batch.
+        # patch_selection does this in the base class; update_selection_to_latest_version
+        # calls _update_aggregate directly so we mirror the same update here using the
+        # fully-populated VO from the reload above. Uses immutable update to prevent cache coherence issues.
+        if self._batch_patch_ar_selections is not None:
+            self._batch_patch_ar_selections = [
+                new_selection if vo.study_selection_uid == study_selection_uid else vo
+                for vo in self._batch_patch_ar_selections
+            ]
 
         return self._transform_from_vo_to_response_model(
             study_uid=study_uid,

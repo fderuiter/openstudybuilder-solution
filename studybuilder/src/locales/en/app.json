@@ -126,6 +126,7 @@
         "value": "Value",
         "values": "Values",
         "type": "Type",
+        "count": "Count",
         "day": "Day",
         "week": "Week",
         "copy_link": "Copy link",
@@ -181,7 +182,8 @@
         "edit_in_table": "Edit in table",
         "view_source": "View Source",
         "rich_text": "Rich Text",
-        "required": " (Required)"
+        "required": " (Required)",
+        "feature": "Feature"
     },
     "_errors": {
         "general": "Something went wrong. Please try again later.",
@@ -360,29 +362,29 @@
         },
         "CompoundForm": {
             "sponsor_compound": "Indicate if this is a sponsor compound. Tick yes if sponsor is the authorisation holder/or future authorisation holder of the compound.",
-            "analyte_number": "Analyte number (Non-clinical), example is AN000028 (The analyte number for semaglutide).",
-            "long_number": "Substance ID. Example NNC0113-0000-0217. Only applicable for Novo Nordisk compound. Leave blank for other compounds.",
-            "short_number": "Substance name. Example NNC0113-0217. Only applicable for Novo Nordisk compound. Leave blank for other compounds. ",
-            "name": "The international nonproprietary name (INN) being the official generic and non-proprietary name given to a pharmaceutical drug or an active ingredient. Example: semaglutide.",
+            "analyte_number": "Analyte number (Non-clinical), example is 1115-70-4 (the analyte number for metformin).",
+            "long_number": "Substance ID. Example SPN0001-0000-0001. Only applicable for compounds developed or manufactured by the sponsor (your company). Leave blank for other compounds.",
+            "short_number": "Substance name. Example SPN0001-0001. Only applicable for compounds developed or manufactured by the sponsor (your company). Leave blank for other compounds. ",
+            "name": "The international nonproprietary name (INN) being the official generic and non-proprietary name given to a pharmaceutical drug or an active ingredient. Example: metformin.",
             "is_inn": "Tick No if INN hasn't been approved/published.",
             "definition": "A definition/description of the compound.",
             "brand_name": " This is chosen by the company that makes it. Several companies may make the same generic medicine, each with their own brand name. The name is often chosen to be memorable for advertising, or to be easier to say or spell than the generic name. For example, paracetamol is a generic name. There are several companies that make this with brand names such as Panadol®, Calpol®, etc.",
             "substance_name": "Add one or more substances by using the + button. A compound can consist of one or more substances.",
             "pharmacological_class": "Pharmacological class (Auto-populated)",
             "medrt": "Medication Reference Terminology (Auto-populated)",
-            "dose": "Specify dose of the drug. Example 0.25 mg of semalgutide. If more are applicable then click + to add more.",
-            "strength": "Specify the strength of the drug. Example 1.34 mg/nL of semaglutide. If more are applicable then click + to add more.",
-            "dosing_frequency": "Select frequency from the drop-down. Example for semaglutide is Once Weekly.",
-            "route_of_administration": "Select route of administration from the drop-down. Example for semaglutide is Subcutaneous Route.",
-            "dosage_form": "Select pharmaceutical dosage form from the drop-down. Example for semaglutide is Concentrated Injectable Solution.",
-            "dispensed_in": "Select Dispensed in from the drop-down. Example for semaglutide is Pre-filled Pen.",
-            "device": "Select Device from the drop-down. Example for semaglutide is Pre-filled Pen.",
+            "dose": "Specify dose of the drug. Example 500 mg of metformin. If more are applicable then click + to add more.",
+            "strength": "Specify the strength of the drug. Example 500 mg tablet of metformin. If more are applicable then click + to add more.",
+            "dosing_frequency": "Select frequency from the drop-down. Example for metformin is Twice Daily.",
+            "route_of_administration": "Select route of administration from the drop-down. Example for metformin is Oral Route.",
+            "dosage_form": "Select pharmaceutical dosage form from the drop-down. Example for metformin is Film-coated Tablet.",
+            "dispensed_in": "Select Dispensed in from the drop-down. Example for metformin is Blister Pack.",
+            "device": "Select Device from the drop-down. Example for metformin is No device.",
             "formulation": "Short description of the Formulation (if relevant).",
             "formulation_details": "Detailed description of the Formulation(if relevant).",
-            "manufacturing_place": "Manufacturing place, e.g. for semaglutide Novo Nordisk A/S, Hallas Allé, DK-4400 Kalundborg, Denmark. Information in ANNEX of Product labeling",
+            "manufacturing_place": "Manufacturing place, e.g. for metformin Example Pharma Ltd., Example Street 1, City, Country. Information in ANNEX of Product labeling",
             "manufacturing_process": "Specify the manufacturing process, if relevant.",
-            "half_life": "Specify the number and unit for the Half-life. Example for semaglutide is 1 week.",
-            "lag_time": "Lag-time the number of days after end of treatment an observation is regarded as being influenced by the drug. E.g. for Adverse Events for semalgutide, with an elimination half-life of approximately 1 week, semaglutide will be present in the circulation for about 5 weeks after the last dose (ref. product information), i.e. lag-time is 5 weeks.",
+            "half_life": "Specify the number and unit for the Half-life. Example for metformin is 6 hours.",
+            "lag_time": "Lag-time is the number of days after end of treatment an observation is regarded as being influenced by the drug. E.g. for Adverse Events for metformin, with an elimination half-life of approximately 6 hours, metformin will be present in the circulation for about 2 days after the last dose (ref. product information), i.e. lag-time is 2 days.",
             "sdtm_domain": "Specify the domain where the lag-time will apply. E.g. AE "
         },
         "CompoundAliasForm": {
@@ -396,7 +398,7 @@
             "analyte_number": "Sponsor identification number for the active substance.",
             "name": "Name of the substance can be a sponsor name when an INN name is not yet defined.",
             "id": "A sponsor identifier for the active substance.",
-            "unii": "Selection of UNII term by UNII name and ID. Start typing the INN and the INN will appear with the UNII e.g. Semaglutide (53AXN4NNHX). If the needed UNII for an INN   is missing, then it must be added to the independent UNII dictionary."
+            "unii": "Selection of UNII term by UNII name and ID. Start typing the INN and the INN will appear with the UNII e.g. Metformin (9100L32L2N). If the needed UNII for an INN is missing, then it must be added to the independent UNII dictionary."
         },
         "PharmaceuticalProduct": {
             "dosage_form": "Select dosage form (from CDISC CT codelist).",
@@ -431,19 +433,30 @@
             "criterion_sub_cat": "Select one or more sub-category that applies to the criterion. Tick NA if not applicable. The categorisation is used for searching when selecting criteria template for a study."
         },
         "CodelistCreationForm": {
+            "codelist_creation_type": "Select whether to create a regular code list or paired code lists",
             "catalogue": "The new code list will be created in this catalogue"
         },
         "CodelistSponsorValuesForm": {
             "pref_name": "The sponsor preferred name is used by the OpenStudyBuilder as the default display name for the code list",
+            "name_pref_name": "The sponsor preferred name for the name code list of the pair",
+            "code_pref_name": "The sponsor preferred name for the code code list of the pair",
             "tpl_parameter": "If set/active, the code list is used as parameter in the creation of templates."
         },
         "CodelistAttributesForm": {
             "name": "Provide the code list name that represent the only allowed values for a data item",
+            "name_name": "Provide the code list name for the name code list of the pair",
+            "code_name": "Provide the code list name for the code code list of the pair",
             "subm_value": "Provide a unique submission value. If a duplicate exists then the application will request a unique value.",
+            "name_subm_value": "Provide a unique submission value for the name code list of the pair",
+            "code_subm_value": "Provide a unique submission value for the code code list of the pair",
             "nci_pref_name": "Provide if applicable a preferred name",
+            "name_nci_pref_name": "Provide if applicable a preferred name for the name code list of the pair",
+            "code_nci_pref_name": "Provide if applicable a preferred name for the code code list of the pair",
             "extensible": "Allow addition of new term(s)",
             "is_ordinal": "Mark the codelist as ordinal, meaning that the 'order' of the terms represent their numeric value.",
-            "definition": "Provide a complete definition of the code list"
+            "definition": "Provide a complete definition of the code list",
+            "name_definition": "Provide a complete definition for the name code list of the pair",
+            "code_definition": "Provide a complete definition for the code code list of the pair"
         },
         "CodelistTermCreationForm": {
             "sponsor_pref_name": "Preferred name of the term",
@@ -471,7 +484,7 @@
             "predecessor": "Select a parent term that specifies the predecessor of this term. This is used to indicate that this term replaces the parent."
         },
         "DictionaryTermForm": {
-            "dictionary_id": "Add an ID of the dictionary term. Ensure that the ID follows the nomenclature for the dictionary. Example UNII for Insulin Detemir (levemir) is 4FT78T86XV, MED-RT for Insulin analogue is N0000175453, and SNOMED ID for Diabetes Mellitus is 73211009.",
+            "dictionary_id": "Add an ID of the dictionary term. Ensure that the ID follows the nomenclature for the dictionary. Example UNII for Metformin is 9100L32L2N, MED-RT for Insulin analogue is N0000175453, and SNOMED ID for Diabetes Mellitus is 73211009.",
             "name": "The name of the term.",
             "lower_case_name": "Auto-populated as all lower-case of the name specified.",
             "abbreviation": "If any abbreviated term applies.",
@@ -980,15 +993,15 @@
             "select_class": "“Study with cohorts, branches and subpopulations” will bring up the full stepper, helping you set up cohorts and branches in an easy and controlled way. Study participants must be as-signed to each branch and are then automatically assigned to cohorts and arms as well. “Study with arms only” will only bring up the first page of the stepper and participants must be assigned to arms directly. It is still possible to add cohorts and branches manually after-wards.",
             "set_arms_for_study": "You can add as many arms as required in your study using the “Add arm” button.",
             "study_arm_type": "There are four options available for study arm type: Comparator arm, Investigational arm, Observational arm and Placebo arm.",
-            "arm_name": "Arm name can be filled in with free text but is most commonly the name of the investigation, e.g. “Semaglutide” or “Placebo”.",
+            "arm_name": "Arm name can be filled in with free text but is most commonly the name of the investigation, e.g. “Metformin” or “Placebo”.",
             "arm_short_name": "Arm short name can be filled in with free text but is most commonly the same as the arm name.",
             "arm_label": "Shorter version of arm name",
             "rand_group": "Randomisation group should be filled out when known. Randomisation group must be filled out with capital letters (e.g. A). If multiple groups apply for one arm, they must be separated using pipes (e.g. AIBID).",
-            "arm_code": "Arm code is generated automatically within Novo Nordisk but may be applicable for open-source users.",
+            "arm_code": "Arm code is generated automatically within sponsor-specific setups but may be applicable for open-source users.",
             "set_cohorts_for_study": "You can add as many cohorts/subpop as required in your study using the “Add Co-horts/subpop.” button.",
             "source_var": "There are three options available for source variable: Cohort, Subgroup or Stratum.",
             "cohort_code": "Cohort code must be filled out with a numerical value (e.g. 1). Most common approach is numbering each cohort in numerical order.",
-            "cohort_name": "Cohort/subpop. name can be filled in with free text but is most commonly the name of the investigation + dose level, e.g. “Semaglutide 2.4 mg” or “Placebo 2.4 mg”.",
+            "cohort_name": "Cohort/subpop. name can be filled in with free text but is most commonly the name of the investigation + dose level, e.g. “Metformin 500 mg” or “Placebo 500 mg”.",
             "cohort_short_name": "Cohort/subpop. short name can be filled in with free text but is most commonly the same as the cohort/subpop. name or sometimes just the dose level.",
             "link_arms_cohorts": "Enter the number of participants per branch. It is possible to copy the number of participants from the first row to all other rows. Branch name and branch short name is automatically generated based on the cohort and arm that the branch is assigned to. Using the Edit button, it is possible to rename the branch name and branch short name."
         },
@@ -1047,7 +1060,7 @@
         "description_bottom": "standards used in the OpenStudyBuilder",
         "dashboard_description": "A simple graphical presentation of the current status and historical trends of the metadata stored in the Library",
         "codelist_description": "Find the CDISC controlled terminology, including the code lists, the valid values and associated definitions for each code list and the evolution in packages and terms over time. Sponsor defined list and terms are also included.",
-        "dictionaries_description": "Find relevant external dictionaries and thesaurus for clinical development such as SNOMED, MedDRA, MED-RT, UNII, LOINC, UCUM. Since some of these dictionaries are very large, only selected terms relevant for the Novo Nordisk pipeline are included.",
+        "dictionaries_description": "Find relevant external dictionaries and thesaurus for clinical development such as SNOMED, MedDRA, MED-RT, UNII, LOINC, UCUM. Since some of these dictionaries are very large, only selected terms relevant for the sponsor pipeline are included.",
         "concepts_description": "Find controlled listings of the terms to use for generic concepts such as units, activities, compounds and CRFs.",
         "syntax_templates_description": "View (or manage) the different syntax templates used for specifying the objectives, the endpoints, the eligibility, randomisation, dosing and other criteria for the individual studies. Only templates in status Final can be used under Studies.",
         "template_instantiations_description": "See how the different templates are used in the studies, including number of studies using a specific syntax and which studies.",
@@ -1181,7 +1194,8 @@
             "data_collection_standards": "Data Collection Standards",
             "activities_subgroups": "Activity Subgroups",
             "activities_groups": "Activity Groups",
-            "data_suppliers": "Data Suppliers"
+            "data_suppliers": "Data Suppliers",
+            "template_study": "Template Study"
         },
         "study": {
             "about": "About Studies",
@@ -1673,6 +1687,7 @@
         "project_name": "Project name",
         "id": "Study ID",
         "main_id": "Main study ID",
+        "study_id": "Study ID",
         "acronym": "Study acronym",
         "subpart_acronym": "Study subpart acronym",
         "select": "Select",
@@ -1694,6 +1709,8 @@
         "creation_mode_title": "Create a new study from scratch or from an existing study?",
         "create_from_scratch": "Create a new study from scratch",
         "create_from_study": "Create a study from an existing study",
+        "create_from_template": "Create a new study with default settings",
+        "create_from_template_help": "This option creates a study that, by default, includes commonly used activities as well as non-visit and unscheduled visits.",
         "copy_notice": "The following information is NOT regarding the existing study, but the properties of your new study."
     },
     "StudyStructureCopyForm": {
@@ -1712,6 +1729,10 @@
         "epochs_help": "An Epoch describes a time period in the study such as dose escalation of the drug. An Epoch can have a footnote attached which would be visible in the Schedule of Activities.",
         "visits": "Study visits ({count})",
         "visits_help": "A Study visit is a single point in time during the study where an activity is happening. A Study visit can have a footnote attached which would be visible in the Schedule of Activities.",
+        "study_activities": "Study activities ({count})",
+        "study_activities_help": "Copies study activity groupings, study activities and study activity instances.",
+        "schedules": "Schedules ({count})",
+        "schedules_help": "Copies study activity schedules after Study visits and Study activities are selected.",
         "design_matrix": "Design matrix",
         "design_matrix_help": "The design matrix combines the overall interventions (Study Elements) that a subject will undergo while participating in a study arm over time (Study Epochs).",
         "footnotes": "Include footnotes ({count})",
@@ -2088,8 +2109,8 @@
         "device": "Delivered in",
         "half_life": "Half-life",
         "lag_time": "Lag-time",
-        "nnc_number_long": "NNC Number (long)",
-        "nnc_number_short": "NNC Number (short)",
+        "nnc_number_long": "Sponsor Number (long)",
+        "nnc_number_short": "Sponsor Number (short)",
         "analyte_number": "Analyte number",
         "reason_for_missing": "Reason for missing",
         "compound_definition": "Compound definition",
@@ -2211,7 +2232,8 @@
         "attr_status": "Attributes status",
         "modified_name": "Name modified",
         "modified_attributes": "Attributes modified",
-        "remove_term": "Remove term"
+        "remove_term": "Remove term",
+        "paired_with": "Paired with"
     },
     "ActivityTable": {
         "sentence_case_name": "Sentence case name",
@@ -2525,6 +2547,8 @@
     "CodelistSponsorValuesForm": {
         "title": "Edit Sponsor Code list",
         "pref_name": "Sponsor preferred name",
+        "name_pref_name": "Sponsor preferred name (Name codelist)",
+        "code_pref_name": "Sponsor preferred name (Code codelist)",
         "tpl_parameter": "Template parameter?",
         "update_success": "Sponsor values have been updated"
     },
@@ -2536,24 +2560,36 @@
     "CodelistAttributesForm": {
         "title": "Edit code list attributes values",
         "name": "Code list name",
+        "name_name": "Code list name (Name codelist)",
+        "code_name": "Code list name (Code codelist)",
         "name_hint": "Provide the code list name that represent the only allowed values for a data item",
         "subm_value": "Submission value",
+        "name_subm_value": "Submission value (Name codelist)",
+        "code_subm_value": "Submission value (Code codelist)",
         "subm_value_hint": "Provide a unique submission value. If a duplicate exists then the application will be used instead",
         "nci_pref_name": "NCI preferred name",
+        "name_nci_pref_name": "NCI preferred name (Name codelist)",
+        "code_nci_pref_name": "NCI preferred name (Code codelist)",
         "nci_pref_name_hint": "Provide if applicable a preferred name",
         "extensible": "Extensible?",
         "extensible_hint": "Allow addition of new term(s)",
         "is_ordinal": "Ordinal?",
         "ordinal_hint": "Mark the codelist as ordinal, meaning that the 'order' of the terms represent their numeric value.",
         "definition": "Definition",
+        "name_definition": "Definition (Name codelist)",
+        "code_definition": "Definition (Code codelist)",
         "definition_hint": "Provide a complete definition of the code list",
         "codelist_type": "Type"
     },
     "CodelistCreationForm": {
         "title": "Add sponsor code list",
-        "step1_title": "Select catalogue",
-        "step2_title": "Manage sponsor preferred name",
-        "step3_title": "Manage code list attribute values",
+        "step1_title": "Select what you want to create",
+        "step2_title": "Select catalogue",
+        "step3_title": "Manage sponsor preferred name",
+        "step4_title": "Manage code list attribute values",
+        "codelist_creation_type": "Code list type",
+        "regular_codelist": "Single code list",
+        "paired_codelists": "Paired code lists",
         "catalogue": "Catalogue",
         "add_success": "Code list added"
     },
@@ -4538,6 +4574,8 @@
         "new_version_groupings": "New version (groupings)",
         "inactivate_attributes": "Inactivate attributes",
         "inactivate_groupings": "Inactivate groupings",
+        "inactivate": "Inactivate",
+        "reactivate": "Reactivate",
         "reactivate_attributes": "Reactivate attributes",
         "reactivate_groupings": "Reactivate groupings",
         "history_attributes": "History (attributes)",
@@ -4625,7 +4663,10 @@
         "is_default_selected_for_activity": "Default selected for activity",
         "is_data_sharing": "Data sharing",
         "is_legacy_usage": "Legacy usage",
-        "history_title": "History for activity instance [{uid}]"
+        "history_title": "History for activity instance [{uid}]",
+        "summary_title": "Summary",
+        "attributes": "Attributes",
+        "groupings": "Groupings"
     },
     "ActivityInstanceClassOverview": {
         "domain_specific": "Domain specific",
@@ -5068,7 +5109,7 @@
         "required_for_activity": "Required for activity",
         "required_for_activity_help": "This flag is used in the standards governance process. The flag is used when some or all instances under an activity is required to be selected when that activity is selected, as an example in questionnaires",
         "data_sharing": "Data sharing",
-        "data_sharing_help": "The purpose of this flag is to enable sharing details of the instance with CDISC and other pharmaceutical companies. The flag should not be checked for activity instances which contains Novo Nordisk specific information. For e.g. but not limited to, product information or antibodies specific to products etc.",
+        "data_sharing_help": "The purpose of this flag is to enable sharing details of the instance with CDISC and other pharmaceutical companies. The flag should not be checked for activity instances which contain sponsor-specific information. For example, but not limited to, product information or antibodies specific to products.",
         "default_selected": "Default selected for activity",
         "default_selected_help": "The purpose of the default flag is to help the user select instances under an activity faster by flagging the instance that is used the most across all studies as the default. This is only used when more than one instance exists under an activity. The user can manually change the selection based on the need of the study",
         "data_from_research_lab": "Data from a Research lab",
@@ -5192,6 +5233,11 @@
         "remove_cohort_warning": "You are about to remove a cohort and all its participants. This will decrease the total numbers of participants in the study.",
         "create_arms": "Create arms"
     },
+    "TemplateStudy": {
+        "title": "Template study",
+        "current_template": "The study template currently in use is:",
+        "reset": "Reset template"
+    },
     "DataSupplierView": {
         "title": "Data Suppliers",
         "DataSupplierTable": {
@@ -5225,6 +5271,7 @@
     },
     "ComplexityScore": {
         "admin_title": "Complexity Burdens",
+        "admin_study_scores_tab": "Study Complexity Scores",
         "admin_activity_burdens_info": "Mapping between activity subgroups and corresponding site/participant burdens.",
         "admin_activity_burdens_tab": "Activity Subgroup Burdens",
         "admin_burdens_tab": "Burdens Library",
@@ -5235,7 +5282,18 @@
         "admin_burdens_description": "Description",
         "admin_burdens_id": "Burden ID",
         "admin_burdens_site_burden": "Site burden",
-        "admin_burdens_patient_burden": "Participant burden"
+        "admin_burdens_patient_burden": "Participant burden",
+        "complexity_score": "Complexity Score",
+        "complexity_score_intro": "Complexity score is calculated as the sum of total burdens for visits and activities below.",
+        "visits": "Visits",
+        "activities": "Activities",
+        "activity_subgroup": "Activity subgroup",
+        "burden": "Burden",
+        "count_times_burden": "Count * Burden",
+        "visit_type_initial": "Initial",
+        "visit_type_follow_up": "Follow-up",
+        "visit_type_physical": "Physical",
+        "visit_type_virtual": "Virtual"
     },
     "StudyDataCompleteness": {
         "admin_title": "Data Completeness Tags",

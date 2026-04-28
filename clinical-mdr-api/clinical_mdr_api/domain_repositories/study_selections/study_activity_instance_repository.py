@@ -724,95 +724,80 @@ class StudySelectionActivityInstanceRepository(
         last_study_selection_node: StudyActivityInstance,
         for_deletion: bool = False,
     ):
-        # Fetch nodes referenced by uids
-        query = [
+        # Build a single Cypher statement that MATCHes all dependency nodes, CREATEs the
+        # StudyActivityInstance node, and CREATEs all its core relationships in one round-trip.
+        # Optional relationships (baseline visits, supplier, origin_type/source) are handled
+        # below via separate queries because they require conditional validation logic.
+        match_lines = [
             "MATCH (study_activity:StudyActivity {uid:$study_activity_uid}) WHERE NOT (study_activity)-[:BEFORE]-()",
+            "MATCH (study_value:StudyValue) WHERE elementId(study_value) = $study_value_eid",
         ]
-        params = {
+        params: dict[str, Any] = {
             "study_activity_uid": selection.study_activity_uid,
+            "study_value_eid": latest_study_value_node.element_id,
+            "sai_uid": selection.study_selection_uid,
+            "sai_show": selection.show_activity_instance_in_protocol_flowchart,
+            "sai_keep_old": selection.keep_old_version,
+            "sai_keep_old_date": selection.keep_old_version_date,
+            "sai_is_reviewed": selection.is_reviewed,
+            "sai_is_important": selection.is_important,
+            "sai_accepted": selection.accepted_version,
         }
-        returns = ["study_activity"]
+
+        optional_matches: list[str] = []
+        create_instance_rels: list[str] = []
+
         if selection.activity_instance_uid:
             if selection.activity_instance_version:
-                query.append(
-                    """MATCH (instance_root:ActivityInstanceRoot {uid: $activity_instance_uid})
-                        -[:HAS_VERSION {version: $activity_instance_version}]->(latest_activity_instance_value:ActivityInstanceValue) WITH * LIMIT 1"""
+                optional_matches.append(
+                    "MATCH (instance_root:ActivityInstanceRoot {uid: $activity_instance_uid})"
+                    "-[:HAS_VERSION {version: $activity_instance_version}]->(latest_activity_instance_value:ActivityInstanceValue)"
+                    " WITH * LIMIT 1"
                 )
                 params["activity_instance_version"] = (
                     selection.activity_instance_version
                 )
             else:
-                query.append(
+                optional_matches.append(
                     "MATCH (instance_root:ActivityInstanceRoot {uid: $activity_instance_uid})-[:LATEST]->(latest_activity_instance_value:ActivityInstanceValue)"
                 )
             params["activity_instance_uid"] = selection.activity_instance_uid
-            returns.append("latest_activity_instance_value")
-        if selection.study_data_supplier_uid:
-            query.append(
-                "MATCH (study_data_supplier:StudyDataSupplier {uid: $study_data_supplier_uid}) WHERE NOT (study_data_supplier)-[:BEFORE]-()"
-            )
-            params["study_data_supplier_uid"] = selection.study_data_supplier_uid
-            returns.append("study_data_supplier")
-        if selection.origin_type_uid:
-            query.append(
-                "OPTIONAL MATCH (origin_type_root:CTTermRoot {uid: $origin_type_uid})"
-            )
-            params["origin_type_uid"] = selection.origin_type_uid
-            returns.append("origin_type_root")
-        if selection.origin_source_uid:
-            query.append(
-                "OPTIONAL MATCH (origin_source_root:CTTermRoot {uid: $origin_source_uid})"
-            )
-            params["origin_source_uid"] = selection.origin_source_uid
-            returns.append("origin_source_root")
-
-        query.append(f"RETURN {', '.join(returns)}")
-        query_str = "\n".join(query)
-        results, keys = db.cypher_query(query_str, params, resolve_objects=True)
-        if len(results) != 1:
-            raise exceptions.BusinessLogicException(
-                msg=f"There should be one row returned with dependencies for StudyActivityInstance '{selection.study_selection_uid}'."
+            create_instance_rels.append(
+                "CREATE (sai)-[:HAS_SELECTED_ACTIVITY_INSTANCE]->(latest_activity_instance_value)"
             )
 
-        nodes = dict(zip(keys, results[0]))
-        latest_activity_instance_value_node: ActivityInstanceValue | None = nodes.get(
-            "latest_activity_instance_value"
+        create_node = (
+            "CREATE (sai:StudyActivityInstance:StudySelection"
+            " {uid: $sai_uid,"
+            " show_activity_instance_in_protocol_flowchart: $sai_show,"
+            " keep_old_version: $sai_keep_old, keep_old_version_date: $sai_keep_old_date,"
+            " is_reviewed: $sai_is_reviewed, is_important: $sai_is_important,"
+            " accepted_version: $sai_accepted})"
         )
-        study_activity_node: StudyActivity = nodes["study_activity"]
-        study_data_supplier_node: StudyDataSupplier | None = nodes.get(
-            "study_data_supplier"
-        )
-        origin_type_root: CTTermRoot | None = nodes.get("origin_type_root")
-        origin_source_root: CTTermRoot | None = nodes.get("origin_source_root")
-
-        # Create new activity selection
-        study_activity_instance_selection_node = StudyActivityInstance(
-            uid=selection.study_selection_uid,
-            show_activity_instance_in_protocol_flowchart=selection.show_activity_instance_in_protocol_flowchart,
-            keep_old_version=selection.keep_old_version,
-            keep_old_version_date=selection.keep_old_version_date,
-            is_reviewed=selection.is_reviewed,
-            is_important=selection.is_important,
-            accepted_version=selection.accepted_version,
-        ).save()
+        create_core_rels = [
+            "CREATE (study_activity)-[:STUDY_ACTIVITY_HAS_STUDY_ACTIVITY_INSTANCE]->(sai)",
+        ]
         if not for_deletion:
-            # Connect new node with study value
-            latest_study_value_node.has_study_activity_instance.connect(
-                study_activity_instance_selection_node
+            create_core_rels.append(
+                "CREATE (study_value)-[:HAS_STUDY_ACTIVITY_INSTANCE]->(sai)"
             )
 
-        if selection.activity_instance_uid and latest_activity_instance_value_node:
-            # Connect new node with Activity value
-            study_activity_instance_selection_node.has_selected_activity_instance.connect(
-                latest_activity_instance_value_node
-            )
-
-        # Connect StudyActivityInstance with StudyActivity node
-        study_activity_instance_selection_node.study_activity_has_study_activity_instance.connect(
-            study_activity_node
+        all_lines = (
+            match_lines
+            + optional_matches
+            + [create_node]
+            + create_core_rels
+            + create_instance_rels
+            + ["RETURN sai"]
         )
+        results, _ = db.cypher_query("\n".join(all_lines), params, resolve_objects=True)
+        if not results or not results[0]:
+            raise exceptions.BusinessLogicException(
+                msg=f"Failed to create StudyActivityInstance node for '{selection.study_selection_uid}'."
+            )
+        study_activity_instance_selection_node: StudyActivityInstance = results[0][0]
 
-        # Handle baseline visit relationships
+        # Handle baseline visit relationships (require per-visit validation)
         for baseline_visit in selection.study_activity_instance_baseline_visits or []:
             baseline_visit_uid = baseline_visit["uid"]
             baseline_visit_node = latest_study_value_node.has_study_visit.get_or_none(
@@ -845,13 +830,27 @@ class StudySelectionActivityInstanceRepository(
             )
 
         # Connect StudyDataSupplier if provided
-        if selection.study_data_supplier_uid and study_data_supplier_node:
-            study_activity_instance_selection_node.has_study_data_supplier.connect(
-                study_data_supplier_node
+        if selection.study_data_supplier_uid:
+            supplier_results, _ = db.cypher_query(
+                "MATCH (study_data_supplier:StudyDataSupplier {uid: $uid}) WHERE NOT (study_data_supplier)-[:BEFORE]-() RETURN study_data_supplier",
+                {"uid": selection.study_data_supplier_uid},
+                resolve_objects=True,
             )
+            if supplier_results:
+                study_activity_instance_selection_node.has_study_data_supplier.connect(
+                    supplier_results[0][0]
+                )
 
         # Connect Origin Type CT term if provided
         if selection.origin_type_uid:
+            origin_type_results, _ = db.cypher_query(
+                "OPTIONAL MATCH (origin_type_root:CTTermRoot {uid: $uid}) RETURN origin_type_root",
+                {"uid": selection.origin_type_uid},
+                resolve_objects=True,
+            )
+            origin_type_root: CTTermRoot | None = None
+            if origin_type_results and origin_type_results[0][0]:
+                origin_type_root = origin_type_results[0][0]
             ValidationException.raise_if(
                 origin_type_root is None,
                 msg=f"Origin Type Term with UID '{selection.origin_type_uid}' doesn't exist.",
@@ -868,6 +867,14 @@ class StudySelectionActivityInstanceRepository(
 
         # Connect Origin Source CT term if provided
         if selection.origin_source_uid:
+            origin_source_results, _ = db.cypher_query(
+                "OPTIONAL MATCH (origin_source_root:CTTermRoot {uid: $uid}) RETURN origin_source_root",
+                {"uid": selection.origin_source_uid},
+                resolve_objects=True,
+            )
+            origin_source_root: CTTermRoot | None = None
+            if origin_source_results and origin_source_results[0][0]:
+                origin_source_root = origin_source_results[0][0]
             ValidationException.raise_if(
                 origin_source_root is None,
                 msg=f"Origin Source Term with UID '{selection.origin_source_uid}' doesn't exist.",
@@ -916,6 +923,49 @@ class StudySelectionActivityInstanceRepository(
             .resolve_subgraph()
         ).distinct()
         return study_activity_instances
+
+    def find_selection_vo_by_uid(
+        self,
+        study_uid: str,
+        study_selection_uid: str,
+    ) -> StudySelectionActivityInstanceVO | None:
+        """Fetch a single fully-populated VO by its study_selection_uid.
+
+        Uses the same MATCH/CALL blocks as the listing query but filtered to
+        one StudyActivityInstance node, avoiding a full aggregate load.
+        """
+        additional_match = self._additional_match()
+        # Inject the UID filter into the existing WHERE clause that follows
+        # "WITH sr, sv, sa, study_activity WHERE sa IS NOT NULL"
+        additional_match = additional_match.replace(
+            "WHERE sa IS NOT NULL",
+            "WHERE sa IS NOT NULL AND sa.uid = $study_selection_uid",
+            1,
+        )
+        query = (
+            "MATCH (sr:StudyRoot {uid: $study_uid})-[:LATEST]->(sv:StudyValue)"
+            + additional_match
+            + self._order_by_query()
+            + self._return_clause()
+        )
+        results = db.cypher_query(
+            query,
+            {
+                "study_uid": study_uid,
+                "study_selection_uid": study_selection_uid,
+                "uids": study_uid,
+            },
+        )
+        from clinical_mdr_api import (
+            utils as _utils,  # local to avoid circular at module level
+        )
+
+        rows = _utils.db_result_to_list(results)
+        if not rows:
+            return None
+        selection = rows[0]
+        acv = selection.get("accepted_version", False) or False
+        return self._create_value_object_from_repository(selection=selection, acv=acv)
 
     def get_all_study_activity_instances_impacted_by_schedule_deletion(
         self, study_uid: str, schedule_uid: str

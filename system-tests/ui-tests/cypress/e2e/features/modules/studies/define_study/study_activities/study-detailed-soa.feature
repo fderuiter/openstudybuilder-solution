@@ -11,7 +11,8 @@ Feature: Studies - Define Study - Study Activities - Schedule of Activities - De
 
     Scenario: [TestData] Old placeholder activity workflow feature flag is disabled
         When The '/administration/featureflags' page is opened
-        Then Old placeholder workflow feature flag is turned off
+        And User switch to 'Studies' feature flags
+        And User enables 'streamline_placeholder_activities' feature flag
 
     Scenario: [TestData] Study visits, epochs and activities are created
         And [API] The epoch with type 'Pre Treatment' and subtype 'Run-in' exists in selected study
@@ -512,17 +513,17 @@ Feature: Studies - Define Study - Study Activities - Schedule of Activities - De
         When User search for non-existing activity
         Then No activities are found
 
-    Scenario: [Table][Search][Negative] User must not be able to search activity by activity subgroup
+    Scenario: [Table][Search][By subgroup] User must be able to search activity by activity subgroup
         Given The test study '/activities/soa' page is opened
         And Detailed SoA table is loaded
         When User search study activity by subgroup
-        Then No activities are found
+        Then Activity is found in table
 
-    Scenario: [Table][Search][Negative] User must not be able to search activity by activity group
+    Scenario: [Table][Search][By group] User must be able to search activity by activity group
         Given The test study '/activities/soa' page is opened
         And Detailed SoA table is loaded
         When User search study activity by group
-        Then No activities are found
+        Then Activity is found in table
 
     Scenario: [Export][CSV] User must be able to export the data in CSV format
         Given The test study '/activities/soa' page is opened

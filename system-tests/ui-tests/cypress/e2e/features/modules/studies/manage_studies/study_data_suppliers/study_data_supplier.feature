@@ -7,7 +7,11 @@ Feature: Study - Manage Study - Study Data Suppliers
         And A test study is selected
         And Data supplier type is set to 'EDC System'
 
-    Scenario: [Test data] User must be able delete all existing data suppliers for given study
+    Scenario: [Test data] User must be able to enabler feature flags and delete all existing data suppliers for given study
+        Given The '/administration/featureflags' page is opened
+        And User switch to 'Studies' feature flags
+        And User enables 'study_data_suppliers' feature flag
+        And User enables 'study_data_suppliers_create_from_study' feature flag
         Given User intercepts data supplier request
         Given The test study '/data-suppliers' page is opened
         And The 'Overview' tab is selected

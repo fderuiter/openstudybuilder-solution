@@ -26,7 +26,7 @@ from clinical_mdr_api.domains.concepts.unit_definitions.unit_definition import (
 )
 from clinical_mdr_api.domains.controlled_terminologies.ct_term_name import CTTermNameAR
 from clinical_mdr_api.domains.dictionaries.dictionary_term import DictionaryTermAR
-from clinical_mdr_api.domains.enums import ValidationMode
+from clinical_mdr_api.domains.enums import LibraryItemStatus, ValidationMode
 from clinical_mdr_api.domains.projects.project import ProjectAR
 from clinical_mdr_api.domains.study_definition_aggregates.registry_identifiers import (
     RegistryIdentifiersVO,
@@ -47,6 +47,10 @@ from clinical_mdr_api.domains.study_definition_aggregates.study_metadata import 
     StudyInterventionVO,
     StudyPopulationVO,
     StudyStatus,
+)
+from clinical_mdr_api.domains.study_definition_aggregates.study_template import (
+    StudyTemplateAR,
+    StudyTemplateValueVO,
 )
 from clinical_mdr_api.domains.study_selections.study_selection_standard_version import (
     StudyStandardVersionVO,
@@ -69,7 +73,9 @@ from clinical_mdr_api.models.study_selections.study import (
     StudyPatchRequestJsonModel,
     StudyPopulationJsonModel,
     StudyPreferredTimeUnit,
+    StudyProtocolHeaderVersion,
     StudyProtocolTitle,
+    StudySelectionContainmentResult,
     StudySimple,
     StudySoaPreferences,
     StudySoaPreferencesInput,
@@ -77,9 +83,11 @@ from clinical_mdr_api.models.study_selections.study import (
     StudySoaSplitInput,
     StudyStructureOverview,
     StudyStructureStatistics,
-    StudySubpartAuditTrail,
     StudySubpartCreateInput,
     StudySubpartReorderingInput,
+    StudyTemplate,
+    StudyTemplateInput,
+    StudyTemplatePatchInput,
     StudyVersionHistory,
 )
 from clinical_mdr_api.models.utils import GenericFilteringReturn
@@ -110,6 +118,8 @@ from common.exceptions import (
 )
 from common.telemetry import trace_calls
 from common.utils import booltostr
+
+log = logging.getLogger(__name__)
 
 
 def validate_if_study_is_not_locked(
@@ -416,6 +426,34 @@ class StudyService:
             raise NotFoundException("Study Definition", uid)
 
         return StudyStructureStatistics(**counters)
+
+    @ensure_transaction(db)
+    def get_study_selection_containment(
+        self, source_study_uid: str, target_study_uid: str
+    ) -> StudySelectionContainmentResult:
+        """
+        Check whether **target** study selection statistics (labels taken from target)
+        are numerically contained in **source** (target counts <= source per label).
+
+        ``StudySoAFootnote`` is excluded from the comparison (clone-dependent).
+
+        Validates that both studies exist.
+        """
+        if (
+            self._repos.study_definition_repository.find_by_uid(source_study_uid)
+            is None
+        ):
+            raise NotFoundException("Study Definition", source_study_uid)
+        if (
+            self._repos.study_definition_repository.find_by_uid(target_study_uid)
+            is None
+        ):
+            raise NotFoundException("Study Definition", target_study_uid)
+        raw = self._repos.study_definition_repository.get_study_selection_containment(
+            source_study_uid=source_study_uid,
+            target_study_uid=target_study_uid,
+        )
+        return StudySelectionContainmentResult(**raw)
 
     def _group_study_structure_overview_by_data(self, items):
         parsed_items: dict[tuple[Any, ...], StudyStructureOverview] = {}
@@ -985,12 +1023,23 @@ class StudyService:
 
     @db.transaction
     def get_subpart_audit_trail_by_uid(
-        self, uid: str, is_subpart: bool = False, study_value_version: str | None = None
-    ) -> list[StudySubpartAuditTrail]:
+        self,
+        uid: str,
+        is_subpart: bool = False,
+        study_value_version: str | None = None,
+        page_number: int = 1,
+        page_size: int = 0,
+        total_count: bool = False,
+    ) -> GenericFilteringReturn:
         try:
             return (
                 self._repos.study_definition_repository.get_subpart_audit_trail_by_uid(
-                    uid, is_subpart, study_value_version=study_value_version
+                    uid,
+                    is_subpart,
+                    study_value_version=study_value_version,
+                    page_number=page_number,
+                    page_size=page_size,
+                    total_count=total_count,
                 )
             )
         finally:
@@ -1127,9 +1176,17 @@ class StudyService:
         self,
         study_uid: str,
         study_value_version: str | None = None,
-    ) -> str | None:
-        return self._repos.study_definition_document_repository.get_latest_protocol_header_version(
+    ) -> StudyProtocolHeaderVersion:
+        protocol_header_version = self._repos.study_definition_document_repository.get_latest_protocol_header_version(
             study_uid=study_uid, study_value_version=study_value_version
+        )
+        has_final_protocol = self._repos.study_definition_document_repository.has_final_protocol_locked_version(
+            study_uid=study_uid,
+            study_value_version=study_value_version,
+        )
+        return StudyProtocolHeaderVersion(
+            protocol_header_version=protocol_header_version,
+            has_final_protocol_locked_version=has_final_protocol,
         )
 
     def get_distinct_values_for_header(
@@ -1309,6 +1366,42 @@ class StudyService:
                 msg="Study Element should be also included",
             )
             list_of_items_to_copy.append("StudyDesignCell")
+        if study_clone_input.copy_study_soa_group:
+            list_of_items_to_copy.append("StudySoAGroup")
+        if study_clone_input.copy_study_activity_group:
+            list_of_items_to_copy.append("StudyActivityGroup")
+        if study_clone_input.copy_study_activity_subgroup:
+            BusinessLogicException.raise_if(
+                study_clone_input.copy_study_activity_group is False,
+                msg="Study Activity Group should be also included",
+            )
+            list_of_items_to_copy.append("StudyActivitySubGroup")
+        if study_clone_input.copy_study_activity:
+            BusinessLogicException.raise_if(
+                study_clone_input.copy_study_activity_group is False,
+                msg="Study Activity Group should be also included",
+            )
+            BusinessLogicException.raise_if(
+                study_clone_input.copy_study_activity_subgroup is False,
+                msg="Study Activity Subgroup should be also included",
+            )
+            list_of_items_to_copy.append("StudyActivity")
+        if study_clone_input.copy_study_activity_instance:
+            BusinessLogicException.raise_if(
+                study_clone_input.copy_study_activity is False,
+                msg="Study Activity should be also included",
+            )
+            list_of_items_to_copy.append("StudyActivityInstance")
+        if study_clone_input.copy_study_activity_schedule:
+            BusinessLogicException.raise_if(
+                study_clone_input.copy_study_visit is False,
+                msg="Study Visit should be also included",
+            )
+            BusinessLogicException.raise_if(
+                study_clone_input.copy_study_activity is False,
+                msg="Study Activity should be also included",
+            )
+            list_of_items_to_copy.append("StudyActivitySchedule")
         BusinessLogicException.raise_if_not(
             study_clone_input.copy_study_arm
             or study_clone_input.copy_study_branch_arm
@@ -1318,20 +1411,26 @@ class StudyService:
             or study_clone_input.copy_study_visit
             or study_clone_input.copy_study_visits_study_footnote
             or study_clone_input.copy_study_epochs_study_footnote
-            or study_clone_input.copy_study_design_matrix,
+            or study_clone_input.copy_study_design_matrix
+            or study_clone_input.copy_study_soa_group
+            or study_clone_input.copy_study_activity_group
+            or study_clone_input.copy_study_activity_subgroup
+            or study_clone_input.copy_study_activity
+            or study_clone_input.copy_study_activity_instance
+            or study_clone_input.copy_study_activity_schedule,
             msg="At least one item should be selected",
         )
 
         # Validate source study integrity before cloning
         validation_mode = study_clone_input.validation_mode
 
-        logging.info(
+        log.info(
             "Running integrity checks for source study %s (mode: %s)",
             study_src_uid,
             validation_mode,
         )
         execute_all_checks_for_study(study_src_uid, mode=validation_mode)
-        logging.info("Integrity checks passed for source study %s", study_src_uid)
+        log.info("Integrity checks passed for source study %s", study_src_uid)
 
         self._repos.study_definition_repository.copy_study_items(
             study_src_uid=study_src_uid,
@@ -1340,14 +1439,60 @@ class StudyService:
             author_id=self.author_id,
         )
 
+        containment = self.get_study_selection_containment(
+            source_study_uid=study_src_uid,
+            target_study_uid=study_created.uid,
+        )
+        if not containment.target_contained_in_source:
+            failed_detail = "; ".join(
+                (
+                    f"{row.label} (target selections={row.target_selection_count}, "
+                    f"source={row.source_selection_count}; "
+                    f"target distinct CT term roots={row.target_distinct_ct_term_root_count}, "
+                    f"source={row.source_distinct_ct_term_root_count})"
+                )
+                for row in containment.per_label
+                if not row.label_contained
+            )
+            containment_msg = (
+                "Cloned study selection counts are not contained in the source study "
+                "for one or more labels (StudySoAFootnote excluded). "
+                f"{failed_detail}"
+            )
+            if validation_mode == ValidationMode.STRICT:
+                log.error(
+                    "Study selection containment failed after clone (strict): "
+                    "source=%s target=%s. %s",
+                    study_src_uid,
+                    study_created.uid,
+                    failed_detail,
+                )
+                raise BusinessLogicException(msg=containment_msg)
+            log.warning(
+                "Study selection containment check did not pass after clone "
+                "(warning mode; continuing): source=%s target=%s. %s",
+                study_src_uid,
+                study_created.uid,
+                containment_msg,
+            )
+        else:
+            log.info(
+                "Study selection containment passed for clone (mode=%s): source=%s "
+                "target=%s (%d label(s) compared)",
+                validation_mode.value,
+                study_src_uid,
+                study_created.uid,
+                len(containment.labels_from_target),
+            )
+
         # Validate cloned study integrity after cloning
-        logging.info(
+        log.info(
             "Running integrity checks for cloned study %s (mode: %s)",
             study_created.uid,
             validation_mode,
         )
         execute_all_checks_for_study(study_created.uid, mode=validation_mode)
-        logging.info("Integrity checks passed for cloned study %s", study_created.uid)
+        log.info("Integrity checks passed for cloned study %s", study_created.uid)
 
         return study_created
 
@@ -2782,7 +2927,7 @@ class StudyService:
                             ValueError,
                             AttributeError,
                         ) as normalize_error:
-                            logging.warning(
+                            log.warning(
                                 "Error normalizing noncompliant_node_ids for check %s: %s. Raw data: %s",
                                 check_result.check_id,
                                 normalize_error,
@@ -2804,7 +2949,7 @@ class StudyService:
                             )
                         except (ValueError, TypeError) as validation_error:
                             # If validation fails, create a simplified result with error
-                            logging.warning(
+                            log.warning(
                                 "Error creating IntegrityCheckResult for check %s: %s",
                                 check_result.check_id,
                                 validation_error,
@@ -2903,3 +3048,166 @@ class StudyService:
             raise NotFoundException(f"Study with uid {study_uid} was not found.")
 
         return study_results[0]
+
+    def ensure_study_integrity_after_mutation(
+        self, study_uid: str, *, context: str
+    ) -> None:
+        """
+        Run study integrity checks after a mutation and log warning on failures.
+
+        Args:
+            study_uid: UID of the mutated study.
+            context: Human-readable mutation context for log attribution.
+        """
+        integrity = self.run_integrity_check_for_study(study_uid)
+        if not integrity.all_passed or integrity.error:
+            failed_check_ids = [c.check_id for c in integrity.checks if not c.passed]
+            log.warning(
+                "Study integrity check failed after %s: study_uid=%s "
+                "integrity_error=%s failed_check_ids=%s",
+                context,
+                study_uid,
+                integrity.error,
+                failed_check_ids,
+            )
+
+    @staticmethod
+    def _to_study_template_model(study_template_ar: StudyTemplateAR) -> StudyTemplate:
+        return StudyTemplate(
+            uid=study_template_ar.uid or "",
+            study_uid=study_template_ar.value.study_uid,
+            study_value_version=study_template_ar.value.study_value_version,
+            status=study_template_ar.item_metadata.status,
+            version=study_template_ar.item_metadata.version,
+            change_description=study_template_ar.item_metadata.change_description,
+        )
+
+    def _validate_study_template_target(
+        self, study_uid: str, study_value_version: str
+    ) -> None:
+        self.check_if_study_uid_and_version_exists(
+            study_uid=study_uid, study_value_version=study_value_version
+        )
+
+    def _get_single_study_template(
+        self, status: LibraryItemStatus | None = None
+    ) -> StudyTemplateAR | None:
+        items = list(self._repos.study_template_repository.find_all(status=status))
+        BusinessLogicException.raise_if(
+            len(items) > 1,
+            msg="Only one Study Template configuration is allowed.",
+        )
+        return items[0] if items else None
+
+    @db.transaction
+    def get_study_template(self) -> StudyTemplate | None:
+        item = self._get_single_study_template()
+        if item is None or (
+            item.item_metadata.status
+            not in [LibraryItemStatus.FINAL, LibraryItemStatus.RETIRED]
+        ):
+            return None
+        return self._to_study_template_model(item)
+
+    @db.transaction
+    def create_study_template(
+        self, study_template_input: StudyTemplateInput
+    ) -> StudyTemplate:
+        self._validate_study_template_target(
+            study_uid=study_template_input.study_uid,
+            study_value_version=study_template_input.study_value_version,
+        )
+        existing = self._get_single_study_template()
+        BusinessLogicException.raise_if(
+            existing is not None,
+            msg="Study Template configuration already exists. Use PATCH to update it.",
+        )
+
+        study_template_ar = StudyTemplateAR.from_input_values(
+            author_id=self.author_id,
+            generate_uid_callback=self._repos.study_template_repository.generate_uid_callback,
+            study_template_value=StudyTemplateValueVO.from_input_values(
+                study_uid=study_template_input.study_uid,
+                study_value_version=study_template_input.study_value_version,
+            ),
+        )
+        study_template_ar.approve(self.author_id)
+        self._repos.study_template_repository.save(study_template_ar)
+        return self._to_study_template_model(study_template_ar)
+
+    @db.transaction
+    def patch_study_template(
+        self, patch_input: StudyTemplatePatchInput
+    ) -> StudyTemplate:
+        study_uid_value = patch_input.study_uid.strip()
+        if not study_uid_value:
+            study_uid_value = ""
+            study_value_version_value = ""
+        else:
+            study_value_version_value = patch_input.study_value_version.strip()
+
+        if study_uid_value:
+            self._validate_study_template_target(
+                study_uid=study_uid_value,
+                study_value_version=study_value_version_value,
+            )
+        study_template_ar = self._get_single_study_template()
+        NotFoundException.raise_if(
+            study_template_ar is None, "Study Template configuration", "latest"
+        )
+        study_template_ar = self._repos.study_template_repository.find_by_uid_2(
+            study_template_ar.uid, for_update=True
+        )
+        NotFoundException.raise_if(
+            study_template_ar is None, "Study Template configuration", "latest"
+        )
+
+        if study_template_ar.item_metadata.status in [
+            LibraryItemStatus.FINAL,
+            LibraryItemStatus.RETIRED,
+        ]:
+            study_template_ar.create_new_version(self.author_id)
+
+        study_template_ar.edit_draft(
+            author_id=self.author_id,
+            change_description=patch_input.change_description,
+            new_study_template_value=StudyTemplateValueVO.from_input_values(
+                study_uid=study_uid_value,
+                study_value_version=study_value_version_value,
+            ),
+        )
+        study_template_ar.approve(self.author_id)
+        self._repos.study_template_repository.save(study_template_ar)
+        return self._to_study_template_model(study_template_ar)
+
+    @db.transaction
+    def retire_study_template(self) -> StudyTemplate:
+        study_template_ar = self._get_single_study_template()
+        NotFoundException.raise_if(
+            study_template_ar is None, "Study Template configuration", "latest"
+        )
+        study_template_ar = self._repos.study_template_repository.find_by_uid_2(
+            study_template_ar.uid, for_update=True
+        )
+        NotFoundException.raise_if(
+            study_template_ar is None, "Study Template configuration", "latest"
+        )
+        study_template_ar.inactivate(self.author_id)
+        self._repos.study_template_repository.save(study_template_ar)
+        return self._to_study_template_model(study_template_ar)
+
+    @db.transaction
+    def reactivate_study_template(self) -> StudyTemplate:
+        study_template_ar = self._get_single_study_template()
+        NotFoundException.raise_if(
+            study_template_ar is None, "Study Template configuration", "latest"
+        )
+        study_template_ar = self._repos.study_template_repository.find_by_uid_2(
+            study_template_ar.uid, for_update=True
+        )
+        NotFoundException.raise_if(
+            study_template_ar is None, "Study Template configuration", "latest"
+        )
+        study_template_ar.reactivate(self.author_id)
+        self._repos.study_template_repository.save(study_template_ar)
+        return self._to_study_template_model(study_template_ar)

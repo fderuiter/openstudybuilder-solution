@@ -37,6 +37,23 @@ class Burden(BaseModel):
         )
 
 
+class ComplexityScoreVisit(BaseModel):
+    type: Annotated[str, Field()]
+    count: Annotated[int, Field()]
+    burden: Annotated[float, Field()]
+
+
+class ComplexityScoreAssessment(BaseModel):
+    type: Annotated[str, Field()]
+    count: Annotated[int, Field()]
+    burden: Annotated[float, Field()]
+
+
+class ComplexityScoreDetails(BaseModel):
+    visits: Annotated[list[ComplexityScoreVisit], Field()]
+    assessments: Annotated[list[ComplexityScoreAssessment], Field()]
+
+
 class BurdenInput(PostInputModel):
     burden_id: Annotated[str, Field()]
     name: Annotated[str, Field()]

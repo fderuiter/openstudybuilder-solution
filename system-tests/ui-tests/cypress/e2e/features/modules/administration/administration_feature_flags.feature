@@ -13,13 +13,14 @@ Feature: Administration - Feature Flags
   Scenario: [Table][Columns][Names] User must be able to see the columns list on the main page as below
      Given The '/administration/featureflags' page is opened
      Then A table is visible with following headers
-        |  header                   |
-        |  Name                     |
-        |  Description              |
+        |  header            |
+        |  Feature           |
+        |  Name              |
 
   Scenario: [Feature flags] User must be able to toggle off feature flags
     Given The '/administration/featureflags' page is opened
-    And The toggle is set to off
+    And User switch to 'Studies' feature flags
+    And User disables 'studies_view_listings_analysis_study_metadata_new' feature flag
     When The '/studies' page is opened
     And Click the View Listings side-menu
     Then The sub-menu Analysis Study Metadata should not exist
@@ -35,7 +36,8 @@ Feature: Administration - Feature Flags
 
   Scenario: [Feature flags] User must be able to toggle on feature flags
     Given The '/administration/featureflags' page is opened
-    And The toggle is set to on
+    And User switch to 'Studies' feature flags
+    And User enables 'studies_view_listings_analysis_study_metadata_new' feature flag
     When The '/studies' page is opened
     And Click the View Listings side-menu
     Then The sub-menu Analysis Study Metadata should exist

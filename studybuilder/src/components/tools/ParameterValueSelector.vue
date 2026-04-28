@@ -440,7 +440,7 @@ export default {
     },
     cleanItemName(item) {
       // Return the name without any html tags such as <p> or </p>
-      return `${item.name.replace(/<\/?[^>]+(>)/g, '')}`
+      return `${item.name.replace(/[<>]/g, '')}`
     },
     getNamePreview(hideEmptyParams) {
       if (!this.template) {

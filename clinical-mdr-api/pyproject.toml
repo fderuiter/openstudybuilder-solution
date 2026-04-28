@@ -36,7 +36,13 @@ max-line-length = 200
 max-module-lines = 6500
 
 [tool.pylint.'BASIC']
-good-names = '_,c,e,i,j,k,l,r,v,x,y,z,ar,ex,rs,_AggregateRootType,db'
+good-names = '_,c,e,i,j,k,l,r,v,x,y,z,ar,ex,rs,_AggregateRootType,db,studyUID'
+# Allow UPPER_CASE and PascalCase for classes, with optional leading underscore
+class-rgx = '_?([A-Z][a-zA-Z0-9]*|[A-Z_][A-Z0-9_]*)$'
+# Allow UPPER_CASE, PascalCase, and snake_case for constants (Path descriptors, test globals)
+const-rgx = '([A-Z_][A-Z0-9_]*|[A-Z][a-zA-Z0-9]*|[a-z_][a-z0-9_]*)$'
+# Allow UPPER_CASE in addition to snake_case for variables (test constants at function scope)
+variable-rgx = '([a-z_][a-z0-9_]*|[A-Z_][A-Z0-9_]*)$'
 
 [tool.pylint.'DESIGN']
 max-args = 50
