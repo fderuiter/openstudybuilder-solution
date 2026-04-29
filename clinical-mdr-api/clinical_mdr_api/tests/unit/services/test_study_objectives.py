@@ -7,7 +7,6 @@ from clinical_mdr_api.domains.study_selections.study_selection_endpoint import (
     EndpointUnits,
 )
 from clinical_mdr_api.models.controlled_terminologies.ct_term import (
-    CTTermName,
     SimpleCodelistTermModel,
 )
 from clinical_mdr_api.models.study_selections.study_selection import (
@@ -35,12 +34,6 @@ TERM_PRI_OBJ = SimpleCodelistTermModel(
     codelist_submission_value="OBJLEVL",
     submission_value="OBJPRIM",
     order=1,
-)
-TERM_PRI_END = CTTermName(
-    term_uid="C98772_OUTMSPRI",
-    sponsor_preferred_name="Primary Endpoint",
-    sponsor_preferred_name_sentence_case="primary endpoint",
-    queried_effective_date=None,
 )
 TERM_PRI_END = SimpleCodelistTermModel(
     term_uid="C98772",
@@ -83,8 +76,8 @@ TIMEFRAME_2 = Timeframe(
 
 ENDPOINT_4 = Endpoint(
     uid="Endpoint_000004",
-    name="<p>Disease control rate of Actrapid + Empagliflozin cohort</p>",
-    name_plain="Disease control rate of Actrapid + Empagliflozin cohort",
+    name="<p>Disease control rate of Drug A</p>",
+    name_plain="Disease control rate of Drug A",
 )
 ENDPOINT_3 = Endpoint(
     uid="Endpoint_000003",

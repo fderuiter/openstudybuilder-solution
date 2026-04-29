@@ -23,6 +23,7 @@
                   <v-btn
                     v-if="isExpanded(internalItem)"
                     icon="mdi-chevron-down"
+                    data-cy="expand-item"
                     variant="text"
                     @click="toggleExpand(internalItem)"
                   />
@@ -32,6 +33,7 @@
                       item.vendor_attributes.length > 0
                     "
                     icon="mdi-chevron-right"
+                    data-cy="expand-item"
                     variant="text"
                     @click="toggleExpand(internalItem)"
                   />
@@ -57,6 +59,7 @@
               <td width="20%">
                 <v-text-field
                   v-model="selectedExtensions[index].value"
+                  data-cy="selected-extensions"
                   :label="$t('_global.value')"
                   class="mt-3"
                   :readonly="readOnly"
@@ -65,6 +68,7 @@
               <td width="20%">
                 <v-btn
                   icon="mdi-delete-outline"
+                  data-cy="remove-extension"
                   class="mt-1"
                   variant="text"
                   :disabled="readOnly"
@@ -146,6 +150,7 @@
                 <v-row>
                   <v-btn
                     v-if="isExpanded(internalItem)"
+                    data-cy="expand-item"
                     icon="mdi-chevron-down"
                     variant="text"
                     @click="toggleExpand(internalItem)"
@@ -156,6 +161,7 @@
                       item.vendor_attributes.length > 0
                     "
                     icon="mdi-chevron-right"
+                    data-cy="expand-item"
                     variant="text"
                     @click="toggleExpand(internalItem)"
                   />

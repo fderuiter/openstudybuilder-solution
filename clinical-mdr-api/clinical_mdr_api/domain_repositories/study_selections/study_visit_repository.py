@@ -728,10 +728,24 @@ class StudyVisitRepository:
 
         query.append(dedent("""
             RETURN
-                study_visit { .*,
+                {
+                    uid: study_visit.uid,
+                    show_visit: coalesce(study_visit.show_visit, false),
+                    is_global_anchor_visit: coalesce(study_visit.is_global_anchor_visit, false),
+                    is_soa_milestone: coalesce(study_visit.is_soa_milestone, false),
+                    visit_number: study_visit.visit_number,
+                    unique_visit_number: toInteger(study_visit.unique_visit_number),
+                    visit_class: study_visit.visit_class,
+                    visit_subclass: study_visit.visit_subclass,
+                    short_visit_label: study_visit.short_visit_label,
+                    visit_name_label: study_visit.visit_name_label,
+                    description: study_visit.description,
+                    start_rule: study_visit.start_rule,
+                    end_rule: study_visit.end_rule,
+                    status: study_visit.status,
                     consecutive_visit_group: CASE group.visit_group.group_format
-                        WHEN "range" THEN head(group.consecutive_visits).vis.short_visit_label + "-" + last(group.consecutive_visits).vis.short_visit_label 
-                        WHEN "list" THEN apoc.text.join([visit in group.consecutive_visits | visit.vis.short_visit_label], ',') 
+                        WHEN "range" THEN head(group.consecutive_visits).vis.short_visit_label + "-" + last(group.consecutive_visits).vis.short_visit_label
+                        WHEN "list" THEN apoc.text.join([visit in group.consecutive_visits | visit.vis.short_visit_label], ',')
                         ELSE null END,
                     consecutive_visit_group_uid: group.visit_group.uid,
                     visit_short_name: study_visit.short_visit_label,

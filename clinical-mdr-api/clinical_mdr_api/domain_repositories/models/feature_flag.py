@@ -4,6 +4,8 @@ from common.neomodel import BooleanProperty, IntegerProperty, StringProperty
 
 class FeatureFlag(ClinicalMdrNode):
     sn = IntegerProperty(unique_index=True)
+    section = StringProperty()
+    feature = StringProperty()
     name = StringProperty()
     enabled = BooleanProperty()
     description = StringProperty()

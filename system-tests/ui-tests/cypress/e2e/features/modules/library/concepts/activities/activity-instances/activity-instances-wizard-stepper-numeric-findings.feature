@@ -8,7 +8,8 @@ Feature: Library - Concepts - Activities - Activity instances - wizard stepper -
 
     Scenario: [Feature flag] User must be able to turn on wizard stepper for activity instance creation
         When The '/administration/featureflags' page is opened
-        Then Activity instance wizard feature flag is turned on
+        And User switch to 'Library' feature flags
+        And User enables 'new_activity_instance_wizard_stepper' feature flag
 
     Scenario: [Create][NumericFindings][Existing activity] User must be able to add a new Activity Instance with NumericFindlings as Activity Instance Class
         Given The '/library/activities/activity-instances' page is opened

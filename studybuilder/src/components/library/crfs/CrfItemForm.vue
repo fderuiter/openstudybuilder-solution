@@ -164,6 +164,7 @@
           <template #[`item.delete`]="{ item }">
             <v-btn
               icon="mdi-delete-outline"
+              data-cy="remove-codelist"
               class="mt-1"
               size="small"
               variant="outlined"
@@ -191,6 +192,7 @@
           <template #[`item.actions`]="{ item }">
             <v-btn
               icon="mdi-plus"
+              data-cy="add-codelist"
               class="mt-1"
               size="small"
               variant="outlined"
@@ -248,6 +250,7 @@
                 <td>
                   <v-btn
                     icon="mdi-delete-outline"
+                    data-cy="remove-term"
                     class="mt-1"
                     variant="text"
                     :color="isTermRemoved(item) ? 'error' : ''"
@@ -285,6 +288,7 @@
           <template #[`item.add`]="{ item }">
             <v-btn
               icon="mdi-plus"
+              data-cy="add-term"
               class="mt-1"
               variant="text"
               :readonly="isReadOnly"
@@ -311,6 +315,7 @@
           <template #actions="">
             <v-btn
               class="ml-2"
+              data-cy="add-unit"
               icon
               size="small"
               variant="outlined"
@@ -345,6 +350,7 @@
             <v-btn
               icon="mdi-delete-outline"
               class="mt-n5"
+              data-cy="remove-unit"
               variant="text"
               :readonly="isReadOnly"
               @click="removeUnit(index)"

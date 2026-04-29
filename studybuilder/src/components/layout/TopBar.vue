@@ -93,6 +93,7 @@
       </v-btn>
     </div>
     <v-btn
+      v-if="isAuthenticated"
       data-cy="topbar-admin-icon"
       icon="mdi-cog-outline"
       :title="$t('_global.preferences')"

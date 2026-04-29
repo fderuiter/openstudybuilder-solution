@@ -15,6 +15,7 @@ import pytest
 from fastapi.testclient import TestClient
 from neomodel import db
 
+from clinical_mdr_api.domains.enums import ValidationMode
 from clinical_mdr_api.domains.study_selections.study_selection_activity_instance import (
     StudyActivityInstanceState,
 )
@@ -690,6 +691,7 @@ def test_create_study_activity_instance(api_client):
             "study_visit_uid": study_visit_1.uid,
         },
     )
+    assert_response_status_code(response, 201)
 
     response = api_client.post(
         f"/studies/{test_study.uid}/study-activity-instances",
@@ -816,6 +818,7 @@ def test_edit_study_activity_instance(api_client):
             "study_visit_uid": study_visit_2.uid,
         },
     )
+    assert_response_status_code(response, 201)
 
     # Test is_important & baseline visits
     # Test is_important field - initially should be False
@@ -1102,12 +1105,12 @@ def test_study_activity_instance_header_endpoint(api_client):
             "flowchart_group": {"term_uid": term_efficacy_uid},
         },
     )
-    res = parse_json_response(response, status=201)
+    res = parse_json_response(response, assert_status=201)
 
     response = api_client.post(
         f"/concepts/activities/activities/{res['uid']}/approvals"
     )
-    res = parse_json_response(response, status=201)
+    res = parse_json_response(response, assert_status=201)
     hello_activity = Activity(**res)
 
     response = api_client.post(
@@ -1123,7 +1126,7 @@ def test_study_activity_instance_header_endpoint(api_client):
     response = api_client.get(
         f"/studies/{test_study.uid}/study-activity-instances/headers?field_name=activity.name",
     )
-    res = parse_json_response(response, status=200)
+    res = parse_json_response(response, assert_status=200)
     assert res == [
         randomized_activity.name,
         body_mes_activity.name,
@@ -1135,7 +1138,7 @@ def test_study_activity_instance_header_endpoint(api_client):
     response = api_client.get(
         f"/studies/{test_study.uid}/study-activity-instances/headers?field_name=activity.library_name",
     )
-    res = parse_json_response(response, status=200)
+    res = parse_json_response(response, assert_status=200)
     assert set(res) == {randomized_activity.library_name, hello_activity.library_name}
 
     # delete Test Study
@@ -1975,7 +1978,7 @@ def test_study_activity_instances_review_changes_batch(api_client):
     )
 
     response = api_client.delete(
-        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/attributes/activations"
+        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/activations"
     )
     assert_response_status_code(response, 200)
 
@@ -2021,7 +2024,7 @@ def test_study_activity_instances_review_changes_batch(api_client):
     assert res["state"] == StudyActivityInstanceState.REVIEW_NOT_NEEDED.value
 
     response = api_client.post(
-        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/attributes/activations"
+        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/activations"
     )
     assert_response_status_code(response, 200)
 
@@ -2144,7 +2147,7 @@ def test_study_activity_instances_invalidate_keep_old_version(api_client):
     assert study_activity_instances[0]["activity_instance"]["status"] == "Final"
 
     response = api_client.delete(
-        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/attributes/activations"
+        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/activations"
     )
     assert_response_status_code(response, 200)
 
@@ -2177,7 +2180,7 @@ def test_study_activity_instances_invalidate_keep_old_version(api_client):
     assert res["latest_activity_instance"]["status"] == "Retired"
 
     response = api_client.post(
-        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/attributes/activations"
+        f"/concepts/activities/activity-instances/{randomized_activity_instance.uid}/activations"
     )
     assert_response_status_code(response, 200)
 
@@ -3087,3 +3090,34 @@ def test_state_remove_instance_when_too_many_instances(api_client):
         assert item["state"] == StudyActivityInstanceState.REMOVE_INSTANCE.value
 
     TestUtils.delete_study(test_study.uid)
+
+
+def test_clone_big_study_with_study_activity_flags_enabled(api_client):
+    response = api_client.post(
+        "/studies/Study_000001/clone",
+        json={
+            "study_number": "9002",
+            "study_acronym": "9002",
+            "project_number": project.project_number,
+            "description": "Clone with study activity flags enabled",
+            "copy_study_arm": True,
+            "copy_study_branch_arm": True,
+            "copy_study_cohort": True,
+            "copy_study_element": True,
+            "copy_study_visit": True,
+            "copy_study_epoch": True,
+            "copy_study_visits_study_footnote": True,
+            "copy_study_epochs_study_footnote": True,
+            "copy_study_design_matrix": True,
+            "copy_study_soa_group": True,
+            "copy_study_activity_group": True,
+            "copy_study_activity_subgroup": True,
+            "copy_study_activity": True,
+            "copy_study_activity_instance": True,
+            "copy_study_activity_schedule": True,
+            "validation_mode": ValidationMode.WARNING.value,
+        },
+    )
+    assert_response_status_code(response, 201)
+    study_cloned = response.json()
+    assert study_cloned["uid"] != "Study_000001"

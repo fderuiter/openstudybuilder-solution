@@ -19,7 +19,20 @@ Cypress.Commands.add('createTestArmIfNoneExists', (study_uid) => {
 })
 
 Cypress.Commands.add('createTestArm', (study_uid, customName = '') => {
-    cy.sendPostRequest(createArmUrl(study_uid), createArmBody(arm_type_uid, customName)).then(response => {
+    if (customName != '') {
+        cy.sendGetRequest(studyArmsUrl(study_uid)).then((response) => {
+            const existing = response.body.items.find((item) => item.name === customName)
+            if (existing) {
+                arm_uid = existing.arm_uid ?? existing.uid
+                return
+            }
+            cy.sendPostRequest(createArmUrl(study_uid), createArmBody(arm_type_uid, customName)).then((response) => {
+                arm_uid = response.body[0].content.arm_uid
+            })
+        })
+        return
+    }
+    cy.sendPostRequest(createArmUrl(study_uid), createArmBody(arm_type_uid, customName)).then((response) => {
         arm_uid = response.body[0].content.arm_uid
     })
 })

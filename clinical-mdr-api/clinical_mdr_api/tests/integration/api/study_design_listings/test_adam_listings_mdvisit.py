@@ -238,7 +238,7 @@ def test_adam_with_protocol_soa_html_with_time_units(api_client):
         AVISIT2="Week 11",
         AVISIT2N="11",
     )
-    expected_output.STUDYID = mock.ANY
+    expected_output.STUDYID = mock.ANY  # pylint: disable=invalid-name
     assert res[0] == expected_output.model_dump()
     day_uid = get_unit_uid_by_name("day")
     response = api_client.patch(
@@ -266,5 +266,5 @@ def test_adam_with_protocol_soa_html_with_time_units(api_client):
         AVISIT2="Week 11",
         AVISIT2N="11",
     )
-    expected_output.STUDYID = mock.ANY
+    expected_output.STUDYID = mock.ANY  # pylint: disable=invalid-name
     assert res[0] == expected_output.model_dump()

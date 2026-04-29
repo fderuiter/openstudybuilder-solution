@@ -8,7 +8,8 @@ Feature: Studies - Define Study - Study Activities - Study Activities Placeholde
 
     Scenario: [TestData] Old placeholder activity workflow feature flag is enabled
         When The '/administration/featureflags' page is opened
-        Then Old placeholder workflow feature flag is turned on
+        And User switch to 'Studies' feature flags
+        And User disables 'streamline_placeholder_activities' feature flag
 
     Scenario: [Update][Positive Case][Shared Activity Request] User must be able to accept changes to activity request copied from other study
         When Study activity add button is clicked

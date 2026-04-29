@@ -8,7 +8,6 @@ Feature: Library - Data Collection Standards - CRF Builder - CRF Tree - Activity
         Given The user is logged in
         And The homepage is opened
 
-    @manual_test
     Scenario: [Create][Table View][Single Link][CRF Tree Page] User must be able to add one Activity Instance Link to a CRF Item in Table View and verify result in CRF Viewer
         Given The test CRF item is created with no Activity Instance Link
         And The '/library/crf-builder/crf-tree' page is opened
@@ -23,18 +22,15 @@ Feature: Library - Data Collection Standards - CRF Builder - CRF Tree - Activity
         And I select a value from the Activity Item Class table
         And The 'save-button' button is clicked
         Then The Edit Item window is closed
-        And The current URL is '/library/crf-builder/crf-tree'
         When The '/library/crf-builder/odm-viewer' page is opened
         When I select created Form from the Form Name dropdown list
         And I click the GENERATE button
-        And User waits for CRF Viewer data to load
         Then The imported CRF view page should be displayed
         When I click the Activity Instance option from the right top corner
         Then The added Activity Instance Link is displayed under the test item name
-
-    @manual_test
+   
     Scenario: [Create][Table View][Multiple Links][CRF Tree Page] User must be able to add multiple Activity Instance Links to a CRF Item in Table View and verify result in CRF Viewer
-        Given  The test CRF item is created with one Activity Instance Link
+        Given The test CRF item is created with no Activity Instance Link
         And The '/library/crf-builder/crf-tree' page is opened
         When I click the expand button beside created test Collection to expand the CRF Tree
         And I click the expand button beside created test Form form to expand the form
@@ -43,22 +39,20 @@ Feature: Library - Data Collection Standards - CRF Builder - CRF Tree - Activity
         When The 'Manage Activity Instance Links' option is clicked from the three dot menu list of the created test CRF item
         Then The Edit Item page is opened
         And The default page is Table View
-        And I can see the existing Activity Instance Link in the table
-        When I select another value from the Select an Activity Instance dropdown list
-        And I select a value from the Activity Item Class dropdown list
+        When I select a value from the Select an Activity Instance dropdown list
+        And I select a value from the Activity Item Class table
+        And I select another value from the Select an Activity Instance dropdown list
+        And I select a value from the Activity Item Class table
         And The 'save-button' button is clicked
         Then The Edit Item window is closed
         And The current URL is '/library/crf-builder/crf-tree'
         When The '/library/crf-builder/odm-viewer' page is opened
         When I select created Form from the Form Name dropdown list
         And I click the GENERATE button
-        And User waits for CRF Viewer data to load
         Then The imported CRF view page should be displayed
         When I click the Activity Instance option from the right top corner
         Then The added two Activity Instance Links are displayed under the test item name
 
-
-    @manual_test
     Scenario: [Create][Form View][CRF Tree Page] User must be able to add Activity Instance Links in Form View and verify result in CRF Viewer
         Given The test CRF item is created with no Activity Instance Link
         And The '/library/crf-builder/crf-tree' page is opened
@@ -71,6 +65,8 @@ Feature: Library - Data Collection Standards - CRF Builder - CRF Tree - Activity
         And The default page is Table View
         When I select the Form View option
         Then The page is switched to Form View
+        When I click the Activity Instance Link plus button
+        Then Activity Instance Item 1 table is visible
         When I select a value from the Activity Instance dropdown list
         And I select a value from the Activity Item Class dropdown list
         And The 'save-button' button is clicked 
@@ -79,12 +75,11 @@ Feature: Library - Data Collection Standards - CRF Builder - CRF Tree - Activity
         When The '/library/crf-builder/odm-viewer' page is opened
         When I select created Form from the Form Name dropdown list
         And I click the GENERATE button
-        And User waits for CRF Viewer data to load
         Then The imported CRF view page should be displayed
         When I click the Activity Instance option from the right top corner
         Then The added Activity Instance Link is displayed under the test item name
 
-    @manual_test
+ @manual_test
     Scenario: [Mandatory Field Validation][CRF Tree Page] User must select both Activity Instance and Activity Item Class to save Activity Instance Link
         Given The test CRF item is created with no Activity Instance Link
         And The '/library/crf-builder/crf-tree' page is opened

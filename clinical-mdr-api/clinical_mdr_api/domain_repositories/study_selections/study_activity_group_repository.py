@@ -24,7 +24,6 @@ from clinical_mdr_api.domains.study_selections.study_selection_activity_group im
     StudySelectionActivityGroupAR,
     StudySelectionActivityGroupVO,
 )
-from clinical_mdr_api.utils import unpack_list_of_lists
 from common.telemetry import trace_calls
 from common.utils import convert_to_datetime
 
@@ -306,22 +305,26 @@ class StudySelectionActivityGroupRepository(
             return study_activity_groups[0]
         return []
 
-    def find_study_activity_group_with_same_groupings(
+    @trace_calls
+    def find_study_activity_group_vo_with_same_groupings(
         self,
         study_uid: str,
         activity_group_uid: str,
         soa_group_term_uid: str,
         sync_latest_version: bool = False,
-    ) -> StudyActivityGroup | None:
+    ) -> StudySelectionActivityGroupVO | None:
+        """Returns a fully-populated VO for the existing StudyActivityGroup matching the given
+        groupings, or None if not found. Avoids a full AR load."""
         query = """
             MATCH (activity_group_root:ActivityGroupRoot)-[:HAS_VERSION]->(activity_group_value:ActivityGroupValue)
-                <-[:HAS_SELECTED_ACTIVITY_GROUP]-(study_activity_group:StudyActivityGroup)<-[:STUDY_ACTIVITY_HAS_STUDY_ACTIVITY_GROUP]
+                <-[:HAS_SELECTED_ACTIVITY_GROUP]-(sag:StudyActivityGroup)<-[:STUDY_ACTIVITY_HAS_STUDY_ACTIVITY_GROUP]
                 -(study_activity:StudyActivity)<-[:HAS_STUDY_ACTIVITY]-(:StudyValue)<-[:LATEST]-(:StudyRoot {uid:$study_uid})
-            MATCH (study_activity)-[:STUDY_ACTIVITY_HAS_STUDY_SOA_GROUP]->(:StudySoAGroup)-[:HAS_FLOWCHART_GROUP]->(:CTTermContext)-[:HAS_SELECTED_TERM]->(flowchart_group_term:CTTermRoot)
-            WHERE NOT (study_activity_group)<-[:BEFORE]-() AND NOT (study_activity_group)<-[]-(:Delete)
+            MATCH (study_activity)-[:STUDY_ACTIVITY_HAS_STUDY_SOA_GROUP]->(soag:StudySoAGroup)
+                -[:HAS_FLOWCHART_GROUP]->(:CTTermContext)-[:HAS_SELECTED_TERM]->(flowchart_group_term:CTTermRoot)
+            WHERE NOT (sag)<-[:BEFORE]-() AND NOT (sag)<-[]-(:Delete)
                 AND activity_group_root.uid=$activity_group_uid
                 AND flowchart_group_term.uid=$soa_group_term_uid
-            WITH DISTINCT study_activity_group, activity_group_root, activity_group_value, $sync_latest_version AS sync_latest_version
+            WITH DISTINCT sag, activity_group_root, activity_group_value, soag, $sync_latest_version AS sync_latest_version
             CALL apoc.do.case([
                 sync_latest_version=true,
                 'WHERE (activity_group_root)-[:LATEST]->(activity_group_value) RETURN *'
@@ -333,9 +336,33 @@ class StudySelectionActivityGroupRepository(
                 sync_latest_version: sync_latest_version
             })
             YIELD value
-            RETURN DISTINCT study_activity_group, activity_group_value
+            WITH DISTINCT sag, activity_group_root, activity_group_value, soag
+            CALL {
+                WITH activity_group_root, activity_group_value
+                MATCH (activity_group_root)-[ver:HAS_VERSION]-(activity_group_value)
+                WHERE ver.status IN ['Final', 'Retired']
+                WITH ver
+                ORDER BY [i IN split(ver.version, '.') | toInteger(i)] DESC,
+                         ver.end_date DESC, ver.start_date DESC
+                LIMIT 1
+                RETURN ver.version AS activity_group_version
+            }
+            MATCH (sag)<-[:AFTER]-(after_action:StudyAction)
+            RETURN DISTINCT
+                sag.uid AS study_selection_uid,
+                coalesce(sag.show_activity_group_in_protocol_flowchart, false) AS show_activity_group_in_protocol_flowchart,
+                sag.order AS order,
+                coalesce(sag.accepted_version, false) AS accepted_version,
+                activity_group_root.uid AS activity_group_uid,
+                activity_group_value.name AS activity_group_name,
+                activity_group_version,
+                soag.uid AS study_soa_group_uid,
+                after_action.date AS start_date,
+                after_action.author_id AS author_id
+            ORDER BY after_action.date DESC
+            LIMIT 1
         """
-        study_activity_groups, _ = db.cypher_query(
+        results, keys = db.cypher_query(
             query,
             params={
                 "study_uid": study_uid,
@@ -343,8 +370,22 @@ class StudySelectionActivityGroupRepository(
                 "soa_group_term_uid": soa_group_term_uid,
                 "sync_latest_version": sync_latest_version,
             },
-            resolve_objects=True,
         )
-        if len(study_activity_groups) > 0:
-            return unpack_list_of_lists(study_activity_groups)[0]
-        return None
+        if not results:
+            return None
+        row = dict(zip(keys, results[0]))
+        return StudySelectionActivityGroupVO.from_input_values(
+            study_uid=study_uid,
+            study_selection_uid=row["study_selection_uid"],
+            activity_group_uid=row["activity_group_uid"],
+            activity_group_name=row["activity_group_name"],
+            activity_group_version=row["activity_group_version"],
+            show_activity_group_in_protocol_flowchart=row[
+                "show_activity_group_in_protocol_flowchart"
+            ],
+            order=row["order"],
+            study_soa_group_uid=row["study_soa_group_uid"],
+            start_date=convert_to_datetime(value=row["start_date"]),
+            author_id=row["author_id"],
+            accepted_version=row["accepted_version"],
+        )

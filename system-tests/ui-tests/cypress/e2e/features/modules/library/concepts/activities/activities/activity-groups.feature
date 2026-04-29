@@ -11,6 +11,7 @@ Feature: Library - Concepts - Activities - Activity Groups
     @smoke_test
     Scenario: [Create][Positive case] User must be able to add a new activity group
         When The add activity group button is clicked
+        And User waits for 1 seconds
         And The test activity group container is filled with data
         And User intercepts activity group request
         And Form save button is clicked

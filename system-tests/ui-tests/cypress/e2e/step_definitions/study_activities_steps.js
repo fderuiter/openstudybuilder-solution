@@ -177,8 +177,14 @@ When('The user is presented with the changes to request', () => {
 
 Then('[API] Activity is assigned to the visit {int}', (visitIndex) => cy.assignActivityToVisit(Cypress.env('TEST_STUDY_UID'), study_activity_uid, visitIndex))
 
+Then('[API] Activity is assigned to the visit {int} in selected study', (visitIndex) => cy.assignActivityToVisit(getCurrStudyUid(), study_activity_uid, visitIndex))
+
 Then('[API] All Activities are deleted from study', () => {
     cy.getExistingStudyActivities(Cypress.env('TEST_STUDY_UID')).then(uids => uids.forEach(uid => cy.deleteActivityFromStudy(Cypress.env('TEST_STUDY_UID'), uid)))
+})
+
+Then('[API] All Activities are deleted from selected study', () => {
+    cy.getExistingStudyActivities(getCurrStudyUid()).then((uids) => uids.forEach((uid) => cy.deleteActivityFromStudy(getCurrStudyUid(), uid)))
 })
 
 Then('[API] Get SoA Group {string} id', (name) => cy.getSoaGroupUid(name))
@@ -218,6 +224,20 @@ Then('[API] Create Submitted Requested Activity', () => {
     cy.getFinalSubGroupUid()
     cy.createSubmittedRequestedActivity(activity_placeholder_name)
     cy.approveRequestedActivity()
+})
+
+When('[API] Activity for SoA group {string} with activity group {string} is added to the study', (soa_group, activity_group) => {
+    let activity_group_filter_value = activity_group.replace(' ', '+')
+    cy.addActivityToCurrentStudyFromActivityGroup(soa_group, activity_group_filter_value).then((activity) => {
+        activity_sub_group = activity.body[0].content.activity.activity_groupings[0].activity_subgroup_name
+        new_activity_name = activity.body[0].content.activity.name
+        cy.assignActivityToVisit(getCurrStudyUid(), activity.body[0].content.study_activity_uid, '0')
+        })
+})
+
+Then('The laboratory assements activities are present in protocol lab table', () => {
+    cy.get('.subGroupLabTable').should('contain', activity_sub_group)
+    cy.get('.activity').should('contain', new_activity_name)
 })
 
 Then('[API] Requested Activity is added to the study', () => cy.addActivityToStudy(getCurrStudyUid(), requestedActivity_uid, group_uid, subgroup_uid))

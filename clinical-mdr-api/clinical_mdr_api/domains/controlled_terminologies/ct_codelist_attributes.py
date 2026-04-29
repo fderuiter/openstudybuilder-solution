@@ -21,11 +21,13 @@ DEFAULT_CODELIST_TYPE = "Standard"
 @dataclass(frozen=True)
 class CTPairedCodelists:
     """
-    Small class to hold the paired codelists UIDs
+    Small class to hold the paired codelists UIDs and names
     """
 
     paired_names_codelist_uid: str | None
     paired_codes_codelist_uid: str | None
+    paired_names_codelist_name: str | None = None
+    paired_codes_codelist_name: str | None = None
 
 
 @dataclass(frozen=True)

@@ -26,7 +26,7 @@ and are considered to be **consistent**/**valid**:
   If we have that codelist in the DB already: -> update with the rules below including all terms.
   Check for inconsistencies across all package files.
   Even if the codelist was imported and deactivated before, we will create a new final version and
-  therefore re-activate the codelist. In that case, we will also re-activate the Novo Nordisk managed name.
+  therefore re-activate the codelist. In that case, we will also re-activate the managed name.
 
   If we don't have the codelist in the DB: Create the codelist including all terms.
   > Example: We have imported the package 'ADaM CT 2014-09-26'. The next time we import from CDISC,

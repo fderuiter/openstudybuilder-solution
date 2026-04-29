@@ -1,5 +1,48 @@
 # OpenStudyBuilder (OSB) Commits changelog
 
+## V 2.9
+
+New Features and Enhancements
+============
+
+### Fixes and Enhancements
+
+- Many fixes in the Standard data model endpoints (SDTM). Non-exhaustive list : unstable or wrong ordering of elements, missing domains, duplicates in the results,...
+Libraries are now managed in a way that truly enables having multiple sponsor libraries
+- The ICH M11 preview under Studies, View Specifications is updated to the final M11 19 November 2025 version, with some improved display options.
+
+### New Feature
+
+- Added a display page for Sponsor Models. API to retrieve information are now in a first working state
+- When adding a new study, you can now choose “Create a study with default settings.” This option copies study visits, epochs, and activities from a template study. This option is available only if a template study has been defined previously in Library, Admin Definitions, Template Study. Please note, that the studies that can be used as templates and are listed in the Template Study list are locked.
+- E2E tests for "archived" library implemented.
+
+### Performance Improvements
+- Faster batch creation of study activities when selecting 'Select from Library' path.
+- Faster editing of a single study activity.
+- Faster batch editing of study activities in SoA, e.g. moving a couple of study activities to different SoA Group and assigning a few schedules to each study activity.
+
+### End-to-End Automated test enhancements
+- Various code improvements to ensure easier maintenance and overall tests stability.
+- Administration > Feature Flags: Adjusted tests to the changes in the Feature Flags page.
+- Library > Concepts > Activities > Activity Instances: Implemented tests for Events Activity Instance Class.
+- Library > Concepts > Activities > Activity Instances: Adjusted tests to the changes in the Overview Page.
+- Library > Concepts > Activities > Activity: Implemented tests for checking Study Linkage on the Activity Placeholder Overview Page.
+- Library > Data Collection Standards > CRF Builder > CRF Items: Improved and implemented tests for Activity Instance linkage.
+- Library > Data Collection Standards > CRF Builder > CRF Tree: Improved and implemented tests for Activity Instance linkage.
+- Studies > Define Study > Study Activities > Schedule of Activities > Protocol - Lab Table: Defined and Implemented tests.
+- Studies > Define Study > Study Interventions: Refactorization of Study Compounds and Study Compounds Dosings tests to use API calls for data creation.
+
+Solved Bugs
+============
+
+### Studies
+
+ **> Define Studies > Activity Instances** 
+
+- Fix StudyActivityInstance creation when ActivityPlaceholder is exchanged for multiple StudyActivities
+
+
 ## V 2.8
 
 New Features and Enhancements

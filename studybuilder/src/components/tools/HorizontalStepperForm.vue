@@ -17,6 +17,7 @@
         color="secondary"
         class="ml-2 text-label-large"
         size="small"
+        data-cy="copy-url"
         @click="copyUrl"
       >
         {{ $t('_global.copy_link') }}
@@ -67,6 +68,7 @@
       <v-col>
         <v-btn
           class="secondary-btn"
+          data-cy="cancel-button"
           variant="outlined"
           width="120px"
           rounded="xl"
@@ -84,6 +86,7 @@
           <v-col v-if="currentStep > 1">
             <v-btn
               class="secondary-btn"
+              data-cy="previous-button"
               variant="outlined"
               width="120px"
               rounded="xl"

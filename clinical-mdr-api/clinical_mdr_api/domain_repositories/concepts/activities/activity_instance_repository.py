@@ -1,7 +1,7 @@
 import datetime
 from typing import Any
 
-from neomodel import NodeClassNotDefined, db
+from neomodel import DoesNotExist, NodeClassNotDefined, db
 
 from clinical_mdr_api.domain_repositories.concepts.concept_generic_repository import (
     ConceptGenericRepository,
@@ -428,13 +428,20 @@ class ActivityInstanceRepository(ConceptGenericRepository[ActivityInstanceAR]):
             # ActivityInstance can only link to a single Activity node then it's safe to take a activity_name
             # from the random ActivityValue node related to any ActivityGroupings node linked to ActivityInstance
             activity_name = activity_value_node.name
+            # Prefer the Final version of each linked entity. If no Final version exists, fall back to the highest version.
+            # The sort key (is_final, version_tuple) ensures Final always ranks above Draft/Retired,
+            # and within the same status the highest version number wins.
             # Activity
             activity_root = activity_value_node.has_version.single()
             all_activity_rels = activity_value_node.has_version.all_relationships(
                 activity_root
             )
             latest_activity = max(
-                all_activity_rels, key=lambda r: version_string_to_tuple(r.version)
+                all_activity_rels,
+                key=lambda r: (
+                    r.status == LibraryItemStatus.FINAL.value,
+                    version_string_to_tuple(r.version),
+                ),
             )
             # ActivityGroup
             activity_group_value = activity_grouping.has_selected_group.get()
@@ -443,7 +450,11 @@ class ActivityInstanceRepository(ConceptGenericRepository[ActivityInstanceAR]):
                 activity_group_root
             )
             latest_group = max(
-                all_group_rels, key=lambda r: version_string_to_tuple(r.version)
+                all_group_rels,
+                key=lambda r: (
+                    r.status == LibraryItemStatus.FINAL.value,
+                    version_string_to_tuple(r.version),
+                ),
             )
             # ActivitySubGroup
             activity_subgroup_value = activity_grouping.has_selected_subgroup.get()
@@ -452,7 +463,11 @@ class ActivityInstanceRepository(ConceptGenericRepository[ActivityInstanceAR]):
                 activity_subgroup_root
             )
             latest_subgroup = max(
-                all_subgroup_rels, key=lambda r: version_string_to_tuple(r.version)
+                all_subgroup_rels,
+                key=lambda r: (
+                    r.status == LibraryItemStatus.FINAL.value,
+                    version_string_to_tuple(r.version),
+                ),
             )
 
             activity_groupings.append(
@@ -968,14 +983,14 @@ class ActivityInstanceRepository(ConceptGenericRepository[ActivityInstanceAR]):
         filter_by_boolean_flags: bool = False,
     ) -> list[tuple[ActivityInstanceRoot, ActivityInstanceValue]]:
         query = """
-            MATCH (activity_instance_root:ActivityInstanceRoot)-[:LATEST]->(activity_instance_value:ActivityInstanceValue)
+            MATCH (:ActivityRoot {uid:$activity_uid})-[:LATEST_FINAL]->(:ActivityValue)-[:HAS_GROUPING]->(activity_grouping:ActivityGrouping)
+            MATCH (activity_grouping)-[:HAS_SELECTED_SUBGROUP]->(:ActivitySubGroupValue)<-[:HAS_VERSION]-(:ActivitySubGroupRoot {uid:$activity_subgroup_uid})
+            MATCH (activity_grouping)-[:HAS_SELECTED_GROUP]->(:ActivityGroupValue)<-[:HAS_VERSION]-(:ActivityGroupRoot {uid:$activity_group_uid})
+            MATCH (activity_grouping)<-[:HAS_ACTIVITY]-(activity_instance_groupings_value:ActivityInstanceGroupingValue)<-[:LATEST_FINAL]-(activity_instance_groupings_root:ActivityInstanceGroupingRoot)
+            MATCH (activity_instance_groupings_root)<-[:HAS_GROUPING_ROOT]-(activity_instance_root:ActivityInstanceRoot)-[:LATEST]->(activity_instance_value:ActivityInstanceValue)
             MATCH (activity_instance_root)-[:LATEST_FINAL]->(activity_instance_value)
             OPTIONAL MATCH (activity_instance_root)-[retired:HAS_VERSION {status: "Retired"}]->(activity_instance_value) WHERE retired.end_date IS NULL
             WITH activity_instance_root, activity_instance_value WHERE retired IS NULL
-            MATCH (activity_instance_root)-[:HAS_GROUPING_ROOT]->(activity_instance_groupings_root:ActivityInstanceGroupingRoot)-[:LATEST_FINAL]->(activity_instance_groupings_value:ActivityInstanceGroupingValue)
-            MATCH (activity_instance_groupings_value)-[:HAS_ACTIVITY]->(activity_grouping:ActivityGrouping)<-[:HAS_GROUPING]-(:ActivityValue)<-[:HAS_VERSION]-(:ActivityRoot {uid:$activity_uid})
-            MATCH (activity_grouping)-[:HAS_SELECTED_SUBGROUP]->(:ActivitySubGroupValue)<-[:HAS_VERSION]-(:ActivitySubGroupRoot {uid:$activity_subgroup_uid})
-            MATCH (activity_grouping)-[:HAS_SELECTED_GROUP]->(:ActivityGroupValue)<-[:HAS_VERSION]-(:ActivityGroupRoot {uid:$activity_group_uid})
             WITH DISTINCT activity_instance_root, activity_instance_value
             ORDER BY activity_instance_value.is_required_for_activity DESC, activity_instance_value.is_defaulted_for_activity DESC
             RETURN activity_instance_root as root, activity_instance_value as value
@@ -1840,8 +1855,13 @@ class ActivityInstanceGroupingsRepository(
         self, uid: str
     ) -> tuple[VersionRoot | None, Library | None]:
         try:
-            parent_root = self.parent_root_class.nodes.get_or_none(uid=uid)
+            parent_root = self.parent_root_class.nodes.get(uid=uid)
             root: VersionRoot | None = parent_root.has_grouping_root.get()
+        except DoesNotExist as exc:
+            raise NotFoundException(
+                "ActivityInstance",
+                uid,
+            ) from exc
         except NodeClassNotDefined as exc:
             raise NotFoundException(
                 msg="Resource doesn't exist - it was likely deleted in a concurrent transaction."
@@ -2030,13 +2050,20 @@ class ActivityInstanceGroupingsRepository(
             # ActivityInstance can only link to a single Activity node then it's safe to take a activity_name
             # from the random ActivityValue node related to any ActivityGroupings node linked to ActivityInstance
             activity_name = activity_value_node.name
+            # Prefer the Final version of each linked entity. If no Final version exists, fall back to the highest version.
+            # The sort key (is_final, version_tuple) ensures Final always ranks above Draft/Retired,
+            # and within the same status the highest version number wins.
             # Activity
             activity_root = activity_value_node.has_version.single()
             all_activity_rels = activity_value_node.has_version.all_relationships(
                 activity_root
             )
             latest_activity = max(
-                all_activity_rels, key=lambda r: version_string_to_tuple(r.version)
+                all_activity_rels,
+                key=lambda r: (
+                    r.status == LibraryItemStatus.FINAL.value,
+                    version_string_to_tuple(r.version),
+                ),
             )
             # ActivityGroup
             activity_group_value = activity_grouping.has_selected_group.get()
@@ -2045,7 +2072,11 @@ class ActivityInstanceGroupingsRepository(
                 activity_group_root
             )
             latest_group = max(
-                all_group_rels, key=lambda r: version_string_to_tuple(r.version)
+                all_group_rels,
+                key=lambda r: (
+                    r.status == LibraryItemStatus.FINAL.value,
+                    version_string_to_tuple(r.version),
+                ),
             )
             # ActivitySubGroup
             activity_subgroup_value = activity_grouping.has_selected_subgroup.get()
@@ -2054,7 +2085,11 @@ class ActivityInstanceGroupingsRepository(
                 activity_subgroup_root
             )
             latest_subgroup = max(
-                all_subgroup_rels, key=lambda r: version_string_to_tuple(r.version)
+                all_subgroup_rels,
+                key=lambda r: (
+                    r.status == LibraryItemStatus.FINAL.value,
+                    version_string_to_tuple(r.version),
+                ),
             )
 
             activity_groupings.append(

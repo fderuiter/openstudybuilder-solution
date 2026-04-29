@@ -69,6 +69,14 @@ def clear_caches() -> list[dict[Any, Any]]:
             if cache_store is not None:
                 cache_store.clear()
 
+    # Clear shared service-level caches
+    from clinical_mdr_api.services.studies.study_activity_selection_base import (
+        StudyActivitySelectionBaseService,
+    )
+
+    with StudyActivitySelectionBaseService._shared_terms_date_cache_lock:
+        StudyActivitySelectionBaseService._shared_terms_date_cache.clear()
+
     return get_caches()
 
 

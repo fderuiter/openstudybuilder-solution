@@ -48,12 +48,12 @@ Feature: Library - Code Lists - Sponsor
 	Scenario: [Create][Positive case] User must be able to add a new Codelist
 		Given The '/library/sponsor' page is opened
 		When The new Codelist is added
+        Given The '/library/sponsor' page is opened
         And The codelist is search for and found
         And The codelist and attributes status is set to 'Draft'
 
 	Scenario: [Actions][Approve] User must be able to add a new Codelist
 		Given The '/library/sponsor' page is opened
-		When The new Codelist is added
         And The codelist is search for and found
         When The 'Edit' option is clicked from the three dot menu list
         And The codelist sponsor values are approved
@@ -79,13 +79,7 @@ Feature: Library - Code Lists - Sponsor
     Scenario: [Actions][Availability][Draft item] User must only have access to edit, show terms, history actions for Drafted version of the codelist
 		Given The '/library/sponsor' page is opened
 		When The new Codelist is added
-        And The codelist is search for and found
-        Then The item actions button is clicked
-        Then Only actions that should be avaiable for the Codelist are displayed
-
-    Scenario: [Actions][Availability][Final item] User must only have access to edit, show terms, history actions for Final version of the codelist
-		Given The '/library/sponsor' page is opened
-		When The new Codelist is added
+        Given The '/library/sponsor' page is opened
         And The codelist is search for and found
         Then The item actions button is clicked
         Then Only actions that should be avaiable for the Codelist are displayed

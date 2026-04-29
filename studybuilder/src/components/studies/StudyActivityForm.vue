@@ -187,7 +187,7 @@
               v-model="selectedOnly"
               :label="$t('StudyActivityForm.show_selected')"
               data-cy="show-selected"
-              class="mt-4"
+              class="mt-6 ml-4"
               @update:model-value="switchTableItems"
             />
           </template>
@@ -699,8 +699,8 @@ import { useFeatureFlagsStore } from '@/stores/feature-flags'
 const notificationHub = inject('notificationHub')
 const featureFlagsStore = useFeatureFlagsStore()
 
-const streamlinePlaceholders = computed(
-  () => !featureFlagsStore.getFeatureFlag('streamline_placeholder_activities')
+const streamlinePlaceholders = computed(() =>
+  featureFlagsStore.getFeatureFlag('streamline_placeholder_activities')
 )
 const formRules = inject('formRules')
 const { t } = useI18n()

@@ -12,6 +12,7 @@ from clinical_mdr_api.domains.study_definition_aggregates.study_metadata import 
     StudyCopyComponentEnum,
     StudyStatus,
 )
+from clinical_mdr_api.models.complexity_score import ComplexityScoreDetails
 from clinical_mdr_api.models.study_selections.study import (
     CompactStudy,
     LockReleaseInput,
@@ -24,7 +25,9 @@ from clinical_mdr_api.models.study_selections.study import (
     StudyPatchRequestJsonModel,
     StudyPreferredTimeUnit,
     StudyPreferredTimeUnitInput,
+    StudyProtocolHeaderVersion,
     StudyProtocolTitle,
+    StudySelectionContainmentResult,
     StudySimple,
     StudySoaPreferences,
     StudySoaPreferencesInput,
@@ -35,11 +38,14 @@ from clinical_mdr_api.models.study_selections.study import (
     StudySubpartAuditTrail,
     StudySubpartCreateInput,
     StudySubpartReorderingInput,
+    StudyTemplate,
+    StudyTemplateInput,
+    StudyTemplatePatchInput,
     StudyVersionHistory,
     UnlockInput,
 )
 from clinical_mdr_api.models.study_selections.study_pharma_cm import StudyPharmaCM
-from clinical_mdr_api.models.utils import CustomPage
+from clinical_mdr_api.models.utils import CustomPage, EditInputModel
 from clinical_mdr_api.repositories._utils import FilterOperator
 from clinical_mdr_api.routers import _generic_descriptions, decorators
 from clinical_mdr_api.routers._generic_descriptions import (
@@ -62,6 +68,10 @@ from common.models.error import ErrorResponse
 router = APIRouter()
 
 StudyUID = Path(description="The unique id of the study.")
+TargetStudyUID = Path(
+    description="The unique id of the target study (e.g. a clone). "
+    "Only selection labels that appear on this study are included in the comparison."
+)
 
 
 @router.get(
@@ -227,6 +237,7 @@ def get_all(
             "acronym",
             "number",
             "title",
+            "description",
             "subpart_id",
             "subpart_acronym",
             "clinical_programme=clinical_programme_name",
@@ -316,6 +327,92 @@ def get_studies_list(
         has_study_activity_instruction=has_study_activity_instruction,
         deleted=deleted,
     )
+
+
+@router.get(
+    "/template",
+    dependencies=[security, rbac.STUDY_READ],
+    summary="Returns the active study template, if any.",
+    status_code=200,
+    responses={403: _generic_descriptions.ERROR_403},
+)
+def get_study_template() -> StudyTemplate | None:
+    return StudyService().get_study_template()
+
+
+@router.post(
+    "/template",
+    dependencies=[security, rbac.STUDY_WRITE],
+    summary="Creates the study template configuration.",
+    status_code=201,
+    responses={
+        403: _generic_descriptions.ERROR_403,
+        400: _generic_descriptions.ERROR_400,
+    },
+)
+def create_study_template(
+    study_template_input: Annotated[
+        StudyTemplateInput, Body(description="Study template target study reference.")
+    ],
+) -> StudyTemplate:
+    return StudyService().create_study_template(study_template_input)
+
+
+@router.patch(
+    "/template",
+    dependencies=[security, rbac.STUDY_WRITE],
+    summary="Updates the study template with a new version.",
+    status_code=200,
+    responses={
+        403: _generic_descriptions.ERROR_403,
+        400: _generic_descriptions.ERROR_400,
+        404: _generic_descriptions.ERROR_404,
+    },
+)
+def patch_study_template(
+    patch_input: Annotated[
+        StudyTemplatePatchInput, Body(description="Updated study template target.")
+    ],
+) -> StudyTemplate:
+    return StudyService().patch_study_template(patch_input)
+
+
+@router.delete(
+    "/template/activations",
+    dependencies=[security, rbac.STUDY_WRITE],
+    summary="Retires the current study template.",
+    status_code=200,
+    responses={
+        403: _generic_descriptions.ERROR_403,
+        404: _generic_descriptions.ERROR_404,
+    },
+)
+def retire_study_template(
+    _: Annotated[
+        EditInputModel | None,
+        Body(description="Optional change description payload.", embed=False),
+    ] = None,
+) -> StudyTemplate:
+    return StudyService().retire_study_template()
+
+
+@router.post(
+    "/template/activations",
+    dependencies=[security, rbac.STUDY_WRITE],
+    summary="Reactivates a retired study template.",
+    status_code=200,
+    responses={
+        403: _generic_descriptions.ERROR_403,
+        404: _generic_descriptions.ERROR_404,
+    },
+)
+def reactivate_study_template(
+    _: Annotated[
+        EditInputModel | None,
+        Body(description="Optional change description payload.", embed=False),
+    ] = None,
+) -> StudyTemplate:
+    return StudyService().reactivate_study_template()
 
 
 @router.get(
@@ -691,6 +788,40 @@ def get_structure_statistics(
 
 
 @router.get(
+    "/{study_uid}/study-selection-containment/{target_study_uid}",
+    dependencies=[security, rbac.STUDY_READ],
+    summary=(
+        "Whether target study selection statistics are contained in the source study."
+    ),
+    description=(
+        "Compares selection counts (and distinct CT term roots) for each concrete "
+        "selection label that appears on **target_study_uid** against **study_uid** "
+        "(source). Returns whether target counts are <= source for every such label, "
+        "plus per-label figures. **StudySoAFootnote** is excluded (conditional clone "
+        "rules make footnote counts incomparable)."
+    ),
+    response_model_exclude_unset=True,
+    status_code=200,
+    responses={
+        403: _generic_descriptions.ERROR_403,
+        404: {
+            "model": ErrorResponse,
+            "description": "Not Found - source or target study uid.",
+        },
+    },
+)
+def get_study_selection_containment(
+    study_uid: Annotated[str, StudyUID],
+    target_study_uid: Annotated[str, TargetStudyUID],
+) -> StudySelectionContainmentResult:
+    study_service = StudyService()
+    return study_service.get_study_selection_containment(
+        source_study_uid=study_uid,
+        target_study_uid=target_study_uid,
+    )
+
+
+@router.get(
     "/{study_uid}/pharma-cm",
     dependencies=[security, rbac.STUDY_READ],
     summary="Returns the pharma-cm represention of study identified by 'study_uid'.",
@@ -869,7 +1000,7 @@ def get_snapshot_history(
 @router.get(
     "/{study_uid}/protocol-header-versions",
     dependencies=[security, rbac.STUDY_READ],
-    summary="Returns the latest available protocol header version or the one associated with specified study value version.",
+    summary="Returns the latest available protocol header version and whether the study contains a 'Final Protocol' locked version.",
     response_model_exclude_unset=True,
     status_code=200,
     responses={
@@ -881,7 +1012,7 @@ def get_snapshot_history(
 )
 def get_protocol_header_version(
     study_uid: Annotated[str, StudyUID],
-) -> str | None:
+) -> StudyProtocolHeaderVersion:
     return StudyService().get_protocol_header_version(study_uid=study_uid)
 
 
@@ -942,10 +1073,24 @@ def get_study_subpart_audit_trail(
     study_value_version: Annotated[
         str | None, _generic_descriptions.STUDY_VALUE_VERSION_QUERY
     ] = None,
-) -> list[StudySubpartAuditTrail]:
+    page_number: _generic_descriptions.PAGE_NUMBER_QUERY = settings.default_page_number,
+    page_size: _generic_descriptions.PAGE_SIZE_QUERY = settings.default_page_size,
+    total_count: _generic_descriptions.TOTAL_COUNT_QUERY = False,
+) -> CustomPage[StudySubpartAuditTrail]:
     study_service = StudyService()
-    return study_service.get_subpart_audit_trail_by_uid(
-        uid=study_uid, is_subpart=is_subpart, study_value_version=study_value_version
+    result = study_service.get_subpart_audit_trail_by_uid(
+        uid=study_uid,
+        is_subpart=is_subpart,
+        study_value_version=study_value_version,
+        page_number=page_number,
+        page_size=page_size,
+        total_count=total_count,
+    )
+    return CustomPage.create(
+        items=result.items,
+        total=result.total,
+        page=page_number,
+        size=page_size,
     )
 
 
@@ -1384,6 +1529,38 @@ def get_complexity_score(
 ) -> float:
     service = ComplexityScoreService()
     return service.calculate_site_complexity_score(
+        study_uid=study_uid,
+        study_version_number=study_version_number,
+    )
+
+
+@router.get(
+    "/{study_uid}/complexity-score-details",
+    dependencies=[security, rbac.STUDY_READ],
+    summary="Get detailed study complexity score breakdown",
+    response_model=ComplexityScoreDetails,
+    response_model_by_alias=False,
+    status_code=200,
+    responses={
+        404: {
+            "model": ErrorResponse,
+            "description": "Not Found - study with the specified 'study_uid' doesn't exist",
+        },
+    },
+)
+def get_complexity_score_details(
+    study_uid: Annotated[str, StudyUID],
+    study_version_number: Annotated[
+        str | None,
+        Query(
+            description="Study Version Number",
+            openapi_examples={"2.1": {"value": "2.1"}},
+            alias="study_value_version",
+        ),
+    ] = None,
+) -> ComplexityScoreDetails:
+    service = ComplexityScoreService()
+    return service.get_complexity_score_details(
         study_uid=study_uid,
         study_version_number=study_version_number,
     )

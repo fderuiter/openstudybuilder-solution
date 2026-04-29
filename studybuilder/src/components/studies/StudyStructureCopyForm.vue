@@ -123,6 +123,30 @@
               </template>
             </CheckboxWithChildField>
             <CheckboxField
+              v-model="form.copy_study_activity_instance"
+              :label="
+                $t('StudyStructureCopyForm.study_activities', {
+                  count: studyStats.study_activity_count,
+                })
+              "
+              :help="$t('StudyStructureCopyForm.study_activities_help')"
+              class="mt-4"
+              @update:model-value="
+                (value) => checkDependencies('study_activities', value)
+              "
+            />
+            <CheckboxField
+              v-if="form.copy_study_visit && form.copy_study_activity_instance"
+              v-model="form.copy_study_activity_schedule"
+              :label="
+                $t('StudyStructureCopyForm.schedules', {
+                  count: studyStats.study_activity_schedule_count,
+                })
+              "
+              :help="$t('StudyStructureCopyForm.schedules_help')"
+              class="mt-4"
+            />
+            <CheckboxField
               v-if="designMatrixEnabled"
               v-model="form.copy_study_design_matrix"
               :label="$t('StudyStructureCopyForm.design_matrix')"
@@ -219,7 +243,18 @@ const checkDependencies = (element, value) => {
     case 'visit':
       if (!value) {
         form.value.copy_study_visits_study_footnote = false
+        form.value.copy_study_activity_schedule = false
         form.value.copy_study_design_matrix = false
+      }
+      break
+    case 'study_activities':
+      form.value.copy_study_soa_group = value
+      form.value.copy_study_activity_group = value
+      form.value.copy_study_activity_subgroup = value
+      form.value.copy_study_activity = value
+      form.value.copy_study_activity_instance = value
+      if (!value) {
+        form.value.copy_study_activity_schedule = false
       }
       break
   }

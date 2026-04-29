@@ -24,6 +24,9 @@ from clinical_mdr_api.services._utils import (
     calculate_diffs_history,
     fill_missing_values_in_base_model_from_reference_base_model,
 )
+from clinical_mdr_api.services.studies.study_activity_selection_base import (
+    StudyActivitySelectionBaseService,
+)
 from common import exceptions
 from common.auth.user import user
 
@@ -188,6 +191,12 @@ class StudyStandardVersionService:
         )
 
         updated_item = self.repo.save(created_study_standard_version)
+
+        # Clear study standards caches across all study activity services
+        StudyActivitySelectionBaseService.clear_study_standards_cache_for_study(
+            study_uid
+        )
+
         return self._transform_all_to_response_model(updated_item)
 
     @db.transaction
@@ -248,6 +257,11 @@ class StudyStandardVersionService:
 
             updated_item = self.repo.save(study_standard_version)
 
+            # Clear study standards caches across all study activity services
+            StudyActivitySelectionBaseService.clear_study_standards_cache_for_study(
+                study_uid
+            )
+
             return self._transform_all_to_response_model(updated_item)
         raise exceptions.BusinessLogicException(msg="There's nothing to change")
 
@@ -257,6 +271,11 @@ class StudyStandardVersionService:
             study_uid=study_uid, study_standard_version_uid=study_standard_version_uid
         )
         self.repo.save(study_standard_version, delete_flag=True)
+
+        # Clear study standards caches across all study activity services
+        StudyActivitySelectionBaseService.clear_study_standards_cache_for_study(
+            study_uid
+        )
 
     @db.transaction
     def audit_trail(

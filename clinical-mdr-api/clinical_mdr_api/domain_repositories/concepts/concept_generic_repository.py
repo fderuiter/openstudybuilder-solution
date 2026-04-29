@@ -319,6 +319,21 @@ class ConceptGenericRepository(
         """
         return key.replace(".", "_")
 
+    def find_by_uid(
+        self,
+        uid: str,
+        *,
+        version: str | None = None,
+    ) -> _AggregateRootType | None:
+        """Single-query read-only lookup by UID.
+
+        Uses the Cypher-based find_all path (one DB round-trip) instead of
+        the neomodel ORM find_by_uid_2 path which issues many separate queries.
+        Not suitable for write operations — use find_by_uid_2(for_update=True) for those.
+        """
+        results, _ = self.find_all(uids=[uid], version=version)
+        return results[0] if results else None
+
     def find_all(
         self,
         library: str | None = None,

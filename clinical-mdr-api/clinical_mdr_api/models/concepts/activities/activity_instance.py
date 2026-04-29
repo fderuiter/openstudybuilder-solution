@@ -316,14 +316,17 @@ class ActivityInstanceGroupings(BaseModel):
                     activity_group=ActivityHierarchySimpleModel(
                         uid=activity_grouping.activity_group_uid,
                         name=activity_grouping.activity_group_name,
+                        version=activity_grouping.activity_group_version,
                     ),
                     activity_subgroup=ActivityHierarchySimpleModel(
                         uid=activity_grouping.activity_subgroup_uid,
                         name=activity_grouping.activity_subgroup_name,
+                        version=activity_grouping.activity_subgroup_version,
                     ),
                     activity=ActivityHierarchySimpleModel(
                         uid=activity_grouping.activity_uid or "",
                         name=activity_grouping.activity_name,
+                        version=activity_grouping.activity_version,
                     ),
                 )
             else:
@@ -370,14 +373,17 @@ class ActivityInstanceGroupings(BaseModel):
                 activity_group=ActivityHierarchySimpleModel(
                     uid=activity_instance_grouping_vo.activity_group_uid,
                     name=activity_instance_grouping_vo.activity_group_name,
+                    version=activity_instance_grouping_vo.activity_group_version,
                 ),
                 activity_subgroup=ActivityHierarchySimpleModel(
                     uid=activity_instance_grouping_vo.activity_subgroup_uid,
                     name=activity_instance_grouping_vo.activity_subgroup_name,
+                    version=activity_instance_grouping_vo.activity_subgroup_version,
                 ),
                 activity=ActivityHierarchySimpleModel(
                     uid=activity_instance_grouping_vo.activity_uid or "",
                     name=activity_instance_grouping_vo.activity_name,
+                    version=activity_instance_grouping_vo.activity_version,
                 ),
             )
             for activity_instance_grouping_vo in activity_instance_ar.concept_vo.activity_groupings
@@ -568,14 +574,17 @@ class ActivityInstance(ActivityBase):
                     activity_group=ActivityHierarchySimpleModel(
                         uid=activity_grouping.activity_group_uid,
                         name=activity_grouping.activity_group_name,
+                        version=activity_grouping.activity_group_version,
                     ),
                     activity_subgroup=ActivityHierarchySimpleModel(
                         uid=activity_grouping.activity_subgroup_uid,
                         name=activity_grouping.activity_subgroup_name,
+                        version=activity_grouping.activity_subgroup_version,
                     ),
                     activity=ActivityHierarchySimpleModel(
                         uid=activity_grouping.activity_uid or "",
                         name=activity_grouping.activity_name,
+                        version=activity_grouping.activity_version,
                     ),
                 )
             else:
@@ -690,14 +699,17 @@ class ActivityInstance(ActivityBase):
                 activity_group=ActivityHierarchySimpleModel(
                     uid=activity_instance_grouping_vo.activity_group_uid,
                     name=activity_instance_grouping_vo.activity_group_name,
+                    version=activity_instance_grouping_vo.activity_group_version,
                 ),
                 activity_subgroup=ActivityHierarchySimpleModel(
                     uid=activity_instance_grouping_vo.activity_subgroup_uid,
                     name=activity_instance_grouping_vo.activity_subgroup_name,
+                    version=activity_instance_grouping_vo.activity_subgroup_version,
                 ),
                 activity=ActivityHierarchySimpleModel(
                     uid=activity_instance_grouping_vo.activity_uid or "",
                     name=activity_instance_grouping_vo.activity_name,
+                    version=activity_instance_grouping_vo.activity_version,
                 ),
             )
             for activity_instance_grouping_vo in activity_instance_ar.concept_vo.activity_groupings

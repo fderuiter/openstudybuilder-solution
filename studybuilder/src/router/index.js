@@ -584,6 +584,14 @@ const routes = [
         },
       },
       {
+        path: 'template_study',
+        name: 'TemplateStudy',
+        component: () => import('../views/library/TemplateStudyPage.vue'),
+        meta: {
+          authRequired: true,
+        },
+      },
+      {
         path: 'overviews',
         component: () => import('../components/layout/PassThrough.vue'),
         meta: {

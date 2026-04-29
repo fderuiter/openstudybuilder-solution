@@ -23,8 +23,9 @@ module.exports = {
                         'userguide/studies/guide_visits',
                         'userguide/studies/protocol_SoA_Milestone_row',
                         'userguide/studies/userguide_activities',
-                        'userguide/userguides_crf',
                         'userguide/studies/data_specifications',
+                        'userguide/library/activity_concepts',
+                        'userguide/userguides_crf',
                         'userguide/reports/userguides_reports'
                     ]
                 },

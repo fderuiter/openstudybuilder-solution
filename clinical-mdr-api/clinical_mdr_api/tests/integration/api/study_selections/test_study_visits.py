@@ -2696,6 +2696,6 @@ def assert_get_all_visits_lite_compares(
     if study_value_version:
         params["study_value_version"] = study_value_version
     response = api_client.get(f"/studies/{study_uid}/study-visits", params=params)
-    results = parse_json_response(response, status=200)
+    results = parse_json_response(response, assert_status=200)
     visits = [StudyVisitLite(**item) for item in results["items"]]
     assert visits == expected_visits

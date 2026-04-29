@@ -8,6 +8,8 @@ const { getShortUniqueId } = require("../../support/helper_functions");
 export let activityName, synonym, currentSubgroupName, currentGroupName
 const nciconceptid = "NCIID", nciconceptname = "NCINAME", abbreviation = "ABB", definition = "DEF"
 
+Then('The Library value is set to {string}', (value) => cy.checkRowByIndex(0, 'Library', value))
+
 Then('Activity is present in first table row', () => cy.checkRowByIndex(0, 'Activity name', activityName))
 
 When('The Add activity button is clicked', () => cy.clickButton('add-activity'))

@@ -224,8 +224,8 @@ async function getLastVersion() {
     studiesGeneralStore.selectedStudy.uid
   )
   if (resp.data) {
-    isMajorVersion.value = true
-    lastVersion.value = resp.data
+    isMajorVersion.value = resp.data.has_final_protocol_locked_version
+    lastVersion.value = resp.data.protocol_header_version
   }
 }
 

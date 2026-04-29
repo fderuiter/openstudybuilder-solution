@@ -170,7 +170,7 @@ const activityInfo = computed(() => {
   return {
     uid: firstGrouping.activity.uid,
     name: firstGrouping.activity.name,
-    version: firstGrouping.activity.version || '1.0',
+    version: firstGrouping.activity.version,
   }
 })
 

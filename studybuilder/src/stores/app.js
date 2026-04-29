@@ -49,13 +49,13 @@ export const useAppStore = defineStore('app', {
             url: { name: 'LibrarySummary' },
             icon: 'mdi-information-outline',
           },
-          {
-            id: 'process_overview_tile',
-            title: i18n.t('Sidebar.library.process_overview'),
-            icon: 'mdi-arrow-right-bold-outline',
-            url: { name: 'ProcessOverview' },
-            description: i18n.t('Library.process_overview_description'),
-          },
+          // {
+          //   id: 'process_overview_tile',
+          //   title: i18n.t('Sidebar.library.process_overview'),
+          //   icon: 'mdi-arrow-right-bold-outline',
+          //   url: { name: 'ProcessOverview' },
+          //   description: i18n.t('Library.process_overview_description'),
+          // },
           {
             id: 'codelists_tile',
             title: i18n.t('Sidebar.library.code_lists'),
@@ -74,10 +74,10 @@ export const useAppStore = defineStore('app', {
                 title: i18n.t('Sidebar.library.ct_packages'),
                 url: { name: 'CtPackages' },
               },
-              {
-                title: i18n.t('Sidebar.library.cdisc'),
-                url: { name: 'CDISC' },
-              },
+              // {
+              //   title: i18n.t('Sidebar.library.cdisc'),
+              //   url: { name: 'CDISC' },
+              // },
               {
                 title: i18n.t('Sidebar.library.sponsor'),
                 url: { name: 'Sponsor' },
@@ -229,26 +229,26 @@ export const useAppStore = defineStore('app', {
               },
             ],
           },
-          {
-            id: 'template_collections_tile',
-            title: i18n.t('Sidebar.library.template_collections'),
-            icon: 'mdi-folder-star-multiple-outline',
-            description: i18n.t('Library.template_collections_description'),
-            children: [
-              {
-                title: i18n.t('Sidebar.library.project_templates'),
-                url: { name: 'ProjectTemplates' },
-              },
-              {
-                title: i18n.t('Sidebar.library.shared_templates'),
-                url: { name: 'SharedTemplates' },
-              },
-              {
-                title: i18n.t('Sidebar.library.supporting_templates'),
-                url: { name: 'SupportingTemplates' },
-              },
-            ],
-          },
+          // {
+          //   id: 'template_collections_tile',
+          //   title: i18n.t('Sidebar.library.template_collections'),
+          //   icon: 'mdi-folder-star-multiple-outline',
+          //   description: i18n.t('Library.template_collections_description'),
+          //   children: [
+          //     {
+          //       title: i18n.t('Sidebar.library.project_templates'),
+          //       url: { name: 'ProjectTemplates' },
+          //     },
+          //     {
+          //       title: i18n.t('Sidebar.library.shared_templates'),
+          //       url: { name: 'SharedTemplates' },
+          //     },
+          //     {
+          //       title: i18n.t('Sidebar.library.supporting_templates'),
+          //       url: { name: 'SupportingTemplates' },
+          //     },
+          //   ],
+          // },
           {
             id: 'overview_pages_title',
             title: i18n.t('Sidebar.library.overview_pages'),
@@ -279,10 +279,10 @@ export const useAppStore = defineStore('app', {
                 title: i18n.t('Sidebar.library.sdtm_sponsor'),
                 url: { name: 'SponsorSdtm' },
               },
-              {
-                title: i18n.t('Sidebar.library.adam'),
-                url: { name: 'Adam' },
-              },
+              // {
+              //   title: i18n.t('Sidebar.library.adam'),
+              //   url: { name: 'Adam' },
+              // },
             ],
           },
           {
@@ -311,36 +311,42 @@ export const useAppStore = defineStore('app', {
                 icon: 'mdi-archive-outline',
                 url: { name: 'DataSuppliers' },
               },
-            ],
-          },
-          {
-            id: 'list_tile',
-            title: i18n.t('Sidebar.library.list'),
-            icon: 'mdi-format-list-bulleted-square',
-            description: i18n.t('Library.list_description'),
-            children: [
               {
-                title: i18n.t('Sidebar.library.cdash_std'),
-                url: { name: 'CdashStandards' },
-              },
-              {
-                title: i18n.t('Sidebar.library.sdtm_std_cst'),
-                url: { name: 'SdtmStdCst' },
-              },
-              {
-                title: i18n.t('Sidebar.library.sdtm_std_dmw'),
-                url: { name: 'SdtmStdDmw' },
-              },
-              {
-                title: i18n.t('Sidebar.library.adam_std_cst'),
-                url: { name: 'AdamStdCst' },
-              },
-              {
-                title: i18n.t('Sidebar.library.adam_std_new'),
-                url: { name: 'AdamStdNew' },
+                id: 'template_study',
+                title: i18n.t('Sidebar.library.template_study'),
+                icon: 'mdi-clipboard-outline',
+                url: { name: 'TemplateStudy' },
               },
             ],
           },
+          // {
+          //   id: 'list_tile',
+          //   title: i18n.t('Sidebar.library.list'),
+          //   icon: 'mdi-format-list-bulleted-square',
+          //   description: i18n.t('Library.list_description'),
+          //   children: [
+          //     {
+          //       title: i18n.t('Sidebar.library.cdash_std'),
+          //       url: { name: 'CdashStandards' },
+          //     },
+          //     {
+          //       title: i18n.t('Sidebar.library.sdtm_std_cst'),
+          //       url: { name: 'SdtmStdCst' },
+          //     },
+          //     {
+          //       title: i18n.t('Sidebar.library.sdtm_std_dmw'),
+          //       url: { name: 'SdtmStdDmw' },
+          //     },
+          //     {
+          //       title: i18n.t('Sidebar.library.adam_std_cst'),
+          //       url: { name: 'AdamStdCst' },
+          //     },
+          //     {
+          //       title: i18n.t('Sidebar.library.adam_std_new'),
+          //       url: { name: 'AdamStdNew' },
+          //     },
+          //   ],
+          // },
         ],
       },
       Studies: {

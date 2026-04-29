@@ -29,10 +29,7 @@ When('I select a value from the Form Name dropdown', () => {
 })
 
 When ('I click the GENERATE button', () => {   
-    cy.get('.v-btn').contains('Generate') // Find the button containing the text 'Generate'
-    .should('be.visible')             // Ensure the button is visible   
-    .should('not.be.disabled')  // Ensure the button is not disabled
-    .click();                        // Click the button
+    cy.clickButton('generate');
 })
 
 Then('I open stylesheets dropdown', () => {
@@ -69,7 +66,11 @@ When("I select HTML option from the Stylesheet dropdown list", () => {
 });
 
 Then('The imported CRF view page should be displayed', () => {
-    cy.get('body').contains(crf_form).should('be.visible'); 
+    if (crf_form) {
+        cy.get('body').contains(crf_form).should('be.visible'); 
+    } else {
+        cy.get('iframe.frame').should('be.visible');
+    }
 })
 
 When('User intercepts ODM document generation request', () => cy.intercept('/api/odms/metadata/report?targets=OdmForm*').as('generateReportDocument'))

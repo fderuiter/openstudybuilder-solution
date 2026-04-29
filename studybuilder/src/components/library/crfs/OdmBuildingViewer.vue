@@ -6,6 +6,7 @@
           v-model="data.target_type"
           :items="types"
           :label="$t('OdmViewer.element_type')"
+          data-cy="Level"
           density="comfortable"
           clearable
           item-title="name"
@@ -20,6 +21,7 @@
           v-model="data.target_uid"
           :items="elements"
           :label="targetUidLabel"
+          data-cy="form-name"
           density="comfortable"
           clearable
           class="mt-2"
@@ -34,6 +36,7 @@
         <v-select
           ref="versionSelect"
           v-model="elementVersion"
+          data-cy="version"
           :items="elementFinalVersions"
           :label="$t('OdmViewer.element_version')"
           density="comfortable"
@@ -69,6 +72,7 @@
       <v-col cols="4">
         <v-select
           v-model="data.selectedStylesheet"
+          data-cy="stylesheet"
           :items="data.stylesheet"
           density="comfortable"
           :label="$t('OdmViewer.stylesheet')"
@@ -78,6 +82,7 @@
       <v-col cols="4">
         <v-select
           v-model="selectedNamespaces"
+          data-cy="allowed-extensions"
           :items="allowedNamespaces"
           :label="$t('OdmViewer.allowed_namespaces')"
           density="comfortable"
@@ -123,6 +128,7 @@
       <v-col cols="4">
         <v-btn
           :disabled="!data.target_uid"
+          data-cy="generate"
           color="secondary"
           rounded="xl"
           :label="$t('_global.load')"
@@ -138,6 +144,7 @@
       <v-btn
         size="small"
         color="primary"
+        data-cy="clear-xml"
         class="mr-4 mt-3"
         icon="mdi-arrow-left"
         :title="$t('_global.back')"
@@ -146,6 +153,7 @@
       <v-btn
         size="small"
         color="primary"
+        data-cy="load-xml"
         class="mr-4 mt-3"
         icon="mdi-cached"
         :title="$t('_global.reload')"
@@ -155,6 +163,7 @@
       <v-btn
         size="small"
         color="nnGreen1"
+        data-cy="download-xml"
         class="ml-4 mt-3"
         :title="$t('DataTableExportButton.export_xml')"
         :loading="xmlDownloadLoading"
@@ -164,6 +173,7 @@
       <v-btn
         size="small"
         color="nnGreen1"
+        data-cy="download-pdf"
         class="ml-4 mt-3"
         :title="$t('DataTableExportButton.export_pdf')"
         :loading="pdfDownloadLoading"
@@ -173,6 +183,7 @@
       <v-btn
         size="small"
         color="nnGreen1"
+        data-cy="download-html"
         class="ml-4 mt-3"
         :title="$t('DataTableExportButton.export_html')"
         :loading="htmlDownloadLoading"
@@ -182,6 +193,7 @@
       <v-spacer />
       <v-switch
         v-model="showOdmXml"
+        data-cy="switch-odm-xml"
         :label="$t('OdmViewer.source_code')"
         class="mr-6"
         inset
@@ -213,6 +225,7 @@
         <div class="d-flex justify-end">
           <v-btn
             icon="mdi-content-copy"
+            data-cy="copy-xml"
             variant="outlined"
             border="0"
             @click="copyXML"

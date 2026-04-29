@@ -11,7 +11,8 @@
 
     Scenario: [TestData] Old placeholder activity workflow feature flag is disabled and all activities are deleted from study
         When The '/administration/featureflags' page is opened
-        Then Old placeholder workflow feature flag is turned off
+        And User switch to 'Studies' feature flags
+        And User enables 'streamline_placeholder_activities' feature flag
         And [API] All Activities are deleted from study
 
     @smoke_test

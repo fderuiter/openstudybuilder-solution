@@ -62,9 +62,12 @@ class ActivityHierarchySimpleModel(BaseModel):
         if uid is not None:
             activity = find_activity_by_uid(uid, version=version)
             if activity is not None:
-                simple_activity_model = cls(uid=uid, name=activity.concept_vo.name)
+                resolved_version = version or activity.item_metadata.version
+                simple_activity_model = cls(
+                    uid=uid, name=activity.concept_vo.name, version=resolved_version
+                )
             else:
-                simple_activity_model = cls(uid=uid, name=None)
+                simple_activity_model = cls(uid=uid, name=None, version=version)
         return simple_activity_model
 
     @classmethod

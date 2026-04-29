@@ -23,6 +23,9 @@ import pytest
 from fastapi.testclient import TestClient
 from neomodel import db
 
+from clinical_mdr_api.domains.study_definition_aggregates.study_metadata import (
+    StudyStatus,
+)
 from clinical_mdr_api.main import app
 from clinical_mdr_api.models.concepts.unit_definitions.unit_definition import (
     UnitDefinitionModel,
@@ -1741,9 +1744,12 @@ def test_remove_study_subpart_from_parent_part(api_client):
 
 # pylint: disable=too-many-statements
 def test_get_audit_trail_of_all_study_subparts_of_study(api_client):
-    response = api_client.get(f"/studies/{study_with_subparts.uid}/audit-trail")
+    response = api_client.get(
+        f"/studies/{study_with_subparts.uid}/audit-trail?page_size=0"
+    )
     assert_response_status_code(response, 200)
     res = response.json()
+    items = res["items"]
     for i in [
         "subpart_uid",
         "subpart_id",
@@ -1754,82 +1760,82 @@ def test_get_audit_trail_of_all_study_subparts_of_study(api_client):
         "change_type",
         "changes",
     ]:
-        assert i in res[0]
+        assert i in items[0]
 
-    assert len(res) == 36
+    assert len(items) == 36
 
-    assert res[0]["subpart_id"] == "i"
-    assert res[0]["subpart_uid"] == "Study_000034"
-    assert res[1]["subpart_id"] == "h"
-    assert res[1]["subpart_uid"] == "Study_000033"
-    assert res[2]["subpart_id"] == "g"
-    assert res[2]["subpart_uid"] == "Study_000032"
-    assert res[3]["subpart_id"] == "f"
-    assert res[3]["subpart_uid"] == "Study_000030"
-    assert res[4]["subpart_id"] == "e"
-    assert res[4]["subpart_uid"] == "Study_000029"
-    assert res[5]["subpart_id"] == "d"
-    assert res[5]["subpart_uid"] == "Study_000031"
-    assert res[6]["subpart_id"] == "c"
-    assert res[6]["subpart_uid"] == "Study_000027"
-    assert res[7]["subpart_id"] == "b"
-    assert res[7]["subpart_uid"] == "Study_000026"
-    assert res[8]["subpart_id"] == "a"
-    assert res[8]["subpart_uid"] == "Study_000028"
-    assert res[9]["subpart_id"] == "j"
-    assert res[9]["subpart_uid"] == "Study_000035"
-    assert res[10]["subpart_id"] == "a"
-    assert res[10]["subpart_uid"] == "Study_000035"
-    assert res[11]["subpart_id"] == "j"
-    assert res[11]["subpart_uid"] == "Study_000034"
-    assert res[12]["subpart_id"] == "i"
-    assert res[12]["subpart_uid"] == "Study_000033"
-    assert res[13]["subpart_id"] == "h"
-    assert res[13]["subpart_uid"] == "Study_000032"
-    assert res[14]["subpart_id"] == "g"
-    assert res[14]["subpart_uid"] == "Study_000030"
-    assert res[15]["subpart_id"] == "f"
-    assert res[15]["subpart_uid"] == "Study_000029"
-    assert res[16]["subpart_id"] == "e"
-    assert res[16]["subpart_uid"] == "Study_000031"
-    assert res[17]["subpart_id"] == "d"
-    assert res[17]["subpart_uid"] == "Study_000027"
-    assert res[18]["subpart_id"] == "c"
-    assert res[18]["subpart_uid"] == "Study_000026"
-    assert res[19]["subpart_id"] == "b"
-    assert res[19]["subpart_uid"] == "Study_000028"
-    assert res[20]["subpart_id"] == "d"
-    assert res[20]["subpart_uid"] == "Study_000031"
-    assert res[21]["subpart_id"] == "f"
-    assert res[21]["subpart_uid"] == "Study_000030"
-    assert res[22]["subpart_id"] == "e"
-    assert res[22]["subpart_uid"] == "Study_000029"
-    assert res[23]["subpart_id"] == "a"
-    assert res[23]["subpart_uid"] == "Study_000028"
-    assert res[24]["subpart_id"] == "c"
-    assert res[24]["subpart_uid"] == "Study_000027"
-    assert res[25]["subpart_id"] == "b"
-    assert res[25]["subpart_uid"] == "Study_000026"
-    assert res[26]["subpart_id"] == "j"
-    assert res[26]["subpart_uid"] == "Study_000035"
-    assert res[27]["subpart_id"] == "i"
-    assert res[27]["subpart_uid"] == "Study_000034"
-    assert res[28]["subpart_id"] == "h"
-    assert res[28]["subpart_uid"] == "Study_000033"
-    assert res[29]["subpart_id"] == "g"
-    assert res[29]["subpart_uid"] == "Study_000032"
-    assert res[30]["subpart_id"] == "f"
-    assert res[30]["subpart_uid"] == "Study_000031"
-    assert res[31]["subpart_id"] == "e"
-    assert res[31]["subpart_uid"] == "Study_000030"
-    assert res[32]["subpart_id"] == "d"
-    assert res[32]["subpart_uid"] == "Study_000029"
-    assert res[33]["subpart_id"] == "c"
-    assert res[33]["subpart_uid"] == "Study_000028"
-    assert res[34]["subpart_id"] == "b"
-    assert res[34]["subpart_uid"] == "Study_000027"
-    assert res[35]["subpart_id"] == "a"
-    assert res[35]["subpart_uid"] == "Study_000026"
+    assert items[0]["subpart_id"] == "i"
+    assert items[0]["subpart_uid"] == "Study_000034"
+    assert items[1]["subpart_id"] == "h"
+    assert items[1]["subpart_uid"] == "Study_000033"
+    assert items[2]["subpart_id"] == "g"
+    assert items[2]["subpart_uid"] == "Study_000032"
+    assert items[3]["subpart_id"] == "f"
+    assert items[3]["subpart_uid"] == "Study_000030"
+    assert items[4]["subpart_id"] == "e"
+    assert items[4]["subpart_uid"] == "Study_000029"
+    assert items[5]["subpart_id"] == "d"
+    assert items[5]["subpart_uid"] == "Study_000031"
+    assert items[6]["subpart_id"] == "c"
+    assert items[6]["subpart_uid"] == "Study_000027"
+    assert items[7]["subpart_id"] == "b"
+    assert items[7]["subpart_uid"] == "Study_000026"
+    assert items[8]["subpart_id"] == "a"
+    assert items[8]["subpart_uid"] == "Study_000028"
+    assert items[9]["subpart_id"] == "j"
+    assert items[9]["subpart_uid"] == "Study_000035"
+    assert items[10]["subpart_id"] == "a"
+    assert items[10]["subpart_uid"] == "Study_000035"
+    assert items[11]["subpart_id"] == "j"
+    assert items[11]["subpart_uid"] == "Study_000034"
+    assert items[12]["subpart_id"] == "i"
+    assert items[12]["subpart_uid"] == "Study_000033"
+    assert items[13]["subpart_id"] == "h"
+    assert items[13]["subpart_uid"] == "Study_000032"
+    assert items[14]["subpart_id"] == "g"
+    assert items[14]["subpart_uid"] == "Study_000030"
+    assert items[15]["subpart_id"] == "f"
+    assert items[15]["subpart_uid"] == "Study_000029"
+    assert items[16]["subpart_id"] == "e"
+    assert items[16]["subpart_uid"] == "Study_000031"
+    assert items[17]["subpart_id"] == "d"
+    assert items[17]["subpart_uid"] == "Study_000027"
+    assert items[18]["subpart_id"] == "c"
+    assert items[18]["subpart_uid"] == "Study_000026"
+    assert items[19]["subpart_id"] == "b"
+    assert items[19]["subpart_uid"] == "Study_000028"
+    assert items[20]["subpart_id"] == "d"
+    assert items[20]["subpart_uid"] == "Study_000031"
+    assert items[21]["subpart_id"] == "f"
+    assert items[21]["subpart_uid"] == "Study_000030"
+    assert items[22]["subpart_id"] == "e"
+    assert items[22]["subpart_uid"] == "Study_000029"
+    assert items[23]["subpart_id"] == "a"
+    assert items[23]["subpart_uid"] == "Study_000028"
+    assert items[24]["subpart_id"] == "c"
+    assert items[24]["subpart_uid"] == "Study_000027"
+    assert items[25]["subpart_id"] == "b"
+    assert items[25]["subpart_uid"] == "Study_000026"
+    assert items[26]["subpart_id"] == "j"
+    assert items[26]["subpart_uid"] == "Study_000035"
+    assert items[27]["subpart_id"] == "i"
+    assert items[27]["subpart_uid"] == "Study_000034"
+    assert items[28]["subpart_id"] == "h"
+    assert items[28]["subpart_uid"] == "Study_000033"
+    assert items[29]["subpart_id"] == "g"
+    assert items[29]["subpart_uid"] == "Study_000032"
+    assert items[30]["subpart_id"] == "f"
+    assert items[30]["subpart_uid"] == "Study_000031"
+    assert items[31]["subpart_id"] == "e"
+    assert items[31]["subpart_uid"] == "Study_000030"
+    assert items[32]["subpart_id"] == "d"
+    assert items[32]["subpart_uid"] == "Study_000029"
+    assert items[33]["subpart_id"] == "c"
+    assert items[33]["subpart_uid"] == "Study_000028"
+    assert items[34]["subpart_id"] == "b"
+    assert items[34]["subpart_uid"] == "Study_000027"
+    assert items[35]["subpart_id"] == "a"
+    assert items[35]["subpart_uid"] == "Study_000026"
 
     # update study title to be able to lock it
     response = api_client.patch(
@@ -1902,17 +1908,22 @@ def test_get_audit_trail_of_all_study_subparts_of_study(api_client):
     assert_response_status_code(response, 201)
 
     response = api_client.get(
-        f"/studies/{study_with_subparts.uid}/audit-trail?study_value_version=1"
+        f"/studies/{study_with_subparts.uid}/audit-trail?study_value_version=1&page_size=0"
     )
     assert_response_status_code(response, 200)
     res = response.json()
-    assert all(i["end_date"] for i in res if i["subpart_uid"] == "Study_000026")
+    assert all(
+        i["end_date"] for i in res["items"] if i["subpart_uid"] == "Study_000026"
+    )
 
 
 def test_get_audit_trail_of_study_subpart(api_client):
-    response = api_client.get("/studies/Study_000030/audit-trail?is_subpart=true")
+    response = api_client.get(
+        "/studies/Study_000030/audit-trail?is_subpart=true&page_size=0"
+    )
     assert_response_status_code(response, 200)
     res = response.json()
+    items = res["items"]
     for i in [
         "subpart_uid",
         "subpart_id",
@@ -1923,32 +1934,32 @@ def test_get_audit_trail_of_study_subpart(api_client):
         "change_type",
         "changes",
     ]:
-        assert i in res[0]
+        assert i in items[0]
 
-    assert len(res) == 11
+    assert len(items) == 11
 
-    assert res[0]["subpart_id"] == "e"
-    assert res[0]["subpart_uid"] == "Study_000030"
-    assert res[1]["subpart_id"] == "e"
-    assert res[1]["subpart_uid"] == "Study_000030"
-    assert res[2]["subpart_id"] == "e"
-    assert res[2]["subpart_uid"] == "Study_000030"
-    assert res[3]["subpart_id"] == "e"
-    assert res[3]["subpart_uid"] == "Study_000030"
-    assert res[4]["subpart_id"] == "f"
-    assert res[4]["subpart_uid"] == "Study_000030"
-    assert res[5]["subpart_id"] == "f"
-    assert res[5]["subpart_uid"] == "Study_000030"
-    assert res[6]["subpart_id"] == "f"
-    assert res[6]["subpart_uid"] == "Study_000030"
-    assert res[7]["subpart_id"] == "f"
-    assert res[7]["subpart_uid"] == "Study_000030"
-    assert res[8]["subpart_id"] == "g"
-    assert res[8]["subpart_uid"] == "Study_000030"
-    assert res[9]["subpart_id"] == "f"
-    assert res[9]["subpart_uid"] == "Study_000030"
-    assert res[10]["subpart_id"] == "e"
-    assert res[10]["subpart_uid"] == "Study_000030"
+    assert items[0]["subpart_id"] == "e"
+    assert items[0]["subpart_uid"] == "Study_000030"
+    assert items[1]["subpart_id"] == "e"
+    assert items[1]["subpart_uid"] == "Study_000030"
+    assert items[2]["subpart_id"] == "e"
+    assert items[2]["subpart_uid"] == "Study_000030"
+    assert items[3]["subpart_id"] == "e"
+    assert items[3]["subpart_uid"] == "Study_000030"
+    assert items[4]["subpart_id"] == "f"
+    assert items[4]["subpart_uid"] == "Study_000030"
+    assert items[5]["subpart_id"] == "f"
+    assert items[5]["subpart_uid"] == "Study_000030"
+    assert items[6]["subpart_id"] == "f"
+    assert items[6]["subpart_uid"] == "Study_000030"
+    assert items[7]["subpart_id"] == "f"
+    assert items[7]["subpart_uid"] == "Study_000030"
+    assert items[8]["subpart_id"] == "g"
+    assert items[8]["subpart_uid"] == "Study_000030"
+    assert items[9]["subpart_id"] == "f"
+    assert items[9]["subpart_uid"] == "Study_000030"
+    assert items[10]["subpart_id"] == "e"
+    assert items[10]["subpart_uid"] == "Study_000030"
 
 
 def test_cannot_use_a_study_parent_part_as_study_subpart(api_client):
@@ -2998,6 +3009,33 @@ def test_study_structure_statistics(
     assert content["branch_count"] == 0
     assert content["epoch_footnote_count"] == 0
     assert content["visit_footnote_count"] == 0
+    assert content["study_activity_count"] == 0
+    assert content["study_activity_schedule_count"] == 0
+
+
+def test_study_selection_containment(api_client, tst_study):
+    """Source/target existence and self-comparison (full equality per label)."""
+    response = api_client.get(
+        f"studies/123000/study-selection-containment/{tst_study.uid}"
+    )
+    assert_response_status_code(response, 404)
+    response = api_client.get(
+        f"studies/{tst_study.uid}/study-selection-containment/123000"
+    )
+    assert_response_status_code(response, 404)
+    response = api_client.get(
+        f"studies/{tst_study.uid}/study-selection-containment/{tst_study.uid}"
+    )
+    assert_response_status_code(response, 200)
+    data = response.json()
+    assert data["target_contained_in_source"]
+    for row in data["per_label"]:
+        assert row["label_contained"]
+        assert row["target_selection_count"] == row["source_selection_count"]
+        assert (
+            row["target_distinct_ct_term_root_count"]
+            == row["source_distinct_ct_term_root_count"]
+        )
 
 
 # pylint: disable=invalid-name
@@ -3018,6 +3056,7 @@ def test_get_studies_list(api_client):
         "acronym",
         "number",
         "title",
+        "description",
         "subpart_id",
         "subpart_acronym",
         "clinical_programme_name",
@@ -3078,6 +3117,44 @@ def test_get_study_complexity_score(api_client):
     res_version_1 = response.json()
     assert isinstance(res_version_1, float)
     assert res_version_1 >= 0
+
+
+@pytest.mark.parametrize(
+    "study_value_version",
+    [
+        pytest.param(None),
+        pytest.param("1"),
+    ],
+)
+def test_get_study_complexity_score_details(api_client, study_value_version):
+    params = {"study_value_version": study_value_version} if study_value_version else {}
+
+    # Verify that the `details` endpoint return the same version of the complexity score as the total complexity score endpoint,
+    # and that the total complexity score is the sum of the individual components returned in the details endpoint.
+    res_total = api_client.get(f"/studies/{study.uid}/complexity-score", params=params)
+    res_details = api_client.get(
+        f"/studies/{study.uid}/complexity-score-details", params=params
+    )
+    assert_response_status_code(res_total, 200)
+    assert_response_status_code(res_details, 200)
+
+    cs_details = res_details.json()
+    assert isinstance(cs_details, dict)
+    for component in ["visits", "assessments"]:
+        assert component in cs_details
+        assert isinstance(cs_details[component], list)
+        for item in cs_details[component]:
+            assert isinstance(item["type"], str)
+            assert isinstance(item["burden"], (int, float))
+            assert isinstance(item["count"], (int, float))
+            assert item["burden"] >= 0
+            assert item["count"] >= 0
+
+    # Assert that the total complexity score is the sum of count * burden for each visit and each assessment
+    total_calculated = sum(
+        v["count"] * v["burden"] for v in cs_details["visits"]
+    ) + sum(a["count"] * a["burden"] for a in cs_details["assessments"])
+    assert total_calculated == pytest.approx(res_total.json())
 
 
 def test_get_integrity_check_for_study(api_client):
@@ -3252,3 +3329,370 @@ def test_cannot_update_study_to_an_already_existing_study_acronym(api_client):
     res = response.json()
     assert res["type"] == "AlreadyExistsException"
     assert res["message"] == "Study with Study Acronym 'study_root' already exists."
+
+
+def test_study_template_create_patch_retire_reactivate(api_client):
+    def _term_uid(value):
+        if isinstance(value, dict):
+            return value["term_uid"]
+        if hasattr(value, "term_uid"):
+            return value.term_uid
+        return value
+
+    lock_reason_uid = _term_uid(test_data_dict["reason_for_lock_terms"][0])
+    release_reason_uid = _term_uid(test_data_dict["reason_for_lock_terms"][0])
+    unlock_reason_uid = _term_uid(test_data_dict["reason_for_unlock_terms"][0])
+
+    template_study = TestUtils.create_study()
+    template_study_title = "Template study title"
+    TestUtils.set_study_title(template_study.uid, study_title=template_study_title)
+    lock_response = api_client.post(
+        f"/studies/{template_study.uid}/locks",
+        json={
+            "change_description": "lock template study",
+            "reason_for_change_uid": lock_reason_uid,
+        },
+    )
+    assert_response_status_code(lock_response, 201)
+    template_version = lock_response.json()["current_metadata"]["version_metadata"][
+        "version_number"
+    ]
+
+    response = api_client.post(
+        "/studies/template",
+        json={
+            "study_uid": template_study.uid,
+            "study_value_version": template_version,
+        },
+    )
+    assert_response_status_code(response, 201)
+    created = response.json()
+    assert created["study_uid"] == template_study.uid
+    assert created["study_value_version"] == template_version
+    assert created["status"] == "Final"
+
+    released_study = TestUtils.create_study()
+    study_b_title = "Study B title"
+    TestUtils.set_study_title(released_study.uid, study_title=study_b_title)
+    lock_response = api_client.post(
+        f"/studies/{released_study.uid}/locks",
+        json={
+            "change_description": "lock released study",
+            "reason_for_change_uid": lock_reason_uid,
+        },
+    )
+    assert_response_status_code(lock_response, 201)
+    response = api_client.post(
+        f"/studies/{released_study.uid}/unlocks",
+        json={
+            "change_description": "Unlock Study B for initial release",
+            "reason_for_change_uid": unlock_reason_uid,
+        },
+    )
+    assert_response_status_code(response, 201)
+    release_response = api_client.post(
+        f"/studies/{released_study.uid}/release",
+        json={
+            "change_description": "release study",
+            "reason_for_change_uid": release_reason_uid,
+        },
+    )
+    assert_response_status_code(release_response, 201)
+    # `release` keeps the Study in DRAFT state, so `current_metadata.version_number`
+    # in the response can be `None`. Instead, resolve the latest RELEASED snapshot version.
+    study_history = (
+        StudyService().get_study_snapshot_history(study_uid=released_study.uid).items
+    )
+    release_history = sorted(
+        (item for item in study_history if StudyStatus.RELEASED in item.study_status),
+        key=lambda item: item.modified_date,
+        reverse=True,
+    )
+    assert release_history
+    released_version = release_history[0].metadata_version
+    assert released_version is not None
+
+    response = api_client.patch(
+        "/studies/template",
+        json={
+            "study_uid": released_study.uid,
+            "study_value_version": released_version,
+            "change_description": "Switch template study",
+        },
+    )
+    assert_response_status_code(response, 200)
+    patched = response.json()
+    assert patched["study_uid"] == released_study.uid
+    assert patched["study_value_version"] == released_version
+    assert patched["status"] == "Final"
+
+    response = api_client.get("/studies/template")
+    assert_response_status_code(response, 200)
+    active_template_v1 = response.json()
+    assert active_template_v1["study_uid"] == released_study.uid
+    assert active_template_v1["study_value_version"] == released_version
+
+    # Add a second FINAL version for the same StudyB (unlock if needed -> patch short title -> release)
+    current_status_response = api_client.get(f"/studies/{released_study.uid}")
+    assert_response_status_code(current_status_response, 200)
+    current_status = current_status_response.json()["current_metadata"][
+        "version_metadata"
+    ]["study_status"]
+    if current_status == "LOCKED":
+        response = api_client.post(
+            f"/studies/{released_study.uid}/unlocks",
+            json={
+                "change_description": "Unlock Study B for v2",
+                "reason_for_change_uid": unlock_reason_uid,
+            },
+        )
+        assert_response_status_code(response, 201)
+
+    study_short_title_v2 = TestUtils.random_str(8, prefix="study-short-v2-")
+    response = api_client.patch(
+        f"/studies/{released_study.uid}",
+        json={
+            "current_metadata": {
+                "study_description": {
+                    "study_title": study_b_title,
+                    "study_short_title": study_short_title_v2,
+                }
+            }
+        },
+    )
+    assert_response_status_code(response, 200)
+
+    # Release requires DRAFT; by now the study is expected to be editable.
+    release_response_v2 = api_client.post(
+        f"/studies/{released_study.uid}/release",
+        json={
+            "change_description": "Release Study B v2",
+            "reason_for_change_uid": release_reason_uid,
+        },
+    )
+    assert_response_status_code(release_response_v2, 201)
+
+    # `release` keeps the Study in DRAFT state, so `current_metadata.version_number`
+    # in the response can be `None`. Instead, resolve the latest RELEASED snapshot version.
+    study_history = (
+        StudyService().get_study_snapshot_history(study_uid=released_study.uid).items
+    )
+    release_history = sorted(
+        (item for item in study_history if StudyStatus.RELEASED in item.study_status),
+        key=lambda item: item.modified_date,
+        reverse=True,
+    )
+    assert release_history
+    released_version_v2 = release_history[0].metadata_version
+    assert released_version_v2 is not None
+
+    # PATCH the template to point to StudyB v2, then GET immediately to verify persistence
+    response = api_client.patch(
+        "/studies/template",
+        json={
+            "study_uid": released_study.uid,
+            "study_value_version": released_version_v2,
+            "change_description": "Switch template study to v2",
+        },
+    )
+    assert_response_status_code(response, 200)
+    patched_v2 = response.json()
+    assert patched_v2["study_uid"] == released_study.uid
+    assert patched_v2["study_value_version"] == released_version_v2
+    assert patched_v2["status"] == "Final"
+
+    response = api_client.get("/studies/template")
+    assert_response_status_code(response, 200)
+    active_template_v2 = response.json()
+    assert active_template_v2["study_uid"] == released_study.uid
+    assert active_template_v2["study_value_version"] == released_version_v2
+
+    response = api_client.delete("/studies/template/activations")
+    assert_response_status_code(response, 200)
+    retired = response.json()
+    assert retired["status"] == "Retired"
+
+    response = api_client.get("/studies/template")
+    assert_response_status_code(response, 200)
+    retired_template = response.json()
+    assert retired_template is not None
+    assert retired_template["status"] == "Retired"
+    assert retired_template["uid"] == retired["uid"]
+    assert retired_template["study_uid"] == released_study.uid
+    assert retired_template["study_value_version"] == released_version_v2
+
+    response = api_client.post("/studies/template/activations")
+    assert_response_status_code(response, 200)
+    reactivated = response.json()
+    assert reactivated["status"] == "Final"
+    assert reactivated["study_uid"] == released_study.uid
+    assert reactivated["study_value_version"] == released_version_v2
+
+    response = api_client.get("/studies/template")
+    assert_response_status_code(response, 200)
+    active_template = response.json()
+    assert active_template["study_uid"] == released_study.uid
+    assert active_template["study_value_version"] == released_version_v2
+
+
+def test_study_template_rejects_draft_study_version(api_client):
+    def _term_uid(value):
+        if isinstance(value, dict):
+            return value["term_uid"]
+        if hasattr(value, "term_uid"):
+            return value.term_uid
+        return value
+
+    draft_study = TestUtils.create_study()
+    TestUtils.set_study_title(draft_study.uid)
+    lock_reason_uid = _term_uid(test_data_dict["reason_for_lock_terms"][0])
+    unlock_reason_uid = _term_uid(test_data_dict["reason_for_unlock_terms"][0])
+    lock_response = api_client.post(
+        f"/studies/{draft_study.uid}/locks",
+        json={
+            "change_description": "lock to create draft later",
+            "reason_for_change_uid": lock_reason_uid,
+        },
+    )
+    assert_response_status_code(lock_response, 201)
+    unlock_response = api_client.post(
+        f"/studies/{draft_study.uid}/unlocks",
+        json={"reason_for_change_uid": unlock_reason_uid},
+    )
+    assert_response_status_code(unlock_response, 201)
+
+    response = api_client.patch(
+        "/studies/template",
+        json={
+            "study_uid": draft_study.uid,
+            "study_value_version": "1.1",
+            "change_description": "Try draft version",
+        },
+    )
+    assert_response_status_code(response, 404)
+    assert "version" in response.json()["message"]
+
+
+def test_study_template_rejects_empty_target_fields(api_client):
+    response = api_client.post(
+        "/studies/template",
+        json={"study_uid": "", "study_value_version": ""},
+    )
+
+    assert_response_status_code(response, 400)
+    assert response.json()["details"] == [
+        {
+            "error_code": "string_too_short",
+            "field": ["body", "study_uid"],
+            "msg": "String should have at least 1 character",
+            "ctx": {"min_length": 1},
+        },
+        {
+            "error_code": "string_too_short",
+            "field": ["body", "study_value_version"],
+            "msg": "String should have at least 1 character",
+            "ctx": {"min_length": 1},
+        },
+    ]
+
+
+def _post_or_patch_study_template(
+    api_client,
+    study_uid: str,
+    study_value_version: str,
+    *,
+    change_description: str,
+):
+    response = api_client.post(
+        "/studies/template",
+        json={"study_uid": study_uid, "study_value_version": study_value_version},
+    )
+    if response.status_code == 400:
+        body = response.json()
+        if body.get("type") == "BusinessLogicException" and "already exists" in (
+            body.get("message") or ""
+        ):
+            response = api_client.patch(
+                "/studies/template",
+                json={
+                    "study_uid": study_uid,
+                    "study_value_version": study_value_version,
+                    "change_description": change_description,
+                },
+            )
+    return response
+
+
+def test_study_template_patch_clears_target_with_empty_study_uid(api_client):
+    def _term_uid(value):
+        if isinstance(value, dict):
+            return value["term_uid"]
+        if hasattr(value, "term_uid"):
+            return value.term_uid
+        return value
+
+    lock_reason_uid = _term_uid(test_data_dict["reason_for_lock_terms"][0])
+    template_study = TestUtils.create_study()
+    TestUtils.set_study_title(template_study.uid)
+    lock_response = api_client.post(
+        f"/studies/{template_study.uid}/locks",
+        json={
+            "change_description": "lock template study",
+            "reason_for_change_uid": lock_reason_uid,
+        },
+    )
+    assert_response_status_code(lock_response, 201)
+    template_version = lock_response.json()["current_metadata"]["version_metadata"][
+        "version_number"
+    ]
+
+    response = _post_or_patch_study_template(
+        api_client,
+        template_study.uid,
+        template_version,
+        change_description="Seed template for clear-target test",
+    )
+    assert_response_status_code(response, [200, 201])
+
+    response = api_client.patch(
+        "/studies/template",
+        json={
+            "study_uid": "",
+            "study_value_version": "",
+            "change_description": "Clear template target",
+        },
+    )
+    assert_response_status_code(response, 200)
+    cleared = response.json()
+    assert cleared["study_uid"] == ""
+    assert cleared["study_value_version"] == ""
+
+    response = api_client.get("/studies/template")
+    assert_response_status_code(response, 200)
+    persisted = response.json()
+    assert persisted["study_uid"] == ""
+    assert persisted["study_value_version"] == ""
+
+    response = api_client.patch(
+        "/studies/template",
+        json={
+            "study_uid": "",
+            "study_value_version": "ignored-version",
+            "change_description": "Clear template target (version ignored)",
+        },
+    )
+    assert_response_status_code(response, 200)
+    assert response.json()["study_value_version"] == ""
+
+
+def test_study_template_patch_requires_version_when_study_uid_set(api_client):
+    study = TestUtils.create_study()
+    response = api_client.patch(
+        "/studies/template",
+        json={
+            "study_uid": study.uid,
+            "study_value_version": "",
+            "change_description": "missing version",
+        },
+    )
+    assert_response_status_code(response, 400)

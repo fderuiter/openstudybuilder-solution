@@ -37,6 +37,8 @@ class FeatureFlagService:
         )
 
         return self.repo.create_feature_flag(
+            section=feature_flag_input.section,
+            feature=feature_flag_input.feature,
             name=feature_flag_input.name,
             enabled=feature_flag_input.enabled,
             description=feature_flag_input.description,
@@ -49,7 +51,7 @@ class FeatureFlagService:
         feature_flag_patch_input: FeatureFlagPatchInput,
     ) -> FeatureFlag:
         return self.repo.update_feature_flag(
-            sn=sn, enabled=feature_flag_patch_input.enabled
+            sn=sn, **feature_flag_patch_input.model_dump(exclude_unset=True)
         )
 
     @db.transaction

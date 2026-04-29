@@ -446,8 +446,9 @@ function stopLoading() {
         background-color: rgb(var(--v-theme-tableGray));
       }
 
-      & .activity:first-child {
-        background-color: rgb(var(--v-theme-tableGray));
+      & .activity:first-child,
+      & .activityPlaceholder:first-child,
+      & .activityPlaceholderSubmitted:first-child {
         padding-left: 1em;
       }
 

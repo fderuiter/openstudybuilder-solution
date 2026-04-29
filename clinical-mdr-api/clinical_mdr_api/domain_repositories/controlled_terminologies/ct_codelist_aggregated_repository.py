@@ -86,7 +86,9 @@ class CTCodelistAggregatedRepository:
                 author_username: coalesce(name_author.username, rel_data_name.author_id)
             } AS rel_data_name,
             head([(codelist_root)-[:PAIRED_CODE_CODELIST]->(paired_codes_cl_root:CTCodelistRoot) | paired_codes_cl_root.uid]) AS paired_codes_codelist_uid,
-            head([(codelist_root)<-[:PAIRED_CODE_CODELIST]-(paired_names_cl_root:CTCodelistRoot) | paired_names_cl_root.uid]) AS paired_names_codelist_uid
+            head([(codelist_root)<-[:PAIRED_CODE_CODELIST]-(paired_names_cl_root:CTCodelistRoot) | paired_names_cl_root.uid]) AS paired_names_codelist_uid,
+            head([(codelist_root)-[:PAIRED_CODE_CODELIST]->(pcr:CTCodelistRoot)-[:HAS_ATTRIBUTES_ROOT]->(:CTCodelistAttributesRoot)-[:LATEST]->(pcv:CTCodelistAttributesValue) | pcv.name]) AS paired_codes_codelist_name,
+            head([(codelist_root)<-[:PAIRED_CODE_CODELIST]-(pnr:CTCodelistRoot)-[:HAS_ATTRIBUTES_ROOT]->(:CTCodelistAttributesRoot)-[:LATEST]->(pnv:CTCodelistAttributesValue) | pnv.name]) AS paired_names_codelist_name
     """
     generic_alias_clause = f"""
         DISTINCT codelist_root, codelist_name_root, codelist_name_value, codelist_attributes_root, codelist_attributes_value
@@ -151,6 +153,8 @@ class CTCodelistAggregatedRepository:
         paired_codelists = CTPairedCodelists(
             paired_names_codelist_uid=codelist_dict.get("paired_names_codelist_uid"),
             paired_codes_codelist_uid=codelist_dict.get("paired_codes_codelist_uid"),
+            paired_names_codelist_name=codelist_dict.get("paired_names_codelist_name"),
+            paired_codes_codelist_name=codelist_dict.get("paired_codes_codelist_name"),
         )
         return codelist_name_ar, codelist_attributes_ar, paired_codelists
 

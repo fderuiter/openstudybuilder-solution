@@ -444,6 +444,43 @@ class StudyActivityInstanceSelectionService(
             origin_source_uid=request_object.origin_source_uid,
         )
 
+    @ensure_transaction(db)
+    def patch_selection(
+        self,
+        study_uid: str,
+        study_selection_uid: str,
+        selection_update_input: StudySelectionActivityInstanceEditInput,
+    ):
+        super().patch_selection(
+            study_uid=study_uid,
+            study_selection_uid=study_selection_uid,
+            selection_update_input=selection_update_input,
+        )
+        # Fetch the single updated VO directly (avoids loading the full aggregate).
+        return self._get_specific_selection_vo_as_response(
+            study_uid=study_uid,
+            study_selection_uid=study_selection_uid,
+        )
+
+    def _get_specific_selection_vo_as_response(
+        self,
+        study_uid: str,
+        study_selection_uid: str,
+    ) -> StudySelectionActivityInstance:
+        """Fetch a single fully-resolved VO and convert to response model."""
+        vo = self._repos.study_activity_instance_repository.find_selection_vo_by_uid(
+            study_uid=study_uid,
+            study_selection_uid=study_selection_uid,
+        )
+        if vo is None:
+            raise exceptions.NotFoundException(
+                msg=f"Study activity instance selection with UID '{study_selection_uid}' not found."
+            )
+        return self._transform_from_vo_to_response_model(
+            study_uid=study_uid,
+            specific_selection=vo,
+        )
+
     def get_specific_selection(
         self,
         study_uid: str,

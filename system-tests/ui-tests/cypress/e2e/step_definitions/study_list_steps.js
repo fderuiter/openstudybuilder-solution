@@ -11,6 +11,32 @@ Given('The user intercepts study statistics request', () => cy.intercept('**stru
 
 When('User intercepts cloning request', () => cy.intercept('**clone').as('clone_request'))
 
+/**
+ * Verifies clone POST payload in the intercept callback (payload verification best practice).
+ * Use with scenarios that select structure + study activities + schedules.
+ */
+When(
+    'User intercepts study clone request verifying structure and activity clone flags',
+    () => {
+        cy.intercept({ method: 'POST', url: '**/clone' }, (req) => {
+            expect(req.body).to.have.property('copy_study_arm', true)
+            expect(req.body).to.have.property('copy_study_branch_arm', true)
+            expect(req.body).to.have.property('copy_study_cohort', true)
+            expect(req.body).to.have.property('copy_study_design_matrix', true)
+            expect(req.body).to.have.property('copy_study_element', true)
+            expect(req.body).to.have.property('copy_study_epoch', true)
+            expect(req.body).to.have.property('copy_study_visit', true)
+            expect(req.body).to.have.property('copy_study_soa_group', true)
+            expect(req.body).to.have.property('copy_study_activity_group', true)
+            expect(req.body).to.have.property('copy_study_activity_subgroup', true)
+            expect(req.body).to.have.property('copy_study_activity', true)
+            expect(req.body).to.have.property('copy_study_activity_instance', true)
+            expect(req.body).to.have.property('copy_study_activity_schedule', true)
+            expect(req.body).to.have.property('validation_mode', 'strict')
+        }).as('clone_request')
+    }
+)
+
 When('User waits for cloning request', () => cy.wait('@clone_request'))
 
 Then('The user is presented study selection dropdown', () => {
@@ -44,7 +70,12 @@ Then('The user is presented with visual representation of designated study struc
     cy.get('line.visit-arrow').should('have.length', 2);
 })
 
-When('The user selects {string} category to be copied', (category) => cy.contains('label', category).click())
+When('The user selects {string} category to be copied', (category) => {
+    // Wait for structure-statistics (arm_count, etc.); long timeout for slow API.
+    // cy.get('@alias') reuses a completed intercept; cy.wait would only match once per request.
+    cy.get('@study_statistics', { timeout: 6000 })
+    cy.contains('label', category, { timeout: 30000 }).should('be.visible').click()
+})
 
 Then('The {string} category with {string} derived from source study is presented for selection', (category, count) => {
     cy.get('@study_statistics').then((request) => {
@@ -88,16 +119,29 @@ When('Study is found', () => cy.searchAndCheckPresence(studyAcronym, true))
 Then('The new study is created with selected data', () => {
     cy.get('@clone_request').then((req) => {
         expect(req.request.body.copy_study_arm).to.eq(true)
-        expect(req.request.body.copy_study_arm).to.eq(true)
         expect(req.request.body.copy_study_branch_arm).to.eq(true)
         expect(req.request.body.copy_study_cohort).to.eq(true)
         expect(req.request.body.copy_study_design_matrix).to.eq(true)
         expect(req.request.body.copy_study_element).to.eq(true)
         expect(req.request.body.copy_study_epoch).to.eq(true)
         expect(req.request.body.copy_study_visit).to.eq(true)
+        expect(req.request.body.validation_mode).to.eq('strict')
         expect(req.request.body.project_number).to.eq('CDISC DEV')
         expect(req.request.body.study_acronym).to.eq(studyAcronym)
         expect(req.request.body.study_number).to.eq(studyNumber)
         expect(req.response.statusCode).to.eq(201)
+    })
+})
+
+/**
+ * Response-only assertion when request body was already verified in the intercept callback.
+ */
+Then('The study clone response is successful with submitted metadata', () => {
+    cy.get('@clone_request').then((req) => {
+        expect(req.response.statusCode).to.eq(201)
+        expect(req.request.body.validation_mode).to.eq('strict')
+        expect(req.request.body.project_number).to.eq('CDISC DEV')
+        expect(req.request.body.study_acronym).to.eq(studyAcronym)
+        expect(req.request.body.study_number).to.eq(studyNumber)
     })
 })

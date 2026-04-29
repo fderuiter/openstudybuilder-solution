@@ -12,6 +12,7 @@
       <v-col>
         <v-select
           v-model="inputTranslatedText.text_type"
+          data-cy="text-type"
           :label="t('CRFTranslatedTexts.text_type')"
           :items="translatedTextTypes"
           :readonly="props.readOnly"
@@ -20,6 +21,7 @@
       <v-col>
         <v-autocomplete
           v-model="inputTranslatedText.language"
+          data-cy="language"
           :label="t('CRFTranslatedTexts.language')"
           :items="languages"
           item-title="name"
@@ -42,6 +44,7 @@
             v-if="!showSource"
             ref="quillEditor"
             v-model:content="inputTranslatedText.text"
+            data-cy="translated-texts"
             content-type="html"
             :options="editorOptions"
             :read-only="props.readOnly"
@@ -52,12 +55,14 @@
           <v-textarea
             v-else
             v-model="sourceText"
+            data-cy="source-text"
             :readonly="props.readOnly"
             auto-grow
             hide-details
           />
           <v-btn
             size="small"
+            data-cy="toggle-source"
             variant="text"
             class="mt-1"
             :prepend-icon="showSource ? 'mdi-eye' : 'mdi-code-tags'"
@@ -72,6 +77,7 @@
       <v-col>
         <v-btn
           color="secondary"
+          data-cy="add-translation"
           class="mr-2"
           block
           :readonly="props.readOnly"
@@ -110,6 +116,7 @@
           <template #[`afterSearch`]>
             <v-checkbox
               v-model="operator"
+              data-cy="exact-match-checkbox"
               :label="t('CRFTranslatedTexts.exact_match')"
               class="ms-5 mt-5"
             />
@@ -117,6 +124,7 @@
           <template #[`item.actions`]="{ item }">
             <v-btn
               icon="mdi-pencil"
+              data-cy="edit-translation-item"
               variant="flat"
               :disabled="props.readOnly"
               @click.stop="edit(item)"

@@ -1204,7 +1204,7 @@ def test_get_study_flowchart_versioned(api_client, temp_database_populated):
             "study_value_version": released_study_version,
         },
     )
-    released_soa = parse_json_response(response, status=200)
+    released_soa = parse_json_response(response, assert_status=200)
 
     # THEN: SoA of the released study version is the same as the previous draft SoA
     assert released_soa == r1_soa

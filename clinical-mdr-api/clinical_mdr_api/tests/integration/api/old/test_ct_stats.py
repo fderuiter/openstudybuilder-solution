@@ -66,8 +66,7 @@ def test_ct_stats(api_client):
             "library_name": "Sponsor",
             "parent_codelist_uid": None,
             "child_codelist_uids": [],
-            "paired_codes_codelist_uid": None,
-            "paired_names_codelist_uid": None,
+            "paired_codelist": None,
             "name": {
                 "catalogue_names": [],
                 "codelist_uid": None,
@@ -110,8 +109,7 @@ def test_ct_stats(api_client):
             "library_name": "CDISC",
             "parent_codelist_uid": None,
             "child_codelist_uids": [],
-            "paired_codes_codelist_uid": None,
-            "paired_names_codelist_uid": None,
+            "paired_codelist": None,
             "name": {
                 "catalogue_names": [],
                 "codelist_uid": None,
@@ -154,8 +152,7 @@ def test_ct_stats(api_client):
             "library_name": "Sponsor",
             "parent_codelist_uid": None,
             "child_codelist_uids": [],
-            "paired_codes_codelist_uid": None,
-            "paired_names_codelist_uid": None,
+            "paired_codelist": None,
             "name": {
                 "catalogue_names": [],
                 "codelist_uid": None,

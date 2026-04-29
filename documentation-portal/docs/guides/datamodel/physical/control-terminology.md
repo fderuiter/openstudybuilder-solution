@@ -5,7 +5,7 @@ date: 2021-08-06
 
 # Control Terminology Model
 At its core, Control Terminology provides a standardized set of values required for generating CDISC-compliant datasets. 
-In our model, Control Terminology can also be extended with Sponsor defined values - in particular, Novo Nordisk specific naming for certain values.
+In our model, Control Terminology can also be extended with Sponsor defined values.
 
 The two main building blocks of control terminology are:
 - **Terms**: standardized names for terminology used in a clinical context. E.g. "100mg/L", "Weight", "Intravenously".

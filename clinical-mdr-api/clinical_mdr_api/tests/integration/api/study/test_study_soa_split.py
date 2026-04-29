@@ -79,7 +79,7 @@ def test_study_soa_splits(api_client: TestClient, test_database):
 
     # Initially no SOA splits, returns an empty list
     response = api_client.get(f"/studies/{test_data.study.uid}/soa-splits")
-    returned = parse_json_response(response, status=200)
+    returned = parse_json_response(response, assert_status=200)
     assert returned == []
 
     # Add a uid to SoA splits
@@ -87,7 +87,7 @@ def test_study_soa_splits(api_client: TestClient, test_database):
         f"/studies/{test_data.study.uid}/soa-splits",
         json={"uid": test_data.visits[5].uid},
     )
-    returned = parse_json_response(response)
+    returned = parse_json_response(response, assert_status=200)
     expected = [{"uid": test_data.visits[5].uid, "study_uid": test_data.study.uid}]
     assert returned == expected
 
@@ -95,7 +95,7 @@ def test_study_soa_splits(api_client: TestClient, test_database):
     response = api_client.get(
         f"/studies/{test_data.study.uid}/soa-splits",
     )
-    returned = parse_json_response(response)
+    returned = parse_json_response(response, assert_status=200)
     assert returned == expected
 
     # Add another uid to SoA splits
@@ -103,7 +103,7 @@ def test_study_soa_splits(api_client: TestClient, test_database):
         f"/studies/{test_data.study.uid}/soa-splits",
         json={"uid": test_data.visits[3].uid},
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     expected = [
         {"uid": test_data.visits[3].uid, "study_uid": test_data.study.uid},
         {"uid": test_data.visits[5].uid, "study_uid": test_data.study.uid},
@@ -122,7 +122,7 @@ def test_study_soa_splits(api_client: TestClient, test_database):
         f"/studies/{test_data.study.uid}/soa-splits",
         json={"uid": test_data.visits[1].uid},
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     expected = [
         {"uid": test_data.visits[1].uid, "study_uid": test_data.study.uid},
         {"uid": test_data.visits[3].uid, "study_uid": test_data.study.uid},
@@ -141,14 +141,14 @@ def test_study_soa_splits(api_client: TestClient, test_database):
     response = api_client.get(
         f"/studies/{test_data.study.uid}/soa-splits",
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     assert returned == expected
 
     # Delete an uid from SoA splits
     response = api_client.delete(
         f"/studies/{test_data.study.uid}/soa-splits/{test_data.visits[3].uid}",
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     expected = [
         {"uid": test_data.visits[1].uid, "study_uid": test_data.study.uid},
         {"uid": test_data.visits[5].uid, "study_uid": test_data.study.uid},
@@ -159,7 +159,7 @@ def test_study_soa_splits(api_client: TestClient, test_database):
     response = api_client.get(
         f"/studies/{test_data.study.uid}/soa-splits",
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     assert returned == expected
 
     # Lock the study
@@ -173,14 +173,14 @@ def test_study_soa_splits(api_client: TestClient, test_database):
         f"/studies/{test_data.study.uid}/soa-splits",
         params={"study_value_version": v1_version},
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     assert returned == v1_expected
 
     # Get SoA splits for latest version
     response = api_client.get(
         f"/studies/{test_data.study.uid}/soa-splits",
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     assert returned == v1_expected
 
     # Try to add another uid to SoA splits to locked study - should fail
@@ -206,21 +206,21 @@ def test_study_soa_splits(api_client: TestClient, test_database):
         f"/studies/{test_data.study.uid}/soa-splits",
         params={"study_value_version": v1_version},
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     assert returned == v1_expected
 
     # Get SoA splits for latest version
     response = api_client.get(
         f"/studies/{test_data.study.uid}/soa-splits",
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     assert returned == v1_expected
 
     # Delete an uid from SoA splits
     response = api_client.delete(
         f"/studies/{test_data.study.uid}/soa-splits/{test_data.visits[1].uid}",
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     expected = [{"uid": test_data.visits[5].uid, "study_uid": test_data.study.uid}]
     assert returned == expected
 
@@ -229,7 +229,7 @@ def test_study_soa_splits(api_client: TestClient, test_database):
         f"/studies/{test_data.study.uid}/soa-splits",
         params={"study_value_version": v1_version},
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     assert returned == v1_expected
 
     # Lock and unlock the study again
@@ -245,14 +245,14 @@ def test_study_soa_splits(api_client: TestClient, test_database):
         f"/studies/{test_data.study.uid}/soa-splits",
         params={"study_value_version": v1_version},
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     assert returned == v1_expected
 
     # Get SoA splits for latest version
     response = api_client.get(
         f"/studies/{test_data.study.uid}/soa-splits",
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     assert returned == expected
 
     # Get SoA splits for v2 version
@@ -260,7 +260,7 @@ def test_study_soa_splits(api_client: TestClient, test_database):
         f"/studies/{test_data.study.uid}/soa-splits",
         params={"study_value_version": v2_version},
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     assert returned == v2_expected
 
     # Add another uid to SoA splits
@@ -268,7 +268,7 @@ def test_study_soa_splits(api_client: TestClient, test_database):
         f"/studies/{test_data.study.uid}/soa-splits",
         json={"uid": test_data.visits[4].uid},
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     expected = [
         {"uid": test_data.visits[4].uid, "study_uid": test_data.study.uid},
         {"uid": test_data.visits[5].uid, "study_uid": test_data.study.uid},
@@ -280,14 +280,14 @@ def test_study_soa_splits(api_client: TestClient, test_database):
         f"/studies/{test_data.study.uid}/soa-splits",
         params={"study_value_version": v1_version},
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     assert returned == v1_expected
 
     # Get SoA splits for latest version
     response = api_client.get(
         f"/studies/{test_data.study.uid}/soa-splits",
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     assert returned == expected
 
     # Get SoA splits for v2 version
@@ -295,14 +295,14 @@ def test_study_soa_splits(api_client: TestClient, test_database):
         f"/studies/{test_data.study.uid}/soa-splits",
         params={"study_value_version": v2_version},
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     assert returned == v2_expected
 
     # Delete all SoA splits
     response = api_client.delete(
         f"/studies/{test_data.study.uid}/soa-splits/{test_data.visits[5].uid}",
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     expected = [{"uid": test_data.visits[4].uid, "study_uid": test_data.study.uid}]
     assert returned == expected
     response = api_client.delete(
@@ -314,7 +314,7 @@ def test_study_soa_splits(api_client: TestClient, test_database):
     response = api_client.get(
         f"/studies/{test_data.study.uid}/soa-splits",
     )
-    returned = parse_json_response(response)
+    returned = parse_json_response(response, assert_status=200)
     assert returned == []
 
     # Get SoA splits for v2 version
@@ -322,7 +322,7 @@ def test_study_soa_splits(api_client: TestClient, test_database):
         f"/studies/{test_data.study.uid}/soa-splits",
         params={"study_value_version": v2_version},
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     assert returned == v2_expected
 
     # Get SoA splits for v1 version
@@ -330,7 +330,7 @@ def test_study_soa_splits(api_client: TestClient, test_database):
         f"/studies/{test_data.study.uid}/soa-splits",
         params={"study_value_version": v1_version},
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     assert returned == v1_expected
 
 
@@ -341,7 +341,7 @@ def test_study_locked_with_no_soa_splits(api_client: TestClient, test_database):
 
     # Initially no SOA splits
     response = api_client.get(f"/studies/{test_data.study.uid}/soa-splits")
-    returned = parse_json_response(response, status=200)
+    returned = parse_json_response(response, assert_status=200)
     assert returned == []
 
     # Try to delete an uid from non-existing SoA splits
@@ -362,7 +362,7 @@ def test_study_locked_with_no_soa_splits(api_client: TestClient, test_database):
         f"/studies/{test_data.study.uid}/soa-splits",
         json={"uid": test_data.visits[4].uid},
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     expected = [{"uid": test_data.visits[4].uid, "study_uid": test_data.study.uid}]
     assert returned == expected
 
@@ -371,7 +371,7 @@ def test_study_locked_with_no_soa_splits(api_client: TestClient, test_database):
         f"/studies/{test_data.study.uid}/soa-splits",
         json={"uid": test_data.visits[6].uid},
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     expected = [
         {"uid": test_data.visits[4].uid, "study_uid": test_data.study.uid},
         {"uid": test_data.visits[6].uid, "study_uid": test_data.study.uid},
@@ -390,7 +390,7 @@ def test_study_locked_with_no_soa_splits(api_client: TestClient, test_database):
     response = api_client.get(
         f"/studies/{test_data.study.uid}/soa-splits",
     )
-    returned = _sort_by_uid(parse_json_response(response))
+    returned = _sort_by_uid(parse_json_response(response, assert_status=200))
     assert returned == expected
 
 

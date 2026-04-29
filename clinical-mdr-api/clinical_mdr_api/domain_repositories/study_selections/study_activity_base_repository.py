@@ -1,5 +1,6 @@
 import abc
 import datetime
+from dataclasses import replace
 from typing import Any, Generic, TypeVar
 
 from neomodel import db
@@ -277,9 +278,13 @@ class StudySelectionActivityBaseRepository(Generic[_AggregateRootType], abc.ABC)
         closure_data = study_selection.repository_closure_data
         closure_data_length = len(closure_data)
 
-        # getting the latest study value node
-        study_root_node: StudyRoot = StudyRoot.nodes.get(uid=study_selection.study_uid)
-        latest_study_value_node: StudyValue = study_root_node.latest_value.get_or_none()
+        # Single Cypher to fetch StudyRoot + latest StudyValue (replaces 2 neomodel lookups)
+        results, _ = db.cypher_query(
+            "MATCH (sr:StudyRoot {uid: $uid})-[:LATEST]->(sv:StudyValue) RETURN sr, sv",
+            {"uid": study_selection.study_uid},
+            resolve_objects=True,
+        )
+        study_root_node, latest_study_value_node = results[0]
 
         # process new/changed/deleted elements for each activity
         selections_to_remove = []
@@ -362,6 +367,7 @@ class StudySelectionActivityBaseRepository(Generic[_AggregateRootType], abc.ABC)
                     )
 
         # loop through and add selections
+        order_by_uid: dict[str, int] = {}
         for order, selection in selections_to_add:
             last_study_selection_node = None
             if selection.study_selection_uid in audit_trail_nodes:
@@ -392,6 +398,19 @@ class StudySelectionActivityBaseRepository(Generic[_AggregateRootType], abc.ABC)
                 last_study_selection_node,
                 False,
             )
+            order_by_uid[selection.study_selection_uid] = order
+
+        # Write the DB-assigned order back into the frozen VOs so callers can read the
+        # correct order directly from the aggregate without a second find_by_study round-trip.
+        if order_by_uid and self.is_repository_based_on_ordered_selection():
+            study_selection.study_objects_selection = [
+                (
+                    replace(sel, order=order_by_uid[sel.study_selection_uid])
+                    if sel.study_selection_uid in order_by_uid
+                    else sel
+                )
+                for sel in study_selection.study_objects_selection
+            ]
 
     @trace_calls
     def _get_selection_with_history(

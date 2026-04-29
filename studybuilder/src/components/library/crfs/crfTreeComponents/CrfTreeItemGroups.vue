@@ -122,7 +122,6 @@
                 </v-list-item>
               </v-list>
             </v-menu>
-            <v-btn v-else width="150px" rounded size="small" class="hide" />
           </td>
         </tr>
       </template>

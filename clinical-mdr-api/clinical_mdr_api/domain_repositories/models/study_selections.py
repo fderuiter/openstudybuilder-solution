@@ -829,3 +829,45 @@ class StudyDefinitionDocument(StudySelection):
     study_value = RelationshipFrom(
         STUDY_VALUE_CLASS_NAME, "HAS_STUDY_DEFINITION_DOCUMENT", model=ClinicalMdrRel
     )
+
+
+# All domain classes that inherit StudySelection (excluding the abstract base).
+STUDY_SELECTION_CONCRETE_LABELS: frozenset[str] = frozenset(
+    {
+        "StudyDataSupplier",
+        "StudyObjective",
+        "StudyEndpoint",
+        "StudyCompound",
+        "StudyCriteria",
+        "StudySoAGroup",
+        "StudyActivitySubGroup",
+        "StudyActivityGroup",
+        "StudyActivity",
+        "StudyActivityInstance",
+        "StudyActivitySchedule",
+        "StudyDesignCell",
+        "StudyArm",
+        "StudyElement",
+        "StudyActivityInstruction",
+        "StudyBranchArm",
+        "StudyCohort",
+        "StudyCompoundDosing",
+        "StudySoAFootnote",
+        "StudyDesignClass",
+        "StudySourceVariable",
+        "StudyVersion",
+        "StudyDefinitionDocument",
+        "StudyEpoch",
+        "StudyVisit",
+        "StudyDiseaseMilestone",
+        "StudyStandardVersion",
+    }
+)
+
+# Omitted from clone/source-vs-target containment checks: footnote rows depend on
+# which selection subgraph was copied, so counts are not comparable to the source.
+STUDY_SELECTION_LABELS_EXCLUDED_FROM_CONTAINMENT: frozenset[str] = frozenset(
+    {
+        "StudySoAFootnote",
+    }
+)

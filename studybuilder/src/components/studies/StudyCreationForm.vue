@@ -12,20 +12,36 @@
       <div class="dialog-sub-title mb-4">
         {{ $t('StudyCreationForm.creation_mode_title') }}
       </div>
-      <v-radio-group v-model="createFromScratch">
+      <v-radio-group v-model="createMode">
         <v-radio
-          :value="true"
+          value="scratch"
           :label="$t('StudyCreationForm.create_from_scratch')"
         />
         <v-radio
-          :value="false"
+          value="copy"
           :label="$t('StudyCreationForm.create_from_study')"
         />
+        <v-radio
+          v-if="studyTemplate && studyTemplate?.study_uid !== ''"
+          value="default"
+        >
+          <template #label>
+            {{ $t('StudyCreationForm.create_from_template') }}
+            <v-tooltip location="top">
+              <template #activator="{ props }">
+                <v-icon v-bind="props" class="ml-1" size="small">
+                  mdi-information-outline
+                </v-icon>
+              </template>
+              {{ $t('StudyCreationForm.create_from_template_help') }}
+            </v-tooltip>
+          </template>
+        </v-radio>
       </v-radio-group>
 
       <div class="w-50">
         <v-alert
-          v-if="!createFromScratch"
+          v-if="createMode === 'copy'"
           color="nnLightBlue200"
           icon="$info"
           :text="$t('StudyCreationForm.copy_notice')"
@@ -125,7 +141,7 @@
 </template>
 
 <script setup>
-import { computed, inject, ref, watch } from 'vue'
+import { computed, inject, ref, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
@@ -134,6 +150,7 @@ import ConfirmDialog from '@/components/tools/ConfirmDialog.vue'
 import HorizontalStepperForm from '@/components/tools/HorizontalStepperForm.vue'
 import StudyStructureCopyForm from '@/components/studies/StudyStructureCopyForm.vue'
 import studyApi from '@/api/study'
+import studyTemplateApi from '@/api/studyTemplate'
 
 const notificationHub = inject('notificationHub')
 const formRules = inject('formRules')
@@ -144,7 +161,7 @@ const studiesManageStore = useStudiesManageStore()
 
 const emit = defineEmits(['close'])
 
-const createFromScratch = ref(true)
+const createMode = ref('scratch')
 const project = ref({})
 const studyForm = ref({})
 const step1FormRef = ref()
@@ -153,6 +170,9 @@ const confirmRef = ref()
 const stepper = ref()
 const copyForm = ref()
 
+const createDefaultSteps = [
+  { name: 'study', title: t('StudyCreationForm.step1_title') },
+]
 const createFromScratchSteps = [
   { name: 'study', title: t('StudyCreationForm.step1_title') },
 ]
@@ -162,6 +182,13 @@ const createFromStudySteps = [
 ]
 
 const steps = ref(createFromScratchSteps)
+const studyTemplate = ref({})
+
+onMounted(() => {
+  studyTemplateApi.getStudyTemplate().then((resp) => {
+    studyTemplate.value = resp.data
+  })
+})
 
 const studyId = computed(() => {
   if (project.value.project_number && studyForm.value.study_number) {
@@ -172,11 +199,30 @@ const studyId = computed(() => {
 
 const helpItems = []
 
+/** All clone toggles the API accepts; merge on submit so unset keys are not omitted from JSON. */
+const CLONE_STUDY_FLAG_DEFAULTS = {
+  copy_study_arm: false,
+  copy_study_branch_arm: false,
+  copy_study_cohort: false,
+  copy_study_element: false,
+  copy_study_visit: false,
+  copy_study_visits_study_footnote: false,
+  copy_study_epoch: false,
+  copy_study_epochs_study_footnote: false,
+  copy_study_design_matrix: false,
+  copy_study_soa_group: false,
+  copy_study_activity_group: false,
+  copy_study_activity_subgroup: false,
+  copy_study_activity: false,
+  copy_study_activity_instance: false,
+  copy_study_activity_schedule: false,
+}
+
 function close() {
   notificationHub.clearErrors()
   studyForm.value = {}
   cloneStudyForm.value = {}
-  createFromScratch.value = true
+  createMode.value = 'default'
   emit('close')
 }
 
@@ -194,7 +240,7 @@ function getObserver(step) {
 async function submit() {
   notificationHub.clearErrors()
 
-  if (createFromScratch.value) {
+  if (createMode.value === 'scratch') {
     const data = JSON.parse(JSON.stringify(studyForm.value))
     data.project_number = project.value.project_number
     try {
@@ -204,7 +250,7 @@ async function submit() {
     } finally {
       stepper.value.loading = false
     }
-  } else {
+  } else if (createMode.value === 'copy') {
     if (!copyForm.value.selectionMade) {
       notificationHub.add({
         msg: t('StudyStructureCopyForm.no_selection'),
@@ -221,11 +267,35 @@ async function submit() {
      * }) */
     const data = {
       ...studyForm.value,
+      ...CLONE_STUDY_FLAG_DEFAULTS,
       ...cloneStudyForm.value,
     }
     data.project_number = data.project_number.project_number
     const studyUid = data.study.uid
     delete data.study
+    data.validation_mode = 'warning'
+    try {
+      const resp = await studyApi.cloneStudy(studyUid, data)
+      notificationHub.add({ msg: t('StudyForm.add_success') })
+      await studiesGeneralStore.selectStudy(resp.data, true)
+    } finally {
+      stepper.value.loading = false
+    }
+  } else {
+    const data = {
+      ...studyForm.value,
+      copy_study_epoch: true,
+      copy_study_visit: true,
+      copy_study_soa_group: true,
+      copy_study_activity: true,
+      copy_study_activity_instance: true,
+      copy_study_activity_group: true,
+      copy_study_activity_subgroup: true,
+      copy_study_activity_schedule: true,
+      validation_mode: 'warning',
+    }
+    data.project_number = data.project_number.project_number
+    const studyUid = studyTemplate.value.study_uid
     try {
       const resp = await studyApi.cloneStudy(studyUid, data)
       notificationHub.add({ msg: t('StudyForm.add_success') })
@@ -236,11 +306,14 @@ async function submit() {
   }
 }
 
-watch(createFromScratch, (value) => {
-  if (value) {
+watch(createMode, (value) => {
+  if (value === 'scratch') {
     steps.value = createFromScratchSteps
-  } else {
+  } else if (value === 'copy') {
     steps.value = createFromStudySteps
+    cloneStudyForm.value = { ...CLONE_STUDY_FLAG_DEFAULTS }
+  } else {
+    steps.value = createDefaultSteps
   }
 })
 </script>

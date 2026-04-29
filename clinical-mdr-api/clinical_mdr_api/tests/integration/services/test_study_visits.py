@@ -1234,6 +1234,9 @@ class TestStudyVisitManagement(unittest.TestCase):
         self.assertEqual(all_visits[2].time_reference, None)
         self.assertEqual(all_visits[2].time_reference, None)
         self.assertEqual(all_visits[2].visit_number, settings.non_visit_number)
+        self.assertEqual(
+            all_visits[2].visit_short_name, f"V{settings.non_visit_number}"
+        )
         self.assertEqual(all_visits[2].min_visit_window_value, -9999)
         self.assertEqual(all_visits[2].max_visit_window_value, 9999)
 
@@ -1245,7 +1248,6 @@ class TestStudyVisitManagement(unittest.TestCase):
             "consecutive_visit_group": None,
             "show_visit": True,
             "description": "description",
-            "start_rule": "start_rule",
             "end_rule": "end_rule",
             "visit_contact_mode": {"term_uid": "VisitContactMode_0001"},
             "visit_type": {"term_uid": "VisitType_0003"},
@@ -1255,6 +1257,11 @@ class TestStudyVisitManagement(unittest.TestCase):
         visit_input = StudyVisitCreateInput(**unscheduled_visit_input)
         unscheduled_visit = visit_service.create(
             study_uid=self.study.uid, study_visit_input=visit_input
+        )
+        # When no start_rule is provided, it should default to settings value
+        self.assertEqual(
+            unscheduled_visit.start_rule,
+            settings.unscheduled_visit_start_rule,
         )
         with self.assertRaises(ValidationException) as message:
             non_visit_input.update({"uid": unscheduled_visit.uid})
@@ -1269,9 +1276,14 @@ class TestStudyVisitManagement(unittest.TestCase):
             message.exception.msg,
         )
 
+        custom_start_rule = "Custom unscheduled start rule"
         updated_description = "Updated description"
         unscheduled_visit_input.update(
-            {"uid": unscheduled_visit.uid, "description": updated_description}
+            {
+                "uid": unscheduled_visit.uid,
+                "description": updated_description,
+                "start_rule": custom_start_rule,
+            }
         )
         edited_unscheduled_visit = visit_service.edit(
             study_uid=self.study.uid,
@@ -1279,6 +1291,19 @@ class TestStudyVisitManagement(unittest.TestCase):
             study_visit_input=StudyVisitEditInput(**unscheduled_visit_input),
         )
         assert edited_unscheduled_visit.description == updated_description
+        # When start_rule is provided, it should use the provided value
+        self.assertEqual(
+            edited_unscheduled_visit.start_rule,
+            custom_start_rule,
+        )
+
+        all_visits = visit_service.get_all_visits(study_uid=self.study.uid).items
+        unscheduled = [
+            v for v in all_visits if v.visit_class == VisitClass.UNSCHEDULED_VISIT
+        ][0]
+        self.assertEqual(
+            unscheduled.visit_short_name, f"V{settings.unscheduled_visit_number}"
+        )
 
     def test__create_special_visit(self):
         visit_service: StudyVisitService = StudyVisitService(study_uid=self.study.uid)

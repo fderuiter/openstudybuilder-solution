@@ -3,6 +3,9 @@ from typing import Any
 
 from neomodel import db
 
+from clinical_mdr_api.domain_repositories._utils.helpers import (
+    acquire_write_lock_study_value,
+)
 from clinical_mdr_api.domains.study_definition_aggregates.study_metadata import (
     StudyStatus,
 )
@@ -262,6 +265,7 @@ class StudyDiseaseMilestoneService:
         study_uid: str,
         study_disease_milestone_input: StudyDiseaseMilestoneCreateInput,
     ):
+        acquire_write_lock_study_value(uid=study_uid)
         all_disease_milestones = self.repo.find_all_disease_milestones_by_study(
             study_uid
         )
@@ -295,9 +299,11 @@ class StudyDiseaseMilestoneService:
     @db.transaction
     def edit(
         self,
+        study_uid: str,
         study_disease_milestone_uid: str,
         study_disease_milestone_input: StudyDiseaseMilestoneEditInput,
     ):
+        acquire_write_lock_study_value(uid=study_uid)
         study_disease_milestone = self.repo.find_by_uid(study_disease_milestone_uid)
         self._validate_update(study_disease_milestone_input, study_disease_milestone)
         fill_missing_values_in_base_model_from_reference_base_model(
@@ -316,7 +322,8 @@ class StudyDiseaseMilestoneService:
         return self._transform_all_to_response_model(updated_item)
 
     @db.transaction
-    def reorder(self, study_disease_milestone_uid: str, new_order: int):
+    def reorder(self, study_uid: str, study_disease_milestone_uid: str, new_order: int):
+        acquire_write_lock_study_value(uid=study_uid)
         new_order -= 1
         disease_milestone = self.repo.find_by_uid(study_disease_milestone_uid)
         study_disease_milestones = self.repo.find_all_disease_milestones_by_study(
@@ -353,7 +360,8 @@ class StudyDiseaseMilestoneService:
         return self._transform_all_to_response_model(disease_milestone)
 
     @db.transaction
-    def delete(self, study_disease_milestone_uid: str):
+    def delete(self, study_uid: str, study_disease_milestone_uid: str):
+        acquire_write_lock_study_value(uid=study_uid)
         study_disease_milestone = self.repo.find_by_uid(study_disease_milestone_uid)
 
         self.repo.save(study_disease_milestone, delete_flag=True)

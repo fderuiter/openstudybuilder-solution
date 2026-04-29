@@ -9,6 +9,8 @@
         "test:no-allure-chrome": "failsafe test:clean test:junit-chrome",
         "test:clean": "rimraf results",
         "test:run": "cypress run  --env allure=true,allureResultsPath=results/allure,host=$cypresshost --spec cypress/e2e/**/*.feature --headless",
+        "test:run-studies": "cypress run  --env allure=true,allureResultsPath=results/allure,host=$cypresshost --spec 'cypress/e2e/features/modules/library/**/*.feature' --headless",
+        "test:run-library": "cypress run  --env allure=true,allureResultsPath=results/allure,host=$cypresshost --spec 'cypress/e2e/features/modules/studies/**/*.feature' --headless",
         "test:run-chrome": "cypress run  --env allure=true,allureResultsPath=results/allure,host=$cypresshost --spec cypress/e2e/**/*.feature --headless --browser chrome",
         "test:junit": "cypress run  --env allure=false,host=$cypresshost --spec cypress/e2e/**/*.feature --headless",
         "test:junit-chrome": "cypress run  --env allure=false,host=$cypresshost --spec cypress/e2e/**/*.feature --headless --browser chrome",

@@ -44,7 +44,7 @@
         {
           "id": "9b95c45f-de92-43fb-a753-fda680813992",
           "title": "Guide",
-          "query": "This report is for exploring \n- CDISC models\n- Implementation Guides (SDTM & SEND, CDASH, ADaM) \n- Novo Nordisk Sponsor Models\n\n\nNote that CDASH and ADaM Implementation Guides are in their own section because they have a slightly different structure\n",
+          "query": "This report is for exploring \n- CDISC models\n- Implementation Guides (SDTM & SEND, CDASH, ADaM) \n- Sponsor Models\n\n\nNote that CDASH and ADaM Implementation Guides are in their own section because they have a slightly different structure\n",
           "width": 15,
           "height": 4,
           "x": 0,

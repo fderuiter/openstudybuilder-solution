@@ -5,11 +5,11 @@
 |--------------------------------------------------|----------|----------------------------------------------------------|
 | @babel/helper-string-parser                      | 7.27.1   | [MIT](#@babel/helper-string-parser)                      |
 | @babel/helper-validator-identifier               | 7.28.5   | [MIT](#@babel/helper-validator-identifier)               |
-| @babel/parser                                    | 7.29.0   | [MIT](#@babel/parser)                                    |
-| @babel/runtime                                   | 7.28.6   | [MIT](#@babel/runtime)                                   |
+| @babel/parser                                    | 7.29.2   | [MIT](#@babel/parser)                                    |
+| @babel/runtime                                   | 7.29.2   | [MIT](#@babel/runtime)                                   |
 | @babel/types                                     | 7.29.0   | [MIT](#@babel/types)                                     |
 | @bufbuild/protobuf                               | 2.11.0   | [(Apache-2.0 AND BSD-3-Clause)](#@bufbuild/protobuf)     |
-| @esbuild/linux-x64                               | 0.21.5   | [MIT](#@esbuild/linux-x64)                               |
+| @esbuild/linux-x64                               | 0.25.12  | [MIT](#@esbuild/linux-x64)                               |
 | @fast-csv/format                                 | 4.3.5    | [MIT](#@fast-csv/format)                                 |
 | @fast-csv/parse                                  | 4.3.6    | [MIT](#@fast-csv/parse)                                  |
 | @formkit/drag-and-drop                           | 0.5.3    | [MIT](#@formkit/drag-and-drop)                           |
@@ -21,16 +21,15 @@
 | @jaames/iro                                      | 5.5.2    | [MPL-2.0](#@jaames/iro)                                  |
 | @jridgewell/sourcemap-codec                      | 1.5.5    | [MIT](#@jridgewell/sourcemap-codec)                      |
 | @kurkle/color                                    | 0.3.4    | [MIT](#@kurkle/color)                                    |
-| @microsoft/applicationinsights-analytics-js      | 3.3.11   | [MIT](#@microsoft/applicationinsights-analytics-js)      |
-| @microsoft/applicationinsights-cfgsync-js        | 3.3.11   | [MIT](#@microsoft/applicationinsights-cfgsync-js)        |
-| @microsoft/applicationinsights-channel-js        | 3.3.11   | [MIT](#@microsoft/applicationinsights-channel-js)        |
-| @microsoft/applicationinsights-clickanalytics-js | 3.3.11   | [MIT](#@microsoft/applicationinsights-clickanalytics-js) |
-| @microsoft/applicationinsights-common            | 3.3.11   | [MIT](#@microsoft/applicationinsights-common)            |
-| @microsoft/applicationinsights-core-js           | 3.3.11   | [MIT](#@microsoft/applicationinsights-core-js)           |
-| @microsoft/applicationinsights-dependencies-js   | 3.3.11   | [MIT](#@microsoft/applicationinsights-dependencies-js)   |
-| @microsoft/applicationinsights-properties-js     | 3.3.11   | [MIT](#@microsoft/applicationinsights-properties-js)     |
+| @microsoft/applicationinsights-analytics-js      | 3.4.1    | [MIT](#@microsoft/applicationinsights-analytics-js)      |
+| @microsoft/applicationinsights-cfgsync-js        | 3.4.1    | [MIT](#@microsoft/applicationinsights-cfgsync-js)        |
+| @microsoft/applicationinsights-channel-js        | 3.4.1    | [MIT](#@microsoft/applicationinsights-channel-js)        |
+| @microsoft/applicationinsights-clickanalytics-js | 3.4.1    | [MIT](#@microsoft/applicationinsights-clickanalytics-js) |
+| @microsoft/applicationinsights-core-js           | 3.4.1    | [MIT](#@microsoft/applicationinsights-core-js)           |
+| @microsoft/applicationinsights-dependencies-js   | 3.4.1    | [MIT](#@microsoft/applicationinsights-dependencies-js)   |
+| @microsoft/applicationinsights-properties-js     | 3.4.1    | [MIT](#@microsoft/applicationinsights-properties-js)     |
 | @microsoft/applicationinsights-shims             | 3.0.1    | [MIT](#@microsoft/applicationinsights-shims)             |
-| @microsoft/applicationinsights-web               | 3.3.11   | [MIT](#@microsoft/applicationinsights-web)               |
+| @microsoft/applicationinsights-web               | 3.4.1    | [MIT](#@microsoft/applicationinsights-web)               |
 | @microsoft/dynamicproto-js                       | 2.0.3    | [MIT](#@microsoft/dynamicproto-js)                       |
 | @nevware21/ts-async                              | 0.5.5    | [MIT](#@nevware21/ts-async)                              |
 | @nevware21/ts-utils                              | 0.13.0   | [MIT](#@nevware21/ts-utils)                              |
@@ -38,23 +37,23 @@
 | @parcel/watcher-linux-x64-musl                   | 2.5.6    | [MIT](#@parcel/watcher-linux-x64-musl)                   |
 | @parcel/watcher                                  | 2.5.6    | [MIT](#@parcel/watcher)                                  |
 | @pkgjs/parseargs                                 | 0.11.0   | [MIT](#@pkgjs/parseargs)                                 |
-| @rollup/rollup-linux-x64-gnu                     | 4.59.0   | [MIT](#@rollup/rollup-linux-x64-gnu)                     |
-| @rollup/rollup-linux-x64-musl                    | 4.59.0   | [MIT](#@rollup/rollup-linux-x64-musl)                    |
+| @rollup/rollup-linux-x64-gnu                     | 4.60.1   | [MIT](#@rollup/rollup-linux-x64-gnu)                     |
+| @rollup/rollup-linux-x64-musl                    | 4.60.1   | [MIT](#@rollup/rollup-linux-x64-musl)                    |
 | @types/estree                                    | 1.0.8    | [MIT](#@types/estree)                                    |
 | @types/lodash.merge                              | 4.6.9    | [MIT](#@types/lodashmerge)                               |
 | @types/lodash                                    | 4.17.24  | [MIT](#@types/lodash)                                    |
 | @types/node                                      | 14.18.63 | [MIT](#@types/node)                                      |
 | @types/trusted-types                             | 2.0.7    | [MIT](#@types/trusted-types)                             |
-| @vue/compiler-core                               | 3.5.29   | [MIT](#@vue/compiler-core)                               |
-| @vue/compiler-dom                                | 3.5.29   | [MIT](#@vue/compiler-dom)                                |
-| @vue/compiler-sfc                                | 3.5.29   | [MIT](#@vue/compiler-sfc)                                |
-| @vue/compiler-ssr                                | 3.5.29   | [MIT](#@vue/compiler-ssr)                                |
+| @vue/compiler-core                               | 3.5.32   | [MIT](#@vue/compiler-core)                               |
+| @vue/compiler-dom                                | 3.5.32   | [MIT](#@vue/compiler-dom)                                |
+| @vue/compiler-sfc                                | 3.5.32   | [MIT](#@vue/compiler-sfc)                                |
+| @vue/compiler-ssr                                | 3.5.32   | [MIT](#@vue/compiler-ssr)                                |
 | @vue/devtools-api                                | 6.6.4    | [MIT](#@vue/devtools-api)                                |
-| @vue/reactivity                                  | 3.5.29   | [MIT](#@vue/reactivity)                                  |
-| @vue/runtime-core                                | 3.5.29   | [MIT](#@vue/runtime-core)                                |
-| @vue/runtime-dom                                 | 3.5.29   | [MIT](#@vue/runtime-dom)                                 |
-| @vue/server-renderer                             | 3.5.29   | [MIT](#@vue/server-renderer)                             |
-| @vue/shared                                      | 3.5.29   | [MIT](#@vue/shared)                                      |
+| @vue/reactivity                                  | 3.5.32   | [MIT](#@vue/reactivity)                                  |
+| @vue/runtime-core                                | 3.5.32   | [MIT](#@vue/runtime-core)                                |
+| @vue/runtime-dom                                 | 3.5.32   | [MIT](#@vue/runtime-dom)                                 |
+| @vue/server-renderer                             | 3.5.32   | [MIT](#@vue/server-renderer)                             |
+| @vue/shared                                      | 3.5.32   | [MIT](#@vue/shared)                                      |
 | @vuetify/loader-shared                           | 2.1.2    | [MIT](#@vuetify/loader-shared)                           |
 | @vueup/vue-quill                                 | 1.2.0    | [MIT](#@vueup/vue-quill)                                 |
 | abort-controller                                 | 3.0.0    | [MIT](#abort-controller)                                 |
@@ -64,19 +63,19 @@
 | archiver                                         | 7.0.1    | [MIT](#archiver)                                         |
 | async                                            | 3.2.6    | [MIT](#async)                                            |
 | asynckit                                         | 0.4.0    | [MIT](#asynckit)                                         |
-| axios                                            | 1.13.6   | [MIT](#axios)                                            |
+| axios                                            | 1.15.0   | [MIT](#axios)                                            |
 | b4a                                              | 1.8.0    | [Apache-2.0](#b4a)                                       |
 | balanced-match                                   | 1.0.2    | [MIT](#balanced-match)                                   |
 | bare-events                                      | 2.8.2    | [Apache-2.0](#bare-events)                               |
-| bare-fs                                          | 4.5.5    | [Apache-2.0](#bare-fs)                                   |
-| bare-os                                          | 3.7.1    | [Apache-2.0](#bare-os)                                   |
+| bare-fs                                          | 4.7.0    | [Apache-2.0](#bare-fs)                                   |
+| bare-os                                          | 3.8.7    | [Apache-2.0](#bare-os)                                   |
 | bare-path                                        | 3.0.0    | [Apache-2.0](#bare-path)                                 |
-| bare-stream                                      | 2.8.0    | [Apache-2.0](#bare-stream)                               |
-| bare-url                                         | 2.3.2    | [Apache-2.0](#bare-url)                                  |
+| bare-stream                                      | 2.13.0   | [Apache-2.0](#bare-stream)                               |
+| bare-url                                         | 2.4.0    | [Apache-2.0](#bare-url)                                  |
 | base64-arraybuffer                               | 1.0.2    | [MIT](#base64-arraybuffer)                               |
 | base64-js                                        | 1.5.1    | [MIT](#base64-js)                                        |
 | bluebird                                         | 3.7.2    | [MIT](#bluebird)                                         |
-| brace-expansion                                  | 2.0.2    | [MIT](#brace-expansion)                                  |
+| brace-expansion                                  | 2.1.0    | [MIT](#brace-expansion)                                  |
 | buffer-crc32                                     | 1.0.0    | [MIT](#buffer-crc32)                                     |
 | buffer                                           | 6.0.3    | [MIT](#buffer)                                           |
 | call-bind-apply-helpers                          | 1.0.2    | [MIT](#call-bind-apply-helpers)                          |
@@ -94,11 +93,11 @@
 | cross-spawn                                      | 7.0.6    | [MIT](#cross-spawn)                                      |
 | css-line-break                                   | 2.1.0    | [MIT](#css-line-break)                                   |
 | csstype                                          | 3.2.3    | [MIT](#csstype)                                          |
-| dayjs                                            | 1.11.19  | [MIT](#dayjs)                                            |
+| dayjs                                            | 1.11.20  | [MIT](#dayjs)                                            |
 | debug                                            | 4.4.3    | [MIT](#debug)                                            |
 | delayed-stream                                   | 1.0.0    | [MIT](#delayed-stream)                                   |
 | detect-libc                                      | 2.1.2    | [Apache-2.0](#detect-libc)                               |
-| dompurify                                        | 3.3.1    | [(MPL-2.0 OR Apache-2.0)](#dompurify)                    |
+| dompurify                                        | 3.3.3    | [(MPL-2.0 OR Apache-2.0)](#dompurify)                    |
 | dunder-proto                                     | 1.0.1    | [MIT](#dunder-proto)                                     |
 | duplexer2                                        | 0.1.4    | [BSD-3-Clause](#duplexer2)                               |
 | eastasianwidth                                   | 0.2.0    | [MIT](#eastasianwidth)                                   |
@@ -108,7 +107,7 @@
 | es-errors                                        | 1.3.0    | [MIT](#es-errors)                                        |
 | es-object-atoms                                  | 1.1.1    | [MIT](#es-object-atoms)                                  |
 | es-set-tostringtag                               | 2.1.0    | [MIT](#es-set-tostringtag)                               |
-| esbuild                                          | 0.21.5   | [MIT](#esbuild)                                          |
+| esbuild                                          | 0.25.12  | [MIT](#esbuild)                                          |
 | estree-walker                                    | 2.0.2    | [MIT](#estree-walker)                                    |
 | event-target-shim                                | 5.0.1    | [MIT](#event-target-shim)                                |
 | eventemitter3                                    | 5.0.4    | [MIT](#eventemitter3)                                    |
@@ -118,6 +117,7 @@
 | fast-csv                                         | 4.3.6    | [MIT](#fast-csv)                                         |
 | fast-diff                                        | 1.2.0    | [Apache-2.0](#fast-diff)                                 |
 | fast-fifo                                        | 1.3.2    | [MIT](#fast-fifo)                                        |
+| fdir                                             | 6.5.0    | [MIT](#fdir)                                             |
 | flat                                             | 5.0.2    | [BSD-3-Clause](#flat)                                    |
 | follow-redirects                                 | 1.15.11  | [MIT](#follow-redirects)                                 |
 | foreground-child                                 | 3.3.1    | [ISC](#foreground-child)                                 |
@@ -152,7 +152,7 @@
 | kind-of                                          | 6.0.3    | [MIT](#kind-of)                                          |
 | lazystream                                       | 1.0.1    | [MIT](#lazystream)                                       |
 | lie                                              | 3.3.0    | [MIT](#lie)                                              |
-| lodash-es                                        | 4.17.23  | [MIT](#lodash-es)                                        |
+| lodash-es                                        | 4.18.1   | [MIT](#lodash-es)                                        |
 | lodash.clonedeep                                 | 4.5.0    | [MIT](#lodashclonedeep)                                  |
 | lodash.escaperegexp                              | 4.1.2    | [MIT](#lodashescaperegexp)                               |
 | lodash.groupby                                   | 4.6.0    | [MIT](#lodashgroupby)                                    |
@@ -163,7 +163,7 @@
 | lodash.isundefined                               | 3.0.1    | [MIT](#lodashisundefined)                                |
 | lodash.merge                                     | 4.6.2    | [MIT](#lodashmerge)                                      |
 | lodash.uniq                                      | 4.5.0    | [MIT](#lodashuniq)                                       |
-| lodash                                           | 4.17.23  | [MIT](#lodash)                                           |
+| lodash                                           | 4.18.1   | [MIT](#lodash)                                           |
 | lru-cache                                        | 10.4.3   | [ISC](#lru-cache)                                        |
 | luxon                                            | 3.7.2    | [MIT](#luxon)                                            |
 | magic-string                                     | 0.30.21  | [MIT](#magic-string)                                     |
@@ -177,33 +177,33 @@
 | node-addon-api                                   | 7.1.1    | [MIT](#node-addon-api)                                   |
 | node-int64                                       | 0.4.0    | [MIT](#node-int64)                                       |
 | normalize-path                                   | 3.0.0    | [MIT](#normalize-path)                                   |
-| oidc-client-ts                                   | 3.4.1    | [Apache-2.0](#oidc-client-ts)                            |
+| oidc-client-ts                                   | 3.5.0    | [Apache-2.0](#oidc-client-ts)                            |
 | package-json-from-dist                           | 1.0.1    | [BlueOak-1.0.0](#package-json-from-dist)                 |
 | pako                                             | 1.0.11   | [(MIT AND Zlib)](#pako)                                  |
 | parchment                                        | 3.0.0    | [BSD-3-Clause](#parchment)                               |
 | path-key                                         | 3.1.1    | [MIT](#path-key)                                         |
 | path-scurry                                      | 1.11.1   | [BlueOak-1.0.0](#path-scurry)                            |
 | picocolors                                       | 1.1.1    | [ISC](#picocolors)                                       |
-| picomatch                                        | 4.0.3    | [MIT](#picomatch)                                        |
+| picomatch                                        | 4.0.4    | [MIT](#picomatch)                                        |
 | pinia                                            | 2.3.1    | [MIT](#pinia)                                            |
-| postcss                                          | 8.5.8    | [MIT](#postcss)                                          |
-| preact                                           | 10.28.4  | [MIT](#preact)                                           |
+| postcss                                          | 8.5.9    | [MIT](#postcss)                                          |
+| preact                                           | 10.29.1  | [MIT](#preact)                                           |
 | process-nextick-args                             | 2.0.1    | [MIT](#process-nextick-args)                             |
 | process                                          | 0.11.10  | [MIT](#process)                                          |
-| proxy-from-env                                   | 1.1.0    | [MIT](#proxy-from-env)                                   |
+| proxy-from-env                                   | 2.1.0    | [MIT](#proxy-from-env)                                   |
 | quill-delta                                      | 4.2.2    | [MIT](#quill-delta)                                      |
 | quill-table-better                               | 1.2.3    | [MIT](#quill-table-better)                               |
 | quill                                            | 2.0.3    | [BSD-3-Clause](#quill)                                   |
 | readable-stream                                  | 4.7.0    | [MIT](#readable-stream)                                  |
 | readdir-glob                                     | 1.1.3    | [Apache-2.0](#readdir-glob)                              |
 | readdirp                                         | 4.1.2    | [MIT](#readdirp)                                         |
-| rollup                                           | 4.59.0   | [MIT](#rollup)                                           |
+| rollup                                           | 4.60.1   | [MIT](#rollup)                                           |
 | rxjs                                             | 7.8.2    | [Apache-2.0](#rxjs)                                      |
 | safe-buffer                                      | 5.1.2    | [MIT](#safe-buffer)                                      |
-| sass-embedded-linux-musl-x64                     | 1.97.3   | [MIT](#sass-embedded-linux-musl-x64)                     |
-| sass-embedded-linux-x64                          | 1.97.3   | [MIT](#sass-embedded-linux-x64)                          |
-| sass-embedded                                    | 1.97.3   | [MIT](#sass-embedded)                                    |
-| sass                                             | 1.97.3   | [MIT](#sass)                                             |
+| sass-embedded-linux-musl-x64                     | 1.99.0   | [MIT](#sass-embedded-linux-musl-x64)                     |
+| sass-embedded-linux-x64                          | 1.99.0   | [MIT](#sass-embedded-linux-x64)                          |
+| sass-embedded                                    | 1.99.0   | [MIT](#sass-embedded)                                    |
+| sass                                             | 1.99.0   | [MIT](#sass)                                             |
 | saxes                                            | 5.0.1    | [ISC](#saxes)                                            |
 | setimmediate                                     | 1.0.5    | [MIT](#setimmediate)                                     |
 | shallow-clone                                    | 3.0.1    | [MIT](#shallow-clone)                                    |
@@ -211,7 +211,7 @@
 | shebang-regex                                    | 3.0.0    | [MIT](#shebang-regex)                                    |
 | signal-exit                                      | 4.1.0    | [ISC](#signal-exit)                                      |
 | source-map-js                                    | 1.2.1    | [BSD-3-Clause](#source-map-js)                           |
-| streamx                                          | 2.23.0   | [MIT](#streamx)                                          |
+| streamx                                          | 2.25.0   | [MIT](#streamx)                                          |
 | string-width-cjs                                 | 4.2.3    | [MIT](#string-width-cjs)                                 |
 | string-width                                     | 5.1.2    | [MIT](#string-width)                                     |
 | string_decoder                                   | 1.3.0    | [MIT](#string_decoder)                                   |
@@ -224,6 +224,7 @@
 | teex                                             | 1.0.1    | [MIT](#teex)                                             |
 | text-decoder                                     | 1.2.7    | [Apache-2.0](#text-decoder)                              |
 | text-segmentation                                | 1.0.3    | [MIT](#text-segmentation)                                |
+| tinyglobby                                       | 0.2.16   | [MIT](#tinyglobby)                                       |
 | tmp                                              | 0.2.5    | [MIT](#tmp)                                              |
 | tslib                                            | 2.8.1    | [0BSD](#tslib)                                           |
 | universalify                                     | 2.0.1    | [MIT](#universalify)                                     |
@@ -234,12 +235,12 @@
 | uuid                                             | 8.3.2    | [MIT](#uuid)                                             |
 | varint                                           | 6.0.0    | [MIT](#varint)                                           |
 | vite-plugin-vuetify                              | 2.1.3    | [MIT](#vite-plugin-vuetify)                              |
-| vite                                             | 5.4.21   | [MIT](#vite)                                             |
+| vite                                             | 6.4.2    | [MIT](#vite)                                             |
 | vue-chartjs                                      | 5.3.3    | [MIT](#vue-chartjs)                                      |
 | vue-demi                                         | 0.14.10  | [MIT](#vue-demi)                                         |
 | vue-i18n                                         | 11.1.10  | [MIT](#vue-i18n)                                         |
 | vue-router                                       | 4.6.4    | [MIT](#vue-router)                                       |
-| vue                                              | 3.5.29   | [MIT](#vue)                                              |
+| vue                                              | 3.5.32   | [MIT](#vue)                                              |
 | vuetify                                          | 4.0.2    | [MIT](#vuetify)                                          |
 | webpack-merge                                    | 5.10.0   | [MIT](#webpack-merge)                                    |
 | which                                            | 2.0.2    | [ISC](#which)                                            |
@@ -247,7 +248,7 @@
 | wrap-ansi-cjs                                    | 7.0.0    | [MIT](#wrap-ansi-cjs)                                    |
 | wrap-ansi                                        | 8.1.0    | [MIT](#wrap-ansi)                                        |
 | xmlchars                                         | 2.2.0    | [MIT](#xmlchars)                                         |
-| yaml                                             | 2.8.2    | [ISC](#yaml)                                             |
+| yaml                                             | 2.8.3    | [ISC](#yaml)                                             |
 | zip-stream                                       | 6.0.1    | [MIT](#zip-stream)                                       |
 
 
@@ -1642,31 +1643,6 @@
 
 ---
 ### @microsoft/applicationinsights-clickanalytics-js
-
-    The MIT License (MIT)
-
-    Copyright (c) Microsoft Corporation
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
-
----
-### @microsoft/applicationinsights-common
 
     The MIT License (MIT)
 
@@ -7909,6 +7885,17 @@
     THE SOFTWARE.
 
 ---
+### fdir
+
+    Copyright 2023 Abdullah Atta
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+---
 ### flat
 
     Copyright (c) 2014, Hugh Kennedy
@@ -10662,7 +10649,7 @@
 
     The MIT License (MIT)
 
-    Copyright 2013 Andrey Sitnik <andrey@sitnik.ru>
+    Copyright 2013 Andrey Sitnik <andrey@sitnik.es>
 
     Permission is hereby granted, free of charge, to any person obtaining a copy of
     this software and associated documentation files (the "Software"), to deal in
@@ -14519,6 +14506,31 @@
     OTHER DEALINGS IN THE SOFTWARE.
 
 ---
+### tinyglobby
+
+    MIT License
+
+    Copyright (c) 2024 Madeline Gurriarán
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+---
 ### tmp
 
     The MIT License (MIT)
@@ -14753,7 +14765,7 @@
 
     # Licenses of bundled dependencies
     The published Vite artifact additionally contains code with the following licenses:
-    Apache-2.0, BSD-2-Clause, BlueOak-1.0.0, CC0-1.0, ISC, MIT
+    Apache-2.0, BSD-2-Clause, CC0-1.0, ISC, MIT
 
     # Bundled dependencies:
     ## @ampproject/remapping
@@ -14965,10 +14977,10 @@
 
     ---------------------------------------
 
-    ## @jridgewell/gen-mapping
+    ## @jridgewell/gen-mapping, @jridgewell/set-array
     License: MIT
     By: Justin Ridgewell
-    Repository: https://github.com/jridgewell/gen-mapping
+    Repositories: https://github.com/jridgewell/gen-mapping, https://github.com/jridgewell/set-array
 
     > Copyright 2022 Justin Ridgewell <jridgewell@google.com>
     > 
@@ -14998,33 +15010,6 @@
     Repository: https://github.com/jridgewell/resolve-uri
 
     > Copyright 2019 Justin Ridgewell <jridgewell@google.com>
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy
-    > of this software and associated documentation files (the "Software"), to deal
-    > in the Software without restriction, including without limitation the rights
-    > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    > copies of the Software, and to permit persons to whom the Software is
-    > furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in
-    > all copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    > SOFTWARE.
-
-    ---------------------------------------
-
-    ## @jridgewell/set-array
-    License: MIT
-    By: Justin Ridgewell
-    Repository: https://github.com/jridgewell/set-array
-
-    > Copyright 2022 Justin Ridgewell <jridgewell@google.com>
     > 
     > Permission is hereby granted, free of charge, to any person obtaining a copy
     > of this software and associated documentation files (the "Software"), to deal
@@ -15102,90 +15087,6 @@
 
     ---------------------------------------
 
-    ## @nodelib/fs.scandir
-    License: MIT
-    Repository: https://github.com/nodelib/nodelib/tree/master/packages/fs/fs.scandir
-
-    > The MIT License (MIT)
-    > 
-    > Copyright (c) Denis Malinochkin
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy
-    > of this software and associated documentation files (the "Software"), to deal
-    > in the Software without restriction, including without limitation the rights
-    > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    > copies of the Software, and to permit persons to whom the Software is
-    > furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in all
-    > copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    > SOFTWARE.
-
-    ---------------------------------------
-
-    ## @nodelib/fs.stat
-    License: MIT
-    Repository: https://github.com/nodelib/nodelib/tree/master/packages/fs/fs.stat
-
-    > The MIT License (MIT)
-    > 
-    > Copyright (c) Denis Malinochkin
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy
-    > of this software and associated documentation files (the "Software"), to deal
-    > in the Software without restriction, including without limitation the rights
-    > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    > copies of the Software, and to permit persons to whom the Software is
-    > furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in all
-    > copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    > SOFTWARE.
-
-    ---------------------------------------
-
-    ## @nodelib/fs.walk
-    License: MIT
-    Repository: https://github.com/nodelib/nodelib/tree/master/packages/fs/fs.walk
-
-    > The MIT License (MIT)
-    > 
-    > Copyright (c) Denis Malinochkin
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy
-    > of this software and associated documentation files (the "Software"), to deal
-    > in the Software without restriction, including without limitation the rights
-    > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    > copies of the Software, and to permit persons to whom the Software is
-    > furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in all
-    > copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    > SOFTWARE.
-
-    ---------------------------------------
-
     ## @polka/compression
     License: MIT
     Repository: lukeed/polka
@@ -15199,94 +15100,19 @@
 
     ---------------------------------------
 
-    ## @rollup/plugin-alias
+    ## @rollup/plugin-alias, @rollup/plugin-commonjs, @rollup/plugin-dynamic-import-vars, @rollup/pluginutils
     License: MIT
     By: Johannes Stein
     Repository: rollup/plugins
 
-    > The MIT License (MIT)
-    > 
-    > Copyright (c) 2019 RollupJS Plugin Contributors (https://github.com/rollup/plugins/graphs/contributors)
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy
-    > of this software and associated documentation files (the "Software"), to deal
-    > in the Software without restriction, including without limitation the rights
-    > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    > copies of the Software, and to permit persons to whom the Software is
-    > furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in
-    > all copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    > THE SOFTWARE.
-
-    ---------------------------------------
-
-    ## @rollup/plugin-commonjs
     License: MIT
     By: Rich Harris
     Repository: rollup/plugins
 
-    > The MIT License (MIT)
-    > 
-    > Copyright (c) 2019 RollupJS Plugin Contributors (https://github.com/rollup/plugins/graphs/contributors)
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy
-    > of this software and associated documentation files (the "Software"), to deal
-    > in the Software without restriction, including without limitation the rights
-    > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    > copies of the Software, and to permit persons to whom the Software is
-    > furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in
-    > all copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    > THE SOFTWARE.
-
-    ---------------------------------------
-
-    ## @rollup/plugin-dynamic-import-vars
     License: MIT
     By: LarsDenBakker
     Repository: rollup/plugins
 
-    > The MIT License (MIT)
-    > 
-    > Copyright (c) 2019 RollupJS Plugin Contributors (https://github.com/rollup/plugins/graphs/contributors)
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy
-    > of this software and associated documentation files (the "Software"), to deal
-    > in the Software without restriction, including without limitation the rights
-    > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    > copies of the Software, and to permit persons to whom the Software is
-    > furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in
-    > all copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    > THE SOFTWARE.
-
-    ---------------------------------------
-
-    ## @rollup/pluginutils
     License: MIT
     By: Rich Harris
     Repository: rollup/plugins
@@ -15312,23 +15138,6 @@
     > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     > THE SOFTWARE.
-
-    ---------------------------------------
-
-    ## ansi-regex
-    License: MIT
-    By: Sindre Sorhus
-    Repository: chalk/ansi-regex
-
-    > MIT License
-    > 
-    > Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
     ---------------------------------------
 
@@ -15385,62 +15194,6 @@
 
     ---------------------------------------
 
-    ## astring
-    License: MIT
-    By: David Bonnet
-    Repository: https://github.com/davidbonnet/astring.git
-
-    > Copyright (c) 2015, David Bonnet <david@bonnet.cc>
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy
-    > of this software and associated documentation files (the "Software"), to deal
-    > in the Software without restriction, including without limitation the rights
-    > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    > copies of the Software, and to permit persons to whom the Software is
-    > furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in
-    > all copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    > THE SOFTWARE.
-
-    ---------------------------------------
-
-    ## balanced-match
-    License: MIT
-    By: Julian Gruber
-    Repository: git://github.com/juliangruber/balanced-match.git
-
-    > (MIT)
-    > 
-    > Copyright (c) 2013 Julian Gruber &lt;julian@juliangruber.com&gt;
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy of
-    > this software and associated documentation files (the "Software"), to deal in
-    > the Software without restriction, including without limitation the rights to
-    > use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-    > of the Software, and to permit persons to whom the Software is furnished to do
-    > so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in all
-    > copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    > SOFTWARE.
-
-    ---------------------------------------
-
     ## binary-extensions
     License: MIT
     By: Sindre Sorhus
@@ -15448,7 +15201,8 @@
 
     > MIT License
     > 
-    > Copyright (c) 2019 Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com), Paul Miller (https://paulmillr.com)
+    > Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
+    > Copyright (c) Paul Miller (https://paulmillr.com)
     > 
     > Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
     > 
@@ -15458,39 +15212,18 @@
 
     ---------------------------------------
 
-    ## brace-expansion
-    License: MIT
-    By: Julian Gruber
-    Repository: git://github.com/juliangruber/brace-expansion.git
-
-    > MIT License
-    > 
-    > Copyright (c) 2013 Julian Gruber <julian@juliangruber.com>
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy
-    > of this software and associated documentation files (the "Software"), to deal
-    > in the Software without restriction, including without limitation the rights
-    > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    > copies of the Software, and to permit persons to whom the Software is
-    > furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in all
-    > copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    > SOFTWARE.
-
-    ---------------------------------------
-
-    ## braces
+    ## braces, fill-range, is-number
     License: MIT
     By: Jon Schlinkert, Brian Woodward, Elan Shanker, Eugene Sharygin, hemanth.hm
     Repository: micromatch/braces
+
+    License: MIT
+    By: Jon Schlinkert, Edo Rivai, Paul Miller, Rouven Weßling
+    Repository: jonschlinkert/fill-range
+
+    License: MIT
+    By: Jon Schlinkert, Olsten Larck, Rouven Weßling
+    Repository: jonschlinkert/is-number
 
     > The MIT License (MIT)
     > 
@@ -15513,6 +15246,23 @@
     > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     > THE SOFTWARE.
+
+    ---------------------------------------
+
+    ## bundle-name, default-browser, default-browser-id, define-lazy-prop, is-docker, is-inside-container, is-wsl, open, run-applescript
+    License: MIT
+    By: Sindre Sorhus
+    Repositories: sindresorhus/bundle-name, sindresorhus/default-browser, sindresorhus/default-browser-id, sindresorhus/define-lazy-prop, sindresorhus/is-docker, sindresorhus/is-inside-container, sindresorhus/is-wsl, sindresorhus/open, sindresorhus/run-applescript
+
+    > MIT License
+    > 
+    > Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
+    > 
+    > Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+    > 
+    > The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    > 
+    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
     ---------------------------------------
 
@@ -15574,10 +15324,10 @@
 
     ---------------------------------------
 
-    ## commondir
+    ## commondir, shell-quote
     License: MIT
     By: James Halliday
-    Repository: http://github.com/substack/node-commondir.git
+    Repositories: http://github.com/substack/node-commondir.git, http://github.com/ljharb/shell-quote.git
 
     > The MIT License
     > 
@@ -15781,23 +15531,6 @@
     > IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
     > WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
     > SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-    ---------------------------------------
-
-    ## define-lazy-prop
-    License: MIT
-    By: Sindre Sorhus
-    Repository: sindresorhus/define-lazy-prop
-
-    > MIT License
-    > 
-    > Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
     ---------------------------------------
 
@@ -16063,85 +15796,6 @@
 
     ---------------------------------------
 
-    ## fast-glob
-    License: MIT
-    By: Denis Malinochkin
-    Repository: mrmlnc/fast-glob
-
-    > The MIT License (MIT)
-    > 
-    > Copyright (c) Denis Malinochkin
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy
-    > of this software and associated documentation files (the "Software"), to deal
-    > in the Software without restriction, including without limitation the rights
-    > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    > copies of the Software, and to permit persons to whom the Software is
-    > furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in all
-    > copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    > SOFTWARE.
-
-    ---------------------------------------
-
-    ## fastq
-    License: ISC
-    By: Matteo Collina
-    Repository: git+https://github.com/mcollina/fastq.git
-
-    > Copyright (c) 2015-2020, Matteo Collina <matteo.collina@gmail.com>
-    > 
-    > Permission to use, copy, modify, and/or distribute this software for any
-    > purpose with or without fee is hereby granted, provided that the above
-    > copyright notice and this permission notice appear in all copies.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-    > WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-    > MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-    > ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-    > WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-    > ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-    > OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
-    ---------------------------------------
-
-    ## fill-range
-    License: MIT
-    By: Jon Schlinkert, Edo Rivai, Paul Miller, Rouven Weßling
-    Repository: jonschlinkert/fill-range
-
-    > The MIT License (MIT)
-    > 
-    > Copyright (c) 2014-present, Jon Schlinkert.
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy
-    > of this software and associated documentation files (the "Software"), to deal
-    > in the Software without restriction, including without limitation the rights
-    > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    > copies of the Software, and to permit persons to whom the Software is
-    > furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in
-    > all copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    > THE SOFTWARE.
-
-    ---------------------------------------
-
     ## finalhandler
     License: MIT
     By: Douglas Christopher Wilson
@@ -16175,7 +15829,7 @@
     ## follow-redirects
     License: MIT
     By: Ruben Verborgh, Olivier Lalonde, James Talmage
-    Repository: git@github.com:follow-redirects/follow-redirects.git
+    Repository: git+ssh://git@github.com/follow-redirects/follow-redirects.git
 
     > Copyright 2014–present Olivier Lalonde <olalonde@gmail.com>, James Talmage <james@talmage.io>, Ruben Verborgh
     > 
@@ -16224,29 +15878,6 @@
     > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     > SOFTWARE.
-
-    ---------------------------------------
-
-    ## glob
-    License: ISC
-    By: Isaac Z. Schlueter
-    Repository: git://github.com/isaacs/node-glob.git
-
-    > The ISC License
-    > 
-    > Copyright (c) 2009-2023 Isaac Z. Schlueter and Contributors
-    > 
-    > Permission to use, copy, modify, and/or distribute this software for any
-    > purpose with or without fee is hereby granted, provided that the above
-    > copyright notice and this permission notice appear in all copies.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-    > WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-    > MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-    > ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-    > WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-    > ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-    > IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
     ---------------------------------------
 
@@ -16334,23 +15965,6 @@
 
     ---------------------------------------
 
-    ## is-docker
-    License: MIT
-    By: Sindre Sorhus
-    Repository: sindresorhus/is-docker
-
-    > MIT License
-    > 
-    > Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-    ---------------------------------------
-
     ## is-extglob
     License: MIT
     By: Jon Schlinkert
@@ -16409,35 +16023,6 @@
 
     ---------------------------------------
 
-    ## is-number
-    License: MIT
-    By: Jon Schlinkert, Olsten Larck, Rouven Weßling
-    Repository: jonschlinkert/is-number
-
-    > The MIT License (MIT)
-    > 
-    > Copyright (c) 2014-present, Jon Schlinkert.
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy
-    > of this software and associated documentation files (the "Software"), to deal
-    > in the Software without restriction, including without limitation the rights
-    > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    > copies of the Software, and to permit persons to whom the Software is
-    > furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in
-    > all copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    > THE SOFTWARE.
-
-    ---------------------------------------
-
     ## is-reference
     License: MIT
     By: Rich Harris
@@ -16445,27 +16030,10 @@
 
     ---------------------------------------
 
-    ## is-wsl
-    License: MIT
-    By: Sindre Sorhus
-    Repository: sindresorhus/is-wsl
-
-    > MIT License
-    > 
-    > Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-    ---------------------------------------
-
-    ## isexe
+    ## isexe, which
     License: ISC
     By: Isaac Z. Schlueter
-    Repository: git+https://github.com/isaacs/isexe.git
+    Repositories: git+https://github.com/isaacs/isexe.git, git://github.com/isaacs/node-which.git
 
     > The ISC License
     > 
@@ -16514,39 +16082,10 @@
 
     ---------------------------------------
 
-    ## launch-editor
+    ## launch-editor, launch-editor-middleware
     License: MIT
     By: Evan You
-    Repository: git+https://github.com/yyx990803/launch-editor.git
-
-    > The MIT License (MIT)
-    > 
-    > Copyright (c) 2017-present, Yuxi (Evan) You
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy
-    > of this software and associated documentation files (the "Software"), to deal
-    > in the Software without restriction, including without limitation the rights
-    > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    > copies of the Software, and to permit persons to whom the Software is
-    > furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in
-    > all copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    > THE SOFTWARE.
-
-    ---------------------------------------
-
-    ## launch-editor-middleware
-    License: MIT
-    By: Evan You
-    Repository: git+https://github.com/yyx990803/launch-editor.git
+    Repositories: git+https://github.com/yyx990803/launch-editor.git, git+https://github.com/yyx990803/launch-editor.git
 
     > The MIT License (MIT)
     > 
@@ -16684,29 +16223,6 @@
 
     ---------------------------------------
 
-    ## lru-cache
-    License: ISC
-    By: Isaac Z. Schlueter
-    Repository: git://github.com/isaacs/node-lru-cache.git
-
-    > The ISC License
-    > 
-    > Copyright (c) 2010-2023 Isaac Z. Schlueter and Contributors
-    > 
-    > Permission to use, copy, modify, and/or distribute this software for any
-    > purpose with or without fee is hereby granted, provided that the above
-    > copyright notice and this permission notice appear in all copies.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-    > WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-    > MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-    > ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-    > WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-    > ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-    > IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
-    ---------------------------------------
-
     ## magic-string
     License: MIT
     By: Rich Harris
@@ -16722,112 +16238,9 @@
 
     ---------------------------------------
 
-    ## merge2
+    ## mlly, ufo
     License: MIT
-    Repository: git@github.com:teambition/merge2.git
-
-    > The MIT License (MIT)
-    > 
-    > Copyright (c) 2014-2020 Teambition
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy
-    > of this software and associated documentation files (the "Software"), to deal
-    > in the Software without restriction, including without limitation the rights
-    > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    > copies of the Software, and to permit persons to whom the Software is
-    > furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in all
-    > copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    > SOFTWARE.
-
-    ---------------------------------------
-
-    ## micromatch
-    License: MIT
-    By: Jon Schlinkert, Amila Welihinda, Bogdan Chadkin, Brian Woodward, Devon Govett, Elan Shanker, Fabrício Matté, Martin Kolárik, Olsten Larck, Paul Miller, Tom Byrer, Tyler Akins, Peter Bright, Kuba Juszczyk
-    Repository: micromatch/micromatch
-
-    > The MIT License (MIT)
-    > 
-    > Copyright (c) 2014-present, Jon Schlinkert.
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy
-    > of this software and associated documentation files (the "Software"), to deal
-    > in the Software without restriction, including without limitation the rights
-    > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    > copies of the Software, and to permit persons to whom the Software is
-    > furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in
-    > all copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    > THE SOFTWARE.
-
-    ---------------------------------------
-
-    ## minimatch
-    License: ISC
-    By: Isaac Z. Schlueter
-    Repository: git://github.com/isaacs/minimatch.git
-
-    > The ISC License
-    > 
-    > Copyright (c) 2011-2023 Isaac Z. Schlueter and Contributors
-    > 
-    > Permission to use, copy, modify, and/or distribute this software for any
-    > purpose with or without fee is hereby granted, provided that the above
-    > copyright notice and this permission notice appear in all copies.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-    > WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-    > MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-    > ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-    > WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-    > ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-    > IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
-    ---------------------------------------
-
-    ## minipass
-    License: ISC
-    By: Isaac Z. Schlueter
-    Repository: https://github.com/isaacs/minipass
-
-    > The ISC License
-    > 
-    > Copyright (c) 2017-2023 npm, Inc., Isaac Z. Schlueter, and Contributors
-    > 
-    > Permission to use, copy, modify, and/or distribute this software for any
-    > purpose with or without fee is hereby granted, provided that the above
-    > copyright notice and this permission notice appear in all copies.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-    > WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-    > MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-    > ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-    > WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-    > ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-    > IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
-    ---------------------------------------
-
-    ## mlly
-    License: MIT
-    Repository: unjs/mlly
+    Repositories: unjs/mlly, unjs/ufo
 
     > MIT License
     > 
@@ -16884,11 +16297,11 @@
 
     ## ms
     License: MIT
-    Repository: zeit/ms
+    Repository: vercel/ms
 
     > The MIT License (MIT)
     > 
-    > Copyright (c) 2016 Zeit, Inc.
+    > Copyright (c) 2020 Vercel, Inc.
     > 
     > Permission is hereby granted, free of charge, to any person obtaining a copy
     > of this software and associated documentation files (the "Software"), to deal
@@ -16999,23 +16412,6 @@
 
     ---------------------------------------
 
-    ## open
-    License: MIT
-    By: Sindre Sorhus
-    Repository: sindresorhus/open
-
-    > MIT License
-    > 
-    > Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-    ---------------------------------------
-
     ## parse5
     License: MIT
     By: Ivan Nikulin, https://github.com/inikulin/parse5/graphs/contributors
@@ -17074,10 +16470,10 @@
 
     ---------------------------------------
 
-    ## path-key
+    ## path-key, shebang-regex
     License: MIT
     By: Sindre Sorhus
-    Repository: sindresorhus/path-key
+    Repositories: sindresorhus/path-key, sindresorhus/shebang-regex
 
     > MIT License
     > 
@@ -17088,69 +16484,6 @@
     > The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
     > 
     > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-    ---------------------------------------
-
-    ## path-scurry
-    License: BlueOak-1.0.0
-    By: Isaac Z. Schlueter
-    Repository: git+https://github.com/isaacs/path-scurry
-
-    > # Blue Oak Model License
-    > 
-    > Version 1.0.0
-    > 
-    > ## Purpose
-    > 
-    > This license gives everyone as much permission to work with
-    > this software as possible, while protecting contributors
-    > from liability.
-    > 
-    > ## Acceptance
-    > 
-    > In order to receive this license, you must agree to its
-    > rules.  The rules of this license are both obligations
-    > under that agreement and conditions to your license.
-    > You must not do anything with this software that triggers
-    > a rule that you cannot or will not follow.
-    > 
-    > ## Copyright
-    > 
-    > Each contributor licenses you to do everything with this
-    > software that would otherwise infringe that contributor's
-    > copyright in it.
-    > 
-    > ## Notices
-    > 
-    > You must ensure that everyone who gets a copy of
-    > any part of this software from you, with or without
-    > changes, also gets the text of this license or a link to
-    > <https://blueoakcouncil.org/license/1.0.0>.
-    > 
-    > ## Excuse
-    > 
-    > If anyone notifies you in writing that you have not
-    > complied with [Notices](#notices), you can keep your
-    > license by taking all practical steps to comply within 30
-    > days after the notice.  If you do not do so, your license
-    > ends immediately.
-    > 
-    > ## Patent
-    > 
-    > Each contributor licenses you to do everything with this
-    > software that would otherwise infringe any patent claims
-    > they can license or become able to license.
-    > 
-    > ## Reliability
-    > 
-    > No contributor can revoke this license.
-    > 
-    > ## No Liability
-    > 
-    > ***As far as the law allows, this software comes as is,
-    > without any warranty or condition, and no contributor
-    > will be liable to anyone for any damages related to this
-    > software or this license, under any kind of legal claim.***
 
     ---------------------------------------
 
@@ -17175,7 +16508,7 @@
 
     > ISC License
     > 
-    > Copyright (c) 2021 Alexey Raspopov, Kostiantyn Denysov, Anton Verinov
+    > Copyright (c) 2021-2024 Oleksii Raspopov, Kostiantyn Denysov, Anton Verinov
     > 
     > Permission to use, copy, modify, and/or distribute this software for any
     > purpose with or without fee is hereby granted, provided that the above
@@ -17188,64 +16521,6 @@
     > WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
     > ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
     > OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
-    ---------------------------------------
-
-    ## picomatch
-    License: MIT
-    By: Jon Schlinkert
-    Repository: micromatch/picomatch
-
-    > The MIT License (MIT)
-    > 
-    > Copyright (c) 2017-present, Jon Schlinkert.
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy
-    > of this software and associated documentation files (the "Software"), to deal
-    > in the Software without restriction, including without limitation the rights
-    > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    > copies of the Software, and to permit persons to whom the Software is
-    > furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in
-    > all copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    > THE SOFTWARE.
-
-    ---------------------------------------
-
-    ## pify
-    License: MIT
-    By: Sindre Sorhus
-    Repository: sindresorhus/pify
-
-    > The MIT License (MIT)
-    > 
-    > Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy
-    > of this software and associated documentation files (the "Software"), to deal
-    > in the Software without restriction, including without limitation the rights
-    > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    > copies of the Software, and to permit persons to whom the Software is
-    > furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in
-    > all copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    > THE SOFTWARE.
 
     ---------------------------------------
 
@@ -17464,62 +16739,6 @@
 
     ---------------------------------------
 
-    ## queue-microtask
-    License: MIT
-    By: Feross Aboukhadijeh
-    Repository: git://github.com/feross/queue-microtask.git
-
-    > The MIT License (MIT)
-    > 
-    > Copyright (c) Feross Aboukhadijeh
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy of
-    > this software and associated documentation files (the "Software"), to deal in
-    > the Software without restriction, including without limitation the rights to
-    > use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-    > the Software, and to permit persons to whom the Software is furnished to do so,
-    > subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in all
-    > copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-    > FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-    > COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-    > IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-    > CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-    ---------------------------------------
-
-    ## read-cache
-    License: MIT
-    By: Bogdan Chadkin
-    Repository: git+https://github.com/TrySound/read-cache.git
-
-    > The MIT License (MIT)
-    > 
-    > Copyright 2016 Bogdan Chadkin <trysound@yandex.ru>
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy of
-    > this software and associated documentation files (the "Software"), to deal in
-    > the Software without restriction, including without limitation the rights to
-    > use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-    > the Software, and to permit persons to whom the Software is furnished to do so,
-    > subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in all
-    > copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-    > FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-    > COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-    > IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-    > CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-    ---------------------------------------
-
     ## readdirp
     License: MIT
     By: Thorsten Lorenz, Paul Miller
@@ -17578,10 +16797,10 @@
 
     ---------------------------------------
 
-    ## resolve.exports
+    ## resolve.exports, totalist
     License: MIT
     By: Luke Edwards
-    Repository: lukeed/resolve.exports
+    Repositories: lukeed/resolve.exports, lukeed/totalist
 
     > The MIT License (MIT)
     > 
@@ -17607,63 +16826,6 @@
 
     ---------------------------------------
 
-    ## reusify
-    License: MIT
-    By: Matteo Collina
-    Repository: git+https://github.com/mcollina/reusify.git
-
-    > The MIT License (MIT)
-    > 
-    > Copyright (c) 2015 Matteo Collina
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy
-    > of this software and associated documentation files (the "Software"), to deal
-    > in the Software without restriction, including without limitation the rights
-    > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    > copies of the Software, and to permit persons to whom the Software is
-    > furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in all
-    > copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    > SOFTWARE.
-
-    ---------------------------------------
-
-    ## run-parallel
-    License: MIT
-    By: Feross Aboukhadijeh
-    Repository: git://github.com/feross/run-parallel.git
-
-    > The MIT License (MIT)
-    > 
-    > Copyright (c) Feross Aboukhadijeh
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy of
-    > this software and associated documentation files (the "Software"), to deal in
-    > the Software without restriction, including without limitation the rights to
-    > use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-    > the Software, and to permit persons to whom the Software is furnished to do so,
-    > subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in all
-    > copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-    > FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-    > COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-    > IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-    > CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-    ---------------------------------------
-
     ## shebang-command
     License: MIT
     By: Kevin Mårtensson
@@ -17678,55 +16840,6 @@
     > The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
     > 
     > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-    ---------------------------------------
-
-    ## shebang-regex
-    License: MIT
-    By: Sindre Sorhus
-    Repository: sindresorhus/shebang-regex
-
-    > MIT License
-    > 
-    > Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-    ---------------------------------------
-
-    ## shell-quote
-    License: MIT
-    By: James Halliday
-    Repository: http://github.com/ljharb/shell-quote.git
-
-    > The MIT License
-    > 
-    > Copyright (c) 2013 James Halliday (mail@substack.net)
-    > 
-    > Permission is hereby granted, free of charge, 
-    > to any person obtaining a copy of this software and 
-    > associated documentation files (the "Software"), to 
-    > deal in the Software without restriction, including 
-    > without limitation the rights to use, copy, modify, 
-    > merge, publish, distribute, sublicense, and/or sell 
-    > copies of the Software, and to permit persons to whom 
-    > the Software is furnished to do so, 
-    > subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice 
-    > shall be included in all copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
-    > EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
-    > OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-    > IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR 
-    > ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
-    > TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
-    > SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
     ---------------------------------------
 
@@ -17771,23 +16884,6 @@
     License: CC0-1.0
     By: The Dark Sky Company
     Repository: git://github.com/darkskyapp/string-hash.git
-
-    ---------------------------------------
-
-    ## strip-ansi
-    License: MIT
-    By: Sindre Sorhus
-    Repository: chalk/strip-ansi
-
-    > MIT License
-    > 
-    > Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
     ---------------------------------------
 
@@ -17849,35 +16945,6 @@
 
     ---------------------------------------
 
-    ## totalist
-    License: MIT
-    By: Luke Edwards
-    Repository: lukeed/totalist
-
-    > The MIT License (MIT)
-    > 
-    > Copyright (c) Luke Edwards <luke.edwards05@gmail.com> (lukeed.com)
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy
-    > of this software and associated documentation files (the "Software"), to deal
-    > in the Software without restriction, including without limitation the rights
-    > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    > copies of the Software, and to permit persons to whom the Software is
-    > furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in
-    > all copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    > THE SOFTWARE.
-
-    ---------------------------------------
-
     ## tsconfck
     License: MIT
     By: dominikg
@@ -17911,34 +16978,6 @@
     > MIT License
     > 
     > Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
-    > 
-    > Permission is hereby granted, free of charge, to any person obtaining a copy
-    > of this software and associated documentation files (the "Software"), to deal
-    > in the Software without restriction, including without limitation the rights
-    > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    > copies of the Software, and to permit persons to whom the Software is
-    > furnished to do so, subject to the following conditions:
-    > 
-    > The above copyright notice and this permission notice shall be included in all
-    > copies or substantial portions of the Software.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    > SOFTWARE.
-
-    ---------------------------------------
-
-    ## ufo
-    License: MIT
-    Repository: unjs/ufo
-
-    > MIT License
-    > 
-    > Copyright (c) Pooya Parsa <pooya@pi0.io>
     > 
     > Permission is hereby granted, free of charge, to any person obtaining a copy
     > of this software and associated documentation files (the "Software"), to deal
@@ -18080,29 +17119,6 @@
 
     ---------------------------------------
 
-    ## which
-    License: ISC
-    By: Isaac Z. Schlueter
-    Repository: git://github.com/isaacs/node-which.git
-
-    > The ISC License
-    > 
-    > Copyright (c) Isaac Z. Schlueter and Contributors
-    > 
-    > Permission to use, copy, modify, and/or distribute this software for any
-    > purpose with or without fee is hereby granted, provided that the above
-    > copyright notice and this permission notice appear in all copies.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-    > WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-    > MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-    > ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-    > WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-    > ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-    > IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
-    ---------------------------------------
-
     ## ws
     License: MIT
     By: Einar Otto Stangvik
@@ -18128,27 +17144,6 @@
     > COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
     > IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
     > CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-    ---------------------------------------
-
-    ## yaml
-    License: ISC
-    By: Eemeli Aro
-    Repository: github:eemeli/yaml
-
-    > Copyright Eemeli Aro <eemeli@gmail.com>
-    > 
-    > Permission to use, copy, modify, and/or distribute this software for any purpose
-    > with or without fee is hereby granted, provided that the above copyright notice
-    > and this permission notice appear in all copies.
-    > 
-    > THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-    > REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-    > FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-    > INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
-    > OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-    > TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
-    > THIS SOFTWARE.
 
 ---
 ### vue-chartjs

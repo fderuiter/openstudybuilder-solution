@@ -140,14 +140,38 @@ class CTCodelistCreateInput(PostInputModel):
     library_name: Annotated[str, Field(min_length=1)]
 
 
+class CTCodelistCodelistInformation(PostInputModel):
+    name: Annotated[str, Field(min_length=1)]
+    submission_value: Annotated[str, Field(min_length=1)]
+    nci_preferred_name: Annotated[str | None, Field(min_length=1)] = None
+    definition: Annotated[str, Field(min_length=1)]
+    sponsor_preferred_name: Annotated[str, Field(min_length=1)]
+
+
+class CTPairedCodelistCreateInput(PostInputModel):
+    catalogue_names: Annotated[list[str], Field()]
+    name_information: Annotated[CTCodelistCodelistInformation, Field()]
+    code_information: Annotated[CTCodelistCodelistInformation, Field()]
+    extensible: Annotated[bool, Field()]
+    is_ordinal: Annotated[bool, Field()]
+    codelist_type: Annotated[str, Field()] = DEFAULT_CODELIST_TYPE
+    template_parameter: Annotated[bool, Field()]
+    parent_codelist_uid: Annotated[str | None, Field(min_length=1)] = None
+    library_name: Annotated[str, Field(min_length=1)]
+
+
+class CTPairedCodelistInfo(BaseModel):
+    uid: Annotated[str, Field()]
+    name: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = None
+
+
 class CTCodelistNameAndAttributes(BaseModel):
     @classmethod
     def from_ct_codelist_ar(
         cls,
         ct_codelist_name_ar: CTCodelistNameAR,
         ct_codelist_attributes_ar: CTCodelistAttributesAR,
-        paired_codes_codelist_uid: str | None = None,
-        paired_names_codelist_uid: str | None = None,
+        paired_codelist: CTPairedCodelistInfo | None = None,
     ) -> Self:
         codelist_name_and_attributes = cls(
             catalogue_names=ct_codelist_attributes_ar.ct_codelist_vo.catalogue_names,
@@ -163,8 +187,7 @@ class CTCodelistNameAndAttributes(BaseModel):
             attributes=CTCodelistAttributes.from_ct_codelist_ar_without_common_codelist_fields(
                 ct_codelist_attributes_ar
             ),
-            paired_codes_codelist_uid=paired_codes_codelist_uid,
-            paired_names_codelist_uid=paired_names_codelist_uid,
+            paired_codelist=paired_codelist,
         )
 
         return codelist_name_and_attributes
@@ -174,8 +197,7 @@ class CTCodelistNameAndAttributes(BaseModel):
         cls,
         ct_codelist_name: CTCodelistName,
         ct_codelist_attributes: CTCodelistAttributes,
-        paired_codes_codelist_uid: str | None = None,
-        paired_names_codelist_uid: str | None = None,
+        paired_codelist: CTPairedCodelistInfo | None = None,
     ) -> Self:
         codelist_name_and_attributes = cls(
             catalogue_names=ct_codelist_attributes.catalogue_names,
@@ -185,8 +207,7 @@ class CTCodelistNameAndAttributes(BaseModel):
             library_name=ct_codelist_attributes.library_name,
             name=ct_codelist_name,
             attributes=ct_codelist_attributes,
-            paired_codes_codelist_uid=paired_codes_codelist_uid,
-            paired_names_codelist_uid=paired_names_codelist_uid,
+            paired_codelist=paired_codelist,
         )
 
         return codelist_name_and_attributes
@@ -211,12 +232,8 @@ class CTCodelistNameAndAttributes(BaseModel):
 
     attributes: Annotated[CTCodelistAttributes, Field()]
 
-    paired_codes_codelist_uid: Annotated[
-        str | None, Field(json_schema_extra={"nullable": True})
-    ] = None
-
-    paired_names_codelist_uid: Annotated[
-        str | None, Field(json_schema_extra={"nullable": True})
+    paired_codelist: Annotated[
+        CTPairedCodelistInfo | None, Field(json_schema_extra={"nullable": True})
     ] = None
 
 

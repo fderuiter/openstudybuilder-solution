@@ -17,9 +17,8 @@
       <div v-if="index === 0">
         <span>{{
           value[0].name.length > 25
-            ? value[0].name.replace(/<\/?[^>]+(>)/g, '').substring(0, 25) +
-              '...'
-            : value[0].name.replace(/<\/?[^>]+(>)/g, '')
+            ? value[0].name.replace(/[<>]/g, '').substring(0, 25) + '...'
+            : value[0].name.replace(/[<>]/g, '')
         }}</span>
       </div>
       <span v-if="index === 1" class="text-grey caption mr-1">

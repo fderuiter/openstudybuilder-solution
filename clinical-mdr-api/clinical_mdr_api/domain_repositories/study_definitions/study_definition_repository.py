@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from typing import Any, Sequence
 
 from neomodel import db
-from neomodel.sync_.match import Collect, NodeNameResolver, Path, Size
 from neomodel.sync_.node import NodeMeta
 
 from clinical_mdr_api.domain_repositories.generic_repository import (
@@ -17,6 +16,10 @@ from clinical_mdr_api.domain_repositories.models.study import StudyRoot, StudyVa
 from clinical_mdr_api.domain_repositories.models.study_field import (
     StudyArrayField,
     StudyBooleanField,
+)
+from clinical_mdr_api.domain_repositories.models.study_selections import (
+    STUDY_SELECTION_CONCRETE_LABELS,
+    STUDY_SELECTION_LABELS_EXCLUDED_FROM_CONTAINMENT,
 )
 from clinical_mdr_api.domains.study_definition_aggregates.root import (
     StudyDefinitionAR,
@@ -262,103 +265,154 @@ RETURN
         )
 
     def get_study_structure_statistics(self, uid: str) -> dict[str, int] | None:
-        result = (
-            StudyValue.nodes.filter(latest_value__uid=uid)
-            .traverse(
-                Path(
-                    value="has_study_arm",
-                    optional=True,
-                    include_nodes_in_return=False,
-                    include_rels_in_return=False,
-                ),
-                Path(
-                    value="has_study_branch_arm",
-                    optional=True,
-                    include_nodes_in_return=False,
-                    include_rels_in_return=False,
-                ),
-                Path(
-                    value="has_study_element",
-                    optional=True,
-                    include_nodes_in_return=False,
-                    include_rels_in_return=False,
-                ),
-                Path(
-                    value="has_study_cohort",
-                    optional=True,
-                    include_nodes_in_return=False,
-                    include_rels_in_return=False,
-                ),
-                Path(
-                    value="has_study_epoch",
-                    optional=True,
-                    include_nodes_in_return=False,
-                    include_rels_in_return=False,
-                ),
-                Path(
-                    value="has_study_footnote__references_study_epoch",
-                    optional=True,
-                    include_nodes_in_return=False,
-                    include_rels_in_return=False,
-                ),
-                Path(
-                    value="has_study_visit",
-                    optional=True,
-                    include_nodes_in_return=False,
-                    include_rels_in_return=False,
-                ),
-                Path(
-                    value="has_study_footnote__references_study_visit",
-                    optional=True,
-                    include_nodes_in_return=False,
-                    include_rels_in_return=False,
-                ),
-            )
-            .annotate(
-                arm_count=Size(
-                    Collect(NodeNameResolver("has_study_arm"), distinct=True)
-                ),
-                branch_count=Size(
-                    Collect(NodeNameResolver("has_study_branch_arm"), distinct=True)
-                ),
-                element_count=Size(
-                    Collect(NodeNameResolver("has_study_element"), distinct=True)
-                ),
-                cohort_count=Size(
-                    Collect(NodeNameResolver("has_study_cohort"), distinct=True)
-                ),
-                epoch_count=Size(
-                    Collect(NodeNameResolver("has_study_epoch"), distinct=True)
-                ),
-                epoch_footnote_count=Size(
-                    Collect(
-                        NodeNameResolver("has_study_footnote__references_study_epoch"),
-                        distinct=True,
-                    )
-                ),
-                visit_count=Size(
-                    Collect(NodeNameResolver("has_study_visit"), distinct=True)
-                ),
-                visit_footnote_count=Size(
-                    Collect(
-                        NodeNameResolver("has_study_footnote__references_study_visit"),
-                        distinct=True,
-                    )
-                ),
-            )
-            .all()
-        )
+        query = """
+MATCH (sr:StudyRoot {uid: $uid})-[:LATEST]->(sv:StudyValue)
+RETURN
+    SIZE([(sv)-[:HAS_STUDY_ARM]->(:StudyArm) | 1]) AS arm_count,
+    SIZE([(sv)-[:HAS_STUDY_BRANCH_ARM]->(:StudyBranchArm) | 1]) AS branch_count,
+    SIZE([(sv)-[:HAS_STUDY_ELEMENT]->(:StudyElement) | 1]) AS element_count,
+    SIZE([(sv)-[:HAS_STUDY_COHORT]->(:StudyCohort) | 1]) AS cohort_count,
+    SIZE([(sv)-[:HAS_STUDY_EPOCH]->(:StudyEpoch) | 1]) AS epoch_count,
+    SIZE([(sv)-[:HAS_STUDY_FOOTNOTE]->(:StudyFootnote)-[:REFERENCES_STUDY_EPOCH]->(:StudyEpoch) | 1]) AS epoch_footnote_count,
+    SIZE([(sv)-[:HAS_STUDY_VISIT]->(:StudyVisit) | 1]) AS visit_count,
+    SIZE([(sv)-[:HAS_STUDY_FOOTNOTE]->(:StudyFootnote)-[:REFERENCES_STUDY_VISIT]->(:StudyVisit) | 1]) AS visit_footnote_count,
+    SIZE([(sv)-[:HAS_STUDY_ACTIVITY]->(:StudyActivity) | 1]) AS study_activity_count,
+    SIZE([(sv)-[:HAS_STUDY_ACTIVITY_SCHEDULE]->(:StudyActivitySchedule) | 1]) AS study_activity_schedule_count
+"""
+        result, _ = db.cypher_query(query=query, params={"uid": uid})
+
         if not result:
             return None
+
+        counts = result[0]
         return {
-            "arm_count": result[0][3],
-            "branch_count": result[0][4],
-            "element_count": result[0][5],
-            "cohort_count": result[0][6],
-            "epoch_count": result[0][7],
-            "epoch_footnote_count": result[0][8],
-            "visit_count": result[0][9],
-            "visit_footnote_count": result[0][10],
+            "arm_count": counts[0],
+            "branch_count": counts[1],
+            "element_count": counts[2],
+            "cohort_count": counts[3],
+            "epoch_count": counts[4],
+            "epoch_footnote_count": counts[5],
+            "visit_count": counts[6],
+            "visit_footnote_count": counts[7],
+            "study_activity_count": counts[8],
+            "study_activity_schedule_count": counts[9],
+        }
+
+    def get_study_selection_labels_for_study(self, study_uid: str) -> list[str]:
+        """
+        Distinct concrete study-selection labels present on the study's latest value
+        (only labels in :data:`STUDY_SELECTION_CONCRETE_LABELS`).
+        """
+        query = """
+        MATCH (sr:StudyRoot {uid: $study_uid})-[:LATEST]->(sv:StudyValue)-[rel]->(ss:StudySelection)
+        WHERE type(rel) <> 'HAS_PROTOCOL_SOA_CELL' AND type(rel) <> 'HAS_PROTOCOL_SOA_FOOTNOTE'
+        UNWIND labels(ss) AS lb
+        WITH lb
+        WHERE lb IN $known_labels
+        RETURN DISTINCT lb AS label
+        ORDER BY label
+        """
+        rows, _ = db.cypher_query(
+            query,
+            {
+                "study_uid": study_uid,
+                "known_labels": list(STUDY_SELECTION_CONCRETE_LABELS),
+            },
+        )
+        return [str(r[0]) for r in rows]
+
+    def get_study_selection_statistics_for_labels(
+        self, study_uid: str, labels: list[str]
+    ) -> dict[str, dict[str, int]]:
+        """
+        Per-label selection counts and distinct CT term root counts (via CTTermContext)
+        for the given labels on the study's latest value.
+        """
+        if not labels:
+            return {}
+        query = """
+        UNWIND $labels AS want
+        OPTIONAL MATCH (sr:StudyRoot {uid: $study_uid})-[:LATEST]->(sv:StudyValue)-[rel]->(ss:StudySelection)
+        WHERE type(rel) <> 'HAS_PROTOCOL_SOA_CELL' AND type(rel) <> 'HAS_PROTOCOL_SOA_FOOTNOTE'
+          AND want IN labels(ss)
+        OPTIONAL MATCH (ss)-[]->(ctx:CTTermContext)-[:HAS_SELECTED_TERM]->(tr:CTTermRoot)
+        RETURN want,
+               count(DISTINCT ss) AS selection_count,
+               count(DISTINCT tr) AS distinct_ct_term_root_count
+        ORDER BY want
+        """
+        rows, _ = db.cypher_query(query, {"study_uid": study_uid, "labels": labels})
+        out: dict[str, dict[str, int]] = {}
+        for row in rows:
+            want, sel_count, term_count = row[0], int(row[1]), int(row[2])
+            out[str(want)] = {
+                "selection_count": sel_count,
+                "distinct_ct_term_root_count": term_count,
+            }
+        return out
+
+    def get_study_selection_containment(
+        self, source_study_uid: str, target_study_uid: str
+    ) -> dict[str, Any]:
+        """
+        Whether **target** selection statistics (counts only for labels that appear on
+        **target**) are numerically contained in **source**:
+        for each such label, target counts must be <= source counts.
+
+        Used to compare a clone (target) against its source study when only a subset
+        of labels may have been copied, or to verify full clone equality (then counts
+        match and containment holds).
+
+        ``StudySoAFootnote`` is excluded: clone copies footnotes conditionally, so
+        footnote counts are not compared on source or target.
+        """
+        labels = [
+            lb
+            for lb in self.get_study_selection_labels_for_study(target_study_uid)
+            if lb not in STUDY_SELECTION_LABELS_EXCLUDED_FROM_CONTAINMENT
+        ]
+        if not labels:
+            return {
+                "target_contained_in_source": True,
+                "labels_from_target": [],
+                "per_label": [],
+            }
+        src_stats = self.get_study_selection_statistics_for_labels(
+            source_study_uid, labels
+        )
+        tgt_stats = self.get_study_selection_statistics_for_labels(
+            target_study_uid, labels
+        )
+        per_label: list[dict[str, Any]] = []
+        all_contained = True
+        for lb in labels:
+            s = src_stats.get(
+                lb,
+                {"selection_count": 0, "distinct_ct_term_root_count": 0},
+            )
+            t = tgt_stats.get(
+                lb,
+                {"selection_count": 0, "distinct_ct_term_root_count": 0},
+            )
+            sc, stc = s["selection_count"], s["distinct_ct_term_root_count"]
+            tc, ttc = t["selection_count"], t["distinct_ct_term_root_count"]
+            label_ok = tc <= sc and ttc <= stc
+            if not label_ok:
+                all_contained = False
+            per_label.append(
+                {
+                    "label": lb,
+                    "target_selection_count": tc,
+                    "source_selection_count": sc,
+                    "target_distinct_ct_term_root_count": ttc,
+                    "source_distinct_ct_term_root_count": stc,
+                    "label_contained": label_ok,
+                }
+            )
+        return {
+            "target_contained_in_source": all_contained,
+            "labels_from_target": labels,
+            "per_label": per_label,
         }
 
     def copy_study_items(
@@ -369,27 +423,22 @@ RETURN
         author_id: str,
     ) -> dict[str, int] | None:
         parameters: dict[str, str | list[str] | datetime.datetime] = {}
-        exclusions = """
-            NOT EXISTS((selection_src)--(:StudyActivity))
-            AND NOT EXISTS((selection_src)--(:StudyActivitySubGroup))
-            AND NOT EXISTS((selection_src)--(:StudyActivityGroup))
-            AND NOT EXISTS((selection_src:StudySoAFootnote)--(:StudyActivitySchedule))
-            AND NOT EXISTS((selection_src)--(:StudyActivityInstance))
-            AND NOT EXISTS((selection_src)--(:StudySoAGroup))
-        """
-        if (
-            "StudySoAFootnote" in list_of_items_to_copy
-            and "StudyVisit" not in list_of_items_to_copy
+        exclusions = "TRUE"
+        for label in (
+            "StudyVisit",
+            "StudyEpoch",
+            "StudyActivity",
+            "StudyActivitySubGroup",
+            "StudyActivityGroup",
+            "StudySoAGroup",
+            "StudyActivitySchedule",
         ):
-            exclusions += """
-            AND NOT ((selection_src:StudySoAFootnote)--(:StudyVisit) AND NOT (selection_src:StudySoAFootnote)--(:StudyVisit)--(:Delete))
-        """
-        if (
-            "StudySoAFootnote" in list_of_items_to_copy
-            and "StudyEpoch" not in list_of_items_to_copy
-        ):
-            exclusions += """
-            AND NOT ((selection_src:StudySoAFootnote)--(:StudyEpoch) AND NOT (selection_src:StudySoAFootnote)--(:StudyEpoch)--(:Delete))
+            if (
+                "StudySoAFootnote" in list_of_items_to_copy
+                and label not in list_of_items_to_copy
+            ):
+                exclusions += f"""
+            AND NOT ((selection_src:StudySoAFootnote)--(:{label}))
         """
 
         # COPY NODES AND OUTBOUND RELATIONSHIPS
@@ -872,7 +921,8 @@ return *
                 COALESCE(author.username, current_version.author_id) as author,
                 latest_locked_version,
                 latest_released_version,
-                [(sr)-[:HAS_COMPLETENESS_TAG]->(t:DataCompletenessTag) | t.name] as data_completeness_tags
+                [(sr)-[:HAS_COMPLETENESS_TAG]->(t:DataCompletenessTag) | t.name] as data_completeness_tags,
+                sv.description
             ORDER BY uid
         """
         rs = db.cypher_query(query)
@@ -897,6 +947,7 @@ return *
                 "latest_locked_version": row[16],
                 "latest_released_version": row[17],
                 "data_completeness_tags": row[18],
+                "description": row[19],
             }
             for row in rs[0]
         ]
@@ -1204,22 +1255,39 @@ return *
 
     @abstractmethod
     def _retrieve_study_subpart_with_history(
-        self, uid: str, is_subpart: bool = False, study_value_version: str | None = None
-    ):
+        self,
+        uid: str,
+        is_subpart: bool = False,
+        study_value_version: str | None = None,
+        page_number: int = 1,
+        page_size: int = 0,
+        total_count: bool = False,
+    ) -> GenericFilteringReturn:
         """
         Private method to retrieve an audit trail for a study's subparts by UID.
-        :return: A list of Study subpart audit trail objects.
+        :return: A GenericFilteringReturn containing Study subpart audit trail objects.
         """
 
     def get_subpart_audit_trail_by_uid(
-        self, uid: str, is_subpart: bool = False, study_value_version: str | None = None
-    ) -> list[Any]:
+        self,
+        uid: str,
+        is_subpart: bool = False,
+        study_value_version: str | None = None,
+        page_number: int = 1,
+        page_size: int = 0,
+        total_count: bool = False,
+    ) -> GenericFilteringReturn:
         """
         Public method which is to retrieve the audit trail for a given study identified by UID.
-        :return: A list of retrieved data in a form StudyAuditTrailAR instances.
+        :return: A GenericFilteringReturn containing StudySubpartAuditTrail instances.
         """
         return self._retrieve_study_subpart_with_history(
-            uid, is_subpart, study_value_version=study_value_version
+            uid,
+            is_subpart,
+            study_value_version=study_value_version,
+            page_number=page_number,
+            page_size=page_size,
+            total_count=total_count,
         )
 
     @abstractmethod

@@ -467,36 +467,47 @@ class CTCodelistGenericRepository(
         exceptions.ValidationException.raise_if(
             ct_term_node is None, msg=f"Term with UID '{term_uid}' doesn't exist."
         )
-        new_term_name_node = (
-            ct_term_node.has_name_root.single().has_latest_value.single()
+
+        # Single Cypher query to check all duplicate conditions at once,
+        # replacing the N+1 loop that made 3 DB calls per existing term.
+        duplicate_check_query = """
+            MATCH (new_term:CTTermRoot {uid: $term_uid})-[:HAS_NAME_ROOT]->()-[:LATEST]->(new_name_val)
+            WITH new_term, new_name_val
+            MATCH (codelist:CTCodelistRoot {uid: $codelist_uid})-[ht:HAS_TERM]->(clt:CTCodelistTerm)-[:HAS_TERM_ROOT]->(existing_term:CTTermRoot)
+            WHERE ht.end_date IS NULL
+            MATCH (existing_term)-[:HAS_NAME_ROOT]->()-[:LATEST]->(existing_name_val)
+            WITH new_term, new_name_val, clt, existing_term, existing_name_val,
+                 CASE WHEN existing_term.uid = $term_uid THEN 'uid' ELSE NULL END AS uid_match,
+                 CASE WHEN clt.submission_value = $submission_value THEN 'submission_value' ELSE NULL END AS sv_match,
+                 CASE WHEN existing_name_val.name = new_name_val.name THEN 'name' ELSE NULL END AS name_match
+            WHERE uid_match IS NOT NULL OR sv_match IS NOT NULL OR name_match IS NOT NULL
+            RETURN
+                coalesce(uid_match, sv_match, name_match) AS match_type,
+                clt.submission_value AS existing_submission_value,
+                existing_name_val.name AS existing_name
+            LIMIT 1
+        """
+        results, _ = db.cypher_query(
+            duplicate_check_query,
+            {
+                "codelist_uid": codelist_uid,
+                "term_uid": term_uid,
+                "submission_value": submission_value,
+            },
         )
-
-        for ct_codelist_term_node in ct_codelist_node.has_term.all():
-            # Check if the has_term relationship has an end date.
-            # If so, it means the term was removed rom this codelist and we can skip the following checks.
-            has_term_rel = ct_codelist_node.has_term.relationship(ct_codelist_term_node)
-            if has_term_rel.end_date is not None:
-                continue
-
-            # Check if the same term is already added to the codelist
-            ct_term_end_node = ct_codelist_term_node.has_term_root.single()
-            exceptions.AlreadyExistsException.raise_if(
-                ct_term_end_node.uid == term_uid,
-                msg=f"Codelist with UID '{codelist_uid}' already has a Term with UID '{term_uid}'.",
-            )
-            # Check if a term with the same submission value is already added to the codelist
-            if ct_codelist_term_node.submission_value == submission_value:
+        if results:
+            match_type, existing_sv, existing_name = results[0]
+            if match_type == "uid":
                 raise exceptions.AlreadyExistsException(
-                    msg=f"Codelist with UID '{codelist_uid}' already has a Term with submission value '{submission_value}'."
+                    msg=f"Codelist with UID '{codelist_uid}' already has a Term with UID '{term_uid}'.",
                 )
-
-            # Check if a term with the same name is already added to the codelist
-            existing_ct_term_name_node = (
-                ct_term_end_node.has_name_root.single().has_latest_value.single()
-            )
-            if new_term_name_node.name == existing_ct_term_name_node.name:
+            if match_type == "submission_value":
                 raise exceptions.AlreadyExistsException(
-                    msg=f"Codelist with UID '{codelist_uid}' already has a Term with name '{new_term_name_node.name}'."
+                    msg=f"Codelist with UID '{codelist_uid}' already has a Term with submission value '{existing_sv}'.",
+                )
+            if match_type == "name":
+                raise exceptions.AlreadyExistsException(
+                    msg=f"Codelist with UID '{codelist_uid}' already has a Term with name '{existing_name}'.",
                 )
 
         ct_codelist_term_node = ct_term_node.has_term_root.get_or_none(
@@ -812,20 +823,15 @@ class CTCodelistGenericRepository(
         :param codelist_uid: The UID of the codelist
         :return: Paired codelist UID or None
         """
-        codelist_root = CTCodelistRoot.nodes.get_or_none(uid=codelist_uid)
-        if not codelist_root:
-            return None
-
-        # Check if this codelist has a paired code codelist (outgoing relationship)
-        paired_code = codelist_root.has_paired_code_codelist.get_or_none()
-        if paired_code:
-            return paired_code.uid
-
-        # Check if this codelist has a paired name codelist (incoming relationship)
-        paired_name = codelist_root.has_paired_name_codelist.get_or_none()
-        if paired_name:
-            return paired_name.uid
-
+        query = """
+            MATCH (codelist:CTCodelistRoot {uid: $codelist_uid})
+            OPTIONAL MATCH (codelist)-[:PAIRED_CODE_CODELIST]->(paired_code:CTCodelistRoot)
+            OPTIONAL MATCH (codelist)<-[:PAIRED_CODE_CODELIST]-(paired_name:CTCodelistRoot)
+            RETURN coalesce(paired_code.uid, paired_name.uid) AS paired_uid
+        """
+        results, _ = db.cypher_query(query, {"codelist_uid": codelist_uid})
+        if results and results[0][0] is not None:
+            return results[0][0]
         return None
 
     def is_term_in_codelist(self, term_uid: str, codelist_uid: str) -> bool:
@@ -835,23 +841,12 @@ class CTCodelistGenericRepository(
         :param codelist_uid: The UID of the codelist
         :return: True if the term is in the codelist, False otherwise
         """
-        codelist_root = CTCodelistRoot.nodes.get_or_none(uid=codelist_uid)
-        if not codelist_root:
-            return False
-
-        term_root = CTTermRoot.nodes.get_or_none(uid=term_uid)
-        if not term_root:
-            return False
-
-        # Check if there's an active HAS_TERM relationship
-        for codelist_term in codelist_root.has_term.all():
-            term_from_codelist = codelist_term.has_term_root.get_or_none()
-            if term_from_codelist and term_from_codelist.uid == term_uid:
-                has_term_rel = codelist_root.has_term.relationship(codelist_term)
-                if has_term_rel.end_date is None:
-                    return True
-
-        return False
+        results = CTCodelistRoot.nodes.filter(
+            uid=codelist_uid,
+            has_term__has_term_root__uid=term_uid,
+            **{"has_term|end_date__isnull": True},
+        )[:1]
+        return len(results) > 0
 
     def get_or_create_selected_term(
         self,

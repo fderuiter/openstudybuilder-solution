@@ -13,6 +13,7 @@
     <template #actions="">
       <v-btn
         class="ml-2"
+        data-cy="open-create-form"
         icon
         size="small"
         variant="outlined"

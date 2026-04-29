@@ -45,7 +45,7 @@
               :filter-keys="['raw.searchable_text']"
             >
               <template #item="{ props, internalItem: item }">
-                <v-list-item v-bind="props" :title="item.derived_name">
+                <v-list-item v-bind="props" :title="item.raw.derived_name">
                   <v-list-item-subtitle class="pa-2">
                     {{ displayDosageForms(item.raw) }}
                     {{ displayRoutesOfAdministration(item.raw) }}

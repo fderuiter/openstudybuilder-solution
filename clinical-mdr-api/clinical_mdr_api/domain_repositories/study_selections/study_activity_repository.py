@@ -382,86 +382,80 @@ class StudySelectionActivityRepository(
         last_study_selection_node: StudyActivity,
         for_deletion: bool = False,
     ):
-        # Fetch nodes referenced by uids
-        query = [
-            "MATCH (activity_root:ActivityRoot {uid: $activity_uid})-[:HAS_VERSION {version: $activity_version}]->(latest_activity_value:ActivityValue) WITH * LIMIT 1",
+        # Build a single Cypher statement that MATCHes all dependency nodes, CREATEs the
+        # StudyActivity node, and CREATEs all its relationships in one round-trip.
+        match_lines = [
+            "MATCH (activity_root:ActivityRoot {uid: $activity_uid})"
+            "-[:HAS_VERSION {version: $activity_version}]->(latest_activity_value:ActivityValue)"
+            " WITH * LIMIT 1",
+            "MATCH (study_value:StudyValue) WHERE elementId(study_value) = $study_value_eid",
             "MATCH (study_soa_group:StudySoAGroup {uid:$study_soa_group_uid}) WHERE NOT (study_soa_group)-[:BEFORE]-()",
         ]
-        params = {
-            "study_uid": selection.study_uid,
+        params: dict[str, Any] = {
+            "sa_uid": selection.study_selection_uid,
+            "sa_order": order,
+            "sa_show_activity": selection.show_activity_in_protocol_flowchart,
+            "sa_keep_old": selection.keep_old_version,
+            "sa_keep_old_date": selection.keep_old_version_date,
+            "sa_accepted": selection.accepted_version,
             "activity_uid": selection.activity_uid,
             "activity_version": selection.activity_version,
             "study_soa_group_uid": selection.study_soa_group_uid,
+            "study_value_eid": latest_study_value_node.element_id,
         }
-        returns = ["latest_activity_value", "study_soa_group"]
+
+        optional_matches: list[str] = []
+        create_rels: list[str] = []
+
         if selection.study_activity_subgroup_uid:
-            query.append(
-                "MATCH (study_activity_subgroup:StudyActivitySubGroup {uid: $study_activity_subgroup_uid}) WHERE NOT (study_activity_subgroup)-[:BEFORE]-()"
+            optional_matches.append(
+                "MATCH (study_activity_subgroup:StudyActivitySubGroup {uid: $study_activity_subgroup_uid})"
+                " WHERE NOT (study_activity_subgroup)-[:BEFORE]-()"
             )
             params["study_activity_subgroup_uid"] = (
                 selection.study_activity_subgroup_uid
             )
-            returns.append("study_activity_subgroup")
+            create_rels.append(
+                "CREATE (sa)-[:STUDY_ACTIVITY_HAS_STUDY_ACTIVITY_SUBGROUP]->(study_activity_subgroup)"
+            )
+
         if selection.study_activity_group_uid:
-            query.append(
-                "MATCH (study_activity_group:StudyActivityGroup {uid: $study_activity_group_uid}) WHERE NOT (study_activity_group)-[:BEFORE]-()"
+            optional_matches.append(
+                "MATCH (study_activity_group:StudyActivityGroup {uid: $study_activity_group_uid})"
+                " WHERE NOT (study_activity_group)-[:BEFORE]-()"
             )
             params["study_activity_group_uid"] = selection.study_activity_group_uid
-            returns.append("study_activity_group")
-
-        query.append(f"RETURN {', '.join(returns)}")
-        query_str = "\n".join(query)
-        results, keys = db.cypher_query(query_str, params, resolve_objects=True)
-        if len(results) != 1:
-            raise exceptions.BusinessLogicException(
-                msg=f"There should be one row returned with dependencies for StudyActivity '{selection.study_selection_uid}'."
+            create_rels.append(
+                "CREATE (sa)-[:STUDY_ACTIVITY_HAS_STUDY_ACTIVITY_GROUP]->(study_activity_group)"
             )
 
-        nodes = dict(zip(keys, results[0]))
-        latest_activity_value_node: ActivityValue = nodes["latest_activity_value"]
-        study_soa_group_node: StudySoAGroup = nodes["study_soa_group"]
-        study_activity_subgroup_node: StudyActivitySubGroup | None = nodes.get(
-            "study_activity_subgroup"
+        create_node = (
+            "CREATE (sa:StudyActivity:StudySelection {uid: $sa_uid, order: $sa_order,"
+            " show_activity_in_protocol_flowchart: $sa_show_activity,"
+            " keep_old_version: $sa_keep_old, keep_old_version_date: $sa_keep_old_date,"
+            " accepted_version: $sa_accepted})"
         )
-        study_activity_group_node: StudyActivityGroup | None = nodes.get(
-            "study_activity_group"
-        )
-
-        # Create new activity selection
-        study_activity_selection_node = StudyActivity(
-            uid=selection.study_selection_uid,
-            order=order,
-            show_activity_in_protocol_flowchart=selection.show_activity_in_protocol_flowchart,
-            keep_old_version=selection.keep_old_version,
-            keep_old_version_date=selection.keep_old_version_date,
-            accepted_version=selection.accepted_version,
-        ).save()
+        create_core_rels = [
+            "CREATE (sa)-[:HAS_SELECTED_ACTIVITY]->(latest_activity_value)",
+            "CREATE (sa)-[:STUDY_ACTIVITY_HAS_STUDY_SOA_GROUP]->(study_soa_group)",
+        ]
         if not for_deletion:
-            # Connect new node with study value
-            latest_study_value_node.has_study_activity.connect(
-                study_activity_selection_node
-            )
+            create_core_rels.append("CREATE (study_value)-[:HAS_STUDY_ACTIVITY]->(sa)")
 
-        # Connect new node with Activity value
-        study_activity_selection_node.has_selected_activity.connect(
-            latest_activity_value_node
+        all_lines = (
+            match_lines
+            + optional_matches
+            + [create_node]
+            + create_core_rels
+            + create_rels
+            + ["RETURN sa"]
         )
-        # Connect StudyActivity with StudySoAGroup node
-        study_activity_selection_node.has_soa_group_selection.connect(
-            study_soa_group_node
-        )
-
-        if selection.study_activity_subgroup_uid:
-            # Connect StudyActivity with StudyActivitySubGroup node
-            study_activity_selection_node.study_activity_has_study_activity_subgroup.connect(
-                study_activity_subgroup_node
+        results, _ = db.cypher_query("\n".join(all_lines), params, resolve_objects=True)
+        if not results or not results[0]:
+            raise exceptions.BusinessLogicException(
+                msg=f"Failed to create StudyActivity node for '{selection.study_selection_uid}'."
             )
-
-        if selection.study_activity_group_uid:
-            # Connect StudyActivity with StudyActivityGroup node
-            study_activity_selection_node.study_activity_has_study_activity_group.connect(
-                study_activity_group_node
-            )
+        study_activity_selection_node: StudyActivity = results[0][0]
 
         _manage_versioning_with_relations(
             study_root=study_root,

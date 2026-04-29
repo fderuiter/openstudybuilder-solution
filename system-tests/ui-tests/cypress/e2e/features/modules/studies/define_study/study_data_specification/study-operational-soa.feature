@@ -14,7 +14,8 @@ Feature: Studies - Define Study - Study Data Specifications - Operational SoA
 
     Scenario: [TestData] Old placeholder activity workflow feature flag is disabled
         When The '/administration/featureflags' page is opened
-        Then Old placeholder workflow feature flag is turned off
+        And User switch to 'Studies' feature flags
+        And User enables 'streamline_placeholder_activities' feature flag
         
     Scenario: [TestData] All activities are deleted from test study
         And [API] All Activities are deleted from study

@@ -3602,14 +3602,22 @@ class MockdataJson(BaseImporter):
                     activity_instance_data["body"],
                 )
                 if response is not None:
-                    if self.api.approve_item(response["uid"], ACTIVITY_INSTANCES_PATH):
-                        self.log.info("Approve ok")
-                        self.metrics.icrement(ACTIVITY_INSTANCES_PATH + "--Approve")
-                    else:
-                        self.log.error("Approve failed")
-                        self.metrics.icrement(
-                            ACTIVITY_INSTANCES_PATH + "--ApproveError"
+                    uid = response["uid"]
+                    # Approve attributes and groupings separately
+                    for part in ("attributes", "groupings"):
+                        approve_path = path_join(
+                            ACTIVITY_INSTANCES_PATH, uid, part, "approvals"
                         )
+                        if self.api.simple_approve(approve_path):
+                            self.log.info(f"Approve {part} ok")
+                            self.metrics.icrement(
+                                ACTIVITY_INSTANCES_PATH + f"--Approve-{part}"
+                            )
+                        else:
+                            self.log.error(f"Approve {part} failed")
+                            self.metrics.icrement(
+                                ACTIVITY_INSTANCES_PATH + f"--ApproveError-{part}"
+                            )
                 else:
                     self.log.warning(
                         "Failed to add activity instance '%s'",

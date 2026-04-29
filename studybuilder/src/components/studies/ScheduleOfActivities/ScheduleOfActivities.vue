@@ -82,6 +82,20 @@
             size="24"
             class="ml-2"
           />
+          <v-btn
+            v-if="
+              featureFlagsStore.getFeatureFlag('complexity_score_details') ===
+              true
+            "
+            icon
+            size="x-small"
+            variant="text"
+            class="ml-0 mt-n1"
+            color="primary"
+            @click="openComplexityDetails"
+          >
+            <v-icon size="small">mdi-information-outline</v-icon>
+          </v-btn>
         </div>
         <template v-if="!props.readOnly">
           <v-btn
@@ -948,6 +962,19 @@
       @remove="unselectItem"
     />
     <ConfirmDialog ref="confirm" :text-cols="6" :action-cols="5" />
+    <v-dialog
+      v-model="showComplexityDetails"
+      max-width="900px"
+      max-height="90vh"
+      scrollable
+    >
+      <StudyComplexityScoreDetails
+        v-if="showComplexityDetails"
+        :study-uid="studiesGeneralStore.selectedStudy?.uid"
+        :show-close="true"
+        @close="showComplexityDetails = false"
+      />
+    </v-dialog>
     <CollapsibleVisitDisplaySelectForm
       :open="showCollapsibleGroupForm"
       :visits="selectedVisits"
@@ -1044,6 +1071,7 @@ import libraries from '@/constants/libraries.js'
 import ReorderingDetailedSoATbody from './ReorderingDetailedSoATbody.vue'
 import scheduleMethods from '@/utils/scheduleMethods'
 import EmptySoATbody from './EmptySoATbody.vue'
+import StudyComplexityScoreDetails from '@/components/studies/StudyComplexityScoreDetails.vue'
 import { escapeHTML, sanitizeHTML } from '@/utils/sanitize'
 import { useFeatureFlagsStore } from '@/stores/feature-flags'
 import dataFormating from '@/utils/dataFormating'
@@ -1081,6 +1109,7 @@ const confirm = ref()
 const tableContainer = ref()
 const complexityScore = ref(0)
 const complexityScoreLoading = ref(false)
+const showComplexityDetails = ref(false)
 
 const actionMenuStates = ref({})
 const currentSelectionMatrix = ref({})
@@ -1902,6 +1931,10 @@ function getComplexityScore() {
         complexityScoreLoading.value = false
       })
   }
+}
+
+function openComplexityDetails() {
+  showComplexityDetails.value = true
 }
 
 function isCheckboxDisabled(studyActivityUid, studyVisitUid) {

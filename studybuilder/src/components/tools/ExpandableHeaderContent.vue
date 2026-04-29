@@ -6,22 +6,9 @@
   >
     <v-expansion-panel rounded="0">
       <v-expansion-panel-title :class="panelStyle">
-        <template
-          v-if="
-            !expanded &&
-            props.item.description &&
-            props.item.description.length > 30
-          "
-        >
-          <p class="text-body-medium">
-            {{ props.item.description.substring(0, 30) + '...' }}
-          </p>
-        </template>
-        <template v-else>
-          <p class="text-body-medium">
-            {{ props.item.description }}
-          </p>
-        </template>
+        <p class="text-body-medium" :class="{ 'truncate-line': !expanded }">
+          {{ props.item.description }}
+        </p>
       </v-expansion-panel-title>
     </v-expansion-panel>
   </v-expansion-panels>
@@ -47,3 +34,11 @@ const panelStyle = computed(() => {
   return 'pa-0 pl-2 pt-1'
 })
 </script>
+
+<style scoped>
+.truncate-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+</style>

@@ -550,6 +550,12 @@ def test_study_design_cell_with_study_epoch_relationship(api_client):
             "copy_study_visits_study_footnote": True,
             "copy_study_epochs_study_footnote": True,
             "copy_study_design_matrix": True,
+            "copy_study_soa_group": True,
+            "copy_study_activity_group": True,
+            "copy_study_activity_subgroup": True,
+            "copy_study_activity": True,
+            "copy_study_activity_instance": True,
+            "copy_study_activity_schedule": True,
             "validation_mode": ValidationMode.STRICT.value,
         },
     )
@@ -634,6 +640,20 @@ def test_study_design_cell_with_study_epoch_relationship(api_client):
         final_design_cell_by_branch_arm[i]["start_date"] = mock.ANY
     assert cloned_design_cell_by_branch_arm_any == final_design_cell_by_branch_arm
 
+    containment_response = api_client.get(
+        f"/studies/{study.uid}/study-selection-containment/{study_cloned['uid']}"
+    )
+    assert_response_status_code(containment_response, 200)
+    containment = containment_response.json()
+    assert containment["target_contained_in_source"]
+    for row in containment["per_label"]:
+        assert row["label_contained"]
+        assert row["target_selection_count"] == row["source_selection_count"]
+        assert (
+            row["target_distinct_ct_term_root_count"]
+            == row["source_distinct_ct_term_root_count"]
+        )
+
     response = api_client.post(
         f"/studies/{study.uid}/clone",
         json={
@@ -650,6 +670,12 @@ def test_study_design_cell_with_study_epoch_relationship(api_client):
             "copy_study_visits_study_footnote": False,
             "copy_study_epochs_study_footnote": False,
             "copy_study_design_matrix": False,
+            "copy_study_soa_group": False,
+            "copy_study_activity_group": False,
+            "copy_study_activity_subgroup": False,
+            "copy_study_activity": False,
+            "copy_study_activity_instance": False,
+            "copy_study_activity_schedule": False,
             "validation_mode": ValidationMode.STRICT.value,
         },
     )
@@ -673,9 +699,52 @@ def test_study_design_cell_with_study_epoch_relationship(api_client):
             "copy_study_visits_study_footnote": False,
             "copy_study_epochs_study_footnote": False,
             "copy_study_design_matrix": False,
+            "copy_study_soa_group": False,
+            "copy_study_activity_group": False,
+            "copy_study_activity_subgroup": False,
+            "copy_study_activity": False,
+            "copy_study_activity_instance": False,
+            "copy_study_activity_schedule": False,
             "validation_mode": ValidationMode.STRICT.value,
         },
     )
     assert_response_status_code(response, 400)
     res = response.json()
     assert res["message"] == "Study Branch should be also included"
+
+    db.cypher_query(
+        """
+        MATCH (sr:StudyRoot {uid: $study_uid})-[:LATEST]->(sv:StudyValue)-[rel]->(ss:StudyBranchArm)
+        WHERE type(rel) <> 'HAS_PROTOCOL_SOA_CELL' AND type(rel) <> 'HAS_PROTOCOL_SOA_FOOTNOTE'
+        WITH ss LIMIT 1
+        REMOVE ss:StudyBranchArm
+        SET ss:StudyBranchArm_THIS_IS_A_TEST
+        """,
+        {"study_uid": study_cloned["uid"]},
+    )
+    containment_after_partial = api_client.get(
+        f"/studies/{study.uid}/study-selection-containment/{study_cloned['uid']}"
+    )
+    assert_response_status_code(containment_after_partial, 200)
+    partial = containment_after_partial.json()
+    assert partial["target_contained_in_source"]
+    branch_rows = [r for r in partial["per_label"] if r["label"] == "StudyBranchArm"]
+    if branch_rows:
+        assert (
+            branch_rows[0]["target_selection_count"]
+            < branch_rows[0]["source_selection_count"]
+        )
+        assert branch_rows[0]["label_contained"]
+    else:
+        assert "StudyBranchArm" not in partial["labels_from_target"]
+
+    db.cypher_query(
+        """
+        MATCH (sr:StudyRoot {uid: $study_uid})-[:LATEST]->(sv:StudyValue)-[rel]->(ss:StudyBranchArm_THIS_IS_A_TEST)
+        WHERE type(rel) <> 'HAS_PROTOCOL_SOA_CELL' AND type(rel) <> 'HAS_PROTOCOL_SOA_FOOTNOTE'
+        WITH ss LIMIT 1
+        REMOVE ss:StudyBranchArm_THIS_IS_A_TEST
+        SET ss:StudyBranchArm
+        """,
+        {"study_uid": study_cloned["uid"]},
+    )

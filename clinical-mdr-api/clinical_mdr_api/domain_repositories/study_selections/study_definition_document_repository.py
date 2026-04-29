@@ -15,6 +15,7 @@ from clinical_mdr_api.domains.study_definition_aggregates.study_metadata import 
 )
 from clinical_mdr_api.services._utils import ensure_transaction
 from common.auth.user import user
+from common.config import settings
 
 
 class StudyDefinitionDocumentRepository:
@@ -68,6 +69,28 @@ class StudyDefinitionDocumentRepository:
 
         study_definition_document = result[0][0]
         return f"{study_definition_document.protocol_header_major_version}.{study_definition_document.protocol_header_minor_version}"
+
+    def has_final_protocol_locked_version(
+        self, study_uid: str, study_value_version: str | None = None
+    ) -> bool:
+        params: dict[str, str | int | None] = {
+            "study_uid": study_uid,
+            "final_protocol_submval": settings.final_protocol_term_submval,
+        }
+        if study_value_version:
+            params["version"] = study_value_version
+            query = "MATCH (:StudyRoot {uid: $study_uid})-[:HAS_VERSION{status:'LOCKED',version:$version}]->(:StudyValue)"
+        else:
+            query = "MATCH (:StudyRoot {uid: $study_uid})-[:HAS_VERSION{status:'LOCKED'}]->(:StudyValue)"
+        query += """
+            -[:HAS_STUDY_VERSION]->(sv:StudyVersion)
+            -[:HAS_REASON_FOR_LOCK]->(:CTTermContext)-[:HAS_SELECTED_TERM]->(term_root:CTTermRoot)
+            <-[:HAS_TERM_ROOT]-(codelist_term:CTCodelistTerm)
+        WHERE codelist_term.submission_value = $final_protocol_submval
+        RETURN count(sv) > 0 AS has_final_protocol
+        """
+        result, _ = db.cypher_query(query, params=params)
+        return bool(result and result[0] and result[0][0])
 
     @ensure_transaction(db)
     def create_or_update_study_definition_document(

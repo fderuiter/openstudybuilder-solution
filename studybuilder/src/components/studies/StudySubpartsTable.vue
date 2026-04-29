@@ -369,22 +369,14 @@ async function fetchStudyHistory(options) {
     params
   )
   if (options) {
-    const firstIndex = (options.page - 1) * options.itemsPerPage
-    const lastIndex = options.page * options.itemsPerPage
     return {
-      items: resp.data.slice(firstIndex, lastIndex),
-      total: resp.data.length,
+      items: resp.data.items,
+      total: resp.data.total,
     }
   }
 }
 async function openSubpartHistory(subpart) {
   selectedSubpart.value = subpart
-  const params = {
-    is_subpart: true,
-  }
-  const resp = await studies.getStudyAuditTrail(subpart.uid, params)
-  subpartHistoryItems.value = resp.data.slice(0, 9)
-  subpartHistoryItemsTotal.value = resp.data.length
   showSubpartHistory.value = true
 }
 async function fetchSubpartHistory(options) {
@@ -394,9 +386,8 @@ async function fetchSubpartHistory(options) {
     selectedSubpart.value.uid,
     params
   )
-  const firstIndex = (options.page - 1) * options.itemsPerPage
-  const lastIndex = options.page * options.itemsPerPage
-  subpartHistoryItems.value = resp.data.slice(firstIndex, lastIndex)
+  subpartHistoryItems.value = resp.data.items
+  subpartHistoryItemsTotal.value = resp.data.total
 }
 function isValidSubpartAcronym(value) {
   if (!value) return false

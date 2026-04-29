@@ -6,18 +6,44 @@
       :navigate-to-version="changeVersion"
       :history-headers="historyHeaders"
       :action-subitem-map="actionSubitemMap"
+      :hidden-actions="['approve', 'edit', 'new_version', 'history']"
       v-bind="$attrs"
       @refresh="refreshData"
     >
       <template #htmlContent="{ itemOverview }">
         <div v-if="itemOverview">
+          <!-- Summary section -->
+          <ActivityInstanceSummary
+            :activity-instance="itemOverview.activity_instance"
+            :groupings-version="selectedGroupingsVersion"
+            :groupings-data="groupingsSummaryData"
+          />
+
           <div class="activity-instance-attributes-section">
-            <div class="section-header mb-1">
+            <div class="section-header section-header--with-actions mb-1">
               <h3 class="text-h6 font-weight-bold text-primary">
                 {{
                   $t('ActivityInstanceOverview.activity_instance_attributes')
                 }}
               </h3>
+              <div class="groupings-action-buttons">
+                <template v-for="action in attributesActions" :key="action.key">
+                  <v-btn
+                    v-if="isAttributesActionVisible(action)"
+                    variant="outlined"
+                    class="ml-2"
+                    :color="action.iconColor"
+                    icon
+                    size="small"
+                    @click="onAttributesActionClick(action.key)"
+                  >
+                    <v-icon left>{{ action.icon }}</v-icon>
+                    <v-tooltip activator="parent" location="top">
+                      {{ action.label }}
+                    </v-tooltip>
+                  </v-btn>
+                </template>
+              </div>
             </div>
 
             <!-- Activity Instance Summary -->
@@ -44,8 +70,6 @@
               </template>
             </ActivitySummary>
           </div>
-
-          <v-divider class="section-divider" />
 
           <!-- Activity Groupings section -->
           <div class="activity-section">
@@ -251,6 +275,7 @@ import NNTable from '@/components/tools/NNTable.vue'
 import ActivityInstanceForm from './ActivityInstanceForm.vue'
 import FeatureDisabledDialog from '@/components/tools/FeatureDisabledDialog.vue'
 import ActivityItemsTable from './ActivityItemsTable.vue'
+import ActivityInstanceSummary from './ActivityInstanceSummary.vue'
 import activities from '@/api/activities'
 
 const { t } = useI18n()
@@ -275,9 +300,8 @@ const GROUPINGS_SUBITEM = 'groupings'
 const actionSubitemMap = {
   edit: 'attributes',
   approve: 'attributes',
-  inactivate: 'attributes',
-  reactivate: 'attributes',
   newVersion: 'attributes',
+  history: 'attributes',
 }
 
 const emit = defineEmits(['refresh'])
@@ -325,15 +349,32 @@ const groupingsActions = computed(() => {
       iconColor: 'nnBaseBlue',
     },
     {
-      key: 'inactivate',
-      label: t('_global.inactivate'),
-      icon: 'mdi-close-octagon-outline',
+      key: 'history',
+      label: t('_global.history'),
+      icon: 'mdi-history',
+      iconColor: 'nnBaseBlue',
+    },
+  ]
+})
+
+const attributesActions = computed(() => {
+  return [
+    {
+      key: 'approve',
+      label: t('_global.approve'),
+      icon: 'mdi-check-decagram',
+      iconColor: 'success',
+    },
+    {
+      key: 'edit',
+      label: t('_global.edit'),
+      icon: 'mdi-pencil-outline',
       iconColor: 'nnBaseBlue',
     },
     {
-      key: 'reactivate',
-      label: t('_global.reactivate'),
-      icon: 'mdi-undo-variant',
+      key: 'new_version',
+      label: t('_global.new_version'),
+      icon: 'mdi-plus-circle-outline',
       iconColor: 'nnBaseBlue',
     },
     {
@@ -344,6 +385,24 @@ const groupingsActions = computed(() => {
     },
   ]
 })
+
+const attributesPossibleActions = computed(() => {
+  return overview.value?.item?.possible_actions || []
+})
+
+function isAttributesActionVisible(action) {
+  if (!action || !action.key) return false
+  if (action.key === 'history') return true
+  return attributesPossibleActions.value.includes(action.key)
+}
+
+function onAttributesActionClick(actionKey) {
+  if (!overview.value) return
+  if (actionKey === 'approve') return overview.value.approveItem()
+  if (actionKey === 'edit') return overview.value.editItem()
+  if (actionKey === 'new_version') return overview.value.newItemVersion()
+  if (actionKey === 'history') return overview.value.openHistory()
+}
 
 const groupingPossibleActions = computed(() => {
   return groupingsSummaryData.value?.possible_actions || []
@@ -424,7 +483,7 @@ async function onGroupingActionClick(actionKey) {
         msg: t('ActivitiesTable.approve_activity-instances_success'),
         type: 'success',
       })
-      await refreshAfterGroupingMutation()
+      await refreshAfterGroupingMutation({ switchToLatestVersion: true })
       return
     }
 
@@ -439,34 +498,6 @@ async function onGroupingActionClick(actionKey) {
         type: 'success',
       })
       await refreshAfterGroupingMutation({ switchToLatestVersion: true })
-      return
-    }
-
-    if (actionKey === 'inactivate') {
-      await activities.inactivate(
-        activityInstanceId,
-        GROUPINGS_SOURCE,
-        GROUPINGS_SUBITEM
-      )
-      notificationHub?.add({
-        msg: t('ActivitiesTable.inactivate_activity-instances_success'),
-        type: 'success',
-      })
-      await refreshAfterGroupingMutation()
-      return
-    }
-
-    if (actionKey === 'reactivate') {
-      await activities.reactivate(
-        activityInstanceId,
-        GROUPINGS_SOURCE,
-        GROUPINGS_SUBITEM
-      )
-      notificationHub?.add({
-        msg: t('ActivitiesTable.reactivate_activity-instances_success'),
-        type: 'success',
-      })
-      await refreshAfterGroupingMutation()
       return
     }
 
@@ -665,15 +696,15 @@ function convertActivityGroupingsToTableItems(groupings) {
   return groupings.map((grouping) => ({
     activity_group_name: grouping.activity_group.name,
     activity_group_id: grouping.activity_group.uid,
-    activity_group_version: grouping.activity_group.version || '1.0',
+    activity_group_version: grouping.activity_group.version,
     activity_group_status: grouping.activity_group.status,
     activity_subgroup_name: grouping.activity_subgroup.name,
     activity_subgroup_id: grouping.activity_subgroup.uid,
-    activity_subgroup_version: grouping.activity_subgroup.version || '1.0',
+    activity_subgroup_version: grouping.activity_subgroup.version,
     activity_subgroup_status: grouping.activity_subgroup.status,
     activity_name: grouping.activity.name,
     activity_id: grouping.activity.uid,
-    activity_version: grouping.activity.version || '1.0',
+    activity_version: grouping.activity.version,
     activity_status: grouping.activity.status,
     uid: `${grouping.activity_group.uid}-${grouping.activity_subgroup.uid}-${grouping.activity.uid}`, // Add unique key
   }))
@@ -933,11 +964,6 @@ onMounted(() => {
 
 .activity-instance-attributes-section {
   margin-bottom: 8px;
-}
-
-.section-divider {
-  margin-top: 20px;
-  margin-bottom: 20px;
 }
 
 .groupings-action-buttons {

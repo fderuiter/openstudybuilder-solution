@@ -27,7 +27,13 @@
           </td>
           <td>
             <div class="summary-label">{{ $t('_global.status') }}</div>
-            <div class="summary-value">{{ summaryData.status || '-' }}</div>
+            <div class="summary-value">
+              <StatusChip
+                v-if="summaryData.status"
+                :status="summaryData.status"
+              />
+              <span v-else>-</span>
+            </div>
           </td>
           <td>
             <div class="summary-label">{{ $t('_global.author') }}</div>
@@ -61,6 +67,7 @@
 <script setup>
 import { computed, getCurrentInstance } from 'vue'
 import { useI18n } from 'vue-i18n'
+import StatusChip from '@/components/tools/StatusChip.vue'
 
 const { t: $t } = useI18n()
 const instance = getCurrentInstance()

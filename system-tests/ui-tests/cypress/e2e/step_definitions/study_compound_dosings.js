@@ -17,7 +17,7 @@ When('The user select last dose value', () => cy.selectLastVSelect('dose-value')
 
 When('The user intercepts study compund dosings create request', () => cy.intercept('POST', '**/study-compound-dosings').as('createdDosing'))
 
-When('The user intercepts study compund dosings update request', () => cy.intercept('PATCH', '**/study-compound-dosings').as('createdDosing'))
+When('The user intercepts study compund dosings update request', () => cy.intercept('PATCH', '**/study-compound-dosings/*').as('createdDosing'))
 
 When('The user intercepts study compound dosing delete request', () => cy.intercept('**/study-compound-dosings/**').as('deleteRequest'))
 
@@ -28,84 +28,38 @@ When('The user intercepts study compunds request', () => cy.intercept('**/study-
 Then('The study compound dosing is present in the compound dosings table', () => {
     cy.wait('@createdDosing').then((req) => {
         let dosingData = req.response.body
-        cy.checkRowByIndex(dosingData.order - 1, '#', dosingData.order)
-        cy.checkRowByIndex(dosingData.order - 1, 'Study Element', dosingData.study_element.name)
-        cy.checkRowByIndex(dosingData.order - 1, 'Compound Name', dosingData.study_compound.compound.name)
-        cy.checkRowByIndex(dosingData.order - 1, 'Medicinal product', dosingData.study_compound.medicinal_product.name)
-        cy.checkRowByIndex(dosingData.order - 1, 'Compound Alias Name', dosingData.study_compound.compound_alias.name)
-        cy.checkRowByIndex(dosingData.order - 1, 'Preferred Alias', dosingData.study_compound.compound_alias.is_preferred_synonym ? 'Yes' : 'No')
-        cy.checkRowByIndex(dosingData.order - 1, 'Dose Value', `${dosingData.dose_value.value} ${dosingData.dose_value.unit_label}`)
-        cy.checkRowByIndex(dosingData.order - 1, 'Dose Frequency', dosingData.study_compound.dose_frequency.term_name)
+        cy.searchFor(dosingData.study_compound_dosing_uid)
+        cy.checkRowByIndex(0, '#', dosingData.order)
+        cy.checkRowByIndex(0, 'Study Element', dosingData.study_element.name)
+        cy.checkRowByIndex(0, 'Compound Name', dosingData.study_compound.compound.name)
+        cy.checkRowByIndex(0, 'Medicinal product', dosingData.study_compound.medicinal_product.name)
+        cy.checkRowByIndex(0, 'Compound Alias Name', dosingData.study_compound.compound_alias.name)
+        cy.checkRowByIndex(0, 'Preferred Alias', dosingData.study_compound.compound_alias.is_preferred_synonym ? 'Yes' : 'No')
+        cy.checkRowByIndex(0, 'Dose Value', `${dosingData.dose_value.value} ${dosingData.dose_value.unit_label}`)
+        cy.checkRowByIndex(0, 'Dose Frequency', dosingData.study_compound.dose_frequency.term_name)
     })
 })
 
-Then('The element order for this element is automatically populated from library', () => {
+Then('The Element data is automatically populated', () => {
     cy.wait('@elementsRequest').then((request) => {
         compareValue('study-element-order', request.response.body.items[0].order)
-    })
-})
-
-Then('The element type for this element is automatically populated from library', () => {
-    cy.wait('@elementsRequest').then((request) => {
         compareValue('study-element-type', request.response.body.items[0].element_type.term_name)
-    })
-})
-
-Then('The element subtype for this element is automatically populated from library', () => {
-    cy.wait('@elementsRequest').then((request) => {
         compareValue('study-element-subtype', request.response.body.items[0].element_subtype.term_name)
-    })
-})
-
-Then('The element name for this element is automatically populated from library', () => {
-    cy.wait('@elementsRequest').then((request) => {
         compareValue('study-element-name', request.response.body.items[0].name)
-    })
-})
-
-Then('The element short name for this element is automatically populated from library', () => {
-    cy.wait('@elementsRequest').then((request) => {
         compareValue('study-element-short-name', request.response.body.items[0].short_name)
-    })
-})
-
-Then('The element description for this element is automatically populated from library', () => {
-    cy.wait('@elementsRequest').then((request) => {
         compareValue('study-element-description', request.response.body.items[0].description)
     })
 })
 
-Then('The compound order in dosings from for this compound is automatically populated from library', () => {
+Then('The Compound data is automatically populated', () => {
     cy.wait('@compoundsRequest').then((request) => {
         compareValue('compound-order', request.response.body.items[0].order)
-    })
-})
-
-Then('The type of treatment in dosings from for this compound is automatically populated from library', () => {
-    cy.wait('@compoundsRequest').then((request) => {
         compareValue('type-of-treatment', request.response.body.items[0].type_of_treatment.term_name)
-    })
-})
-
-Then('The compound name in dosings from for this compound is automatically populated from library', () => {
-    cy.wait('@compoundsRequest').then((request) => {
         compareValue('compound-name', request.response.body.items[0].compound.name)
-    })
-})
-
-Then('The compound alias name in dosings from for this compound is automatically populated from library', () => {
-    cy.wait('@compoundsRequest').then((request) => {
         compareValue('compound-alias-name', request.response.body.items[0].compound_alias.name)
-    })
-})
-
-Then('The preferred synonim in dosings from for this compound is automatically populated from library', () => {
-    cy.wait('@compoundsRequest').then((request) => {
         cy.get('[data-cy="is-preffered-synonym"]').within(() => {
-            let radioSelection = request.response.body.items[0].compound_alias.is_preferred_synonym ? '[data-cy="radio-Yes"]' : '[data-cy="radio-No"]'
-            cy.get(radioSelection).within(() => {
-                cy.get('input').should('have.attr', 'checked')
-            })
+            let radioSelection = request.response.body.items[0].compound_alias.is_preferred_synonym ? '[data-cy="radio-Yes"] input' : '[data-cy="radio-No"] input'
+            cy.get(radioSelection).should('have.attr', 'checked')
         })
     })
 })
@@ -124,7 +78,5 @@ Given('The study compound dosing data is cleaned for testing purspose', () => {
 })
 
 function compareValue(selector, value) {
-    cy.get(`[data-cy="${selector}"]`).within(() => {
-        cy.get('input').should('have.value', value ? value : '')
-    })
+    cy.get(`[data-cy="${selector}"] input`).should('have.value', value ? value : '')
 }

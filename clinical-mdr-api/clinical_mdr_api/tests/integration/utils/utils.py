@@ -7,7 +7,7 @@ import io
 import logging
 from datetime import date, datetime, timedelta, timezone
 from random import randint
-from typing import Any
+from typing import Any, Literal
 from xml.etree import ElementTree
 
 import openpyxl
@@ -836,12 +836,20 @@ class TestUtils:
     @classmethod
     def create_feature_flag(
         cls,
+        section: Literal["admin", "library", "studies"] = "library",
+        feature: str = "Feature name",
         name: str = "Feature Flag Name",
         enabled: bool = False,
         description: str | None = "Feature Flag Description",
     ) -> FeatureFlag:
         service: FeatureFlagService = FeatureFlagService()
-        payload = FeatureFlagInput(name=name, enabled=enabled, description=description)
+        payload = FeatureFlagInput(
+            section=section,
+            feature=feature,
+            name=name,
+            enabled=enabled,
+            description=description,
+        )
         return service.create_feature_flag(payload)
 
     @classmethod

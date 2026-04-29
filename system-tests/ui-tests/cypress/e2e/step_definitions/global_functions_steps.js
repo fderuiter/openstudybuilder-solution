@@ -1,6 +1,12 @@
 const { Given, When, Then } = require("@badeball/cypress-cucumber-preprocessor");
 import { formatDateToMMMDDYYYY, getCurrentStudyId } from '../../support/helper_functions'
 
+When("Click the View Listings side-menu", () => cy.get('.v-list-item-title').contains('View Listings').click())
+
+Then("The sub-menu Analysis Study Metadata should exist", () => cy.get(`[data-cy="Analysis Study Metadata (New)"]`).should('be.visible'))
+
+Then("The sub-menu Analysis Study Metadata should not exist", () => cy.get(`[data-cy="Analysis Study Metadata (New)"]`).should('not.exist'))
+
 When('User clicks table export button', () => cy.clickButton('table-export-button'))
 
 When('User clicks export button', () => cy.get('button .mdi-download-outline').click())

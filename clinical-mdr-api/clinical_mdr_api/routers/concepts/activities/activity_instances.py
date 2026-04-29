@@ -873,25 +873,25 @@ def approve(
 
 
 @router.delete(
-    "/{activity_instance_uid}/attributes/activations",
+    "/{activity_instance_uid}/activations",
     dependencies=[security, rbac.LIBRARY_WRITE],
-    summary=" Inactivate final version of an activity instance attributes",
+    summary="Inactivate final version of an activity instance (attributes and groupings)",
     description="""
 State before:
- - uid must exist and activity instance must be in status Final.
- 
+ - uid must exist and both the activity instance attributes and groupings must be in status Final.
+
 Business logic:
- - The latest 'Final' version will remain the same as before.
- - The status will be automatically set to 'Retired'.
+ - The latest 'Final' version will remain the same as before (for both attributes and groupings).
+ - The status will be automatically set to 'Retired' for both attributes and groupings.
  - The 'change_description' property will be set automatically.
  - The 'version' property will remain the same as before.
- 
+
 State after:
- - Activity instance changed status to Retired.
- - Audit trail entry must be made with action of inactivating to retired version.
- 
+ - Activity instance attributes and groupings changed status to Retired.
+ - Audit trail entries must be made with action of inactivating to retired version.
+
 Possible errors:
- - Invalid uid or status not Final.
+ - Invalid uid, or attributes/groupings status not Final.
     """,
     status_code=200,
     responses={
@@ -900,7 +900,8 @@ Possible errors:
         400: {
             "model": ErrorResponse,
             "description": "Forbidden - Reasons include e.g.: \n"
-            "- The activity instance is not in final status.",
+            "- The activity instance attributes are not in final status.\n"
+            "- The activity instance groupings are not in final status.",
         },
         404: {
             "model": ErrorResponse,
@@ -916,25 +917,25 @@ def inactivate(
 
 
 @router.post(
-    "/{activity_instance_uid}/attributes/activations",
+    "/{activity_instance_uid}/activations",
     dependencies=[security, rbac.LIBRARY_WRITE],
-    summary="Reactivate retired version of an activity instance attributes",
+    summary="Reactivate retired version of an activity instance (attributes and groupings)",
     description="""
 State before:
- - uid must exist and activity instance must be in status Retired.
- 
+ - uid must exist and both the activity instance attributes and groupings must be in status Retired.
+
 Business logic:
- - The latest 'Retired' version will remain the same as before.
- - The status will be automatically set to 'Final'.
+ - The latest 'Retired' version will remain the same as before (for both attributes and groupings).
+ - The status will be automatically set to 'Final' for both attributes and groupings.
  - The 'change_description' property will be set automatically.
  - The 'version' property will remain the same as before.
 
 State after:
- - Activity instance changed status to Final.
- - An audit trail entry must be made with action of reactivating to final version.
- 
+ - Activity instance attributes and groupings changed status to Final.
+ - Audit trail entries must be made with action of reactivating to final version.
+
 Possible errors:
- - Invalid uid or status not Retired.
+ - Invalid uid, or attributes/groupings status not Retired.
     """,
     status_code=200,
     responses={
@@ -943,7 +944,8 @@ Possible errors:
         400: {
             "model": ErrorResponse,
             "description": "Forbidden - Reasons include e.g.: \n"
-            "- The activity instance is not in retired status.",
+            "- The activity instance attributes are not in retired status.\n"
+            "- The activity instance groupings are not in retired status.",
         },
         404: {
             "model": ErrorResponse,
@@ -1126,92 +1128,6 @@ def approve_groupings(
 ) -> ActivityInstanceGroupings:
     activity_instance_service = ActivityInstanceGroupingsService()
     return activity_instance_service.approve(uid=activity_instance_uid)
-
-
-@router.delete(
-    "/{activity_instance_uid}/groupings/activations",
-    dependencies=[security, rbac.LIBRARY_WRITE],
-    summary=" Inactivate final version of an activity instance groupings",
-    description="""
-State before:
- - uid must exist and activity instance must be in status Final.
- 
-Business logic:
- - The latest 'Final' version will remain the same as before.
- - The status will be automatically set to 'Retired'.
- - The 'change_description' property will be set automatically.
- - The 'version' property will remain the same as before.
- 
-State after:
- - Activity instance changed status to Retired.
- - Audit trail entry must be made with action of inactivating to retired version.
- 
-Possible errors:
- - Invalid uid or status not Final.
-    """,
-    status_code=200,
-    responses={
-        403: _generic_descriptions.ERROR_403,
-        200: {"description": "OK."},
-        400: {
-            "model": ErrorResponse,
-            "description": "Forbidden - Reasons include e.g.: \n"
-            "- The activity instance is not in final status.",
-        },
-        404: {
-            "model": ErrorResponse,
-            "description": "Not Found - The activity instance with the specified 'activity_instance_uid' could not be found.",
-        },
-    },
-)
-def inactivate_groupings(
-    activity_instance_uid: Annotated[str, ActivityInstanceUID],
-) -> ActivityInstanceGroupings:
-    activity_instance_service = ActivityInstanceGroupingsService()
-    return activity_instance_service.inactivate_final(uid=activity_instance_uid)
-
-
-@router.post(
-    "/{activity_instance_uid}/groupings/activations",
-    dependencies=[security, rbac.LIBRARY_WRITE],
-    summary="Reactivate retired version of an activity instance groupings",
-    description="""
-State before:
- - uid must exist and activity instance must be in status Retired.
- 
-Business logic:
- - The latest 'Retired' version will remain the same as before.
- - The status will be automatically set to 'Final'.
- - The 'change_description' property will be set automatically.
- - The 'version' property will remain the same as before.
-
-State after:
- - Activity instance changed status to Final.
- - An audit trail entry must be made with action of reactivating to final version.
- 
-Possible errors:
- - Invalid uid or status not Retired.
-    """,
-    status_code=200,
-    responses={
-        403: _generic_descriptions.ERROR_403,
-        200: {"description": "OK."},
-        400: {
-            "model": ErrorResponse,
-            "description": "Forbidden - Reasons include e.g.: \n"
-            "- The activity instance is not in retired status.",
-        },
-        404: {
-            "model": ErrorResponse,
-            "description": "Not Found - The activity instance with the specified 'activity_instance_uid' could not be found.",
-        },
-    },
-)
-def reactivate_groupings(
-    activity_instance_uid: Annotated[str, ActivityInstanceUID],
-) -> ActivityInstanceGroupings:
-    activity_instance_service = ActivityInstanceGroupingsService()
-    return activity_instance_service.reactivate_retired(uid=activity_instance_uid)
 
 
 @router.delete(

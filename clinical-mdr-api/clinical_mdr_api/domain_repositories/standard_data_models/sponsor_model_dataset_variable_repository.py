@@ -326,22 +326,24 @@ class SponsorModelDatasetVariableRepository(  # type: ignore[misc]
                 self._db_save_node(new_instance)
 
         # Connect with Codelists & Terms
-        for codelist_uid in ar.sponsor_model_dataset_variable_vo.references_codelists:
+        for codelist_uid in (
+            ar.sponsor_model_dataset_variable_vo.references_codelists or []
+        ):
             codelist_node = CTCodelistRoot.nodes.get_or_none(uid=codelist_uid)
             BusinessLogicException.raise_if_not(
                 codelist_node,
                 msg=f"Could not find codelist with uid '{codelist_uid}'.",
             )
             new_instance.references_codelist.connect(codelist_node)
-        for term_uid in ar.sponsor_model_dataset_variable_vo.references_terms:
+        for term_uid in ar.sponsor_model_dataset_variable_vo.references_terms or []:
             term_node = CTTermRoot.nodes.get_or_none(uid=term_uid)
             BusinessLogicException.raise_if_not(
                 term_node,
                 msg=f"Could not find term with uid '{term_uid}'.",
             )
-            for (
-                codelist_uid
-            ) in ar.sponsor_model_dataset_variable_vo.references_codelists:
+            for codelist_uid in (
+                ar.sponsor_model_dataset_variable_vo.references_codelists or []
+            ):
                 codelist_node = CTCodelistRoot.nodes.get_or_none(uid=codelist_uid)
                 term_context = CTTermContext()
                 self._db_save_node(term_context)

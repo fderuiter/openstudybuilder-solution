@@ -8,6 +8,28 @@
     @close="cancel"
     @save="submit"
   >
+    <template #[`step.codelist_type_selection`]="{ step }">
+      <v-form :ref="`observer_${step}`">
+        <v-row>
+          <v-col>
+            <v-radio-group
+              v-model="codelistCreationType"
+              data-cy="codelist-creation-type"
+              :rules="[formRules.required]"
+            >
+              <v-radio
+                :label="$t('CodelistCreationForm.regular_codelist')"
+                value="regular"
+              />
+              <v-radio
+                :label="$t('CodelistCreationForm.paired_codelists')"
+                value="paired"
+              />
+            </v-radio-group>
+          </v-col>
+        </v-row>
+      </v-form>
+    </template>
     <template #[`step.catalogue`]="{ step }">
       <v-form :ref="`observer_${step}`">
         <v-row>
@@ -30,7 +52,29 @@
     </template>
     <template #[`step.names`]="{ step }">
       <v-form :ref="`observer_${step}`">
-        <v-row>
+        <v-row v-if="codelistCreationType === 'paired'" no-gutters>
+          <v-col cols="12">
+            <v-text-field
+              v-model="nameCodelistForm.sponsor_preferred_name"
+              data-cy="name-sponsor-preffered-name"
+              :label="$t('CodelistSponsorValuesForm.name_pref_name')"
+              clearable
+              class="mt-2"
+              :rules="[formRules.required]"
+            />
+          </v-col>
+          <v-col cols="12">
+            <v-text-field
+              v-model="codeCodelistForm.sponsor_preferred_name"
+              data-cy="code-sponsor-preffered-name"
+              :label="$t('CodelistSponsorValuesForm.code_pref_name')"
+              clearable
+              class="mt-2"
+              :rules="[formRules.required]"
+            />
+          </v-col>
+        </v-row>
+        <v-row v-else>
           <v-col>
             <v-text-field
               v-model="form.sponsor_preferred_name"
@@ -66,7 +110,28 @@
             />
           </v-col>
         </v-row>
-        <v-row>
+        <!-- Name fields -->
+        <v-row v-if="codelistCreationType === 'paired'" no-gutters class="mb-4">
+          <v-col cols="12">
+            <v-text-field
+              v-model="nameCodelistForm.name"
+              data-cy="name-codelist-name"
+              :label="$t('CodelistAttributesForm.name_name')"
+              clearable
+              :rules="[formRules.required]"
+            />
+          </v-col>
+          <v-col cols="12">
+            <v-text-field
+              v-model="codeCodelistForm.name"
+              data-cy="code-codelist-name"
+              :label="$t('CodelistAttributesForm.code_name')"
+              clearable
+              :rules="[formRules.required]"
+            />
+          </v-col>
+        </v-row>
+        <v-row v-else>
           <v-col>
             <v-text-field
               v-model="form.name"
@@ -77,7 +142,28 @@
             />
           </v-col>
         </v-row>
-        <v-row>
+        <!-- Submission value fields -->
+        <v-row v-if="codelistCreationType === 'paired'" no-gutters class="mb-4">
+          <v-col cols="12">
+            <v-text-field
+              v-model="nameCodelistForm.submission_value"
+              data-cy="name-submission-value"
+              :label="$t('CodelistAttributesForm.name_subm_value')"
+              clearable
+              :rules="[formRules.required]"
+            />
+          </v-col>
+          <v-col cols="12">
+            <v-text-field
+              v-model="codeCodelistForm.submission_value"
+              data-cy="code-submission-value"
+              :label="$t('CodelistAttributesForm.code_subm_value')"
+              clearable
+              :rules="[formRules.required]"
+            />
+          </v-col>
+        </v-row>
+        <v-row v-else>
           <v-col>
             <v-text-field
               v-model="form.submission_value"
@@ -88,7 +174,26 @@
             />
           </v-col>
         </v-row>
-        <v-row>
+        <!-- NCI preferred name fields -->
+        <v-row v-if="codelistCreationType === 'paired'" no-gutters class="mb-4">
+          <v-col cols="12">
+            <v-text-field
+              v-model="nameCodelistForm.nci_preferred_name"
+              data-cy="name-nci-preffered-name"
+              :label="$t('CodelistAttributesForm.name_nci_pref_name')"
+              clearable
+            />
+          </v-col>
+          <v-col cols="12">
+            <v-text-field
+              v-model="codeCodelistForm.nci_preferred_name"
+              data-cy="code-nci-preffered-name"
+              :label="$t('CodelistAttributesForm.code_nci_pref_name')"
+              clearable
+            />
+          </v-col>
+        </v-row>
+        <v-row v-else>
           <v-col>
             <v-text-field
               v-model="form.nci_preferred_name"
@@ -116,7 +221,32 @@
             />
           </v-col>
         </v-row>
-        <v-row>
+        <!-- Definition fields -->
+        <v-row v-if="codelistCreationType === 'paired'" no-gutters>
+          <v-col cols="12">
+            <v-textarea
+              v-model="nameCodelistForm.definition"
+              data-cy="name-definition"
+              :label="$t('CodelistAttributesForm.name_definition')"
+              rows="1"
+              clearable
+              auto-grow
+              :rules="[formRules.required]"
+            />
+          </v-col>
+          <v-col cols="12">
+            <v-textarea
+              v-model="codeCodelistForm.definition"
+              data-cy="code-definition"
+              :label="$t('CodelistAttributesForm.code_definition')"
+              rows="1"
+              clearable
+              auto-grow
+              :rules="[formRules.required]"
+            />
+          </v-col>
+        </v-row>
+        <v-row v-else>
           <v-col>
             <v-textarea
               v-model="form.definition"
@@ -140,6 +270,7 @@ import { computed, inject, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useCtCataloguesStore } from '@/stores/library-ctcatalogues'
 import controlledTerminology from '@/api/controlledTerminology'
+import pairedCodelistsApi from '@/api/controlledTerminology/pairedCodelists'
 import StepperForm from '@/components/tools/StepperForm.vue'
 import ConfirmDialog from '@/components/tools/ConfirmDialog.vue'
 
@@ -152,6 +283,8 @@ const { t } = useI18n()
 
 const catalogues = computed(() => ctCataloguesStore.catalogues)
 
+const codelistCreationType = ref('regular')
+
 const form = ref({
   extensible: false,
   is_ordinal: false,
@@ -159,14 +292,32 @@ const form = ref({
   template_parameter: false,
   codelist_type: 'Standard',
 })
+
+const nameCodelistForm = ref({
+  sponsor_preferred_name: null,
+  name: null,
+  submission_value: null,
+  nci_preferred_name: null,
+  definition: null,
+})
+
+const codeCodelistForm = ref({
+  sponsor_preferred_name: null,
+  name: null,
+  submission_value: null,
+  nci_preferred_name: null,
+  definition: null,
+})
 const confirm = ref()
 const observer_1 = ref()
 const observer_2 = ref()
 const observer_3 = ref()
+const observer_4 = ref()
 const stepper = ref()
 
 const codelistTypes = ['Response', 'Standard']
 const helpItems = [
+  'CodelistCreationForm.codelist_creation_type',
   'CodelistCreationForm.catalogue',
   'CodelistSponsorValuesForm.pref_name',
   'CodelistSponsorValuesForm.tpl_parameter',
@@ -179,13 +330,17 @@ const helpItems = [
 ]
 const steps = [
   {
-    name: 'catalogue',
+    name: 'codelist_type_selection',
     title: t('CodelistCreationForm.step1_title'),
   },
-  { name: 'names', title: t('CodelistCreationForm.step2_title') },
+  {
+    name: 'catalogue',
+    title: t('CodelistCreationForm.step2_title'),
+  },
+  { name: 'names', title: t('CodelistCreationForm.step3_title') },
   {
     name: 'attributes',
-    title: t('CodelistCreationForm.step3_title'),
+    title: t('CodelistCreationForm.step4_title'),
   },
 ]
 
@@ -213,15 +368,32 @@ function getObserver(step) {
   if (step === 2) {
     return observer_2.value
   }
-  return observer_3.value
+  if (step === 3) {
+    return observer_3.value
+  }
+  return observer_4.value
 }
 
 async function submit() {
   form.value.terms = []
   const data = JSON.parse(JSON.stringify(form.value))
   try {
-    const resp = await controlledTerminology.createCodelist(data)
-    emit('created', resp.data)
+    let resp
+    if (codelistCreationType.value === 'regular') {
+      resp = await controlledTerminology.createCodelist(data)
+      emit('created', {
+        codelist_uid: resp.data.codelist_uid,
+        catalogue_name: resp.data.catalogue_names[0],
+      })
+    } else {
+      data.name_information = { ...nameCodelistForm.value }
+      data.code_information = { ...codeCodelistForm.value }
+      resp = await pairedCodelistsApi.create(data)
+      emit('created', {
+        codelist_uid: resp.data.names.codelist_uid,
+        catalogue_name: resp.data.names.catalogue_names[0],
+      })
+    }
     close()
   } finally {
     stepper.value.loading = false

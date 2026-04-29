@@ -69,9 +69,7 @@
           <td style="width: 10%">
             {{ item.version }}
           </td>
-          <td style="width: 15%">
-            <v-btn width="150px" rounded size="small" class="hide" />
-          </td>
+          <td></td>
         </tr>
       </template>
     </v-data-table>

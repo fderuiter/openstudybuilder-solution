@@ -5,6 +5,17 @@ Feature: Studies - Define Study - Study Interventions - Study Compound Dosings
         Given The user is logged in
         And A test study is selected
 
+    Scenario: [Test data] Study compunds feature flag is enabled, data for compound creation is fetched and existing compounds are deleted
+        Given The '/administration/featureflags' page is opened
+        And User switch to 'Studies' feature flags
+        And User enables 'compounds_studies' feature flag
+        And The study compounds data is cleaned for testing purspose
+        And [API] Study compound simple data is fetched
+        And [API] Study compound alias data is fetched
+        And [API] Study compound medical product data is fetched
+        And [API] Study compound type of treatment data is fetched is created
+        Given [API] Study compound is created
+
     Scenario: [Navigaion] User must be able to navigate to the Study Compound Dosings page
         Given The '/studies' page is opened
         When The 'Study Interventions' submenu is clicked in the 'Define Study' section
@@ -32,17 +43,6 @@ Feature: Studies - Define Study - Study Interventions - Study Compound Dosings
     Scenario: [Create] User must be able to create a study compound dosings
         Given [API] Uids are fetched for element subtype 'Treatment'
         And [API] Element is created for the test study
-        And The study compounds data is cleaned for testing purspose
-        And The test study '/study_interventions/study_compounds' page is opened
-        When User clicks add study compund button
-        And User select first type of treatment
-        And Form continue button is clicked
-        And User select first compund
-        And User select first medicinal product
-        And Form continue button is clicked
-        And User fills other information
-        And User intercepts compund create request
-        When Form save button is clicked
         And The test study '/study_interventions/study_compound_dosings' page is opened
         When The user clicks add study compund dosing
         And The user select first study element
@@ -56,16 +56,10 @@ Feature: Studies - Define Study - Study Interventions - Study Compound Dosings
 
     Scenario: [Edit] User must be able to edit a study compound dosing
         Given The study compound dosing data is cleaned for testing purspose
+        Given [API] Study compound data is fetched
+        And [API] Study compound dosing is created
         And The test study '/study_interventions/study_compound_dosings' page is opened
-        When The user clicks add study compund dosing
-        And The user select first study element
-        And Form continue button is clicked
-        And The user select first compund
-        And Form continue button is clicked
-        And The user select first dose value
-        And The user intercepts study compund dosings create request
-        When Form save button is clicked
-        And User waits for the table
+        And User searches the compound dosing by the uid
         When The 'Edit' option is clicked from the three dot menu list
         And The user select last study element
         And Form continue button is clicked
@@ -76,92 +70,21 @@ Feature: Studies - Define Study - Study Interventions - Study Compound Dosings
         When Form save button is clicked
         Then The study compound dosing is present in the compound dosings table
 
-    Scenario: [Create][Form behaviour][Compound Dosings][Element] Element order must be automatically populated when selecting study compound
+    Scenario: [Create][Form behaviour][Compound Dosings][Element] Element data is automatically populated when selecting study compound
         Given The test study '/study_interventions/study_compound_dosings' page is opened
         And The user intercepts study elements request
         When The user clicks add study compund dosing
         And The user select first study element
-        Then The element order for this element is automatically populated from library
+        Then The Element data is automatically populated
 
-    Scenario: [Create][Form behaviour][Compound Dosings][Element] Element type must be automatically populated when selecting study compound
-        Given The test study '/study_interventions/study_compound_dosings' page is opened
-        And The user intercepts study elements request
-        When The user clicks add study compund dosing
-        And The user select first study element
-        Then The element type for this element is automatically populated from library
-
-    Scenario: [Create][Form behaviour][Compound Dosings][Element] Element subtype must be automatically populated when selecting study compound
-        Given The test study '/study_interventions/study_compound_dosings' page is opened
-        And The user intercepts study elements request
-        When The user clicks add study compund dosing
-        And The user select first study element
-        Then The element subtype for this element is automatically populated from library
-
-    Scenario: [Create][Form behaviour][Compound Dosings][Element] Element name must be automatically populated when selecting study compound
-        Given The test study '/study_interventions/study_compound_dosings' page is opened
-        And The user intercepts study elements request
-        When The user clicks add study compund dosing
-        And The user select first study element
-        Then The element name for this element is automatically populated from library
-
-    Scenario: [Create][Form behaviour][Compound Dosings][Element] Element short name be automatically populated when selecting study compound
-        Given The test study '/study_interventions/study_compound_dosings' page is opened
-        And The user intercepts study elements request
-        When The user clicks add study compund dosing
-        And The user select first study element
-        Then The element short name for this element is automatically populated from library
-
-    Scenario: [Create][Form behaviour][Compound Dosings][Element] Element description must be automatically populated when selecting study compound
-        Given The test study '/study_interventions/study_compound_dosings' page is opened
-        And The user intercepts study elements request
-        When The user clicks add study compund dosing
-        And The user select first study element
-        Then The element description for this element is automatically populated from library
-
-    Scenario: [Create][Form behaviour][Compound Dosings][Compound] Compound order must be automatically populated when selecting study compound
+    Scenario: [Create][Form behaviour][Compound Dosings][Compound] Compound data is automatically populated when selecting study compound
         Given The test study '/study_interventions/study_compound_dosings' page is opened
         And The user intercepts study compunds request
         And The user clicks add study compund dosing
         And The user select first study element
         And Form continue button is clicked
         When The user select first compund
-        Then The compound order in dosings from for this compound is automatically populated from library
-
-    Scenario: [Create][Form behaviour][Compound Dosings][Compound] Type of treatment must be automatically populated when selecting study compound
-        Given The test study '/study_interventions/study_compound_dosings' page is opened
-        And The user intercepts study compunds request
-        And The user clicks add study compund dosing
-        And The user select first study element
-        And Form continue button is clicked
-        When The user select first compund
-        Then The type of treatment in dosings from for this compound is automatically populated from library
-
-    Scenario: [Create][Form behaviour][Compound Dosings][Compound] Compound name must be automatically populated when selecting study compound
-        Given The test study '/study_interventions/study_compound_dosings' page is opened
-        And The user intercepts study compunds request
-        And The user clicks add study compund dosing
-        And The user select first study element
-        And Form continue button is clicked
-        When The user select first compund
-        Then The compound name in dosings from for this compound is automatically populated from library
-
-    Scenario: [Create][Form behaviour][Compound Dosings][Compound] Compound alias name be automatically populated when selecting study compound
-        Given The test study '/study_interventions/study_compound_dosings' page is opened
-        And The user intercepts study compunds request
-        And The user clicks add study compund dosing
-        And The user select first study element
-        And Form continue button is clicked
-        When The user select first compund
-        Then The compound alias name in dosings from for this compound is automatically populated from library
-
-    Scenario: [Create][Form behaviour][Compound Dosings][Compound] Preffered synonym must be automatically populated when selecting study compound
-        Given The test study '/study_interventions/study_compound_dosings' page is opened
-        And The user intercepts study compunds request
-        And The user clicks add study compund dosing
-        And The user select first study element
-        And Form continue button is clicked
-        When The user select first compund
-        Then The preferred synonim in dosings from for this compound is automatically populated from library
+        Then The Compound data is automatically populated
 
     Scenario: [Create] User must not be able to create a study compound dosing without the study element selected
         Given The test study '/study_interventions/study_compound_dosings' page is opened
@@ -189,16 +112,10 @@ Feature: Studies - Define Study - Study Interventions - Study Compound Dosings
 
     Scenario: [Delete] User must be able to delete a study compound
         Given The study compound dosing data is cleaned for testing purspose
+        Given [API] Study compound data is fetched
+        And [API] Study compound dosing is created
         And The test study '/study_interventions/study_compound_dosings' page is opened
-        When The user clicks add study compund dosing
-        And The user select first study element
-        And Form continue button is clicked
-        And The user select first compund
-        And Form continue button is clicked
-        And The user select first dose value
-        And The user intercepts study compund dosings create request
-        When Form save button is clicked
-        And User waits for the table
+        And User searches the compound dosing by the uid
         When The 'Delete' option is clicked from the three dot menu list
         And The user intercepts study compound dosing delete request
         And Action is confirmed by clicking continue

@@ -1,6 +1,8 @@
 import datetime
 from typing import Any
 
+from neomodel import db
+
 from clinical_mdr_api.domain_repositories.concepts.activities.activity_instance_repository import (
     ActivityInstanceAttributesRepository,
     ActivityInstanceGroupingsRepository,
@@ -20,7 +22,10 @@ from clinical_mdr_api.domains.concepts.activities.activity_item import (
     CTCodelistItem,
     CTTermItem,
 )
-from clinical_mdr_api.domains.versioned_object_aggregate import LibraryVO
+from clinical_mdr_api.domains.versioned_object_aggregate import (
+    LibraryItemStatus,
+    LibraryVO,
+)
 from clinical_mdr_api.models.concepts.activities.activity_instance import (
     ActivityInstance,
     ActivityInstanceAttributes,
@@ -38,6 +43,7 @@ from clinical_mdr_api.models.concepts.activities.activity_item import (
     CompactUnitDefinition,
 )
 from clinical_mdr_api.models.utils import BaseModel
+from clinical_mdr_api.services._utils import ensure_transaction
 from clinical_mdr_api.services.concepts import constants
 from clinical_mdr_api.services.concepts.concept_generic_service import (
     ConceptGenericService,
@@ -542,6 +548,100 @@ class ActivityInstanceAttributesService(
             perform_validation=perform_validation,
         )
         return item
+
+    @ensure_transaction(db)
+    def inactivate_final(
+        self,
+        uid: str,
+        cascade_inactivate: bool = False,
+        force_new_value_node: bool = False,
+    ) -> BaseModel:
+        """
+        Inactivates both the attributes and the groupings tracks of an
+        activity instance. Both tracks must currently be in Final status.
+        """
+        attributes_item = self._find_by_uid_or_raise_not_found(uid, for_update=True)
+
+        groupings_repository = self._repos.activity_instance_groupings_repository
+        groupings_item = groupings_repository.find_by_uid_2(uid=uid, for_update=True)
+        NotFoundException.raise_if(
+            groupings_item is None,
+            msg=(f"Activity Instance Groupings with UID '{uid}' doesn't exist."),
+        )
+
+        BusinessLogicException.raise_if(
+            attributes_item.item_metadata.status != LibraryItemStatus.FINAL,
+            msg=(
+                "Cannot inactivate: activity instance attributes are not in"
+                " Final status."
+            ),
+        )
+        BusinessLogicException.raise_if(
+            groupings_item.item_metadata.status != LibraryItemStatus.FINAL,
+            msg=(
+                "Cannot inactivate: activity instance groupings are not in"
+                " Final status."
+            ),
+        )
+
+        attributes_item.inactivate(
+            author_id=self.author_id, force_new_value_node=force_new_value_node
+        )
+        groupings_item.inactivate(
+            author_id=self.author_id, force_new_value_node=force_new_value_node
+        )
+        self.repository.save(attributes_item, force_new_value_node=force_new_value_node)
+        groupings_repository.save(
+            groupings_item, force_new_value_node=force_new_value_node
+        )
+        return self._transform_aggregate_root_to_pydantic_model(attributes_item)
+
+    @ensure_transaction(db)
+    def reactivate_retired(
+        self,
+        uid: str,
+        cascade_reactivate: bool = False,
+        force_new_value_node: bool = False,
+    ) -> BaseModel:
+        """
+        Reactivates both the attributes and the groupings tracks of an
+        activity instance. Both tracks must currently be in Retired status.
+        """
+        attributes_item = self._find_by_uid_or_raise_not_found(uid, for_update=True)
+
+        groupings_repository = self._repos.activity_instance_groupings_repository
+        groupings_item = groupings_repository.find_by_uid_2(uid=uid, for_update=True)
+        NotFoundException.raise_if(
+            groupings_item is None,
+            msg=(f"Activity Instance Groupings with UID '{uid}' doesn't exist."),
+        )
+
+        BusinessLogicException.raise_if(
+            attributes_item.item_metadata.status != LibraryItemStatus.RETIRED,
+            msg=(
+                "Cannot reactivate: activity instance attributes are not in"
+                " Retired status."
+            ),
+        )
+        BusinessLogicException.raise_if(
+            groupings_item.item_metadata.status != LibraryItemStatus.RETIRED,
+            msg=(
+                "Cannot reactivate: activity instance groupings are not in"
+                " Retired status."
+            ),
+        )
+
+        attributes_item.reactivate(
+            author_id=self.author_id, force_new_value_node=force_new_value_node
+        )
+        groupings_item.reactivate(
+            author_id=self.author_id, force_new_value_node=force_new_value_node
+        )
+        self.repository.save(attributes_item, force_new_value_node=force_new_value_node)
+        groupings_repository.save(
+            groupings_item, force_new_value_node=force_new_value_node
+        )
+        return self._transform_aggregate_root_to_pydantic_model(attributes_item)
 
 
 class ActivityInstanceGroupingsService(

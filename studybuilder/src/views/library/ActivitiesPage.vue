@@ -74,8 +74,8 @@ import { computed } from 'vue'
 const { t } = useI18n()
 const featureFlagsStore = useFeatureFlagsStore()
 
-const streamlinePlaceholders = computed(
-  () => !featureFlagsStore.getFeatureFlag('streamline_placeholder_activities')
+const streamlinePlaceholders = computed(() =>
+  featureFlagsStore.getFeatureFlag('streamline_placeholder_activities')
 )
 
 const tabs = computed(() => {

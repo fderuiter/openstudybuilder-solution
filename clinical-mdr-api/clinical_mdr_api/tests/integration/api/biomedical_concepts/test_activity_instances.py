@@ -1184,6 +1184,11 @@ def test_get_activity_instance_groupings_versions(api_client):
         assert item["start_date"] is not None
         assert item["status"] is not None
         assert item["version"] is not None
+        # check that activity_groupings contain version info for linked entities
+        for grouping in item["activity_groupings"]:
+            assert grouping["activity"]["version"] is not None
+            assert grouping["activity_subgroup"]["version"] is not None
+            assert grouping["activity_group"]["version"] is not None
 
     # Check that the items are sorted by start_date descending
     sorted_items = sorted(res, key=itemgetter("start_date"), reverse=True)
@@ -1233,6 +1238,7 @@ def test_edit_activity_instance_groupings(api_client):
     assert len(res["activity_groupings"]) == 1
     assert res["activity_groupings"][0]["activity"]["uid"] == activity.uid
     assert res["activity_groupings"][0]["activity"]["name"] == activity.name
+    assert res["activity_groupings"][0]["activity"]["version"] is not None
     assert (
         res["activity_groupings"][0]["activity_subgroup"]["uid"]
         == activity_subgroup.uid
@@ -1241,8 +1247,10 @@ def test_edit_activity_instance_groupings(api_client):
         res["activity_groupings"][0]["activity_subgroup"]["name"]
         == activity_subgroup.name
     )
+    assert res["activity_groupings"][0]["activity_subgroup"]["version"] is not None
     assert res["activity_groupings"][0]["activity_group"]["uid"] == activity_group.uid
     assert res["activity_groupings"][0]["activity_group"]["name"] == activity_group.name
+    assert res["activity_groupings"][0]["activity_group"]["version"] is not None
 
     assert res["version"] == "0.1"
     assert res["status"] == "Draft"
@@ -1267,6 +1275,7 @@ def test_edit_activity_instance_groupings(api_client):
     assert len(res["activity_groupings"]) == 1
     assert res["activity_groupings"][0]["activity"]["uid"] == activity2.uid
     assert res["activity_groupings"][0]["activity"]["name"] == activity2.name
+    assert res["activity_groupings"][0]["activity"]["version"] is not None
     assert (
         res["activity_groupings"][0]["activity_subgroup"]["uid"]
         == activity_subgroup.uid
@@ -1275,8 +1284,10 @@ def test_edit_activity_instance_groupings(api_client):
         res["activity_groupings"][0]["activity_subgroup"]["name"]
         == activity_subgroup.name
     )
+    assert res["activity_groupings"][0]["activity_subgroup"]["version"] is not None
     assert res["activity_groupings"][0]["activity_group"]["uid"] == activity_group.uid
     assert res["activity_groupings"][0]["activity_group"]["name"] == activity_group.name
+    assert res["activity_groupings"][0]["activity_group"]["version"] is not None
 
     assert res["version"] == "0.2"
     assert res["status"] == "Draft"
@@ -1292,6 +1303,7 @@ def test_edit_activity_instance_groupings(api_client):
     assert res["version"] == "0.1"
     assert len(res["activity_groupings"]) == 1
     assert res["activity_groupings"][0]["activity"]["uid"] == activity.uid
+    assert res["activity_groupings"][0]["activity"]["version"] is not None
 
     # Get version 0.2
     response = api_client.get(
@@ -1783,18 +1795,27 @@ def test_activity_instance_attributes_versioning(api_client):
     assert res["message"] == "The object isn't in draft status."
 
     response = api_client.post(
-        f"/concepts/activities/activity-instances/{activity_instance_uid}/attributes/activations"
+        f"/concepts/activities/activity-instances/{activity_instance_uid}/activations"
     )
     assert_response_status_code(response, 400)
     res = response.json()
-    assert res["message"] == "Only RETIRED version can be reactivated."
+    assert res["message"] == (
+        "Cannot reactivate: activity instance attributes are not in Retired status."
+    )
+
+    # Groupings must also be Final before the merged inactivate endpoint is allowed
+    response = api_client.post(
+        f"/concepts/activities/activity-instances/{activity_instance_uid}/groupings/approvals"
+    )
+    assert_response_status_code(response, 201)
+
     response = api_client.delete(
-        f"/concepts/activities/activity-instances/{activity_instance_uid}/attributes/activations"
+        f"/concepts/activities/activity-instances/{activity_instance_uid}/activations"
     )
     assert_response_status_code(response, 200)
 
     response = api_client.post(
-        f"/concepts/activities/activity-instances/{activity_instance_uid}/attributes/activations"
+        f"/concepts/activities/activity-instances/{activity_instance_uid}/activations"
     )
     assert_response_status_code(response, 200)
 

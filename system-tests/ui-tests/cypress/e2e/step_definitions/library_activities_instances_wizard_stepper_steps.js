@@ -75,6 +75,8 @@ When("The {string} is selected from the Activity instance domain field", name =>
 
 Then("The Activity Item Classes selection displayed", () => cy.contains('.v-overlay .v-row .dialog-title', 'Select Activity Item Classes'). should('be.visible'))
 
+Then("The Activity Item Classes selection is not displayed", () => cy.contains('.v-overlay .v-row .dialog-title', 'Select Activity Item Classes'). should('not.exist'))
+
 Then("Warning is displayed for mandatory field {string}", (fieldName) => warningIsDisplayed(fieldName))
 
 Then("Warning about not matching name and sentence case name is displayed", () => warningIsDisplayed('Sentence case name', "Sentence case name can only differ in case compared to name value"))
@@ -156,6 +158,10 @@ Then("Topic code is uppercased version of Activity Instance Name with _ instead 
 
 Then("ADaM parameter code is four first letters of selected Code submission value of Activity Item Class", () => {
     cy.contains('.v-stepper-window-item .v-input', 'ADaM parameter code').find('input').should('contain.value', selectedCodeSubmissionValue.substring(0, 4))
+})
+
+Then("ADaM parameter code input should not exists", () => {
+    cy.contains('.v-stepper-window-item .v-input', 'ADaM parameter code').should('not.exist')
 })
 
 When("Data from research lab is checked", () => cy.get('input[aria-label="Data from a Research lab"]').check())

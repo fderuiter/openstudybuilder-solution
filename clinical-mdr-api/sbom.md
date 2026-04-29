@@ -16,10 +16,10 @@
 | cachetools               | 5.5.2        | [MIT](#cachetools)                                           |
 | certifi                  | 2026.2.25    | [MPL-2.0](#certifi)                                          |
 | cffi                     | 2.0.0        | [MIT](#cffi)                                                 |
-| charset-normalizer       | 3.4.6        | [MIT](#charset-normalizer)                                   |
-| click                    | 8.3.1        | [BSD-3-Clause](#click)                                       |
+| charset-normalizer       | 3.4.7        | [MIT](#charset-normalizer)                                   |
+| click                    | 8.3.2        | [BSD-3-Clause](#click)                                       |
 | colour                   | 0.1.5        | [BSD 3-Clause License](#colour)                              |
-| cryptography             | 46.0.6       | [Apache-2.0 OR BSD-3-Clause](#cryptography)                  |
+| cryptography             | 46.0.7       | [Apache-2.0 OR BSD-3-Clause](#cryptography)                  |
 | cssselect2               | 0.9.0        | [see below](#cssselect2)                                     |
 | deepdiff                 | 8.6.2        | [see below](#deepdiff)                                       |
 | dict2xml                 | 1.7.8        | [MIT](#dict2xml)                                             |
@@ -29,9 +29,9 @@
 | fhir_core                | 1.1.7        | [BSD license](#fhir_core)                                    |
 | fhir.resources           | 8.2.0        | [BSD license](#fhirresources)                                |
 | fonttools                | 4.62.1       | [MIT](#fonttools)                                            |
-| google-api-core          | 2.30.0       | [Apache 2.0](#google-api-core)                               |
-| google-auth              | 2.49.1       | [Apache 2.0](#google-auth)                                   |
-| googleapis-common-protos | 1.73.0       | [Apache 2.0](#googleapis-common-protos)                      |
+| google-api-core          | 2.30.3       | [Apache 2.0](#google-api-core)                               |
+| google-auth              | 2.49.2       | [Apache 2.0](#google-auth)                                   |
+| googleapis-common-protos | 1.74.0       | [Apache 2.0](#googleapis-common-protos)                      |
 | h11                      | 0.16.0       | [MIT](#h11)                                                  |
 | httpcore                 | 1.0.9        | [BSD-3-Clause](#httpcore)                                    |
 | httpx                    | 0.27.2       | [BSD-3-Clause](#httpx)                                       |
@@ -40,21 +40,21 @@
 | Jinja2                   | 3.1.6        | [see below](#jinja2)                                         |
 | lxml                     | 5.3.2        | [BSD-3-Clause](#lxml)                                        |
 | MarkupSafe               | 3.0.3        | [BSD-3-Clause](#markupsafe)                                  |
-| msal                     | 1.35.1       | [MIT](#msal)                                                 |
+| msal                     | 1.36.0       | [MIT](#msal)                                                 |
 | msal-extensions          | 1.3.1        | [MIT License](#msal-extensions)                              |
 | neo4j                    | 6.1.0        | [Apache-2.0 AND Python-2.0](#neo4j)                          |
 | neomodel                 | 6.1.0        | [MIT](#neomodel)                                             |
 | nh3                      | 0.2.22       | [MIT](#nh3)                                                  |
-| numpy                    | 2.4.3        | [BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0](#numpy) |
+| numpy                    | 2.4.4        | [BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0](#numpy) |
 | opencensus               | 0.11.4       | [Apache-2.0](#opencensus)                                    |
 | opencensus-context       | 0.1.3        | [Apache-2.0](#opencensus-context)                            |
 | opencensus-ext-azure     | 1.1.15       | [Apache-2.0](#opencensus-ext-azure)                          |
 | openpyxl                 | 3.1.5        | [MIT](#openpyxl)                                             |
 | orderly-set              | 5.5.0        | [see below](#orderly-set)                                    |
-| pandas                   | 3.0.1        | [see below](#pandas)                                         |
-| pillow                   | 12.1.1       | [MIT-CMU](#pillow)                                           |
-| proto-plus               | 1.27.1       | [Apache 2.0](#proto-plus)                                    |
-| protobuf                 | 6.33.6       | [3-Clause BSD License](#protobuf)                            |
+| pandas                   | 3.0.2        | [see below](#pandas)                                         |
+| pillow                   | 12.2.0       | [MIT-CMU](#pillow)                                           |
+| proto-plus               | 1.27.2       | [Apache 2.0](#proto-plus)                                    |
+| protobuf                 | 7.34.1       | [3-Clause BSD License](#protobuf)                            |
 | psutil                   | 7.2.2        | [BSD-3-Clause](#psutil)                                      |
 | pyasn1                   | 0.6.3        | [BSD-2-Clause](#pyasn1)                                      |
 | pyasn1_modules           | 0.4.2        | [BSD](#pyasn1_modules)                                       |
@@ -68,10 +68,10 @@
 | python-dateutil          | 2.9.0.post0  | [Dual License](#python-dateutil)                             |
 | python-docx              | 1.1.2        | [MIT](#python-docx)                                          |
 | python-dotenv            | 1.2.2        | [BSD-3-Clause](#python-dotenv)                               |
-| python-multipart         | 0.0.22       | [Apache-2.0](#python-multipart)                              |
+| python-multipart         | 0.0.24       | [Apache-2.0](#python-multipart)                              |
 | pytz                     | 2026.1.post1 | [MIT](#pytz)                                                 |
 | PyYAML                   | 6.0.3        | [MIT](#pyyaml)                                               |
-| requests                 | 2.33.0       | [Apache-2.0](#requests)                                      |
+| requests                 | 2.33.1       | [Apache-2.0](#requests)                                      |
 | six                      | 1.17.0       | [MIT](#six)                                                  |
 | sniffio                  | 1.3.1        | [MIT OR Apache-2.0](#sniffio)                                |
 | sortedcontainers         | 2.4.0        | [Apache 2.0](#sortedcontainers)                              |
@@ -6944,7 +6944,7 @@
 
     Pillow is the friendly PIL fork. It is
 
-        Copyright © 2010 by Jeffrey A. Clark and contributors
+        Copyright © 2010 by Jeffrey 'Alex' Clark and contributors
 
     Like PIL, Pillow is licensed under the open source MIT-CMU License:
 

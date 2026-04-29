@@ -29,7 +29,7 @@ If baseline shown as time 0 is selected then the study visit duration time is us
 
 Study activities can be added to a study from the library standards, from other studies or they can be added as an activity placeholder that also will act as an activity request.
 
-[![Study Activities](~@source/images/user_guides/guide_activities_study activities.png)](../../../images/user_guides/guide_activities_study activities.png)
+[![Study Activities](~@source/images/user_guides/guide_activities_study_activities.png)](../../../images/user_guides/guide_activities_study_activities.png)
 
 In the library definition of an activity, the activity can exist within a possible set of activity groups and activity subgroups, and the display of these groupings can be controlled for the protocol SoA. Unfortunately, the groupings can only be selected when you add an activity to a study, it is currently not possible to change the grouping (this we will change in a coming release).
 

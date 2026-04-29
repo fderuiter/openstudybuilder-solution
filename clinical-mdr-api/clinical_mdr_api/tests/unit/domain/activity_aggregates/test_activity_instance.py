@@ -38,8 +38,11 @@ from common import exceptions
 def create_random_activity_instance_grouping_vo() -> ActivityInstanceGroupingVO:
     random_activity_instance_grouping_vo = ActivityInstanceGroupingVO(
         activity_group_uid=random_str(),
+        activity_group_version=random_str(),
         activity_subgroup_uid=random_str(),
+        activity_subgroup_version=random_str(),
         activity_uid=random_str(),
+        activity_version=random_str(),
     )
     return random_activity_instance_grouping_vo
 

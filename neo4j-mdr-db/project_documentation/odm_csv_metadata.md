@@ -10,7 +10,7 @@ The csv form is collecting the following information:
 | oid          | Provide here a Unique Object Identifier like for example F.DM for the Informed Consent & Demography form |
 | name         | Please report here the name of the form as written in the dark bleue cell on the first page of the Form (example: Informed Consent and Demography) |
 | prompt       | Please provide a short value that could be used instead of the name or the description |
-| repeating    | Is this form repeating or not - Reply with a Yes or No. In the Novo Nordisk form this info is at the right end of the dark bleue cell on the first page, on the same level as the title of the form |
+| repeating    | Is this form repeating or not - Reply with a Yes or No. |
 | language     | Provide by default the ENG value here. To have more translation, please add new row with the same OID but with additional language like FRA for French |
 | description  | Please provide here the description of the Form. You can take here the information from the Design Notes or at the end of the form or even from the Guidance documentation. For multilingual, please provide additional lines |
 | instruction  | Please provide here also every instruction that could help the end user in filling this Form |
