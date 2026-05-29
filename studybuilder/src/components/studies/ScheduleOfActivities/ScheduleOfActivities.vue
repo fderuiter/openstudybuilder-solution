@@ -492,6 +492,7 @@
             :selected-reorder-item="selectedReorderItem"
           />
           <tbody v-if="!sortMode">
+            <tr v-if="paddingTop > 0" :style="`height: ${paddingTop}px`"></tr>
             <template v-for="(row, index) in visibleRows">
               <tr
                 v-if="row.cells"
@@ -703,7 +704,7 @@
                   :key="`row-${index}-cell-${visitIndex}`"
                 >
                   <div
-                    v-if="leftIndex <= visitIndex <= rightIndex"
+                    v-if="visitIndex >= leftIndex && visitIndex <= rightIndex"
                     class="mb-n1 footnote-cell"
                   >
                     <input
@@ -825,10 +826,8 @@
                   </div>
                 </td>
               </tr>
-              <tr v-else :key="index" style="height: 35px">
-                -
-              </tr>
             </template>
+            <tr v-if="paddingBottom > 0" :style="`height: ${paddingBottom}px`"></tr>
           </tbody>
         </table>
       </div>
@@ -1047,6 +1046,7 @@ import {
 } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useVirtualizer } from '@tanstack/vue-virtual'
 import CollapsibleVisitDisplaySelectForm from './../CollapsibleVisitDisplaySelectForm.vue'
 import ConfirmDialog from '@/components/tools/ConfirmDialog.vue'
 import HistoryTable from '@/components/tools/HistoryTable.vue'
@@ -1115,6 +1115,7 @@ const actionMenuStates = ref({})
 const currentSelectionMatrix = ref({})
 const expandAllRows = ref(false)
 const rowsDisplayState = ref({})
+const rowVisibilityIndex = ref({})
 const firstHeaderHeight = ref(0)
 const secondHeaderHeight = ref(0)
 const thirdHeaderHeight = ref(0)
@@ -1376,55 +1377,70 @@ const soaRows = computed(() => {
 
 const scrollTop = ref(0)
 const scrollLeft = ref(0)
-const rowHeight = 35
 const tableWidth = ref(0)
-const overscan = 10
+
+const filteredRows = computed(() => {
+  return soaRows.value.filter((row) => showSoaRow(row.cells?.[0]?.refs?.[0]?.uid, row))
+})
+
+const rowVirtualizer = useVirtualizer(
+  computed(() => ({
+    count: filteredRows.value.length,
+    getScrollElement: () => tableContainer.value,
+    estimateSize: () => 35,
+    overscan: 10,
+  }))
+)
+
+const columnVirtualizer = useVirtualizer(
+  computed(() => ({
+    count: soaVisitRow.value.length,
+    horizontal: true,
+    getScrollElement: () => tableContainer.value,
+    estimateSize: () => 110,
+    overscan: 10,
+  }))
+)
 
 const visibleRows = computed(() => {
-  const rowsToDisplay = soaRows.value
-    .filter((row) => showSoaRow(row.cells?.[0]?.refs?.[0]?.uid, row))
-    .map((row) => {
-      const cells = row.cells || []
-      const first = cells[0]
-      const rest = cells.slice(
-        Math.max(1, leftIndex.value + 1),
-        rightIndex.value
-      )
-      return { ...row, cells: first ? [first, ...rest] : rest }
-    })
-  if (rowsToDisplay.length <= 50) {
-    return rowsToDisplay
-  }
-  const emptyObjects = Array.from({ length: rowsToDisplay.length }, () => ({}))
+  const rowItems = rowVirtualizer.value.getVirtualItems()
 
-  const result = [
-    ...emptyObjects.slice(0, startIndex.value),
-    ...rowsToDisplay.slice(startIndex.value, endIndex.value + 1),
-    ...emptyObjects.slice(endIndex.value + 1),
-  ]
-  return result
+  const startIndex = rowItems[0]?.index ?? 0
+  const endIndex = rowItems[rowItems.length - 1]?.index ?? 0
+
+  const rowsToDisplay = filteredRows.value.slice(startIndex, endIndex + 1).map((row) => {
+    const cells = row.cells || []
+    const first = cells[0]
+    const rest = cells.slice(
+      Math.max(1, leftIndex.value + 1),
+      rightIndex.value + 1
+    )
+    return { ...row, cells: first ? [first, ...rest] : rest }
+  })
+
+  return rowsToDisplay
 })
 
-const startIndex = computed(() => {
-  return Math.max(0, Math.floor(scrollTop.value / rowHeight) - overscan)
+const paddingTop = computed(() => {
+  const rowItems = rowVirtualizer.value.getVirtualItems()
+  if (!rowItems.length) return 0
+  return rowItems[0].start
 })
 
-const endIndex = computed(() => {
-  return Math.min(
-    soaRows.value.length,
-    Math.ceil((scrollTop.value + tableHeight.value) / rowHeight) + overscan
-  )
+const paddingBottom = computed(() => {
+  const rowItems = rowVirtualizer.value.getVirtualItems()
+  if (!rowItems.length) return 0
+  return rowVirtualizer.value.getTotalSize() - rowItems[rowItems.length - 1].end
 })
 
 const leftIndex = computed(() => {
-  return Math.max(0, Math.floor(scrollLeft.value / 110))
+  const colItems = columnVirtualizer.value.getVirtualItems()
+  return colItems[0]?.index ?? 0
 })
 
 const rightIndex = computed(() => {
-  return Math.min(
-    soaRows.value.length,
-    Math.ceil((scrollLeft.value + tableWidth.value) / 110)
-  )
+  const colItems = columnVirtualizer.value.getVirtualItems()
+  return colItems[colItems.length - 1]?.index ?? soaVisitRow.value.length
 })
 
 let rafId = null
@@ -1720,28 +1736,32 @@ function showSoaRow(index, row) {
     let key = `row-${index}`
     let result = true
 
-    // prettier-ignore
-    while (true) { // eslint-disable-line no-constant-condition
-      if (
-        rowsDisplayState.value[key] &&
-        rowsDisplayState.value[key].parent !== undefined &&
-        rowsDisplayState.value[key].parent !== null
-      ) {
-        const parentIndex = rowsDisplayState.value[key].parent
-        key = `row-${parentIndex}`
-        if (rowsDisplayState.value[key]) {
-          // We want to check if parent is an soaGroup or not (not parent === soaGroup)
-          if (!rowsDisplayState.value[key].value) {
-            result = false
-            break
+    if (rowVisibilityIndex.value && rowVisibilityIndex.value[key] !== undefined) {
+      result = rowVisibilityIndex.value[key]
+    } else {
+      // prettier-ignore
+      while (true) { // eslint-disable-line no-constant-condition
+        if (
+          rowsDisplayState.value[key] &&
+          rowsDisplayState.value[key].parent !== undefined &&
+          rowsDisplayState.value[key].parent !== null
+        ) {
+          const parentIndex = rowsDisplayState.value[key].parent
+          key = `row-${parentIndex}`
+          if (rowsDisplayState.value[key]) {
+            if (!rowsDisplayState.value[key].value) {
+              result = false
+              break
+            }
+          } else {
+            console.warn(`Warning: key ${key} not found in displayState!!`)
           }
-        } else {
-          console.warn(`Warning: key ${key} not found in displayState!!`)
+          continue
         }
-        continue
+        break
       }
-      break
     }
+
     if (row.cells && row.cells.length) {
       if (row.cells[0].style === 'soaGroup') {
         return true
@@ -1983,10 +2003,41 @@ function highlightRow(row) {
   el.classList.toggle('bg-nnBaseHeavy')
 }
 
+function updateRowVisibilityIndex() {
+  const index = {}
+  for (const row of soaRows.value) {
+    const uid = row.cells[0].refs[0]?.uid
+    const key = `row-${uid}`
+    let isVisible = true
+
+    if (row.cells[0].style !== 'soaGroup') {
+      let currentKey = key
+      // prettier-ignore
+      while (true) { // eslint-disable-line no-constant-condition
+        const state = rowsDisplayState.value[currentKey]
+        if (state && state.parent !== undefined && state.parent !== null) {
+          const parentKey = `row-${state.parent}`
+          const parentState = rowsDisplayState.value[parentKey]
+          if (parentState && !parentState.value) {
+            isVisible = false
+            break
+          }
+          currentKey = parentKey
+          continue
+        }
+        break
+      }
+    }
+    index[key] = isVisible
+  }
+  rowVisibilityIndex.value = index
+}
+
 function toggleRowState(rowKey) {
   try {
     const currentValue = getCurrentDisplayValue(rowKey)
     rowsDisplayState.value[rowKey].value = !currentValue
+    updateRowVisibilityIndex()
   } catch (error) {
     console.error(error)
   }
@@ -1996,6 +2047,7 @@ function toggleAllRowState(value) {
   for (const key in rowsDisplayState.value) {
     rowsDisplayState.value[key].value = value
   }
+  updateRowVisibilityIndex()
 }
 
 async function toggleLevelDisplay(row) {
@@ -2271,90 +2323,38 @@ async function loadSoaContent(keepDisplayState) {
   } catch {
     loadingSoaContent.value = false
   }
-  let currentSoaGroup
-  let currentGroup
-  let currentSubGroup
 
-  if (!keepDisplayState) {
-    rowsDisplayState.value = {}
-    expandAllRows.value = false
-  }
-  for (const row of soaRows.value) {
-    const rowUid = row.cells[0].refs[0]?.uid
-    const key = `row-${rowUid}`
-    if (row.cells && row.cells.length) {
-      if (row.cells[0].style === 'soaGroup') {
-        if (!keepDisplayState) {
-          rowsDisplayState.value[key] = { value: false }
-        }
-        currentGroup = null
-        currentSubGroup = null
-        currentSoaGroup = rowUid
-      } else if (row.cells[0].style === 'group') {
-        if (!keepDisplayState) {
-          rowsDisplayState.value[key] = {
-            value: false,
-            parent: currentSoaGroup,
-          }
-        }
-        currentSubGroup = null
-        currentGroup = rowUid
-      } else if (row.cells[0].style === 'subGroup') {
-        if (!keepDisplayState) {
-          rowsDisplayState.value[key] = {
-            value: false,
-            parent: currentGroup,
-          }
-        }
-        currentSubGroup = rowUid
-      } else if (scheduleMethods.isActivityRow(row)) {
-        const scheduleCells = row.cells.slice(1)
-        if (!keepDisplayState) {
-          rowsDisplayState.value[key] = {
-            value: false,
-            parent: currentSubGroup,
-          }
-        }
-        if (row.cells[0].refs && row.cells[0].refs.length) {
-          currentSelectionMatrix.value[row.cells[0].refs?.[0].uid] = {}
-          for (const [visitIndex, cell] of soaVisitRow.value.entries()) {
-            let props
-            if (
-              scheduleCells[visitIndex].refs &&
-              scheduleCells[visitIndex].refs.length
-            ) {
-              if (cell.refs && cell.refs.length === 1) {
-                props = {
-                  value: true,
-                  uid: scheduleCells[visitIndex].refs[0].uid,
-                }
-              } else {
-                props = {
-                  value: true,
-                  uid: scheduleCells[visitIndex].refs.map((ref) => ref.uid),
-                }
-              }
-            } else {
-              props = { value: false, uid: null }
-            }
-            if (cell.refs) {
-              currentSelectionMatrix.value[row.cells[0].refs[0].uid][
-                cell.refs[0].uid
-              ] = props
-            }
-          }
-        }
-      }
+  const worker = new Worker(new URL('./soaWorker.js', import.meta.url), { type: 'module' })
+  
+  worker.onmessage = (e) => {
+    const { currentSelectionMatrix: matrix, rowsDisplayState: displayState, rowVisibilityIndex: visIndex } = e.data
+    currentSelectionMatrix.value = matrix
+    rowsDisplayState.value = displayState
+    rowVisibilityIndex.value = visIndex
+    loadingSoaContent.value = false
+    soaContentLoadingStore.changeLoadingState()
+    if (scrollItemId.value) {
+      setTimeout(() => {
+        const targetElement = document.getElementById(scrollItemId.value)
+        targetElement?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 1000)
     }
+    worker.terminate()
   }
-  loadingSoaContent.value = false
-  soaContentLoadingStore.changeLoadingState()
-  if (scrollItemId.value) {
-    setTimeout(() => {
-      const targetElement = document.getElementById(scrollItemId.value)
-      targetElement?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }, 1000)
+
+  worker.onerror = (err) => {
+    console.error('SoA Worker Error:', err)
+    loadingSoaContent.value = false
+    soaContentLoadingStore.changeLoadingState()
+    worker.terminate()
   }
+
+  worker.postMessage({
+    soaRows: JSON.parse(JSON.stringify(soaRows.value)),
+    soaVisitRow: JSON.parse(JSON.stringify(soaVisitRow.value)),
+    keepDisplayState,
+    existingDisplayState: keepDisplayState ? JSON.parse(JSON.stringify(rowsDisplayState.value)) : {}
+  })
 }
 
 function onResize() {

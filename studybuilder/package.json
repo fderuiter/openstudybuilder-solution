@@ -21,6 +21,7 @@
     "@formkit/drag-and-drop": "^0.5.3",
     "@microsoft/applicationinsights-clickanalytics-js": "^3.2.0",
     "@microsoft/applicationinsights-web": "^3.2.0",
+    "@tanstack/vue-virtual": "^3.13.26",
     "@vueup/vue-quill": "^1.2.0",
     "axios": "^1.15.0",
     "buffer": "^6.0.3",
