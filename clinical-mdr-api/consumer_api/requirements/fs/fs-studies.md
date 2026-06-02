@@ -223,3 +223,40 @@ User identifiers must be anonymized by applying MD5 hashing to the author's user
 | tests/v1/test_api_audit_trail.py | test_get_study_audit_trail |
 
 
+
+# Study Lifecycle
+
+## FS-Core-Study-Lifecycle-010 [`URS-ConsumerApi-Studies`]
+
+The system must ensure the study lifecycle state transition rules are validated.
+
+### Validation Rules
+
+- **Data Integrity**
+  - A study cannot be locked if the protocol version is missing.
+
+- **Business Logic**
+  - 'Final Protocol' versions must be consistent with major/minor release patterns.
+
+### Test coverage
+
+| Test File                    | Test Function                              |
+| ---------------------------- | ------------------------------------------ |
+| tests/v1/test_api_studies.py | test_get_studies_all                       |
+
+# Study Identification
+
+## FS-Core-Study-Identification-010 [`URS-ConsumerApi-Studies`]
+
+The system must ensure proper identification of studies during creation and updates.
+
+### Validation Rules
+
+- **Business Logic**
+  - Project ID must exist in the Project Registry.
+
+### Test coverage
+
+| Test File                    | Test Function                              |
+| ---------------------------- | ------------------------------------------ |
+| tests/v1/test_api_studies.py | test_get_studies_filtering                 |
