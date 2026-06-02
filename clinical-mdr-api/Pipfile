@@ -70,6 +70,7 @@ pip-audit = "~=2.10.0"
 python_version = "3.14"
 
 [scripts]
+generate-validation-report = "python generate_validation_report.py"
 dev = "uvicorn --host=0.0.0.0 --port=8000 clinical_mdr_api.main:app --reload"
 prod = "uvicorn --host=0.0.0.0 --port=8000 --limit-concurrency=120 --workers=4 --loop=asyncio clinical_mdr_api.main:app"
 test = "pytest -s"
