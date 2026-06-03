@@ -70,7 +70,7 @@ def extract_section_headers_and_content(
     return sections
 
 
-def extract_fs_titles_and_tests(html_content: str):
+def extract_fs_titles_and_tests(html_content: str, all_tests: list[dict[str, Any]]):
     """Extract FS titles and their corresponding tests from the HTML content."""
     soup = BeautifulSoup(html_content, HTML_PARSER)
     fs_titles_and_tests = []
@@ -92,6 +92,15 @@ def extract_fs_titles_and_tests(html_content: str):
                         if table_sibling.name in ["h2", "h3"]:
                             break
                         if table_sibling.name == "table":
+                            # Add Test Status column header
+                            header_row = table_sibling.find("tr")
+                            if header_row:
+                                ths = header_row.find_all("th")
+                                if ths:
+                                    new_th = soup.new_tag("th")
+                                    new_th.string = "Test Status"
+                                    header_row.append(new_th)
+
                             rows = table_sibling.find_all("tr")
                             tests_list = []
                             for row in rows:
@@ -102,6 +111,17 @@ def extract_fs_titles_and_tests(html_content: str):
                                     tests_list.append(
                                         {"file": test_file, "method": test_method}
                                     )
+                                    
+                                    # Determine status
+                                    status = "Missing"
+                                    for t in all_tests:
+                                        if t["file"] == test_file and test_method in t["methods"]:
+                                            status = "Automated"
+                                            break
+                                    
+                                    new_td = soup.new_tag("td")
+                                    new_td.string = status
+                                    row.append(new_td)
 
                             fs_titles_and_tests.append(
                                 (text, table_sibling, tests_list)
@@ -142,16 +162,18 @@ def main():
 
     full_traceability: list[dict[str, Any]] = []
 
+    all_tests = get_all_tests()
+
     # Parse URS files
     collect_urs_traceability(urs_files, full_traceability)
 
     # Parse FS files
-    all_fs_ids = collect_fs_traceability(fs_files, full_traceability)
+    all_fs_ids = collect_fs_traceability(fs_files, full_traceability, all_tests)
 
     # Generate HTML sections for each URS with its FSs
     full_traceability_html = generate_traceability_html(full_traceability)
 
-    warnings = get_warnings(full_traceability, all_fs_ids)
+    warnings = get_warnings(full_traceability, all_fs_ids, all_tests)
 
     # Generate final HTML
     final_html = generate_html("\n".join(full_traceability_html), warnings=warnings)
@@ -163,13 +185,13 @@ def main():
     logger.info(f"Traceability document generated at {OUTPUT_FILE}")
 
 
-def collect_fs_traceability(fs_files, full_traceability):
+def collect_fs_traceability(fs_files, full_traceability, all_tests):
     all_fs_ids = set()
     for fs_file in fs_files:
         try:
             html_content = parse_markdown_file(fs_file)
             sections = extract_section_headers_and_content(html_content, "h2")
-            fs_titles_and_tests = extract_fs_titles_and_tests(html_content)
+            fs_titles_and_tests = extract_fs_titles_and_tests(html_content, all_tests)
 
             if sections:
                 for fs_title, section_content in sections:
@@ -242,15 +264,13 @@ def collect_urs_traceability(urs_files, full_traceability):
 
 
 def get_warnings(
-    full_traceability: list[dict[str, Any]], all_fs_ids: set[str] = set()
+    full_traceability: list[dict[str, Any]], all_fs_ids: set[str], tests: list[dict[str, Any]]
 ) -> str:
     """Generate warnings for FSs without tests/URS and URSs without FSs."""
     urs_no_fs = "URSs without linked FSs"
     fs_no_urs = "FSs without linked URS"
     fs_no_tests = "FSs without linked tests"
     non_existent_tests = "Non-existent tests"
-
-    tests = get_all_tests()
 
     warnings: dict[str, list[str]] = {
         urs_no_fs: [],
@@ -311,15 +331,16 @@ def get_warnings(
 
 
 def get_all_tests() -> list[dict[str, Any]]:
-    """Get a list of all python tests files and test methods that exist in the `tests` folder.
+    """Get a list of all python tests files and test methods that exist in the `tests` folders.
 
     Returns:
         list[dict]: List of test files and method names. Each item is a dict with keys `file` and `methods`.
     """
-    tests_dir = Path(BASE_DIR / "tests")
-
     tests = []
-    for root, _, files in os.walk(tests_dir):
+    
+    # 1. Consumer API tests
+    consumer_api_tests_dir = Path(BASE_DIR / "tests")
+    for root, _, files in os.walk(consumer_api_tests_dir):
         for file in files:
             if file.endswith(".py"):
                 file_path = Path(root) / file
@@ -332,6 +353,25 @@ def get_all_tests() -> list[dict[str, Any]]:
                             "methods": method_names,
                         }
                     )
+
+    # 2. Core Clinical Services tests
+    core_services_dir = BASE_DIR.parent / "clinical_mdr_api"
+    core_services_tests_dir = core_services_dir / "tests"
+    if core_services_tests_dir.exists():
+        for root, _, files in os.walk(core_services_tests_dir):
+            for file in files:
+                if file.endswith(".py"):
+                    file_path = Path(root) / file
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        content = f.read()
+                        method_names = re.findall(r"def (test_\w+)\s*\(", content)
+                        tests.append(
+                            {
+                                "file": str(file_path.relative_to(core_services_dir)).replace("\\", "/"),
+                                "methods": method_names,
+                            }
+                        )
+
     return tests
 
 
