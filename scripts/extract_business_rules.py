@@ -2,6 +2,12 @@ import ast
 import os
 import sys
 
+def sorted_walk(directory):
+    for root, dirs, files in os.walk(directory):
+        dirs.sort()
+        files.sort()
+        yield root, dirs, files
+
 def extract_message(node):
     if isinstance(node, ast.Constant):
         return str(node.value)
@@ -105,12 +111,24 @@ def find_test_file(domain_filepath):
             test_path_alt = test_path.replace('aggregates', 'aggregate')
             if os.path.exists(test_path_alt):
                 return test_path_alt
-                
+                 
         filename = parts[-1]
         search_dir = os.sep.join(parts[:idx] + ['tests'])
-        for root, _, files in os.walk(search_dir):
+        candidates = []
+        for root, _, files in sorted_walk(search_dir):
             if f"test_{filename}" in files:
-                return os.path.join(root, f"test_{filename}")
+                candidates.append(os.path.join(root, f"test_{filename}"))
+        if candidates:
+            def candidate_sort_key(path):
+                normalized_path = path.replace(os.sep, '/')
+                return (
+                    '/tests/unit/domain/' not in normalized_path,
+                    '/tests/unit/' not in normalized_path,
+                    '/tests/integration/' in normalized_path,
+                    normalized_path,
+                )
+
+            return min(candidates, key=candidate_sort_key)
     return None
 
 def main():
@@ -118,7 +136,7 @@ def main():
     all_rules = []
     missing_descriptions = 0
     
-    for root, _, files in os.walk(directory):
+    for root, _, files in sorted_walk(directory):
         for file in files:
             if file.endswith('.py') and not file.startswith('__'):
                 filepath = os.path.join(root, file)
@@ -157,7 +175,7 @@ def main():
         
     for area in sorted(areas.keys()):
         md_content += f"## {area}\n\n"
-        for r in areas[area]:
+        for r in sorted(areas[area], key=lambda rule: (rule['file'], rule['line'])):
             msg = r['msg']
             if not msg:
                 msg = "**⚠️ MISSING HUMAN-READABLE DESCRIPTION**"

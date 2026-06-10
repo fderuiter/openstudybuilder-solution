@@ -12,6 +12,15 @@ This catalog contains domain validation rules extracted directly from the applic
 ## Biomedical Concepts
 
 - **Rule:** **⚠️ MISSING HUMAN-READABLE DESCRIPTION**
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/biomedical_concepts/activity_instance_class.py:61`
+
+- **Rule:** Activity Instance Class tried to connect to non-existent Dataset Class with UID '{self.dataset_class_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/biomedical_concepts/activity_instance_class.py:68`
+
+- **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/biomedical_concepts/activity_instance_class.py:127`
+
+- **Rule:** **⚠️ MISSING HUMAN-READABLE DESCRIPTION**
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/biomedical_concepts/activity_item_class.py:84`
 
 - **Rule:** Activity Item Class tried to connect to non-existent or non-final CT Term for Role with UID '{self.role.uid}'.
@@ -26,68 +35,7 @@ This catalog contains domain validation rules extracted directly from the applic
 - **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/biomedical_concepts/activity_item_class.py:169`
 
-- **Rule:** **⚠️ MISSING HUMAN-READABLE DESCRIPTION**
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/biomedical_concepts/activity_instance_class.py:61`
-
-- **Rule:** Activity Instance Class tried to connect to non-existent Dataset Class with UID '{self.dataset_class_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/biomedical_concepts/activity_instance_class.py:68`
-
-- **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/biomedical_concepts/activity_instance_class.py:127`
-
 ## Concepts
-
-- **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/compound.py:105`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/activity_aggregates/test_compound.py`
-
-- **Rule:** {type(self).__name__} tried to connect to non-existent Compound with UID '{self.compound_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/compound_alias.py:77`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/integration/api/old/test_compound_alias.py`
-
-- **Rule:** Another preferred synonym for compound is already defined.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/compound_alias.py:86`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/integration/api/old/test_compound_alias.py`
-
-- **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/compound_alias.py:123`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/integration/api/old/test_compound_alias.py`
-
-- **Rule:** {type(self).__name__} tried to connect to non-existent Compound with UID '{self.compound_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/medicinal_product.py:120`
-
-- **Rule:** {type(self).__name__} tried to connect to non-existent Pharmaceutical Product with UID '{p_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/medicinal_product.py:125`
-
-- **Rule:** {type(self).__name__} tried to connect to non-existent Delivery Device with UID '{self.delivery_device_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/medicinal_product.py:130`
-
-- **Rule:** {type(self).__name__} tried to connect to non-existent Dispenser with UID '{self.dispenser_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/medicinal_product.py:136`
-
-- **Rule:** {type(self).__name__} tried to connect to non-existent Dose Value with UID '{dose_value_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/medicinal_product.py:141`
-
-- **Rule:** {type(self).__name__} tried to connect to non-existent Dose Frequency with UID '{self.dose_frequency_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/medicinal_product.py:145`
-
-- **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/medicinal_product.py:188`
-
-- **Rule:** error_message
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/concept_base.py:41`
-
-- **Rule:** {object_name} with {duplicates} already exists.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/concept_base.py:86`
-
-- **Rule:** {object_name} tried to connect to non-existent concepts {errors}.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/concept_base.py:136`
-
-- **Rule:** Lowercase versions of '{self.name}' and '{self.name_sentence_case}' must be equal
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/concept_base.py:142`
-
-- **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/concept_base.py:203`
 
 - **Rule:** {type(self).__name__} tried to connect to non existing UNII Term with UID '{self.unii_term_uid}'.
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/active_substance.py:95`
@@ -95,82 +43,29 @@ This catalog contains domain validation rules extracted directly from the applic
 - **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/active_substance.py:135`
 
-- **Rule:** {type(self).__name__} tried to connect to non-existent Active Substance with UID '{self.active_substance_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/pharmaceutical_product.py:50`
+- **Rule:** **⚠️ MISSING HUMAN-READABLE DESCRIPTION**
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/activities/activity.py:128`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/activity_aggregates/test_activity.py`
 
-- **Rule:** {type(self).__name__} tried to connect to non-existent Strength with UID '{self.strength_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/pharmaceutical_product.py:56`
+- **Rule:** Following Activities already have the provided synonyms: {existing_synonyms_with_uids}
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/activities/activity.py:139`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/activity_aggregates/test_activity.py`
 
-- **Rule:** {type(self).__name__} tried to connect to non-existent Half-Life with UID '{self.half_life_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/pharmaceutical_product.py:62`
+- **Rule:** Sponsor activities must have at least one grouping.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/activities/activity.py:145`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/activity_aggregates/test_activity.py`
 
-- **Rule:** {type(self).__name__} tried to connect to non-existent Lag-Time with UID '{lag_time_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/pharmaceutical_product.py:68`
+- **Rule:** Activity tried to connect to non-existent or non-final concepts [('Concept Name: Activity Subgroup', "uids: {'{activity_grouping.activity_subgroup_uid}'}")].
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/activities/activity.py:151`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/activity_aggregates/test_activity.py`
 
-- **Rule:** {type(self).__name__} tried to connect to non-existent or non-final Dosage Form with UID '{dosage_form_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/pharmaceutical_product.py:158`
-
-- **Rule:** {type(self).__name__} tried to connect to non-existent or non-final Route of Administration with UID '{route_of_administration_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/pharmaceutical_product.py:164`
+- **Rule:** Activity tried to connect to non-existent or non-final concepts [('Concept Name: Activity Group', "uids: {'{activity_grouping.activity_group_uid}'}")].
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/activities/activity.py:156`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/activity_aggregates/test_activity.py`
 
 - **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/pharmaceutical_product.py:212`
-
-- **Rule:** conversion factor to master if specified cannot be NaN value.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:77`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
-
-- **Rule:** conversion factor to master must be 1.0 for master unit (provided value: {conversion_factor_to_master})
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:83`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
-
-- **Rule:** Unknown CT dimension uid: {unit_dimension_uid}
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:92`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
-
-- **Rule:** use_molecular_weight must be provided with a value when unit dimension is set to 'Concentration'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:97`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
-
-- **Rule:** Unknown CT unit uid: {unit_ct_uid}
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:106`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
-
-- **Rule:** Unknown Unit Subset uid: {unit_subset}
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:113`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
-
-- **Rule:** Unknown ucum uid: {ucum_uid}
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:119`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
-
-- **Rule:** Unit Definition name must be provided.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:241`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
-
-- **Rule:** Attempt to change Unit Definition legacy code into non-unique value: {new_unit_definition_value.legacy_code}
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:249`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
-
-- **Rule:** Attempt to make '{self.uid}' another master unit in dimension '{new_unit_definition_value.unit_dimension_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:260`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
-
-- **Rule:** UnitDefinitionVO is missing.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:282`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
-
-- **Rule:** Unit Definition name must be provided.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:301`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
-
-- **Rule:** **⚠️ MISSING HUMAN-READABLE DESCRIPTION**
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:309`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
-
-- **Rule:** Attempt to create another master unit in dimension '{unit_definition_value.unit_dimension_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:319`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/activities/activity.py:202`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/activity_aggregates/test_activity.py`
 
 - **Rule:** **⚠️ MISSING HUMAN-READABLE DESCRIPTION**
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/activities/activity_group.py:56`
@@ -313,30 +208,6 @@ This catalog contains domain validation rules extracted directly from the applic
   - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/activity_aggregates/test_activity_instance.py`
 
 - **Rule:** **⚠️ MISSING HUMAN-READABLE DESCRIPTION**
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/activities/activity.py:128`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/activity_aggregates/test_activity.py`
-
-- **Rule:** Following Activities already have the provided synonyms: {existing_synonyms_with_uids}
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/activities/activity.py:139`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/activity_aggregates/test_activity.py`
-
-- **Rule:** Sponsor activities must have at least one grouping.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/activities/activity.py:145`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/activity_aggregates/test_activity.py`
-
-- **Rule:** Activity tried to connect to non-existent or non-final concepts [('Concept Name: Activity Subgroup', "uids: {'{activity_grouping.activity_subgroup_uid}'}")].
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/activities/activity.py:151`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/activity_aggregates/test_activity.py`
-
-- **Rule:** Activity tried to connect to non-existent or non-final concepts [('Concept Name: Activity Group', "uids: {'{activity_grouping.activity_group_uid}'}")].
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/activities/activity.py:156`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/activity_aggregates/test_activity.py`
-
-- **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/activities/activity.py:202`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/activity_aggregates/test_activity.py`
-
-- **Rule:** **⚠️ MISSING HUMAN-READABLE DESCRIPTION**
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/activities/activity_sub_group.py:58`
   - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/activity_aggregates/test_activity_sub_group.py`
 
@@ -345,19 +216,77 @@ This catalog contains domain validation rules extracted directly from the applic
   - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/activity_aggregates/test_activity_sub_group.py`
 
 - **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/simple_concepts/simple_concept.py:90`
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/compound.py:105`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/activity_aggregates/test_compound.py`
 
-- **Rule:** {cls.__name__} tried to connect to non-existent Numeric Value with UID '{numeric_value_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/simple_concepts/time_point.py:64`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/simple_concept_aggregates/test_time_point.py`
+- **Rule:** {type(self).__name__} tried to connect to non-existent Compound with UID '{self.compound_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/compound_alias.py:77`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/integration/api/old/test_compound_alias.py`
 
-- **Rule:** {cls.__name__} tried to connect to non-existent Unit Definition with UID '{unit_definition_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/simple_concepts/time_point.py:70`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/simple_concept_aggregates/test_time_point.py`
+- **Rule:** Another preferred synonym for compound is already defined.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/compound_alias.py:86`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/integration/api/old/test_compound_alias.py`
 
-- **Rule:** {cls.__name__} tried to connect to non-existent CT Term with UID '{time_reference_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/simple_concepts/time_point.py:76`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/simple_concept_aggregates/test_time_point.py`
+- **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/compound_alias.py:123`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/integration/api/old/test_compound_alias.py`
+
+- **Rule:** error_message
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/concept_base.py:41`
+
+- **Rule:** {object_name} with {duplicates} already exists.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/concept_base.py:86`
+
+- **Rule:** {object_name} tried to connect to non-existent concepts {errors}.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/concept_base.py:136`
+
+- **Rule:** Lowercase versions of '{self.name}' and '{self.name_sentence_case}' must be equal
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/concept_base.py:142`
+
+- **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/concept_base.py:203`
+
+- **Rule:** {type(self).__name__} tried to connect to non-existent Compound with UID '{self.compound_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/medicinal_product.py:120`
+
+- **Rule:** {type(self).__name__} tried to connect to non-existent Pharmaceutical Product with UID '{p_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/medicinal_product.py:125`
+
+- **Rule:** {type(self).__name__} tried to connect to non-existent Delivery Device with UID '{self.delivery_device_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/medicinal_product.py:130`
+
+- **Rule:** {type(self).__name__} tried to connect to non-existent Dispenser with UID '{self.dispenser_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/medicinal_product.py:136`
+
+- **Rule:** {type(self).__name__} tried to connect to non-existent Dose Value with UID '{dose_value_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/medicinal_product.py:141`
+
+- **Rule:** {type(self).__name__} tried to connect to non-existent Dose Frequency with UID '{self.dose_frequency_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/medicinal_product.py:145`
+
+- **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/medicinal_product.py:188`
+
+- **Rule:** {type(self).__name__} tried to connect to non-existent Active Substance with UID '{self.active_substance_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/pharmaceutical_product.py:50`
+
+- **Rule:** {type(self).__name__} tried to connect to non-existent Strength with UID '{self.strength_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/pharmaceutical_product.py:56`
+
+- **Rule:** {type(self).__name__} tried to connect to non-existent Half-Life with UID '{self.half_life_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/pharmaceutical_product.py:62`
+
+- **Rule:** {type(self).__name__} tried to connect to non-existent Lag-Time with UID '{lag_time_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/pharmaceutical_product.py:68`
+
+- **Rule:** {type(self).__name__} tried to connect to non-existent or non-final Dosage Form with UID '{dosage_form_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/pharmaceutical_product.py:158`
+
+- **Rule:** {type(self).__name__} tried to connect to non-existent or non-final Route of Administration with UID '{route_of_administration_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/pharmaceutical_product.py:164`
+
+- **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/pharmaceutical_product.py:212`
 
 - **Rule:** {cls.__name__} tried to connect to non-existent Unit Definition with UID '{unit_definition_uid}'.
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/simple_concepts/lag_time.py:69`
@@ -378,6 +307,77 @@ This catalog contains domain validation rules extracted directly from the applic
 - **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/simple_concepts/numeric_value_with_unit.py:112`
   - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/simple_concept_aggregates/test_numeric_value_with_unit.py`
+
+- **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/simple_concepts/simple_concept.py:90`
+
+- **Rule:** {cls.__name__} tried to connect to non-existent Numeric Value with UID '{numeric_value_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/simple_concepts/time_point.py:64`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/simple_concept_aggregates/test_time_point.py`
+
+- **Rule:** {cls.__name__} tried to connect to non-existent Unit Definition with UID '{unit_definition_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/simple_concepts/time_point.py:70`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/simple_concept_aggregates/test_time_point.py`
+
+- **Rule:** {cls.__name__} tried to connect to non-existent CT Term with UID '{time_reference_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/simple_concepts/time_point.py:76`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/simple_concept_aggregates/test_time_point.py`
+
+- **Rule:** conversion factor to master if specified cannot be NaN value.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:77`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
+
+- **Rule:** conversion factor to master must be 1.0 for master unit (provided value: {conversion_factor_to_master})
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:83`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
+
+- **Rule:** Unknown CT dimension uid: {unit_dimension_uid}
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:92`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
+
+- **Rule:** use_molecular_weight must be provided with a value when unit dimension is set to 'Concentration'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:97`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
+
+- **Rule:** Unknown CT unit uid: {unit_ct_uid}
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:106`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
+
+- **Rule:** Unknown Unit Subset uid: {unit_subset}
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:113`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
+
+- **Rule:** Unknown ucum uid: {ucum_uid}
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:119`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
+
+- **Rule:** Unit Definition name must be provided.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:241`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
+
+- **Rule:** Attempt to change Unit Definition legacy code into non-unique value: {new_unit_definition_value.legacy_code}
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:249`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
+
+- **Rule:** Attempt to make '{self.uid}' another master unit in dimension '{new_unit_definition_value.unit_dimension_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:260`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
+
+- **Rule:** UnitDefinitionVO is missing.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:282`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
+
+- **Rule:** Unit Definition name must be provided.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:301`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
+
+- **Rule:** **⚠️ MISSING HUMAN-READABLE DESCRIPTION**
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:309`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
+
+- **Rule:** Attempt to create another master unit in dimension '{unit_definition_value.unit_dimension_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/concepts/unit_definitions/unit_definition.py:319`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/unit_definition/test_unit_definition.py`
 
 ## Controlled Terminologies
 
@@ -413,18 +413,6 @@ This catalog contains domain validation rules extracted directly from the applic
   - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/controlled_terminology_aggregates/test_ct_codelist_attributes.py`
 
 - **Rule:** Catalogue with Name '{catalogue_name}' doesn't exist.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/controlled_terminologies/ct_term_attributes.py:60`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/controlled_terminology_aggregates/test_ct_term_attributes.py`
-
-- **Rule:** Concept ID ({concept_id}) already in use by another term or codelist.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/controlled_terminologies/ct_term_attributes.py:64`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/controlled_terminology_aggregates/test_ct_term_attributes.py`
-
-- **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/controlled_terminologies/ct_term_attributes.py:119`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/controlled_terminology_aggregates/test_ct_term_attributes.py`
-
-- **Rule:** Catalogue with Name '{catalogue_name}' doesn't exist.
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/controlled_terminologies/ct_codelist_name.py:54`
   - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/controlled_terminology_aggregates/test_ct_codelist_name.py`
 
@@ -439,6 +427,18 @@ This catalog contains domain validation rules extracted directly from the applic
 - **Rule:** **⚠️ MISSING HUMAN-READABLE DESCRIPTION**
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/controlled_terminologies/ct_codelist_name.py:139`
   - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/controlled_terminology_aggregates/test_ct_codelist_name.py`
+
+- **Rule:** Catalogue with Name '{catalogue_name}' doesn't exist.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/controlled_terminologies/ct_term_attributes.py:60`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/controlled_terminology_aggregates/test_ct_term_attributes.py`
+
+- **Rule:** Concept ID ({concept_id}) already in use by another term or codelist.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/controlled_terminologies/ct_term_attributes.py:64`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/controlled_terminology_aggregates/test_ct_term_attributes.py`
+
+- **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/controlled_terminologies/ct_term_attributes.py:119`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/controlled_terminology_aggregates/test_ct_term_attributes.py`
 
 - **Rule:** {self.name_sentence_case} isn't an independent case version of {self.name}
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/controlled_terminologies/ct_term_name.py:88`
@@ -476,18 +476,6 @@ This catalog contains domain validation rules extracted directly from the applic
 
 ## Dictionaries
 
-- **Rule:** Dictionary Term with Name '{self.name}' already exists in Dictionary Codelist with UID '{self.codelist_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/dictionaries/dictionary_term.py:76`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/dictionary_aggregates/test_dictionary_term.py`
-
-- **Rule:** {self.name_sentence_case} isn't an independent case version of {self.name}
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/dictionaries/dictionary_term.py:81`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/dictionary_aggregates/test_dictionary_term.py`
-
-- **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/dictionaries/dictionary_term.py:135`
-  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/dictionary_aggregates/test_dictionary_term.py`
-
 - **Rule:** **⚠️ MISSING HUMAN-READABLE DESCRIPTION**
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/dictionaries/dictionary_codelist.py:64`
   - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/dictionary_aggregates/test_dictionary_codelist.py`
@@ -508,7 +496,22 @@ This catalog contains domain validation rules extracted directly from the applic
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/dictionaries/dictionary_codelist.py:207`
   - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/dictionary_aggregates/test_dictionary_codelist.py`
 
+- **Rule:** Dictionary Term with Name '{self.name}' already exists in Dictionary Codelist with UID '{self.codelist_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/dictionaries/dictionary_term.py:76`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/dictionary_aggregates/test_dictionary_term.py`
+
+- **Rule:** {self.name_sentence_case} isn't an independent case version of {self.name}
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/dictionaries/dictionary_term.py:81`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/dictionary_aggregates/test_dictionary_term.py`
+
+- **Rule:** Library with Name '{library.name}' doesn't allow creation of objects.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/dictionaries/dictionary_term.py:135`
+  - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/dictionary_aggregates/test_dictionary_term.py`
+
 ## General
+
+- **Rule:** The provided language '{query}' does not match any known language names or codes.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/_utils.py:85`
 
 - **Rule:** Can't infer if library with Name '{library_name}' is editable, because the is_editable callback wasn't passed.
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/versioned_object_aggregate.py:27`
@@ -549,9 +552,6 @@ This catalog contains domain validation rules extracted directly from the applic
 - **Rule:** Cannot use deleted object.
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/versioned_object_aggregate.py:495`
 
-- **Rule:** The provided language '{query}' does not match any known language names or codes.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/_utils.py:85`
-
 ## Libraries
 
 - **Rule:** parameter_term_by_uid_lookup_callback is required when value is None
@@ -574,47 +574,11 @@ This catalog contains domain validation rules extracted directly from the applic
 - **Rule:** Object has been accepted or is not retired
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/ar_base.py:45`
 
-- **Rule:** {object_name} tried to connect to non-existent ODMs {errors}.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/vendor_element.py:55`
-
-- **Rule:** ODM Vendor Element tried to connect to non-existent ODM Vendor Namespace with UID '{self.vendor_namespace_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/vendor_element.py:73`
-
-- **Rule:** **⚠️ MISSING HUMAN-READABLE DESCRIPTION**
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/vendor_element.py:84`
-
-- **Rule:** ODM Item Group already exists with UID ({uids[0]}) and data {data}
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/item_group.py:96`
-
-- **Rule:** ODM Item Group tried to connect to non-existent SDTM Domain with UID '{sdtm_domain_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/item_group.py:101`
-
 - **Rule:** ODM Condition already exists with UID ({uids[0]}) and data {data}
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/condition.py:55`
 
 - **Rule:** ODM Form already exists with UID ({uids[0]}) and data {data}
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/form.py:72`
-
-- **Rule:** compatible_types must be provided for ODM Vendor Attributes belonging to ODM Vendor Namespace.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/vendor_attribute.py:55`
-
-- **Rule:** ODM Vendor Attribute tried to connect to non-existent ODMs [('ODM Name: ODM Vendor Namespace', 'uids: ({self.vendor_namespace_uid})')].
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/vendor_attribute.py:60`
-
-- **Rule:** compatible_types must not be provided for ODM Vendor Attributes belonging to ODM Vendor Element.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/vendor_attribute.py:67`
-
-- **Rule:** ODM Vendor Attribute tried to connect to non-existent ODMs [('ODM Name: ODM Vendor Element', 'uids: ({self.vendor_element_uid})')].
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/vendor_attribute.py:72`
-
-- **Rule:** **⚠️ MISSING HUMAN-READABLE DESCRIPTION**
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/vendor_attribute.py:82`
-
-- **Rule:** ODM Study Event already exists with UID ({uids[0]}) and data {data}
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/study_event.py:63`
-
-- **Rule:** ODM Method already exists with UID ({uids[0]}) and data {data}
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/method.py:55`
 
 - **Rule:** ODM Item already exists with UID ({uids[0]}) and data {data}
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/item.py:113`
@@ -637,6 +601,42 @@ This catalog contains domain validation rules extracted directly from the applic
 - **Rule:** Activity Item Class with UID '{activity_instance['activity_item_class_uid']}' isn't present in Activity Instance with UID '{activity_instance['activity_instance_uid']}'
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/item.py:160`
 
+- **Rule:** ODM Item Group already exists with UID ({uids[0]}) and data {data}
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/item_group.py:96`
+
+- **Rule:** ODM Item Group tried to connect to non-existent SDTM Domain with UID '{sdtm_domain_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/item_group.py:101`
+
+- **Rule:** ODM Method already exists with UID ({uids[0]}) and data {data}
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/method.py:55`
+
+- **Rule:** ODM Study Event already exists with UID ({uids[0]}) and data {data}
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/study_event.py:63`
+
+- **Rule:** compatible_types must be provided for ODM Vendor Attributes belonging to ODM Vendor Namespace.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/vendor_attribute.py:55`
+
+- **Rule:** ODM Vendor Attribute tried to connect to non-existent ODMs [('ODM Name: ODM Vendor Namespace', 'uids: ({self.vendor_namespace_uid})')].
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/vendor_attribute.py:60`
+
+- **Rule:** compatible_types must not be provided for ODM Vendor Attributes belonging to ODM Vendor Element.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/vendor_attribute.py:67`
+
+- **Rule:** ODM Vendor Attribute tried to connect to non-existent ODMs [('ODM Name: ODM Vendor Element', 'uids: ({self.vendor_element_uid})')].
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/vendor_attribute.py:72`
+
+- **Rule:** **⚠️ MISSING HUMAN-READABLE DESCRIPTION**
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/vendor_attribute.py:82`
+
+- **Rule:** {object_name} tried to connect to non-existent ODMs {errors}.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/vendor_element.py:55`
+
+- **Rule:** ODM Vendor Element tried to connect to non-existent ODM Vendor Namespace with UID '{self.vendor_namespace_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/vendor_element.py:73`
+
+- **Rule:** **⚠️ MISSING HUMAN-READABLE DESCRIPTION**
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/vendor_element.py:84`
+
 - **Rule:** **⚠️ MISSING HUMAN-READABLE DESCRIPTION**
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/odms/vendor_namespace.py:50`
 
@@ -647,18 +647,6 @@ This catalog contains domain validation rules extracted directly from the applic
   - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/project_aggregate/test_project.py`
 
 ## Study Definition Aggregates
-
-- **Rule:** Deleting the Study Template configuration is not supported.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_definition_aggregates/study_template.py:122`
-
-- **Rule:** Unknown field '{value}'
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_definition_aggregates/study_configuration.py:105`
-
-- **Rule:** Unknown field '{value}'
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_definition_aggregates/study_configuration.py:142`
-
-- **Rule:** CTConfig nodes are not present, load them by running sponsor migration
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_definition_aggregates/study_configuration.py:156`
 
 - **Rule:** Unknown null value code provided for Reason For Missing in ClinicalTrials.gov ID
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_definition_aggregates/registry_identifiers.py:136`
@@ -767,6 +755,15 @@ This catalog contains domain validation rules extracted directly from the applic
 - **Rule:** Study with UID '{self.uid}' has no locked version with number '{version_number}'.
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_definition_aggregates/root.py:795`
   - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/study_definition_aggregate/test_root.py`
+
+- **Rule:** Unknown field '{value}'
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_definition_aggregates/study_configuration.py:105`
+
+- **Rule:** Unknown field '{value}'
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_definition_aggregates/study_configuration.py:142`
+
+- **Rule:** CTConfig nodes are not present, load them by running sponsor migration
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_definition_aggregates/study_configuration.py:156`
 
 - **Rule:** Project of Study Subparts cannot be changed independently from its Study Parent Part.
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_definition_aggregates/study_metadata.py:165`
@@ -904,6 +901,9 @@ This catalog contains domain validation rules extracted directly from the applic
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_definition_aggregates/study_metadata.py:1472`
   - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/study_definition_aggregate/test_study_metadata.py`
 
+- **Rule:** Deleting the Study Template configuration is not supported.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_definition_aggregates/study_template.py:122`
+
 ## Study Selections
 
 - **Rule:** Compound dosing selection with the specified compound, dose value and dose frequency already exists.
@@ -911,6 +911,66 @@ This catalog contains domain validation rules extracted directly from the applic
 
 - **Rule:** Selected dose value is not valid for medicinal product '{medicinal_product.concept_vo.name}'.
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_compound_dosing.py:98`
+
+- **Rule:** There is no approved Activity with UID '{self.activity_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_activity.py:131`
+
+- **Rule:** There is no approved Flowchart Group Term with UID '{self.soa_group_term_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_activity.py:135`
+
+- **Rule:** There is already a Study Selection to the {self._object_type} with Name '{object_name}' with the same groupings.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_activity.py:198`
+
+- **Rule:** There is no approved Activity Instance with UID '{self.activity_instance_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_activity_instance.py:246`
+
+- **Rule:** There is already a Study Activity Instance with UID '{object_uid}' linked to the Activity with UID '{activity_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_activity_instance.py:294`
+
+- **Rule:** There is no approved Arm Level Term with UID '{self.arm_type_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_arm.py:122`
+
+- **Rule:** Value '{self.name}' in field Arm name is not unique for the study.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_arm.py:128`
+
+- **Rule:** Value '{self.short_name}' in field Arm short name is not unique for the study.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_arm.py:134`
+
+- **Rule:** Value '{self.code}' in field code is not unique for the study.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_arm.py:141`
+
+- **Rule:** Value '{self.randomization_group}' in field Arm Randomization code is not unique for the study.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_arm.py:147`
+
+- **Rule:** There is already a Study Selection to the {self._object_type} with Name '{object_name}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_base.py:191`
+
+- **Rule:** Cannot change StudyArm when the BranchArm with UID '{self.study_selection_uid}' has connected StudyDesignCells.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_branch_arm.py:127`
+
+- **Rule:** There is no approved Arm Level with UID '{self.arm_root_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_branch_arm.py:133`
+
+- **Rule:** Value '{self.name}' in field Branch Arm Name is not unique for the study.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_branch_arm.py:139`
+
+- **Rule:** Value '{self.short_name}' in field Branch Arm Short Name is not unique for the study.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_branch_arm.py:145`
+
+- **Rule:** There is no approved Branch Arm with UID '{branch_arm_root_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_cohort.py:117`
+
+- **Rule:** There is no approved Arm with UID '{arm_root_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_cohort.py:127`
+
+- **Rule:** Value '{self.name}' in field Cohort Name is not unique for the study.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_cohort.py:133`
+
+- **Rule:** Value '{self.short_name}' in field Cohort Short Name is not unique for the study.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_cohort.py:139`
+
+- **Rule:** Value '{self.code}' in field Cohort code is not unique for the study.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_cohort.py:146`
 
 - **Rule:** Unknown reason for missing value code provided for Reason For Missing
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_compound.py:129`
@@ -933,38 +993,17 @@ This catalog contains domain validation rules extracted directly from the applic
 - **Rule:** Selected Compound Alias with UID '{self.compound_alias_uid}' and Medicinal Product with UID '{self.medicinal_product_uid}' must relate to the same compound
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_compound.py:188`
 
-- **Rule:** There is already a Study Selection to the {self._object_type} with Name '{object_name}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_base.py:191`
+- **Rule:** There is no approved Criteria with UID '{self.syntax_object_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_criteria.py:75`
 
-- **Rule:** Cannot change StudyArm when the BranchArm with UID '{self.study_selection_uid}' has connected StudyDesignCells.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_branch_arm.py:127`
+- **Rule:** There is no approved Criteria Type with UID '{self.criteria_type_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_criteria.py:79`
 
-- **Rule:** There is no approved Arm Level with UID '{self.arm_root_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_branch_arm.py:133`
+- **Rule:** There is already a Study Selection to a criteria with UID '{selection.syntax_object_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_criteria.py:294`
 
-- **Rule:** Value '{self.name}' in field Branch Arm Name is not unique for the study.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_branch_arm.py:139`
-
-- **Rule:** Value '{self.short_name}' in field Branch Arm Short Name is not unique for the study.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_branch_arm.py:145`
-
-- **Rule:** There is no approved SoA Group Term with UID '{self.soa_group_term_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_soa_group_selection.py:72`
-
-- **Rule:** Unrecognized visit contact mode passed.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_visit.py:158`
-
-- **Rule:** There can be a maximum of 3 Early Discontinuation visits per scheduled visit and current Early Discontinuation visit is set to be {self.subvisit_number}
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_visit.py:181`
-
-- **Rule:** There can be a maximum of {settings.special_visit_max_number} special visits per scheduled visit and current special visit is set to be {self.subvisit_number}
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_visit.py:191`
-
-- **Rule:** Circular anchor visit reference detected at visit '{self.uid}' while resolving absolute duration.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_visit.py:377`
-
-- **Rule:** Visit has no absolute duration, cannot derive visit window.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_visit.py:397`
+- **Rule:** There is no approved Element Level with UID '{self.element_subtype_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_element.py:119`
 
 - **Rule:** There is no approved Endpoint with UID '{self.endpoint_uid}'.
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_endpoint.py:197`
@@ -1014,36 +1053,6 @@ This catalog contains domain validation rules extracted directly from the applic
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_endpoint.py:531`
   - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/study_selection/test_study_selection_endpoint.py`
 
-- **Rule:** There is no approved Activity Instance with UID '{self.activity_instance_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_activity_instance.py:246`
-
-- **Rule:** There is already a Study Activity Instance with UID '{object_uid}' linked to the Activity with UID '{activity_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_activity_instance.py:294`
-
-- **Rule:** There is no approved Criteria with UID '{self.syntax_object_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_criteria.py:75`
-
-- **Rule:** There is no approved Criteria Type with UID '{self.criteria_type_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_criteria.py:79`
-
-- **Rule:** There is already a Study Selection to a criteria with UID '{selection.syntax_object_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_criteria.py:294`
-
-- **Rule:** There is no approved Arm Level Term with UID '{self.arm_type_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_arm.py:122`
-
-- **Rule:** Value '{self.name}' in field Arm name is not unique for the study.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_arm.py:128`
-
-- **Rule:** Value '{self.short_name}' in field Arm short name is not unique for the study.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_arm.py:134`
-
-- **Rule:** Value '{self.code}' in field code is not unique for the study.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_arm.py:141`
-
-- **Rule:** Value '{self.randomization_group}' in field Arm Randomization code is not unique for the study.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_arm.py:147`
-
 - **Rule:** There is no approved Objective with UID '{self.objective_uid}'.
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_objective.py:78`
   - *Traceability:* Verified by tests in `clinical-mdr-api/clinical_mdr_api/tests/unit/domain/study_selection/test_study_selection_objective.py`
@@ -1066,32 +1075,23 @@ This catalog contains domain validation rules extracted directly from the applic
 - **Rule:** At least one of Footnote UID '{self.footnote_uid}' and Footnote Template UID '{self.footnote_template_uid}' must be set.
   - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_soa_footnote.py:168`
 
-- **Rule:** There is no approved Branch Arm with UID '{branch_arm_root_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_cohort.py:117`
+- **Rule:** There is no approved SoA Group Term with UID '{self.soa_group_term_uid}'.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_soa_group_selection.py:72`
 
-- **Rule:** There is no approved Arm with UID '{arm_root_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_cohort.py:127`
+- **Rule:** Unrecognized visit contact mode passed.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_visit.py:158`
 
-- **Rule:** Value '{self.name}' in field Cohort Name is not unique for the study.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_cohort.py:133`
+- **Rule:** There can be a maximum of 3 Early Discontinuation visits per scheduled visit and current Early Discontinuation visit is set to be {self.subvisit_number}
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_visit.py:181`
 
-- **Rule:** Value '{self.short_name}' in field Cohort Short Name is not unique for the study.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_cohort.py:139`
+- **Rule:** There can be a maximum of {settings.special_visit_max_number} special visits per scheduled visit and current special visit is set to be {self.subvisit_number}
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_visit.py:191`
 
-- **Rule:** Value '{self.code}' in field Cohort code is not unique for the study.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_cohort.py:146`
+- **Rule:** Circular anchor visit reference detected at visit '{self.uid}' while resolving absolute duration.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_visit.py:377`
 
-- **Rule:** There is no approved Activity with UID '{self.activity_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_activity.py:131`
-
-- **Rule:** There is no approved Flowchart Group Term with UID '{self.soa_group_term_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_activity.py:135`
-
-- **Rule:** There is already a Study Selection to the {self._object_type} with Name '{object_name}' with the same groupings.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_activity.py:198`
-
-- **Rule:** There is no approved Element Level with UID '{self.element_subtype_uid}'.
-  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_selection_element.py:119`
+- **Rule:** Visit has no absolute duration, cannot derive visit window.
+  - *Source:* `clinical-mdr-api/clinical_mdr_api/domains/study_selections/study_visit.py:397`
 
 ## Syntax Templates
 
