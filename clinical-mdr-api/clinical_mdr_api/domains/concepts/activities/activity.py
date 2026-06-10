@@ -151,12 +151,12 @@ class ActivityVO(ConceptVO):
             BusinessLogicException.raise_if_not(
                 activity_subgroup_exists(activity_grouping.activity_subgroup_uid),
                 msg="Activity tried to connect to non-existent or non-final concepts "
-                f"""[('Concept Name: Activity Subgroup', "uids: {{'{activity_grouping.activity_subgroup_uid}'}}")].""",
+                f"""[('Concept Name: Activity Subgroup', "uids: {activity_grouping.activity_subgroup_uid}")].""",
             )
             BusinessLogicException.raise_if_not(
                 activity_group_exists(activity_grouping.activity_group_uid),
                 msg="Activity tried to connect to non-existent or non-final concepts "
-                f"""[('Concept Name: Activity Group', "uids: {{'{activity_grouping.activity_group_uid}'}}")].""",
+                f"""[('Concept Name: Activity Group', "uids: {activity_grouping.activity_group_uid}")].""",
             )
 
 
