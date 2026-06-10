@@ -1484,6 +1484,12 @@ class StudyMetadataJsonModel(BaseModel):
     study_description: Annotated[
         StudyDescriptionJsonModel | None, Field(json_schema_extra={"nullable": True})
     ] = None
+    system_boundaries: Annotated[
+        list[dict] | None, Field(json_schema_extra={"nullable": True})
+    ] = None
+    system_constraints: Annotated[
+        list[dict] | None, Field(json_schema_extra={"nullable": True})
+    ] = None
 
     @classmethod
     def from_study_metadata_vo(

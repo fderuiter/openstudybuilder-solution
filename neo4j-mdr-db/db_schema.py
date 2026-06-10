@@ -14,6 +14,8 @@ INDEXES = [
     ("StudyEpoch", "uid"),
     ("OrderedStudySelection", "uid"),
     ("StudySelection", "uid"),
+    ("SystemBoundary", "uid"),
+    ("SystemConstraint", "uid"),
     ("StudyVisit", "uid"),
     ("StudyArm", "uid"),
     ("StudyCohort", "uid"),
