@@ -499,6 +499,9 @@ app.include_router(routers.brands_router, prefix="/brands", tags=["Brands"])
 app.include_router(routers.comments_router, prefix="", tags=["Comments"])
 
 app.include_router(routers.studies_router, prefix="/studies", tags=["Studies"])
+app.include_router(
+    routers.study_system_requirements_router, tags=["Study System Requirements"]
+)
 
 app.include_router(routers.study_router, prefix="", tags=["Study Selections"])
 app.include_router(

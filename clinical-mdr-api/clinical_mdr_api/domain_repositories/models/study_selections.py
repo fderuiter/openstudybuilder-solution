@@ -831,6 +831,31 @@ class StudyDefinitionDocument(StudySelection):
     )
 
 
+class SystemBoundary(StudySelection):
+    description = StringProperty()
+    name = StringProperty()
+
+    study_value = RelationshipFrom(
+        STUDY_VALUE_CLASS_NAME,
+        "HAS_SYSTEM_BOUNDARY",
+        model=ClinicalMdrRel,
+        cardinality=ZeroOrMore,
+    )
+
+
+class SystemConstraint(StudySelection):
+    description = StringProperty()
+    name = StringProperty()
+    category = StringProperty()
+
+    study_value = RelationshipFrom(
+        STUDY_VALUE_CLASS_NAME,
+        "HAS_SYSTEM_CONSTRAINT",
+        model=ClinicalMdrRel,
+        cardinality=ZeroOrMore,
+    )
+
+
 # All domain classes that inherit StudySelection (excluding the abstract base).
 STUDY_SELECTION_CONCRETE_LABELS: frozenset[str] = frozenset(
     {
@@ -861,6 +886,8 @@ STUDY_SELECTION_CONCRETE_LABELS: frozenset[str] = frozenset(
         "StudyVisit",
         "StudyDiseaseMilestone",
         "StudyStandardVersion",
+        "SystemBoundary",
+        "SystemConstraint",
     }
 )
 

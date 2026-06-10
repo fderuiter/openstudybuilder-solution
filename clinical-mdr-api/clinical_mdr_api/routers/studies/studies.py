@@ -763,6 +763,33 @@ def get(
         status=status,
         study_value_version=study_value_version,
     )
+
+    if study_definition and study_definition.current_metadata:
+        from neomodel import db
+
+        # Inject system boundaries
+        boundaries_query = """
+            MATCH (sr:StudyRoot {uid: $study_uid})-[:LATEST]->(sv:StudyValue)
+                  -[:HAS_SYSTEM_BOUNDARY]->(sb:SystemBoundary)
+            RETURN sb.uid, sb.name, sb.description
+        """
+        boundaries, _ = db.cypher_query(boundaries_query, {"study_uid": study_uid})
+        study_definition.current_metadata.system_boundaries = [
+            {"uid": row[0], "name": row[1], "description": row[2]} for row in boundaries
+        ]
+
+        # Inject system constraints
+        constraints_query = """
+            MATCH (sr:StudyRoot {uid: $study_uid})-[:LATEST]->(sv:StudyValue)
+                  -[:HAS_SYSTEM_CONSTRAINT]->(sc:SystemConstraint)
+            RETURN sc.uid, sc.name, sc.category, sc.description
+        """
+        constraints, _ = db.cypher_query(constraints_query, {"study_uid": study_uid})
+        study_definition.current_metadata.system_constraints = [
+            {"uid": row[0], "name": row[1], "category": row[2], "description": row[3]}
+            for row in constraints
+        ]
+
     return study_definition
 
 

@@ -157,6 +157,9 @@ from clinical_mdr_api.routers.standard_data_models.variable_classes import (
     router as class_variables_router,
 )
 from clinical_mdr_api.routers.studies.studies import router as studies_router
+from clinical_mdr_api.routers.studies.study_system_requirements import (
+    router as study_system_requirements_router,
+)
 from clinical_mdr_api.routers.studies.study import router as study_router
 from clinical_mdr_api.routers.studies.study_activity_instructions import (
     router as study_activity_instructions_router,
@@ -326,6 +329,7 @@ __all__ = [
     "admin_router",
     "clinical_programmes_router",
     "studies_router",
+    "study_system_requirements_router",
     "system_router",
     "timeframe_templates_router",
     "timeframes_router",

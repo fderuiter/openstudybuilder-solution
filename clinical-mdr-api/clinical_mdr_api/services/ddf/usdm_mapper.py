@@ -11,6 +11,7 @@ from usdm_model import AliasCode as USDMAliasCode
 from usdm_model import Code as USDMCode
 from usdm_model import Encounter as USDMEncounter
 from usdm_model import Endpoint as USDMEndpoint
+from usdm_model.extension import ExtensionAttribute as USDMExtensionAttribute
 from usdm_model import Indication as USDMIndication
 from usdm_model import Objective as USDMObjective
 from usdm_model import Organization as USDMOrganization
@@ -395,6 +396,43 @@ class USDMMapper:
         usdm_version.studyDesigns[0].studyInterventionIds = [
             intervention.id for intervention in usdm_version.studyInterventions
         ]
+
+        # Extract extensions
+        extensions = []
+        # get boundaries
+        boundaries_query = """
+            MATCH (sr:StudyRoot {uid: $study_uid})-[:LATEST]->(sv:StudyValue)
+                  -[:HAS_SYSTEM_BOUNDARY]->(sb:SystemBoundary)
+            RETURN sb.name, sb.description
+        """
+        boundaries, _ = db.cypher_query(boundaries_query, {"study_uid": study.uid})
+        for row in boundaries:
+            extensions.append(
+                USDMExtensionAttribute(
+                    url="SystemBoundary",
+                    valueString=f"Name: {row[0]}, Description: {row[1]}",
+                    instanceType="ExtensionAttribute",
+                )
+            )
+
+        # get constraints
+        constraints_query = """
+            MATCH (sr:StudyRoot {uid: $study_uid})-[:LATEST]->(sv:StudyValue)
+                  -[:HAS_SYSTEM_CONSTRAINT]->(sc:SystemConstraint)
+            RETURN sc.name, sc.category, sc.description
+        """
+        constraints, _ = db.cypher_query(constraints_query, {"study_uid": study.uid})
+        for row in constraints:
+            extensions.append(
+                USDMExtensionAttribute(
+                    url="SystemConstraint",
+                    valueString=f"Category: {row[1]}, Name: {row[0]}, Description: {row[2]}",
+                    instanceType="ExtensionAttribute",
+                )
+            )
+
+        if extensions:
+            usdm_version.extensionAttributes = extensions
 
         # Set DDF study versions
         usdm_study.versions = [usdm_version]

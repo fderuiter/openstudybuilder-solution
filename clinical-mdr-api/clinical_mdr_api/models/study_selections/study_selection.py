@@ -5615,3 +5615,20 @@ class StudySourceVariable(StudySourceVariableInput):
     @classmethod
     def instantiate_author_username(cls, value):
         return UserInfoService.get_author_username_from_id(value)
+
+
+class StudySelectionSystemBoundaryCreateInput(PostInputModel):
+    name: Annotated[str, Field(description="name for the system boundary")]
+    description: Annotated[
+        str | None, Field(description="description for the system boundary")
+    ] = None
+
+
+class StudySelectionSystemConstraintCreateInput(PostInputModel):
+    name: Annotated[str, Field(description="name for the system constraint")]
+    category: Annotated[
+        str | None, Field(description="category for the system constraint")
+    ] = None
+    description: Annotated[
+        str | None, Field(description="description for the system constraint")
+    ] = None
