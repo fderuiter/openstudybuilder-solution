@@ -1502,6 +1502,21 @@ class StudyMetadataJsonModel(BaseModel):
         find_dictionary_term_by_uid: Callable[[str], DictionaryTermAR | None],
         terms_at_specific_datetime: datetime | None = None,
     ) -> Self:
+        """
+        Construct a StudyMetadataJsonModel from a StudyMetadataVO, resolving referenced projects, clinical programmes, controlled-terminology terms, dictionary terms, and time units via the provided lookup callables.
+        
+        Parameters:
+            study_metadata_vo (StudyMetadataVO): Source value object containing study metadata to convert.
+            find_project_by_project_number (Callable[[str], ProjectAR]): Lookup for a project by project number; used to populate project-related fields.
+            find_clinical_programme_by_uid (Callable[[str], ClinicalProgrammeAR]): Lookup for a clinical programme by UID; used to populate clinical programme name.
+            find_all_study_time_units (Callable[[str], tuple[list[UnitDefinitionAR], int]]): Lookup returning study time unit definitions and a count; used to convert duration/time-unit fields.
+            find_term_by_uids (Callable[..., list[CTTermNameAR] | None]): Resolver for controlled-terminology term UIDs (may support batch resolution); used for null-value and coded-term mappings.
+            find_dictionary_term_by_uid (Callable[[str], DictionaryTermAR | None]): Resolver for dictionary term UIDs; used to convert dictionary-coded fields.
+            terms_at_specific_datetime (datetime | None): Optional datetime to resolve time-sensitive term names; when provided, lookups should return term variants valid at that datetime.
+        
+        Returns:
+            StudyMetadataJsonModel: A JSON-serializable model representing the study metadata with referenced terms and units resolved.
+        """
         return cls(
             identification_metadata=StudyIdentificationMetadataJsonModel.from_study_identification_vo(
                 study_identification_o=study_metadata_vo.id_metadata,

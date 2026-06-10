@@ -343,6 +343,28 @@ class USDMMapper:
 
     @trace_calls
     def map(self, study: OSBStudy) -> dict[str, Any]:
+        """
+        Map an OSBStudy into a USDM study package dictionary.
+        
+        This method resolves CT package/version context, loads registry labels, builds a USDMStudy
+        with one USDMStudyVersion (including titles, identifiers, organizations, interventions,
+        design(s), and optional extension attributes extracted from the database), and returns a
+        wrapped dictionary containing the study and package metadata.
+        
+        Parameters:
+            study (OSBStudy): OSB study object containing metadata and graph identifiers to map.
+        
+        Returns:
+            wrapped_study (dict[str, Any]): A dictionary with keys:
+                - "study": the constructed USDMStudy instance.
+                - "usdmVersion": the USDM package version metadata.
+                - "systemName": system name or None.
+                - "systemVersion": system version or None.
+        
+        Side effects:
+            Updates mapper state used for term resolution: `_ct_package_effective_date`,
+            `_ct_terms_datetime`, and `_registid_labels`.
+        """
         self._ct_package_effective_date = self._resolve_ct_package_effective_date(
             study.uid
         )
