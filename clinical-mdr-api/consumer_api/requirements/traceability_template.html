@@ -97,7 +97,7 @@
       padding-left: 40px;
     }
 
-    div.fs-tests {
+    div.fs-tests, div.fs-impl {
       margin-bottom: 40px;
       margin-top: 20px;
     }
@@ -137,7 +137,7 @@
       <h1>Traceability Matrix</h1>
       <h2>
         User Requirements Specifications (URS) | Functional Specifications (FS)
-        | Tests
+        | Tests | Implementation
       </h2>
       <p class="generated-on">Generated on {{ now }}</p>
     </div>
@@ -170,6 +170,16 @@
       />
       <label for="show-tests">Show Tests</label>
       &nbsp;&nbsp;&nbsp;
+      <input
+        type="checkbox"
+        id="show-impl"
+        checked
+        onclick="toggleTextVisibility('fs-impl')"
+        onKeyPress="if(event.key === 'Enter') toggleTextVisibility('fs-impl')"
+      />
+      <label for="show-impl">Show Implementation</label>
+      &nbsp;&nbsp;&nbsp;
+      
       <input
         type="checkbox"
         id="show-warnings"
