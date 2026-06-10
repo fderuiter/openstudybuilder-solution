@@ -60,73 +60,103 @@ def extract_section_headers_and_content(
     for html_element in soup.find_all(html_tag):
         text = html_element.get_text().strip()
         if text.startswith("FS-") or text.startswith("URS-"):
-            # Extract all content until the next `html_tag` or end of document
             content = []
             for sibling in html_element.find_next_siblings():
                 if sibling.name in ["h1", html_tag]:
                     break
                 content.append(sibling)
-            sections.append((text, content))
+                
+            filtered_content = []
+            skip_table = False
+            for item in content:
+                if item.name == "h3" and item.get_text().strip().lower() in ["test coverage", "implementation coverage"]:
+                    skip_table = True
+                    continue
+                if skip_table and item.name == "table":
+                    skip_table = False
+                    continue
+                filtered_content.append(item)
+
+            sections.append((text, filtered_content))
     return sections
 
 
-def extract_fs_titles_and_tests(html_content: str, all_tests: list[dict[str, Any]]):
-    """Extract FS titles and their corresponding tests from the HTML content."""
+def extract_fs_data(html_content: str, all_tests: list[dict[str, Any]]):
+    """Extract FS titles, their corresponding tests and implementation files from the HTML content."""
     soup = BeautifulSoup(html_content, HTML_PARSER)
-    fs_titles_and_tests = []
+    fs_data = []
 
     for html_element in soup.find_all("h2"):
         text = html_element.get_text().strip()
-        # Only consider headers that start with "FS-"
-        # Find all sibling h3 elements with text `Test coverage` until the next h2 or end of document
         if text.startswith("FS-"):
+            tests_list = []
+            impl_list = []
+            test_table_html = ""
+            impl_table_html = ""
+
             for sibling in html_element.find_next_siblings():
                 if sibling.name == "h2":
                     break
-                if (
-                    sibling.name == "h3"
-                    and sibling.get_text().strip().lower() == "test coverage"
-                ):
-                    # Collect all sibling <table> elements until the next h3 or h2
-                    for table_sibling in sibling.find_next_siblings():
-                        if table_sibling.name in ["h2", "h3"]:
-                            break
-                        if table_sibling.name == "table":
-                            # Add Test Status column header
-                            header_row = table_sibling.find("tr")
-                            if header_row:
-                                ths = header_row.find_all("th")
-                                if ths:
-                                    new_th = soup.new_tag("th")
-                                    new_th.string = "Test Status"
-                                    header_row.append(new_th)
+                if sibling.name == "h3":
+                    h3_text = sibling.get_text().strip().lower()
+                    if h3_text == "test coverage":
+                        for table_sibling in sibling.find_next_siblings():
+                            if table_sibling.name in ["h2", "h3"]:
+                                break
+                            if table_sibling.name == "table":
+                                header_row = table_sibling.find("tr")
+                                if header_row:
+                                    ths = header_row.find_all("th")
+                                    if ths:
+                                        new_th = soup.new_tag("th")
+                                        new_th.string = "Test Status"
+                                        header_row.append(new_th)
 
-                            rows = table_sibling.find_all("tr")
-                            tests_list = []
-                            for row in rows:
-                                cols = row.find_all("td")
-                                if len(cols) >= 2:
-                                    test_file = cols[0].get_text().strip()
-                                    test_method = cols[1].get_text().strip()
-                                    tests_list.append(
-                                        {"file": test_file, "method": test_method}
-                                    )
-                                    
-                                    # Determine status
-                                    status = "Missing"
-                                    for t in all_tests:
-                                        if t["file"] == test_file and test_method in t["methods"]:
-                                            status = "Automated"
-                                            break
-                                    
-                                    new_td = soup.new_tag("td")
-                                    new_td.string = status
-                                    row.append(new_td)
+                                rows = table_sibling.find_all("tr")
+                                for row in rows[1:]:
+                                    cols = row.find_all("td")
+                                    if len(cols) >= 2:
+                                        test_file = cols[0].get_text().strip()
+                                        test_method = cols[1].get_text().strip()
+                                        tests_list.append({"file": test_file, "method": test_method})
+                                        
+                                        status = "Missing"
+                                        for t in all_tests:
+                                            if t["file"] == test_file and test_method in t["methods"]:
+                                                status = "Automated"
+                                                break
+                                        
+                                        new_td = soup.new_tag("td")
+                                        new_td.string = status
+                                        row.append(new_td)
 
-                            fs_titles_and_tests.append(
-                                (text, table_sibling, tests_list)
-                            )
-    return fs_titles_and_tests
+                                test_table_html = str(table_sibling)
+                    elif h3_text == "implementation coverage":
+                        for table_sibling in sibling.find_next_siblings():
+                            if table_sibling.name in ["h2", "h3"]:
+                                break
+                            if table_sibling.name == "table":
+                                rows = table_sibling.find_all("tr")
+                                for row in rows[1:]:
+                                    cols = row.find_all("td")
+                                    if len(cols) >= 1:
+                                        impl_file = cols[0].get_text().strip()
+                                        impl_list.append(impl_file)
+                                        # To make it clickable, link to 4 levels up (repo root)
+                                        a_tag = soup.new_tag("a", href=f"../../../{impl_file}")
+                                        a_tag.string = impl_file
+                                        cols[0].string = ""
+                                        cols[0].append(a_tag)
+                                impl_table_html = str(table_sibling)
+
+            fs_data.append({
+                "title": text,
+                "test_table_html": test_table_html,
+                "tests_list": tests_list,
+                "impl_table_html": impl_table_html,
+                "impl_list": impl_list
+            })
+    return fs_data
 
 
 def extract_id_and_title(html_content: str):
@@ -191,7 +221,7 @@ def collect_fs_traceability(fs_files, full_traceability, all_tests):
         try:
             html_content = parse_markdown_file(fs_file)
             sections = extract_section_headers_and_content(html_content, "h2")
-            fs_titles_and_tests = extract_fs_titles_and_tests(html_content, all_tests)
+            fs_data_list = extract_fs_data(html_content, all_tests)
 
             if sections:
                 for fs_title, section_content in sections:
@@ -203,11 +233,8 @@ def collect_fs_traceability(fs_files, full_traceability, all_tests):
                     urs_id = fs_title[
                         fs_title.index("[") + 1 : fs_title.index("]")
                     ].strip()
-                    fs_tests = [
-                        {"html": tests_html, "list": tests_list}
-                        for title, tests_html, tests_list in fs_titles_and_tests
-                        if title == fs_title
-                    ]
+                    
+                    fs_data = next((d for d in fs_data_list if d["title"] == fs_title), None)
 
                     # Link FS to URS in full_traceability dict list
                     for entry in full_traceability:
@@ -222,12 +249,10 @@ def collect_fs_traceability(fs_files, full_traceability, all_tests):
                                             for section_content in section_content
                                         ]
                                     ),
-                                    "tests_html": (
-                                        fs_tests[0]["html"] if fs_tests else ""
-                                    ),
-                                    "tests_list": (
-                                        fs_tests[0]["list"] if fs_tests else []
-                                    ),
+                                    "tests_html": (fs_data["test_table_html"] if fs_data else ""),
+                                    "tests_list": (fs_data["tests_list"] if fs_data else []),
+                                    "impl_table_html": (fs_data["impl_table_html"] if fs_data else ""),
+                                    "impl_list": (fs_data["impl_list"] if fs_data else []),
                                 }
                             )
             else:
@@ -271,13 +296,19 @@ def get_warnings(
     fs_no_urs = "FSs without linked URS"
     fs_no_tests = "FSs without linked tests"
     non_existent_tests = "Non-existent tests"
+    fs_no_impl = "FSs without linked implementation"
+    non_existent_impl = "Non-existent implementation files"
 
     warnings: dict[str, list[str]] = {
         urs_no_fs: [],
         fs_no_urs: [],
         fs_no_tests: [],
         non_existent_tests: [],
+        fs_no_impl: [],
+        non_existent_impl: [],
     }
+
+    repo_root = BASE_DIR.parent.parent
 
     for entry in full_traceability:
         # Check for URSs that do not have any linked FSs
@@ -288,10 +319,15 @@ def get_warnings(
 
         # Check for FSs that do not have any linked tests
         for fs in entry["fs_list"]:
-            if not fs["tests_html"]:
+            if not fs.get("tests_html"):
                 warning_msg = f"FS {fs['fs_id']} has no linked tests"
                 logger.warning(warning_msg)
                 warnings[fs_no_tests].append(fs["fs_id"])
+                
+            if fs.get("tests_html") and not fs.get("impl_table_html"):
+                warning_msg = f"FS {fs['fs_id']} lacks implementation mapping while having test mapping"
+                logger.warning(warning_msg)
+                warnings[fs_no_impl].append(fs["fs_id"])
 
         # Check for tests that do not exist in the tests folder
         test_names = []
@@ -300,7 +336,7 @@ def get_warnings(
                 test_names.append(f"{filename}::{method}")
 
         for fs in entry["fs_list"]:
-            if fs["tests_list"]:
+            if fs.get("tests_list"):
                 for test in fs["tests_list"]:
                     test_method = f"{test['file']}::{test['method']}"
                     if test_method not in test_names:
@@ -308,7 +344,13 @@ def get_warnings(
                         logger.warning(warning_msg)
                         warnings[non_existent_tests].append(test_method)
 
-    # Check for FSs that are not linked to any URS
+            if fs.get("impl_list"):
+                for impl_file in fs["impl_list"]:
+                    full_path = repo_root / impl_file
+                    if not full_path.exists():
+                        warning_msg = f"Implementation path does not exist in the repository: {impl_file}"
+                        logger.warning(warning_msg)
+                        warnings[non_existent_impl].append(impl_file)    # Check for FSs that are not linked to any URS
     linked_fs_ids = set()
     for entry in full_traceability:
         for fs in entry["fs_list"]:
@@ -390,8 +432,12 @@ def generate_traceability_html(full_traceability: list[Any]) -> list[str]:
             fs_section = f"""
             <h2 class="fs" id="{fs["fs_id"]}">{urs_idx+1}.{fs_idx+1} {fs["fs_id"]}</h2>
             <div class="fs-text">{fs["text"]}</div>
-            <div class="fs-tests">{fs["tests_html"]}</div>
             """
+            if fs.get("tests_html"):
+                fs_section += f'<div class="fs-tests"><h3>Test coverage</h3>\n{fs["tests_html"]}</div>\n'
+            if fs.get("impl_table_html"):
+                fs_section += f'<div class="fs-impl"><h3>Implementation coverage</h3>\n{fs["impl_table_html"]}</div>\n'
+            
             fs_sections.append(fs_section)
 
         full_traceability_html.append(
