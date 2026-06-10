@@ -251,6 +251,9 @@ def merge_q_query_filters(*args, filter_operator: "FilterOperator"):
     return args
 
 
+from clinical_mdr_api.services.decorators import architectural_logic
+
+@architectural_logic(feature="temporal", description="Applies temporal filters using start and end dates")
 def get_versioning_q_filter(filter_elem, field: str, q_filters: list[Any]):
     neomodel_filter = comparison_operator_to_neomodel.get(filter_elem.op)
     if neomodel_filter is None:

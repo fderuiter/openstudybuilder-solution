@@ -143,17 +143,52 @@ def extract_id_and_title(html_content: str):
     return None, None
 
 
-def generate_html(full_traceability, warnings) -> str:
+def extract_architectural_logic(base_dir: Path) -> str:
+    import re
+    import os
+    docs = ["<h2>Architectural Logic</h2>\n<ul>"]
+    
+    # 1. Consumer API
+    consumer_api_dir = base_dir.parent / "consumer_api"
+    # 2. Core Clinical Services
+    core_services_dir = base_dir.parent / "clinical_mdr_api"
+    
+    for search_dir in [consumer_api_dir, core_services_dir]:
+        if not search_dir.exists():
+            continue
+        for root, _, files in os.walk(search_dir):
+            for file in files:
+                if file.endswith(".py"):
+                    path = Path(root) / file
+                    with open(path, "r", encoding="utf-8") as f:
+                        content = f.read()
+                        matches = re.finditer(r'@architectural_logic\(\s*feature\s*=\s*["\']([^"\']+)["\']\s*,\s*description\s*=\s*["\']([^"\']+)["\']\s*\)\s*def\s+([a-zA-Z0-9_]+)\(', content)
+                        for match in matches:
+                            feature = match.group(1)
+                            desc = match.group(2)
+                            func = match.group(3)
+                            docs.append(f"<li><strong>{feature.capitalize()} Logic</strong>: Function <code>{func}</code> - {desc} (in <code>{path.name}</code>)</li>")
+    
+    docs.append("</ul>")
+    return "\n".join(docs)
+
+def generate_html(full_traceability, warnings, architectural_logic_html="") -> str:
     """Generate the final HTML document using Jinja2 template."""
     with open(TEMPLATE_FILE, "r", encoding="utf-8") as f:
         template_str = f.read()
+        
+        # Inject architectural_logic_html into template if possible or just append
+        if "</body>" in template_str:
+            template_str = template_str.replace("</body>", "{{ architectural_logic_html }}\n</body>")
+        
+        from jinja2 import Template
         template = Template(template_str)
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         html = template.render(
-            now=now, full_traceability=full_traceability, warnings=warnings
+            now=now, full_traceability=full_traceability, warnings=warnings,
+            architectural_logic_html=architectural_logic_html
         )
         return html
-
 
 def main():
     # Collect markdown files
@@ -174,9 +209,11 @@ def main():
     full_traceability_html = generate_traceability_html(full_traceability)
 
     warnings = get_warnings(full_traceability, all_fs_ids, all_tests)
+    
+    architectural_logic_html = extract_architectural_logic(BASE_DIR)
 
     # Generate final HTML
-    final_html = generate_html("\n".join(full_traceability_html), warnings=warnings)
+    final_html = generate_html("\n".join(full_traceability_html), warnings=warnings, architectural_logic_html=architectural_logic_html)
 
     # Save to output file
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:

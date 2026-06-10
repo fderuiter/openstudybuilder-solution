@@ -34,7 +34,28 @@ STYLES = {
 }
 
 
+
+from clinical_mdr_api.services.controlled_terminologies.ct_term import CTTermService
+import json
+import os
+
+config_path = os.path.join(os.path.dirname(__file__), '../ddf/usdm_config.json')
+with open(config_path, 'r') as f:
+    USDM_CONFIG = json.load(f)
+
+def _get_dynamic_header(key: str, default: str) -> str:
+    term_uid = USDM_CONFIG.get(key)
+    if not term_uid:
+        return default
+    try:
+        service = CTTermService()
+        term = service.get_by_uid(term_uid)
+        return term.sponsor_preferred_name or term.nci_preferred_name or term.definition or default
+    except Exception:
+        return default
+
 class StudyObjectivesService:
+
     """Assemble and visualize Study Protocol Flowchart data"""
 
     def __init__(self) -> None:
@@ -159,8 +180,8 @@ class StudyObjectivesService:
                     with tag("thead"):
                         with tag("tr"):
                             # TODO: Do we have a CTTermName for these?
-                            line("th", _gettext("Objectives"))
-                            line("th", _gettext("Endpoints"))
+                            line("th", _get_dynamic_header("HEADER_OBJECTIVES", "Objectives"))
+                            line("th", _get_dynamic_header("HEADER_ENDPOINTS", "Endpoints"))
 
                     with tag("tbody"):
                         for objective_level, objectives, endpoints in sorted(
@@ -214,8 +235,8 @@ class StudyObjectivesService:
                     with tag("thead"):
                         with tag("tr"):
                             # TODO: Do we have a CTTermName for these?
-                            line("th", _gettext("Objectives"))
-                            line("th", _gettext("Endpoints"), colspan=3)
+                            line("th", _get_dynamic_header("HEADER_OBJECTIVES", "Objectives"))
+                            line("th", _get_dynamic_header("HEADER_ENDPOINTS", "Endpoints"), colspan=3)
 
                     with tag("tbody"):
                         for objective_level, study_objectives in sorted(
@@ -228,9 +249,9 @@ class StudyObjectivesService:
                                     objective_level.term_name,
                                     klass="objective-level",
                                 )
-                                line("th", _gettext("Title"), klass="header2")
-                                line("th", _gettext("Time frame"), klass="header2")
-                                line("th", _gettext("Unit"), klass="header2")
+                                line("th", _get_dynamic_header("HEADER_TITLE", "Title"), klass="header2")
+                                line("th", _get_dynamic_header("HEADER_TIME_FRAME", "Time frame"), klass="header2")
+                                line("th", _get_dynamic_header("HEADER_UNIT", "Unit"), klass="header2")
 
                             for study_objective, endpoint_levels in sorted(
                                 study_objectives.values(), key=lambda o: o[0].order
@@ -301,8 +322,8 @@ class StudyObjectivesService:
         row = table.rows[0]
 
         # Header text
-        row.cells[0].text = _gettext("Objectives")
-        row.cells[1].text = _gettext("Endpoints")
+        row.cells[0].text = _get_dynamic_header("HEADER_OBJECTIVES", "Objectives")
+        row.cells[1].text = _get_dynamic_header("HEADER_ENDPOINTS", "Endpoints")
 
         # Apply paragraph style on all cells of the header row
         docx.format_row(row, [STYLES["header1"][0]] * len(row.cells))
@@ -358,8 +379,8 @@ class StudyObjectivesService:
         row = table.rows[0]
 
         # Header
-        row.cells[0].text = _gettext("Objectives")
-        row.cells[1].text = _gettext("Endpoints")
+        row.cells[0].text = _get_dynamic_header("HEADER_OBJECTIVES", "Objectives")
+        row.cells[1].text = _get_dynamic_header("HEADER_ENDPOINTS", "Endpoints")
         # Merge 2nd cell to end of row
         docx.merge_cells(row.cells[1:num_cols])
 
@@ -382,9 +403,9 @@ class StudyObjectivesService:
                 style="objective-level",
             )
             # TODO Do we have CT-terms for these?
-            docx.replace_content(row.cells[1], _gettext("Title"), style="header2")
-            docx.replace_content(row.cells[2], _gettext("Time frame"), style="header2")
-            docx.replace_content(row.cells[3], _gettext("Unit"), style="header2")
+            docx.replace_content(row.cells[1], _get_dynamic_header("HEADER_TITLE", "Title"), style="header2")
+            docx.replace_content(row.cells[2], _get_dynamic_header("HEADER_TIME_FRAME", "Time frame"), style="header2")
+            docx.replace_content(row.cells[3], _get_dynamic_header("HEADER_UNIT", "Unit"), style="header2")
             for study_objective, endpoint_levels in sorted(
                 study_objectives.values(), key=lambda o: o[0].order
             ):

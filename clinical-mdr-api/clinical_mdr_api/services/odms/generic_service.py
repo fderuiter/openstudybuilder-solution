@@ -6,6 +6,7 @@ from typing import Any, Generic, Sequence, TypeVar
 from neomodel import db
 from pydantic import BaseModel
 
+from clinical_mdr_api.services.decorators import architectural_logic
 from clinical_mdr_api.domain_repositories.odms.form_repository import FormRepository
 from clinical_mdr_api.domain_repositories.odms.generic_repository import (
     OdmGenericRepository,
@@ -480,6 +481,7 @@ class OdmGenericService(Generic[_AggregateRootType], ABC):
         return self._transform_aggregate_root_to_pydantic_model(item)
 
     @db.transaction
+    @architectural_logic(feature="soft-delete", description="Marks the object as deleted without removing it from the database.")
     def soft_delete(self, uid: str, cascade_delete: bool = False) -> None:
         item = self._find_by_uid_or_raise_not_found(uid, for_update=True)
         item.soft_delete()

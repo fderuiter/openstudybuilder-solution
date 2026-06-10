@@ -26,7 +26,7 @@ from usdm_model import StudyDefinitionDocument as USDMStudyDefinitionDocument
 from usdm_model import (
     StudyDefinitionDocumentVersion as USDMStudyDefinitionDocumentVersion,
 )
-from usdm_model import StudyDesign as USDMStudyDesign
+from usdm_model import InterventionalStudyDesign as USDMStudyDesign
 from usdm_model import StudyDesignPopulation as USDMStudyDesignPopulation
 from usdm_model import StudyElement as USDMStudyElement
 from usdm_model import StudyEpoch as USDMStudyEpoch
@@ -43,25 +43,31 @@ from clinical_mdr_api.domains.study_definition_aggregates.study_metadata import 
 from clinical_mdr_api.models.study_selections.study import Study as OSBStudy
 from clinical_mdr_api.services.ddf.usdm_utils import IdManager
 from common.telemetry import trace_calls
+import json
+import os
 
-DDF_ORGANIZATION_TYPE_STUDY_REGISTRY = "C93453"
-DDF_ORGANIZATION_TYPE_REGULATORY_AGENCY = "C188863"
-DDF_STUDY_ARM_DATA_ORIGIN_TYPE_GENERATED_WITHIN_STUDY = "C188866"
-DDF_STUDY_POPULATION_DURATION_UNIT_DAYS = "C25301"
-DDF_STUDY_POPULATION_DURATION_UNIT_WEEKS = "C29844"
-DDF_STUDY_POPULATION_DURATION_UNIT_MONTHS = "C29846"
-DDF_STUDY_POPULATION_DURATION_UNIT_YEARS = "C29848"
-DDF_STUDY_POPULATION_ENROLLMENT_NUMBER_UNIT = "C44278"
-DDF_STUDY_PROTOCOL_STATUS_DRAFT = "C85255"
-DDF_STUDY_PROTOCOL_STATUS_FINAL = "C25508"
-DDF_STUDY_POPULATION_SEX_BOTH = "C49636"
-DDF_STUDY_POPULATION_SEX_FEMALE = "C16576"
-DDF_STUDY_POPULATION_SEX_MALE = "C20197"
-DDF_STUDY_OFFICIAL_TITLE = "C207616"
-DDF_TIMING_TYPE_AFTER = "C201356"
-DDF_TIMING_TYPE_BEFORE = "C201357"
-DDF_TIMING_TYPE_FIXED = "C201358"
-DDF_TIME_RELATIVE_TO_FROM_START_TO_START = "C201355"
+config_path = os.path.join(os.path.dirname(__file__), 'usdm_config.json')
+with open(config_path, 'r') as f:
+    USDM_CONFIG = json.load(f)
+
+DDF_ORGANIZATION_TYPE_STUDY_REGISTRY = USDM_CONFIG.get("DDF_ORGANIZATION_TYPE_STUDY_REGISTRY", "C93453")
+DDF_ORGANIZATION_TYPE_REGULATORY_AGENCY = USDM_CONFIG.get("DDF_ORGANIZATION_TYPE_REGULATORY_AGENCY", "C188863")
+DDF_STUDY_ARM_DATA_ORIGIN_TYPE_GENERATED_WITHIN_STUDY = USDM_CONFIG.get("DDF_STUDY_ARM_DATA_ORIGIN_TYPE_GENERATED_WITHIN_STUDY", "C188866")
+DDF_STUDY_POPULATION_DURATION_UNIT_DAYS = USDM_CONFIG.get("DDF_STUDY_POPULATION_DURATION_UNIT_DAYS", "C25301")
+DDF_STUDY_POPULATION_DURATION_UNIT_WEEKS = USDM_CONFIG.get("DDF_STUDY_POPULATION_DURATION_UNIT_WEEKS", "C29844")
+DDF_STUDY_POPULATION_DURATION_UNIT_MONTHS = USDM_CONFIG.get("DDF_STUDY_POPULATION_DURATION_UNIT_MONTHS", "C29846")
+DDF_STUDY_POPULATION_DURATION_UNIT_YEARS = USDM_CONFIG.get("DDF_STUDY_POPULATION_DURATION_UNIT_YEARS", "C29848")
+DDF_STUDY_POPULATION_ENROLLMENT_NUMBER_UNIT = USDM_CONFIG.get("DDF_STUDY_POPULATION_ENROLLMENT_NUMBER_UNIT", "C44278")
+DDF_STUDY_PROTOCOL_STATUS_DRAFT = USDM_CONFIG.get("DDF_STUDY_PROTOCOL_STATUS_DRAFT", "C85255")
+DDF_STUDY_PROTOCOL_STATUS_FINAL = USDM_CONFIG.get("DDF_STUDY_PROTOCOL_STATUS_FINAL", "C25508")
+DDF_STUDY_POPULATION_SEX_BOTH = USDM_CONFIG.get("DDF_STUDY_POPULATION_SEX_BOTH", "C49636")
+DDF_STUDY_POPULATION_SEX_FEMALE = USDM_CONFIG.get("DDF_STUDY_POPULATION_SEX_FEMALE", "C16576")
+DDF_STUDY_POPULATION_SEX_MALE = USDM_CONFIG.get("DDF_STUDY_POPULATION_SEX_MALE", "C20197")
+DDF_STUDY_OFFICIAL_TITLE = USDM_CONFIG.get("DDF_STUDY_OFFICIAL_TITLE", "C207616")
+DDF_TIMING_TYPE_AFTER = USDM_CONFIG.get("DDF_TIMING_TYPE_AFTER", "C201356")
+DDF_TIMING_TYPE_BEFORE = USDM_CONFIG.get("DDF_TIMING_TYPE_BEFORE", "C201357")
+DDF_TIMING_TYPE_FIXED = USDM_CONFIG.get("DDF_TIMING_TYPE_FIXED", "C201358")
+DDF_TIME_RELATIVE_TO_FROM_START_TO_START = USDM_CONFIG.get("DDF_TIME_RELATIVE_TO_FROM_START_TO_START", "C201355")
 
 
 def get_ddf_timing_iso_duration_value(time_value: int, time_unit_name: str) -> str:
@@ -487,8 +493,7 @@ class USDMMapper:
             studyCells=[],
             rationale="",
             epochs=[],
-            # TODO: reactivate when intervention model is available in package as InterventionalStudyDesign attribute
-            # model=self._get_intervention_model(study),
+            model=self._get_intervention_model(study),
             population=self._get_study_population(study),
             instanceType="StudyDesign",
         )
@@ -502,12 +507,10 @@ class USDMMapper:
         ddf_study_design.therapeuticAreas = self._get_therapeutic_areas(study)
 
         # Set trial type codes
-        # TODO: reactivate when subTypes is available in package as InterventionalStudyDesign attribute
-        # ddf_study_design.subTypes = self._get_trial_type_codes(study)
+        ddf_study_design.subTypes = self._get_trial_type_codes(study)
 
         # Set trial intent type codes
-        # TODO: reactivate when intentTypes is available in package as InterventionalStudyDesign attribute
-        # ddf_study_design.intentTypes = self._get_trial_intent_types_codes(study)
+        ddf_study_design.intentTypes = self._get_trial_intent_types_codes(study)
 
         # Set study arms
         ddf_study_design.arms = self._get_study_arms(study)
