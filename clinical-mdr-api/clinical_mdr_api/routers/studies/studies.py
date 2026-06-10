@@ -1,7 +1,7 @@
 from typing import Annotated, Any, cast
 
 from dict2xml import DataSorter, dict2xml
-from fastapi import APIRouter, Body, Path, Query
+from fastapi import APIRouter, Body, Path, Query, Depends, status
 from fastapi.responses import Response
 from pydantic.types import Json
 from starlette.requests import Request
@@ -65,7 +65,33 @@ from common.exceptions import ValidationException
 from common.models.error import ErrorResponse
 
 # Prefixed with "/studies"
+from clinical_mdr_api.models.study_selections.electronic_signature import (
+    ElectronicSignatureCreateInput,
+    ElectronicSignatureResponse,
+)
+from clinical_mdr_api.services.studies import electronic_signature as electronic_signature_service
+from clinical_mdr_api.services.user_info import UserInfoService
+
 router = APIRouter()
+
+@router.post(
+    "/selections/{study_selection_uid}/sign",
+    response_model=ElectronicSignatureResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Sign a study selection",
+    description="Sign a study selection version, creating an ElectronicSignature node linked to the relevant state and StudyAction.",
+)
+def sign_study_selection(
+    study_selection_uid: str = Path(..., description="The uid of the study selection to sign"),
+    input_data: ElectronicSignatureCreateInput = Body(...),
+    user_info: UserInfoService = Depends(UserInfoService),
+):
+    return electronic_signature_service.sign_study_selection(
+        user_id=user_info.user_id,
+        study_selection_uid=study_selection_uid,
+        input_data=input_data,
+    )
+
 
 StudyUID = Path(description="The unique id of the study.")
 TargetStudyUID = Path(

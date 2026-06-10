@@ -70,3 +70,23 @@ class Edit(StudyAction):
 
 class UpdateSoASnapshot(StudyAction):
     object_type = StringProperty()
+
+class ElectronicSignature(ClinicalMdrNode):
+    date: datetime.datetime = ZonedDateTimeProperty(required=True)
+    author_id = StringProperty(required=True)
+    meaning_of_signature = StringProperty(required=True)
+    
+    signs = RelationshipTo(
+        "StudyAction",
+        "SIGNS",
+        model=ClinicalMdrRel,
+        cardinality=One,
+    )
+    
+    # "linked via an AFTER relationship to the relevant state"
+    has_after = RelationshipTo(
+        ".study_selections.StudySelection",
+        "AFTER",
+        model=ConjunctionRelation,
+        cardinality=One,
+    )

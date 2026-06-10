@@ -246,6 +246,7 @@ CONSTRAINTS = [
     ("FootnotePreInstanceRoot", "uid", CONSTRAINT_TYPE_NODE_KEY),
     ("OdmVendorElementRoot", "uid", CONSTRAINT_TYPE_NODE_KEY),
     ("DataSupplierRoot", "uid", CONSTRAINT_TYPE_NODE_KEY),
+    ("ElectronicSignature", "uid", CONSTRAINT_TYPE_NODE_KEY),
     ("ComplexityBurden", "burden_id", CONSTRAINT_TYPE_UNIQUE),
     ("CTTermNameRoot", "uid", CONSTRAINT_TYPE_UNIQUE),
 ]

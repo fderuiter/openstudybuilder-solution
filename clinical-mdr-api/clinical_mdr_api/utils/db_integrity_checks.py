@@ -366,6 +366,22 @@ QUERIES: list[tuple[str, str, str]] = [
         WHERE size(final_or_released_versions) = 0
         """ + build_root_summary_return_statement("study_version"),
     ),
+    (
+        "signature_timestamp_validation",
+        "Every signature timestamp must be greater than or equal to the linked StudyAction timestamp",
+        """
+        MATCH (es:ElectronicSignature)-[:SIGNS]->(sa:StudyAction)
+        WHERE es.date < sa.date
+        """ + build_root_summary_return_statement("es"),
+    ),
+    (
+        "signed_study_selection_validation",
+        "Every StudySelection with a 'Signed' status must have a valid incoming signature relationship",
+        """
+        MATCH (sr:StudyRoot {uid: $study_uid})-[:AUDIT_TRAIL]->(sa:StudyAction)-[:AFTER]->(ss:StudySelection)
+        WHERE ss.status = 'Signed' AND NOT (:ElectronicSignature)-[:AFTER]->(ss)
+        """ + build_root_summary_return_statement("ss"),
+    ),
 ]
 
 

@@ -203,6 +203,11 @@ def collect_fs_traceability(fs_files, full_traceability, all_tests):
                     urs_id = fs_title[
                         fs_title.index("[") + 1 : fs_title.index("]")
                     ].strip()
+                    
+                    reg_clause = None
+                    if "{" in fs_title and "}" in fs_title:
+                        reg_clause = fs_title[fs_title.index("{") + 1 : fs_title.index("}")].strip()
+                        
                     fs_tests = [
                         {"html": tests_html, "list": tests_list}
                         for title, tests_html, tests_list in fs_titles_and_tests
@@ -215,6 +220,7 @@ def collect_fs_traceability(fs_files, full_traceability, all_tests):
                             entry["fs_list"].append(
                                 {
                                     "fs_id": fs_id,
+                                    "reg_clause": reg_clause,
                                     "type": "FS",
                                     "text": "\n".join(
                                         [
@@ -387,8 +393,10 @@ def generate_traceability_html(full_traceability: list[Any]) -> list[str]:
         # List all FSs under this URS
         fs_sections = []
         for fs_idx, fs in enumerate(item["fs_list"]):
+            reg_html = f'<div class="reg-clause"><strong>Regulatory Clause:</strong> {fs["reg_clause"]}</div>' if fs.get("reg_clause") else ""
             fs_section = f"""
             <h2 class="fs" id="{fs["fs_id"]}">{urs_idx+1}.{fs_idx+1} {fs["fs_id"]}</h2>
+            {reg_html}
             <div class="fs-text">{fs["text"]}</div>
             <div class="fs-tests">{fs["tests_html"]}</div>
             """
