@@ -1,636 +1,495 @@
-"""Unit tests for generate_traceability.py.
+# pylint: disable=redefined-outer-name
+"""Unit tests for generate_traceability.py - covering functions changed in this PR."""
 
-Tests focus on functions changed in the PR:
-- extract_fs_titles_and_tests(): removed all_tests param; no longer injects "Test Status" column
-- collect_fs_traceability(): removed all_tests param
-- get_warnings(): removed tests param; now calls get_all_tests() internally; all_fs_ids has default
-- get_all_tests(): simplified to only scan BASE_DIR/"tests" (no longer scans core_services_dir)
-"""
-
-import os
 import textwrap
 from pathlib import Path
-from unittest.mock import MagicMock, call, mock_open, patch
+from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 
+import consumer_api.requirements.generate_traceability as gt
+
+
 # ---------------------------------------------------------------------------
-# Helpers
+# Helpers / fixtures
 # ---------------------------------------------------------------------------
 
-FS_MD_WITH_TESTS = textwrap.dedent(
+FS_MARKDOWN_WITH_TEST_COVERAGE = textwrap.dedent(
     """\
-    # Some Feature
+    # Feature Name
 
-    ## FS-Feature-Get-010 [`URS-SomeURS`]
+    ## FS-Core-Study-Lifecycle-010 [`URS-ConsumerApi-Studies`]
 
-    Feature description.
+    The system must ensure lifecycle transitions.
+
+    ### Validation Rules
+
+    - Data integrity stuff
 
     ### Test coverage
 
-    | Test File                    | Test Function   |
-    | ---------------------------- | --------------- |
-    | tests/v1/test_api.py         | test_get_item   |
-    | tests/v1/test_api.py         | test_post_item  |
+    | Test File                    | Test Function        |
+    | ---------------------------- | -------------------- |
+    | tests/v1/test_api_studies.py | test_get_studies_all |
+
+    ## FS-Core-Study-Identification-010 [`URS-ConsumerApi-Studies`]
+
+    Identification stuff.
+
+    ### Test coverage
+
+    | Test File                    | Test Function              |
+    | ---------------------------- | -------------------------- |
+    | tests/v1/test_api_studies.py | test_get_studies_filtering |
     """
 )
 
-FS_MD_WITHOUT_TESTS = textwrap.dedent(
+FS_MARKDOWN_NO_TEST_COVERAGE_SECTION = textwrap.dedent(
     """\
-    # Another Feature
+    # Feature Name
 
-    ## FS-Feature-NoTest-010 [`URS-SomeURS`]
+    ## FS-Library-Feature-010 [`URS-Library`]
 
-    Feature without tests.
+    A feature without a test coverage section.
     """
 )
 
-FS_MD_MULTIPLE_FS = textwrap.dedent(
+URS_MARKDOWN = textwrap.dedent(
     """\
-    # Multi Feature Doc
+    # URS-ConsumerApi-Studies
 
-    ## FS-Feature-Alpha-010 [`URS-AlphaURS`]
-
-    Alpha feature.
-
-    ### Test coverage
-
-    | Test File              | Test Function  |
-    | ---------------------- | -------------- |
-    | tests/v1/test_a.py     | test_alpha     |
-
-    ## FS-Feature-Beta-010 [`URS-BetaURS`]
-
-    Beta feature.
-
-    ### Test coverage
-
-    | Test File              | Test Function  |
-    | ---------------------- | -------------- |
-    | tests/v1/test_b.py     | test_beta      |
-    """
-)
-
-NON_FS_MD = textwrap.dedent(
-    """\
-    # Overview
-
-    ## SomeSection-010 [`URS-SomeURS`]
-
-    A section that does not start with FS-.
-
-    ### Test coverage
-
-    | Test File          | Test Function |
-    | ------------------ | ------------- |
-    | tests/v1/other.py  | test_other    |
+    Studies must be properly managed.
     """
 )
 
 
-def _render_md(md_text: str) -> str:
-    """Convert markdown text to HTML using the same settings as the module."""
+@pytest.fixture()
+def fs_html_with_tests():
+    """HTML converted from FS markdown that contains a Test coverage table."""
     import markdown
 
-    return markdown.markdown(md_text, extensions=["fenced_code", "tables"])
+    return markdown.markdown(FS_MARKDOWN_WITH_TEST_COVERAGE, extensions=["tables"])
+
+
+@pytest.fixture()
+def fs_html_no_tests():
+    """HTML converted from FS markdown that has no Test coverage section."""
+    import markdown
+
+    return markdown.markdown(FS_MARKDOWN_NO_TEST_COVERAGE_SECTION, extensions=["tables"])
 
 
 # ---------------------------------------------------------------------------
-# Import the module under test
+# extract_fs_titles_and_tests
 # ---------------------------------------------------------------------------
-
-import sys
-
-sys.path.insert(
-    0,
-    str(Path(__file__).resolve().parents[3]),  # clinical-mdr-api root
-)
-
-from consumer_api.requirements.generate_traceability import (
-    collect_fs_traceability,
-    extract_fs_titles_and_tests,
-    get_all_tests,
-    get_warnings,
-)
-
-
-# ===========================================================================
-# Tests for extract_fs_titles_and_tests()
-# ===========================================================================
 
 
 class TestExtractFsTitlesAndTests:
-    """Tests for extract_fs_titles_and_tests(html_content)."""
+    """Tests for the refactored extract_fs_titles_and_tests(html_content) function."""
 
-    def test_returns_list(self):
-        html = _render_md(FS_MD_WITH_TESTS)
-        result = extract_fs_titles_and_tests(html)
+    def test_accepts_single_argument(self, fs_html_with_tests):
+        """Function must accept a single argument (all_tests parameter was removed)."""
+        # Should not raise TypeError
+        result = gt.extract_fs_titles_and_tests(fs_html_with_tests)
+        assert result is not None
+
+    def test_returns_list(self, fs_html_with_tests):
+        result = gt.extract_fs_titles_and_tests(fs_html_with_tests)
         assert isinstance(result, list)
 
-    def test_extracts_fs_title(self):
-        html = _render_md(FS_MD_WITH_TESTS)
-        result = extract_fs_titles_and_tests(html)
-        assert len(result) == 1
-        title, _table, _tests = result[0]
-        assert title.startswith("FS-Feature-Get-010")
-
-    def test_extracts_test_entries(self):
-        html = _render_md(FS_MD_WITH_TESTS)
-        result = extract_fs_titles_and_tests(html)
-        _, _table, tests = result[0]
-        assert len(tests) == 2
-        assert {"file": "tests/v1/test_api.py", "method": "test_get_item"} in tests
-        assert {"file": "tests/v1/test_api.py", "method": "test_post_item"} in tests
-
-    def test_does_not_add_test_status_column(self):
-        """After the PR, extract_fs_titles_and_tests must NOT inject a 'Test Status' column."""
-        html = _render_md(FS_MD_WITH_TESTS)
-        result = extract_fs_titles_and_tests(html)
-        _, table_element, _ = result[0]
-        # Verify header row has no 'Test Status' <th>
-        header_row = table_element.find("tr")
-        ths = [th.get_text(strip=True) for th in header_row.find_all("th")]
-        assert "Test Status" not in ths
-
-    def test_does_not_add_test_status_data_cells(self):
-        """After the PR, no data cells with 'Automated' or 'Missing' should be injected."""
-        html = _render_md(FS_MD_WITH_TESTS)
-        result = extract_fs_titles_and_tests(html)
-        _, table_element, _ = result[0]
-        all_td_texts = [td.get_text(strip=True) for td in table_element.find_all("td")]
-        assert "Automated" not in all_td_texts
-        assert "Missing" not in all_td_texts
-
-    def test_ignores_non_fs_headers(self):
-        html = _render_md(NON_FS_MD)
-        result = extract_fs_titles_and_tests(html)
-        assert result == []
-
-    def test_fs_without_test_coverage_section(self):
-        html = _render_md(FS_MD_WITHOUT_TESTS)
-        result = extract_fs_titles_and_tests(html)
-        # No "Test coverage" h3 exists, so nothing is appended
-        assert result == []
-
-    def test_multiple_fs_entries(self):
-        html = _render_md(FS_MD_MULTIPLE_FS)
-        result = extract_fs_titles_and_tests(html)
+    def test_returns_correct_number_of_entries(self, fs_html_with_tests):
+        """Each FS section that has a Test coverage table should produce one entry."""
+        result = gt.extract_fs_titles_and_tests(fs_html_with_tests)
         assert len(result) == 2
-        titles = [r[0] for r in result]
-        assert any("FS-Feature-Alpha-010" in t for t in titles)
-        assert any("FS-Feature-Beta-010" in t for t in titles)
 
-    def test_multiple_fs_each_has_correct_tests(self):
-        html = _render_md(FS_MD_MULTIPLE_FS)
-        result = extract_fs_titles_and_tests(html)
-        tests_by_title = {r[0].split()[0]: r[2] for r in result}
-        assert tests_by_title["FS-Feature-Alpha-010"] == [
-            {"file": "tests/v1/test_a.py", "method": "test_alpha"}
-        ]
-        assert tests_by_title["FS-Feature-Beta-010"] == [
-            {"file": "tests/v1/test_b.py", "method": "test_beta"}
-        ]
+    def test_each_entry_is_triple(self, fs_html_with_tests):
+        """Each entry must be a (title, table_element, tests_list) triple."""
+        result = gt.extract_fs_titles_and_tests(fs_html_with_tests)
+        for entry in result:
+            assert len(entry) == 3
 
-    def test_empty_html(self):
-        result = extract_fs_titles_and_tests("")
+    def test_titles_start_with_fs(self, fs_html_with_tests):
+        result = gt.extract_fs_titles_and_tests(fs_html_with_tests)
+        for title, _table, _tests in result:
+            assert title.startswith("FS-")
+
+    def test_tests_list_contains_file_and_method(self, fs_html_with_tests):
+        result = gt.extract_fs_titles_and_tests(fs_html_with_tests)
+        for _title, _table, tests_list in result:
+            for test in tests_list:
+                assert "file" in test
+                assert "method" in test
+
+    def test_tests_list_values(self, fs_html_with_tests):
+        result = gt.extract_fs_titles_and_tests(fs_html_with_tests)
+        # First FS section
+        _title, _table, tests_list = result[0]
+        assert tests_list[0]["file"] == "tests/v1/test_api_studies.py"
+        assert tests_list[0]["method"] == "test_get_studies_all"
+
+    def test_second_fs_section_tests(self, fs_html_with_tests):
+        result = gt.extract_fs_titles_and_tests(fs_html_with_tests)
+        _title, _table, tests_list = result[1]
+        assert tests_list[0]["file"] == "tests/v1/test_api_studies.py"
+        assert tests_list[0]["method"] == "test_get_studies_filtering"
+
+    def test_does_not_add_test_status_column(self, fs_html_with_tests):
+        """Regression: the old implementation injected a 'Test Status' <th> into the table.
+        The new implementation must NOT do this."""
+        result = gt.extract_fs_titles_and_tests(fs_html_with_tests)
+        for _title, table_element, _tests in result:
+            header_row = table_element.find("tr")
+            if header_row:
+                headers = [th.get_text(strip=True) for th in header_row.find_all("th")]
+                assert "Test Status" not in headers
+
+    def test_does_not_add_test_status_td(self, fs_html_with_tests):
+        """Regression: the old implementation added a 'Automated'/'Missing' <td> to data rows."""
+        result = gt.extract_fs_titles_and_tests(fs_html_with_tests)
+        for _title, table_element, _tests in result:
+            for row in table_element.find_all("tr"):
+                cells = row.find_all("td")
+                cell_texts = [c.get_text(strip=True) for c in cells]
+                assert "Automated" not in cell_texts
+                assert "Missing" not in cell_texts
+
+    def test_empty_html_returns_empty_list(self):
+        result = gt.extract_fs_titles_and_tests("")
         assert result == []
 
-    def test_accepts_only_html_content_string(self):
-        """Signature changed: no longer accepts all_tests parameter."""
-        import inspect
+    def test_no_fs_headers_returns_empty_list(self):
+        """HTML that contains h2 elements not starting with 'FS-' yields nothing."""
+        import markdown
 
-        sig = inspect.signature(extract_fs_titles_and_tests)
-        params = list(sig.parameters.keys())
-        assert params == ["html_content"], (
-            "extract_fs_titles_and_tests should only have html_content parameter"
-        )
+        html = markdown.markdown("## URS-SomeOtherSection\n\nContent", extensions=["tables"])
+        result = gt.extract_fs_titles_and_tests(html)
+        assert result == []
+
+    def test_fs_section_without_test_coverage_table_excluded(self, fs_html_no_tests):
+        """FS sections that have no 'Test coverage' subsection must not appear in results."""
+        result = gt.extract_fs_titles_and_tests(fs_html_no_tests)
+        assert result == []
+
+    def test_table_element_is_beautifulsoup_tag(self, fs_html_with_tests):
+        """The second element in each tuple must be a BeautifulSoup Tag (the <table> element)."""
+        from bs4 import Tag
+
+        result = gt.extract_fs_titles_and_tests(fs_html_with_tests)
+        for _title, table_element, _tests in result:
+            assert isinstance(table_element, Tag)
+            assert table_element.name == "table"
 
 
-# ===========================================================================
-# Tests for collect_fs_traceability()
-# ===========================================================================
+# ---------------------------------------------------------------------------
+# collect_fs_traceability
+# ---------------------------------------------------------------------------
 
 
 class TestCollectFsTraceability:
-    """Tests for collect_fs_traceability(fs_files, full_traceability)."""
+    """Tests for the refactored collect_fs_traceability(fs_files, full_traceability) function."""
 
-    def test_signature_no_all_tests_param(self):
-        """After the PR, the function must NOT have an all_tests parameter."""
-        import inspect
+    def _make_fs_file(self, tmp_path, content, name="fs-test.md"):
+        f = tmp_path / name
+        f.write_text(content, encoding="utf-8")
+        return f
 
-        sig = inspect.signature(collect_fs_traceability)
-        params = list(sig.parameters.keys())
-        assert "all_tests" not in params
+    def test_accepts_two_arguments(self, tmp_path):
+        """Function must accept exactly two positional arguments (all_tests was removed)."""
+        fs_file = self._make_fs_file(tmp_path, FS_MARKDOWN_WITH_TEST_COVERAGE)
+        full_traceability = [
+            {"urs_id": "URS-ConsumerApi-Studies", "fs_list": [], "text": "", "type": "URS"}
+        ]
+        # Should not raise TypeError
+        result = gt.collect_fs_traceability([fs_file], full_traceability)
+        assert result is not None
 
     def test_returns_set(self, tmp_path):
-        fs_file = tmp_path / "fs-test.md"
-        fs_file.write_text(FS_MD_WITH_TESTS)
+        """collect_fs_traceability must return a set of FS IDs."""
+        fs_file = self._make_fs_file(tmp_path, FS_MARKDOWN_WITH_TEST_COVERAGE)
         full_traceability = [
-            {"urs_id": "URS-SomeURS", "type": "URS", "text": "", "fs_list": []}
+            {"urs_id": "URS-ConsumerApi-Studies", "fs_list": [], "text": "", "type": "URS"}
         ]
-        result = collect_fs_traceability([fs_file], full_traceability)
+        result = gt.collect_fs_traceability([fs_file], full_traceability)
         assert isinstance(result, set)
 
-    def test_adds_fs_id_to_set(self, tmp_path):
-        fs_file = tmp_path / "fs-test.md"
-        fs_file.write_text(FS_MD_WITH_TESTS)
+    def test_returns_all_fs_ids(self, tmp_path):
+        """All FS section IDs must be present in the returned set."""
+        fs_file = self._make_fs_file(tmp_path, FS_MARKDOWN_WITH_TEST_COVERAGE)
         full_traceability = [
-            {"urs_id": "URS-SomeURS", "type": "URS", "text": "", "fs_list": []}
+            {"urs_id": "URS-ConsumerApi-Studies", "fs_list": [], "text": "", "type": "URS"}
         ]
-        result = collect_fs_traceability([fs_file], full_traceability)
-        assert "FS-Feature-Get-010" in result
+        result = gt.collect_fs_traceability([fs_file], full_traceability)
+        assert "FS-Core-Study-Lifecycle-010" in result
+        assert "FS-Core-Study-Identification-010" in result
 
-    def test_links_fs_to_matching_urs(self, tmp_path):
-        fs_file = tmp_path / "fs-test.md"
-        fs_file.write_text(FS_MD_WITH_TESTS)
+    def test_links_fs_to_urs_in_traceability(self, tmp_path):
+        """FSs must be linked to the matching URS entry in full_traceability."""
+        fs_file = self._make_fs_file(tmp_path, FS_MARKDOWN_WITH_TEST_COVERAGE)
         full_traceability = [
-            {"urs_id": "URS-SomeURS", "type": "URS", "text": "", "fs_list": []}
+            {"urs_id": "URS-ConsumerApi-Studies", "fs_list": [], "text": "", "type": "URS"}
         ]
-        collect_fs_traceability([fs_file], full_traceability)
-        fs_list = full_traceability[0]["fs_list"]
-        assert len(fs_list) == 1
-        assert fs_list[0]["fs_id"] == "FS-Feature-Get-010"
+        gt.collect_fs_traceability([fs_file], full_traceability)
+        fs_ids = [fs["fs_id"] for fs in full_traceability[0]["fs_list"]]
+        assert "FS-Core-Study-Lifecycle-010" in fs_ids
+        assert "FS-Core-Study-Identification-010" in fs_ids
 
-    def test_does_not_link_fs_to_mismatched_urs(self, tmp_path):
-        fs_file = tmp_path / "fs-test.md"
-        fs_file.write_text(FS_MD_WITH_TESTS)
-        full_traceability = [
-            {"urs_id": "URS-DifferentURS", "type": "URS", "text": "", "fs_list": []}
-        ]
-        collect_fs_traceability([fs_file], full_traceability)
-        assert full_traceability[0]["fs_list"] == []
-
-    def test_multiple_fs_files(self, tmp_path):
-        file1 = tmp_path / "fs-alpha.md"
-        file1.write_text(FS_MD_MULTIPLE_FS)
-        full_traceability = [
-            {
-                "urs_id": "URS-AlphaURS",
-                "type": "URS",
-                "text": "",
-                "fs_list": [],
-            },
-            {
-                "urs_id": "URS-BetaURS",
-                "type": "URS",
-                "text": "",
-                "fs_list": [],
-            },
-        ]
-        result = collect_fs_traceability([file1], full_traceability)
-        assert "FS-Feature-Alpha-010" in result
-        assert "FS-Feature-Beta-010" in result
-
-    def test_empty_file_list(self):
-        full_traceability = []
-        result = collect_fs_traceability([], full_traceability)
+    def test_empty_file_list_returns_empty_set(self):
+        result = gt.collect_fs_traceability([], [])
         assert result == set()
 
+    def test_fs_not_linked_to_matching_urs_does_not_crash(self, tmp_path):
+        """When no URS matches, the FS is still returned in the ID set; traceability unchanged."""
+        fs_file = self._make_fs_file(tmp_path, FS_MARKDOWN_WITH_TEST_COVERAGE)
+        full_traceability = []  # No URS entries
+        result = gt.collect_fs_traceability([fs_file], full_traceability)
+        assert "FS-Core-Study-Lifecycle-010" in result
+
     def test_duplicate_fs_id_logs_warning(self, tmp_path, caplog):
+        """When the same FS ID appears in two files a warning must be emitted."""
         import logging
 
-        fs_file1 = tmp_path / "fs-dup1.md"
-        fs_file1.write_text(FS_MD_WITH_TESTS)
-        fs_file2 = tmp_path / "fs-dup2.md"
-        fs_file2.write_text(FS_MD_WITH_TESTS)
+        fs_file1 = self._make_fs_file(tmp_path, FS_MARKDOWN_WITH_TEST_COVERAGE, "fs-a.md")
+        fs_file2 = self._make_fs_file(tmp_path, FS_MARKDOWN_WITH_TEST_COVERAGE, "fs-b.md")
         full_traceability = [
-            {"urs_id": "URS-SomeURS", "type": "URS", "text": "", "fs_list": []}
+            {"urs_id": "URS-ConsumerApi-Studies", "fs_list": [], "text": "", "type": "URS"}
         ]
         with caplog.at_level(logging.WARNING):
-            collect_fs_traceability([fs_file1, fs_file2], full_traceability)
-        assert any("Duplicate" in msg for msg in caplog.messages)
-
-    def test_fs_entry_contains_tests_list(self, tmp_path):
-        fs_file = tmp_path / "fs-test.md"
-        fs_file.write_text(FS_MD_WITH_TESTS)
-        full_traceability = [
-            {"urs_id": "URS-SomeURS", "type": "URS", "text": "", "fs_list": []}
-        ]
-        collect_fs_traceability([fs_file], full_traceability)
-        fs_entry = full_traceability[0]["fs_list"][0]
-        assert "tests_list" in fs_entry
-        assert len(fs_entry["tests_list"]) == 2
+            gt.collect_fs_traceability([fs_file1, fs_file2], full_traceability)
+        assert any("Duplicate FS ID" in r.message for r in caplog.records)
 
 
-# ===========================================================================
-# Tests for get_warnings()
-# ===========================================================================
+# ---------------------------------------------------------------------------
+# get_warnings
+# ---------------------------------------------------------------------------
 
 
 class TestGetWarnings:
-    """Tests for get_warnings(full_traceability, all_fs_ids=set())."""
+    """Tests for the refactored get_warnings(full_traceability, all_fs_ids=set()) function."""
 
-    def test_signature_no_tests_param(self):
-        """After the PR, get_warnings must NOT have a 'tests' parameter."""
-        import inspect
+    def _traceability_entry(self, urs_id, fs_list=None):
+        return {
+            "urs_id": urs_id,
+            "type": "URS",
+            "text": "",
+            "fs_list": fs_list or [],
+        }
 
-        sig = inspect.signature(get_warnings)
-        params = list(sig.parameters.keys())
-        assert "tests" not in params
+    def _fs_entry(self, fs_id, tests_html="", tests_list=None):
+        return {
+            "fs_id": fs_id,
+            "type": "FS",
+            "text": "",
+            "tests_html": tests_html,
+            "tests_list": tests_list or [],
+        }
 
-    def test_all_fs_ids_has_default_empty_set(self):
-        """After the PR, all_fs_ids should have a default value of set()."""
-        import inspect
+    @patch.object(gt, "get_all_tests", return_value=[])
+    def test_accepts_two_positional_arguments(self, _mock_tests):
+        """Must accept (full_traceability, all_fs_ids) with no third argument."""
+        result = gt.get_warnings([], set())
+        assert result is not None
 
-        sig = inspect.signature(get_warnings)
-        param = sig.parameters.get("all_fs_ids")
-        assert param is not None
-        assert param.default == set()
+    @patch.object(gt, "get_all_tests", return_value=[])
+    def test_accepts_default_all_fs_ids(self, _mock_tests):
+        """all_fs_ids must default to an empty set (no third positional arg needed)."""
+        result = gt.get_warnings([])
+        assert result is not None
 
-    def test_calls_get_all_tests_internally(self):
-        """After the PR, get_warnings should call get_all_tests() by itself."""
-        with patch(
-            "consumer_api.requirements.generate_traceability.get_all_tests",
-            return_value=[],
-        ) as mock_get_tests:
-            get_warnings([], set())
-        mock_get_tests.assert_called_once()
+    @patch.object(gt, "get_all_tests", return_value=[])
+    def test_calls_get_all_tests_internally(self, mock_tests):
+        """get_warnings must call get_all_tests() itself rather than receiving tests as a param."""
+        gt.get_warnings([])
+        mock_tests.assert_called_once()
 
-    def test_returns_none_warning_when_all_ok(self, tmp_path):
-        """When everything is linked correctly, should return no-warnings HTML."""
-        with patch(
-            "consumer_api.requirements.generate_traceability.get_all_tests",
-            return_value=[
-                {"file": "tests/v1/test_api.py", "methods": ["test_get_item"]}
-            ],
-        ):
-            full_traceability = [
-                {
-                    "urs_id": "URS-SomeURS",
-                    "type": "URS",
-                    "text": "",
-                    "fs_list": [
-                        {
-                            "fs_id": "FS-Feature-Get-010",
-                            "tests_html": "<table>...</table>",
-                            "tests_list": [
-                                {
-                                    "file": "tests/v1/test_api.py",
-                                    "method": "test_get_item",
-                                }
-                            ],
-                        }
-                    ],
-                }
-            ]
-            result = get_warnings(
-                full_traceability, {"FS-Feature-Get-010"}
-            )
-        assert "-- None --" in result
-
-    def test_warns_urs_without_fs(self):
-        with patch(
-            "consumer_api.requirements.generate_traceability.get_all_tests",
-            return_value=[],
-        ):
-            full_traceability = [
-                {
-                    "urs_id": "URS-Orphan",
-                    "type": "URS",
-                    "text": "",
-                    "fs_list": [],
-                }
-            ]
-            result = get_warnings(full_traceability, set())
-        assert "URS-Orphan" in result
-        assert "URSs without linked FSs" in result
-
-    def test_warns_fs_without_tests(self):
-        with patch(
-            "consumer_api.requirements.generate_traceability.get_all_tests",
-            return_value=[],
-        ):
-            full_traceability = [
-                {
-                    "urs_id": "URS-SomeURS",
-                    "type": "URS",
-                    "text": "",
-                    "fs_list": [
-                        {
-                            "fs_id": "FS-NoTest-010",
-                            "tests_html": "",
-                            "tests_list": [],
-                        }
-                    ],
-                }
-            ]
-            result = get_warnings(
-                full_traceability, {"FS-NoTest-010"}
-            )
-        assert "FS-NoTest-010" in result
-        assert "FSs without linked tests" in result
-
-    def test_warns_fs_not_linked_to_urs(self):
-        with patch(
-            "consumer_api.requirements.generate_traceability.get_all_tests",
-            return_value=[],
-        ):
-            # FS-Unlinked-010 is in all_fs_ids but not in any full_traceability fs_list
-            full_traceability = [
-                {
-                    "urs_id": "URS-SomeURS",
-                    "type": "URS",
-                    "text": "",
-                    "fs_list": [],
-                }
-            ]
-            result = get_warnings(
-                full_traceability, {"FS-Unlinked-010"}
-            )
-        assert "FS-Unlinked-010" in result
-        assert "FSs without linked URS" in result
-
-    def test_warns_non_existent_test(self):
-        with patch(
-            "consumer_api.requirements.generate_traceability.get_all_tests",
-            return_value=[],  # No tests exist on disk
-        ):
-            full_traceability = [
-                {
-                    "urs_id": "URS-SomeURS",
-                    "type": "URS",
-                    "text": "",
-                    "fs_list": [
-                        {
-                            "fs_id": "FS-Feature-010",
-                            "tests_html": "<table/>",
-                            "tests_list": [
-                                {
-                                    "file": "tests/v1/test_api.py",
-                                    "method": "test_missing_method",
-                                }
-                            ],
-                        }
-                    ],
-                }
-            ]
-            result = get_warnings(
-                full_traceability, {"FS-Feature-010"}
-            )
-        assert "test_missing_method" in result
-        assert "Non-existent tests" in result
-
-    def test_no_warnings_html_when_all_good(self):
-        with patch(
-            "consumer_api.requirements.generate_traceability.get_all_tests",
-            return_value=[
-                {"file": "tests/v1/test_api.py", "methods": ["test_get_item"]}
-            ],
-        ):
-            full_traceability = [
-                {
-                    "urs_id": "URS-SomeURS",
-                    "type": "URS",
-                    "text": "",
-                    "fs_list": [
-                        {
-                            "fs_id": "FS-Feature-010",
-                            "tests_html": "<table/>",
-                            "tests_list": [
-                                {
-                                    "file": "tests/v1/test_api.py",
-                                    "method": "test_get_item",
-                                }
-                            ],
-                        }
-                    ],
-                }
-            ]
-            result = get_warnings(
-                full_traceability, {"FS-Feature-010"}
-            )
-        assert "-- None --" in result
-
-    def test_callable_with_only_full_traceability(self):
-        """all_fs_ids defaults to set(), so get_warnings can be called with one arg."""
-        with patch(
-            "consumer_api.requirements.generate_traceability.get_all_tests",
-            return_value=[],
-        ):
-            # Should not raise
-            result = get_warnings([])
+    @patch.object(gt, "get_all_tests", return_value=[])
+    def test_returns_string(self, _mock_tests):
+        result = gt.get_warnings([])
         assert isinstance(result, str)
 
+    @patch.object(gt, "get_all_tests", return_value=[])
+    def test_no_issues_returns_none_message(self, _mock_tests):
+        """When there are no problems the output should contain '-- None --'."""
+        entry = self._traceability_entry(
+            "URS-ConsumerApi-Studies",
+            fs_list=[self._fs_entry("FS-Core-Study-Lifecycle-010", tests_html="<table/>", tests_list=[])],
+        )
+        all_fs_ids = {"FS-Core-Study-Lifecycle-010"}
+        result = gt.get_warnings([entry], all_fs_ids)
+        assert "-- None --" in result
 
-# ===========================================================================
-# Tests for get_all_tests()
-# ===========================================================================
+    @patch.object(gt, "get_all_tests", return_value=[])
+    def test_urs_without_fs_detected(self, _mock_tests):
+        """URS entries with empty fs_list must appear in the warnings output."""
+        entry = self._traceability_entry("URS-ConsumerApi-Studies", fs_list=[])
+        result = gt.get_warnings([entry], set())
+        assert "URS-ConsumerApi-Studies" in result
+
+    @patch.object(gt, "get_all_tests", return_value=[])
+    def test_fs_without_tests_detected(self, _mock_tests):
+        """FSs with no tests_html must appear in the warnings output."""
+        fs = self._fs_entry("FS-Core-Study-Lifecycle-010", tests_html="")
+        entry = self._traceability_entry("URS-ConsumerApi-Studies", fs_list=[fs])
+        all_fs_ids = {"FS-Core-Study-Lifecycle-010"}
+        result = gt.get_warnings([entry], all_fs_ids)
+        assert "FS-Core-Study-Lifecycle-010" in result
+
+    @patch.object(gt, "get_all_tests", return_value=[])
+    def test_fs_not_linked_to_urs_detected(self, _mock_tests):
+        """FSs in all_fs_ids that are not linked to any URS must appear in warnings."""
+        entry = self._traceability_entry("URS-ConsumerApi-Studies", fs_list=[])
+        all_fs_ids = {"FS-Orphan-010"}
+        result = gt.get_warnings([entry], all_fs_ids)
+        assert "FS-Orphan-010" in result
+
+    @patch.object(
+        gt,
+        "get_all_tests",
+        return_value=[{"file": "tests/v1/test_api_studies.py", "methods": ["test_get_studies_all"]}],
+    )
+    def test_non_existent_test_detected(self, _mock_tests):
+        """Tests referenced in the FS but absent from get_all_tests() must be flagged."""
+        tests_list = [{"file": "tests/v1/test_api_studies.py", "method": "test_nonexistent_method"}]
+        fs = self._fs_entry(
+            "FS-Core-Study-Lifecycle-010",
+            tests_html="<table/>",
+            tests_list=tests_list,
+        )
+        entry = self._traceability_entry("URS-ConsumerApi-Studies", fs_list=[fs])
+        all_fs_ids = {"FS-Core-Study-Lifecycle-010"}
+        result = gt.get_warnings([entry], all_fs_ids)
+        assert "test_nonexistent_method" in result
+
+    @patch.object(
+        gt,
+        "get_all_tests",
+        return_value=[{"file": "tests/v1/test_api_studies.py", "methods": ["test_get_studies_all"]}],
+    )
+    def test_existing_test_not_flagged(self, _mock_tests):
+        """Tests that exist in get_all_tests() must NOT be flagged as non-existent."""
+        tests_list = [{"file": "tests/v1/test_api_studies.py", "method": "test_get_studies_all"}]
+        fs = self._fs_entry(
+            "FS-Core-Study-Lifecycle-010",
+            tests_html="<table/>",
+            tests_list=tests_list,
+        )
+        entry = self._traceability_entry("URS-ConsumerApi-Studies", fs_list=[fs])
+        all_fs_ids = {"FS-Core-Study-Lifecycle-010"}
+        result = gt.get_warnings([entry], all_fs_ids)
+        # No 'Non-existent tests' warning items should appear for this method
+        assert "test_get_studies_all" not in result or "Non-existent" not in result
+
+    @patch.object(gt, "get_all_tests", return_value=[])
+    def test_empty_traceability_returns_none_message(self, _mock_tests):
+        result = gt.get_warnings([], set())
+        assert "-- None --" in result
+
+
+# ---------------------------------------------------------------------------
+# get_all_tests
+# ---------------------------------------------------------------------------
 
 
 class TestGetAllTests:
-    """Tests for get_all_tests() after PR simplification."""
+    """Tests for the refactored get_all_tests() that only scans BASE_DIR/tests."""
 
     def test_returns_list(self, tmp_path):
-        with patch(
-            "consumer_api.requirements.generate_traceability.BASE_DIR", tmp_path
-        ):
-            tests_dir = tmp_path / "tests"
-            tests_dir.mkdir()
-            result = get_all_tests()
+        """Must return a list."""
+        with patch.object(gt, "BASE_DIR", tmp_path):
+            (tmp_path / "tests").mkdir()
+            result = gt.get_all_tests()
         assert isinstance(result, list)
 
-    def test_finds_test_methods_in_py_file(self, tmp_path):
-        with patch(
-            "consumer_api.requirements.generate_traceability.BASE_DIR", tmp_path
-        ):
-            tests_dir = tmp_path / "tests"
-            tests_dir.mkdir()
-            test_file = tests_dir / "test_sample.py"
-            test_file.write_text(
-                "def test_foo():\n    pass\n\ndef test_bar():\n    pass\n"
-            )
-            result = get_all_tests()
+    def test_returns_entries_with_file_and_methods_keys(self, tmp_path):
+        tests_dir = tmp_path / "tests"
+        tests_dir.mkdir()
+        test_file = tests_dir / "test_sample.py"
+        test_file.write_text("def test_foo():\n    pass\ndef test_bar():\n    pass\n")
+        with patch.object(gt, "BASE_DIR", tmp_path):
+            result = gt.get_all_tests()
         assert len(result) == 1
-        entry = result[0]
-        assert "test_foo" in entry["methods"]
-        assert "test_bar" in entry["methods"]
-
-    def test_ignores_non_py_files(self, tmp_path):
-        with patch(
-            "consumer_api.requirements.generate_traceability.BASE_DIR", tmp_path
-        ):
-            tests_dir = tmp_path / "tests"
-            tests_dir.mkdir()
-            (tests_dir / "not_a_test.txt").write_text("def test_ignored(): pass")
-            result = get_all_tests()
-        assert result == []
-
-    def test_file_path_relative_to_base_dir(self, tmp_path):
-        with patch(
-            "consumer_api.requirements.generate_traceability.BASE_DIR", tmp_path
-        ):
-            tests_dir = tmp_path / "tests"
-            tests_dir.mkdir()
-            test_file = tests_dir / "test_sample.py"
-            test_file.write_text("def test_something(): pass")
-            result = get_all_tests()
-        assert len(result) == 1
-        # Path must be relative to BASE_DIR (tmp_path), not absolute
-        assert not os.path.isabs(result[0]["file"])
-        assert result[0]["file"].startswith("tests")
-
-    def test_does_not_scan_parent_core_services_dir(self, tmp_path):
-        """After the PR, get_all_tests should NOT walk clinical_mdr_api/tests."""
-        with patch(
-            "consumer_api.requirements.generate_traceability.BASE_DIR", tmp_path
-        ):
-            # Create a sibling directory that the old code used to scan
-            core_dir = tmp_path.parent / "clinical_mdr_api"
-            core_tests = core_dir / "tests"
-            core_tests.mkdir(parents=True, exist_ok=True)
-            (core_tests / "test_core.py").write_text("def test_core_method(): pass")
-
-            # consumer_api tests dir - empty
-            tests_dir = tmp_path / "tests"
-            tests_dir.mkdir()
-
-            result = get_all_tests()
-
-        # Should find nothing since consumer_api tests dir is empty
-        assert result == []
-
-    def test_scans_subdirectories_recursively(self, tmp_path):
-        with patch(
-            "consumer_api.requirements.generate_traceability.BASE_DIR", tmp_path
-        ):
-            tests_dir = tmp_path / "tests"
-            sub_dir = tests_dir / "v1"
-            sub_dir.mkdir(parents=True)
-            test_file = sub_dir / "test_subdir.py"
-            test_file.write_text("def test_in_subdir(): pass")
-            result = get_all_tests()
-        assert len(result) == 1
-        assert "test_in_subdir" in result[0]["methods"]
-        assert "v1" in result[0]["file"]
-
-    def test_empty_tests_directory(self, tmp_path):
-        with patch(
-            "consumer_api.requirements.generate_traceability.BASE_DIR", tmp_path
-        ):
-            tests_dir = tmp_path / "tests"
-            tests_dir.mkdir()
-            result = get_all_tests()
-        assert result == []
-
-    def test_py_file_with_no_test_methods(self, tmp_path):
-        with patch(
-            "consumer_api.requirements.generate_traceability.BASE_DIR", tmp_path
-        ):
-            tests_dir = tmp_path / "tests"
-            tests_dir.mkdir()
-            test_file = tests_dir / "helpers.py"
-            test_file.write_text("def helper_func(): pass\ndef another(): pass\n")
-            result = get_all_tests()
-        assert len(result) == 1
-        assert result[0]["methods"] == []
-
-    def test_result_dict_has_file_and_methods_keys(self, tmp_path):
-        with patch(
-            "consumer_api.requirements.generate_traceability.BASE_DIR", tmp_path
-        ):
-            tests_dir = tmp_path / "tests"
-            tests_dir.mkdir()
-            (tests_dir / "test_something.py").write_text("def test_x(): pass")
-            result = get_all_tests()
         assert "file" in result[0]
         assert "methods" in result[0]
+
+    def test_discovers_test_methods_correctly(self, tmp_path):
+        tests_dir = tmp_path / "tests"
+        tests_dir.mkdir()
+        test_file = tests_dir / "test_sample.py"
+        test_file.write_text(
+            "def test_foo():\n    pass\ndef test_bar(param):\n    pass\ndef helper():\n    pass\n"
+        )
+        with patch.object(gt, "BASE_DIR", tmp_path):
+            result = gt.get_all_tests()
+        methods = result[0]["methods"]
+        assert "test_foo" in methods
+        assert "test_bar" in methods
+        # Non-test functions must not be included
+        assert "helper" not in methods
+
+    def test_ignores_non_py_files(self, tmp_path):
+        tests_dir = tmp_path / "tests"
+        tests_dir.mkdir()
+        (tests_dir / "not_a_test.txt").write_text("def test_foo(): pass")
+        (tests_dir / "test_real.py").write_text("def test_real(): pass")
+        with patch.object(gt, "BASE_DIR", tmp_path):
+            result = gt.get_all_tests()
+        assert len(result) == 1
+        assert result[0]["file"].endswith("test_real.py")
+
+    def test_only_scans_base_dir_tests_not_core_services(self, tmp_path):
+        """Regression: get_all_tests must NOT scan any directory outside BASE_DIR/tests.
+        The previous implementation also walked clinical_mdr_api/tests which was removed."""
+        tests_dir = tmp_path / "tests"
+        tests_dir.mkdir()
+        (tests_dir / "test_consumer.py").write_text("def test_consumer(): pass")
+
+        # Simulate a sibling directory that the old code used to scan
+        sibling_dir = tmp_path.parent / "clinical_mdr_api" / "tests"
+        sibling_dir.mkdir(parents=True, exist_ok=True)
+        (sibling_dir / "test_core.py").write_text("def test_core(): pass")
+
+        with patch.object(gt, "BASE_DIR", tmp_path):
+            result = gt.get_all_tests()
+
+        files_found = [r["file"] for r in result]
+        # Sibling directory test must NOT appear
+        assert not any("test_core" in f for f in files_found)
+        # But the consumer api test must appear
+        assert any("test_consumer" in f for f in files_found)
+
+    def test_relative_paths_in_results(self, tmp_path):
+        """File paths in results must be relative to BASE_DIR (not absolute)."""
+        tests_dir = tmp_path / "tests"
+        tests_dir.mkdir()
+        (tests_dir / "test_something.py").write_text("def test_x(): pass")
+        with patch.object(gt, "BASE_DIR", tmp_path):
+            result = gt.get_all_tests()
+        assert len(result) == 1
+        # Path must be relative (not start with '/')
+        assert not result[0]["file"].startswith("/")
+
+    def test_empty_tests_dir_returns_empty_list(self, tmp_path):
+        (tmp_path / "tests").mkdir()
+        with patch.object(gt, "BASE_DIR", tmp_path):
+            result = gt.get_all_tests()
+        assert result == []
+
+    def test_nested_test_directories_are_discovered(self, tmp_path):
+        """Test files in subdirectories of tests/ must also be found."""
+        tests_dir = tmp_path / "tests"
+        sub_dir = tests_dir / "v1"
+        sub_dir.mkdir(parents=True)
+        (sub_dir / "test_nested.py").write_text("def test_nested_method(): pass")
+        with patch.object(gt, "BASE_DIR", tmp_path):
+            result = gt.get_all_tests()
+        methods_found = [m for r in result for m in r["methods"]]
+        assert "test_nested_method" in methods_found
+
+    def test_file_with_no_test_methods_still_included(self, tmp_path):
+        """A .py file that exists but has no test_ functions should still appear in the list."""
+        tests_dir = tmp_path / "tests"
+        tests_dir.mkdir()
+        (tests_dir / "conftest.py").write_text("import pytest\n")
+        with patch.object(gt, "BASE_DIR", tmp_path):
+            result = gt.get_all_tests()
+        assert len(result) == 1
+        assert result[0]["methods"] == []
