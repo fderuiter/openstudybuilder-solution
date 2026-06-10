@@ -5614,6 +5614,15 @@ class StudySourceVariable(StudySourceVariableInput):
     @field_validator("author_username", mode="before")
     @classmethod
     def instantiate_author_username(cls, value):
+        """
+        Resolve an author identifier to the corresponding username.
+        
+        Parameters:
+            value: An author identifier (a user ID or a username string).
+        
+        Returns:
+            The resolved author username.
+        """
         return UserInfoService.get_author_username_from_id(value)
 
 

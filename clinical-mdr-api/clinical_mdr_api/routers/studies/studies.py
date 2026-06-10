@@ -754,6 +754,19 @@ def get(
         str | None, _generic_descriptions.STUDY_VALUE_VERSION_QUERY
     ] = None,
 ) -> Study:
+    """
+    Retrieve a study definition by UID, optionally including or excluding specific sections and targeting a particular status or study value version.
+    
+    Parameters:
+        study_uid (str): Unique identifier of the study.
+        include_sections (list[StudyComponentEnum] | None): Study sections to include in the returned representation.
+        exclude_sections (list[StudyComponentEnum] | None): Study sections to exclude from the returned representation.
+        status (StudyStatus | None): If specified, return the latest representation of the study in this status ('Released', 'Draft', or 'Locked').
+        study_value_version (str | None): Specific study value version to retrieve.
+    
+    Returns:
+        Study: The study definition matching `study_uid`. If the returned object has `current_metadata`, it will include `system_boundaries` and `system_constraints` as lists of dictionaries when such data exist.
+    """
     study_service = StudyService()
     study_definition = study_service.get_by_uid(
         uid=study_uid,

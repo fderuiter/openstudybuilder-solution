@@ -29,6 +29,16 @@ def create_system_boundary(
     study_uid: Annotated[str, StudyUID],
     boundary_input: Annotated[StudySelectionSystemBoundaryCreateInput, Body()],
 ):
+    """
+    Create a SystemBoundary node and attach it to the specified study's latest StudyValue.
+    
+    Parameters:
+        study_uid (str): The unique identifier of the study to which the new boundary will be linked.
+        boundary_input (StudySelectionSystemBoundaryCreateInput): Input containing the boundary's `name` and `description`.
+    
+    Returns:
+        dict: A mapping with keys `system_boundary_uid` (new boundary UID), `name`, and `description`.
+    """
     boundary = SystemBoundary(
         uid=utils.generate_uid("SystemBoundary"),
         name=boundary_input.name,
@@ -60,6 +70,21 @@ def create_system_constraint(
     study_uid: Annotated[str, StudyUID],
     constraint_input: Annotated[StudySelectionSystemConstraintCreateInput, Body()],
 ):
+    """
+    Create a SystemConstraint node for a study and attach it to the study's latest StudyValue.
+    
+    Parameters:
+        study_uid (str): The unique id of the study.
+        constraint_input (StudySelectionSystemConstraintCreateInput): Input containing `name`, `category`, and `description` for the new constraint.
+    
+    Returns:
+        dict: {
+            "system_constraint_uid": uid of the created SystemConstraint,
+            "name": constraint name,
+            "category": constraint category,
+            "description": constraint description
+        }
+    """
     constraint = SystemConstraint(
         uid=utils.generate_uid("SystemConstraint"),
         name=constraint_input.name,
@@ -93,6 +118,19 @@ def update_system_boundary(
     boundary_uid: str,
     boundary_input: Annotated[StudySelectionSystemBoundaryCreateInput, Body()],
 ):
+    """
+    Update an existing system boundary's name and description.
+    
+    Parameters:
+        boundary_uid (str): UID of the system boundary to update.
+        boundary_input (StudySelectionSystemBoundaryCreateInput): New values for `name` and `description`.
+    
+    Returns:
+        dict: Object containing `system_boundary_uid`, `name`, and `description`.
+    
+    Raises:
+        fastapi.HTTPException: 404 if the boundary with `boundary_uid` does not exist.
+    """
     boundary = SystemBoundary.nodes.get_or_none(uid=boundary_uid)
     if not boundary:
         from fastapi import HTTPException
@@ -117,6 +155,19 @@ def update_system_constraint(
     constraint_uid: str,
     constraint_input: Annotated[StudySelectionSystemConstraintCreateInput, Body()],
 ):
+    """
+    Update an existing system constraint's name, category, and description and persist the change.
+    
+    Parameters:
+        constraint_uid (str): UID of the system constraint to update.
+        constraint_input (StudySelectionSystemConstraintCreateInput): Input containing new `name`, `category`, and `description` values.
+    
+    Returns:
+        dict: Object with `system_constraint_uid`, `name`, `category`, and `description` reflecting the saved constraint.
+    
+    Raises:
+        fastapi.HTTPException: 404 if a constraint with `constraint_uid` does not exist.
+    """
     constraint = SystemConstraint.nodes.get_or_none(uid=constraint_uid)
     if not constraint:
         from fastapi import HTTPException
