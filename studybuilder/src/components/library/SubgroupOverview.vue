@@ -183,6 +183,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import activitiesApi from '@/api/activities'
+import filteringParameters from '@/utils/filteringParameters'
 import libraryConstants from '@/constants/libraries'
 
 import BaseActivityOverview from './BaseActivityOverview.vue'
@@ -342,12 +343,12 @@ function updateActivitiesTableOptions(options) {
 }
 
 async function fetchActivities() {
-  const params = {
-    version: props.itemOverview?.activity_subgroup?.version,
-    total_count: true,
-    search_string: activitiesTableOptions.value.searchString,
-    page_number: activitiesTableOptions.value.page,
-    page_size: activitiesTableOptions.value.itemsPerPage,
+  const params = filteringParameters.prepareParameters(
+    activitiesTableOptions.value
+  )
+  params.version = props.itemOverview?.activity_subgroup?.version
+  if (activitiesTableOptions.value.searchString) {
+    params.search_string = activitiesTableOptions.value.searchString
   }
   activitiesApi.getSubgroupActivities(props.itemUid, params).then((resp) => {
     activities.value = resp.data.items
@@ -357,12 +358,10 @@ async function fetchActivities() {
 }
 
 async function fetchGroups() {
-  const params = {
-    version: props.itemOverview?.activity_subgroup?.version,
-    total_count: true,
-    page_number: groupsTableOptions.value.page,
-    page_size: groupsTableOptions.value.itemsPerPage,
-  }
+  const params = filteringParameters.prepareParameters(
+    groupsTableOptions.value
+  )
+  params.version = props.itemOverview?.activity_subgroup?.version
   activitiesApi.getSubgroupGroups(props.itemUid, params).then((resp) => {
     groups.value = resp.data.items
     groupsTotal.value = resp.data.total

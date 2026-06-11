@@ -20,7 +20,7 @@
             @filter="fetchActiveStudies"
             @refresh-studies="reloadStudies"
             @enable-filtering="openFiltering = !openFiltering"
-            @sort="sort"
+            
           >
             <template #customSearch>
               <v-text-field
@@ -108,7 +108,7 @@
             @filter="fetchDeletedStudies"
             @refresh-studies="reloadStudies"
             @enable-filtering="openFiltering = !openFiltering"
-            @sort="sort"
+            
           >
             <template #customSearch>
               <v-text-field
@@ -300,30 +300,6 @@ function reloadStudies() {
   activeStudiesTable.value.filter()
 }
 
-function sort(data) {
-  try {
-    if (data[0]?.order === 'asc') {
-      filteredStudies.value.sort((a, b) => {
-        if (a[data[0].key] === null) return 1
-        if (b[data[0].key] === null) return -1
-        return a[data[0].key]
-          .toString()
-          .localeCompare(b[data[0].key].toString())
-      })
-    } else if (data[0]?.order === 'desc') {
-      filteredStudies.value.sort((a, b) => {
-        if (b[data[0].key] === null) return 1
-        if (a[data[0].key] === null) return -1
-        return b[data[0].key]
-          .toString()
-          .localeCompare(a[data[0].key].toString())
-      })
-    }
-  } catch (error) {
-    console.error(error)
-  }
-}
-
 async function fetchActiveStudies(filters, options, filtersUpdated) {
   const params = filteringParameters.prepareParameters(
     options,
@@ -331,95 +307,19 @@ async function fetchActiveStudies(filters, options, filtersUpdated) {
     filtersUpdated
   )
   try {
-    if (activeStudies.value.length === 0 || fullRefresh.value) {
-      await api.getAllList().then((resp) => {
-        resp.data.forEach((study) => {
-          if (study.latest_locked_version) {
-            study.latest_locked_version = `${study.latest_locked_version.version_number} ${study.latest_locked_version.change_description ? study.latest_locked_version.change_description : ''}`
-          }
-          if (study.latest_released_version) {
-            study.latest_released_version = `${study.latest_released_version.version_number} ${study.latest_released_version.change_description ? study.latest_released_version.change_description : ''}`
-          }
-        })
-        activeStudies.value = resp.data
-        fullRefresh.value = false
-      })
-    }
-
-    filteredStudies.value = activeStudies.value
-    handleFiltering(params)
+    const resp = await api.get(params)
+    resp.data.items.forEach((study) => {
+      if (study.latest_locked_version) {
+        study.latest_locked_version = `${study.latest_locked_version.version_number} ${study.latest_locked_version.change_description ? study.latest_locked_version.change_description : ''}`
+      }
+      if (study.latest_released_version) {
+        study.latest_released_version = `${study.latest_released_version.version_number} ${study.latest_released_version.change_description ? study.latest_released_version.change_description : ''}`
+      }
+    })
+    paginatedStudies.value = resp.data.items
+    totalActiveStudies.value = resp.data.total
   } catch (error) {
     console.error(error)
-  }
-}
-
-function handleFiltering(params) {
-  // Column filtering
-  for (const key in columnFilters.value) {
-    if (
-      Array.isArray(columnFilters.value[key]) &&
-      columnFilters.value[key].length === 0
-    ) {
-      delete columnFilters.value[key]
-    }
-  }
-
-  const matchesFilterValue = (studyValue, filterValue) => {
-    if (studyValue === null || studyValue === undefined) {
-      return false
-    }
-
-    if (Array.isArray(studyValue)) {
-      return studyValue.some((item) => matchesFilterValue(item, filterValue))
-    }
-
-    if (
-      typeof studyValue === 'string' ||
-      typeof filterValue === 'string' ||
-      typeof studyValue === 'number' ||
-      typeof filterValue === 'number'
-    ) {
-      const studyText = String(studyValue).toLowerCase()
-      const filterText = String(filterValue).toLowerCase()
-      return studyText.includes(filterText)
-    }
-
-    return studyValue === filterValue
-  }
-
-  for (let key in columnFilters.value) {
-    const selectedValues = columnFilters.value[key]
-    filteredStudies.value = filteredStudies.value.filter((study) => {
-      return selectedValues.some((filterValue) =>
-        matchesFilterValue(study[key], filterValue)
-      )
-    })
-  }
-
-  // Free text search
-  let filteredTotal = 0
-  if (searchString.value?.length >= 3) {
-    filteredStudies.value = filteredStudies.value.filter((obj) =>
-      Object.values(obj).some((value) =>
-        String(value).toLowerCase().includes(searchString.value.toLowerCase())
-      )
-    )
-  }
-
-  // Pagination
-  filteredTotal = filteredStudies.value.length
-  paginatedStudies.value =
-    params.page_size > 0
-      ? filteredStudies.value.slice(
-          (params.page_number - 1) * params.page_size,
-          params.page_number * params.page_size
-        )
-      : filteredStudies.value
-
-  if (navigationTabs.value.tab === 'active') {
-    totalActiveStudies.value = filteredTotal
-  } else {
-    totalDeletedStudies.value = filteredTotal
   }
 }
 
@@ -458,16 +358,11 @@ async function fetchDeletedStudies(filters, options, filtersUpdated) {
     savedFilters.value,
     filtersUpdated
   )
+  params.deleted = true
   try {
-    if (deletedStudies.value.length === 0 || fullRefresh.value) {
-      await api.getAllList({ deleted: true }).then((resp) => {
-        deletedStudies.value = resp.data
-        fullRefresh.value = false
-      })
-    }
-
-    filteredStudies.value = deletedStudies.value
-    handleFiltering(params)
+    const resp = await api.get(params)
+    paginatedStudies.value = resp.data.items
+    totalDeletedStudies.value = resp.data.total
   } catch (error) {
     console.error(error)
   }

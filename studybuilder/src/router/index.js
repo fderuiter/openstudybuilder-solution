@@ -662,15 +662,15 @@ const routes = [
           authRequired: true,
         },
       },
-      // {
-      //   path: '/studies/:study_id/specification_dashboard',
-      //   name: 'SpecificationDashboard',
-      //   component: () => import('../views/studies/SpecificationDashboard.vue'),
-      //   meta: {
-      //     studyRequired: true,
-      //     authRequired: true
-      //   }
-      // },
+      {
+        path: '/studies/:study_id/specification_dashboard',
+        name: 'SpecificationDashboard',
+        component: () => import('../views/studies/SpecificationDashboard.vue'),
+        meta: {
+          studyRequired: true,
+          authRequired: true
+        }
+      },
       {
         path: ':study_id/study_title',
         name: 'StudyTitle',

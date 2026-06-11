@@ -10,6 +10,7 @@ export default {
   get(options) {
     const params = {
       ...options,
+      page_size: 0,
     }
     return repository.get(
       `${resource}?include_sections=${constants.DESCRIPTION_METADATA}`,
@@ -19,6 +20,7 @@ export default {
   getAllList(options = {}) {
     const params = {
       ...options,
+      page_size: 0,
     }
     return repository.get(`${resource}/list?minimal_response=false`, { params })
   },
@@ -324,6 +326,7 @@ export default {
     const params = {
       page_size: 0,
       ...options,
+      page_size: 0,
     }
     return repository.get(`studies/${studyUid}/study-compound-dosings`, {
       params,
@@ -507,6 +510,7 @@ export default {
   getStudyActivitySchedules(studyUid, options) {
     const params = {
       ...options,
+      page_size: 0,
     }
     return repository.get(`studies/${studyUid}/study-activity-schedules`, {
       params,

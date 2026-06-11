@@ -74,7 +74,7 @@
             :filters-modify-function="modifyFilters"
             :initial-column-data="getInitialColumnData()"
             @filter="handleFilter"
-            @update:options="updateTableOptions"
+            
             @click:column="handleColumnClick"
           >
             <template #[`item.name`]="{ item }">
@@ -126,6 +126,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import activities from '@/api/activities'
+import filteringParameters from '@/utils/filteringParameters'
 import columnData from '@/api/columnData'
 
 import BaseActivityOverview from './BaseActivityOverview.vue'
@@ -285,86 +286,48 @@ function handleColumnClick(column) {
 
 let savedFilters = ref({})
 
-function applyFiltersAndPagination(searchTerm = '', page = 1, perPage = 10) {
-  let itemsToDisplay = [...allSubgroups.value]
-
-  if (searchTerm && searchTerm.trim() !== '') {
-    itemsToDisplay = itemsToDisplay.filter((item) =>
-      itemMatchesSearch(item, searchTerm)
-    )
-  }
-
-  const sortKey = tableOptions.value.sortBy[0] || 'name'
-  const sortDesc = tableOptions.value.sortDesc[0] || false
-  itemsToDisplay.sort((a, b) => {
-    const valA = a[sortKey] || ''
-    const valB = b[sortKey] || ''
-    if (typeof valA === 'string' && typeof valB === 'string') {
-      return sortDesc ? valB.localeCompare(valA) : valA.localeCompare(valB)
-    }
-    return sortDesc ? valB - valA : valA - valB
-  })
-
-  subgroupsTotal.value = itemsToDisplay.length
-
-  if (perPage > 0) {
-    const startIndex = (page - 1) * perPage
-    const endIndex = startIndex + perPage
-    filteredSubgroups.value = itemsToDisplay.slice(startIndex, endIndex)
-  } else {
-    filteredSubgroups.value = itemsToDisplay
-  }
-}
-
-// Client-side filtering since API doesn't support search
-function handleFilter(filters, options) {
+async function handleFilter(filters, options, filtersUpdated) {
+  if (!route.params.id) return
+  
   if (filters !== undefined) {
     savedFilters.value = filters
   }
-
   if (!options) {
     options = tableOptions.value
   }
 
-  if (options.search !== undefined) {
-    tableOptions.value.search = options.search
-  }
-  if (options.page !== undefined) {
-    tableOptions.value.page = options.page
-  }
-  if (options.itemsPerPage !== undefined) {
-    tableOptions.value.itemsPerPage = options.itemsPerPage
-  }
-
-  applyFiltersAndPagination(
-    tableOptions.value.search,
-    tableOptions.value.page,
-    tableOptions.value.itemsPerPage
+  const params = filteringParameters.prepareParameters(
+    options,
+    savedFilters.value,
+    filtersUpdated
   )
-}
-
-function updateTableOptions(options) {
-  if (!options) return
-
-  if (options.sortBy && options.sortBy.length > 0) {
-    const sortItem = options.sortBy[0]
-    tableOptions.value.sortBy = [sortItem.key]
-    tableOptions.value.sortDesc = [sortItem.order === 'desc']
-    sortBy.value = options.sortBy
+  
+  if (options.search) {
+    params.search_string = options.search
   }
 
-  if (options.page !== undefined) {
-    tableOptions.value.page = options.page
-  }
-  if (options.itemsPerPage !== undefined) {
-    tableOptions.value.itemsPerPage = options.itemsPerPage
-  }
+  try {
+    loadingSubgroups.value = true
+    const result = await activities.getActivityGroupSubgroups(
+      route.params.id,
+      route.params.version || '',
+      params
+    )
 
-  applyFiltersAndPagination(
-    tableOptions.value.search,
-    tableOptions.value.page,
-    tableOptions.value.itemsPerPage
-  )
+    if (result && result.data) {
+      filteredSubgroups.value = result.data.items || []
+      subgroupsTotal.value = result.data.total || 0
+    } else {
+      filteredSubgroups.value = []
+      subgroupsTotal.value = 0
+    }
+  } catch (error) {
+    console.error('Error fetching subgroups:', error)
+    filteredSubgroups.value = []
+    subgroupsTotal.value = 0
+  } finally {
+    loadingSubgroups.value = false
+  }
 }
 
 function getSubgroupsHeaders() {
@@ -418,19 +381,10 @@ function handleSubgroupsUpdate(subgroupsData) {
       subgroups: subgroupsData,
     })
 
-    // IMPORTANT: The direct assignment is needed for the search functionality to work
     // eslint-disable-next-line vue/no-mutating-props
     props.itemOverview.subgroups = subgroupsData
-
-    const items = subgroupsData?.items || subgroupsData || []
-
-    allSubgroups.value = Array.isArray(items) ? [...items] : []
-    applyFiltersAndPagination(
-      tableOptions.value.search,
-      tableOptions.value.page,
-      tableOptions.value.itemsPerPage
-    )
-
+    
+    // Server-side search will be triggered by NNTable's initial load or filter change
     setTimeout(() => {
       loadingSubgroups.value = false
     }, 0)
@@ -465,7 +419,7 @@ watch(
       const sourceItems =
         newItemOverview.subgroups.items || newItemOverview.subgroups
       allSubgroups.value = Array.isArray(sourceItems) ? [...sourceItems] : []
-      applyFiltersAndPagination(
+      handleFilter(
         tableOptions.value.search,
         tableOptions.value.page,
         tableOptions.value.itemsPerPage
@@ -487,7 +441,7 @@ watch(
     if (newSubgroups) {
       const items = newSubgroups.items || newSubgroups
       allSubgroups.value = Array.isArray(items) ? [...items] : []
-      applyFiltersAndPagination(
+      handleFilter(
         tableOptions.value.search,
         tableOptions.value.page,
         tableOptions.value.itemsPerPage
@@ -524,7 +478,7 @@ const fetchSubgroups = async () => {
     if (result && result.data) {
       const items = result.data.items || result.data
       allSubgroups.value = Array.isArray(items) ? [...items] : []
-      applyFiltersAndPagination(
+      handleFilter(
         tableOptions.value.search,
         tableOptions.value.page,
         tableOptions.value.itemsPerPage
