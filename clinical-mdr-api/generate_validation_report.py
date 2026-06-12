@@ -3,8 +3,12 @@ import re
 from pathlib import Path
 import xml.etree.ElementTree as ET
 from datetime import datetime
+import html
+import logging
 from gherkin.parser import Parser
 from gherkin.token_scanner import TokenScanner
+
+logger = logging.getLogger(__name__)
 
 def sanitize_test_name(name):
     """Matches the pytest-bdd algorithm for converting scenario names to test names."""
@@ -64,7 +68,7 @@ def generate_report():
             tree = ET.parse(xml_path)
             xml_root = tree.getroot()
         except Exception as e:
-            print(f"Warning: Failed to parse XML at {xml_path}: {e}")
+            logger.warning(f"Failed to parse XML at {xml_path}: {e}", exc_info=True)
             
     parser = Parser()
     
@@ -98,7 +102,7 @@ def generate_report():
             try:
                 gherkin_document = parser.parse(TokenScanner(content))
             except Exception as e:
-                print(f"Error parsing {feature_file}: {e}")
+                logger.error(f"Error parsing {feature_file}: {e}", exc_info=True)
                 continue
                 
             feature = gherkin_document.get('feature')
@@ -147,8 +151,8 @@ def generate_report():
                 
                 feature_scenarios.append({
                     'name': scenario_name,
-                    'fs_ids': list(set(scenario_fs_ids)),
-                    'urs_ids': list(set(scenario_urs_ids)),
+                    'fs_ids': list(dict.fromkeys(scenario_fs_ids)),
+                    'urs_ids': list(dict.fromkeys(scenario_urs_ids)),
                     'steps': steps,
                     'status': status
                 })
@@ -174,17 +178,18 @@ def generate_report():
                 
             metadata, body = parse_markdown_metadata(content)
             
-            iso_type = metadata.get('ISO_TYPE', '')
+            normalized_metadata = {k.upper(): v for k, v in metadata.items()}
+            iso_type = normalized_metadata.get('ISO_TYPE', '')
             iso_category = get_iso_category(iso_type)
             
             # Extract parent requirements and functional specifications
             fs_ids = []
             urs_ids = []
             
-            for k, v in metadata.items():
-                if k.upper() in ['FS', 'FS_ID', 'FS_IDS']:
+            for k, v in normalized_metadata.items():
+                if k in ['FS', 'FS_ID', 'FS_IDS']:
                     fs_ids.extend([s.strip() for s in v.split(',')])
-                elif k.upper() in ['URS', 'URS_ID', 'URS_IDS']:
+                elif k in ['URS', 'URS_ID', 'URS_IDS']:
                     urs_ids.extend([s.strip() for s in v.split(',')])
                     
             title_match = re.search(r'^#\s+(.*)', body, re.MULTILINE)
@@ -207,7 +212,7 @@ def generate_report():
             })
             
     # Generate HTML
-    html = [
+    html_lines = [
         "<!DOCTYPE html>",
         "<html><head><meta charset='utf-8'><title>Living Validation Report</title>",
         "<style>",
@@ -239,65 +244,70 @@ def generate_report():
         if not items:
             continue
             
-        html.append(f"<div class='domain'><h2 class='domain-title'>{category}</h2>")
+        html_lines.append(f"<div class='domain'><h2 class='domain-title'>{category}</h2>")
         
         for item in items:
             item_type = item.get('type')
             label = "Feature" if item_type == 'feature' else "Requirement"
             
-            html.append(f"<div class='feature'><h3>{label}: {item['name']}</h3>")
+            safe_name = html.escape(item['name'])
+            html_lines.append(f"<div class='feature'><h3>{label}: {safe_name}</h3>")
             
             # For Markdown items, show URS and FS traces at the top
             if item_type == 'markdown':
                 if item.get('urs_ids') or item.get('fs_ids'):
-                    html.append("<div>")
+                    html_lines.append("<div>")
                     for u in item.get('urs_ids', []):
-                        html.append(f"<span class='urs-link'>Parent URS: {u}</span>")
+                        html_lines.append(f"<span class='urs-link'>Parent URS: {html.escape(u)}</span>")
                     for f_id in item.get('fs_ids', []):
-                        html.append(f"<span class='fs-link'>Traceability: {f_id}</span>")
-                    html.append("</div>")
+                        html_lines.append(f"<span class='fs-link'>Traceability: {html.escape(f_id)}</span>")
+                    html_lines.append("</div>")
                 
                 if item['description']:
-                    html.append(f"<div class='markdown-desc'>{item['description'][:500] + ('...' if len(item['description']) > 500 else '')}</div>")
+                    desc = item['description'][:500] + ('...' if len(item['description']) > 500 else '')
+                    html_lines.append(f"<div class='markdown-desc'>{html.escape(desc)}</div>")
             else:
                 if item['description']:
-                    html.append(f"<p>{item['description']}</p>")
+                    html_lines.append(f"<p>{html.escape(item['description'])}</p>")
                 
             # Render scenarios (mainly for features)
             for scenario in item.get('scenarios', []):
-                html.append(f"<div class='scenario'>")
-                html.append(f"<h4>Scenario: {scenario['name']}</h4>")
+                html_lines.append(f"<div class='scenario'>")
+                html_lines.append(f"<h4>Scenario: {html.escape(scenario['name'])}</h4>")
                 
                 if scenario.get('urs_ids') or scenario.get('fs_ids'):
-                    html.append("<div>")
+                    html_lines.append("<div>")
                     for u in scenario.get('urs_ids', []):
-                        html.append(f"<span class='urs-link'>Parent URS: {u}</span>")
+                        html_lines.append(f"<span class='urs-link'>Parent URS: {html.escape(u)}</span>")
                     for f_id in scenario.get('fs_ids', []):
-                        html.append(f"<span class='fs-link'>Traceability: {f_id}</span>")
-                    html.append("</div>")
+                        html_lines.append(f"<span class='fs-link'>Traceability: {html.escape(f_id)}</span>")
+                    html_lines.append("</div>")
                 
                 status = scenario['status']
+                status_class = status if status in ["Passed", "Failing", "Skipped"] else "Missing"
                 status_text = "Verified" if status == "Passed" else ("Non-Compliant" if status == "Failing" else status)
-                html.append(f"<div class='req-title'>Validation Proof</div>")
-                html.append(f"<div class='status {status}'>{status_text}</div>")
+                safe_status_text = html.escape(status_text)
                 
-                html.append(f"<div class='req-title'>Business Requirements</div>")
-                html.append("<div class='steps'>")
+                html_lines.append(f"<div class='req-title'>Validation Proof</div>")
+                html_lines.append(f"<div class='status {status_class}'>{safe_status_text}</div>")
+                
+                html_lines.append(f"<div class='req-title'>Business Requirements</div>")
+                html_lines.append("<div class='steps'>")
                 for step in scenario['steps']:
-                    html.append(f"<div>{step}</div>")
-                html.append("</div>")
+                    html_lines.append(f"<div>{html.escape(step)}</div>")
+                html_lines.append("</div>")
                 
-                html.append("</div>") # end scenario
-            html.append("</div>") # end item
-        html.append("</div>") # end category
+                html_lines.append("</div>") # end scenario
+            html_lines.append("</div>") # end item
+        html_lines.append("</div>") # end category
         
-    html.append("</body></html>")
+    html_lines.append("</body></html>")
     
     out_path = base_dir / "reports" / "validation_report.html"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as f:
-        f.write("\n".join(html))
-    print(f"Validation report generated at: {out_path}")
+        f.write("\n".join(html_lines))
+    logger.info(f"Validation report generated at: {out_path}")
 
 if __name__ == "__main__":
     generate_report()
