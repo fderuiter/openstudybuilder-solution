@@ -14,7 +14,7 @@ from clinical_mdr_api.domain_repositories.generic_repository import (
 from clinical_mdr_api.domain_repositories.models.controlled_terminology import (
     CTTermRoot,
 )
-from clinical_mdr_api.domain_repositories.models.study_audit_trail import Create, Edit
+from clinical_mdr_api.domain_repositories.models.study_audit_trail import Create, Edit, Sign
 from clinical_mdr_api.domain_repositories.models.study_selections import StudyVersion
 from clinical_mdr_api.domains.study_definition_aggregates.study_metadata import (
     StudyStatus,
@@ -264,6 +264,42 @@ class StudyVersionRepository:
             )
             study_version.has_reason_for_unlock.connect(ct_context)
 
+
+    @ensure_transaction(db)
+    def record_signature(
+        self,
+        study_uid: str,
+        payload_hash: str,
+        signer_name: str,
+        auth_time: str,
+        version: str
+    ) -> None:
+        # Find the specific StudyVersion and attach a Sign action
+        query = '''
+        MATCH (study_root:StudyRoot {uid: $study_uid})-[:LATEST]->(study_value:StudyValue)
+        MATCH (study_value)-[:HAS_STUDY_VERSION]->(sv:StudyVersion {version: $version})
+        WHERE NOT (sv)-[:BEFORE]-(:StudyAction)
+        
+        CREATE (sign:Sign:StudyAction {
+            uid: randomUUID(),
+            payload_hash: $payload_hash,
+            signer_name: $signer_name,
+            auth_time: $auth_time,
+            date: datetime(),
+            author_id: $author_id
+        })
+        CREATE (study_root)-[:AUDIT_TRAIL]->(sign)
+        CREATE (sign)-[:AFTER]->(sv)
+        '''
+        db.cypher_query(query, {
+            "study_uid": study_uid,
+            "version": version,
+            "payload_hash": payload_hash,
+            "signer_name": signer_name,
+            "auth_time": auth_time,
+            "author_id": self.author_id
+        })
+
     def retrieve_study_snapshot_history(
         self,
         study_uid: str,
@@ -304,6 +340,7 @@ class StudyVersionRepository:
         OPTIONAL MATCH (study_value)-[:HAS_STUDY_VERSION]->(sv:StudyVersion)
         OPTIONAL MATCH (sv)-[:HAS_REASON_FOR_LOCK]->(:CTTermContext)-[:HAS_SELECTED_TERM]->(:CTTermRoot)-->(:CTTermNameRoot)-[:LATEST_FINAL]->(lock_term_val:CTTermNameValue)
         OPTIONAL MATCH (sv)-[:HAS_REASON_FOR_UNLOCK]->(:CTTermContext)-[:HAS_SELECTED_TERM]->(:CTTermRoot)-->(:CTTermNameRoot)-[:LATEST_FINAL]->(unlock_term_val:CTTermNameValue)
+        OPTIONAL MATCH (sv)<-[:AFTER]-(sign:Sign:StudyAction)
         """
         protocol_header_version_match = f"{'' if only_latest_major_protocol_version else 'OPTIONAL'} MATCH (study_value)-[:HAS_STUDY_DEFINITION_DOCUMENT]->(sdd:StudyDefinitionDocument)"
 
@@ -317,6 +354,9 @@ class StudyVersionRepository:
             sv.other_reason_for_locking AS other_reason_for_lock_release,
             sdd.protocol_header_major_version AS protocol_header_major_version,
             sdd.protocol_header_minor_version AS protocol_header_minor_version,
+            sign.signer_name AS signer_name,
+            sign.auth_time AS auth_time,
+            sign.payload_hash AS payload_hash,
             date, statuses, modified_by
         // If there is Draft version, return it first, then order by metadata_version descending
         ORDER BY 

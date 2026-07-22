@@ -161,6 +161,7 @@ import SimpleFormDialog from '@/components/tools/SimpleFormDialog.vue'
 import StatusChip from '@/components/tools/StatusChip.vue'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import terms from '@/api/controlledTerminology/terms'
+import { auth } from '@/plugins/auth'
 
 const props = defineProps({
   action: {
@@ -325,6 +326,16 @@ function checkMajorVersionWarning() {
 async function submit() {
   notificationHub.clearErrors()
   try {
+    if (['lock', 'release'].includes(props.action)) {
+      const userInfo = await auth.getUserInfo()
+      const currentTime = Math.floor(Date.now() / 1000)
+      if (userInfo && userInfo.auth_time && (currentTime - userInfo.auth_time > 295)) {
+        notificationHub.add({ msg: 'Re-authentication required for this action.', type: 'info' })
+        auth.reauthenticate()
+        return
+      }
+    }
+
     if (checkMajorVersionWarning()) {
       return
     }

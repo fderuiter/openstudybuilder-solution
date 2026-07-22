@@ -70,3 +70,9 @@ class Edit(StudyAction):
 
 class UpdateSoASnapshot(StudyAction):
     object_type = StringProperty()
+
+class Sign(StudyAction):
+    payload_hash = StringProperty()
+    signer_name = StringProperty()
+    auth_time = StringProperty()
+

@@ -1766,6 +1766,19 @@ class StudyVersionHistory(BaseModel):
             json_schema_extra={"nullable": True},
         ),
     ] = None
+
+    signer_name: Annotated[
+        str | None,
+        Field(description="Signer Name", json_schema_extra={"nullable": True})
+    ] = None
+    auth_time: Annotated[
+        str | None,
+        Field(description="Authentication Timestamp", json_schema_extra={"nullable": True})
+    ] = None
+    payload_hash: Annotated[
+        str | None,
+        Field(description="SHA-256 Hash", json_schema_extra={"nullable": True})
+    ] = None
     modified_date: Annotated[
         datetime, Field(description="Datetime when the Study version was modified")
     ]

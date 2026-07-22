@@ -1,4 +1,5 @@
 import logging
+import time
 from typing import Annotated
 
 from authlib.integrations.starlette_client import OAuth
@@ -184,6 +185,7 @@ def dummy_access_token_claims(user_id: str = "unknown-user") -> AccessTokenClaim
         exp=0,
         nbf=0,
         iat=0,
+        auth_time=int(time.time()),
         jti=None,
         sub=fake_user.sub,
         name=fake_user.name,
@@ -216,6 +218,27 @@ def dummy_auth_object(access_token_claims: AccessTokenClaims) -> Auth:
         ),
         access_token_claims=access_token_claims,
     )
+
+
+def validate_recent_auth_time():
+    """
+    Validates that the token's auth_time is within the last 5 minutes.
+    Raises NotAuthenticatedException if missing or too old.
+    """
+    if not settings.oauth_enabled:
+        return
+
+    auth = context.get("auth")
+    if not auth:
+        raise NotAuthenticatedException("Authentication context missing")
+
+    auth_time = auth.access_token_claims.auth_time
+    if not auth_time:
+        raise NotAuthenticatedException("Missing auth_time claim for step-up authentication")
+
+    current_time = time.time()
+    if current_time - auth_time > 300:
+        raise NotAuthenticatedException("Re-authentication required. auth_time is older than 5 minutes")
 
 
 if settings.oauth_enabled:

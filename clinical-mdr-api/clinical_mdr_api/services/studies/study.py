@@ -2,6 +2,8 @@ import functools
 import logging
 from copy import copy
 from datetime import date, datetime, timezone
+import hashlib
+from starlette_context import context
 from string import ascii_lowercase
 from typing import Any, Callable, Collection, Iterable
 
@@ -749,7 +751,7 @@ class StudyService:
                         )
                         self._repos.study_definition_repository.save(study_subpart)
 
-            return self._models_study_from_study_definition_ar(
+            study_model = self._models_study_from_study_definition_ar(
                 study_definition_ar=study_definition,
                 find_project_by_project_number=self._repos.project_repository.find_by_project_number,
                 find_clinical_programme_by_uid=self._repos.clinical_programme_repository.find_by_uid,
@@ -758,6 +760,20 @@ class StudyService:
                 find_term_by_uids=self._repos.ct_term_name_repository.find_by_uids,
                 find_dictionary_term_by_uid=self._repos.dictionary_term_generic_repository.find_by_uid,
             )
+            
+            auth = context.get("auth") if context.exists() else None
+            if auth and auth.access_token_claims.auth_time:
+                payload_hash = hashlib.sha256(study_model.model_dump_json(exclude_unset=True).encode()).hexdigest()
+                signer_name = auth.user.name or auth.user.username or "Unknown Signer"
+                self._repos.study_version_repository.record_signature(
+                    study_uid=uid,
+                    payload_hash=payload_hash,
+                    signer_name=signer_name,
+                    auth_time=str(auth.access_token_claims.auth_time),
+                    version=version_number
+                )
+            
+            return study_model
         finally:
             self._close_all_repos()
 
@@ -915,7 +931,7 @@ class StudyService:
                         )
                         self._repos.study_definition_repository.save(study_subpart)
 
-            return self._models_study_from_study_definition_ar(
+            study_model = self._models_study_from_study_definition_ar(
                 study_definition_ar=study_definition,
                 find_project_by_project_number=self._repos.project_repository.find_by_project_number,
                 find_clinical_programme_by_uid=self._repos.clinical_programme_repository.find_by_uid,
@@ -924,6 +940,20 @@ class StudyService:
                 find_term_by_uids=self._repos.ct_term_name_repository.find_by_uids,
                 find_dictionary_term_by_uid=self._repos.dictionary_term_generic_repository.find_by_uid,
             )
+            
+            auth = context.get("auth") if context.exists() else None
+            if auth and auth.access_token_claims.auth_time:
+                payload_hash = hashlib.sha256(study_model.model_dump_json(exclude_unset=True).encode()).hexdigest()
+                signer_name = auth.user.name or auth.user.username or "Unknown Signer"
+                self._repos.study_version_repository.record_signature(
+                    study_uid=uid,
+                    payload_hash=payload_hash,
+                    signer_name=signer_name,
+                    auth_time=str(auth.access_token_claims.auth_time),
+                    version=version_number
+                )
+            
+            return study_model
         finally:
             self._close_all_repos()
 

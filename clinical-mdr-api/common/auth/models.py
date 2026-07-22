@@ -62,6 +62,7 @@ class AccessTokenClaims(JWTTokenClaims):
     tid: str | None = None
 
     azp: str | None = None
+    auth_time: int | None = None
 
 
 @dataclass(init=False)

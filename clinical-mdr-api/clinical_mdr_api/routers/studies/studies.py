@@ -1,7 +1,7 @@
 from typing import Annotated, Any, cast
 
 from dict2xml import DataSorter, dict2xml
-from fastapi import APIRouter, Body, Path, Query
+from fastapi import APIRouter, Body, Depends, Path, Query
 from fastapi.responses import Response
 from pydantic.types import Json
 from starlette.requests import Request
@@ -59,7 +59,7 @@ from clinical_mdr_api.services.studies.study import (
 )
 from clinical_mdr_api.services.studies.study_pharma_cm import StudyPharmaCMService
 from common.auth import rbac
-from common.auth.dependencies import security
+from common.auth.dependencies import security, validate_recent_auth_time
 from common.config import settings
 from common.exceptions import ValidationException
 from common.models.error import ErrorResponse
@@ -544,7 +544,7 @@ def get_distinct_values_for_header(
 
 @router.post(
     "/{study_uid}/locks",
-    dependencies=[security, rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE, Depends(validate_recent_auth_time)],
     summary="Locks a Study with specified uid",
     description="The Study is locked, which means that the LATEST_LOCKED relationship in the database is created."
     "The first locked version obtains number '1' and each next locked version "
@@ -621,7 +621,7 @@ def unlock(
 
 @router.post(
     "/{study_uid}/release",
-    dependencies=[security, rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE, Depends(validate_recent_auth_time)],
     summary="Releases a Study with specified uid",
     description="The Study is released, which means that 'snapshot' of the Study is created in the database"
     "and the LATEST_RELEASED relationship is created that points to the created snapshot."
@@ -1009,7 +1009,24 @@ def patch(
         },
     },
 )
+@decorators.allow_exports(
+    {
+        "defaults": [
+            "metadata_version",
+            "study_status",
+            "reason_for_lock_name",
+            "reason_for_unlock_name",
+            "description",
+            "signer_name",
+            "auth_time",
+            "payload_hash",
+            "modified_date",
+            "modified_by"
+        ]
+    }
+)
 def get_snapshot_history(
+    request: Request,
     study_uid: Annotated[str, StudyUID],  # ,
     page_number: _generic_descriptions.PAGE_NUMBER_QUERY = settings.default_page_number,
     page_size: _generic_descriptions.PAGE_SIZE_QUERY = settings.default_page_size,

@@ -43,6 +43,11 @@ const authInterface = {
       )
     })
   },
+
+  reauthenticate: function () {
+    sessionStorage.setItem('next', window.location.pathname)
+    return manager.signinRedirect({ prompt: 'login', max_age: 0 })
+  },
   oauthLogout: async function () {
     return manager.signoutRedirect()
   },
