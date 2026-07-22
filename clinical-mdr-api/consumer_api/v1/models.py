@@ -856,7 +856,7 @@ class LibraryActivityItem(BaseModel):
         Field(description="CT Codelist", json_schema_extra={"nullable": True}),
     ] = None
     ct_terms: Annotated[
-        list[SimpleCodelistTerm],
+        list["SimpleCodelistTerm"],
         Field(description="CT Terms"),
     ] = []
     unit_definitions: Annotated[

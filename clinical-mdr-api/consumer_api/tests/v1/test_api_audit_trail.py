@@ -239,6 +239,9 @@ STUDY_AUDIT_TRAIL_FIELDS = [
     "entity_type",
     "changed_properties",
     "author",
+    "signer_name",
+    "authentication_timestamp",
+    "payload_hash",
 ]
 
 STUDY_AUDIT_TRAIL_FIELDS_NOT_NULL = [

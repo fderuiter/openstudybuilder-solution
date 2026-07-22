@@ -170,6 +170,42 @@ class StudyService:
         self.author_id = user().id()
         self._repos = MetaRepository(self.author_id)
 
+    def _append_signature(self, uid: str, study_model: Study) -> None:
+        from common.auth.user import auth
+        from common.config import settings
+        import hashlib
+        from datetime import datetime, timezone
+
+        if not settings.oauth_enabled:
+            return
+
+        auth_obj = auth()
+        if not auth_obj:
+            return
+
+        # Calculate SHA-256 hash of the payload
+        payload = study_model.model_dump_json(exclude_unset=True).encode("utf-8")
+        payload_hash = hashlib.sha256(payload).hexdigest()
+
+        # Get signer identity and authentication time
+        signer_name = auth_obj.user.name or auth_obj.user.email or "Unknown Signer"
+        
+        # Check if auth_time is present
+        auth_time = auth_obj.access_token_claims.auth_time
+        if auth_time:
+            auth_timestamp = datetime.fromtimestamp(auth_time, tz=timezone.utc)
+        else:
+            auth_timestamp = datetime.now(timezone.utc)
+
+        # Call repository to append signature
+        self._repos.study_definition_repository.append_signature_audit_node(
+            study_uid=uid,
+            author_id=self.author_id,
+            signer_name=signer_name,
+            authentication_timestamp=auth_timestamp,
+            payload_hash=payload_hash,
+        )
+
     # and convenience method to close all repos
     def _close_all_repos(self) -> None:
         self._repos.close()
@@ -749,7 +785,7 @@ class StudyService:
                         )
                         self._repos.study_definition_repository.save(study_subpart)
 
-            return self._models_study_from_study_definition_ar(
+            study = self._models_study_from_study_definition_ar(
                 study_definition_ar=study_definition,
                 find_project_by_project_number=self._repos.project_repository.find_by_project_number,
                 find_clinical_programme_by_uid=self._repos.clinical_programme_repository.find_by_uid,
@@ -758,6 +794,8 @@ class StudyService:
                 find_term_by_uids=self._repos.ct_term_name_repository.find_by_uids,
                 find_dictionary_term_by_uid=self._repos.dictionary_term_generic_repository.find_by_uid,
             )
+            self._append_signature(uid, study)
+            return study
         finally:
             self._close_all_repos()
 
@@ -915,7 +953,7 @@ class StudyService:
                         )
                         self._repos.study_definition_repository.save(study_subpart)
 
-            return self._models_study_from_study_definition_ar(
+            study = self._models_study_from_study_definition_ar(
                 study_definition_ar=study_definition,
                 find_project_by_project_number=self._repos.project_repository.find_by_project_number,
                 find_clinical_programme_by_uid=self._repos.clinical_programme_repository.find_by_uid,
@@ -924,6 +962,8 @@ class StudyService:
                 find_term_by_uids=self._repos.ct_term_name_repository.find_by_uids,
                 find_dictionary_term_by_uid=self._repos.dictionary_term_generic_repository.find_by_uid,
             )
+            self._append_signature(uid, study)
+            return study
         finally:
             self._close_all_repos()
 

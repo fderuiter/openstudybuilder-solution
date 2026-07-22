@@ -55,6 +55,7 @@ class AccessTokenClaims(JWTTokenClaims):
     preferred_username: str | None = None
     email: str | None = None
     email_verified: bool | None = None
+    auth_time: int | None = None
 
     # Seen in Active Directory tokens
     username: str | None = None

@@ -149,6 +149,38 @@ else:
             pass
 
 
+class RequiresRecentAuthentication:
+    """
+    Dependency checks that the user has authenticated recently.
+    Raises NotAuthenticatedException if auth_time is missing or older than max_age_seconds.
+    """
+
+    def __init__(self, max_age_seconds: int = 300):
+        self.max_age_seconds = max_age_seconds
+
+    def __call__(self):
+        if not settings.oauth_enabled:
+            return
+
+        import time
+
+        auth_obj = context.get("auth")
+        if not auth_obj:
+            raise NotAuthenticatedException("Not authenticated.")
+
+        claims = auth_obj.access_token_claims
+        if claims.auth_time is None:
+            raise NotAuthenticatedException(
+                "Recent authentication required (missing auth_time)."
+            )
+
+        current_time = int(time.time())
+        if current_time - claims.auth_time > self.max_age_seconds:
+            raise NotAuthenticatedException(
+                "Recent authentication required (auth_time older than 5 minutes)."
+            )
+
+
 def dummy_user(roles: set[str] | None = None, user_id: str = "unknown-user") -> User:
     """Returns User object with dummy data"""
 

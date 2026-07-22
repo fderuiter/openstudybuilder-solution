@@ -981,7 +981,10 @@ def get_studies_audit_trail(
             CASE WHEN sa.author_id IS NOT NULL AND sa.author_id <> ''
                 THEN apoc.util.md5([sa.author_id])
                 ELSE ''
-            END AS author
+            END AS author,
+            COALESCE(sa.signer_name, '') AS signer_name,
+            COALESCE(toString(sa.authentication_timestamp), '') AS authentication_timestamp,
+            COALESCE(sa.payload_hash, '') AS payload_hash
             { 'WHERE ' + entity_type_filter if entity_type_filter else ''}
 
         RETURN DISTINCT
@@ -992,7 +995,10 @@ def get_studies_audit_trail(
             entity_uid,
             apoc.text.join(entity_labels, '|') AS entity_type,
             changed_properties,
-            author
+            author,
+            signer_name,
+            authentication_timestamp,
+            payload_hash
         ORDER BY ts ASC
         """
 

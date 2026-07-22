@@ -662,6 +662,9 @@ def get_studies_audit_trail(
         "entity_type",
         "changed_properties",
         "author",
+        "signer_name",
+        "authentication_timestamp",
+        "payload_hash",
     ]
     csv_output = ",".join(keys) + "\n"
     for entry in audit_trail:

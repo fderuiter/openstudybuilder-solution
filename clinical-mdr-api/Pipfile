@@ -67,7 +67,7 @@ pytest-order = "*"
 pip-audit = "~=2.10.0"
 
 [requires]
-python_version = "3.14"
+python_version = "3.12"
 
 [scripts]
 generate-validation-report = "python generate_validation_report.py"

@@ -1,7 +1,7 @@
 from typing import Annotated, Any, cast
 
 from dict2xml import DataSorter, dict2xml
-from fastapi import APIRouter, Body, Path, Query
+from fastapi import APIRouter, Body, Depends, Path, Query
 from fastapi.responses import Response
 from pydantic.types import Json
 from starlette.requests import Request
@@ -59,7 +59,7 @@ from clinical_mdr_api.services.studies.study import (
 )
 from clinical_mdr_api.services.studies.study_pharma_cm import StudyPharmaCMService
 from common.auth import rbac
-from common.auth.dependencies import security
+from common.auth.dependencies import RequiresRecentAuthentication, security
 from common.config import settings
 from common.exceptions import ValidationException
 from common.models.error import ErrorResponse
@@ -544,7 +544,7 @@ def get_distinct_values_for_header(
 
 @router.post(
     "/{study_uid}/locks",
-    dependencies=[security, rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE, Depends(RequiresRecentAuthentication())],
     summary="Locks a Study with specified uid",
     description="The Study is locked, which means that the LATEST_LOCKED relationship in the database is created."
     "The first locked version obtains number '1' and each next locked version "
@@ -585,7 +585,7 @@ def lock(
 
 @router.post(
     "/{study_uid}/unlocks",
-    dependencies=[security, rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE, Depends(RequiresRecentAuthentication())],
     summary="Unlocks a Study with specified uid",
     description="The Study is unlocked, which means that the new DRAFT version of a Study is created"
     " and the Study exists in the DRAFT state.",
@@ -621,7 +621,7 @@ def unlock(
 
 @router.post(
     "/{study_uid}/release",
-    dependencies=[security, rbac.STUDY_WRITE],
+    dependencies=[security, rbac.STUDY_WRITE, Depends(RequiresRecentAuthentication())],
     summary="Releases a Study with specified uid",
     description="The Study is released, which means that 'snapshot' of the Study is created in the database"
     "and the LATEST_RELEASED relationship is created that points to the created snapshot."

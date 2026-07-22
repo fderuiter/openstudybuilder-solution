@@ -1486,3 +1486,16 @@ return *
         Returns:
             None
         """
+
+    @abstractmethod
+    def append_signature_audit_node(
+        self,
+        study_uid: str,
+        author_id: str,
+        signer_name: str,
+        authentication_timestamp: datetime.datetime,
+        payload_hash: str,
+    ) -> None:
+        """
+        Appends a Signature audit node to the given study
+        """

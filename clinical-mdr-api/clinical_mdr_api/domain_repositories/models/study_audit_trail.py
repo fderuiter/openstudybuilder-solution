@@ -18,6 +18,9 @@ class StudyAction(ClinicalMdrNode):
     date: datetime.datetime = ZonedDateTimeProperty()
     status = StringProperty()
     author_id = StringProperty()
+    signer_name = StringProperty()
+    authentication_timestamp = ZonedDateTimeProperty()
+    payload_hash = StringProperty()
     has_before = RelationshipTo(
         ".study_selections.StudySelection",
         "BEFORE",
@@ -70,3 +73,7 @@ class Edit(StudyAction):
 
 class UpdateSoASnapshot(StudyAction):
     object_type = StringProperty()
+
+
+class Signature(StudyAction):
+    pass

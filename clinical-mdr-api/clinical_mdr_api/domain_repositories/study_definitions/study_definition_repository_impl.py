@@ -33,6 +33,7 @@ from clinical_mdr_api.domain_repositories.models.study_audit_trail import (
     Create,
     Delete,
     Edit,
+    Signature,
     StudyAction,
 )
 from clinical_mdr_api.domain_repositories.models.study_field import (
@@ -3409,3 +3410,27 @@ MATCH (sr:StudyRoot)-[:LATEST]->(sv)
                 author_id=self.audit_info.author_id,
                 date=datetime.now(timezone.utc),
             )
+
+    def append_signature_audit_node(
+        self,
+        study_uid: str,
+        author_id: str,
+        signer_name: str,
+        authentication_timestamp: datetime,
+        payload_hash: str,
+    ) -> None:
+        study_root_node = StudyRoot.nodes.get_or_none(uid=study_uid)
+        if not study_root_node:
+            raise NotFoundException("Study Root", study_uid)
+
+        audit_node = Signature(
+            date=datetime.now(timezone.utc),
+            status="Signature",
+            author_id=author_id,
+            signer_name=signer_name,
+            authentication_timestamp=authentication_timestamp,
+            payload_hash=payload_hash,
+        )
+        audit_node.save()
+        study_root_node.audit_trail.connect(audit_node)
+
