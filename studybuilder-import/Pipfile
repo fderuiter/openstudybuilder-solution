@@ -6,11 +6,14 @@ name = "pypi"
 [packages]
 requests = "*"
 aiohttp = "~=3.10.10"
+httpx = "*"
+shared-client = {path = "../shared-client", editable = true}
 
 [dev-packages]
 pylint = "~=3.3.1"
 isort = "~=5.13.2"
 black = "~=24.10.0"
+pytest = "*"
 
 [requires]
 python_version = "3.14"

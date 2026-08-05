@@ -96,6 +96,7 @@ COPY ./studybuilder-import/.env.import mdr-standards-import/.env
 
 
 # Install dependencies for studybuilder-import and clinical-mdr-api
+COPY ./shared-client shared-client
 COPY ./studybuilder-import/Pipfile* studybuilder-import/
 COPY ./clinical-mdr-api/Pipfile* clinical-mdr-api/
 RUN cd studybuilder-import && pipenv sync \

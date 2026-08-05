@@ -1,3 +1,4 @@
+import shared_client
 from importers.run_import_activities import Activities
 from importers.run_import_complexity_burdens import ComplexityBurdens
 from importers.run_import_compounds import Compounds

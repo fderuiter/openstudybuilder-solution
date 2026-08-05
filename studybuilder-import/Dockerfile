@@ -12,7 +12,8 @@ RUN useradd --home-dir /home/"$USER" --user-group --create-home --uid "$UID" "$U
 ARG WORKDIR=/app
 WORKDIR $WORKDIR
 
-## Copy Pipfiles into the working directory
+## Copy Pipfiles and shared-client into the working directory
+COPY ./shared-client ../shared-client
 COPY ./Pipfile* ./
 
 # Update package lists, upgrade installed packages and install required system packages
