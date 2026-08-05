@@ -34,11 +34,72 @@ jobs:
 
           docker compose build
           
-      - name: Validate docker containers
+      - name: Start docker containers
         run: |
           docker compose up -d
-          sleep 4m
-          docker container ls
-          if [ $(docker ps -f 'health=none' -f 'health=starting' -f 'health=unhealthy' -q | wc -l) -gt 0 ]; then export CONTAINERSTATUS=unhealthy; else export CONTAINERSTATUS=healthy; fi
+
+      - name: Dynamic wait for container health
+        run: |
+          echo "Waiting for services to start up..."
+          # Loop up to 30 times (150 seconds max)
+          for i in {1..30}; do
+            # Check if any container is still in "starting" state
+            if docker ps --format '{{.Names}}: {{.Status}}' | grep -q "starting"; then
+              echo "Some containers are still starting..."
+              docker ps --format '{{.Names}}: {{.Status}}' | grep "starting"
+              sleep 5
+            else
+              echo "No containers are starting anymore!"
+              break
+            fi
+          done
+          # Display final container list and statuses
+          docker ps -a
+          
+          # Check health status
+          if [ $(docker ps -f 'health=unhealthy' -q | wc -l) -gt 0 ]; then
+            echo "Some containers are unhealthy!"
+            docker ps -a --filter "health=unhealthy"
+            exit 1
+          else
+            echo "All containers are healthy/running!"
+          fi
+
+      - name: Run live Schemathesis contract tests
+        run: |
+          docker compose exec -T \
+            -e SCHEMATHESIS_STUDY_UID=Study_000006 \
+            -e SCHEMATHESIS_HOOKS=clinical_mdr_api.hooks.schemathesis_hooks \
+            api pipenv run schemathesis run \
+              --experimental=openapi-3.1 \
+              --checks=all \
+              --base-url=http://localhost:5003/api \
+              --request-timeout=200000 \
+              --hypothesis-max-examples=10 \
+              --hypothesis-verbosity=normal \
+              --hypothesis-deadline=None \
+              --hypothesis-suppress-health-check=too_slow,filter_too_much,data_too_large \
+              --workers=auto \
+              --junit-xml=reports/schemathesis_report.xml \
+              --report=reports/schemathesis_report.tgz \
+              --show-trace \
+              openapi.json
+
+      - name: Retrieve Schemathesis reports from container
+        if: always()
+        run: |
+          mkdir -p reports
+          docker compose cp api:/app/reports/schemathesis_report.xml ./reports/schemathesis_report.xml || true
+          docker compose cp api:/app/reports/schemathesis_report.tgz ./reports/schemathesis_report.tgz || true
+
+      - name: Upload Schemathesis report artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: schemathesis-reports
+          path: reports/
+
+      - name: Stop docker containers
+        run: |
           docker compose down
-          if [ "$CONTAINERSTATUS" == "unhealthy" ]; then exit 1; else echo $CONTAINERSTATUS; fi
+        if: always()
