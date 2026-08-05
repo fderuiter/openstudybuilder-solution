@@ -48,5 +48,8 @@ USER nginx
 
 EXPOSE $NGINX_PORT
 
-HEALTHCHECK cmd curl --fail "http://localhost:$NGINX_PORT" || exit 1
+HEALTHCHECK --start-period=10s --timeout=2s --interval=10s --retries=2 CMD \
+    curl --fail --silent --show-error --max-time 1 \
+    "http://localhost:$NGINX_PORT/" \
+    > /dev/null || exit 1
 LABEL version="2.4.8"
