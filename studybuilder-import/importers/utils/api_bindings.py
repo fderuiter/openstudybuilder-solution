@@ -138,7 +138,7 @@ class ApiBinding:
     # Verify that Clinical MDR API is online
     # TODO Replace with api health check resource ...
     def verify_connection(self):
-        self.shared_client.verify_connection()
+        self.shared_client.verify_connection(headers=self.api_headers)
 
     # Verify that the bare minimum of CT packages are available.
     def check_for_ct_packages(self):

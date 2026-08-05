@@ -1,6 +1,14 @@
 import sys
 import httpx
 
+# Safely import the real aiohttp module to delegate attributes
+shim = sys.modules.pop("aiohttp", None)
+try:
+    import aiohttp as real_aiohttp
+finally:
+    if shim is not None:
+        sys.modules["aiohttp"] = shim
+
 class ContentTypeError(Exception):
     pass
 
@@ -91,3 +99,6 @@ class ClientSession:
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self._mdr_client.aclose()
+
+def __getattr__(name):
+    return getattr(real_aiohttp, name)
