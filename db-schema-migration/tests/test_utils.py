@@ -69,6 +69,27 @@ def test_snake_case(input_val, output):
             "",
             id="neo4j_ssc_scheme_no_creds",
         ),
+        pytest.param(
+            None,
+            "",
+            "neo4j",
+            "",
+            id="none_db_url",
+        ),
+        pytest.param(
+            "",
+            "",
+            "neo4j",
+            "",
+            id="empty_db_url",
+        ),
+        pytest.param(
+            12345,
+            "",
+            "neo4j",
+            "",
+            id="non_string_db_url",
+        ),
     ],
 )
 def test_parse_db_url(db_url, expected_url, expected_user, expected_pass):
@@ -76,3 +97,36 @@ def test_parse_db_url(db_url, expected_url, expected_user, expected_pass):
     assert url == expected_url
     assert user == expected_user
     assert password == expected_pass
+
+
+def test_get_db_connection(monkeypatch):
+    from neomodel import config as neoconfig
+    from neomodel import db
+
+    # Mock environment variables
+    monkeypatch.setenv("DATABASE_URL", "bolt://neo4j:p@ss:w:ord@localhost:7687")
+    monkeypatch.setenv("DATABASE_NAME", "testdb")
+    monkeypatch.setenv("CREATE_DB", "false")
+
+    # Mock db.set_connection and db.cypher_query
+    called_connections = []
+    def mock_set_connection(url):
+        called_connections.append(url)
+    monkeypatch.setattr(db, "set_connection", mock_set_connection)
+
+    query_count = 0
+    def mock_cypher_query(query, params=None):
+        nonlocal query_count
+        query_count += 1
+        return [], None
+    monkeypatch.setattr(db, "cypher_query", mock_cypher_query)
+
+    # Call get_db_connection
+    res = utils.get_db_connection()
+
+    assert res == db
+    # Credentials should be url-encoded in the connection string
+    expected_url = "bolt://neo4j:p%40ss%3Aw%3Aord@localhost:7687/testdb"
+    assert neoconfig.DATABASE_URL == expected_url
+    assert expected_url in called_connections
+
