@@ -93,5 +93,13 @@ def increment_api_version_if_needed(
 
 
 def get_api_version() -> str:
-    with open("apiVersion", "r", encoding="utf-8") as file:
-        return file.read().strip()
+    import os
+    if os.path.exists("apiVersion"):
+        with open("apiVersion", "r", encoding="utf-8") as file:
+            return file.read().strip()
+    else:
+        path = os.path.join(os.path.dirname(__file__), "..", "..", "apiVersion")
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as file:
+                return file.read().strip()
+    return "1.0.0"

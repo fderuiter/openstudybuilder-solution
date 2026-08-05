@@ -387,6 +387,7 @@ app.include_router(
     routers.ct_codelist_names_router, prefix="/ct", tags=["CT Codelists"]
 )
 app.include_router(routers.ct_terms_router, prefix="/ct", tags=["CT Terms"])
+app.include_router(routers.ct_conflicts_router, prefix="/ct", tags=["CT Conflicts"])
 app.include_router(routers.ct_term_attributes_router, prefix="/ct", tags=["CT Terms"])
 app.include_router(routers.ct_term_names_router, prefix="/ct", tags=["CT Terms"])
 app.include_router(routers.ct_stats_router, prefix="/ct", tags=["CT Stats"])

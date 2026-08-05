@@ -369,7 +369,7 @@ class StudyEpochService(StudySelectionMixin):
                 if epoch.term_uid not in self.study_epoch_epochs_by_uid:
                     self.study_epoch_epochs_by_uid[epoch.term_uid] = epoch
 
-            except AlreadyExistsException, ValidationException:
+            except (AlreadyExistsException, ValidationException):
                 pass
         # we are trying to find the ct term with given epoch name
         else:
