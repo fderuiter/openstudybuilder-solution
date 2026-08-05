@@ -52,6 +52,6 @@ jobs:
           docker compose up -d
           sleep 4m
           docker container ls
-          if [ $(docker ps -f 'health=none' -f 'health=starting' -f 'health=unhealthy' -q | wc -l) -gt 0 ]; then export CONTAINERSTATUS=unhealthy; else export CONTAINERSTATUS=healthy; fi
+          if [ $(docker ps --filter "label=com.docker.compose.project" -f 'health=none' -f 'health=starting' -f 'health=unhealthy' -q | wc -l) -gt 0 ]; then export CONTAINERSTATUS=unhealthy; else export CONTAINERSTATUS=healthy; fi
           docker compose down
           if [ "$CONTAINERSTATUS" == "unhealthy" ]; then exit 1; else echo $CONTAINERSTATUS; fi
