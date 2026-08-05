@@ -80,7 +80,7 @@ class MsGraphClientService:
         )
         if len(response["value"]):
             user = response["value"][0]
-            return GraphUser(**user)
+            return GraphUser.model_validate(user)
         return None
 
 
