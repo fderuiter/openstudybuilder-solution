@@ -7,6 +7,9 @@ authors = [
     {name = 'OpenStudyBuilder', email = 'OpenStudyBuilder@gmail.com'}
 ]
 
+[tool.poetry]
+package-mode = false
+
 [build-system]
 requires = ["setuptools>=40.8.0", "wheel"]
 build-backend = "setuptools.build_meta:__legacy__"
