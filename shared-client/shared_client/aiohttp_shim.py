@@ -5,6 +5,8 @@ import httpx
 shim = sys.modules.pop("aiohttp", None)
 try:
     import aiohttp as real_aiohttp
+except ModuleNotFoundError:
+    real_aiohttp = None
 finally:
     if shim is not None:
         sys.modules["aiohttp"] = shim
@@ -101,4 +103,6 @@ class ClientSession:
         await self._mdr_client.aclose()
 
 def __getattr__(name):
+    if real_aiohttp is None:
+        raise AttributeError(f"module 'aiohttp' has no attribute '{name}' (and real aiohttp is not installed)")
     return getattr(real_aiohttp, name)
