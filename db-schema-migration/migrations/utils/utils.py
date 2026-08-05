@@ -3,6 +3,7 @@ import math
 import os
 import re
 import time
+import urllib.parse
 from typing import Any, List, Optional
 
 import neo4j.exceptions
@@ -289,11 +290,56 @@ def api_delete(path: str):
     return res
 
 
-def parse_db_url(db_url):
-    auth_info = re.search(r"//(.+?)@", db_url).group(1)
-    username, password = auth_info.split(":")
-    url = db_url.replace(auth_info + "@", "")
-    return url, username, password
+def parse_db_url(db_url: str):
+    default_username = "neo4j"
+    default_password = ""
+    try:
+        parsed = urllib.parse.urlsplit(db_url)
+        if parsed.netloc:
+            if "@" in parsed.netloc:
+                auth, host_port = parsed.netloc.rsplit("@", 1)
+                username_raw, _, password_raw = auth.partition(":")
+                username = urllib.parse.unquote(username_raw)
+                password = urllib.parse.unquote(password_raw)
+            else:
+                username = default_username
+                password = default_password
+                host_port = parsed.netloc
+
+            clean_url = urllib.parse.urlunsplit(
+                (parsed.scheme, host_port, parsed.path, parsed.query, parsed.fragment)
+            )
+            return clean_url, username, password
+    except Exception:  # pylint: disable=broad-exception-caught
+        pass
+
+    if "://" in db_url:
+        scheme, rest = db_url.split("://", 1)
+    else:
+        scheme = ""
+        rest = db_url
+
+    host_auth, _, path = rest.partition("/")
+    if "@" in host_auth:
+        auth, host_port = host_auth.rsplit("@", 1)
+        username_raw, _, password_raw = auth.partition(":")
+        username = urllib.parse.unquote(username_raw)
+        password = urllib.parse.unquote(password_raw)
+    else:
+        username = default_username
+        password = default_password
+        host_port = host_auth
+
+    clean_host_auth = host_port
+    if path:
+        clean_host_auth = f"{clean_host_auth}/{path}"
+
+    if scheme:
+        clean_url = f"{scheme}://{clean_host_auth}"
+    else:
+        clean_url = clean_host_auth
+
+    return clean_url, username, password
 
 
 def get_db_driver():
