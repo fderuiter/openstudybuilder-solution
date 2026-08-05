@@ -12,6 +12,11 @@ from neo4j import GraphDatabase
 from neomodel import config as neoconfig
 from neomodel import db
 
+# Register Neo4j database schemes so that urllib.parse treats them correctly
+for scheme in ("bolt", "bolt+s", "neo4j", "neo4j+s", "bolt+ssc", "neo4j+ssc"):
+    if scheme not in urllib.parse.uses_netloc:
+        urllib.parse.uses_netloc.append(scheme)
+
 REGEX_SNAKE_CASE = r"^[a-z]+(_[a-z]+)*$"
 REGEX_SNAKE_CASE_WITH_DOT = r"^[a-z.]+(_[a-z.]+)*$"
 
@@ -110,11 +115,18 @@ def get_db_connection():
         db_name,
     )
 
-    neoconfig.DATABASE_URL = db_url
+    clean_url, username, password = parse_db_url(db_url)
+    if "://" in clean_url:
+        scheme, rest = clean_url.split("://", 1)
+        safe_db_url = f"{scheme}://{urllib.parse.quote(username)}:{urllib.parse.quote(password)}@{rest}"
+    else:
+        safe_db_url = f"{urllib.parse.quote(username)}:{urllib.parse.quote(password)}@{clean_url}"
+
+    neoconfig.DATABASE_URL = safe_db_url
     db.set_connection(neoconfig.DATABASE_URL)
 
     if db_name:
-        neoconfig.DATABASE_URL = f"{db_url}/{db_name}"
+        neoconfig.DATABASE_URL = f"{safe_db_url}/{db_name}"
         logger.info(
             "Creating database '%s' if it doesn't exist",
             db_name,
@@ -293,6 +305,9 @@ def api_delete(path: str):
 def parse_db_url(db_url: str):
     default_username = "neo4j"
     default_password = ""
+    if not db_url or not isinstance(db_url, str):
+        return "", default_username, default_password
+
     try:
         parsed = urllib.parse.urlsplit(db_url)
         if parsed.netloc:
