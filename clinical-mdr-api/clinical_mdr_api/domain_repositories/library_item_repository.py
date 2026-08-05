@@ -1757,9 +1757,11 @@ class LibraryItemRepositoryImplBase(
         filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator = FilterOperator.AND,
         page_size: int = 10,
+        page_number: int = 1,
+        total_count: bool = False,
     ):
         if page_size <= 0:
-            return []
+            return ([], 0) if (total_count or page_number > 1) else []
 
         validate_dict(filter_by, "filters")
 
@@ -1781,7 +1783,7 @@ class LibraryItemRepositoryImplBase(
 
         where_stmt, params = self._where_stmt_optimized(filter_by, filter_operator)
 
-        match_stmt, return_stmt = self._headers_cypher_query(
+        match_stmt, _ = self._headers_cypher_query(
             cypher_field_name=cypher_field_name,
             with_status=bool(status),
             where_stmt=where_stmt,
@@ -1790,9 +1792,31 @@ class LibraryItemRepositoryImplBase(
         if status:
             params["status"] = status.value
 
+        total = -1
+        if total_count:
+            count_return_stmt = f"""
+                RETURN COUNT(DISTINCT {cypher_field_name})
+            """
+            count_result, _ = db.cypher_query(
+                match_stmt + count_return_stmt,
+                params=params,
+                resolve_objects=True,
+            )
+            if count_result and count_result[0]:
+                total = count_result[0][0]
+
+        from common.utils import db_pagination_clause, validate_page_number_and_page_size
+        validate_page_number_and_page_size(page_number, page_size)
+        pagination_clause = db_pagination_clause(page_size, page_number)
+
+        return_stmt = f"""
+            RETURN DISTINCT {cypher_field_name}
+            {pagination_clause}
+        """
+
         result, _ = db.cypher_query(
             match_stmt + return_stmt,
-            params=params | {"page_size": page_size},
+            params=params,
             resolve_objects=True,
         )
 
@@ -1804,6 +1828,8 @@ class LibraryItemRepositoryImplBase(
                     elm = convert_to_datetime(elm)
                 rs.append(elm)
 
+        if total_count or page_number > 1:
+            return rs, total
         return rs
 
     def basemodel_to_cypher_mapping_optimized(self):

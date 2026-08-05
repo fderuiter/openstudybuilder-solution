@@ -194,15 +194,22 @@ def get_distinct_values_for_header(
     search_string: _generic_descriptions.HEADER_SEARCH_STRING_QUERY = "",
     filters: _generic_descriptions.SYNTAX_FILTERS_QUERY = None,
     operator: _generic_descriptions.FILTER_OPERATOR_QUERY = settings.default_filter_operator,
+    page_number: _generic_descriptions.PAGE_NUMBER_QUERY = settings.default_page_number,
     page_size: _generic_descriptions.HEADER_PAGE_SIZE_QUERY = settings.default_header_page_size,
-) -> list[Any]:
-    return Service().get_distinct_values_for_header(
+    total_count: _generic_descriptions.TOTAL_COUNT_QUERY = False,
+) -> CustomPage[Any]:
+    results = Service().get_distinct_values_for_header_paginated(
         status=status,
         field_name=field_name,
         search_string=search_string,
         filter_by=filters,
         filter_operator=FilterOperator.from_str(operator),
+        page_number=page_number,
         page_size=page_size,
+        total_count=total_count,
+    )
+    return CustomPage(
+        items=results.items, total=results.total, page=page_number, size=page_size
     )
 
 
@@ -333,8 +340,19 @@ The returned versions are ordered by `start_date` descending (newest entries fir
 def get_footnote_template_versions(
     request: Request,  # request is actually required by the allow_exports decorator
     footnote_template_uid: Annotated[str, FootnoteTemplateUID],
-) -> list[FootnoteTemplateVersion]:
-    return Service().get_version_history(uid=footnote_template_uid)
+    page_number: _generic_descriptions.PAGE_NUMBER_QUERY = settings.default_page_number,
+    page_size: _generic_descriptions.PAGE_SIZE_QUERY = settings.default_page_size,
+    total_count: _generic_descriptions.TOTAL_COUNT_QUERY = False,
+) -> CustomPage[FootnoteTemplateVersion]:
+    results = Service().get_version_history(
+        uid=footnote_template_uid,
+        page_number=page_number,
+        page_size=page_size,
+        total_count=total_count,
+    )
+    return CustomPage(
+        items=results.items, total=results.total, page=page_number, size=page_size
+    )
 
 
 @router.get(
@@ -384,8 +402,20 @@ def get_footnote_template_version(
 )
 def get_footnote_template_releases(
     footnote_template_uid: Annotated[str, FootnoteTemplateUID],
-) -> list[FootnoteTemplate]:
-    return Service().get_releases(uid=footnote_template_uid, return_study_count=False)
+    page_number: _generic_descriptions.PAGE_NUMBER_QUERY = settings.default_page_number,
+    page_size: _generic_descriptions.PAGE_SIZE_QUERY = settings.default_page_size,
+    total_count: _generic_descriptions.TOTAL_COUNT_QUERY = False,
+) -> CustomPage[FootnoteTemplate]:
+    results = Service().get_releases(
+        uid=footnote_template_uid,
+        return_study_count=False,
+        page_number=page_number,
+        page_size=page_size,
+        total_count=total_count,
+    )
+    return CustomPage(
+        items=results.items, total=results.total, page=page_number, size=page_size
+    )
 
 
 @router.post(
@@ -731,8 +761,20 @@ def get_parameters(
             description="Optionally, the uid of the study to subset the parameters to (e.g. for StudyEndpoints parameters)",
         ),
     ] = None,
-) -> list[TemplateParameter]:
-    return Service().get_parameters(uid=footnote_template_uid, study_uid=study_uid)
+    page_number: _generic_descriptions.PAGE_NUMBER_QUERY = settings.default_page_number,
+    page_size: _generic_descriptions.PAGE_SIZE_QUERY = settings.default_page_size,
+    total_count: _generic_descriptions.TOTAL_COUNT_QUERY = False,
+) -> CustomPage[TemplateParameter]:
+    results = Service().get_parameters(
+        uid=footnote_template_uid,
+        study_uid=study_uid,
+        page_number=page_number,
+        page_size=page_size,
+        total_count=total_count,
+    )
+    return CustomPage(
+        items=results.items, total=results.total, page=page_number, size=page_size
+    )
 
 
 @router.post(

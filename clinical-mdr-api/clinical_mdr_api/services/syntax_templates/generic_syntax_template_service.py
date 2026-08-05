@@ -272,6 +272,9 @@ class GenericSyntaxTemplateService(GenericSyntaxService[_AggregateRootType], abc
         uid: str,
         study_uid: str | None = None,
         include_study_endpoints: bool = False,
+        page_number: int = 1,
+        page_size: int = 0,
+        total_count: bool = False,
     ):
         try:
             parameters = self.repository.get_parameters_including_terms(
@@ -279,7 +282,22 @@ class GenericSyntaxTemplateService(GenericSyntaxService[_AggregateRootType], abc
                 study_uid=study_uid,
                 include_study_endpoints=include_study_endpoints,
             )
-            return process_parameters(parameters)
+            items_all = process_parameters(parameters)
+            total = len(items_all) if total_count or page_size > 0 else -1
+
+            if page_size > 0:
+                from common.utils import validate_page_number_and_page_size
+                validate_page_number_and_page_size(page_number, page_size)
+                start_index = (page_number - 1) * page_size
+                end_index = start_index + page_size
+                items_paginated = items_all[start_index:end_index]
+                from clinical_mdr_api.models.utils import GenericFilteringReturn
+                return GenericFilteringReturn(items=items_paginated, total=total)
+            elif total_count:
+                from clinical_mdr_api.models.utils import GenericFilteringReturn
+                return GenericFilteringReturn(items=items_all, total=total)
+            else:
+                return items_all
         except DoesNotExist as exc:
             raise NotFoundException(field_value=uid) from exc
 

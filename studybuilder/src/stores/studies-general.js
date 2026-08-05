@@ -256,32 +256,74 @@ export const useStudiesGeneralStore = defineStore('studiesGeneral', {
         this.developmentStageCodes = resp.data.items
       })
     },
-    fetchObjectiveLevels() {
-      terms.getTermsByCodelist('objectiveLevels').then((resp) => {
-        // FIXME: deal with pagination to retrieve all items
-        this.objectiveLevels = resp.data.items
+    async fetchObjectiveLevels() {
+      let pageNumber = 1
+      const pageSize = 100
+      let allItems = []
+      let total = 0
+
+      do {
+        const resp = await terms.getTermsByCodelist('objectiveLevels', {
+          page_number: pageNumber,
+          page_size: pageSize,
+        })
+        const items = resp.data.items || []
+        total = resp.data.total || 0
+        allItems = allItems.concat(items)
+
+        this.objectiveLevels = [...allItems]
         this.objectiveLevels.forEach((item) => {
           item.preferred_term = item.sponsor_preferred_name
         })
-      })
+
+        pageNumber++
+      } while (allItems.length < total)
     },
-    fetchEndpointLevels() {
-      terms.getTermsByCodelist('endpointLevels').then((resp) => {
-        // FIXME: deal with pagination to retrieve all items
-        this.endpointLevels = resp.data.items
+    async fetchEndpointLevels() {
+      let pageNumber = 1
+      const pageSize = 100
+      let allItems = []
+      let total = 0
+
+      do {
+        const resp = await terms.getTermsByCodelist('endpointLevels', {
+          page_number: pageNumber,
+          page_size: pageSize,
+        })
+        const items = resp.data.items || []
+        total = resp.data.total || 0
+        allItems = allItems.concat(items)
+
+        this.endpointLevels = [...allItems]
         this.endpointLevels.forEach((item) => {
           item.term_name = item.sponsor_preferred_name
         })
-      })
+
+        pageNumber++
+      } while (allItems.length < total)
     },
-    fetchEndpointSubLevels() {
-      terms.getTermsByCodelist('endpointSubLevels').then((resp) => {
-        // FIXME: deal with pagination to retrieve all items
-        this.endpointSubLevels = resp.data.items
+    async fetchEndpointSubLevels() {
+      let pageNumber = 1
+      const pageSize = 100
+      let allItems = []
+      let total = 0
+
+      do {
+        const resp = await terms.getTermsByCodelist('endpointSubLevels', {
+          page_number: pageNumber,
+          page_size: pageSize,
+        })
+        const items = resp.data.items || []
+        total = resp.data.total || 0
+        allItems = allItems.concat(items)
+
+        this.endpointSubLevels = [...allItems]
         this.endpointSubLevels.forEach((item) => {
           item.term_name = item.sponsor_preferred_name
         })
-      })
+
+        pageNumber++
+      } while (allItems.length < total)
     },
   },
 })
