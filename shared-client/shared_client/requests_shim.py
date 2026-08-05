@@ -6,6 +6,8 @@ from shared_client.client import MDRClient
 shim = sys.modules.pop("requests", None)
 try:
     import requests as real_requests
+except ModuleNotFoundError:
+    real_requests = None
 finally:
     if shim is not None:
         sys.modules["requests"] = shim
@@ -41,4 +43,6 @@ class ApiShim:
 api = ApiShim()
 
 def __getattr__(name):
+    if real_requests is None:
+        raise AttributeError(f"module 'requests' has no attribute '{name}' (and real requests is not installed)")
     return getattr(real_requests, name)
