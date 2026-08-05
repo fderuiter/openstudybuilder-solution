@@ -136,6 +136,10 @@ class StudyStandardVersionService:
             description=study_standard_version_create_input.description,
             author_id=self.author,
             ct_package_uid=study_standard_version_create_input.ct_package_uid,
+            snomed_version=study_standard_version_create_input.snomed_version,
+            medrt_version=study_standard_version_create_input.medrt_version,
+            unii_version=study_standard_version_create_input.unii_version,
+            ucum_version=study_standard_version_create_input.ucum_version,
         )
 
     def _edit_study_standard_version_vo(
@@ -144,21 +148,43 @@ class StudyStandardVersionService:
         study_standard_version_edit_input: StudyStandardVersionEditInput,
     ):
         if (
-            study_standard_version_to_edit.ct_package_uid
-            != study_standard_version_edit_input.ct_package_uid
-            or study_standard_version_to_edit.description
-            != study_standard_version_edit_input.description
+            (study_standard_version_edit_input.ct_package_uid is not None and study_standard_version_to_edit.ct_package_uid != study_standard_version_edit_input.ct_package_uid)
+            or (study_standard_version_edit_input.description is not None and study_standard_version_to_edit.description != study_standard_version_edit_input.description)
+            or (study_standard_version_edit_input.snomed_version is not None and study_standard_version_to_edit.snomed_version != study_standard_version_edit_input.snomed_version)
+            or (study_standard_version_edit_input.medrt_version is not None and study_standard_version_to_edit.medrt_version != study_standard_version_edit_input.medrt_version)
+            or (study_standard_version_edit_input.unii_version is not None and study_standard_version_to_edit.unii_version != study_standard_version_edit_input.unii_version)
+            or (study_standard_version_edit_input.ucum_version is not None and study_standard_version_to_edit.ucum_version != study_standard_version_edit_input.ucum_version)
         ):
             study_standard_version_to_edit.edit_core_properties(
                 ct_package_uid=(
                     study_standard_version_edit_input.ct_package_uid
-                    if study_standard_version_edit_input.ct_package_uid
+                    if study_standard_version_edit_input.ct_package_uid is not None
                     else study_standard_version_to_edit.ct_package_uid
                 ),
                 description=(
                     study_standard_version_edit_input.description
-                    if study_standard_version_edit_input.description
+                    if study_standard_version_edit_input.description is not None
                     else study_standard_version_to_edit.description
+                ),
+                snomed_version=(
+                    study_standard_version_edit_input.snomed_version
+                    if study_standard_version_edit_input.snomed_version is not None
+                    else study_standard_version_to_edit.snomed_version
+                ),
+                medrt_version=(
+                    study_standard_version_edit_input.medrt_version
+                    if study_standard_version_edit_input.medrt_version is not None
+                    else study_standard_version_to_edit.medrt_version
+                ),
+                unii_version=(
+                    study_standard_version_edit_input.unii_version
+                    if study_standard_version_edit_input.unii_version is not None
+                    else study_standard_version_to_edit.unii_version
+                ),
+                ucum_version=(
+                    study_standard_version_edit_input.ucum_version
+                    if study_standard_version_edit_input.ucum_version is not None
+                    else study_standard_version_to_edit.ucum_version
                 ),
             )
 
@@ -217,6 +243,22 @@ class StudyStandardVersionService:
             study_standard_version_input.description is not None
             and study_standard_version_input.description
             != study_standard_version.description
+        ) or (
+            study_standard_version_input.snomed_version is not None
+            and study_standard_version_input.snomed_version
+            != study_standard_version.snomed_version
+        ) or (
+            study_standard_version_input.medrt_version is not None
+            and study_standard_version_input.medrt_version
+            != study_standard_version.medrt_version
+        ) or (
+            study_standard_version_input.unii_version is not None
+            and study_standard_version_input.unii_version
+            != study_standard_version.unii_version
+        ) or (
+            study_standard_version_input.ucum_version is not None
+            and study_standard_version_input.ucum_version
+            != study_standard_version.ucum_version
         ):
             ct_package = None
             if study_standard_version_input.ct_package_uid is not None:

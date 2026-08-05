@@ -11,7 +11,9 @@
           />
         </v-window-item>
         <v-window-item value="dictionaries">
-          <UnderConstruction />
+          <DictionaryConfigurationPanel
+            :key="`dictionaries-${tabKeys.dictionaries}`"
+          />
         </v-window-item>
         <v-window-item value="data_exchange">
           <UnderConstruction />
@@ -24,6 +26,7 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import CTStandardVersionsTable from '@/components/studies/dataStandardVersions/CTStandardVersionsTable.vue'
+import DictionaryConfigurationPanel from '@/components/studies/dataStandardVersions/DictionaryConfigurationPanel.vue'
 import NavigationTabs from '@/components/tools/NavigationTabs.vue'
 import UnderConstruction from '@/components/layout/UnderConstruction.vue'
 

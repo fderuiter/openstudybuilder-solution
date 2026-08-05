@@ -14,6 +14,10 @@ class StudyStandardVersion(StudySelection):
     status = StringProperty()
     description = StringProperty()
     automatically_created = BooleanProperty()
+    snomed_version = StringProperty()
+    medrt_version = StringProperty()
+    unii_version = StringProperty()
+    ucum_version = StringProperty()
     has_ct_package = RelationshipTo(
         CTPackage,
         "HAS_CT_PACKAGE",

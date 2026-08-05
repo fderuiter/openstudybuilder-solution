@@ -26,6 +26,18 @@ class StudyStandardVersionInput(PostInputModel):
     description: Annotated[
         str | None, Field(description="Description of the study standard version")
     ] = None
+    snomed_version: Annotated[
+        str | None, Field(description="SNOMED version selected for the study")
+    ] = None
+    medrt_version: Annotated[
+        str | None, Field(description="MED-RT version selected for the study")
+    ] = None
+    unii_version: Annotated[
+        str | None, Field(description="UNII version selected for the study")
+    ] = None
+    ucum_version: Annotated[
+        str | None, Field(description="UCUM version selected for the study")
+    ] = None
 
 
 class StudyStandardVersionEditInput(PatchInputModel):
@@ -39,6 +51,30 @@ class StudyStandardVersionEditInput(PatchInputModel):
         str | None,
         Field(
             description="Updated description of the study standard version",
+        ),
+    ] = None
+    snomed_version: Annotated[
+        str | None,
+        Field(
+            description="Updated SNOMED version selected for the study",
+        ),
+    ] = None
+    medrt_version: Annotated[
+        str | None,
+        Field(
+            description="Updated MED-RT version selected for the study",
+        ),
+    ] = None
+    unii_version: Annotated[
+        str | None,
+        Field(
+            description="Updated UNII version selected for the study",
+        ),
+    ] = None
+    ucum_version: Annotated[
+        str | None,
+        Field(
+            description="Updated UCUM version selected for the study",
         ),
     ] = None
 
@@ -105,6 +141,34 @@ class StudyStandardVersionOGM(BaseModel, StudyStandardVersionVO):
             json_schema_extra={"source": "automatically_created"},
         ),
     ] = False
+    snomed_version: Annotated[
+        str | None,
+        Field(
+            description="SNOMED version selected for the study",
+            json_schema_extra={"source": "snomed_version", "nullable": True},
+        ),
+    ] = None
+    medrt_version: Annotated[
+        str | None,
+        Field(
+            description="MED-RT version selected for the study",
+            json_schema_extra={"source": "medrt_version", "nullable": True},
+        ),
+    ] = None
+    unii_version: Annotated[
+        str | None,
+        Field(
+            description="UNII version selected for the study",
+            json_schema_extra={"source": "unii_version", "nullable": True},
+        ),
+    ] = None
+    ucum_version: Annotated[
+        str | None,
+        Field(
+            description="UCUM version selected for the study",
+            json_schema_extra={"source": "ucum_version", "nullable": True},
+        ),
+    ] = None
 
 
 class StudyStandardVersionOGMVer(StudyStandardVersionOGM):
@@ -180,6 +244,34 @@ class StudyStandardVersion(BaseModel):
         str | None,
         Field(description="Type of Action", json_schema_extra={"nullable": True}),
     ] = None
+    snomed_version: Annotated[
+        str | None,
+        Field(
+            description="SNOMED version selected for the study",
+            json_schema_extra={"nullable": True},
+        ),
+    ] = None
+    medrt_version: Annotated[
+        str | None,
+        Field(
+            description="MED-RT version selected for the study",
+            json_schema_extra={"nullable": True},
+        ),
+    ] = None
+    unii_version: Annotated[
+        str | None,
+        Field(
+            description="UNII version selected for the study",
+            json_schema_extra={"nullable": True},
+        ),
+    ] = None
+    ucum_version: Annotated[
+        str | None,
+        Field(
+            description="UCUM version selected for the study",
+            json_schema_extra={"nullable": True},
+        ),
+    ] = None
 
     @classmethod
     def from_study_standard_version_vo(
@@ -207,6 +299,10 @@ class StudyStandardVersion(BaseModel):
             end_date=study_standard_version_vo.end_date,
             study_status=study_standard_version_vo.study_status.name,
             automatically_created=study_standard_version_vo.automatically_created,
+            snomed_version=study_standard_version_vo.snomed_version,
+            medrt_version=study_standard_version_vo.medrt_version,
+            unii_version=study_standard_version_vo.unii_version,
+            ucum_version=study_standard_version_vo.ucum_version,
         )
 
 

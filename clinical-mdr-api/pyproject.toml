@@ -1,7 +1,8 @@
 [project]
 name = 'clinical-mdr-api'
+version = '0.1.0'
 readme = 'README.md'
-requires-python = '>=3.14'
+requires-python = '>=3.11'
 license = 'TBD'
 authors = [
     {name = 'OpenStudyBuilder', email = 'OpenStudyBuilder@gmail.com'}

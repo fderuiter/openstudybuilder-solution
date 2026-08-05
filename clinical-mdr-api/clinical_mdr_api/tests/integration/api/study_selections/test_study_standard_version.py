@@ -386,3 +386,117 @@ def test_get_standard_versions_csv_xml_excel(api_client, export_format):
     if export_format == "text/csv":
         assert "study_version" in str(exported_data.read())
         assert "LATEST" in str(exported_data.read())
+
+
+def test_study_standard_version_clinical_dictionaries(api_client):
+    # 1. Create standard version with clinical dictionaries
+    study_for_dict = TestUtils.create_study()
+    response = api_client.post(
+        f"/studies/{study_for_dict.uid}/study-standard-versions",
+        json={
+            "ct_package_uid": ct_package_uid,
+            "description": "Study with dictionaries",
+            "snomed_version": "SNOMED-CT-2022-03",
+            "medrt_version": "MED-RT-2022-05",
+            "unii_version": "UNII-2021-12",
+            "ucum_version": "UCUM-1.3",
+        },
+    )
+    assert_response_status_code(response, 201)
+    res = response.json()
+    assert res["snomed_version"] == "SNOMED-CT-2022-03"
+    assert res["medrt_version"] == "MED-RT-2022-05"
+    assert res["unii_version"] == "UNII-2021-12"
+    assert res["ucum_version"] == "UCUM-1.3"
+    dict_sv_uid = res["uid"]
+
+    # 2. Fetch standard version to verify they are saved
+    response = api_client.get(
+        f"/studies/{study_for_dict.uid}/study-standard-versions/{dict_sv_uid}",
+    )
+    assert_response_status_code(response, 200)
+    res = response.json()
+    assert res["snomed_version"] == "SNOMED-CT-2022-03"
+    assert res["medrt_version"] == "MED-RT-2022-05"
+    assert res["unii_version"] == "UNII-2021-12"
+    assert res["ucum_version"] == "UCUM-1.3"
+
+    # 3. Update dictionary versions
+    response = api_client.patch(
+        f"/studies/{study_for_dict.uid}/study-standard-versions/{dict_sv_uid}",
+        json={
+            "snomed_version": "SNOMED-CT-2023-01",
+            "medrt_version": "MED-RT-2023-02",
+        },
+    )
+    assert_response_status_code(response, 200)
+    res = response.json()
+    assert res["snomed_version"] == "SNOMED-CT-2023-01"
+    assert res["medrt_version"] == "MED-RT-2023-02"
+    # UNII and UCUM should remain unchanged
+    assert res["unii_version"] == "UNII-2021-12"
+    assert res["ucum_version"] == "UCUM-1.3"
+
+    # 4. Lock study and attempt modification - should fail
+    response = api_client.patch(
+        f"/studies/{study_for_dict.uid}",
+        json={
+            "current_metadata": {
+                "identification_metadata": {
+                    "study_number": "5685"
+                },
+                "study_description": {
+                    "study_title": "dict-test-title"
+                }
+            }
+        },
+    )
+    assert_response_status_code(response, 200)
+
+    response = api_client.post(
+        f"/studies/{study_for_dict.uid}/locks",
+        json={
+            "change_description": "Lock for dictionaries test",
+            "reason_for_change_uid": test_data_dict["reason_for_lock_terms"][0].term_uid,
+        },
+    )
+    assert_response_status_code(response, 201)
+
+    # Attempt to update SNOMED version on locked study
+    response = api_client.patch(
+        f"/studies/{study_for_dict.uid}/study-standard-versions/{dict_sv_uid}",
+        json={
+            "snomed_version": "SNOMED-CT-2024-01",
+        },
+    )
+    assert_response_status_code(response, 400)
+    assert response.json()["message"] == f"Study with UID '{study_for_dict.uid}' is locked."
+
+    # 5. Unlock study and verify dictionary versions can be edited again and are intact
+    response = api_client.post(
+        f"/studies/{study_for_dict.uid}/unlocks",
+        json={
+            "change_description": "Unlock for dictionaries test",
+            "reason_for_change_uid": test_data_dict["reason_for_unlock_terms"][0].term_uid,
+        },
+    )
+    assert_response_status_code(response, 201)
+
+    # Verify they were intact before edit
+    response = api_client.get(
+        f"/studies/{study_for_dict.uid}/study-standard-versions/{dict_sv_uid}",
+    )
+    assert_response_status_code(response, 200)
+    res = response.json()
+    assert res["snomed_version"] == "SNOMED-CT-2023-01"
+
+    # Now edit is allowed
+    response = api_client.patch(
+        f"/studies/{study_for_dict.uid}/study-standard-versions/{dict_sv_uid}",
+        json={
+            "snomed_version": "SNOMED-CT-2024-01",
+        },
+    )
+    assert_response_status_code(response, 200)
+    assert response.json()["snomed_version"] == "SNOMED-CT-2024-01"
+

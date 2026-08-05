@@ -228,6 +228,10 @@ class StudyStandardVersionRepository:
             status=item.study_status.value,
             description=item.description,
             automatically_created=item.automatically_created,
+            snomed_version=item.snomed_version,
+            medrt_version=item.medrt_version,
+            unii_version=item.unii_version,
+            ucum_version=item.ucum_version,
         )
         if item.uid is not None:
             new_study_standard_version.uid = item.uid
