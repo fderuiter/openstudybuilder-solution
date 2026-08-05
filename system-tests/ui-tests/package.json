@@ -29,5 +29,9 @@
     },
     "cypress-cucumber-preprocessor": {
         "stepDefinitions": "cypress/e2e/step_definitions/*.js"
+    },
+    "devDependencies": {
+        "axe-core": "^4.13.0",
+        "cypress-axe": "^1.7.0"
     }
 }

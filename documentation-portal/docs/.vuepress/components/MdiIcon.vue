@@ -1,5 +1,13 @@
 <template>
-  <svg-icon type="mdi" :path="iconPath" :size="size" :color="color"></svg-icon>
+  <svg-icon 
+    type="mdi" 
+    :path="iconPath" 
+    :size="size" 
+    :color="color" 
+    :aria-hidden="ariaLabel ? undefined : 'true'"
+    :aria-label="ariaLabel"
+    :role="ariaLabel ? 'img' : undefined"
+  ></svg-icon>
 </template>
 
 <script>
@@ -22,6 +30,10 @@ export default {
     color: {
       type: String,
       default: '#719BDD'
+    },
+    ariaLabel: {
+      type: String,
+      default: undefined
     }
   },
   computed: {

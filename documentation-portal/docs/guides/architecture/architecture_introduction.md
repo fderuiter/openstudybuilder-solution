@@ -36,6 +36,8 @@ Within each of the 4+1 views the following diagrams or artifacts are currently u
     - Visual overview of the OpenStudyBuilder solution with generic upstream and downstream systems and main internal system components including short description of each component.
   - [**System Component Architecture**](system_component_architecture)
     - Detailed overview of system components and interaction/data flows with description of each component, license, technology, git code repository.
+  - [**Accessibility Coding Practices**](accessibility_coding_practices)
+    - A comprehensive interactive guide on WCAG 2.1 AA compliant coding practices, accessible custom components, focus management, and static/dynamic test automation.
   - [**Architectural Decision Records**](architectural_decision_records)
     - An Architectural Decision Record (ADR) consists of a short text describing a specific architecture decision.
     - At the moment only few of our architectural decisions have been documented, more will be added in the coming period to improve our system documentation.
