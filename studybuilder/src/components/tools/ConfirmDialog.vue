@@ -19,6 +19,52 @@
                 v-html="sanitizeHTML(savedMessage)"
               />
             </slot>
+
+            <!-- Affected Studies List Section -->
+            <div
+              v-if="options.affectedStudies && options.affectedStudies.length > 0"
+              class="mt-4 mb-4"
+            >
+              <v-text-field
+                v-model="searchQuery"
+                density="compact"
+                label="Search affected studies..."
+                variant="outlined"
+                clearable
+                hide-details
+                class="mb-3"
+              />
+              <div
+                style="max-height: 250px; overflow-y: auto; border: 1px solid #ccc; border-radius: 8px;"
+                class="pa-2 grey lighten-4"
+              >
+                <div
+                  v-for="study in filteredStudies"
+                  :key="study.uid"
+                  class="py-1 border-bottom-1"
+                  style="font-size: 14px; border-bottom: 1px solid #f0f0f0; color: inherit; text-align: left;"
+                >
+                  <strong>{{ study.acronym || 'No Acronym' }}</strong>
+                  <span v-if="study.subpart_acronym"> / {{ study.subpart_acronym }}</span>
+                  <span v-if="study.id" class="text-grey-darken-1"> (ID: {{ study.id }})</span>
+                </div>
+                <div
+                  v-if="filteredStudies.length === 0"
+                  class="text-center py-4 text-grey"
+                >
+                  No matching studies found
+                </div>
+              </div>
+            </div>
+
+            <!-- Mandatory Acknowledgement Checkbox -->
+            <v-checkbox
+              v-if="options.requireAcknowledgement"
+              v-model="acknowledged"
+              label="I acknowledge the impact of this cascading update on the listed studies"
+              hide-details
+              class="mt-3 mb-2"
+            />
           </v-col>
         </v-row>
         <v-divider class="pa-2" />
@@ -43,7 +89,7 @@
                 :variant="
                   options.cancelIsPrimaryAction ? 'outlined' : 'elevated'
                 "
-                :disabled="props.agreeDisabled"
+                :disabled="props.agreeDisabled || (options.requireAcknowledgement && !acknowledged)"
                 rounded="xl"
                 data-cy="continue-popup"
                 @click="agree"
@@ -57,7 +103,7 @@
                 :variant="
                   options.cancelIsPrimaryAction ? 'outlined' : 'elevated'
                 "
-                :disabled="props.agreeAndRedirectDisabled"
+                :disabled="props.agreeAndRedirectDisabled || (options.requireAcknowledgement && !acknowledged)"
                 rounded="xl"
                 @click="agreeAndRedirect"
               >
@@ -89,7 +135,8 @@ const props = defineProps({
 const dialog = ref(false)
 let savedResolve = null
 const savedMessage = ref(null)
-const options = ref({
+
+const defaultOptions = {
   title: null,
   type: 'success',
   width: 450,
@@ -99,6 +146,26 @@ const options = ref({
   cancelLabel: t('_global.cancel'),
   cancelIsPrimaryAction: false,
   redirect: null,
+  affectedStudies: null,
+  requireAcknowledgement: false,
+}
+
+const options = ref(Object.assign({}, defaultOptions))
+
+const searchQuery = ref('')
+const acknowledged = ref(false)
+
+const filteredStudies = computed(() => {
+  if (!options.value.affectedStudies) return []
+  const query = searchQuery.value.trim().toLowerCase()
+  if (!query) return options.value.affectedStudies
+  return options.value.affectedStudies.filter((study) => {
+    const acronym = (study.acronym || '').toLowerCase()
+    const subpart = (study.subpart_acronym || '').toLowerCase()
+    const id = (study.id || '').toLowerCase()
+    const uid = (study.uid || '').toLowerCase()
+    return acronym.includes(query) || subpart.includes(query) || id.includes(query) || uid.includes(query)
+  })
 })
 
 const cardClasses = computed(() => {
@@ -118,8 +185,10 @@ const btnClasses = computed(() => {
 
 const open = (messagePlain, extraOptions, callback) => {
   dialog.value = true
+  acknowledged.value = false
+  searchQuery.value = ''
   savedMessage.value = escapeHTML(messagePlain).replace(/\n+/g, '<br />')
-  options.value = Object.assign(options.value, extraOptions)
+  options.value = Object.assign({}, defaultOptions, extraOptions)
 
   callback?.()
 
@@ -129,8 +198,10 @@ const open = (messagePlain, extraOptions, callback) => {
 }
 const openHtml = (messageHtml, extraOptions, callback) => {
   dialog.value = true
+  acknowledged.value = false
+  searchQuery.value = ''
   savedMessage.value = messageHtml
-  options.value = Object.assign(options.value, extraOptions)
+  options.value = Object.assign({}, defaultOptions, extraOptions)
 
   callback?.()
 

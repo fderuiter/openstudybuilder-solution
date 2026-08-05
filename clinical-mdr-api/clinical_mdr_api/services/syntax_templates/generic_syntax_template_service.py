@@ -289,3 +289,57 @@ class GenericSyntaxTemplateService(GenericSyntaxService[_AggregateRootType], abc
             template_name=template_name_to_validate,
             parameter_name_exists_callback=self._parameter_name_exists,
         )
+
+
+def get_affected_studies_for_template(uid: str) -> list[dict]:
+    # Check what kind of template it is based on uid prefix
+    if uid.startswith("ObjectiveTemplate_"):
+        template_rel = "HAS_OBJECTIVE"
+        study_selection_rel = "HAS_SELECTED_OBJECTIVE"
+        study_rel = "HAS_STUDY_OBJECTIVE"
+    elif uid.startswith("CriteriaTemplate_"):
+        template_rel = "HAS_CRITERIA"
+        study_selection_rel = "HAS_SELECTED_CRITERIA"
+        study_rel = "HAS_STUDY_CRITERIA"
+    elif uid.startswith("FootnoteTemplate_"):
+        template_rel = "HAS_FOOTNOTE"
+        study_selection_rel = "HAS_SELECTED_FOOTNOTE"
+        study_rel = "HAS_STUDY_FOOTNOTE"
+    elif uid.startswith("EndpointTemplate_"):
+        template_rel = "HAS_ENDPOINT"
+        study_selection_rel = "HAS_SELECTED_ENDPOINT"
+        study_rel = "HAS_STUDY_ENDPOINT"
+    elif uid.startswith("ActivityInstructionTemplate_"):
+        template_rel = "HAS_ACTIVITY_INSTRUCTION"
+        study_selection_rel = "HAS_SELECTED_ACTIVITY_INSTRUCTION"
+        study_rel = "HAS_STUDY_ACTIVITY_INSTRUCTION"
+    elif uid.startswith("TimeframeTemplate_"):
+        template_rel = "HAS_TIMEFRAME"
+        study_selection_rel = "HAS_SELECTED_TIMEFRAME"
+        study_rel = "HAS_STUDY_ENDPOINT"
+    else:
+        # Fallback or generic
+        return []
+
+    cypher_query = f"""
+    MATCH (n {{uid: $uid}})
+    OPTIONAL MATCH (root)-[:HAS_VERSION]->(value)
+    WHERE root = n OR value = n
+    WITH coalesce(root, n) as root
+    MATCH (root)-[:{template_rel}]->(:SyntaxInstanceRoot)-->(inst_val:SyntaxInstanceValue)
+    MATCH (inst_val)<-[:{study_selection_rel}]-(:StudySelection)<-[:{study_rel}]-(sv:StudyValue)<-[:HAS_VERSION|LATEST_DRAFT|LATEST_FINAL|LATEST_RETIRED]-(sr:StudyRoot)
+    RETURN DISTINCT sr.uid as uid, sv.study_acronym as acronym, sv.study_subpart_acronym as subpart_acronym, sv.study_number as id
+    """
+
+    results, _ = db.cypher_query(cypher_query, {"uid": uid})
+
+    studies = []
+    for row in results:
+        studies.append({
+            "uid": row[0],
+            "acronym": row[1],
+            "subpart_acronym": row[2],
+            "id": row[3]
+        })
+    return studies
+

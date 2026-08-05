@@ -510,11 +510,21 @@ function closePreInstanceForm() {
 }
 async function createNewVersion(template) {
   if (template.studyCount > 0) {
+    let affectedStudies = []
+    try {
+      const response = await api.getAffectedStudies(template.uid)
+      affectedStudies = response.data || []
+    } catch (err) {
+      console.error('Failed to load affected studies', err)
+    }
+
     const options = {
       cancelLabel: t('_global.cancel_cascade_update'),
       agreeLabel: t('_global.create_new_version'),
       type: 'warning',
       width: 1000,
+      affectedStudies: affectedStudies,
+      requireAcknowledgement: true,
     }
     if (
       !(await confirm.value.open(
