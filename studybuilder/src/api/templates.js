@@ -46,6 +46,9 @@ export default (basePath) => {
     createNewVersion(uid, data) {
       return repository.post(`${basePath}/${uid}/versions`, data)
     },
+    getAffectedStudies(uid) {
+      return repository.get(`${basePath}/${uid}/affected-studies`)
+    },
     inactivate(uid) {
       return repository.delete(`${basePath}/${uid}/activations`)
     },

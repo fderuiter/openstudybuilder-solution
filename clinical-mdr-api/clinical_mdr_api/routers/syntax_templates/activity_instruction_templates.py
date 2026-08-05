@@ -3,6 +3,8 @@
 # Prefixed with "/activity-instruction-templates"
 from typing import Annotated, Any
 
+from clinical_mdr_api.models.study_selections.study import StudyMinimal
+
 from fastapi import APIRouter, Body, Path, Query, Request
 
 from clinical_mdr_api.domains.versioned_object_aggregate import LibraryItemStatus
@@ -816,3 +818,19 @@ def create_pre_instance(
         template=pre_instance,
         template_uid=activity_instruction_template_uid,
     )
+
+
+@router.get(
+    "/{activity_instruction_template_uid}/affected-studies",
+    dependencies=[security, rbac.LIBRARY_READ],
+    summary="Returns a list of specific affected clinical studies for an activity instruction template.",
+    response_model=list[StudyMinimal],
+)
+def get_affected_studies(
+    activity_instruction_template_uid: Annotated[str, ActivityInstructionTemplateUID],
+):
+    from clinical_mdr_api.services.syntax_templates.generic_syntax_template_service import (
+        get_affected_studies_for_template,
+    )
+    return get_affected_studies_for_template(uid=activity_instruction_template_uid)
+
