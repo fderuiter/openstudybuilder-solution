@@ -331,10 +331,16 @@ class TestStudyDefinitionsRepositoryBase(unittest.TestCase):
             ),
         )
         cls.patcher.start()
+        cls.patcher_user = patch(
+            target="clinical_mdr_api.services.user_info.UserInfoService.get_author_username_from_id",
+            return_value="test_author",
+        )
+        cls.patcher_user.start()
 
     @classmethod
     def tear_down_class(cls) -> None:
         cls.patcher.stop()
+        cls.patcher_user.stop()
 
     @staticmethod
     def make_random_study_edit(study: StudyDefinitionAR):

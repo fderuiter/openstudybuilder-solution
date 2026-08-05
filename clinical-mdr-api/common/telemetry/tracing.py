@@ -1,7 +1,8 @@
 import json
 from contextlib import contextmanager
 from functools import wraps
-from typing import Callable, Generator, Sequence
+from collections.abc import Generator
+from typing import Callable, Sequence
 
 from opencensus.trace import Span, execution_context
 from opencensus.trace.tracer import Tracer

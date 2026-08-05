@@ -19,10 +19,90 @@ jobs:
       - name: Run Prebuild validations
         run: echo "Secret detections and other prebuild validation would be executed here (customize as needed)."
 
+  unit-tests:
+    name: Backend Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install Pipenv
+        run: python -m pip install pipenv
+
+      - name: Install dependencies
+        run: |
+          cd clinical-mdr-api
+          pipenv sync --dev
+
+      - name: Run Unit Tests
+        run: |
+          cd clinical-mdr-api
+          NEO4J_DSN="bolt://neo4j:changeme1234@localhost:7687/neo4j" pipenv run pytest clinical_mdr_api/tests/unit/ common/tests/unit/
+
+  integration-tests:
+    name: Integration & BDD Acceptance Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install Pipenv
+        run: python -m pip install pipenv
+
+      - name: Install dependencies
+        run: |
+          cd clinical-mdr-api
+          pipenv sync --dev
+
+      - name: Build Database Container
+        run: |
+          docker compose build database
+
+      - name: Start Database Container
+        run: |
+          docker compose up -d database
+
+      - name: Active Polling for Database Readiness
+        run: |
+          echo "Active health polling initiated..."
+          for i in {1..120}; do
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose ps -q database) 2>/dev/null || echo "starting")
+            echo "Current database health status: $STATUS"
+            if [ "$STATUS" = "healthy" ]; then
+              echo "Database became healthy! Initiating integration tests immediately."
+              break
+            fi
+            sleep 2
+          done
+          if [ "$STATUS" != "healthy" ]; then
+            echo "Database failed to become healthy within timeout limit."
+            docker compose logs database
+            exit 1
+          fi
+
+      - name: Run Integration & BDD Acceptance Tests
+        run: |
+          cd clinical-mdr-api
+          NEO4J_DSN="bolt://neo4j:changeme1234@localhost:5002/neo4j" pipenv run pytest clinical_mdr_api/tests/integration/ clinical_mdr_api/tests/acceptance/
+
+      - name: Tear Down Database Container
+        if: always()
+        run: |
+          docker compose down
+
   build:
     name: Build and Health Check
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -31,13 +111,21 @@ jobs:
         run: |
           docker version
           docker compose version
-
           docker compose build
-          
-      - name: Validate docker containers
+
+      - name: Validate docker containers with Active Polling
         run: |
           docker compose up -d
-          sleep 4m
+          echo "Active polling of container health..."
+          for i in {1..60}; do
+            STARTING=$(docker ps -f 'health=starting' -q | wc -l)
+            echo "Current number of starting containers: $STARTING"
+            if [ "$STARTING" -eq 0 ]; then
+              echo "All containers have finished starting."
+              break
+            fi
+            sleep 5
+          done
           docker container ls
           if [ $(docker ps -f 'health=none' -f 'health=starting' -f 'health=unhealthy' -q | wc -l) -gt 0 ]; then export CONTAINERSTATUS=unhealthy; else export CONTAINERSTATUS=healthy; fi
           docker compose down
