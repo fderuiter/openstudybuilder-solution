@@ -1,16 +1,8 @@
 import sys
-import httpx
 from shared_client.client import MDRClient
 
-# Safely import the real requests module to delegate attributes
-shim = sys.modules.pop("requests", None)
-try:
-    import requests as real_requests
-except ModuleNotFoundError:
-    real_requests = None
-finally:
-    if shim is not None:
-        sys.modules["requests"] = shim
+# Since requests_shim is only imported when requests is present, get the real requests module from sys.modules
+real_requests = sys.modules.get("requests")
 
 _shared_client = None
 
@@ -35,10 +27,40 @@ def put(url, **kwargs):
 def delete(url, **kwargs):
     return _get_client().delete(url, **kwargs)
 
+def request(method, url, **kwargs):
+    return _get_client().request(method, url, **kwargs)
+
+def head(url, **kwargs):
+    return _get_client().head(url, **kwargs)
+
+def options(url, **kwargs):
+    return _get_client().options(url, **kwargs)
+
 class ApiShim:
     @staticmethod
     def request(method, url, **kwargs):
         return _get_client().request(method, url, **kwargs)
+    @staticmethod
+    def get(url, **kwargs):
+        return _get_client().get(url, **kwargs)
+    @staticmethod
+    def post(url, **kwargs):
+        return _get_client().post(url, **kwargs)
+    @staticmethod
+    def patch(url, **kwargs):
+        return _get_client().patch(url, **kwargs)
+    @staticmethod
+    def put(url, **kwargs):
+        return _get_client().put(url, **kwargs)
+    @staticmethod
+    def delete(url, **kwargs):
+        return _get_client().delete(url, **kwargs)
+    @staticmethod
+    def head(url, **kwargs):
+        return _get_client().head(url, **kwargs)
+    @staticmethod
+    def options(url, **kwargs):
+        return _get_client().options(url, **kwargs)
 
 api = ApiShim()
 

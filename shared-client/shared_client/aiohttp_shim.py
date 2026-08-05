@@ -1,15 +1,8 @@
 import sys
 import httpx
 
-# Safely import the real aiohttp module to delegate attributes
-shim = sys.modules.pop("aiohttp", None)
-try:
-    import aiohttp as real_aiohttp
-except ModuleNotFoundError:
-    real_aiohttp = None
-finally:
-    if shim is not None:
-        sys.modules["aiohttp"] = shim
+# Since aiohttp_shim is only imported when aiohttp is present, get the real aiohttp module from sys.modules
+real_aiohttp = sys.modules.get("aiohttp")
 
 class ContentTypeError(Exception):
     pass
@@ -35,7 +28,10 @@ class HttpxResponseWrapper:
         return self._response.is_success
 
     async def json(self):
-        return self._response.json()
+        try:
+            return self._response.json()
+        except Exception as e:
+            raise ContentTypeError(f"Failed to decode JSON: {e}")
 
     async def text(self):
         return self._response.text
@@ -49,6 +45,14 @@ class HttpxResponseWrapper:
 class HttpxSessionWrapper:
     def __init__(self, async_client: httpx.AsyncClient):
         self._client = async_client
+
+    @property
+    def loop(self):
+        import asyncio
+        try:
+            return asyncio.get_running_loop()
+        except RuntimeError:
+            return asyncio.get_event_loop()
 
     def post(self, url, **kwargs):
         return HttpxRequestCtxManager(self._client, "POST", url, **kwargs)
