@@ -2,6 +2,14 @@ import sys
 import httpx
 from shared_client.client import MDRClient
 
+# Safely import the real requests module to delegate attributes
+shim = sys.modules.pop("requests", None)
+try:
+    import requests as real_requests
+finally:
+    if shim is not None:
+        sys.modules["requests"] = shim
+
 _shared_client = None
 
 def _get_client():
@@ -31,3 +39,6 @@ class ApiShim:
         return _get_client().request(method, url, **kwargs)
 
 api = ApiShim()
+
+def __getattr__(name):
+    return getattr(real_requests, name)
