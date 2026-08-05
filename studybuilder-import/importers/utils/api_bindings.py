@@ -8,6 +8,8 @@ from typing import Sequence
 
 import aiohttp
 import requests
+import shared_client
+from shared_client.client import MDRClient
 
 from importers.functions.caselessdict import CaselessDict
 from importers.utils.metrics import Metrics
@@ -104,8 +106,11 @@ def get_error_message(response):
 #
 class ApiBinding:
     def __init__(self, api_base_url, api_headers, metrics, logger=None):
-        self.api_headers = api_headers
         self.api_base_url = api_base_url
+        self.shared_client = MDRClient(api_base_url=self.api_base_url)
+        self.client = self.shared_client.client
+        self.async_client = self.shared_client.async_client
+        self.api_headers = api_headers
         if metrics is None:
             self.metrics = Metrics()
         else:
@@ -123,6 +128,8 @@ class ApiBinding:
 
     def update_headers(self, api_headers):
         self.api_headers = api_headers
+        self.client.headers.update(api_headers)
+        self.async_client.headers.update(api_headers)
 
     # ---------------------------------------------------------------
     # Verify connection to api (and database)
@@ -131,16 +138,7 @@ class ApiBinding:
     # Verify that Clinical MDR API is online
     # TODO Replace with api health check resource ...
     def verify_connection(self):
-        try:
-            response = requests.get(
-                path_join(self.api_base_url, "openapi.json"), headers=self.api_headers
-            )
-            response.raise_for_status()
-        except Exception as e:
-            self.log.critical(
-                f"Failed to connect to backend, is it running?\nError was:\n{e}"
-            )
-            sys.exit(1)
+        self.shared_client.verify_connection()
 
     # Verify that the bare minimum of CT packages are available.
     def check_for_ct_packages(self):

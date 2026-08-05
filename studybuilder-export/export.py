@@ -6,6 +6,7 @@ import os
 import logging
 import sys
 import json
+from shared_client.client import MDRClient
 
 OUTPUT_DIR = environ.get("OUTPUT_DIR", "./output")
 LOG_LEVEL = environ.get("LOG_LEVEL", "INFO")
@@ -33,7 +34,8 @@ class StudyExporter:
         )
         self.log = logging.getLogger("studybuilder_export")
         self.api_base_url = self._read_env("API_BASE_URL")
-        self._create_httpx_client()
+        self.shared_client = MDRClient(api_base_url=self.api_base_url, timeout=60)
+        self.client = self.shared_client.client
         self.verify_connection()
 
     def _read_env(self, varname):
@@ -44,48 +46,6 @@ class StudyExporter:
             raise RuntimeError(msg)
         return value
 
-    def _create_httpx_client(self):
-        """
-        Creates the HTTPX client with the appropriate authentication method
-        based on the environment variables.
-        """
-        client_id = environ.get("CLIENT_ID", "")
-        scope = environ.get("SCOPE", "")
-        token_endpoint = environ.get("TOKEN_ENDPOINT", "")
-        auth_endpoint = environ.get("AUTH_ENDPOINT", "")
-        client_secret = environ.get("CLIENT_SECRET", "")
-
-        # HTTPX doesn't automatically use the REQUESTS_CA_BUNDLE environment variable
-        ca_bundle = os.environ.get("REQUESTS_CA_BUNDLE", "")
-        if ca_bundle:
-            context = ssl.create_default_context(
-                cafile=ca_bundle
-            )
-        else:
-            context = None
-
-        if not client_id:
-            self.log.info("No CLIENT_ID provided, running without authentication")
-            auth = None
-        elif client_secret:
-            self.log.info("CLIENT_ID and CLIENT_SECRET provided, enabling authentication")
-            auth = httpx_auth.OAuth2ClientCredentials(
-                token_url=token_endpoint,
-                client_id=client_id,
-                client_secret=client_secret,
-                scope=scope,
-            )
-        else:
-            self.log.info("CLIENT_ID provided without CLIENT_SECRET, using interactive authentication")
-            auth = httpx_auth.OAuth2AuthorizationCodePKCE(
-                authorization_url=auth_endpoint,
-                token_url=token_endpoint,
-                client_id=client_id,
-                scope=scope,
-            )
-        self.client = httpx.Client(base_url=self.api_base_url, auth=auth, verify=context, timeout=60)
-
-
     # ---------------------------------------------------------------
     # Verify connection to api (and database)
     # ---------------------------------------------------------------
@@ -93,15 +53,7 @@ class StudyExporter:
     # Verify that Clinical MDR API is online
     # TODO Replace with api health check resource ...
     def verify_connection(self):
-        try:
-            response = self.client.get("/libraries")
-            response.raise_for_status()
-            self.log.info(f"Connected to api at {self.api_base_url}")
-        except Exception as e:
-            self.log.error(
-                f"Failed to connect to backend, is it running?\nError was:\n{e}"
-            )
-            sys.exit(1)
+        self.shared_client.verify_connection()
 
     def get_from_api(self, path, params=None, items_only=True):
         # Make sure that we always provide the page_size parameter,

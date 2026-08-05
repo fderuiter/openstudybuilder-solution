@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 httpx = "0.28.1"
 httpx_auth = "0.23.1"
+shared-client = {path = "../shared-client", editable = true}
 
 [dev-packages]
 

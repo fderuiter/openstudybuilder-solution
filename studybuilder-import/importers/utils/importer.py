@@ -1,3 +1,4 @@
+import shared_client
 import asyncio
 import copy
 import csv
@@ -96,7 +97,7 @@ class BaseImporter:
 
         self.visit_type_codelist_name = "VisitType"
         self.element_subtype_codelist_name = "Element Sub Type"
-        self._start_auth_refresh()
+        # No background threads; token refresh is handled passively on-demand by shared_client
 
     def _start_auth_refresh(self, interval=25 * 60):
         def refresh_loop():
