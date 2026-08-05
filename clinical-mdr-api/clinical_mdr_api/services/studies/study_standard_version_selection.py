@@ -274,7 +274,7 @@ class StudyStandardVersionService:
                     study_uid
                 )
                 is_catalogue_used = [
-                    (study_standard_version.uid, study_standard_version.ct_package_uid)
+                    (i_study_standard_version.uid, i_study_standard_version.ct_package_uid)
                     for i_study_standard_version in study_standard_versions
                     if ct_package.catalogue_name
                     in i_study_standard_version.ct_package_uid
