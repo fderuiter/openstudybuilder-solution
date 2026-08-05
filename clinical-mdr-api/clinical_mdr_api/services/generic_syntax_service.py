@@ -180,6 +180,29 @@ class GenericSyntaxService(Generic[_AggregateRootType], abc.ABC):
             page_size=page_size,
         )
 
+    def get_distinct_values_for_header_paginated(
+        self,
+        field_name: str,
+        status: LibraryItemStatus | None = None,
+        search_string: str = "",
+        filter_by: dict[str, dict[str, Any]] | None = None,
+        filter_operator: FilterOperator = FilterOperator.AND,
+        page_number: int = 1,
+        page_size: int = 10,
+        total_count: bool = False,
+    ) -> GenericFilteringReturn[Any]:
+        results, total = self.repository.get_headers(
+            field_name=field_name,
+            search_string=search_string,
+            status=status,
+            filter_by=filter_by,
+            filter_operator=filter_operator,
+            page_size=page_size,
+            page_number=page_number,
+            total_count=total_count,
+        )
+        return GenericFilteringReturn(items=results, total=total)
+
     def _parameter_name_exists(self, parameter_name: str) -> bool:
         return self._repos.parameter_repository.parameter_name_exists(parameter_name)
 
@@ -235,8 +258,13 @@ class GenericSyntaxService(Generic[_AggregateRootType], abc.ABC):
 
     @db.transaction
     def get_version_history(
-        self, uid: str, return_study_count: bool = True
-    ) -> list[BaseModel]:
+        self,
+        uid: str,
+        return_study_count: bool = True,
+        page_number: int = 1,
+        page_size: int = 0,
+        total_count: bool = False,
+    ) -> list[BaseModel] | GenericFilteringReturn[BaseModel]:
         if self.version_class is not None:
             all_versions = self.repository.find_by_uid(
                 uid=uid, return_study_count=return_study_count, for_audit_trail=True
@@ -246,23 +274,56 @@ class GenericSyntaxService(Generic[_AggregateRootType], abc.ABC):
                 for _ in all_versions
             ]
 
-            return calculate_diffs(versions, self.version_class)
+            items_all = calculate_diffs(versions, self.version_class)
+            total = len(items_all) if total_count or page_size > 0 else -1
 
+            if page_size > 0:
+                from common.utils import validate_page_number_and_page_size
+                validate_page_number_and_page_size(page_number, page_size)
+                start_index = (page_number - 1) * page_size
+                end_index = start_index + page_size
+                items_paginated = items_all[start_index:end_index]
+                return GenericFilteringReturn(items=items_paginated, total=total)
+            elif total_count:
+                return GenericFilteringReturn(items=items_all, total=total)
+            else:
+                return items_all
+
+        if page_size > 0 or total_count:
+            return GenericFilteringReturn(items=[], total=0 if total_count else -1)
         return []
 
     @db.transaction
     def get_releases(
-        self, uid: str, return_study_count: bool = True
-    ) -> list[BaseModel]:
+        self,
+        uid: str,
+        return_study_count: bool = True,
+        page_number: int = 1,
+        page_size: int = 0,
+        total_count: bool = False,
+    ) -> list[BaseModel] | GenericFilteringReturn[BaseModel]:
         releases = self.repository.find_by_uid(
             uid=uid,
             return_study_count=return_study_count,
             status=LibraryItemStatus.FINAL,
             for_audit_trail=True,
         )
-        return [
+        items_all = [
             self._transform_aggregate_root_to_pydantic_model(item) for item in releases
         ]
+        total = len(items_all) if total_count or page_size > 0 else -1
+
+        if page_size > 0:
+            from common.utils import validate_page_number_and_page_size
+            validate_page_number_and_page_size(page_number, page_size)
+            start_index = (page_number - 1) * page_size
+            end_index = start_index + page_size
+            items_paginated = items_all[start_index:end_index]
+            return GenericFilteringReturn(items=items_paginated, total=total)
+        elif total_count:
+            return GenericFilteringReturn(items=items_all, total=total)
+        else:
+            return items_all
 
     @db.transaction
     def soft_delete(self, uid: str) -> None:
