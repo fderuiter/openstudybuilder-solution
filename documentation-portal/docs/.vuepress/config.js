@@ -34,6 +34,7 @@ module.exports = {
                     collapsable: true,
                     children: [
                         'architecture/architecture_introduction',
+                        'architecture/accessibility_coding_practices',
 						'architecture/conceptual_architecture',
 						'architecture/system_component_architecture',
                         'architecture/architectural_decision_records',

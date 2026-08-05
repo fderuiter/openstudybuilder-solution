@@ -10,7 +10,7 @@ module.exports = {
   env: {
     node: true,
   },
-  extends: ['plugin:vue/vue3-recommended', 'eslint:recommended', 'prettier'],
+  extends: ['plugin:vue/vue3-recommended', 'eslint:recommended', 'plugin:vuejs-accessibility/recommended', 'prettier'],
   rules: {
     'vue/no-v-html': 'off',
     'vue/no-template-shadow': 'off',

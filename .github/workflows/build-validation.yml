@@ -19,6 +19,19 @@ jobs:
       - name: Run Prebuild validations
         run: echo "Secret detections and other prebuild validation would be executed here (customize as needed)."
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          cache: 'yarn'
+          cache-dependency-path: studybuilder/yarn.lock
+
+      - name: Run StudyBuilder Static Accessibility Lint
+        run: |
+          cd studybuilder
+          yarn install
+          yarn lint
+
   build:
     name: Build and Health Check
     runs-on: ubuntu-latest

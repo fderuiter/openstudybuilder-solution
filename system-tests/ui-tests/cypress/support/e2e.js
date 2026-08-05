@@ -1,6 +1,7 @@
 // Import commands.js using ES2015 syntax:
 import '@shelex/cypress-allure-plugin'
 import '@4tw/cypress-drag-drop'
+import 'cypress-axe'
 import './api_requests/authorisation_methods'
 import './api_requests/crf_requests'
 import './api_requests/ct_requests'
