@@ -1,6 +1,5 @@
 import json
 import os
-import re
 import subprocess
 import time
 import traceback
@@ -10,7 +9,7 @@ from inspect import getfullargspec
 from jinja2 import Environment, FileSystemLoader
 from neo4j import GraphDatabase, Neo4jDriver, Record, Result, ResultSummary
 
-from migrations.utils.utils import get_logger, load_env
+from migrations.utils.utils import get_logger, load_env, parse_db_url
 
 logger = get_logger(os.path.basename(__file__))
 
@@ -30,13 +29,6 @@ LOG_ENRICHMENT_DIFF = "DIFF"
 LOG_ENRICHMENT_FULL = "FULL"
 
 # ---------- Database utils ----------
-
-
-def parse_db_url(db_url):
-    auth_info = re.search(r"//(.+?)@", db_url).group(1)
-    username, password = auth_info.split(":")
-    url = db_url.replace(auth_info + "@", "")
-    return url, username, password
 
 
 def get_db_driver():
