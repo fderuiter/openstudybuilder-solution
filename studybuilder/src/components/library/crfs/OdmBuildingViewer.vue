@@ -218,7 +218,7 @@
       </v-row>
     </div>
     <div v-show="doc && !showOdmXml" class="mt-4">
-      <iframe />
+      <iframe title="ODM Building Viewer" />
     </div>
     <div v-show="doc && showOdmXml" class="mt-4">
       <v-card color="primary" style="overflow-x: auto">

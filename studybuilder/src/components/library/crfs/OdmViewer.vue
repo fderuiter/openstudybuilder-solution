@@ -217,7 +217,7 @@
       </v-row>
     </div>
     <div v-show="doc" class="mt-4">
-      <iframe />
+      <iframe title="ODM Viewer" />
     </div>
   </div>
 </template>

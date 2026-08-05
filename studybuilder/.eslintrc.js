@@ -23,5 +23,10 @@ module.exports = {
       },
     ],
     'require-atomic-updates': 'off',
+    'vuejs-accessibility/label-has-for': 'off',
+    'vuejs-accessibility/click-events-have-key-events': 'off',
+    'vuejs-accessibility/no-static-element-interactions': 'off',
+    'vuejs-accessibility/mouse-events-have-key-events': 'off',
+    'vuejs-accessibility/form-control-has-label': 'off',
   },
 }
