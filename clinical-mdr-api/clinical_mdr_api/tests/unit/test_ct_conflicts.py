@@ -6,9 +6,23 @@ from fastapi.testclient import TestClient
 from clinical_mdr_api.main import app
 from common.auth.dependencies import RequiresAnyRole, oauth_scheme, validate_token
 
-app.dependency_overrides[validate_token] = lambda: None
-app.dependency_overrides[oauth_scheme] = lambda: "dummy"
-RequiresAnyRole.__call__ = lambda self: None
+
+@pytest.fixture(autouse=True)
+def mock_auth_dependencies():
+    # Store original overrides
+    original_overrides = app.dependency_overrides.copy()
+
+    # Set overrides
+    app.dependency_overrides[validate_token] = lambda: None
+    app.dependency_overrides[oauth_scheme] = lambda: "dummy"
+
+    # Patch RequiresAnyRole.__call__ to bypass RBAC globally during these tests
+    with patch.object(RequiresAnyRole, "__call__", new=lambda self: None):
+        yield
+
+    # Restore original overrides
+    app.dependency_overrides = original_overrides
+
 
 client = TestClient(app)
 
