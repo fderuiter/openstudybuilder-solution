@@ -56,7 +56,7 @@ class NetworkSimulator:
                 else:
                     print("Zero bytes, closing connection, request: ", is_request)
                     break
-            except ConnectionResetError, OSError, BrokenPipeError:
+            except (ConnectionResetError, OSError, BrokenPipeError):
                 print("Got exception, closing connection, request: ", is_request)
                 break
         source_socket.close()
