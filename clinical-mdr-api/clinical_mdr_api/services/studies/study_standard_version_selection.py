@@ -204,7 +204,7 @@ class StudyStandardVersionService:
         is_catalogue_used = [
             (study_standard_version.uid, study_standard_version.ct_package_uid)
             for study_standard_version in study_standard_versions
-            if ct_package.catalogue_name in study_standard_version.ct_package_uid
+            if study_standard_version.ct_package_uid is not None and ct_package.catalogue_name in study_standard_version.ct_package_uid
         ]
         # CHECK IF IT EXISTS FOR THE SPECIFIC CATALOGUE that is requesting
         if is_catalogue_used:
@@ -276,7 +276,8 @@ class StudyStandardVersionService:
                 is_catalogue_used = [
                     (i_study_standard_version.uid, i_study_standard_version.ct_package_uid)
                     for i_study_standard_version in study_standard_versions
-                    if ct_package.catalogue_name
+                    if i_study_standard_version.ct_package_uid is not None
+                    and ct_package.catalogue_name
                     in i_study_standard_version.ct_package_uid
                     and i_study_standard_version.uid != study_standard_version_uid
                 ]

@@ -164,7 +164,8 @@ class StudySelectionMixin:
         study_standard_versions_sdtm = [
             study_standard_version
             for study_standard_version in study_standard_versions
-            if "SDTM CT" in study_standard_version.ct_package_uid
+            if study_standard_version.ct_package_uid is not None
+            and "SDTM CT" in study_standard_version.ct_package_uid
         ]
         study_standard_version_sdtm = (
             study_standard_versions_sdtm[0] if study_standard_versions_sdtm else None
@@ -803,7 +804,8 @@ class StudySelectionMixin:
         study_standard_versions_sdtm = [
             study_standard_version
             for study_standard_version in study_standard_versions
-            if settings.sdtm_ct_catalogue_name in study_standard_version.ct_package_uid
+            if study_standard_version.ct_package_uid is not None
+            and settings.sdtm_ct_catalogue_name in study_standard_version.ct_package_uid
         ]
         study_standard_version_sdtm = (
             study_standard_versions_sdtm[0] if study_standard_versions_sdtm else None
