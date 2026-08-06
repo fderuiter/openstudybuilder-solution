@@ -178,6 +178,8 @@ class GenericSyntaxRepository(
         filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator = FilterOperator.AND,
         page_size: int = 10,
+        page_number: int = 1,
+        total_count: bool = False,
     ):
         return self.get_headers_optimized(
             field_name=field_name,
@@ -186,6 +188,8 @@ class GenericSyntaxRepository(
             filter_by=filter_by,
             filter_operator=filter_operator,
             page_size=page_size,
+            page_number=page_number,
+            total_count=total_count,
         )
 
     def _parse_parameter_terms(
