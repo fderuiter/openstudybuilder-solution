@@ -191,7 +191,7 @@ class GenericSyntaxService(Generic[_AggregateRootType], abc.ABC):
         page_size: int = 10,
         total_count: bool = False,
     ) -> GenericFilteringReturn[Any]:
-        results, total = self.repository.get_headers(
+        api_results = self.repository.get_headers(
             field_name=field_name,
             search_string=search_string,
             status=status,
@@ -201,6 +201,11 @@ class GenericSyntaxService(Generic[_AggregateRootType], abc.ABC):
             page_number=page_number,
             total_count=total_count,
         )
+        if isinstance(api_results, tuple):
+            results, total = api_results
+        else:
+            results = api_results
+            total = len(api_results) if total_count else -1
         return GenericFilteringReturn(items=results, total=total)
 
     def _parameter_name_exists(self, parameter_name: str) -> bool:

@@ -418,6 +418,7 @@ def test_get_all_parameters_of_footnote_template(api_client):
     res = response.json()
 
     assert_response_status_code(response, 200)
+    res = res["items"]
     assert len(res) == 1
     assert res[0]["name"] == "TextValue"
     assert len(res[0]["terms"]) == 2
@@ -429,6 +430,7 @@ def test_get_versions_of_footnote_template(api_client):
 
     assert_response_status_code(response, 200)
 
+    res = res["items"]
     assert len(res) == 2
     assert res[0]["uid"] == footnote_templates[1].uid
     assert res[0]["sequence_id"] == "FSA2"
@@ -514,6 +516,7 @@ def test_get_all_final_versions_of_footnote_template(api_client):
 
     assert_response_status_code(response, 200)
 
+    res = res["items"]
     assert len(res) == 1
     assert res[0]["uid"] == footnote_templates[1].uid
     assert res[0]["sequence_id"] == "FSA2"
@@ -627,6 +630,7 @@ def test_headers(api_client, field_name):
     res = response.json()
 
     assert_response_status_code(response, 200)
+    res = res["items"]
     expected_result = []
     for footnote_template in footnote_templates:
         value = getattr(footnote_template, field_name)
