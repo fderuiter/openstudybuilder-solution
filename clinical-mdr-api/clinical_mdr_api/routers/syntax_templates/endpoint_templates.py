@@ -1,10 +1,9 @@
 from typing import Annotated, Any
 
-from clinical_mdr_api.models.study_selections.study import StudyMinimal
-
 from fastapi import APIRouter, Body, Path, Query, Request
 
 from clinical_mdr_api.domains.versioned_object_aggregate import LibraryItemStatus
+from clinical_mdr_api.models.study_selections.study import StudyMinimal
 from clinical_mdr_api.models.syntax_pre_instances.endpoint_pre_instance import (
     EndpointPreInstance,
     EndpointPreInstanceCreateInput,
@@ -817,5 +816,5 @@ def get_affected_studies(
     from clinical_mdr_api.services.syntax_templates.generic_syntax_template_service import (
         get_affected_studies_for_template,
     )
-    return get_affected_studies_for_template(uid=endpoint_template_uid)
 
+    return get_affected_studies_for_template(uid=endpoint_template_uid)

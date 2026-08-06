@@ -335,11 +335,7 @@ def get_affected_studies_for_template(uid: str) -> list[dict]:
 
     studies = []
     for row in results:
-        studies.append({
-            "uid": row[0],
-            "acronym": row[1],
-            "subpart_acronym": row[2],
-            "id": row[3]
-        })
+        studies.append(
+            {"uid": row[0], "acronym": row[1], "subpart_acronym": row[2], "id": row[3]}
+        )
     return studies
-

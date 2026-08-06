@@ -3,7 +3,7 @@
   "info": {
     "title": "OpenStudyBuilder API",
     "description": "\n## NOTICE\n\nThis license information is applicable to the swagger documentation of the clinical-mdr-api, that is the openapi.json.\n\n## License Terms (MIT)\n\nCopyright (C) 2025 Novo Nordisk A/S, Danish company registration no. 24256790\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n## Licenses and Acknowledgements for Incorporated Software\n\nThis component contains software licensed under different licenses when compiled, please refer to the third-party-licenses.md file for further information and full license texts.\n\n## Authentication\n\nSupports OAuth2 [Authorization Code Flow](https://datatracker.ietf.org/doc/html/rfc6749#section-4.1),\nat paths described in the OpenID Connect Discovery metadata document (whose URL is defined by the `OAUTH_METADATA_URL` environment variable).\n\nMicrosoft Identity Platform documentation can be read \n([here](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)).\n\nAuthentication can be turned off with `OAUTH_ENABLED=false` environment variable. \n\nWhen authentication is turned on, all requests to protected API endpoints must provide a valid bearer (JWT) token inside the `Authorization` http header. \n",
-    "version": "3.0.657"
+    "version": "3.0.658"
   },
   "paths": {
     "/": {
@@ -14513,6 +14513,62 @@
         }
       }
     },
+    "/activity-instruction-templates/{activity_instruction_template_uid}/affected-studies": {
+      "get": {
+        "tags": [
+          "Activity Instruction Templates"
+        ],
+        "summary": "Returns a list of specific affected clinical studies for an activity instruction template.",
+        "operationId": "get_affected_studies_activity_instruction_templates__activity_instruction_template_uid__affected_studies_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activity_instruction_template_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique id of the activity instruction template.",
+              "title": "Activity Instruction Template Uid"
+            },
+            "description": "The unique id of the activity instruction template."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StudyMinimal"
+                  },
+                  "title": "Response Get Affected Studies Activity Instruction Templates  Activity Instruction Template Uid  Affected Studies Get"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/activity-instructions": {
       "get": {
         "tags": [
@@ -18760,6 +18816,62 @@
         }
       }
     },
+    "/footnote-templates/{footnote_template_uid}/affected-studies": {
+      "get": {
+        "tags": [
+          "Footnote Templates"
+        ],
+        "summary": "Returns a list of specific affected clinical studies for a footnote template.",
+        "operationId": "get_affected_studies_footnote_templates__footnote_template_uid__affected_studies_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "footnote_template_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique id of the footnote template.",
+              "title": "Footnote Template Uid"
+            },
+            "description": "The unique id of the footnote template."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StudyMinimal"
+                  },
+                  "title": "Response Get Affected Studies Footnote Templates  Footnote Template Uid  Affected Studies Get"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/footnotes": {
       "get": {
         "tags": [
@@ -22948,6 +23060,62 @@
         }
       }
     },
+    "/criteria-templates/{criteria_template_uid}/affected-studies": {
+      "get": {
+        "tags": [
+          "Criteria Templates"
+        ],
+        "summary": "Returns a list of specific affected clinical studies for a criteria template.",
+        "operationId": "get_affected_studies_criteria_templates__criteria_template_uid__affected_studies_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "criteria_template_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique id of the criteria template.",
+              "title": "Criteria Template Uid"
+            },
+            "description": "The unique id of the criteria template."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StudyMinimal"
+                  },
+                  "title": "Response Get Affected Studies Criteria Templates  Criteria Template Uid  Affected Studies Get"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/criteria-pre-instances": {
       "get": {
         "tags": [
@@ -27125,6 +27293,62 @@
           },
           "404": {
             "description": "Not Found - The objective template with the specified 'objective_template_uid' could not be found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/objective-templates/{objective_template_uid}/affected-studies": {
+      "get": {
+        "tags": [
+          "Objective Templates"
+        ],
+        "summary": "Returns a list of specific affected clinical studies for an objective template.",
+        "operationId": "get_affected_studies_objective_templates__objective_template_uid__affected_studies_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "objective_template_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique id of the objective template.",
+              "title": "Objective Template Uid"
+            },
+            "description": "The unique id of the objective template."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StudyMinimal"
+                  },
+                  "title": "Response Get Affected Studies Objective Templates  Objective Template Uid  Affected Studies Get"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -31382,6 +31606,62 @@
         }
       }
     },
+    "/endpoint-templates/{endpoint_template_uid}/affected-studies": {
+      "get": {
+        "tags": [
+          "Endpoint Templates"
+        ],
+        "summary": "Returns a list of specific affected clinical studies for an endpoint template.",
+        "operationId": "get_affected_studies_endpoint_templates__endpoint_template_uid__affected_studies_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "endpoint_template_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique id of the endpoint template.",
+              "title": "Endpoint Template Uid"
+            },
+            "description": "The unique id of the endpoint template."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StudyMinimal"
+                  },
+                  "title": "Response Get Affected Studies Endpoint Templates  Endpoint Template Uid  Affected Studies Get"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/endpoint-pre-instances": {
       "get": {
         "tags": [
@@ -35333,6 +35613,62 @@
             "BearerJwtAuth": []
           }
         ]
+      }
+    },
+    "/timeframe-templates/{timeframe_template_uid}/affected-studies": {
+      "get": {
+        "tags": [
+          "Timeframe templates"
+        ],
+        "summary": "Returns a list of specific affected clinical studies for a timeframe template.",
+        "operationId": "get_affected_studies_timeframe_templates__timeframe_template_uid__affected_studies_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "timeframe_template_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique id of the timeframe template.",
+              "title": "Timeframe Template Uid"
+            },
+            "description": "The unique id of the timeframe template."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StudyMinimal"
+                  },
+                  "title": "Response Get Affected Studies Timeframe Templates  Timeframe Template Uid  Affected Studies Get"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/timeframes": {
