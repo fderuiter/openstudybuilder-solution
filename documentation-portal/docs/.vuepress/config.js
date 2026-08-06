@@ -48,6 +48,16 @@ module.exports = {
 						'architecture/authentication_authorisation_architecture'
                     ]
                 },
+                {
+                    title: 'Unified Decision Log',
+                    collapsable: true,
+                    children: [
+                        'decision-logs/',
+                        'decision-logs/template',
+                        'decision-logs/2026-08-05-aligning-study-structure-with-usdm',
+                        'decision-logs/2026-08-06-integrating-iso-idmp-substance-definitions'
+                    ]
+                },
                 'glossary/glossary.md'
             ],
             '/': [ // Your fallback (this is your landing page)
