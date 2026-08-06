@@ -13,17 +13,18 @@ def client():
     # Store original overrides
     original_overrides = app.dependency_overrides.copy()
 
-    # Set overrides
-    app.dependency_overrides[validate_token] = lambda: None
-    app.dependency_overrides[oauth_scheme] = lambda: "dummy"
+    try:
+        # Set overrides
+        app.dependency_overrides[validate_token] = lambda: None
+        app.dependency_overrides[oauth_scheme] = lambda: "dummy"
 
-    # Patch RequiresAnyRole.__call__ to bypass RBAC globally during these tests
-    with patch.object(RequiresAnyRole, "__call__", new=lambda self: None):
-        test_client = TestClient(app)
-        yield test_client
-
-    # Restore original overrides
-    app.dependency_overrides = original_overrides
+        # Patch RequiresAnyRole.__call__ to bypass RBAC globally during these tests
+        with patch.object(RequiresAnyRole, "__call__", new=lambda self: None):
+            test_client = TestClient(app)
+            yield test_client
+    finally:
+        # Restore original overrides
+        app.dependency_overrides = original_overrides
 
 
 def test_get_unresolved_conflicts_mocked(client):
