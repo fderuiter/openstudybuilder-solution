@@ -94,6 +94,7 @@ def increment_api_version_if_needed(
 
 def get_api_version() -> str:
     import os
+
     if os.path.exists("apiVersion"):
         with open("apiVersion", "r", encoding="utf-8") as file:
             return file.read().strip()

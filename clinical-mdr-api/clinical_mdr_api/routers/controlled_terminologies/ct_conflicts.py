@@ -1,9 +1,10 @@
 """CT conflicts router for Interactive Graph-Backed Resolution Dashboard."""
 
 from typing import Annotated, Any
-from fastapi import APIRouter, HTTPException, Path, Body
-from pydantic import BaseModel
+
+from fastapi import APIRouter, Body, HTTPException, Path
 from neomodel import db
+from pydantic import BaseModel
 
 from common.auth import rbac
 from common.auth.dependencies import security
@@ -78,7 +79,7 @@ def get_unresolved_conflicts() -> list[ConflictItem]:
             conceptId=row[2],
             property=row[3],
             inconsistency=row[4],
-            parentName=row[5]
+            parentName=row[5],
         )
         for row in results
     ]
@@ -99,7 +100,7 @@ def get_conflict_details(conflict_id: int) -> ConflictDetails:
     results_info, _ = db.cypher_query(query_info, {"conflict_id": conflict_id})
     if not results_info:
         raise HTTPException(status_code=404, detail="Conflict not found")
-        
+
     parent_label = results_info[0][0]
     property_name = results_info[0][1]
     inconsistency_desc = results_info[0][2]
@@ -116,7 +117,9 @@ def get_conflict_details(conflict_id: int) -> ConflictDetails:
         WITH rc, p, collect(rt.submissionValue) as termList
         RETURN id(rc) as rawId, termList as value, coalesce(rc.packageName, p.name, 'Unknown Package') as packageName, coalesce(rc.packageVersion, p.version, '') as packageVersion
         """
-        results_sources, _ = db.cypher_query(query_sources, {"conflict_id": conflict_id})
+        results_sources, _ = db.cypher_query(
+            query_sources, {"conflict_id": conflict_id}
+        )
     else:
         if parent_label == "GroupedCodelist":
             query_sources = """
@@ -134,14 +137,13 @@ def get_conflict_details(conflict_id: int) -> ConflictDetails:
             OPTIONAL MATCH (rt)<-[:PACKAGE_TERM]-(p:CTPackage)
             RETURN id(rt) as rawId, rt[$property] as value, coalesce(rt.packageName, p.name, 'Unknown Package') as packageName, coalesce(rt.packageVersion, p.version, '') as packageVersion
             """
-        results_sources, _ = db.cypher_query(query_sources, {"conflict_id": conflict_id, "property": property_name})
+        results_sources, _ = db.cypher_query(
+            query_sources, {"conflict_id": conflict_id, "property": property_name}
+        )
 
     sources = [
         ConflictSourceValue(
-            rawId=row[0],
-            value=row[1],
-            packageName=row[2],
-            packageVersion=row[3]
+            rawId=row[0], value=row[1], packageName=row[2], packageVersion=row[3]
         )
         for row in results_sources
     ]
@@ -152,7 +154,7 @@ def get_conflict_details(conflict_id: int) -> ConflictDetails:
         property=property_name,
         inconsistency=inconsistency_desc,
         conceptId=concept_id,
-        sources=sources
+        sources=sources,
     )
 
 
@@ -164,7 +166,9 @@ def get_conflict_details(conflict_id: int) -> ConflictDetails:
 )
 def resolve_conflict(
     conflict_id: int,
-    resolve_input: Annotated[ResolveInput, Body(description="The chosen value for resolution.")],
+    resolve_input: Annotated[
+        ResolveInput, Body(description="The chosen value for resolution.")
+    ],
 ) -> dict[str, str]:
     query_info = """
     MATCH (g)-[:HAS_INCONSISTENCY]->(i)
@@ -174,7 +178,7 @@ def resolve_conflict(
     results_info, _ = db.cypher_query(query_info, {"conflict_id": conflict_id})
     if not results_info:
         raise HTTPException(status_code=404, detail="Conflict not found")
-        
+
     parent_label = results_info[0][0]
     property_name = results_info[0][1]
     value = resolve_input.value
@@ -195,7 +199,10 @@ def resolve_conflict(
         MERGE (g)-[:HAS_GROUPED_PROPERTIES]->(props:GroupedCodelistProperties)
         SET props += $properties_map
         """
-        db.cypher_query(query_update, {"conflict_id": conflict_id, "properties_map": {property_name: value}})
+        db.cypher_query(
+            query_update,
+            {"conflict_id": conflict_id, "properties_map": {property_name: value}},
+        )
     elif parent_label == "GroupedTerm":
         query_update = """
         MATCH (g:GroupedTerm)-[:HAS_INCONSISTENCY]->(i)
@@ -203,6 +210,9 @@ def resolve_conflict(
         MERGE (g)-[:HAS_GROUPED_PROPERTIES]->(props:GroupedTermProperties)
         SET props += $properties_map
         """
-        db.cypher_query(query_update, {"conflict_id": conflict_id, "properties_map": {property_name: value}})
+        db.cypher_query(
+            query_update,
+            {"conflict_id": conflict_id, "properties_map": {property_name: value}},
+        )
 
     return {"status": "success", "message": "Conflict successfully resolved"}

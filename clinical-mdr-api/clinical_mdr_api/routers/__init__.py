@@ -63,6 +63,9 @@ from clinical_mdr_api.routers.controlled_terminologies.ct_codelist_names import 
 from clinical_mdr_api.routers.controlled_terminologies.ct_codelists import (
     router as ct_codelists_router,
 )
+from clinical_mdr_api.routers.controlled_terminologies.ct_conflicts import (
+    router as ct_conflicts_router,
+)
 from clinical_mdr_api.routers.controlled_terminologies.ct_packages import (
     router as ct_packages_router,
 )
@@ -77,9 +80,6 @@ from clinical_mdr_api.routers.controlled_terminologies.ct_term_names import (
 )
 from clinical_mdr_api.routers.controlled_terminologies.ct_terms import (
     router as ct_terms_router,
-)
-from clinical_mdr_api.routers.controlled_terminologies.ct_conflicts import (
-    router as ct_conflicts_router,
 )
 from clinical_mdr_api.routers.ctr_xml.ctr_xml import router as ctr_xml_router
 from clinical_mdr_api.routers.data_completeness_tags import (
