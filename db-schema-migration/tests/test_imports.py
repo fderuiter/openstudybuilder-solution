@@ -4,6 +4,7 @@ from clinical_mdr_api.clinical_mdr_api.models.integrations.msgraph import GraphU
 
 def test_submodule_import():
     # Verify that the migration suite can import model definitions directly from the API submodule path
+    """Verify that clinical_mdr_api models can be successfully imported by the migration suite."""
     assert GraphUser is not None
 
 def test_pydantic_v2_parsing_and_validation():
