@@ -32,3 +32,10 @@ def test_pydantic_v2_validation_error():
     
     with pytest.raises(ValidationError):
         GraphUser.model_validate(invalid_payload)
+
+def test_pydantic_v2_json_schema():
+    """Verify that Pydantic v2 JSON schema generation works correctly on GraphUser."""
+    schema = GraphUser.model_json_schema()
+    assert isinstance(schema, dict)
+    assert "properties" in schema
+    assert "id" in schema["properties"]
