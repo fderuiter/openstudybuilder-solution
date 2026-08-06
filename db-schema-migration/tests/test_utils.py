@@ -164,3 +164,36 @@ def test_get_db_connection_with_path(monkeypatch):
     assert "bolt://neo4j:p%40ss%3Aw%3Aord@localhost:7687/testdb/testdb" not in called_connections
 
 
+def test_get_db_connection_with_query_params(monkeypatch):
+    from neomodel import config as neoconfig
+    from neomodel import db
+
+    # Mock environment variables where DATABASE_URL has query parameters and a path
+    monkeypatch.setenv("DATABASE_URL", "bolt://neo4j:p@ss:w:ord@localhost:7687/testdb?policy=routing#myfragment")
+    monkeypatch.setenv("DATABASE_NAME", "testdb")
+    monkeypatch.setenv("CREATE_DB", "false")
+
+    # Mock db.set_connection and db.cypher_query
+    called_connections = []
+    def mock_set_connection(url):
+        called_connections.append(url)
+    monkeypatch.setattr(db, "set_connection", mock_set_connection)
+
+    query_count = 0
+    def mock_cypher_query(query, params=None):
+        nonlocal query_count
+        query_count += 1
+        return [], None
+    monkeypatch.setattr(db, "cypher_query", mock_cypher_query)
+
+    # Call get_db_connection
+    res = utils.get_db_connection()
+
+    assert res == db
+    # Credentials should be url-encoded in the connection string and query/fragment preserved
+    expected_url = "bolt://neo4j:p%40ss%3Aw%3Aord@localhost:7687/testdb?policy=routing#myfragment"
+    assert neoconfig.DATABASE_URL == expected_url
+    assert expected_url in called_connections
+
+
+
