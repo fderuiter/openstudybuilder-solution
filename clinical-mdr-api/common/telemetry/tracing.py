@@ -16,7 +16,7 @@ def trace_block(
     annotation_kwargs: dict[str, str] | None = None,
     /,
     **attributes,
-) -> Generator[Span]:
+) -> Generator[Span, None, None]:
     """
     Trace a block of code using the `with` statement. Yields an OpenCensus tracing Span.
 

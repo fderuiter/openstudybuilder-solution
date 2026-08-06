@@ -37,11 +37,15 @@ from usdm_model import StudyVersion as USDMStudyVersion
 from usdm_model import Timing as USDMTiming
 from usdm_model import TransitionRule as USDMTransitionRule
 
+import logging
+log = logging.getLogger(__name__)
+
 from clinical_mdr_api.domains.study_definition_aggregates.study_metadata import (
     StudyStatus,
 )
 from clinical_mdr_api.models.study_selections.study import Study as OSBStudy
 from clinical_mdr_api.services.ddf.usdm_utils import IdManager
+from common.exceptions import ValidationException
 from common.telemetry import trace_calls
 
 DDF_ORGANIZATION_TYPE_STUDY_REGISTRY = "C93453"
@@ -136,6 +140,8 @@ class USDMMapper:
         self._ct_package_effective_date: str = str(date.today())
         self._ct_terms_datetime: datetime | None = None
         self._registid_labels: dict[str, str] = {}
+        self._study_status: str | None = None
+        self._missing_attributes: set[str] = set()
 
     @staticmethod
     def _effective_date_to_str(effective_date) -> str:
@@ -340,8 +346,29 @@ class USDMMapper:
         )
         return code
 
+    def _report_missing(self, attribute_name: str):
+        if self._study_status == StudyStatus.DRAFT.value:
+            log.warning(f"Missing or unmapped attribute in draft study: {attribute_name}")
+        else:
+            self._missing_attributes.add(attribute_name)
+
     @trace_calls
     def map(self, study: OSBStudy) -> dict[str, Any]:
+        osb_current_metadata = getattr(study, "current_metadata", None)
+        osb_study_status = getattr(
+            getattr(osb_current_metadata, "version_metadata", None),
+            "study_status",
+            None,
+        )
+        status_val = osb_study_status.value if hasattr(osb_study_status, "value") else osb_study_status
+
+        # Reject unsupported statuses
+        if status_val not in (StudyStatus.DRAFT.value, StudyStatus.LOCKED.value):
+            raise ValidationException(msg=f"Unsupported study workflow status: {status_val}")
+
+        self._study_status = status_val
+        self._missing_attributes = set()
+
         self._ct_package_effective_date = self._resolve_ct_package_effective_date(
             study.uid
         )
@@ -405,6 +432,12 @@ class USDMMapper:
             "systemName": None,
             "systemVersion": None,
         }
+
+        if self._missing_attributes:
+            missing_list = sorted(list(self._missing_attributes))
+            raise ValidationException(
+                msg=f"Validation failed for locked study. Missing or unmapped attributes: {', '.join(missing_list)}"
+            )
 
         return wrapped_study
 
@@ -984,6 +1017,10 @@ class USDMMapper:
             )
         else:
             study_phase_code = self.get_void_usdm_code()
+
+        if study_phase_code.code == "":
+            self._report_missing("studyPhase")
+
         study_phase = USDMAliasCode(
             id=self._id_manager.get_id(USDMAliasCode.__name__),
             standardCode=study_phase_code,
@@ -1143,8 +1180,7 @@ class USDMMapper:
         elif osb_study_status == StudyStatus.LOCKED.value:
             ddf_protocol_status = self.get_ddf_study_protocol_status_final()
         else:
-            # TODO raise exception if not draft or locked status
-            ddf_protocol_status = self.get_void_usdm_code()
+            raise ValidationException(msg=f"Unsupported study workflow status: {osb_study_status}")
 
         ddf_study_definition_document_version = USDMStudyDefinitionDocumentVersion(
             id=self._id_manager.get_id(USDMStudyDefinitionDocumentVersion.__name__),
@@ -1302,10 +1338,16 @@ class USDMMapper:
         )
         osb_study_type_code = getattr(osb_study_design, "study_type_code", None)
         if osb_study_type_code:
-            return self.get_ct_package_term_as_usdm_code(
+            code = self.get_ct_package_term_as_usdm_code(
                 extract_c_code_from_simple_term(osb_study_type_code.term_uid)
             )
-        return self.get_void_usdm_code()
+        else:
+            code = self.get_void_usdm_code()
+
+        if code.code == "":
+            self._report_missing("studyType")
+
+        return code
 
     @trace_calls
     def _get_study_version(self, study: OSBStudy):
