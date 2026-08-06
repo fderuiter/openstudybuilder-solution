@@ -127,10 +127,15 @@ def get_db_connection():
 
     if db_name:
         parsed_safe = urllib.parse.urlsplit(safe_db_url)
-        base_safe_url = urllib.parse.urlunsplit(
-            (parsed_safe.scheme, parsed_safe.netloc, "", "", "")
+        neoconfig.DATABASE_URL = urllib.parse.urlunsplit(
+            (
+                parsed_safe.scheme,
+                parsed_safe.netloc,
+                f"/{db_name}",
+                parsed_safe.query,
+                parsed_safe.fragment,
+            )
         )
-        neoconfig.DATABASE_URL = f"{base_safe_url}/{db_name}"
         logger.info(
             "Creating database '%s' if it doesn't exist",
             db_name,
