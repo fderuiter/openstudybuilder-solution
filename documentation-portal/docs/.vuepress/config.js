@@ -48,6 +48,14 @@ module.exports = {
 						'architecture/authentication_authorisation_architecture'
                     ]
                 },
+                {
+                    title: 'Governance & Compliance',
+                    collapsable: true,
+                    children: [
+                        'governance/licensing_model',
+                        'governance/contribution_charter'
+                    ]
+                },
                 'glossary/glossary.md'
             ],
             '/': [ // Your fallback (this is your landing page)
