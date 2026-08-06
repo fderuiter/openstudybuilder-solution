@@ -246,8 +246,15 @@ async function saveItem(item, fieldChanged) {
       payload
     )
 
+    const friendlyNames = {
+      snomed_version: 'SNOMED version',
+      medrt_version: 'MED-RT version',
+      unii_version: 'UNII version',
+      ucum_version: 'UCUM version',
+    }
+    const dictName = friendlyNames[fieldChanged] || 'Clinical dictionary version'
     notificationHub.add({
-      msg: 'Clinical dictionary version updated successfully.',
+      msg: `${dictName} updated successfully.`,
     })
   } catch (err) {
     // Reload items on error to revert dropdown state
