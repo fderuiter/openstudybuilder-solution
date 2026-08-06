@@ -1,5 +1,5 @@
 import abc
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from neomodel import db
 from neomodel.exceptions import DoesNotExist
@@ -291,7 +291,7 @@ class GenericSyntaxTemplateService(GenericSyntaxService[_AggregateRootType], abc
         )
 
 
-def get_affected_studies_for_template(uid: str) -> list[dict]:
+def get_affected_studies_for_template(uid: str) -> list[dict[str, Any]]:
     # Check what kind of template it is based on uid prefix
     if uid.startswith("ObjectiveTemplate_"):
         template_rel = "HAS_OBJECTIVE"
