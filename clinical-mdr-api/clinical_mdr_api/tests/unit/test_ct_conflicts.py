@@ -1,14 +1,15 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from fastapi.testclient import TestClient
-
-from clinical_mdr_api.main import app
-from common.auth.dependencies import RequiresAnyRole, oauth_scheme, validate_token
 
 
-@pytest.fixture(autouse=True)
-def mock_auth_dependencies():
+@pytest.fixture
+def client():
+    from fastapi.testclient import TestClient
+
+    from clinical_mdr_api.main import app
+    from common.auth.dependencies import RequiresAnyRole, oauth_scheme, validate_token
+
     # Store original overrides
     original_overrides = app.dependency_overrides.copy()
 
@@ -18,16 +19,14 @@ def mock_auth_dependencies():
 
     # Patch RequiresAnyRole.__call__ to bypass RBAC globally during these tests
     with patch.object(RequiresAnyRole, "__call__", new=lambda self: None):
-        yield
+        test_client = TestClient(app)
+        yield test_client
 
     # Restore original overrides
     app.dependency_overrides = original_overrides
 
 
-client = TestClient(app)
-
-
-def test_get_unresolved_conflicts_mocked():
+def test_get_unresolved_conflicts_mocked(client):
     mock_db_result = (
         [
             (
@@ -62,7 +61,7 @@ def test_get_unresolved_conflicts_mocked():
         assert data[0]["parentName"] == "Codelist 1"
 
 
-def test_get_conflict_details_mocked():
+def test_get_conflict_details_mocked(client):
     # Mocking first query_info:
     # returns: parentLabel, property, inconsistency, conceptId, iLabel
     mock_info = (
@@ -103,7 +102,7 @@ def test_get_conflict_details_mocked():
         assert data["sources"][0]["packageName"] == "Package A"
 
 
-def test_resolve_conflict_mocked():
+def test_resolve_conflict_mocked(client):
     mock_info = ([("GroupedCodelist", "definition")], MagicMock())
     mock_solution = ([], MagicMock())
 
