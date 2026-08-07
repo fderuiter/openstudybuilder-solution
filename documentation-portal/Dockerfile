@@ -26,8 +26,6 @@ RUN yarn docs:build
 ## Production stage
 FROM $NGINX_IMAGE as production-stage
 
-RUN apk add --no-cache curl
-
 COPY --from=build-stage /app/docs/.vuepress/dist /usr/share/nginx/html
 COPY --from=build-stage /app/build.json /usr/share/nginx/html
 COPY --from=build-stage /app/sbom.md /usr/share/nginx/html
@@ -43,6 +41,5 @@ EXPOSE $PORT
 ## unhealthy status is reached if `retries` number of consecutive failures,
 ## but failures does not count within `start-period` seconds of start.
 HEALTHCHECK --start-period=10s --timeout=2s --interval=10s --retries=2 CMD \
-    curl --fail --silent --show-error --max-time 1 \
-    "http://localhost:$PORT/" \
+    wget -qO- -T 1 "http://localhost:$PORT/" \
     > /dev/null || exit 1

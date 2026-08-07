@@ -20,8 +20,6 @@ RUN test ! -r /app/config/nginx/default.conf || rm -f /app/config/nginx/default.
 ## Production stage
 FROM $NGINX_IMAGE as prod-stage
 
-RUN apk add --no-cache curl
-
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 COPY --from=build-stage /app/sbom.md /usr/share/nginx/html
 COPY --from=build-stage /app/LICENSE.md /usr/share/nginx/html/license.md
@@ -68,6 +66,5 @@ ENV SB_UPDATE_CONFIG_AWK=/opt/update-config.awk \
 ## unhealthy status is reached if `retries` number of consecutive failures,
 ## but failures does not count within `start-period` seconds of start.
 HEALTHCHECK --start-period=10s --timeout=2s --interval=10s --retries=2 CMD \
-    curl --fail --silent --show-error --max-time 1 \
-    "http://localhost:$PORT/" \
+    wget -qO- -T 1 "http://localhost:$PORT/" \
     > /dev/null || exit 1

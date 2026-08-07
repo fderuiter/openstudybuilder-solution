@@ -2,8 +2,6 @@ ARG NGINX_IMAGE=nginx:alpine
 
 FROM $NGINX_IMAGE
 
-RUN apk add --no-cache curl
-
 COPY ./results/allure-report /public_html
 COPY ./nginx/default.conf /etc/nginx/conf.d/
 COPY ./nginx/redirect.html /public_html/
@@ -16,6 +14,5 @@ EXPOSE $PORT
 ## unhealthy status is reached if `retries` number of consecutive failures,
 ## but failures does not count within `start-period` seconds of start.
 HEALTHCHECK --start-period=10s --timeout=2s --interval=10s --retries=2 CMD \
-    curl --fail --silent --show-error --max-time 1 \
-    "http://localhost:$PORT/" \
+    wget -qO- -T 1 "http://localhost:$PORT/" \
     > /dev/null || exit 1
