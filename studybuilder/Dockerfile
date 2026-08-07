@@ -20,6 +20,8 @@ RUN test ! -r /app/config/nginx/default.conf || rm -f /app/config/nginx/default.
 ## Production stage
 FROM $NGINX_IMAGE as prod-stage
 
+RUN apk add --no-cache curl
+
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 COPY --from=build-stage /app/sbom.md /usr/share/nginx/html
 COPY --from=build-stage /app/LICENSE.md /usr/share/nginx/html/license.md
