@@ -193,7 +193,7 @@ def test_get_table(
 
     table = StudyInterventionsService().get_table(tst_study.uid)
 
-    assert len(table.rows) == 8, "Incorrect number of rows"
+    assert len(table.rows) == 14, "Incorrect number of rows"
     assert len(table.rows[0].cells) == 3, "Incorrect number of columns"
     assert table.num_header_rows == 1, "Incorrect number of header rows"
     assert table.num_header_cols == 1, "Incorrect number of header columns"
@@ -203,21 +203,42 @@ def test_get_table(
 
     assert table.rows[0].cells[1].text == study_arms[0].name, "arm name mismatch"
     assert table.rows[0].cells[2].text == study_arms[1].name, "arm name mismatch"
-    # assert table.rows[1].cells[1].text == compound1.name, "compound name mismatch"
-    # assert table.rows[1].cells[2].text == compound2.name, "compound name mismatch"
-    # table.data[2] intervention type is missing from test data
-    # table.data[3] is not implemented
-    # assert (
-    #     table.rows[4].cells[1].text
-    #     == table.rows[4].cells[2].text
-    #     == ct_term_dosage.sponsor_preferred_name
-    # )
-    # assert (
-    #     table.rows[5].cells[1].text
-    #     == table.rows[5].cells[2].text
-    #     == ct_term_roa.sponsor_preferred_name
-    # )
-
-    # assert ct_term_delivery_device.sponsor_preferred_name in table.rows[6].cells[1].text
-    # assert ct_term_dispenser.sponsor_preferred_name in table.rows[6].cells[1].text
-    assert table.rows[6].cells[1].text == table.rows[6].cells[2].text
+    assert table.rows[1].cells[1].text == compound1.name, "compound name mismatch"
+    assert table.rows[1].cells[2].text == compound2.name, "compound name mismatch"
+    # Row 2 (intervention type) is missing from test data -> falls back to "Not Specified"
+    assert table.rows[2].cells[1].text == "Not Specified"
+    assert table.rows[2].cells[2].text == "Not Specified"
+    # Row 3 (investigational status) -> Not Specified
+    assert table.rows[3].cells[1].text == "Not Specified"
+    assert table.rows[3].cells[2].text == "Not Specified"
+    # Row 4 (pharmaceutical form / dosage form)
+    assert table.rows[4].cells[1].text == ct_term_dosage.sponsor_preferred_name
+    assert table.rows[4].cells[2].text == ct_term_dosage.sponsor_preferred_name
+    # Row 5 (route of administration)
+    assert table.rows[5].cells[1].text == ct_term_roa.sponsor_preferred_name
+    assert table.rows[5].cells[2].text == ct_term_roa.sponsor_preferred_name
+    # Row 6 (medical device)
+    assert ct_term_delivery_device.sponsor_preferred_name in table.rows[6].cells[1].text
+    assert ct_term_dispenser.sponsor_preferred_name in table.rows[6].cells[1].text
+    # Row 7 (trial product strength) -> Not Specified
+    assert table.rows[7].cells[1].text == "Not Specified"
+    assert table.rows[7].cells[2].text == "Not Specified"
+    # Row 8 (dose and dose frequency)
+    assert "10" in table.rows[8].cells[1].text
+    assert "mg" in table.rows[8].cells[1].text
+    assert ct_term_dose_frequency.sponsor_preferred_name in table.rows[8].cells[1].text
+    # Row 9 (dosing and administration)
+    assert table.rows[9].cells[1].text == "Not Specified"
+    assert table.rows[9].cells[2].text == "Not Specified"
+    # Row 10 (transfer from other therapy)
+    assert table.rows[10].cells[1].text == "Not Specified"
+    assert table.rows[10].cells[2].text == "Not Specified"
+    # Row 11 (sourcing)
+    assert table.rows[11].cells[1].text == "Not Specified"
+    assert table.rows[11].cells[2].text == "Not Specified"
+    # Row 12 (packaging and labelling)
+    assert table.rows[12].cells[1].text == "Not Specified"
+    assert table.rows[12].cells[2].text == "Not Specified"
+    # Row 13 (authorisation status)
+    assert table.rows[13].cells[1].text == "Not Specified"
+    assert table.rows[13].cells[2].text == "Not Specified"
