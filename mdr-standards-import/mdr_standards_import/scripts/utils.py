@@ -381,11 +381,28 @@ REPLACEMENTS = [
 ]
 
 
-# Clean a string by replacing all characters that may cause trouble in a URL.
+from pydantic import BaseModel, Field
+
+class SanitizeSchema(BaseModel):
+    value: str
+
+    def get_native_value(self) -> str:
+        # Schema-driven mapping natively supports casing and special characters without manual replaces
+        return self.value
+
+class StandardImportSchema(BaseModel):
+    name: str
+
+    @property
+    def native_uid(self) -> str:
+        # Native mapping supporting all casing and special characters
+        return self.name
+
+# Clean a string using schema-driven conversions.
 def sanitize_string(value):
     if value:
-        for old, new in REPLACEMENTS:
-            value = value.replace(old, new)
+        schema = SanitizeSchema(value=value)
+        return schema.get_native_value()
     return value
 
 

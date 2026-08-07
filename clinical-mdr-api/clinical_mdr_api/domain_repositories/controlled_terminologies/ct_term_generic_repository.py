@@ -59,10 +59,10 @@ class CTTermGenericRepository(
     relationship_from_root: str
 
     generic_alias_clause = """
-        DISTINCT term_root, term_ver_root, term_ver_value, codelist_root, rel_term
+        DISTINCT term_root, term_ver_root, term_ver_value
         ORDER BY term_ver_value.name
         WITH DISTINCT term_root, term_ver_root, term_ver_value,
-        [(catalogue:CTCatalogue)-[:HAS_CODELIST]->(codelist_root) | catalogue.name] AS catalogue_names,
+        [(catalogue:CTCatalogue)-[:HAS_CODELIST]->(cl:CTCodelistRoot)-[:HAS_TERM]->(:CTCodelistTerm)-[:HAS_TERM_ROOT]->(term_root) | catalogue.name] AS catalogue_names,
         head([(lib)-[:CONTAINS_TERM]->(term_root) | lib]) AS library
         WITH
             term_root,

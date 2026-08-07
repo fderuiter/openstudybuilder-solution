@@ -69,6 +69,18 @@ jobs:
           cd studybuilder
           npx tsc --noEmit -p jsconfig.json
 
+      - name: Generate GxP Compliance Report
+        run: |
+          python ./clinical-mdr-api/pipelines/scripts/generate_gxp_report.py
+
+      - name: Upload GxP Compliance Reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: gxp-compliance-reports
+          path: |
+            clinical-mdr-api/reports/gxp-compliance-report.md
+            db-schema-migration/reports/gxp-migration-report.md
+
   build:
     name: Build and Health Check
     runs-on: ubuntu-latest

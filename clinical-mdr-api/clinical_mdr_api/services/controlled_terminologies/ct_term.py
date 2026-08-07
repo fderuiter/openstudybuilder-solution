@@ -204,6 +204,26 @@ class CTTermService:
             ct_term_name_ar, ct_term_attributes_ar, codelists_vo
         )
 
+    @ensure_transaction(db)
+    def create_bulk(
+        self,
+        terms_input: list[CTTermCreateInput],
+        start_date: datetime | None = None,
+        approve: bool = False,
+    ) -> list[CTTerm]:
+        """
+        Creates multiple CTTerms in a single atomic database transaction.
+        If any single record fails validation or creation, the entire transaction rolls back.
+        """
+        if not start_date:
+            start_date = datetime.now()
+
+        results = []
+        for term_input in terms_input:
+            term = self.create(term_input, start_date=start_date, approve=approve)
+            results.append(term)
+        return results
+
     def get_all_terms(
         self,
         codelist_uid: str | None,

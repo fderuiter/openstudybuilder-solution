@@ -710,6 +710,39 @@ def add_term(
     )
 
 
+@router.post(
+    "/codelists/{codelist_uid}/terms/bulk",
+    dependencies=[security, rbac.LIBRARY_WRITE],
+    summary="Adds new CTTerms to CTCodelist in bulk.",
+    status_code=201,
+    responses={
+        403: _generic_descriptions.ERROR_403,
+        201: {
+            "description": "The terms were successfully added to the codelist."
+        },
+        400: {
+            "model": ErrorResponse,
+            "description": "Forbidden - Reasons include e.g.: \n"
+            "- The codelist doesn't exist.\n"
+            "- A term doesn't exist.\n"
+            "- The codelist is not extensible.\n"
+            "- The codelist already has a passed term.\n",
+        },
+    },
+)
+def add_terms_bulk(
+    codelist_uid: Annotated[str, CTCodelistUID],
+    terms_input: Annotated[
+        list[CTCodelistTermInput], Body(description="List of UIDs of the CTTermRoot nodes.")
+    ],
+) -> CTCodelist:
+    ct_codelist_service = CTCodelistService()
+    return ct_codelist_service.add_terms_bulk(
+        codelist_uid=codelist_uid,
+        terms_input=terms_input,
+    )
+
+
 @router.delete(
     "/codelists/{codelist_uid}/terms/{term_uid}",
     dependencies=[security, rbac.LIBRARY_WRITE],
