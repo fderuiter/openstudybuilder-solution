@@ -190,6 +190,8 @@ RUN [ "x$UID" = "x1000" ] || { \
     && groupmod --gid "$UID" "neo4j" \
     ;}
 
+USER $USER
+
 # Install APOC plugin
 RUN export NEO4J_VERSION=$(wget --no-check-certificate "https://dist.neo4j.org/versions/v2/neo4j-versions.json"  -qO - | jq -r '."dist-tags" .latest') \
     && wget --no-check-certificate --quiet --timeout 60 --tries 2 --output-document /var/lib/neo4j/plugins/apoc.jar \
