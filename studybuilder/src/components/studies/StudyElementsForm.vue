@@ -94,7 +94,7 @@
           </v-col>
         </v-row>
         <div class="mt-4">
-          <label class="v-label">{{ $t('StudyEpochForm.color') }}</label>
+          <span class="v-label font-weight-bold d-block mb-1">{{ $t('StudyEpochForm.color') }}</span>
           <v-color-picker
             v-model="colorHash"
             data-cy="epoch-color-picker"

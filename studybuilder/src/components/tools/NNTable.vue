@@ -264,6 +264,7 @@
                         variant="plain"
                         class="pb-1"
                         @mouseover="columnValueIndex = header.key"
+                        @focus="columnValueIndex = header.key"
                       >
                         <v-icon v-show="header.key == columnValueIndex">
                           mdi-dots-vertical
@@ -276,7 +277,9 @@
                           v-if="item.available"
                           :key="index"
                           @mouseover="columnValueIndex = header.key"
+                          @focusin="columnValueIndex = header.key"
                           @mouseleave="columnValueIndex = ''"
+                          @focusout="columnValueIndex = ''"
                         >
                           <v-btn
                             variant="text"

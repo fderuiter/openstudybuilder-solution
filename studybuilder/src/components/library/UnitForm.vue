@@ -143,9 +143,9 @@
         </v-row>
         <v-row v-if="editing">
           <v-col>
-            <label class="v-label">{{
+            <span class="v-label font-weight-bold d-block mb-1">{{
               $t('UnitForm.reason_for_change')
-            }}</label>
+            }}</span>
             <v-textarea
               v-model="form.change_description"
               clearable

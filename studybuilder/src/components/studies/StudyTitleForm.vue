@@ -10,9 +10,9 @@
         <v-form ref="observer">
           <div class="input-block mb-5">
             <div class="d-flex align-center mb-1">
-              <label class="field-label">{{
+              <span class="field-label">{{
                 $t('StudyTitleForm.title_label')
-              }}</label>
+              }}</span>
               <v-spacer />
               <span class="counter"
                 >{{ currentTitleLength }} / {{ maxTitleLength }}</span
@@ -32,9 +32,9 @@
           </div>
           <div class="input-block">
             <div class="d-flex align-center mb-1">
-              <label class="field-label">{{
+              <span class="field-label">{{
                 $t('StudyTitleForm.short_title')
-              }}</label>
+              }}</span>
               <v-spacer />
               <span class="counter"
                 >{{ currentShortTitleLength }} / {{ shortTitleMaxLength }}</span

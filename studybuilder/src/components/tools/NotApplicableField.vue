@@ -1,5 +1,5 @@
 <template>
-  <label v-if="label" class="v-label">{{ label }}</label>
+  <span v-if="label" class="v-label font-weight-bold d-block mb-1">{{ label }}</span>
   <v-row class="align-start">
     <v-col cols="10">
       <slot name="mainField" :not-applicable="notApplicable" />

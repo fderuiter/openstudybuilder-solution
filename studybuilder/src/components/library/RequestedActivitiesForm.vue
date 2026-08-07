@@ -92,9 +92,9 @@
         </v-row>
         <v-row v-if="isEdit">
           <v-col>
-            <label class="v-label">{{
+            <span class="v-label font-weight-bold d-block mb-1">{{
               $t('ActivityForms.reason_for_change')
-            }}</label>
+            }}</span>
             <v-textarea
               v-model="form.change_description"
               data-cy="requestedform-change-description-field"

@@ -56,19 +56,21 @@
       <v-form ref="observer" class="mt-5">
         <v-row>
           <v-col cols="5"
-            ><div class="label-font">{{ dialogLabels.reason }}</div>
+            ><span id="reason-label" class="label-font">{{ dialogLabels.reason }}</span>
             <v-select
+              id="reason-select"
               v-model="form.reason_for_change_uid"
               :items="reasons"
               item-title="sponsor_preferred_name"
               item-value="term_uid"
               data-cy="change-reason"
               :rules="[formRules.required]"
+              aria-labelledby="reason-label"
               @update:model-value="updateVersions"
             />
           </v-col>
           <v-col v-if="action !== 'unlock'">
-            <div class="label-font">
+            <div id="version-label" class="label-font">
               {{
                 $t('Study.protocol_header_version') +
                 (form.reason_for_change_uid &&
@@ -79,19 +81,25 @@
             </div>
             <div>
               <input
+                id="major-version-input"
                 v-model="form.protocol_header_major_version"
                 :class="{
                   'tiny-native-input': true,
                   'tiny-native-input--error': majorVersionWarning,
                 }"
                 data-cy="major-version"
+                aria-label="Protocol Header Major Version"
+                aria-labelledby="version-label"
                 @input="onVersionInput"
               />
               .
               <input
+                id="minor-version-input"
                 v-model="form.protocol_header_minor_version"
                 class="tiny-native-input"
                 data-cy="minor-version"
+                aria-label="Protocol Header Minor Version"
+                aria-labelledby="version-label"
                 :disabled="
                   form.reason_for_change_uid &&
                   form.reason_for_change_uid === finalProtocolReasonUid

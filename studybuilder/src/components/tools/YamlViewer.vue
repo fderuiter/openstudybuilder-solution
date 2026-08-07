@@ -21,8 +21,9 @@
 
     <div class="yaml-content">
       <div v-for="(block, index) in yamlBlocks" :key="index" class="yaml-block">
-        <div
+        <v-sheet
           v-if="block.hasChildren"
+          color="transparent"
           class="yaml-fold-control"
           @click="toggleFold(index)"
         >
@@ -33,7 +34,7 @@
             class="yaml-indent"
             v-html="sanitizeHTMLHandler(formatLine(block.line))"
           ></span>
-        </div>
+        </v-sheet>
         <div v-else class="yaml-line">
           <span
             class="yaml-indent"
