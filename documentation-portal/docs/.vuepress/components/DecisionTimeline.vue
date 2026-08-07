@@ -35,7 +35,7 @@ export default {
       return this.$site.pages
         .filter(page => {
           // Match files under /guides/decision-logs/ except the index (README) and template
-          return (
+          return page.path && (
             page.path.startsWith('/doc/guides/decision-logs/') ||
             page.path.startsWith('/guides/decision-logs/')
           ) && 
@@ -45,19 +45,31 @@ export default {
           page.frontmatter.date;
         })
         .sort((a, b) => {
-          return new Date(b.frontmatter.date) - new Date(a.frontmatter.date);
+          const dateA = String(a.frontmatter.date);
+          const dateB = String(b.frontmatter.date);
+          return dateB.localeCompare(dateA);
         });
     }
   },
   methods: {
     formatDate(dateStr) {
       if (!dateStr) return '';
-      const date = new Date(dateStr);
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
+      const s = typeof dateStr === 'object' ? dateStr.toISOString().split('T')[0] : String(dateStr);
+      const parts = s.split('-');
+      if (parts.length < 3) return s;
+      const year = parts[0];
+      const monthIndex = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      
+      const months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      
+      if (monthIndex >= 0 && monthIndex < 12) {
+        return `${months[monthIndex]} ${day}, ${year}`;
+      }
+      return s;
     },
     statusClass(status) {
       if (!status) return 'draft';
