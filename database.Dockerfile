@@ -29,7 +29,7 @@ RUN apt-get update \
     gcc \
     net-tools \ 
     && pip install --upgrade pip pipenv wheel \
-    && wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null \
+    && wget --no-check-certificate -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null \
     && echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list \
     && apt-get update \
     && apt-get -y install temurin-25-jdk \
@@ -64,8 +64,8 @@ ENV NEO4J_MDR_BOLT_PORT=7687 \
     NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
 
 # Install Neo4j from tarball
-RUN export NEO4J_VERSION=$(curl "https://dist.neo4j.org/versions/v2/neo4j-versions.json" | jq -r '."dist-tags" .latest') \
-    && curl --fail --location --output neo4j.tar.gz --silent --show-error "$NEO4J_DOWNLOAD_URL-$NEO4J_VERSION-$NEO4J_DOWNLOAD_FILEEXTENSION" \
+RUN export NEO4J_VERSION=$(curl --insecure "https://dist.neo4j.org/versions/v2/neo4j-versions.json" | jq -r '."dist-tags" .latest') \
+    && curl --insecure --fail --location --output neo4j.tar.gz --silent --show-error "$NEO4J_DOWNLOAD_URL-$NEO4J_VERSION-$NEO4J_DOWNLOAD_FILEEXTENSION" \
     && tar --extract --gzip --file neo4j.tar.gz --strip-components=1 \
     && rm neo4j.tar.gz \
     && mv labs/apoc*core.jar plugins/ \
@@ -181,8 +181,8 @@ RUN [ "x$UID" = "x1000" ] || { \
     ;}
 
 # Install APOC plugin
-RUN export NEO4J_VERSION=$(wget "https://dist.neo4j.org/versions/v2/neo4j-versions.json"  -qO - | jq -r '."dist-tags" .latest') \
-    && wget --quiet --timeout 60 --tries 2 --output-document /var/lib/neo4j/plugins/apoc.jar \
+RUN export NEO4J_VERSION=$(wget --no-check-certificate "https://dist.neo4j.org/versions/v2/neo4j-versions.json"  -qO - | jq -r '."dist-tags" .latest') \
+    && wget --no-check-certificate --quiet --timeout 60 --tries 2 --output-document /var/lib/neo4j/plugins/apoc.jar \
     https://github.com/neo4j/apoc/releases/download/$NEO4J_VERSION/apoc-$NEO4J_VERSION-core.jar
 
 # Copy database backup from build stage
