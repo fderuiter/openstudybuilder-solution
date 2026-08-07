@@ -1,6 +1,7 @@
 """CTCatalogue router."""
 
 from datetime import datetime, timezone
+from common.utils import get_current_utc_datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Query
@@ -98,7 +99,7 @@ def get_catalogues_changes(
     ] = None,
 ) -> CTCatalogueChanges:
     if end_datetime is None:
-        end_datetime = datetime.now(timezone.utc)
+        end_datetime = get_current_utc_datetime()
     ct_catalogue_service = CTCatalogueService()
     return ct_catalogue_service.get_ct_catalogues_changes(
         library_name=library_name,

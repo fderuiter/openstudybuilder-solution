@@ -1,5 +1,6 @@
 # pylint: disable=invalid-name
 from datetime import datetime
+from common.utils import get_current_utc_datetime
 
 from neomodel import db
 
@@ -44,12 +45,15 @@ class NotificationRepository:
             MATCH (n:Notification)
             WHERE n.published_at IS NOT NULL
             AND (
-                (datetime(n.started_at) IS NULL OR datetime(n.started_at) <= datetime())
+                (datetime(n.started_at) IS NULL OR datetime(n.started_at) <= datetime($now))
                 AND 
-                (datetime(n.ended_at) IS NULL OR datetime(n.ended_at) >= datetime())
+                (datetime(n.ended_at) IS NULL OR datetime(n.ended_at) >= datetime($now))
             )
             RETURN n
             """,
+            params={
+                "now": get_current_utc_datetime().isoformat(),
+            },
             resolve_objects=True,
         )
 

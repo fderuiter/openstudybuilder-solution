@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from common.utils import get_current_utc_datetime
 from typing import Collection
 
 from neomodel import db
@@ -215,7 +216,7 @@ class CTPackageRepository:
             uid=sponsor_package_uid,
             name=sponsor_package_uid,
             description=f"{library_name} package for {extends_package}, as of {effective_date.strftime('%Y-%m-%d')}",
-            import_date=datetime.now(),
+            import_date=get_current_utc_datetime(),
             effective_date=effective_date,
             author_id=author_id,
         )

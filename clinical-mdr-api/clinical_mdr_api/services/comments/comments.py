@@ -1,5 +1,6 @@
 import copy
 from datetime import datetime
+from common.utils import get_current_utc_datetime
 
 from neomodel import db  # type: ignore
 
@@ -99,7 +100,7 @@ class CommentsService:
                 author_id=self.user_info.id(),
                 author_display_name=self.user_info.name,
                 status=CommentThreadStatus.ACTIVE,
-                created_at=datetime.now(),
+                created_at=get_current_utc_datetime(),
                 generate_uid_callback=self.repos.comments_repository.generate_thread_uid,
             )
 
@@ -205,7 +206,7 @@ class CommentsService:
                 comment_thread_uid=thread_uid,
                 author_id=self.user_info.id(),
                 author_display_name=self.user_info.name,
-                created_at=datetime.now(),
+                created_at=get_current_utc_datetime(),
                 generate_uid_callback=self.repos.comments_repository.generate_reply_uid,
             )
 

@@ -27,7 +27,7 @@ from clinical_mdr_api.domains.comments.comments import (
 from clinical_mdr_api.repositories._utils import sb_clear_cache
 from common import exceptions
 from common.config import settings
-from common.utils import convert_to_datetime, validate_max_skip_clause
+from common.utils import convert_to_datetime, validate_max_skip_clause, get_current_utc_datetime
 
 log = logging.getLogger(__name__)
 
@@ -142,7 +142,7 @@ class CommentsRepository:
         item_previous: CommentThreadAR,
         author_id: str,
     ) -> None:
-        now = datetime.now()
+        now = get_current_utc_datetime()
 
         # Update the latest version of comment thread (i.e. the existing CommentThread node)
         node_latest = CommentThread.nodes.get_or_none(uid=item_latest.uid)
@@ -206,7 +206,7 @@ class CommentsRepository:
     def edit_comment_reply(
         self, item_latest: CommentReplyAR, item_previous: CommentReplyAR
     ) -> None:
-        now = datetime.now()
+        now = get_current_utc_datetime()
 
         # Update the latest version of comment reply (i.e. the existing CommentReply node)
         node_latest = CommentReply.nodes.get_or_none(uid=item_latest.uid)
@@ -484,7 +484,7 @@ class CommentsRepository:
         node = CommentThread.nodes.first_or_none(uid=uid)
         if node is not None:
             node.is_deleted = True
-            node.deleted_at = datetime.now()
+            node.deleted_at = get_current_utc_datetime()
             node.save()
 
     @sb_clear_cache(caches=["cache_store_item_by_uid"])
@@ -492,7 +492,7 @@ class CommentsRepository:
         node = CommentReply.nodes.first_or_none(uid=uid)
         if node is not None:
             node.is_deleted = True
-            node.deleted_at = datetime.now()
+            node.deleted_at = get_current_utc_datetime()
             node.save()
 
     def close(self) -> None:
