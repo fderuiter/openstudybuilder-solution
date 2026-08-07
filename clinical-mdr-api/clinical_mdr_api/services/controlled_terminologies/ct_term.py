@@ -94,7 +94,8 @@ class CTTermService:
         for codelist in term_input.codelists:
             ct_codelist_attributes_ar = (
                 self._repos.ct_codelist_attribute_repository.find_by_uid(
-                    codelist_uid=codelist.codelist_uid
+                    codelist_uid=codelist.codelist_uid,
+                    for_update=True
                 )
             )
             BusinessLogicException.raise_if(
