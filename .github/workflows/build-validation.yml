@@ -31,6 +31,21 @@ jobs:
           chmod +x ./clinical-mdr-api/pipelines/scripts/dependency_audit.py
           ./clinical-mdr-api/pipelines/scripts/dependency_audit.py
 
+      - name: Install clinical-mdr-api dependencies
+        run: |
+          cd clinical-mdr-api
+          pipenv --python 3.12
+          pipenv install --dev
+
+      - name: Verify Backend OpenAPI Schema Drift
+        run: |
+          cd clinical-mdr-api
+          cp openapi.json openapi.json.bak
+          cp apiVersion apiVersion.bak
+          NEO4J_DSN=bolt://localhost:7687 pipenv run python generate_openapi_json.py
+          diff -u openapi.json.bak openapi.json
+          diff -u apiVersion.bak apiVersion
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -43,6 +58,16 @@ jobs:
           cd studybuilder
           yarn install
           yarn lint
+
+      - name: Generate Frontend Types from OpenAPI spec
+        run: |
+          cd studybuilder
+          npx openapi-typescript ../clinical-mdr-api/openapi.json -o ./src/api/api.d.ts
+
+      - name: Verify Frontend JSDoc Type Contracts
+        run: |
+          cd studybuilder
+          npx tsc --noEmit -p jsconfig.json
 
   build:
     name: Build and Health Check

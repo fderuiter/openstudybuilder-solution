@@ -3,7 +3,7 @@
   "info": {
     "title": "OpenStudyBuilder API",
     "description": "\n## NOTICE\n\nThis license information is applicable to the swagger documentation of the clinical-mdr-api, that is the openapi.json.\n\n## License Terms (MIT)\n\nCopyright (C) 2025 Novo Nordisk A/S, Danish company registration no. 24256790\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n## Licenses and Acknowledgements for Incorporated Software\n\nThis component contains software licensed under different licenses when compiled, please refer to the third-party-licenses.md file for further information and full license texts.\n\n## Authentication\n\nSupports OAuth2 [Authorization Code Flow](https://datatracker.ietf.org/doc/html/rfc6749#section-4.1),\nat paths described in the OpenID Connect Discovery metadata document (whose URL is defined by the `OAUTH_METADATA_URL` environment variable).\n\nMicrosoft Identity Platform documentation can be read \n([here](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)).\n\nAuthentication can be turned off with `OAUTH_ENABLED=false` environment variable. \n\nWhen authentication is turned on, all requests to protected API endpoints must provide a valid bearer (JWT) token inside the `Authorization` http header. \n",
-    "version": "3.0.658"
+    "version": "3.0.659"
   },
   "paths": {
     "/": {
@@ -17506,6 +17506,20 @@
             "description": "Specifies which logical operation - `and` or `or` - should be used in case filtering is done on several fields.\n\nDefault: `and` (all fields have to match their filter).\n\nFunctionality: `and` will return entities having all filters matching, `or` will return entities with any matches.\n\n"
           },
           {
+            "name": "page_number",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000000000,
+              "minimum": 1,
+              "description": "\nPage number of the returned list of entities.\n\nFunctionality : provided together with `page_size`, selects a page to retrieve for paginated results.\n\nErrors: `page_size` not provided, `page_number` must be equal or greater than 1.\n",
+              "default": 1,
+              "title": "Page Number"
+            },
+            "description": "\nPage number of the returned list of entities.\n\nFunctionality : provided together with `page_size`, selects a page to retrieve for paginated results.\n\nErrors: `page_size` not provided, `page_number` must be equal or greater than 1.\n"
+          },
+          {
             "name": "page_size",
             "in": "query",
             "required": false,
@@ -17516,6 +17530,18 @@
               "title": "Page Size"
             },
             "description": "Optionally, the number of results to return. Default = 10."
+          },
+          {
+            "name": "total_count",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Boolean flag to include the total count of entities in the response.\n\nDefault: `false`\n\nFunctionality: When set to `true`, returns the total number of entities that match the query.\n\nWhen combined with filters, the count reflects only the entities matching those filters.\n\nNote: This operation can be expensive for large datasets.\n\nSpecial case: A value of `-1` indicates that the exact count is unavailable due to performance constraints, but confirms that at least one more entity exists beyond the current page.",
+              "default": false,
+              "title": "Total Count"
+            },
+            "description": "Boolean flag to include the total count of entities in the response.\n\nDefault: `false`\n\nFunctionality: When set to `true`, returns the total number of entities that match the query.\n\nWhen combined with filters, the count reflects only the entities matching those filters.\n\nNote: This operation can be expensive for large datasets.\n\nSpecial case: A value of `-1` indicates that the exact count is unavailable due to performance constraints, but confirms that at least one more entity exists beyond the current page."
           }
         ],
         "responses": {
@@ -17524,9 +17550,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {},
-                  "title": "Response Get Distinct Values For Header Footnote Templates Headers Get"
+                  "$ref": "#/components/schemas/CustomPage_Any_"
                 }
               }
             }
@@ -17965,6 +17989,46 @@
               "title": "Footnote Template Uid"
             },
             "description": "The unique id of the footnote template."
+          },
+          {
+            "name": "page_number",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000000000,
+              "minimum": 1,
+              "description": "\nPage number of the returned list of entities.\n\nFunctionality : provided together with `page_size`, selects a page to retrieve for paginated results.\n\nErrors: `page_size` not provided, `page_number` must be equal or greater than 1.\n",
+              "default": 1,
+              "title": "Page Number"
+            },
+            "description": "\nPage number of the returned list of entities.\n\nFunctionality : provided together with `page_size`, selects a page to retrieve for paginated results.\n\nErrors: `page_size` not provided, `page_number` must be equal or greater than 1.\n"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 0,
+              "description": "\nNumber of items to be returned per page.\n\nDefault: 10\n\nFunctionality: Provided together with `page_number`, selects the number of results per page.\n\nIn case the value is set to `0`, all rows will be returned.\n\nErrors: `page_number` not provided.\n",
+              "default": 10,
+              "title": "Page Size"
+            },
+            "description": "\nNumber of items to be returned per page.\n\nDefault: 10\n\nFunctionality: Provided together with `page_number`, selects the number of results per page.\n\nIn case the value is set to `0`, all rows will be returned.\n\nErrors: `page_number` not provided.\n"
+          },
+          {
+            "name": "total_count",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Boolean flag to include the total count of entities in the response.\n\nDefault: `false`\n\nFunctionality: When set to `true`, returns the total number of entities that match the query.\n\nWhen combined with filters, the count reflects only the entities matching those filters.\n\nNote: This operation can be expensive for large datasets.\n\nSpecial case: A value of `-1` indicates that the exact count is unavailable due to performance constraints, but confirms that at least one more entity exists beyond the current page.",
+              "default": false,
+              "title": "Total Count"
+            },
+            "description": "Boolean flag to include the total count of entities in the response.\n\nDefault: `false`\n\nFunctionality: When set to `true`, returns the total number of entities that match the query.\n\nWhen combined with filters, the count reflects only the entities matching those filters.\n\nNote: This operation can be expensive for large datasets.\n\nSpecial case: A value of `-1` indicates that the exact count is unavailable due to performance constraints, but confirms that at least one more entity exists beyond the current page."
           }
         ],
         "responses": {
@@ -17973,11 +18037,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/FootnoteTemplateVersion"
-                  },
-                  "title": "Response Get Footnote Template Versions Footnote Templates  Footnote Template Uid  Versions Get"
+                  "$ref": "#/components/schemas/CustomPage_FootnoteTemplateVersion_"
                 }
               },
               "text/csv": {
@@ -18214,6 +18274,46 @@
               "title": "Footnote Template Uid"
             },
             "description": "The unique id of the footnote template."
+          },
+          {
+            "name": "page_number",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000000000,
+              "minimum": 1,
+              "description": "\nPage number of the returned list of entities.\n\nFunctionality : provided together with `page_size`, selects a page to retrieve for paginated results.\n\nErrors: `page_size` not provided, `page_number` must be equal or greater than 1.\n",
+              "default": 1,
+              "title": "Page Number"
+            },
+            "description": "\nPage number of the returned list of entities.\n\nFunctionality : provided together with `page_size`, selects a page to retrieve for paginated results.\n\nErrors: `page_size` not provided, `page_number` must be equal or greater than 1.\n"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 0,
+              "description": "\nNumber of items to be returned per page.\n\nDefault: 10\n\nFunctionality: Provided together with `page_number`, selects the number of results per page.\n\nIn case the value is set to `0`, all rows will be returned.\n\nErrors: `page_number` not provided.\n",
+              "default": 10,
+              "title": "Page Size"
+            },
+            "description": "\nNumber of items to be returned per page.\n\nDefault: 10\n\nFunctionality: Provided together with `page_number`, selects the number of results per page.\n\nIn case the value is set to `0`, all rows will be returned.\n\nErrors: `page_number` not provided.\n"
+          },
+          {
+            "name": "total_count",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Boolean flag to include the total count of entities in the response.\n\nDefault: `false`\n\nFunctionality: When set to `true`, returns the total number of entities that match the query.\n\nWhen combined with filters, the count reflects only the entities matching those filters.\n\nNote: This operation can be expensive for large datasets.\n\nSpecial case: A value of `-1` indicates that the exact count is unavailable due to performance constraints, but confirms that at least one more entity exists beyond the current page.",
+              "default": false,
+              "title": "Total Count"
+            },
+            "description": "Boolean flag to include the total count of entities in the response.\n\nDefault: `false`\n\nFunctionality: When set to `true`, returns the total number of entities that match the query.\n\nWhen combined with filters, the count reflects only the entities matching those filters.\n\nNote: This operation can be expensive for large datasets.\n\nSpecial case: A value of `-1` indicates that the exact count is unavailable due to performance constraints, but confirms that at least one more entity exists beyond the current page."
           }
         ],
         "responses": {
@@ -18222,11 +18322,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/FootnoteTemplate"
-                  },
-                  "title": "Response Get Footnote Template Releases Footnote Templates  Footnote Template Uid  Releases Get"
+                  "$ref": "#/components/schemas/CustomPage_FootnoteTemplate_"
                 }
               }
             }
@@ -18630,6 +18726,46 @@
               "title": "Study Uid"
             },
             "description": "Optionally, the uid of the study to subset the parameters to (e.g. for StudyEndpoints parameters)"
+          },
+          {
+            "name": "page_number",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000000000,
+              "minimum": 1,
+              "description": "\nPage number of the returned list of entities.\n\nFunctionality : provided together with `page_size`, selects a page to retrieve for paginated results.\n\nErrors: `page_size` not provided, `page_number` must be equal or greater than 1.\n",
+              "default": 1,
+              "title": "Page Number"
+            },
+            "description": "\nPage number of the returned list of entities.\n\nFunctionality : provided together with `page_size`, selects a page to retrieve for paginated results.\n\nErrors: `page_size` not provided, `page_number` must be equal or greater than 1.\n"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 0,
+              "description": "\nNumber of items to be returned per page.\n\nDefault: 10\n\nFunctionality: Provided together with `page_number`, selects the number of results per page.\n\nIn case the value is set to `0`, all rows will be returned.\n\nErrors: `page_number` not provided.\n",
+              "default": 10,
+              "title": "Page Size"
+            },
+            "description": "\nNumber of items to be returned per page.\n\nDefault: 10\n\nFunctionality: Provided together with `page_number`, selects the number of results per page.\n\nIn case the value is set to `0`, all rows will be returned.\n\nErrors: `page_number` not provided.\n"
+          },
+          {
+            "name": "total_count",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Boolean flag to include the total count of entities in the response.\n\nDefault: `false`\n\nFunctionality: When set to `true`, returns the total number of entities that match the query.\n\nWhen combined with filters, the count reflects only the entities matching those filters.\n\nNote: This operation can be expensive for large datasets.\n\nSpecial case: A value of `-1` indicates that the exact count is unavailable due to performance constraints, but confirms that at least one more entity exists beyond the current page.",
+              "default": false,
+              "title": "Total Count"
+            },
+            "description": "Boolean flag to include the total count of entities in the response.\n\nDefault: `false`\n\nFunctionality: When set to `true`, returns the total number of entities that match the query.\n\nWhen combined with filters, the count reflects only the entities matching those filters.\n\nNote: This operation can be expensive for large datasets.\n\nSpecial case: A value of `-1` indicates that the exact count is unavailable due to performance constraints, but confirms that at least one more entity exists beyond the current page."
           }
         ],
         "responses": {
@@ -18638,11 +18774,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/TemplateParameter"
-                  },
-                  "title": "Response Get Parameters Footnote Templates  Footnote Template Uid  Parameters Get"
+                  "$ref": "#/components/schemas/CustomPage_TemplateParameter_"
                 }
               }
             }
@@ -42760,6 +42892,164 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ct/conflicts": {
+      "get": {
+        "tags": [
+          "CT Conflicts"
+        ],
+        "summary": "Returns all unresolved terminology inconsistencies.",
+        "operationId": "get_unresolved_conflicts_ct_conflicts_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ConflictItem"
+                  },
+                  "type": "array",
+                  "title": "Response Get Unresolved Conflicts Ct Conflicts Get"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ]
+      }
+    },
+    "/ct/conflicts/{conflict_id}": {
+      "get": {
+        "tags": [
+          "CT Conflicts"
+        ],
+        "summary": "Returns side-by-side details for a specific conflict.",
+        "operationId": "get_conflict_details_ct_conflicts__conflict_id__get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "conflict_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Conflict Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ct/conflicts/{conflict_id}/resolve": {
+      "post": {
+        "tags": [
+          "CT Conflicts"
+        ],
+        "summary": "Resolves a conflict by specifying the chosen value.",
+        "operationId": "resolve_conflict_ct_conflicts__conflict_id__resolve_post",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "conflict_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Conflict Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveInput",
+                "description": "The chosen value for resolution."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Resolve Conflict Ct Conflicts  Conflict Id  Resolve Post"
                 }
               }
             }
@@ -131645,6 +131935,118 @@
         ],
         "title": "CompoundSubstance"
       },
+      "ConflictDetails": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "parentLabel": {
+            "type": "string",
+            "title": "Parentlabel"
+          },
+          "property": {
+            "type": "string",
+            "title": "Property"
+          },
+          "inconsistency": {
+            "type": "string",
+            "title": "Inconsistency"
+          },
+          "conceptId": {
+            "type": "string",
+            "title": "Conceptid"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/ConflictSourceValue"
+            },
+            "type": "array",
+            "title": "Sources"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "parentLabel",
+          "property",
+          "inconsistency",
+          "conceptId",
+          "sources"
+        ],
+        "title": "ConflictDetails"
+      },
+      "ConflictItem": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "conceptId": {
+            "type": "string",
+            "title": "Conceptid"
+          },
+          "property": {
+            "type": "string",
+            "title": "Property"
+          },
+          "inconsistency": {
+            "type": "string",
+            "title": "Inconsistency"
+          },
+          "parentName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parentname"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "conceptId",
+          "property",
+          "inconsistency"
+        ],
+        "title": "ConflictItem"
+      },
+      "ConflictSourceValue": {
+        "properties": {
+          "rawId": {
+            "type": "integer",
+            "title": "Rawid"
+          },
+          "value": {
+            "title": "Value"
+          },
+          "packageName": {
+            "type": "string",
+            "title": "Packagename"
+          },
+          "packageVersion": {
+            "type": "string",
+            "title": "Packageversion"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rawId",
+          "value",
+          "packageName",
+          "packageVersion"
+        ],
+        "title": "ConflictSourceValue"
+      },
       "CountByType": {
         "properties": {
           "type": {
@@ -134442,6 +134844,38 @@
         ],
         "title": "CustomPage[Activity]"
       },
+      "CustomPage_Any_": {
+        "properties": {
+          "items": {
+            "items": {},
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": -1.0,
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Page"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "size"
+        ],
+        "title": "CustomPage[Any]"
+      },
       "CustomPage_CDISCCTList_": {
         "properties": {
           "items": {
@@ -135665,6 +136099,40 @@
           "size"
         ],
         "title": "CustomPage[FootnotePreInstance]"
+      },
+      "CustomPage_FootnoteTemplateVersion_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/FootnoteTemplateVersion"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": -1.0,
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Page"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "size"
+        ],
+        "title": "CustomPage[FootnoteTemplateVersion]"
       },
       "CustomPage_FootnoteTemplate_": {
         "properties": {
@@ -137535,6 +138003,40 @@
           "size"
         ],
         "title": "CustomPage[StudyVisitListing]"
+      },
+      "CustomPage_TemplateParameter_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TemplateParameter"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": -1.0,
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Page"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "size"
+        ],
+        "title": "CustomPage[TemplateParameter]"
       },
       "CustomPage_TextValue_": {
         "properties": {
@@ -154313,6 +154815,18 @@
           "eupn"
         ],
         "title": "Registry identifiers model for listing supplying SDTM generation framework"
+      },
+      "ResolveInput": {
+        "properties": {
+          "value": {
+            "title": "Value"
+          }
+        },
+        "type": "object",
+        "required": [
+          "value"
+        ],
+        "title": "ResolveInput"
       },
       "SimpleActiveSubstance": {
         "properties": {
