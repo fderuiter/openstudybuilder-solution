@@ -2,14 +2,29 @@
     "compilerOptions": {
         "baseUrl": ".",
         "paths": {
+            "@/main": ["./src/shims.d.ts"],
+            "@/plugins/auth": ["./src/shims.d.ts"],
+            "@/plugins/notificationHub": ["./src/shims.d.ts"],
+            "@/stores/studies-general": ["./src/shims.d.ts"],
+            "@/composables/errorHandler": ["./src/shims.d.ts"],
+            "@/constants/study": ["./src/shims.d.ts"],
             "@/*": [
                 "./src/*"
-            ],
+            ]
         },
-        "jsx": "preserve"
+        "jsx": "preserve",
+        "checkJs": true,
+        "skipLibCheck": true,
+        "module": "esnext",
+        "target": "esnext",
+        "moduleResolution": "node",
+        "lib": ["dom", "esnext"],
+        "maxNodeModuleJsDepth": 0,
+        "resolveJsonModule": true
     },
     "include": [
-        "./src/**/*"
+        "./src/api/**/*",
+        "./src/shims.d.ts"
     ],
     "exclude": [
         "node_modules",

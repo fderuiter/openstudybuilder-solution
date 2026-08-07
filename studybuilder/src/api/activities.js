@@ -14,6 +14,7 @@ export default {
   },
   getObjectOverview(source, uid, version, format) {
     const params = { version }
+    /** @type {any} */
     const headers = {}
     if (format === 'yaml') {
       headers.Accept = 'application/x-yaml'
@@ -207,6 +208,7 @@ export default {
 
   // New endpoints for Activity Instance overview page
   getActivityInstanceGroupings(activity_instance_uid, version, params = {}) {
+    /** @type {any} */
     const queryParams = {
       ...params,
     }
@@ -220,6 +222,7 @@ export default {
   },
 
   getActivityInstanceItems(activity_instance_uid, version, params = {}) {
+    /** @type {any} */
     const queryParams = {
       ...params,
     }
