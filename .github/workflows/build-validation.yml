@@ -82,14 +82,59 @@ jobs:
         run: |
           docker version
           docker compose version
-
           docker compose build
-          
-      - name: Validate docker containers
+
+      - name: Start application services
         run: |
           docker compose up -d
-          sleep 4m
-          docker container ls
-          if [ $(docker ps --filter "label=com.docker.compose.project" -f 'health=none' -f 'health=starting' -f 'health=unhealthy' -q | wc -l) -gt 0 ]; then export CONTAINERSTATUS=unhealthy; else export CONTAINERSTATUS=healthy; fi
+
+      - name: Wait for services to be healthy
+        run: |
+          echo "Waiting for all services to become healthy..."
+          timeout=300
+          elapsed=0
+          while [ $elapsed -lt $timeout ]; do
+            # Count unhealthy or starting containers
+            unhealthy_count=$(docker ps --filter "label=com.docker.compose.project" --filter "status=running" -q | xargs -r docker inspect --format='{{json .State.Health.Status}}' | grep -v '"healthy"' | wc -l)
+            running_count=$(docker ps --filter "label=com.docker.compose.project" --filter "status=running" -q | wc -l)
+            total_count=$(docker ps --filter "label=com.docker.compose.project" -a -q | wc -l)
+            
+            if [ "$unhealthy_count" -eq 0 ] && [ "$running_count" -eq "$total_count" ] && [ "$total_count" -gt 0 ]; then
+              echo "All services are healthy!"
+              break
+            fi
+            echo "Waiting for services... ($elapsed s elapsed, running: $running_count/$total_count, non-healthy: $unhealthy_count)"
+            sleep 10
+            elapsed=$((elapsed + 10))
+          done
+          
+          # Print status and exit if not healthy
+          if [ "$unhealthy_count" -ne 0 ] || [ "$running_count" -ne "$total_count" ]; then
+            echo "Error: Services did not become healthy in time."
+            docker ps -a
+            docker compose logs
+            exit 1
+          fi
+
+      - name: Build Cypress Container
+        run: |
+          cd system-tests/ui-tests
+          docker compose build cypress
+
+      - name: Run Accessibility Tests
+        run: |
+          cd system-tests/ui-tests
+          docker compose run --rm -e CYPRESS_BASE_URL=http://localhost:5005 -e CYPRESS_API=http://localhost:5005/api cypress yarn run cypress run --spec cypress/e2e/features/accessibility_audit.feature --headless
+
+      - name: Upload Cypress Screenshots and Videos
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: cypress-artifacts
+          path: |
+            system-tests/ui-tests/results/screenshots
+            system-tests/ui-tests/results/videos
+
+      - name: Shut down services
+        run: |
           docker compose down
-          if [ "$CONTAINERSTATUS" == "unhealthy" ]; then exit 1; else echo $CONTAINERSTATUS; fi
