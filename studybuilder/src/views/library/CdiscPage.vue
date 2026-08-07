@@ -63,50 +63,51 @@
               <span class="text-caption text-grey">No unresolved conflicts match your criteria.</span>
             </div>
 
-            <v-card
-              v-for="conflict in filteredConflicts"
-              v-else
-              :key="conflict.id"
-              :color="selectedConflict?.id === conflict.id ? 'primary-lighten-5' : 'white'"
-              :class="['mb-2 border', selectedConflict?.id === conflict.id ? 'border-primary border-opacity-100 elevation-1' : '']"
-              ripple
-              style="cursor: pointer"
-              @click="selectConflict(conflict)"
-            >
-              <div class="pa-3">
-                <div class="d-flex align-center justify-space-between mb-1">
-                  <span class="font-weight-bold text-subtitle-2 text-primary">
-                    {{ conflict.conceptId }}
-                  </span>
-                  <v-chip
-                    :color="conflict.type.startsWith('codelist') ? 'teal' : 'indigo'"
-                    size="x-small"
-                    class="text-uppercase"
-                    variant="flat"
-                  >
-                    {{ conflict.type.startsWith('codelist') ? 'Codelist' : 'Term' }}
-                  </v-chip>
-                </div>
+            <template v-else>
+              <v-card
+                v-for="conflict in filteredConflicts"
+                :key="conflict.id"
+                :color="selectedConflict?.id === conflict.id ? 'primary-lighten-5' : 'white'"
+                :class="['mb-2 border', selectedConflict?.id === conflict.id ? 'border-primary border-opacity-100 elevation-1' : '']"
+                ripple
+                style="cursor: pointer"
+                @click="selectConflict(conflict)"
+              >
+                <div class="pa-3">
+                  <div class="d-flex align-center justify-space-between mb-1">
+                    <span class="font-weight-bold text-subtitle-2 text-primary">
+                      {{ conflict.conceptId }}
+                    </span>
+                    <v-chip
+                      :color="conflict.type.startsWith('codelist') ? 'teal' : 'indigo'"
+                      size="x-small"
+                      class="text-uppercase"
+                      variant="flat"
+                    >
+                      {{ conflict.type.startsWith('codelist') ? 'Codelist' : 'Term' }}
+                    </v-chip>
+                  </div>
 
-                <div v-if="conflict.parentName" class="text-caption text-grey-darken-2 font-weight-bold mb-1">
-                  {{ conflict.parentName }}
-                </div>
+                  <div v-if="conflict.parentName" class="text-caption text-grey-darken-2 font-weight-bold mb-1">
+                    {{ conflict.parentName }}
+                  </div>
 
-                <div class="d-flex align-center text-caption mb-2">
-                  <v-icon size="14" class="mr-1" color="grey-darken-1">mdi-cube-outline</v-icon>
-                  <span class="text-grey-darken-3 font-weight-bold">Property:</span>
-                  <v-chip size="x-small" variant="outlined" color="primary" class="ml-1 font-weight-bold">
-                    {{ conflict.property }}
-                  </v-chip>
-                </div>
+                  <div class="d-flex align-center text-caption mb-2">
+                    <v-icon size="14" class="mr-1" color="grey-darken-1">mdi-cube-outline</v-icon>
+                    <span class="text-grey-darken-3 font-weight-bold">Property:</span>
+                    <v-chip size="x-small" variant="outlined" color="primary" class="ml-1 font-weight-bold">
+                      {{ conflict.property }}
+                    </v-chip>
+                  </div>
 
-                <v-divider class="my-1" />
+                  <v-divider class="my-1" />
 
-                <div class="text-caption text-error font-italic mt-1">
-                  {{ conflict.inconsistency }}
+                  <div class="text-caption text-error font-italic mt-1">
+                    {{ conflict.inconsistency }}
+                  </div>
                 </div>
-              </div>
-            </v-card>
+              </v-card>
+            </template>
           </v-list>
         </v-card>
       </v-col>
