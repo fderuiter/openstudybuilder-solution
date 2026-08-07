@@ -1,6 +1,8 @@
 ARG NEO4J_IMAGE=neo4j:enterprise
 ARG PYTHON_IMAGE=python:3.14-slim
 
+FROM $NEO4J_IMAGE AS neo4j-image-base
+
 # --- Build stage ----
 FROM $PYTHON_IMAGE AS build-stage
 
@@ -65,8 +67,7 @@ ENV NEO4J_MDR_BOLT_PORT=7687 \
     NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
 
 # Copy Neo4j installation from the official image to ensure identical versioning and zero-dependency build
-ARG NEO4J_IMAGE
-COPY --from=$NEO4J_IMAGE /var/lib/neo4j /neo4j
+COPY --from=neo4j-image-base /var/lib/neo4j /neo4j
 
 RUN cp /neo4j/labs/apoc-*-core.jar /neo4j/plugins/apoc.jar \
     && neo4j_conf=/neo4j/conf/neo4j.conf \
