@@ -48,6 +48,6 @@ USER nginx
 EXPOSE $NGINX_PORT
 
 HEALTHCHECK --start-period=10s --timeout=2s --interval=10s --retries=2 CMD \
-    wget -qO- -T 1 "http://localhost:$NGINX_PORT/" \
+    wget -qO- -T 1 "http://127.0.0.1:$NGINX_PORT/" \
     > /dev/null || exit 1
 LABEL version="2.4.8"

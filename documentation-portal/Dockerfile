@@ -41,5 +41,5 @@ EXPOSE $PORT
 ## unhealthy status is reached if `retries` number of consecutive failures,
 ## but failures does not count within `start-period` seconds of start.
 HEALTHCHECK --start-period=10s --timeout=2s --interval=10s --retries=2 CMD \
-    wget -qO- -T 1 "http://localhost:$PORT/" \
+    wget -qO- -T 1 "http://127.0.0.1:$PORT/" \
     > /dev/null || exit 1
