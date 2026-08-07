@@ -1,6 +1,6 @@
 # Set the build target (either "dev" or "prod") with a default of "dev"
 ARG TARGET=dev
-ARG PYTHON_IMAGE=python:3.14-slim
+ARG PYTHON_IMAGE=python:3.12-slim
 
 # Start with a slim default Python base image, creating a shared base stage
 FROM $PYTHON_IMAGE AS common-stage

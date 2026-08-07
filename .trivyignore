@@ -1,0 +1,5 @@
+# Trivy Security Exemptions
+# Add approved CVE IDs below, one per line, optionally with a comment.
+# Example:
+# CVE-2023-12345
+# CVE-2024-56789

@@ -84,6 +84,132 @@ jobs:
           docker compose version
 
           docker compose build
+
+      - name: Run Trivy scanner for Database image
+        uses: aquasecurity/trivy-action@v0.28.0
+        continue-on-error: true
+        with:
+          image-ref: 'app-database:latest'
+          format: 'sarif'
+          output: 'trivy-database.sarif'
+          exit-code: '0'
+          ignore-unfixed: true
+
+      - name: Upload Trivy database scan results
+        uses: github/code-scanning-upload-sarif@v2
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: 'trivy-database.sarif'
+          category: 'database'
+
+      - name: Run Trivy scanner for API image
+        uses: aquasecurity/trivy-action@v0.28.0
+        continue-on-error: true
+        with:
+          image-ref: 'app-api:latest'
+          format: 'sarif'
+          output: 'trivy-api.sarif'
+          exit-code: '0'
+          ignore-unfixed: true
+
+      - name: Upload Trivy api scan results
+        uses: github/code-scanning-upload-sarif@v2
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: 'trivy-api.sarif'
+          category: 'api'
+
+      - name: Run Trivy scanner for Consumer API image
+        uses: aquasecurity/trivy-action@v0.28.0
+        continue-on-error: true
+        with:
+          image-ref: 'app-consumerapi:latest'
+          format: 'sarif'
+          output: 'trivy-consumerapi.sarif'
+          exit-code: '0'
+          ignore-unfixed: true
+
+      - name: Upload Trivy consumerapi scan results
+        uses: github/code-scanning-upload-sarif@v2
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: 'trivy-consumerapi.sarif'
+          category: 'consumerapi'
+
+      - name: Run Trivy scanner for Extensions API image
+        uses: aquasecurity/trivy-action@v0.28.0
+        continue-on-error: true
+        with:
+          image-ref: 'app-extensionsapi:latest'
+          format: 'sarif'
+          output: 'trivy-extensionsapi.sarif'
+          exit-code: '0'
+          ignore-unfixed: true
+
+      - name: Upload Trivy extensionsapi scan results
+        uses: github/code-scanning-upload-sarif@v2
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: 'trivy-extensionsapi.sarif'
+          category: 'extensionsapi'
+
+      - name: Run Trivy scanner for Frontend image
+        uses: aquasecurity/trivy-action@v0.28.0
+        continue-on-error: true
+        with:
+          image-ref: 'app-frontend:latest'
+          format: 'sarif'
+          output: 'trivy-frontend.sarif'
+          exit-code: '0'
+          ignore-unfixed: true
+
+      - name: Upload Trivy frontend scan results
+        uses: github/code-scanning-upload-sarif@v2
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: 'trivy-frontend.sarif'
+          category: 'frontend'
+
+      - name: Run Trivy scanner for Documentation image
+        uses: aquasecurity/trivy-action@v0.28.0
+        continue-on-error: true
+        with:
+          image-ref: 'app-documentation:latest'
+          format: 'sarif'
+          output: 'trivy-documentation.sarif'
+          exit-code: '0'
+          ignore-unfixed: true
+
+      - name: Upload Trivy documentation scan results
+        uses: github/code-scanning-upload-sarif@v2
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: 'trivy-documentation.sarif'
+          category: 'documentation'
+
+      - name: Run Trivy scanner for Neodash image
+        uses: aquasecurity/trivy-action@v0.28.0
+        continue-on-error: true
+        with:
+          image-ref: 'app-neodash:latest'
+          format: 'sarif'
+          output: 'trivy-neodash.sarif'
+          exit-code: '0'
+          ignore-unfixed: true
+
+      - name: Upload Trivy neodash scan results
+        uses: github/code-scanning-upload-sarif@v2
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: 'trivy-neodash.sarif'
+          category: 'neodash'
           
       - name: Validate docker containers
         run: |

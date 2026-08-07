@@ -1,4 +1,4 @@
-ARG NGINX_IMAGE=nginx:alpine
+ARG NGINX_IMAGE=nginx:1.27-alpine
 
 FROM $NGINX_IMAGE
 

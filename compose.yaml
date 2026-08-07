@@ -6,8 +6,8 @@ services:
   database:
     build:
       args:
-        NEO4J_IMAGE: ${NEO4J_IMAGE:-neo4j:enterprise}
-        PYTHON_IMAGE: ${PYTHON_IMAGE:-python:3.14-slim}
+        NEO4J_IMAGE: ${NEO4J_IMAGE:-neo4j:5.22-enterprise}
+        PYTHON_IMAGE: ${PYTHON_IMAGE:-python:3.12-slim}
         NEO4J_server_memory_heap_initial__size: "3G"
         NEO4J_server_memory_heap_max__size: "3G"
         NEO4J_server_memory_pagecache_size: "2G"
@@ -115,8 +115,8 @@ services:
   frontend:
     build:
       args:
-        NGINX_IMAGE: ${NGINX_IMAGE:-nginx:alpine}
-        NODE_IMAGE: ${NODE_IMAGE:-node:lts-alpine}
+        NGINX_IMAGE: ${NGINX_IMAGE:-nginx:1.27-alpine}
+        NODE_IMAGE: ${NODE_IMAGE:-node:22-alpine}
       context: ./studybuilder
       dockerfile: Dockerfile
     image: ${FRONTEND_IMAGE:-}
@@ -148,8 +148,8 @@ services:
   documentation:
     build:
       args:
-        NGINX_IMAGE: ${NGINX_IMAGE:-nginx:alpine}
-        NODE_IMAGE: ${NODE_IMAGE:-node:lts-alpine}
+        NGINX_IMAGE: ${NGINX_IMAGE:-nginx:1.27-alpine}
+        NODE_IMAGE: ${NODE_IMAGE:-node:22-alpine}
       context: ./documentation-portal
       dockerfile: Dockerfile
     image: ${DOCUMENTATION_IMAGE:-}
@@ -161,8 +161,8 @@ services:
       context: ./osb-neodash
       dockerfile: Dockerfile
       args:
-        NODE_IMAGE: ${NODE_IMAGE:-node:lts-alpine}
-        NGINX_IMAGE: ${NGINX_IMAGE:-nginx:alpine}
+        NODE_IMAGE: ${NODE_IMAGE:-node:22-alpine}
+        NGINX_IMAGE: ${NGINX_IMAGE:-nginx:1.27-alpine}
     depends_on:
       database:
         condition: service_healthy
