@@ -169,10 +169,12 @@ RUN /neo4j/bin/neo4j-admin dbms set-initial-password "$NEO4J_MDR_AUTH_PASSWORD" 
 # Copy database directory from build-stage to the official neo4j docker image
 FROM $NEO4J_IMAGE AS production-stage
 
-# Copy CA certificates from build-stage to ensure SSL trust
-COPY --from=build-stage /etc/ssl/certs /etc/ssl/certs
-COPY --from=build-stage /etc/ca-certificates /etc/ca-certificates
-COPY --from=build-stage /usr/share/ca-certificates /usr/share/ca-certificates
+# Update CA certificates natively inside the neo4j base image
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates \
+    && update-ca-certificates --fresh \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 ARG UID=1000
 ARG USER=neo4j
