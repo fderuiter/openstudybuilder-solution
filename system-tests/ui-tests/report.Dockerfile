@@ -2,6 +2,8 @@ ARG NGINX_IMAGE=nginx:alpine
 
 FROM $NGINX_IMAGE
 
+RUN apk add --no-cache curl
+
 COPY ./results/allure-report /public_html
 COPY ./nginx/default.conf /etc/nginx/conf.d/
 COPY ./nginx/redirect.html /public_html/

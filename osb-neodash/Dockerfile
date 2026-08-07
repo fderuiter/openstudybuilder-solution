@@ -23,7 +23,7 @@ RUN yarn run build-minimal
 
 # production stage
 FROM $NGINX_IMAGE AS neodash
-RUN apk upgrade
+RUN apk upgrade && apk add --no-cache curl
 
 ENV NGINX_PORT=5005
 

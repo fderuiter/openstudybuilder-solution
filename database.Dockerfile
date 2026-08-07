@@ -172,6 +172,7 @@ FROM $NEO4J_IMAGE AS production-stage
 # Copy CA certificates from build-stage to ensure SSL trust
 COPY --from=build-stage /etc/ssl/certs /etc/ssl/certs
 COPY --from=build-stage /etc/ca-certificates /etc/ca-certificates
+COPY --from=build-stage /usr/share/ca-certificates /usr/share/ca-certificates
 
 ARG UID=1000
 ARG USER=neo4j

@@ -65,13 +65,13 @@
 
             <v-card
               v-for="conflict in filteredConflicts"
+              v-else
               :key="conflict.id"
               :color="selectedConflict?.id === conflict.id ? 'primary-lighten-5' : 'white'"
               :class="['mb-2 border', selectedConflict?.id === conflict.id ? 'border-primary border-opacity-100 elevation-1' : '']"
-              v-else
-              @click="selectConflict(conflict)"
               ripple
               style="cursor: pointer"
+              @click="selectConflict(conflict)"
             >
               <div class="pa-3">
                 <div class="d-flex align-center justify-space-between mb-1">
@@ -239,8 +239,8 @@
                         size="small"
                         density="compact"
                         class="w-100 font-weight-bold"
-                        @click="selectValue(source.value)"
                         prepend-icon="mdi-check"
+                        @click="selectValue(source.value)"
                       >
                         Choose This Value
                       </v-btn>
@@ -305,9 +305,9 @@
                 size="large"
                 class="w-100 font-weight-bold"
                 :loading="resolving"
-                @click="commitResolution"
                 prepend-icon="mdi-content-save"
                 elevation="2"
+                @click="commitResolution"
               >
                 Commit Resolution directly to Staging Database
               </v-btn>

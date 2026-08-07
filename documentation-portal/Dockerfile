@@ -26,6 +26,8 @@ RUN yarn docs:build
 ## Production stage
 FROM $NGINX_IMAGE as production-stage
 
+RUN apk add --no-cache curl
+
 COPY --from=build-stage /app/docs/.vuepress/dist /usr/share/nginx/html
 COPY --from=build-stage /app/build.json /usr/share/nginx/html
 COPY --from=build-stage /app/sbom.md /usr/share/nginx/html
