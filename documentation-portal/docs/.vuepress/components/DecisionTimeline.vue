@@ -17,7 +17,7 @@
             {{ log.frontmatter.description }}
           </p>
           <div class="timeline-meta" v-if="log.frontmatter.impact">
-            <strong>Impact Level:</strong> <span class="impact-badge" :class="log.frontmatter.impact.toLowerCase()">{{ log.frontmatter.impact }}</span>
+            <strong>Impact Level:</strong> <span class="impact-badge" :class="String(log.frontmatter.impact).toLowerCase()">{{ log.frontmatter.impact }}</span>
           </div>
         </div>
       </div>
@@ -45,16 +45,34 @@ export default {
           page.frontmatter.date;
         })
         .sort((a, b) => {
-          const dateA = String(a.frontmatter.date);
-          const dateB = String(b.frontmatter.date);
+          const dateA = this.getYYYYMMDD(a.frontmatter.date);
+          const dateB = this.getYYYYMMDD(b.frontmatter.date);
           return dateB.localeCompare(dateA);
         });
     }
   },
   methods: {
+    getYYYYMMDD(dateVal) {
+      if (!dateVal) return '';
+      if (dateVal instanceof Date || (typeof dateVal === 'object' && typeof dateVal.getTime === 'function')) {
+        const year = dateVal.getUTCFullYear();
+        const month = String(dateVal.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(dateVal.getUTCDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+      const s = String(dateVal).trim();
+      if (s.includes('T')) {
+        return s.split('T')[0];
+      }
+      const match = s.match(/^\d{4}-\d{2}-\d{2}/);
+      if (match) {
+        return match[0];
+      }
+      return s;
+    },
     formatDate(dateStr) {
-      if (!dateStr) return '';
-      const s = typeof dateStr === 'object' ? dateStr.toISOString().split('T')[0] : String(dateStr);
+      const s = this.getYYYYMMDD(dateStr);
+      if (!s) return '';
       const parts = s.split('-');
       if (parts.length < 3) return s;
       const year = parts[0];
@@ -73,7 +91,7 @@ export default {
     },
     statusClass(status) {
       if (!status) return 'draft';
-      status = status.toLowerCase();
+      status = String(status).toLowerCase();
       if (status === 'approved') return 'approved';
       if (status === 'proposed') return 'proposed';
       if (status === 'rejected') return 'rejected';
