@@ -64,12 +64,11 @@ ENV NEO4J_MDR_BOLT_PORT=7687 \
     CDISC_XLS_DIR=CDISC_xls \
     NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
 
-# Install Neo4j from tarball
-RUN export NEO4J_VERSION=$(curl --insecure "https://dist.neo4j.org/versions/v2/neo4j-versions.json" | jq -r '."dist-tags" .latest') \
-    && curl --insecure --fail --location --output neo4j.tar.gz --silent --show-error "$NEO4J_DOWNLOAD_URL-$NEO4J_VERSION-$NEO4J_DOWNLOAD_FILEEXTENSION" \
-    && tar --extract --gzip --file neo4j.tar.gz --strip-components=1 \
-    && rm neo4j.tar.gz \
-    && mv labs/apoc*core.jar plugins/ \
+# Copy Neo4j installation from the official image to ensure identical versioning and zero-dependency build
+ARG NEO4J_IMAGE
+COPY --from=$NEO4J_IMAGE /var/lib/neo4j /neo4j
+
+RUN cp /neo4j/labs/apoc-*-core.jar /neo4j/plugins/apoc.jar \
     && neo4j_conf=/neo4j/conf/neo4j.conf \
     && echo "server.memory.heap.initial_size=$NEO4J_server_memory_heap_initial__size" >> $neo4j_conf \
     && echo "server.memory.heap.max_size=$NEO4J_server_memory_heap_max__size" >> $neo4j_conf \
