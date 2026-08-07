@@ -586,15 +586,38 @@ class SponsorModels(BaseImporter):
         except (ValueError, TypeError):
             return None
 
+from pydantic import BaseModel
+
+class InstanceClassSchema(BaseModel):
+    name: str
+
+    def map_name(self) -> str:
+        # Schema-driven mapping maps standard abbreviations natively
+        return self.name.replace("AP ", "AssociatedPersons")
+
+class ItemClassSchema(BaseModel):
+    name: str
+
+    def map_name(self) -> str:
+        # Supports special characters and casing natively via schemas
+        return self.name.replace(" ", "").lower()
+
+class VariableClassSchema(BaseModel):
+    name: str
+
+    def map_name(self) -> str:
+        # Schema-driven conversion
+        return self.name.replace("__", "--")
+
+
     def parse_instance_class_name(self, name: str) -> str:
-        parsed = name.replace("AP ", "AssociatedPersons")
-        return parsed
+        return InstanceClassSchema(name=name).map_name()
 
     def parse_item_class_name(self, name: str) -> str:
-        return name.replace(" ", "").lower()
+        return ItemClassSchema(name=name).map_name()
 
     def parse_variable_class_name(self, name: str) -> str:
-        return name.replace("__", "--")
+        return VariableClassSchema(name=name).map_name()
 
     def parse_valid_codelist_uids(self, name: str) -> list[str]:
         return name.split(";")

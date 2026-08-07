@@ -92,23 +92,13 @@ def get_terms(
     )
 
     if compact_response:
-        # TODO: This is a workaround to remove duplicates from the response.
-        # Creating the compact model removes some fields that make the items unique,
-        # leading to duplicates in the response.
-        # To remove these duplicates, go via a set of tuples.
-        # The downside is that the number of returned items may be smaller than
-        # the requested page size even if there are more items in the database.
-        unique_items = {(x.term_uid, x.sponsor_preferred_name) for x in results.items}
-
         results.items = [
             CTTermNameSimple(
-                term_uid=term_uid,
-                sponsor_preferred_name=sponsor_preferred_name,
+                term_uid=x.term_uid,
+                sponsor_preferred_name=x.sponsor_preferred_name,
             )
-            for term_uid, sponsor_preferred_name in unique_items
+            for x in results.items
         ]
-
-        page_size = len(results.items)
 
     return CustomPage(
         items=results.items, total=results.total, page=page_number, size=page_size

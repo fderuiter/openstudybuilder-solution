@@ -616,6 +616,54 @@ class CTCodelistService:
             paired_names_codelist_uid=paired_names_codelist_uid,
         )
 
+    def get_by_uid(self, codelist_uid: str) -> CTCodelist:
+        ct_codelist_attributes_ar = (
+            self._repos.ct_codelist_attribute_repository.find_by_uid(
+                codelist_uid=codelist_uid
+            )
+        )
+        ct_codelist_name_ar = self._repos.ct_codelist_name_repository.find_by_uid(
+            codelist_uid=codelist_uid
+        )
+        paired_codes_codelist_uid, paired_names_codelist_uid = (
+            self._repos.ct_codelist_aggregated_repository.get_paired_codelist_uids(
+                codelist_uid=codelist_uid
+            )
+        )
+        if ct_codelist_attributes_ar is None or ct_codelist_name_ar is None:
+            raise BusinessLogicException(
+                msg=f"Codelist with UID '{codelist_uid}' doesn't exist."
+            )
+        return CTCodelist.from_ct_codelist_ar(
+            ct_codelist_name_ar,
+            ct_codelist_attributes_ar,
+            paired_codes_codelist_uid=paired_codes_codelist_uid,
+            paired_names_codelist_uid=paired_names_codelist_uid,
+        )
+
+    @ensure_transaction(db)
+    def add_terms_bulk(
+        self,
+        codelist_uid: str,
+        terms_input: list[Any],
+    ) -> CTCodelist:
+        """
+        Adds multiple terms to a codelist in a single atomic database transaction.
+        If a single addition fails or validation fails, the entire transaction rolls back.
+        """
+        codelist = None
+        for term in terms_input:
+            codelist = self.add_term(
+                codelist_uid=codelist_uid,
+                term_uid=term.term_uid,
+                order=term.order,
+                submission_value=term.submission_value,
+                ordinal=term.ordinal,
+            )
+        if codelist is None:
+            codelist = self.get_by_uid(codelist_uid=codelist_uid)
+        return codelist
+
     @db.transaction
     def remove_term(self, codelist_uid: str, term_uid: str) -> CTCodelist:
         ct_codelist_attributes_ar = (

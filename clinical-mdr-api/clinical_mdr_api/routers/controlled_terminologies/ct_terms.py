@@ -63,6 +63,35 @@ def create(
     return ct_term_service.create(term_input)
 
 
+@router.post(
+    "/terms/bulk",
+    dependencies=[security, rbac.LIBRARY_WRITE],
+    summary="Creates new ct terms in bulk.",
+    description="""Bulk create terms inside a single transaction. If a single term fails validation, the entire transaction rolls back.
+""",
+    status_code=201,
+    responses={
+        403: _generic_descriptions.ERROR_403,
+        201: {"description": "Created - The terms were successfully created."},
+        400: {
+            "model": ErrorResponse,
+            "description": "Forbidden - Reasons include e.g.: \n"
+            "- The catalogue doesn't exist.\n"
+            "- The library doesn't exist..\n"
+            "- The library doesn't allow to add new items.\n",
+        },
+    },
+)
+def create_bulk(
+    terms_input: Annotated[
+        list[CTTermCreateInput],
+        Body(description="List of properties to create CTTermAttributes and CTTermName."),
+    ],
+) -> list[CTTerm]:
+    ct_term_service = CTTermService()
+    return ct_term_service.create_bulk(terms_input)
+
+
 @router.get(
     "/terms",
     dependencies=[security, rbac.LIBRARY_READ],
