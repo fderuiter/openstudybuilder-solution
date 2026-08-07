@@ -155,6 +155,7 @@ class Settings(BaseSettings):
     # Third-party Integrations
     ms_graph_integration_enabled: bool = False
     ms_graph_groups_query: str = "``"
+    nci_evs_api_url: str = "https://api-evsrest.nci.nih.gov/api/v1/concept/search"
 
     # gzip API responses (Content-Encoding: gzip)
     gzip_response_min_size: int = Field(
