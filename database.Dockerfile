@@ -185,10 +185,8 @@ RUN [ "x$UID" = "x1000" ] || { \
     && groupmod --gid "$UID" "neo4j" \
     ;}
 
-# Install APOC plugin
-RUN export NEO4J_VERSION=$(wget --no-check-certificate "https://dist.neo4j.org/versions/v2/neo4j-versions.json"  -qO - | jq -r '."dist-tags" .latest') \
-    && wget --no-check-certificate --quiet --timeout 60 --tries 2 --output-document /var/lib/neo4j/plugins/apoc.jar \
-    https://github.com/neo4j/apoc/releases/download/$NEO4J_VERSION/apoc-$NEO4J_VERSION-core.jar
+# Copy APOC and other plugins from build-stage to ensure identical and secure offline plugin availability
+COPY --from=build-stage --chown=$USER:$GROUP /neo4j/plugins/ /var/lib/neo4j/plugins/
 
 # Copy database backup from build stage
 COPY --from=build-stage --chown=$USER:$GROUP /neo4j/data/backup /data/backup
