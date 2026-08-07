@@ -54,6 +54,7 @@ export default {
   methods: {
     getYYYYMMDD(dateVal) {
       if (!dateVal) return '';
+      // Ensure we extract UTC components when given a Date object, to avoid timezone/hydration offset mismatches
       if (dateVal instanceof Date || (typeof dateVal === 'object' && typeof dateVal.getTime === 'function')) {
         const year = dateVal.getUTCFullYear();
         const month = String(dateVal.getUTCMonth() + 1).padStart(2, '0');
