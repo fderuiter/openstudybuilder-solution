@@ -3,7 +3,7 @@ from typing import Any
 
 import neo4j.time
 
-from common.utils import convert_to_datetime
+from common.utils import convert_to_datetime, normalize_to_utc
 
 
 def convert_to_tz_aware_datetime(value: datetime.datetime):
@@ -16,7 +16,7 @@ def convert_to_tz_aware_datetime(value: datetime.datetime):
     Returns:
         datetime.datetime: The timezone-aware datetime object with UTC timezone.
     """
-    return value.astimezone(tz=datetime.timezone.utc)
+    return normalize_to_utc(value)
 
 
 def format_generic_header_values(values: list[Any]):

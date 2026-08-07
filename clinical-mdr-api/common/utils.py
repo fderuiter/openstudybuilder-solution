@@ -2,7 +2,7 @@ import logging
 import os
 import re
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from types import GenericAlias, NoneType, UnionType
 from typing import Any, Callable, Generic, TypeVar, get_args, get_origin, overload
@@ -331,6 +331,23 @@ def booltostr(value: bool | str | int | None, true_format: str = "Yes") -> str:
     raise ValueError(f"Invalid true format {true_format}")
 
 
+def get_current_utc_datetime() -> datetime:
+    """
+    Returns the current UTC-aware datetime.
+    """
+    return datetime.now(timezone.utc)
+
+
+def normalize_to_utc(value: datetime) -> datetime:
+    """
+    Normalizes a timezone-naive or timezone-aware datetime to UTC
+    preserving the absolute temporal instant (treating naive as local time).
+    """
+    if value.tzinfo is None:
+        return value.astimezone(timezone.utc)
+    return value.astimezone(timezone.utc)
+
+
 @overload
 def convert_to_datetime(value: neo4j.time.DateTime) -> datetime: ...
 @overload
@@ -342,6 +359,7 @@ def convert_to_datetime(
 ) -> datetime | None:
     """
     Converts a neo4j.time.DateTime object from the database to a Python datetime object.
+    Also ensures all returned datetimes are standardized, timezone-aware UTC representations.
 
     Args:
         value (neo4j.time.DateTime | datetime | None): The object to convert or None.
@@ -352,10 +370,10 @@ def convert_to_datetime(
     if value is None:
         return None
     if isinstance(value, datetime):
-        return value
+        return normalize_to_utc(value)
     if not isinstance(value, neo4j.time.DateTime):
         raise TypeError(f"Expected neo4j.time.DateTime, got {type(value)}")
-    return value.to_native()
+    return normalize_to_utc(value.to_native())
 
 
 def validate_page_number_and_page_size(page_number: int, page_size: int):

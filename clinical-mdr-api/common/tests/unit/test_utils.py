@@ -8,6 +8,9 @@ from common.utils import (
     load_env,
     strtobool,
     validate_page_number_and_page_size,
+    convert_to_datetime,
+    normalize_to_utc,
+    get_current_utc_datetime,
 )
 
 
@@ -186,3 +189,47 @@ def test_insert_space_after_commas(text, n, expected):
     assert (
         result == expected
     ), f"For text='{text}' and n={n}, expected '{expected}' but got '{result}'"
+
+
+def test_get_current_utc_datetime():
+    from datetime import timezone
+    dt = get_current_utc_datetime()
+    assert dt.tzinfo == timezone.utc
+
+
+def test_normalize_to_utc_naive():
+    from datetime import datetime, timezone
+    # local or naive datetime
+    naive = datetime(2026, 8, 7, 12, 0, 0)
+    aware = normalize_to_utc(naive)
+    assert aware.tzinfo == timezone.utc
+    # verify absolute temporal instant is preserved (astimezone)
+    expected = naive.astimezone(timezone.utc)
+    assert aware == expected
+
+
+def test_normalize_to_utc_aware():
+    from datetime import datetime, timezone, timedelta
+    tz = timezone(timedelta(hours=2))
+    aware_custom = datetime(2026, 8, 7, 12, 0, 0, tzinfo=tz)
+    aware_utc = normalize_to_utc(aware_custom)
+    assert aware_utc.tzinfo == timezone.utc
+    assert aware_utc == aware_custom.astimezone(timezone.utc)
+
+
+def test_convert_to_datetime_none():
+    assert convert_to_datetime(None) is None
+
+
+def test_convert_to_datetime_naive():
+    from datetime import datetime, timezone
+    naive = datetime(2026, 8, 7, 12, 0, 0)
+    aware = convert_to_datetime(naive)
+    assert aware.tzinfo == timezone.utc
+    assert aware == naive.astimezone(timezone.utc)
+
+
+def test_convert_to_datetime_invalid():
+    with pytest.raises(TypeError):
+        convert_to_datetime("not a datetime")
+

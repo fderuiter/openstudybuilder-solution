@@ -1,4 +1,5 @@
 from datetime import datetime
+from common.utils import get_current_utc_datetime
 from typing import Any, TypeVar
 
 from neomodel import db
@@ -80,7 +81,7 @@ class CTTermService:
         """
 
         if not start_date:
-            start_date = datetime.now()
+            start_date = get_current_utc_datetime()
 
         BusinessLogicException.raise_if(
             term_input.library_name is not None

@@ -18,7 +18,7 @@ class DataModelImport:
     def __init__(
         self, library: str, catalogue: str, version_number: str, author_id: str
     ):
-        self.import_date_time: str = datetime.datetime.now().astimezone().isoformat()
+        self.import_date_time: str = datetime.datetime.now(datetime.timezone.utc).isoformat()
         self.library: str = library
         self.catalogue: str = catalogue
         self.version_number: str = version_number

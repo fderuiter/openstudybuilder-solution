@@ -1,6 +1,7 @@
 # pylint: disable=invalid-name
 import json
 from datetime import datetime
+from common.utils import get_current_utc_datetime
 
 from cachetools import TTLCache, cached
 from neomodel import db
@@ -75,7 +76,7 @@ class UserRepository:
                 azp=None,
                 oid=user_id,
                 roles=[],
-                created=datetime.now(),
+                created=get_current_utc_datetime(),
                 updated=None,
             )
         return self._transform_to_model(rs[0][0][0])
@@ -87,7 +88,7 @@ class UserRepository:
             SET n.username = COALESCE($username, n.username),
                 n.email = COALESCE($email, n.email),
                 n.name = COALESCE($name, n.name),
-                n.updated = datetime()
+                n.updated = datetime($updated_at)
             RETURN n
             """,
             params={
@@ -95,6 +96,7 @@ class UserRepository:
                 "username": payload.username,
                 "email": payload.email,
                 "name": payload.name,
+                "updated_at": get_current_utc_datetime().isoformat(),
             },
             resolve_objects=True,
         )
