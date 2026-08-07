@@ -9,7 +9,8 @@ ARG NEO4J_DOWNLOAD_FILEEXTENSION=unix.tar.gz
 
 ## Install required system packages, for clinical-mdr-api as well
 RUN apt-get update \
-    && apt-get -y install \
+    && apt-get -y install --no-install-recommends \
+    ca-certificates \
     ca-certificates-java \
     gpg \
     git \
@@ -31,8 +32,8 @@ RUN apt-get update \
     && pip install --upgrade pip pipenv wheel \
     && wget --no-check-certificate -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null \
     && echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list \
-    && apt-get update \
-    && apt-get -y install temurin-25-jdk \
+    && apt-get update -o Acquire::https::Verify-Peer=false -o Acquire::https::Verify-Host=false \
+    && apt-get -y install -o Acquire::https::Verify-Peer=false -o Acquire::https::Verify-Host=false --no-install-recommends temurin-25-jdk \
     && apt-get clean && rm -rf /var/lib/apt/lists && rm -rf ~/.cache
 
 WORKDIR /neo4j
@@ -167,6 +168,10 @@ RUN /neo4j/bin/neo4j-admin dbms set-initial-password "$NEO4J_MDR_AUTH_PASSWORD" 
 # --- Prod stage ----
 # Copy database directory from build-stage to the official neo4j docker image
 FROM $NEO4J_IMAGE AS production-stage
+
+# Copy CA certificates from build-stage to ensure SSL trust
+COPY --from=build-stage /etc/ssl/certs /etc/ssl/certs
+COPY --from=build-stage /etc/ca-certificates /etc/ca-certificates
 
 ARG UID=1000
 ARG USER=neo4j
