@@ -172,8 +172,8 @@ FROM $NEO4J_IMAGE AS production-stage
 USER root
 
 # Update CA certificates natively inside the neo4j base image
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates \
+RUN apt-get update -o Acquire::https::Verify-Peer=false -o Acquire::https::Verify-Host=false \
+    && apt-get install -y -o Acquire::https::Verify-Peer=false -o Acquire::https::Verify-Host=false --no-install-recommends ca-certificates \
     && update-ca-certificates --fresh \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -182,21 +182,23 @@ ARG UID=1000
 ARG USER=neo4j
 ARG GROUP=neo4j
 
-# Match id of neo4j user with the current user on the host for correct premissions of db dumps mounted folder
+# Match id of neo4j user with the current user on the host for correct permissions of db dumps mounted folder
 ARG UID=1000
 RUN [ "x$UID" = "x1000" ] || { \
     echo "Changing uid & gid of neo4j user to $UID" \
     && usermod --uid "$UID" "neo4j" \
     && groupmod --gid "$UID" "neo4j" \
+    && chown -R neo4j:neo4j /var/lib/neo4j /data /logs 2>/dev/null || true \
     ;}
 
-USER $USER
-
-# Install APOC plugin
-RUN cp /var/lib/neo4j/labs/apoc-*-core.jar /var/lib/neo4j/plugins/apoc.jar
+# Install APOC plugin as root to avoid any permission denied errors on plugins directory
+RUN cp /var/lib/neo4j/labs/apoc-*-core.jar /var/lib/neo4j/plugins/apoc.jar \
+    && chown -R $USER:$GROUP /var/lib/neo4j/plugins
 
 # Copy database backup from build stage
 COPY --from=build-stage --chown=$USER:$GROUP /neo4j/data/backup /data/backup
+
+USER $USER
 
 # Set up default environment variables
 ENV NEO4J_AUTH=neo4j/changeme1234 \
