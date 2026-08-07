@@ -1,3 +1,4 @@
+import json
 import logging
 import logging.config
 
@@ -80,6 +81,50 @@ def default_logging_config():
 log = logging.getLogger(__name__)
 
 
+SENSITIVE_HEADERS = {
+    "authorization",
+    "proxy-authorization",
+    "cookie",
+    "set-cookie",
+    "x-api-key",
+    "api-key",
+    "x-csrf-token",
+    "csrf-token",
+    "token",
+    "x-auth-token",
+    "private-token",
+}
+
+SENSITIVE_KEYS = {
+    "password",
+    "secret",
+    "token",
+    "key",
+    "client_secret",
+    "apikey",
+    "access_token",
+    "refresh_token",
+    "credentials",
+    "passphrase",
+}
+
+
+def redact_json_data(data, sensitive_keys):
+    if isinstance(data, dict):
+        return {
+            k: (
+                "[REDACTED]"
+                if (isinstance(k, str) and k.lower() in sensitive_keys)
+                else redact_json_data(v, sensitive_keys)
+            )
+            for k, v in data.items()
+        }
+    elif isinstance(data, list):
+        return [redact_json_data(item, sensitive_keys) for item in data]
+    else:
+        return data
+
+
 async def log_exception(request: Request, exception: MDRApiBaseException | Exception):
     if isinstance(exception, MDRApiBaseException):
         log.error(
@@ -105,9 +150,21 @@ async def log_exception(request: Request, exception: MDRApiBaseException | Excep
     if not request._stream_consumed and settings.app_debug:
         curl_cmd = f"curl -X {request.method} '{request.url}'"
         for header, value in request.headers.items():
-            curl_cmd += f" -H '{header}: {value}'"
+            if header.lower() in SENSITIVE_HEADERS:
+                curl_cmd += f" -H '{header}: [REDACTED]'"
+            else:
+                curl_cmd += f" -H '{header}: {value}'"
 
         if body := await request.body():
-            curl_cmd += f" -d '{body.decode('utf-8')}'"
+            try:
+                body_str = body.decode("utf-8")
+                json_data = json.loads(body_str)
+                sanitized_data = redact_json_data(json_data, SENSITIVE_KEYS)
+                sanitized_body_str = json.dumps(sanitized_data)
+                curl_cmd += f" -d '{sanitized_body_str}'"
+            except (UnicodeDecodeError, json.JSONDecodeError):
+                curl_cmd += " -d '[REDACTED BINARY/MALFORMED BODY]'"
+            except Exception:
+                curl_cmd += " -d '[REDACTED BINARY/MALFORMED BODY]'"
 
         log.debug("Reproduce with: %s", curl_cmd)
