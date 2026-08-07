@@ -379,6 +379,37 @@
           />
         </div>
         <div class="d-flex">
+          <v-autocomplete
+            v-model:search="nciSearchQuery"
+            :items="nciConcepts"
+            item-title="displayName"
+            item-value="code"
+            :label="$t('ActivityForms.nci_lookup_search') || 'NCI Concept Lookup (Search)'"
+            placeholder="Type 3+ characters to search NCI..."
+            :loading="loadingNci"
+            clearable
+            no-filter
+            return-object
+            class="mr-4 w-100"
+            data-cy="instanceform-nci-lookup"
+            @update:model-value="onNciConceptSelected"
+          >
+            <template #no-data>
+              <v-list-item v-if="nciError">
+                <v-list-item-title class="text-error">
+                  API connection failure. Please try again or fill manually.
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item v-else-if="nciSearchQuery && nciSearchQuery.length >= 3 && !loadingNci">
+                <v-list-item-title>No results found</v-list-item-title>
+              </v-list-item>
+              <v-list-item v-else>
+                <v-list-item-title>Type at least 3 characters...</v-list-item-title>
+              </v-list-item>
+            </template>
+          </v-autocomplete>
+        </div>
+        <div class="d-flex">
           <v-text-field
             v-model="step3Form.nci_concept_name"
             :label="$t('ActivityInstancePreview.nci_preferred_name')"
@@ -617,6 +648,47 @@ const step3Form = ref({})
 const step4Form = ref({})
 const selectedActivity = ref([])
 const stepper = ref()
+
+import repository from '@/api/repository'
+
+const nciSearchQuery = ref('')
+const nciConcepts = ref([])
+const loadingNci = ref(false)
+const nciError = ref(false)
+
+watch(nciSearchQuery, async (newVal) => {
+  if (!newVal || newVal.trim().length < 3) {
+    nciConcepts.value = []
+    return
+  }
+  loadingNci.value = true
+  nciError.value = false
+  try {
+    const response = await repository.get('integrations/nci/nci-lookup', {
+      params: { q: newVal }
+    })
+    nciConcepts.value = (response.data || []).map(item => ({
+      ...item,
+      displayName: `[${item.code}] ${item.name}`
+    }))
+  } catch (err) {
+    console.error('NCI lookup failed:', err)
+    nciError.value = true
+    nciConcepts.value = []
+  } finally {
+    loadingNci.value = false
+  }
+})
+
+function onNciConceptSelected(concept) {
+  if (concept) {
+    step3Form.value.nci_concept_id = concept.code
+    step3Form.value.nci_concept_name = concept.name
+  } else {
+    step3Form.value.nci_concept_id = ''
+    step3Form.value.nci_concept_name = ''
+  }
+}
 const totalActivities = ref(0)
 const testValue = ref(null)
 const testCodeCodelistValue = ref(null)
