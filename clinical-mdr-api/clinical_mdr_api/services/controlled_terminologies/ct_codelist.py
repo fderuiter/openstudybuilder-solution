@@ -504,7 +504,8 @@ class CTCodelistService:
     ) -> CTCodelist:
         ct_codelist_attributes_ar = (
             self._repos.ct_codelist_attribute_repository.find_by_uid(
-                codelist_uid=codelist_uid
+                codelist_uid=codelist_uid,
+                for_update=True
             )
         )
 
@@ -619,7 +620,8 @@ class CTCodelistService:
     def remove_term(self, codelist_uid: str, term_uid: str) -> CTCodelist:
         ct_codelist_attributes_ar = (
             self._repos.ct_codelist_attribute_repository.find_by_uid(
-                codelist_uid=codelist_uid
+                codelist_uid=codelist_uid,
+                for_update=True
             )
         )
         if ct_codelist_attributes_ar is not None:

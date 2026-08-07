@@ -463,6 +463,8 @@ class CTCodelistGenericRepository(
             msg=f"Codelist with UID '{codelist_uid}' doesn't exist.",
         )
 
+        self._lock_object2(codelist_uid)
+
         ct_term_node = CTTermRoot.nodes.get_or_none(uid=term_uid)
         exceptions.ValidationException.raise_if(
             ct_term_node is None, msg=f"Term with UID '{term_uid}' doesn't exist."
