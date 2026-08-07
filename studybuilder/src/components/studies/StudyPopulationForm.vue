@@ -129,9 +129,9 @@
           </v-col>
         </v-row>
         <div class="mt-10">
-          <label class="v-label">
+          <span class="v-label font-weight-bold">
             {{ $t('StudyPopulationForm.planned_min_max_age') }}
-          </label>
+          </span>
         </div>
         <NotApplicableField
           :na-label="$t('StudyPopulationForm.pinf')"

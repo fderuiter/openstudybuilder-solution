@@ -117,9 +117,9 @@
         </NotApplicableField>
         <v-row>
           <v-col cols="10">
-            <label class="v-label">{{
+            <span class="v-label font-weight-bold d-block mb-1">{{
               $t('StudyInterventionTypeForm.planned_st_length')
-            }}</label>
+            }}</span>
             <DurationField
               v-model="form.planned_study_length"
               data-cy="planned-study-length"

@@ -106,9 +106,9 @@
           </v-col>
         </v-row>
         <div v-if="studyEpoch">
-          <label class="v-label required">{{
+          <span class="v-label required font-weight-bold d-block mb-1">{{
             $t('_global.change_description')
-          }}</label>
+          }}</span>
           <v-textarea
             v-model="form.change_description"
             :rules="[formRules.required]"
@@ -118,7 +118,7 @@
           />
         </div>
         <div class="mt-4">
-          <label class="v-label">{{ $t('StudyEpochForm.color') }}</label>
+          <span class="v-label font-weight-bold d-block mb-1">{{ $t('StudyEpochForm.color') }}</span>
           <v-color-picker
             v-model="colorHash"
             data-cy="epoch-color-picker"

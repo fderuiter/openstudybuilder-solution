@@ -12,9 +12,9 @@
           <v-expansion-panel-text>
             <div v-if="!loading && studyVisits.length > 0" :key="chartsKey">
               <v-row>
-                <label class="v-label theme--light mr-4 mt-2 mb-2">
+                <span class="v-label theme--light mr-4 mt-2 mb-2 font-weight-bold">
                   {{ $t('StudyVisitTable.time_unit') }}
-                </label>
+                </span>
                 <v-radio-group
                   v-model="preferredTimeUnit"
                   inline

@@ -24,7 +24,7 @@
             />
           </v-col>
           <v-col cols="4">
-            <label>{{ $t('OdmViewer.stylesheet') }}</label>
+            <span class="v-label font-weight-bold d-block mb-1">{{ $t('OdmViewer.stylesheet') }}</span>
             <v-radio-group v-model="exportParams.selectedStylesheet">
               <v-radio
                 :label="$t('OdmViewer.crf_with_annotations')"

@@ -114,7 +114,8 @@
       {{ $filters.yesno(item.activity.is_data_collected) }}
     </template>
     <template #[`item.state`]="{ item }">
-      <div
+      <v-sheet
+        color="transparent"
         :class="getInstanceCssClass(item)"
         @click="
           [instancesActions.REVIEW_NEEDED, instancesActions.ADD].indexOf(
@@ -125,7 +126,7 @@
         "
       >
         {{ item.state }}
-      </div>
+      </v-sheet>
     </template>
     <template #[`item.is_reviewed`]="{ item }">
       <v-checkbox

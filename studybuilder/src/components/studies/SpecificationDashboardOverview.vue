@@ -151,7 +151,7 @@
               <div class="greyBackground ma-0 pa-1">
                 <div>
                   <span>
-                    (<a @click="navigateTo({ name: 'StudyTitle' })">{{
+                    (<a href="#" @click.prevent="navigateTo({ name: 'StudyTitle' })">{{
                       $t('SpecificationDashboard.link')
                     }}</a
                     >)
@@ -206,7 +206,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="navigateTo({ name: 'StudyRegistryIdentifiers' })"
+href="#"
+                      @click.prevent="navigateTo({ name: 'StudyRegistryIdentifiers' })"
                       >{{ $t('SpecificationDashboard.link') }}</a
                     >)
                   </span>
@@ -258,7 +259,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudyDesign',
                           params: { tab: 'type' },
@@ -290,7 +292,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudyDesign',
                           params: { tab: 'arms' },
@@ -322,7 +325,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudyDesign',
                           params: { tab: 'epochs' },
@@ -355,7 +359,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudyDesign',
                           params: { tab: 'elements' },
@@ -387,7 +392,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudyDesign',
                           params: { tab: 'visits' },
@@ -421,7 +427,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudyDesign',
                           params: { tab: 'design_matrix' },
@@ -477,7 +484,7 @@
               <div class="greyBackground ma-0 pa-1">
                 <div>
                   <span>
-                    (<a @click="navigateTo({ name: 'StudyPopulation' })">{{
+                    (<a href="#" @click.prevent="navigateTo({ name: 'StudyPopulation' })">{{
                       $t('SpecificationDashboard.link')
                     }}</a
                     >)
@@ -528,7 +535,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudySelectionCriteria',
                           params: { tab: 'Inclusion Criteria' },
@@ -562,7 +570,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudySelectionCriteria',
                           params: { tab: 'Exclusion Criteria' },
@@ -594,7 +603,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudySelectionCriteria',
                           params: { tab: 'Run-in Criteria' },
@@ -629,7 +639,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudySelectionCriteria',
                           params: { tab: 'Randomisation Criteria' },
@@ -661,7 +672,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudySelectionCriteria',
                           params: { tab: 'Dosing Criteria' },
@@ -693,7 +705,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudySelectionCriteria',
                           params: { tab: 'Withdrawal Criteria' },
@@ -750,7 +763,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudyInterventions',
                           params: { tab: 'intervention_type' },
@@ -784,7 +798,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudyInterventions',
                           params: { tab: 'study_compounds' },
@@ -818,7 +833,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudyInterventions',
                           params: { tab: 'other_interventions' },
@@ -871,7 +887,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudyPurpose',
                           params: { tab: 'objectives' },
@@ -903,7 +920,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudyPurpose',
                           params: { tab: 'endpoints' },
@@ -935,7 +953,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudyPurpose',
                           params: { tab: 'estimands' },
@@ -986,7 +1005,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudyActivities',
                           params: { tab: 'list' },
@@ -1025,7 +1045,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudyActivities',
                           params: { tab: 'detailed' },
@@ -1069,7 +1090,8 @@
                 <div>
                   <span>
                     (<a
-                      @click="
+href="#"
+                      @click.prevent="
                         navigateTo({
                           name: 'StudyActivities',
                           params: { tab: 'detailed' },

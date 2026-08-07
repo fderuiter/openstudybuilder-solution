@@ -103,6 +103,7 @@
                     visitCell.refs[0].uid
                   ].value
                 "
+                :aria-label="`Activity: ${row.cells[0]?.text || ''}, Visit: ${visitCell?.text || ''}`"
                 color="success"
                 disabled
                 hide-details

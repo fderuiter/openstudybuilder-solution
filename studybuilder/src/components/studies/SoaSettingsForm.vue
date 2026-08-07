@@ -8,9 +8,9 @@
     <v-card-text class="mt-4">
       <div class="bg-white">
         <v-row>
-          <label class="v-label ml-6">
+          <span class="v-label ml-6 font-weight-bold">
             {{ $t('ProtocolFlowchart.time_unit') }}
-          </label>
+          </span>
         </v-row>
         <v-row>
           <v-radio-group

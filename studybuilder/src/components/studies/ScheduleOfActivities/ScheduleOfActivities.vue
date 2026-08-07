@@ -712,6 +712,7 @@
                           visitCell.refs[0].uid
                         ].value
                       "
+                      :aria-label="`Activity: ${row.cells[0]?.text || ''}, Visit: ${visitCell?.text || ''}`"
                       :disabled="
                         isCheckboxDisabled(
                           row.cells[0].refs[0].uid,

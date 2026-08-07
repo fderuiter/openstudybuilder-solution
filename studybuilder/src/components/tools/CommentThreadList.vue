@@ -49,9 +49,14 @@
           class="comment-thread"
         >
           <v-card class="py-0 mb-4" rounded elevation="1" variant="outlined">
-            <div
+            <v-sheet
+              color="transparent"
+              tabindex="0"
+              :aria-label="$t('Comments.comments_headline')"
               @mouseover="thread._hovered = true"
+              @focusin="thread._hovered = true"
               @mouseout="thread._hovered = false"
+              @focusout="thread._hovered = false"
             >
               <v-row class="mx-5 mt-3 mb-2">
                 <v-col cols="8" class="py-1 px-0">
@@ -149,7 +154,7 @@
                   class="mb-10"
                 />
               </div>
-            </div>
+            </v-sheet>
 
             <!-- Replies -->
             <v-list class="ml-8 mr-0 py-0">
@@ -158,7 +163,9 @@
                 :key="reply.uid"
                 class="comment-thread-reply"
                 @mouseover="reply._hovered = true"
+                @focusin="reply._hovered = true"
                 @mouseout="reply._hovered = false"
+                @focusout="reply._hovered = false"
               >
                 <v-divider class="mx-5 mt-2" />
                 <v-row class="mx-5 mt-3 mb-2">

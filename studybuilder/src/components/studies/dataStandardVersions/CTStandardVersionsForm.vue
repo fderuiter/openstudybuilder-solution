@@ -20,9 +20,9 @@
             value="select"
           />
         </v-radio-group>
-        <label class="nn-label">{{
+        <span class="nn-label font-weight-bold d-block mb-1">{{
           $t('CTStandardVersionsTable.ct_catalogue')
-        }}</label>
+        }}</span>
         <v-autocomplete
           v-model="selectedCatalogue"
           :items="catalogues"
@@ -34,7 +34,7 @@
           color="nnTrueBlue"
           @update:model-value="fetchPackages"
         />
-        <label class="nn-label">{{ packageFieldLabel }}</label>
+        <span class="nn-label font-weight-bold d-block mb-1">{{ packageFieldLabel }}</span>
         <v-autocomplete
           v-model="selectedPackage"
           :items="packages"
@@ -45,7 +45,7 @@
           clearable
           :disabled="selectedCatalogue === null"
         />
-        <label class="nn-label">{{ $t('_global.description') }}</label>
+        <span class="nn-label font-weight-bold d-block mb-1">{{ $t('_global.description') }}</span>
         <v-textarea
           v-model="form.description"
           data-cy="description-field"

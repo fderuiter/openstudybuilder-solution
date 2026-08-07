@@ -4,13 +4,14 @@
     class="text-nnTrueBlue mb-5"
     :class="{ 'label--disabled': disabled }"
   >
-    <label>{{ label }}</label>
+    <span>{{ label }}</span>
   </div>
   <div>
     <v-radio-group v-model="currentChoice" :inline="inline">
-      <div
+      <v-sheet
         v-for="(choice, index) in choices"
         :key="`choice-${index}`"
+        color="transparent"
         class="choice rounded mr-3 mb-4"
         :style="props.width ? `width: ${props.width}px` : ''"
         :class="{
@@ -30,7 +31,7 @@
             <div class="text-nnTrueBlue text">{{ choice.help }}</div>
           </div>
         </div>
-      </div>
+      </v-sheet>
     </v-radio-group>
   </div>
 </template>

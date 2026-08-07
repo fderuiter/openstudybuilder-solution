@@ -6,7 +6,16 @@
       elevation="4"
       @click="appStore.drawer = !appStore.drawer"
     />
-    <div data-cy="topbar-logo" class="d-flex action" @click="navigateToRoot">
+    <div
+      data-cy="topbar-logo"
+      class="d-flex action"
+      role="button"
+      tabindex="0"
+      aria-label="Study Builder Home"
+      @click="navigateToRoot"
+      @keydown.enter="navigateToRoot"
+      @keydown.space.prevent="navigateToRoot"
+    >
       <v-img
         class="mx-6"
         :src="sbLogoUrl"
@@ -65,6 +74,8 @@
         @click="openSelectStudyDialog"
         @mouseenter="isHovered = true"
         @mouseleave="isHovered = false"
+        @focus="isHovered = true"
+        @blur="isHovered = false"
       >
         <span v-if="isHovered || !selectedStudy">{{
           $t('Topbar.select_study')
@@ -369,6 +380,10 @@ function reloadPage() {
 @use 'vuetify/settings';
 .action {
   cursor: pointer;
+  &:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 4px;
+  }
 }
 .text-capitalize {
   text-transform: capitalize !important;
