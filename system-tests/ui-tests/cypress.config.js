@@ -14,8 +14,10 @@ async function setupNodeEvents(on, config) {
 }
 
 module.exports = defineConfig({
-  video: false,
+  video: true,
   screenshotOnRunFailure: true,
+  screenshotsFolder: 'results/screenshots',
+  videosFolder: 'results/videos',
   // numtestskeptinmemory: 1,
   experimentalMemoryManagement: false,
   defaultCommandTimeout: 10000,
