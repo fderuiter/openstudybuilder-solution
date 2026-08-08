@@ -117,6 +117,8 @@ class CTConfigService:
 
     @db.transaction
     def inactivate(self, uid: str) -> CTConfigModel:
+        from clinical_mdr_api.services._utils import check_and_block_retirement_of_referenced_item
+        check_and_block_retirement_of_referenced_item(uid)
         return self._workflow_action(
             uid, lambda ar: cast(CTConfigAR, ar).inactivate(self._author_id)
         )

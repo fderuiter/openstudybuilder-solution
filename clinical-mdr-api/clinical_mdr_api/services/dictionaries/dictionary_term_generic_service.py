@@ -241,6 +241,8 @@ class DictionaryTermGenericService(ABC):
 
     @db.transaction
     def inactivate_final(self, term_uid: str) -> BaseModel:
+        from clinical_mdr_api.services._utils import check_and_block_retirement_of_referenced_item
+        check_and_block_retirement_of_referenced_item(term_uid)
         item = self._find_by_uid_or_raise_not_found(term_uid, for_update=True)
         item.inactivate(author_id=self.author_id)
         self.repository.save(item)

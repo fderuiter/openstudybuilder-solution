@@ -748,6 +748,8 @@ class ConceptGenericService(Generic[_AggregateRootType], ABC):
         cascade_inactivate: bool = False,
         force_new_value_node: bool = False,
     ) -> BaseModel:
+        from clinical_mdr_api.services._utils import check_and_block_retirement_of_referenced_item
+        check_and_block_retirement_of_referenced_item(uid)
         item = self._find_by_uid_or_raise_not_found(uid, for_update=True)
         item.inactivate(
             author_id=self.author_id, force_new_value_node=force_new_value_node

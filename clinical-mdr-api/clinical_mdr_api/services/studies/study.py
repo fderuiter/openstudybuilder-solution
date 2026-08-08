@@ -812,9 +812,10 @@ class StudyService:
                 study_standard_version_sdtm
                 and study_standard_version_sdtm.automatically_created
             ):
-                # delete
+                # Promote to explicit selections instead of deleting
+                study_standard_version_sdtm.automatically_created = False
                 self._repos.study_standard_version_repository.save(
-                    study_standard_version_sdtm, delete_flag=True
+                    study_standard_version_sdtm
                 )
 
             if study_definition.study_subpart_uids:

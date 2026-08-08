@@ -54,6 +54,7 @@ DDF_STUDY_POPULATION_DURATION_UNIT_YEARS = "C29848"
 DDF_STUDY_POPULATION_ENROLLMENT_NUMBER_UNIT = "C44278"
 DDF_STUDY_PROTOCOL_STATUS_DRAFT = "C85255"
 DDF_STUDY_PROTOCOL_STATUS_FINAL = "C25508"
+DDF_STUDY_PROTOCOL_STATUS_APPROVED = "C25425"
 DDF_STUDY_POPULATION_SEX_BOTH = "C49636"
 DDF_STUDY_POPULATION_SEX_FEMALE = "C16576"
 DDF_STUDY_POPULATION_SEX_MALE = "C20197"
@@ -287,6 +288,9 @@ class USDMMapper:
 
     def get_ddf_study_protocol_status_final(self):
         return self.get_ct_package_term_as_usdm_code(DDF_STUDY_PROTOCOL_STATUS_FINAL)
+
+    def get_ddf_study_protocol_status_approved(self):
+        return self.get_ct_package_term_as_usdm_code(DDF_STUDY_PROTOCOL_STATUS_APPROVED)
 
     def get_ddf_study_population_sex_both(self):
         return self.get_ct_package_term_as_usdm_code(DDF_STUDY_POPULATION_SEX_BOTH)
@@ -1140,10 +1144,11 @@ class USDMMapper:
 
         if osb_study_status == StudyStatus.DRAFT.value:
             ddf_protocol_status = self.get_ddf_study_protocol_status_draft()
-        elif osb_study_status == StudyStatus.LOCKED.value:
+        elif osb_study_status == StudyStatus.RELEASED.value:
             ddf_protocol_status = self.get_ddf_study_protocol_status_final()
+        elif osb_study_status == StudyStatus.LOCKED.value:
+            ddf_protocol_status = self.get_ddf_study_protocol_status_approved()
         else:
-            # TODO raise exception if not draft or locked status
             ddf_protocol_status = self.get_void_usdm_code()
 
         ddf_study_definition_document_version = USDMStudyDefinitionDocumentVersion(

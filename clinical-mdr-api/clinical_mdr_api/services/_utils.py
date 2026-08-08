@@ -1206,3 +1206,34 @@ def ensure_transaction(db: Database) -> Callable[[_Func], _Func]:
         return wrapper
 
     return decorate
+
+
+def check_and_block_retirement_of_referenced_item(uid: str) -> None:
+    """
+    Checks if a library item with the given UID is referenced by any active study.
+    If so, blocks retirement by raising a BusinessLogicException.
+    """
+    from neomodel import db
+    from common.exceptions import BusinessLogicException
+
+    # Check active studies referencing this item (via direct path or variable-length path)
+    cypher_query = """
+    MATCH (n {uid: $uid})
+    OPTIONAL MATCH (root)-[:HAS_VERSION|LATEST|LATEST_DRAFT|LATEST_FINAL|LATEST_RETIRED]->(value)
+    WHERE root = n OR value = n
+    WITH collect(DISTINCT root) + collect(DISTINCT value) + collect(DISTINCT n) AS items
+    UNWIND items AS item
+    MATCH (sr:StudyRoot)-[vr:HAS_VERSION|LATEST_DRAFT|LATEST_FINAL|LATEST_RETIRED]->(sv:StudyValue)-[*1..5]->(item)
+    WHERE vr.status IN ["DRAFT", "RELEASED", "LOCKED"]
+    RETURN DISTINCT sr.uid AS study_uid, sv.study_acronym AS study_acronym
+    """
+    results, _ = db.cypher_query(cypher_query, {"uid": uid})
+    if results:
+        study_identifiers = []
+        for row in results:
+            study_identifiers.append(f"{row[1]} ({row[0]})" if row[1] else row[0])
+        studies_str = ", ".join(study_identifiers)
+        raise BusinessLogicException(
+            msg=f"Cannot retire standard item {uid} as it is referenced by active studies: {studies_str}."
+        )
+

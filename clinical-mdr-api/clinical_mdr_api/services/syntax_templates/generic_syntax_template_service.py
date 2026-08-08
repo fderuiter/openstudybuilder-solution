@@ -180,6 +180,8 @@ class GenericSyntaxTemplateService(GenericSyntaxService[_AggregateRootType], abc
 
     @db.transaction
     def inactivate_final(self, uid: str) -> BaseModel:
+        from clinical_mdr_api.services._utils import check_and_block_retirement_of_referenced_item
+        check_and_block_retirement_of_referenced_item(uid)
         item = self.repository.find_by_uid(uid, for_update=True)
 
         item.inactivate(author_id=self.author_id)
