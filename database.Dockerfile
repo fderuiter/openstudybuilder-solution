@@ -1,5 +1,5 @@
 ARG NEO4J_IMAGE=neo4j:enterprise
-ARG PYTHON_IMAGE=python:3.14-slim
+ARG PYTHON_IMAGE=python:3.12-slim
 
 FROM $NEO4J_IMAGE AS neo4j-image-base
 

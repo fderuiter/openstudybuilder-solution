@@ -1,11 +1,11 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f47782d1c38e28c8cbec3cf54d4d15cc02bdff7c634c349378476370331dd9eb"
+            "sha256": "cfa52bf2d85fbae917a8fb36492f8bf10bd121b43b8d0e7def2876a822619692"
         },
         "pipfile-spec": 6,
         "requires": {
-            "python_version": "3.14"
+            "python_version": "3.12"
         },
         "sources": [
             {
@@ -77,6 +77,14 @@
         "shared-client": {
             "editable": true,
             "path": "../shared-client"
+        },
+        "typing-extensions": {
+            "hashes": [
+                "sha256:481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8",
+                "sha256:dc983d19a509c94dba722ee6abd33940f7c05a89e243c47e907eb4db6f1a43e5"
+            ],
+            "markers": "python_version >= '3.9'",
+            "version": "==4.16.0"
         }
     },
     "develop": {}

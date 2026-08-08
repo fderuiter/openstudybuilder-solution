@@ -43,4 +43,4 @@ repos:
             "-sn", # Don't display the score
           ]
 default_language_version:
-  python: python3.14
+  python: python3.12

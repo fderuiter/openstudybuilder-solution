@@ -59,14 +59,14 @@ docker run hello-world
 
 Text starting with "Hello from Docker!" should appear, it might need to download the content first.
 
-### Install Python 3.11
+### Install Python 3.12
 
-The current version of OpenStudyBuilder requires Python 3.11, to install it run:
+The current version of OpenStudyBuilder requires Python 3.12, to install it run:
 
 ```console
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt-get update
-sudo apt-get install python3.11-dev
+sudo apt-get install python3.12-dev
 ```
 
 It may take a few minutes to complete the installation.
@@ -317,7 +317,7 @@ Clinical MDR repository to store the API linked with the neo4j database
 
 #### Setup python virtual environment for the API
 
-- Make sure Python 3.11 and pipenv version 20232.3.20 or later are installed, as described [here](#install-python-311) and [here] (#check-python-installation-and-install-pipenv).
+- Make sure Python 3.12 and pipenv version 20232.3.20 or later are installed, as described [here](#install-python-312) and [here] (#check-python-installation-and-install-pipenv).
 - Run:
 
 ```console
