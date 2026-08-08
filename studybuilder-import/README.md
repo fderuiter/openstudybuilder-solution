@@ -27,7 +27,7 @@ To enable the PPA and install the needed Python version with:
 ```
 $ sudo add-apt-repository ppa:deadsnakes/ppa
 $ sudo apt-get update
-$ sudo apt-get install python 3.11-dev
+$ sudo apt-get install python3.12-dev
 ```
 
 

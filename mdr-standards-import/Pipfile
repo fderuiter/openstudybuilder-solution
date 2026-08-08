@@ -16,7 +16,7 @@ pytest = "~=8.4.1"
 pytest-cov = "~=6.0.0"
 
 [requires]
-python_version = "3.14"
+python_version = "3.12"
 
 [scripts]
 import_cdisc_ct_into_cdisc_db = "python cdisc_staging.py"

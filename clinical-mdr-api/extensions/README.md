@@ -65,7 +65,7 @@ extensions/
 ## How to run extensions locally
 
 ### Prerequisites
-- Python 3.14 installed
+- Python 3.12 installed
 - Pipenv installed
 - Neo4j database running (configure `NEO4J_DSN` environment variable)
 - Dependencies installed: `pipenv install`

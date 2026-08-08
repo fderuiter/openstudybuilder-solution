@@ -7,7 +7,7 @@ services:
     build:
       args:
         NEO4J_IMAGE: ${NEO4J_IMAGE:-neo4j:enterprise}
-        PYTHON_IMAGE: ${PYTHON_IMAGE:-python:3.14-slim}
+        PYTHON_IMAGE: ${PYTHON_IMAGE:-python:3.12-slim}
         NEO4J_server_memory_heap_initial__size: "3G"
         NEO4J_server_memory_heap_max__size: "3G"
         NEO4J_server_memory_pagecache_size: "2G"

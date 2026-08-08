@@ -89,7 +89,7 @@ stages:
     - task: UsePythonVersion@0
       displayName: Python Version
       inputs:
-        versionSpec: '3.14'
+        versionSpec: '3.12'
         addToPath: true
         architecture: 'x64'
 

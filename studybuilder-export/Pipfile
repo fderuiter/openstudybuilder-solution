@@ -11,7 +11,7 @@ shared-client = {path = "../shared-client", editable = true}
 [dev-packages]
 
 [requires]
-python_version = "3.14"
+python_version = "3.12"
 
 [scripts]
 build-sbom = "pipenv run python3 assbom.py --pipfile --fallback-dir doc/licenses --level 2 --output sbom.md"
