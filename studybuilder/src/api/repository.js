@@ -5,6 +5,7 @@ import { notificationHub } from '@/plugins/notificationHub'
 import { useGlobalConfig } from '@/main'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { useErrorHandler } from '@/composables/errorHandler'
+import { useFormStore } from '@/stores/form'
 
 const _axios = axios.create()
 
@@ -83,6 +84,16 @@ const responseInterceptors = {
         // Otherwise, just display the error message contained in error.response.data.message.
 
         useErrorHandler(error)
+      }
+
+      // Revert local state to the most recent save-point if any API step fails
+      try {
+        const formStore = useFormStore()
+        if (formStore.checkpoints && formStore.checkpoints.length > 0) {
+          formStore.rollbackToCheckpoint()
+        }
+      } catch (e) {
+        console.error('Failed to rollback on API error:', e)
       }
     }
     return Promise.reject(error)

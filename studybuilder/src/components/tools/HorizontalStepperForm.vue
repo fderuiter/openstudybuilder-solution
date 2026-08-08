@@ -67,7 +67,7 @@
     <v-card-actions v-else class="bg-white fixed-actions border-t-thin">
       <v-col>
         <v-btn
-          class="secondary-btn"
+          class="secondary-btn mr-2"
           data-cy="cancel-button"
           variant="outlined"
           width="120px"
@@ -75,6 +75,28 @@
           @click="cancel"
         >
           {{ readOnly ? $t('_global.close') : $t('_global.cancel') }}
+        </v-btn>
+        <v-btn
+          v-if="formStore.canUndo"
+          data-cy="undo-button"
+          class="secondary-btn mr-2"
+          variant="outlined"
+          rounded="xl"
+          @click="undo"
+        >
+          <v-icon class="mr-1">mdi-undo</v-icon>
+          {{ $t('_global.undo') }}
+        </v-btn>
+        <v-btn
+          v-if="formStore.canRedo"
+          data-cy="redo-button"
+          class="secondary-btn mr-2"
+          variant="outlined"
+          rounded="xl"
+          @click="redo"
+        >
+          <v-icon class="mr-1">mdi-redo</v-icon>
+          {{ $t('_global.redo') }}
         </v-btn>
       </v-col>
       <v-spacer />
@@ -142,7 +164,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onMounted, ref, watch, inject } from 'vue'
+import { computed, nextTick, onMounted, ref, watch, inject, getCurrentInstance } from 'vue'
 import { useI18n } from 'vue-i18n'
 import HelpButton from '@/components/tools/HelpButton.vue'
 import HelpButtonWithPanels from '@/components/tools/HelpButtonWithPanels.vue'
@@ -234,14 +256,116 @@ watch(
   }
 )
 
+const instance = getCurrentInstance()
+const getParentForm = () => {
+  if (!instance || !instance.parent) return null
+  const setupState = instance.parent.setupState
+  if (setupState && setupState.form) {
+    return setupState.form
+  }
+  const proxy = instance.parent.proxy
+  if (proxy && proxy.form) {
+    return proxy.form
+  }
+  return null
+}
+
+let isUpdatingFromStore = false
+
+// Set up watcher on parent's form to push updates to formStore
+watch(
+  () => {
+    const formObj = getParentForm()
+    if (!formObj) return null
+    return typeof formObj.value !== 'undefined' ? formObj.value : formObj
+  },
+  (newVal) => {
+    if (isUpdatingFromStore) return
+    if (newVal) {
+      formStore.pushState(newVal)
+    }
+  },
+  { deep: true }
+)
+
+// Watch for store form changes (like undo, redo, rollback) and apply back to parent
+watch(
+  () => formStore.form,
+  (newStoreForm) => {
+    const parentForm = getParentForm()
+    if (parentForm) {
+      const rawForm = typeof parentForm.value !== 'undefined' ? parentForm.value : parentForm
+      if (newStoreForm && JSON.stringify(rawForm) !== JSON.stringify(newStoreForm)) {
+        isUpdatingFromStore = true
+        if (typeof parentForm.value !== 'undefined') {
+          parentForm.value = JSON.parse(JSON.stringify(newStoreForm))
+        } else {
+          for (const key in parentForm) {
+            delete parentForm[key]
+          }
+          Object.assign(parentForm, JSON.parse(JSON.stringify(newStoreForm)))
+        }
+        setTimeout(() => {
+          isUpdatingFromStore = false
+        }, 0)
+      }
+    }
+  },
+  { deep: true }
+)
+
 onMounted(() => {
-  formStore.save(props.editData)
+  const formObj = getParentForm()
+  const rawForm = formObj ? (typeof formObj.value !== 'undefined' ? formObj.value : formObj) : props.editData
+  formStore.save(rawForm)
   document.addEventListener('keydown', (evt) => {
     if (evt.code === 'Escape') {
       cancel()
     }
   })
 })
+
+function undo() {
+  const reverted = formStore.undo()
+  if (reverted) {
+    isUpdatingFromStore = true
+    const formObj = getParentForm()
+    if (formObj) {
+      if (typeof formObj.value !== 'undefined') {
+        formObj.value = JSON.parse(JSON.stringify(reverted))
+      } else {
+        for (const key in formObj) {
+          delete formObj[key]
+        }
+        Object.assign(formObj, JSON.parse(JSON.stringify(reverted)))
+      }
+    }
+    setTimeout(() => {
+      isUpdatingFromStore = false
+    }, 0)
+  }
+}
+
+function redo() {
+  const reverted = formStore.redo()
+  if (reverted) {
+    isUpdatingFromStore = true
+    const formObj = getParentForm()
+    if (formObj) {
+      if (typeof formObj.value !== 'undefined') {
+        formObj.value = JSON.parse(JSON.stringify(reverted))
+      } else {
+        for (const key in formObj) {
+          delete formObj[key]
+        }
+        Object.assign(formObj, JSON.parse(JSON.stringify(reverted)))
+      }
+    }
+    setTimeout(() => {
+      isUpdatingFromStore = false
+    }, 0)
+  }
+}
 
 function copyUrl() {
   navigator.clipboard.writeText(props.formUrl)
@@ -318,6 +442,12 @@ async function submit() {
     return
   }
   loading.value = true
+
+  // Record save-point before starting API operation
+  const formObj = getParentForm()
+  const rawForm = formObj ? (typeof formObj.value !== 'undefined' ? formObj.value : formObj) : props.editData
+  formStore.saveCheckpoint(rawForm)
+
   emit('save')
 }
 
