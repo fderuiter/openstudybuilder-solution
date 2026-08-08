@@ -89,6 +89,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Build docker containers
         run: |
@@ -128,6 +130,10 @@ jobs:
             exit 1
           fi
 
+      - name: Run Compliance Integration Tests
+        run: |
+          docker compose exec -T api pipenv run pytest clinical_mdr_api/tests/integration/system_subapp/
+
       - name: Build Cypress Container
         run: |
           cd system-tests/ui-tests
@@ -146,6 +152,10 @@ jobs:
           path: |
             system-tests/ui-tests/results/screenshots
             system-tests/ui-tests/results/videos
+
+      - name: Run SBOM and Dependency Drift Check
+        run: |
+          python3 ./clinical-mdr-api/pipelines/scripts/check_sbom_drift.py
 
       - name: Shut down services
         run: |
