@@ -25,6 +25,7 @@
         contain
         :transition="false"
         max-width="1200"
+        alt="Study Builder Logo"
       />
       <div class="mt-6 env-center">{{ appEnv }}</div>
     </div>
@@ -58,7 +59,7 @@
     </div>
 
     <div class="mt-10 d-flex justify-center">
-      <v-btn text color="white" rounded @click="showLicense = true">
+      <v-btn variant="text" color="white" rounded @click="showLicense = true">
         {{ $t('_global.license') }}
       </v-btn>
     </div>

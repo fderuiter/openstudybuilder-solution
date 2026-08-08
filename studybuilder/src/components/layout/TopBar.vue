@@ -22,6 +22,7 @@
         contain
         transition="scale-transition"
         width="190"
+        alt=""
       />
       <div
         v-if="appEnv"
@@ -225,6 +226,7 @@
         transition="scale-transition"
         width="50"
         height="50"
+        alt="Novo Nordisk Logo"
       />
     </div>
     <v-dialog v-model="showAboutDialog" fullscreen>

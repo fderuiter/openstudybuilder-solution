@@ -5,7 +5,7 @@
         <v-empty-state>
           <template #media>
             <div>
-              <v-img :src="sbLogoUrl" style="scale: 2" class="mb-6 mt-12" />
+              <v-img :src="sbLogoUrl" style="scale: 2" class="mb-6 mt-12" alt="" />
             </div>
           </template>
           <template #title>
