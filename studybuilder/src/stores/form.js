@@ -12,6 +12,7 @@ export const useFormStore = defineStore('form', {
     history: [],
     future: [],
     checkpoints: [],
+    _debounceTimeout: null,
   }),
   getters: {
     isEmpty: (state) => state.form === null,
