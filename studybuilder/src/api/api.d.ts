@@ -23091,6 +23091,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/integrations/nci/nci-lookup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search NCI concepts directly
+         * @description Query NCI concepts from external NCI EVS API asynchronously.
+         */
+        get: operations["nci_lookup_integrations_nci_nci_lookup_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/usdm/v4/studyDefinitions/{study_uid}": {
         parameters: {
             query?: never;
@@ -32958,6 +32978,19 @@ export interface components {
              * @description A list of indexed template parameter terms that are used at this position in the template.
              */
             terms?: components["schemas"]["IndexedTemplateParameterTerm"][];
+        };
+        /** NCIConcept */
+        NCIConcept: {
+            /**
+             * Code
+             * @description The NCI concept ID/code
+             */
+            code: string;
+            /**
+             * Name
+             * @description The preferred name of the concept
+             */
+            name: string;
         };
         /** Notification */
         Notification: {
@@ -128159,6 +128192,47 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GraphUser"][];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    nci_lookup_integrations_nci_nci_lookup_get: {
+        parameters: {
+            query: {
+                /** @description Search query (min 3 characters) */
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NCIConcept"][];
                 };
             };
             /** @description Bad Request */
