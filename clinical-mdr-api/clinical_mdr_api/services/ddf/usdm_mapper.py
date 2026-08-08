@@ -42,6 +42,8 @@ from clinical_mdr_api.domains.study_definition_aggregates.study_metadata import 
 )
 from clinical_mdr_api.models.study_selections.study import Study as OSBStudy
 from clinical_mdr_api.services.ddf.usdm_utils import IdManager
+from enum import Enum
+from common.exceptions import ValidationException
 from common.telemetry import trace_calls
 
 DDF_ORGANIZATION_TYPE_STUDY_REGISTRY = "C93453"
@@ -54,6 +56,12 @@ DDF_STUDY_POPULATION_DURATION_UNIT_YEARS = "C29848"
 DDF_STUDY_POPULATION_ENROLLMENT_NUMBER_UNIT = "C44278"
 DDF_STUDY_PROTOCOL_STATUS_DRAFT = "C85255"
 DDF_STUDY_PROTOCOL_STATUS_FINAL = "C25508"
+
+STATUS_MAPPING_REGISTRY = {
+    "DRAFT": DDF_STUDY_PROTOCOL_STATUS_DRAFT,
+    "LOCKED": DDF_STUDY_PROTOCOL_STATUS_FINAL,
+    "RELEASED": "C25425",
+}
 DDF_STUDY_POPULATION_SEX_BOTH = "C49636"
 DDF_STUDY_POPULATION_SEX_FEMALE = "C16576"
 DDF_STUDY_POPULATION_SEX_MALE = "C20197"
@@ -1138,19 +1146,27 @@ class USDMMapper:
             None,
         )
 
-        if osb_study_status == StudyStatus.DRAFT.value:
-            ddf_protocol_status = self.get_ddf_study_protocol_status_draft()
-        elif osb_study_status == StudyStatus.LOCKED.value:
-            ddf_protocol_status = self.get_ddf_study_protocol_status_final()
-        else:
-            # TODO raise exception if not draft or locked status
-            ddf_protocol_status = self.get_void_usdm_code()
+        if osb_study_status is None:
+            raise ValidationException(msg="Study status is missing or null.")
+
+        status_key = osb_study_status.value if isinstance(osb_study_status, Enum) else str(osb_study_status)
+
+        if status_key not in STATUS_MAPPING_REGISTRY:
+            raise ValidationException(msg=f"Study status '{status_key}' is invalid or unmapped.")
+
+        concept_id = STATUS_MAPPING_REGISTRY[status_key]
+        ddf_protocol_status = self.get_ct_package_term_as_usdm_code(concept_id)
+
+        if ddf_protocol_status.id == self._id_manager.get_id(USDMCode.__name__, "VOID_CODE"):
+            raise ValidationException(
+                msg=f"Study status '{status_key}' with code '{concept_id}' could not be resolved to a registered standard code."
+            )
 
         ddf_study_definition_document_version = USDMStudyDefinitionDocumentVersion(
             id=self._id_manager.get_id(USDMStudyDefinitionDocumentVersion.__name__),
             instanceType="StudyDefinitionDocumentVersion",
             status=ddf_protocol_status,
-            version="DRAFT" if osb_study_status == "DRAFT" else str(osb_version_number),
+            version="DRAFT" if status_key == "DRAFT" else (str(osb_version_number) if osb_version_number is not None else ""),
         )
 
         ddf_study_definition_document.versions = [ddf_study_definition_document_version]
