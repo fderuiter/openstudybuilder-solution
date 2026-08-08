@@ -139,7 +139,7 @@ jobs:
           docker compose run --rm -e CYPRESS_BASE_URL=http://localhost:5005 -e CYPRESS_API=http://localhost:5005/api cypress yarn run cypress run --spec cypress/e2e/features/accessibility_audit.feature --headless
 
       - name: Upload Cypress Screenshots and Videos
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: cypress-artifacts
