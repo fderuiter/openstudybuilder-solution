@@ -703,7 +703,7 @@
                   :key="`row-${index}-cell-${visitIndex}`"
                 >
                   <div
-                    v-if="leftIndex <= visitIndex <= rightIndex"
+                    v-if="visitIndex >= leftIndex && visitIndex <= rightIndex"
                     class="mb-n1 footnote-cell"
                   >
                     <input
@@ -735,7 +735,7 @@
                     />
                     <div class="badgeSchedules">
                       {{
-                        row?.cells[visitIndex - leftIndex + 1]?.footnotes?.join(
+                        getCellByVisitIndex(row, visitIndex)?.footnotes?.join(
                           ', '
                         )
                       }}
@@ -745,11 +745,11 @@
                         v-if="
                           !footnoteMode &&
                           !props.readOnly &&
-                          row.cells[visitIndex - leftIndex + 1]?.refs &&
-                          row.cells[visitIndex - leftIndex + 1]?.refs.length &&
+                          getCellByVisitIndex(row, visitIndex)?.refs &&
+                          getCellByVisitIndex(row, visitIndex)?.refs.length &&
                           Boolean(
                             scheduleMethods.getElementFootnotesLetters(
-                              row.cells[visitIndex - leftIndex + 1]?.refs[0].uid
+                              getCellByVisitIndex(row, visitIndex)?.refs[0].uid
                             )
                           )
                         "
@@ -762,7 +762,7 @@
                         :title="$t('DetailedFlowchart.remove_footnote')"
                         @click="
                           openRemoveFootnoteForm(
-                            row.cells[visitIndex - leftIndex + 1],
+                            getCellByVisitIndex(row, visitIndex),
                             row.cells[0].refs[0].uid
                           )
                         "
@@ -792,7 +792,7 @@
                           ].uid,
                           'StudyActivitySchedule',
                           undefined,
-                          row?.cells[visitIndex - leftIndex + 1]
+                          getCellByVisitIndex(row, visitIndex)
                         )
                       "
                     />
@@ -819,7 +819,7 @@
                           currentSelectionMatrix[row.cells[0].refs[0].uid][
                             visitCell.refs[0].uid
                           ].uid,
-                          row?.cells[visitIndex - leftIndex + 1]
+                          getCellByVisitIndex(row, visitIndex)
                         )
                       "
                     />
@@ -1423,10 +1423,19 @@ const leftIndex = computed(() => {
 
 const rightIndex = computed(() => {
   return Math.min(
-    soaRows.value.length,
+    soaVisitRow.value.length,
     Math.ceil((scrollLeft.value + tableWidth.value) / 110)
   )
 })
+
+function getCellByVisitIndex(row, visitIndex) {
+  if (!row || !row.cells) return null
+  const targetIndex = visitIndex - leftIndex.value + 1
+  if (targetIndex >= 0 && targetIndex < row.cells.length) {
+    return row.cells[targetIndex]
+  }
+  return null
+}
 
 let rafId = null
 function onScroll(e) {
