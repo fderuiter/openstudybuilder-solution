@@ -3,7 +3,7 @@
   "info": {
     "title": "OpenStudyBuilder API",
     "description": "\n## NOTICE\n\nThis license information is applicable to the swagger documentation of the clinical-mdr-api, that is the openapi.json.\n\n## License Terms (MIT)\n\nCopyright (C) 2025 Novo Nordisk A/S, Danish company registration no. 24256790\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n## Licenses and Acknowledgements for Incorporated Software\n\nThis component contains software licensed under different licenses when compiled, please refer to the third-party-licenses.md file for further information and full license texts.\n\n## Authentication\n\nSupports OAuth2 [Authorization Code Flow](https://datatracker.ietf.org/doc/html/rfc6749#section-4.1),\nat paths described in the OpenID Connect Discovery metadata document (whose URL is defined by the `OAUTH_METADATA_URL` environment variable).\n\nMicrosoft Identity Platform documentation can be read \n([here](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)).\n\nAuthentication can be turned off with `OAUTH_ENABLED=false` environment variable. \n\nWhen authentication is turned on, all requests to protected API endpoints must provide a valid bearer (JWT) token inside the `Authorization` http header. \n",
-    "version": "3.0.659"
+    "version": "3.0.660"
   },
   "paths": {
     "/": {
@@ -39964,6 +39964,83 @@
         }
       }
     },
+    "/ct/codelists/{codelist_uid}/terms/bulk": {
+      "post": {
+        "tags": [
+          "CT Codelists"
+        ],
+        "summary": "Adds new CTTerms to CTCodelist in bulk.",
+        "operationId": "add_terms_bulk_ct_codelists__codelist_uid__terms_bulk_post",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "codelist_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique id of the CTCodelistRoot",
+              "title": "Codelist Uid"
+            },
+            "description": "The unique id of the CTCodelistRoot"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CTCodelistTermInput"
+                },
+                "description": "List of UIDs of the CTTermRoot nodes.",
+                "title": "Terms Input"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The terms were successfully added to the codelist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CTCodelist"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Forbidden - Reasons include e.g.: \n- The codelist doesn't exist.\n- A term doesn't exist.\n- The codelist is not extensible.\n- The codelist already has a passed term.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/ct/codelists/{codelist_uid}/terms/{term_uid}": {
       "delete": {
         "tags": [
@@ -42271,6 +42348,75 @@
             }
           }
         }
+      }
+    },
+    "/ct/terms/bulk": {
+      "post": {
+        "tags": [
+          "CT Terms"
+        ],
+        "summary": "Creates new ct terms in bulk.",
+        "description": "Bulk create terms inside a single transaction. If a single term fails validation, the entire transaction rolls back.",
+        "operationId": "create_bulk_ct_terms_bulk_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "items": {
+                  "$ref": "#/components/schemas/CTTermCreateInput"
+                },
+                "type": "array",
+                "title": "Terms Input",
+                "description": "List of properties to create CTTermAttributes and CTTermName."
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created - The terms were successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CTTerm"
+                  },
+                  "type": "array",
+                  "title": "Response Create Bulk Ct Terms Bulk Post"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Forbidden - Reasons include e.g.: \n- The catalogue doesn't exist.\n- The library doesn't exist..\n- The library doesn't allow to add new items.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ]
       }
     },
     "/ct/terms/headers": {

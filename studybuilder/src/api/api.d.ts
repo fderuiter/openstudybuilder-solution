@@ -7707,6 +7707,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/ct/codelists/{codelist_uid}/terms/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Adds new CTTerms to CTCodelist in bulk. */
+        post: operations["add_terms_bulk_ct_codelists__codelist_uid__terms_bulk_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/ct/codelists/{codelist_uid}/terms/{term_uid}": {
         parameters: {
             query?: never;
@@ -8025,6 +8042,26 @@ export interface paths {
          *       * CTTermNameValue
          */
         post: operations["create_ct_terms_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ct/terms/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Creates new ct terms in bulk.
+         * @description Bulk create terms inside a single transaction. If a single term fails validation, the entire transaction rolls back.
+         */
+        post: operations["create_bulk_ct_terms_bulk_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -74377,6 +74414,57 @@ export interface operations {
             };
         };
     };
+    add_terms_bulk_ct_codelists__codelist_uid__terms_bulk_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The unique id of the CTCodelistRoot */
+                codelist_uid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CTCodelistTermInput"][];
+            };
+        };
+        responses: {
+            /** @description The terms were successfully added to the codelist. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CTCodelist"];
+                };
+            };
+            /**
+             * @description Forbidden - Reasons include e.g.:
+             *     - The codelist doesn't exist.
+             *     - A term doesn't exist.
+             *     - The codelist is not extensible.
+             *     - The codelist already has a passed term.
+             */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     remove_term_ct_codelists__codelist_uid__terms__term_uid__delete: {
         parameters: {
             query?: never;
@@ -75890,6 +75978,53 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CTTerm"];
+                };
+            };
+            /**
+             * @description Forbidden - Reasons include e.g.:
+             *     - The catalogue doesn't exist.
+             *     - The library doesn't exist..
+             *     - The library doesn't allow to add new items.
+             */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    create_bulk_ct_terms_bulk_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CTTermCreateInput"][];
+            };
+        };
+        responses: {
+            /** @description Created - The terms were successfully created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CTTerm"][];
                 };
             };
             /**
