@@ -39964,6 +39964,83 @@
         }
       }
     },
+    "/ct/codelists/{codelist_uid}/terms/bulk": {
+      "post": {
+        "tags": [
+          "CT Codelists"
+        ],
+        "summary": "Adds new CTTerms to CTCodelist in bulk.",
+        "operationId": "add_terms_bulk_ct_codelists__codelist_uid__terms_bulk_post",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "codelist_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique id of the CTCodelistRoot",
+              "title": "Codelist Uid"
+            },
+            "description": "The unique id of the CTCodelistRoot"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CTCodelistTermInput"
+                },
+                "description": "List of UIDs of the CTTermRoot nodes.",
+                "title": "Terms Input"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The terms were successfully added to the codelist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CTCodelist"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Forbidden - Reasons include e.g.: \n- The codelist doesn't exist.\n- A term doesn't exist.\n- The codelist is not extensible.\n- The codelist already has a passed term.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/ct/codelists/{codelist_uid}/terms/{term_uid}": {
       "delete": {
         "tags": [
@@ -42271,6 +42348,75 @@
             }
           }
         }
+      }
+    },
+    "/ct/terms/bulk": {
+      "post": {
+        "tags": [
+          "CT Terms"
+        ],
+        "summary": "Creates new ct terms in bulk.",
+        "description": "Bulk create terms inside a single transaction. If a single term fails validation, the entire transaction rolls back.",
+        "operationId": "create_bulk_ct_terms_bulk_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "items": {
+                  "$ref": "#/components/schemas/CTTermCreateInput"
+                },
+                "type": "array",
+                "title": "Terms Input",
+                "description": "List of properties to create CTTermAttributes and CTTermName."
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created - The terms were successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CTTerm"
+                  },
+                  "type": "array",
+                  "title": "Response Create Bulk Ct Terms Bulk Post"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Forbidden - Reasons include e.g.: \n- The catalogue doesn't exist.\n- The library doesn't exist..\n- The library doesn't allow to add new items.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ]
       }
     },
     "/ct/terms/headers": {
