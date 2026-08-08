@@ -43,6 +43,28 @@
                     {{ $t('_global.cancel') }}
                   </v-btn>
                   <v-btn
+                    v-if="formStore.canUndo"
+                    data-cy="undo-button"
+                    class="secondary-btn ml-2"
+                    variant="outlined"
+                    elevation="1"
+                    @click="undo"
+                  >
+                    <v-icon class="mr-1">mdi-undo</v-icon>
+                    {{ $t('_global.undo') }}
+                  </v-btn>
+                  <v-btn
+                    v-if="formStore.canRedo"
+                    data-cy="redo-button"
+                    class="secondary-btn ml-2"
+                    variant="outlined"
+                    elevation="1"
+                    @click="redo"
+                  >
+                    <v-icon class="mr-1">mdi-redo</v-icon>
+                    {{ $t('_global.redo') }}
+                  </v-btn>
+                  <v-btn
                     v-if="currentStep > 1"
                     class="secondary-btn ml-2"
                     variant="outlined"
@@ -140,15 +162,57 @@ export default {
     return {
       currentStep: 1,
       loading: false,
+      isUpdatingFromStore: false,
     }
   },
   watch: {
     currentStep(value) {
       this.$emit('change', value)
     },
+    'formStore.form': {
+      handler(newStoreForm) {
+        const parentForm = this.getParentForm()
+        if (parentForm) {
+          const rawForm = typeof parentForm.value !== 'undefined' ? parentForm.value : parentForm
+          if (newStoreForm && JSON.stringify(rawForm) !== JSON.stringify(newStoreForm)) {
+            this.isUpdatingFromStore = true
+            if (typeof parentForm.value !== 'undefined') {
+              parentForm.value = JSON.parse(JSON.stringify(newStoreForm))
+            } else {
+              for (const key in parentForm) {
+                delete parentForm[key]
+              }
+              Object.assign(parentForm, JSON.parse(JSON.stringify(newStoreForm)))
+            }
+            setTimeout(() => {
+              this.isUpdatingFromStore = false
+            }, 0)
+          }
+        }
+      },
+      deep: true,
+    }
   },
   mounted() {
-    this.formStore.save(this.editData)
+    const formObj = this.getParentForm()
+    const rawForm = formObj ? (typeof formObj.value !== 'undefined' ? formObj.value : formObj) : this.editData
+    this.formStore.save(rawForm)
+
+    if (formObj) {
+      this.$watch(
+        () => {
+          const raw = typeof formObj.value !== 'undefined' ? formObj.value : formObj
+          return JSON.stringify(raw)
+        },
+        (newValStr) => {
+          if (this.isUpdatingFromStore) return
+          if (newValStr) {
+            this.formStore.pushState(JSON.parse(newValStr))
+          }
+        }
+      );
+    }
+
     document.addEventListener('keydown', (evt) => {
       if (evt.code === 'Escape') {
         this.cancel()
@@ -156,6 +220,57 @@ export default {
     })
   },
   methods: {
+    getParentForm() {
+      const parent = this.$parent
+      if (!parent) return null
+      if (parent.$.setupState && parent.$.setupState.form) {
+        return parent.$.setupState.form
+      }
+      if (parent.form) {
+        return parent.form
+      }
+      return null
+    },
+    undo() {
+      const reverted = this.formStore.undo()
+      if (reverted) {
+        this.isUpdatingFromStore = true
+        const formObj = this.getParentForm()
+        if (formObj) {
+          if (typeof formObj.value !== 'undefined') {
+            formObj.value = JSON.parse(JSON.stringify(reverted))
+          } else {
+            for (const key in formObj) {
+              delete formObj[key]
+            }
+            Object.assign(formObj, JSON.parse(JSON.stringify(reverted)))
+          }
+        }
+        setTimeout(() => {
+          this.isUpdatingFromStore = false
+        }, 0)
+      }
+    },
+    redo() {
+      const reverted = this.formStore.redo()
+      if (reverted) {
+        this.isUpdatingFromStore = true
+        const formObj = this.getParentForm()
+        if (formObj) {
+          if (typeof formObj.value !== 'undefined') {
+            formObj.value = JSON.parse(JSON.stringify(reverted))
+          } else {
+            for (const key in formObj) {
+              delete formObj[key]
+            }
+            Object.assign(formObj, JSON.parse(JSON.stringify(reverted)))
+          }
+        }
+        setTimeout(() => {
+          this.isUpdatingFromStore = false
+        }, 0)
+      }
+    },
     async cancel() {
       if (
         this.storedForm === '' ||
@@ -220,6 +335,12 @@ export default {
         return
       }
       this.loading = true
+
+      // Record save-point before starting API operation
+      const formObj = this.getParentForm()
+      const rawForm = formObj ? (typeof formObj.value !== 'undefined' ? formObj.value : formObj) : this.editData
+      this.formStore.saveCheckpoint(rawForm)
+
       this.$emit('save')
     },
   },

@@ -5,6 +5,8 @@
         "actions": "Actions",
         "add": "Add",
         "cancel": "Cancel",
+        "undo": "Undo",
+        "redo": "Redo",
         "close": "Close",
         "clear_all": "Clear all",
         "clear": "Clear",
