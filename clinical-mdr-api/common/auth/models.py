@@ -1,7 +1,8 @@
 from dataclasses import dataclass
+from typing import Any
 
 from authlib.jose import JWTClaims
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, model_validator
 
 from common.exceptions import ForbiddenException
 
@@ -49,6 +50,42 @@ class AccessTokenClaims(JWTTokenClaims):
     """Access token claims"""
 
     roles: set[str] | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_roles(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            # Extract roles from standard 'roles' field if present
+            roles = set()
+            existing_roles = data.get("roles")
+            if existing_roles:
+                if isinstance(existing_roles, (list, set, tuple)):
+                    roles.update(str(r) for r in existing_roles)
+                elif isinstance(existing_roles, str):
+                    roles.add(existing_roles)
+
+            # 1. Realm-level roles: realm_access.roles
+            realm_access = data.get("realm_access")
+            if isinstance(realm_access, dict):
+                realm_roles = realm_access.get("roles")
+                if isinstance(realm_roles, (list, set, tuple)):
+                    roles.update(str(r) for r in realm_roles)
+                elif isinstance(realm_roles, str):
+                    roles.add(realm_roles)
+
+            # 2. Resource/client-level roles: resource_access.<client_id>.roles
+            resource_access = data.get("resource_access")
+            if isinstance(resource_access, dict):
+                for client_config in resource_access.values():
+                    if isinstance(client_config, dict):
+                        client_roles = client_config.get("roles")
+                        if isinstance(client_roles, (list, set, tuple)):
+                            roles.update(str(r) for r in client_roles)
+                        elif isinstance(client_roles, str):
+                            roles.add(client_roles)
+
+            data["roles"] = roles
+        return data
 
     # OpenID Connect Core 1.0 Standard Claims
     name: str | None = None
