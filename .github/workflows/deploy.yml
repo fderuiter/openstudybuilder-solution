@@ -1,0 +1,152 @@
+name: Multi-Stage CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install Pipenv
+        run: |
+          python -m pip install --upgrade pip
+          pip install pipenv
+
+      - name: Build and Start Staging Services
+        run: |
+          docker compose build
+          docker compose up -d
+
+      - name: Wait for Staging Services to be Healthy
+        run: |
+          echo "Waiting for Staging services to become healthy..."
+          timeout=300
+          elapsed=0
+          while [ $elapsed -lt $timeout ]; do
+            unhealthy_count=$(docker ps --filter "label=com.docker.compose.project" --filter "status=running" -q | xargs -r docker inspect --format='{{json .State.Health.Status}}' | grep -v '"healthy"' | wc -l)
+            running_count=$(docker ps --filter "label=com.docker.compose.project" --filter "status=running" -q | wc -l)
+            total_count=$(docker ps --filter "label=com.docker.compose.project" -a -q | wc -l)
+            
+            if [ "$unhealthy_count" -eq 0 ] && [ "$running_count" -eq "$total_count" ] && [ "$total_count" -gt 0 ]; then
+              echo "Staging services are healthy!"
+              break
+            fi
+            echo "Waiting for services... ($elapsed s elapsed, running: $running_count/$total_count, non-healthy: $unhealthy_count)"
+            sleep 10
+            elapsed=$((elapsed + 10))
+          done
+          
+          if [ "$unhealthy_count" -ne 0 ] || [ "$running_count" -ne "$total_count" ]; then
+            echo "Error: Staging services did not become healthy in time."
+            docker ps -a
+            docker compose logs
+            exit 1
+          fi
+
+      - name: Staging Database Initialization
+        env:
+          NEO4J_MDR_HOST: localhost
+          NEO4J_MDR_BOLT_PORT: 5002
+          NEO4J_MDR_AUTH_USER: neo4j
+          NEO4J_MDR_AUTH_PASSWORD: changeme1234
+          NEO4J_MDR_DATABASE: mdrdb
+          NEO4J_MDR_CLEAR_DATABASE: "false"
+        run: |
+          cd neo4j-mdr-db
+          pipenv sync
+          pipenv run python init_neo4j.py
+
+      - name: Apply Sequential Migrations and Corrections to Staging
+        env:
+          DATABASE_URL: bolt://neo4j:changeme1234@localhost:5002
+          DATABASE_NAME: mdrdb
+          API_BASE_URL: http://localhost:5005/api
+        run: |
+          cd db-schema-migration
+          pipenv sync --dev
+          pipenv run python run_sequential.py
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    environment:
+      name: production # Standard manual approval gate via GitHub environments
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install Pipenv
+        run: |
+          python -m pip install --upgrade pip
+          pip install pipenv
+
+      - name: Build and Start Production Services
+        run: |
+          docker compose build
+          docker compose up -d
+
+      - name: Wait for Production Services to be Healthy
+        run: |
+          echo "Waiting for Production services to become healthy..."
+          timeout=300
+          elapsed=0
+          while [ $elapsed -lt $timeout ]; do
+            unhealthy_count=$(docker ps --filter "label=com.docker.compose.project" --filter "status=running" -q | xargs -r docker inspect --format='{{json .State.Health.Status}}' | grep -v '"healthy"' | wc -l)
+            running_count=$(docker ps --filter "label=com.docker.compose.project" --filter "status=running" -q | wc -l)
+            total_count=$(docker ps --filter "label=com.docker.compose.project" -a -q | wc -l)
+            
+            if [ "$unhealthy_count" -eq 0 ] && [ "$running_count" -eq "$total_count" ] && [ "$total_count" -gt 0 ]; then
+              echo "Production services are healthy!"
+              break
+            fi
+            echo "Waiting for services... ($elapsed s elapsed, running: $running_count/$total_count, non-healthy: $unhealthy_count)"
+            sleep 10
+            elapsed=$((elapsed + 10))
+          done
+          
+          if [ "$unhealthy_count" -ne 0 ] || [ "$running_count" -ne "$total_count" ]; then
+            echo "Error: Production services did not become healthy in time."
+            docker ps -a
+            docker compose logs
+            exit 1
+          fi
+
+      - name: Production Database Initialization
+        env:
+          NEO4J_MDR_HOST: localhost
+          NEO4J_MDR_BOLT_PORT: 5002
+          NEO4J_MDR_AUTH_USER: neo4j
+          NEO4J_MDR_AUTH_PASSWORD: changeme1234
+          NEO4J_MDR_DATABASE: mdrdb
+          NEO4J_MDR_CLEAR_DATABASE: "false"
+        run: |
+          cd neo4j-mdr-db
+          pipenv sync
+          pipenv run python init_neo4j.py
+
+      - name: Apply Sequential Migrations and Corrections to Production
+        env:
+          DATABASE_URL: bolt://neo4j:changeme1234@localhost:5002
+          DATABASE_NAME: mdrdb
+          API_BASE_URL: http://localhost:5005/api
+        run: |
+          cd db-schema-migration
+          pipenv sync --dev
+          pipenv run python run_sequential.py
