@@ -13,14 +13,6 @@ yarn build:dev          # Build with dev mode
 yarn build:staging      # Build with staging mode
 ```
 
-## Testing
-```bash
-yarn test:unit          # Run Jest unit tests with coverage
-```
-- Tests are in `tests/` directory
-- Jest config: `jest.config.js`
-- Coverage is collected from `src/` (excluding locales and plugins)
-
 ## Code Quality
 ```bash
 yarn lint               # Run ESLint with auto-fix
