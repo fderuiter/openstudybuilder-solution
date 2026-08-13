@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 
 from common.auth.dependencies import dummy_user
-from common.auth.models import User
+from common.auth.models import AccessTokenClaims, User
 from common.exceptions import ForbiddenException
 
 user_obj = dummy_user()
@@ -199,3 +199,66 @@ def test_authorize_negative():
         exc.value.msg
         == "At least one of the following roles is required: ['Library.Read', 'Library.Write']"
     )
+
+
+def test_access_token_claims_role_normalization():
+    # Base claims required by JWTTokenClaims
+    base_claims = {
+        "iss": "https://keycloak.example.com",
+        "sub": "user123",
+        "aud": ["my-app"],
+        "exp": 1999999999,
+        "iat": 1555555555,
+    }
+
+    # Case 1: Simple/legacy flat roles array
+    claims_flat = {**base_claims, "roles": ["legacy-role1", "legacy-role2"]}
+    token_claims = AccessTokenClaims.model_validate(claims_flat)
+    assert token_claims.roles == {"legacy-role1", "legacy-role2"}
+
+    # Case 2: Standard Keycloak realm roles
+    claims_realm = {
+        **base_claims,
+        "realm_access": {
+            "roles": ["offline_access", "uma_authorization", "realm-admin"]
+        }
+    }
+    token_claims = AccessTokenClaims.model_validate(claims_realm)
+    assert token_claims.roles == {"offline_access", "uma_authorization", "realm-admin"}
+
+    # Case 3: Standard Keycloak resource/client roles
+    claims_resource = {
+        **base_claims,
+        "resource_access": {
+            "account": {
+                "roles": ["view-profile", "manage-account"]
+            },
+            "my-client": {
+                "roles": ["client-admin"]
+            }
+        }
+    }
+    token_claims = AccessTokenClaims.model_validate(claims_resource)
+    assert token_claims.roles == {"view-profile", "manage-account", "client-admin"}
+
+    # Case 4: Mixture of flat, realm-level, and resource-level roles
+    claims_mixed = {
+        **base_claims,
+        "roles": ["root-role"],
+        "realm_access": {
+            "roles": ["realm-role"]
+        },
+        "resource_access": {
+            "client-a": {
+                "roles": ["client-role"]
+            }
+        }
+    }
+    token_claims = AccessTokenClaims.model_validate(claims_mixed)
+    assert token_claims.roles == {"root-role", "realm-role", "client-role"}
+
+    # Case 5: Missing or empty roles -> falls back to empty collection safely
+    claims_empty = {**base_claims}
+    token_claims = AccessTokenClaims.model_validate(claims_empty)
+    assert token_claims.roles == set()
+

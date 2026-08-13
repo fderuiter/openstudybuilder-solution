@@ -5,6 +5,33 @@ import { Buffer } from 'buffer'
 
 let manager = null
 
+function extractAndFlattenRoles(data) {
+  const roles = new Set()
+
+  if (data && data.roles) {
+    if (Array.isArray(data.roles)) {
+      data.roles.forEach((r) => roles.add(String(r)))
+    } else if (typeof data.roles === 'string') {
+      roles.add(data.roles)
+    }
+  }
+
+  if (data && data.realm_access && Array.isArray(data.realm_access.roles)) {
+    data.realm_access.roles.forEach((r) => roles.add(String(r)))
+  }
+
+  if (data && data.resource_access && typeof data.resource_access === 'object') {
+    for (const clientKey of Object.keys(data.resource_access)) {
+      const clientConfig = data.resource_access[clientKey]
+      if (clientConfig && Array.isArray(clientConfig.roles)) {
+        clientConfig.roles.forEach((r) => roles.add(String(r)))
+      }
+    }
+  }
+
+  return Array.from(roles)
+}
+
 const authInterface = {
   validateAccess: function (to) {
     manager.getUser().then((user) => {
@@ -38,9 +65,11 @@ const authInterface = {
       if (!user || user.expired) {
         return null
       }
-      return JSON.parse(
+      const userInfo = JSON.parse(
         Buffer.from(user.access_token.split('.')[1], 'base64').toString()
       )
+      userInfo.roles = extractAndFlattenRoles(userInfo)
+      return userInfo
     })
   },
   oauthLogout: async function () {

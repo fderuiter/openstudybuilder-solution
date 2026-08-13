@@ -1278,7 +1278,8 @@ router.beforeEach(async (to, from, next) => {
       auth.validateAccess(to, from, next)
     }
     if (to.matched.some((record) => record.meta.requiredPermission)) {
-      if (!authStore.userInfo.roles.includes(to.meta.requiredPermission)) {
+      const roles = authStore.userInfo?.roles || []
+      if (!Array.isArray(roles) || !roles.includes(to.meta.requiredPermission)) {
         next(false)
       }
     }

@@ -7,7 +7,8 @@ export function useAccessGuard() {
   function checkPermission(permission) {
     const $config = inject('$config')
     if ($config.OAUTH_ENABLED && $config.OAUTH_RBAC_ENABLED) {
-      return authStore.userInfo.roles.includes(permission)
+      const roles = authStore.userInfo?.roles || []
+      return Array.isArray(roles) && roles.includes(permission)
     }
     return true
   }
