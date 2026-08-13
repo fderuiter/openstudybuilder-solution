@@ -1,5 +1,23 @@
 <template>
   <div>
+    <v-alert
+      v-if="epochsStore.syncError"
+      type="error"
+      class="mb-4"
+      closable
+      @click:close="epochsStore.clearSyncError"
+    >
+      {{ $t('_global.sync_error') }}
+      <v-btn
+        variant="text"
+        color="white"
+        class="ml-4"
+        :loading="epochsStore.isSyncing"
+        @click="epochsStore.syncRetryAction"
+      >
+        {{ $t('_global.retry') }}
+      </v-btn>
+    </v-alert>
     <NNTable
       ref="table"
       :headers="headers"
@@ -184,6 +202,7 @@ import CohortsStepper from './CohortsStepper.vue'
 import { useAccessGuard } from '@/composables/accessGuard'
 import HistoryTable from '@/components/tools/HistoryTable.vue'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
+import { useEpochsStore } from '@/stores/studies-epochs'
 import filteringParameters from '@/utils/filteringParameters'
 import { computed, onMounted, inject, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -195,6 +214,7 @@ const { t } = useI18n()
 const notificationHub = inject('notificationHub')
 const roles = inject('roles')
 const studiesGeneralStore = useStudiesGeneralStore()
+const epochsStore = useEpochsStore()
 const accessGuard = useAccessGuard()
 const table = ref()
 const confirm = ref()
@@ -355,12 +375,14 @@ function fetchStudyBranchArms(filters, options, filtersUpdated) {
 
 function closeCohortStepper() {
   showCohortsStepper.value = false
-  cohortsApi
-    .checkDesignClassEditable(studiesGeneralStore.selectedStudy.uid)
-    .then((resp) => {
-      editStepper.value = !resp.data
-    })
-  table.value.filterTable()
+  epochsStore.syncStudyStructure(studiesGeneralStore.selectedStudy.uid, () => {
+    cohortsApi
+      .checkDesignClassEditable(studiesGeneralStore.selectedStudy.uid)
+      .then((resp) => {
+        editStepper.value = !resp.data
+      })
+    table.value.filterTable()
+  })
 }
 
 function closeForm() {

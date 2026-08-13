@@ -120,12 +120,44 @@ export const useEpochsStore = defineStore('epochs', () => {
       })
   }
 
+  const syncError = ref(null)
+  const isSyncing = ref(false)
+  const syncRetryAction = ref(null)
+
+  async function syncStudyStructure(studyUid, onComplete) {
+    isSyncing.value = true
+    syncError.value = null
+    try {
+      // sequential background requests
+      await fetchStudyEpochs({ studyUid })
+      await fetchStudyVisits(studyUid, { page_size: 0 })
+      if (onComplete) {
+        await onComplete()
+      }
+    } catch (err) {
+      console.error('Study structure synchronization failed:', err)
+      syncError.value = err.message || 'Synchronization failed'
+      syncRetryAction.value = () => syncStudyStructure(studyUid, onComplete)
+    } finally {
+      isSyncing.value = false
+    }
+  }
+
+  function clearSyncError() {
+    syncError.value = null
+  }
+
   return {
     studyEpochs,
     studyVisits,
     totalVisits,
     allowedConfigs,
     studyTimeUnits,
+    syncError,
+    isSyncing,
+    syncRetryAction,
+    syncStudyStructure,
+    clearSyncError,
     fetchStudyVisits,
     fetchFilteredStudyVisits,
     getStudyVisitPreview,

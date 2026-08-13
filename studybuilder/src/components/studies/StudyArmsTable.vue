@@ -1,5 +1,23 @@
 <template>
   <div>
+    <v-alert
+      v-if="epochsStore.syncError"
+      type="error"
+      class="mb-4"
+      closable
+      @click:close="epochsStore.clearSyncError"
+    >
+      {{ $t('_global.sync_error') }}
+      <v-btn
+        variant="text"
+        color="white"
+        class="ml-4"
+        :loading="epochsStore.isSyncing"
+        @click="epochsStore.syncRetryAction"
+      >
+        {{ $t('_global.retry') }}
+      </v-btn>
+    </v-alert>
     <NNTable
       ref="table"
       :headers="headers"
@@ -151,6 +169,7 @@ import HistoryTable from '@/components/tools/HistoryTable.vue'
 import CohortsStepper from './CohortsStepper.vue'
 import { useAccessGuard } from '@/composables/accessGuard'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
+import { useEpochsStore } from '@/stores/studies-epochs'
 import { computed, inject, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
@@ -160,6 +179,7 @@ const { t } = useI18n()
 const notificationHub = inject('notificationHub')
 const roles = inject('roles')
 const studiesGeneralStore = useStudiesGeneralStore()
+const epochsStore = useEpochsStore()
 const accessGuard = useAccessGuard()
 const table = ref()
 const confirm = ref()
@@ -291,22 +311,24 @@ function fetchStudyArms(filters, options, filtersUpdated) {
 
 function closeCohortStepper() {
   showCohortsStepper.value = false
-  cohortsApi
-    .checkDesignClassEditable(studiesGeneralStore.selectedStudy.uid)
-    .then((resp) => {
-      editStepper.value = !resp.data
-    })
-  cohortsApi
-    .getStudyDesignClass(studiesGeneralStore.selectedStudy.uid)
-    .then((resp) => {
-      designClass.value = resp.data.value
-    })
-    .catch((error) => {
-      if (error.response.status === 404) {
-        console.error(error)
-      }
-    })
-  table.value.filterTable()
+  epochsStore.syncStudyStructure(studiesGeneralStore.selectedStudy.uid, () => {
+    cohortsApi
+      .checkDesignClassEditable(studiesGeneralStore.selectedStudy.uid)
+      .then((resp) => {
+        editStepper.value = !resp.data
+      })
+    cohortsApi
+      .getStudyDesignClass(studiesGeneralStore.selectedStudy.uid)
+      .then((resp) => {
+        designClass.value = resp.data.value
+      })
+      .catch((error) => {
+        if (error.response.status === 404) {
+          console.error(error)
+        }
+      })
+    table.value.filterTable()
+  })
 }
 
 function closeForm() {

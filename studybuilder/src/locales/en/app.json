@@ -5,6 +5,8 @@
         "actions": "Actions",
         "add": "Add",
         "cancel": "Cancel",
+        "retry": "Retry",
+        "sync_error": "Study structure state synchronization failed.",
         "undo": "Undo",
         "redo": "Redo",
         "close": "Close",
