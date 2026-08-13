@@ -53,7 +53,8 @@ module.exports = {
                     collapsable: true,
                     children: [
                         'governance/licensing_model',
-                        'governance/contribution_charter'
+                        'governance/contribution_charter',
+                        'governance/product_rfc_template'
                     ]
                 },
                 'glossary/glossary.md'
