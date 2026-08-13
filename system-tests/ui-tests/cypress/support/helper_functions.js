@@ -15,12 +15,12 @@ export function stringToBoolean(value) {
 }
 
 export function getCurrStudyUid() {
-  let current_study = JSON.parse(window.localStorage.getItem("selectedStudy"));
+  let current_study = JSON.parse(window.sessionStorage.getItem("selectedStudy"));
   return current_study.uid;
 }
 
 export function getCurrentStudyId() {
-  let current_study = JSON.parse(window.localStorage.getItem("selectedStudy"));
+  let current_study = JSON.parse(window.sessionStorage.getItem("selectedStudy"));
   return current_study.current_metadata.identification_metadata.study_id
 }
 

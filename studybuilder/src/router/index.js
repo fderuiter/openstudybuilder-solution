@@ -1236,7 +1236,7 @@ const router = createRouter({
 async function saveStudyUid(studyUid) {
   const store = useStudiesGeneralStore()
   const currentlySelectedStudy = JSON.parse(
-    localStorage.getItem('selectedStudy')
+    sessionStorage.getItem('selectedStudy')
   )
   if (
     !currentlySelectedStudy ||

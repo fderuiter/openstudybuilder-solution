@@ -125,7 +125,7 @@ const router = useRouter()
 const route = useRoute()
 
 const confirmRef = ref()
-const studyUid = generalUtils.extractStudyUidFromLocalStorage()
+const studyUid = generalUtils.extractStudyUidFromSessionStorage()
 const protocol = ref([
   {
     title: t('ProtocolProcessView.select_study'),
@@ -295,10 +295,10 @@ function goToNextUrl() {
   }
   if (!nextUrl.params) {
     nextUrl.params = {
-      study_id: generalUtils.extractStudyUidFromLocalStorage(),
+      study_id: generalUtils.extractStudyUidFromSessionStorage(),
     }
   } else {
-    nextUrl.params.study_id = generalUtils.extractStudyUidFromLocalStorage()
+    nextUrl.params.study_id = generalUtils.extractStudyUidFromSessionStorage()
   }
   const resolved = router.resolve(nextUrl)
   const [menuItem, menuSubItem] = appStore.findMenuItemPath(

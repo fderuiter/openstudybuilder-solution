@@ -113,11 +113,11 @@ export const useStudiesGeneralStore = defineStore('studiesGeneral', {
   actions: {
     unselectStudy() {
       this.selectedStudy = null
-      localStorage.removeItem('selectedStudy')
+      sessionStorage.removeItem('selectedStudy')
     },
 
     async initialize() {
-      const selectedStudy = localStorage.getItem('selectedStudy')
+      const selectedStudy = sessionStorage.getItem('selectedStudy')
       if (selectedStudy) {
         const parsedStudy = JSON.parse(selectedStudy)
         await this.selectStudy(parsedStudy)
@@ -136,7 +136,7 @@ export const useStudiesGeneralStore = defineStore('studiesGeneral', {
         this.selectedStudyVersion =
           studyObj.current_metadata.version_metadata.version_number
       }
-      localStorage.setItem('selectedStudy', JSON.stringify(studyObj))
+      sessionStorage.setItem('selectedStudy', JSON.stringify(studyObj))
       let resp
       resp = await study.getStudyPreferredTimeUnit(studyObj.uid)
       this.studyPreferredTimeUnit = resp.data

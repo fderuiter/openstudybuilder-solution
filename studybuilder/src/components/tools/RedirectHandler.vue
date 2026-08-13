@@ -115,7 +115,7 @@ export default {
     },
     goToNextUrl() {
       this.nextUrl.params = {
-        study_id: generalUtils.extractStudyUidFromLocalStorage(),
+        study_id: generalUtils.extractStudyUidFromSessionStorage(),
       }
       const resolved = this.$router.resolve(this.nextUrl)
       document.location.href = resolved.href

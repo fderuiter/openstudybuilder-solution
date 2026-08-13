@@ -9,8 +9,8 @@ function extractStudyUidFromUrl(path) {
   }
 }
 
-function extractStudyUidFromLocalStorage() {
-  const selectedStudy = JSON.parse(localStorage.getItem('selectedStudy'))
+function extractStudyUidFromSessionStorage() {
+  const selectedStudy = JSON.parse(sessionStorage.getItem('selectedStudy'))
   if (selectedStudy) {
     return selectedStudy.uid
   } else {
@@ -39,5 +39,5 @@ export function getAppEnv() {
 
 export default {
   extractStudyUidFromUrl,
-  extractStudyUidFromLocalStorage,
+  extractStudyUidFromSessionStorage,
 }

@@ -19,11 +19,11 @@ function getStudyUid() {
   if (studyUidFromUrl) {
     return studyUidFromUrl
   }
-  const selectedStudyFromLocalStorage = JSON.parse(
-    localStorage.getItem('selectedStudy')
+  const selectedStudyFromSessionStorage = JSON.parse(
+    sessionStorage.getItem('selectedStudy')
   )
-  if (selectedStudyFromLocalStorage) {
-    return selectedStudyFromLocalStorage.uid
+  if (selectedStudyFromSessionStorage) {
+    return selectedStudyFromSessionStorage.uid
   }
   return '*'
 }
