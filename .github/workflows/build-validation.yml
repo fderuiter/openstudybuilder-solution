@@ -153,6 +153,7 @@ jobs:
           ln -s ${{ github.workspace }}/mdr-standards-import ${{ github.workspace }}/mdr_standards_import
           ln -s ${{ github.workspace }}/studybuilder-import ${{ github.workspace }}/studybuilder_import
           ln -s ${{ github.workspace }}/neo4j-mdr-db ${{ github.workspace }}/neo4j_mdr_db
+          ln -s ${{ github.workspace }}/mdr-standards-import/mdr_standards_import/scripts ${{ github.workspace }}/mdr-standards-import/scripts
 
       - name: Run Database Initialization
         env:
@@ -162,7 +163,7 @@ jobs:
           NEO4J_MDR_AUTH_PASSWORD: changeme1234
           NEO4J_MDR_DATABASE: mdrdb
           NEO4J_MDR_CLEAR_DATABASE: "false"
-          PYTHONPATH: ${{ github.workspace }}
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/clinical-mdr-api
         run: |
           cd neo4j-mdr-db
           pipenv sync
@@ -173,7 +174,7 @@ jobs:
           DATABASE_URL: bolt://neo4j:changeme1234@localhost:5002
           DATABASE_NAME: mdrdb
           API_BASE_URL: http://localhost:5005/api
-          PYTHONPATH: ${{ github.workspace }}
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/clinical-mdr-api
         run: |
           cd db-schema-migration
           pipenv sync --dev
