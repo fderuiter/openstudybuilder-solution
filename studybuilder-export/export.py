@@ -100,6 +100,25 @@ class StudyExporter:
             all_data.extend(data)
         return all_data
 
+    def download_odm_xml(self, target_uid, target_type="study", filename=None):
+        path = "/odms/metadata/xmls/export"
+        params = {
+            "target_type": target_type,
+            "targets": [target_uid],
+        }
+        response = self.client.post(path, params=params)
+        if response.is_success:
+            self.log.info(f"Successfully exported ODM XML for {target_uid}")
+            filepath = os.path.join(OUTPUT_DIR, filename or f"odm_{target_uid}.xml")
+            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+            with open(filepath, "wb") as f:
+                f.write(response.content)
+        else:
+            if response.text:
+                self.log.error(f"Failed to export ODM XML for {target_uid}: {response.text}")
+            else:
+                self.log.error(f"Failed to export ODM XML for {target_uid}")
+
     def get_dictionary_uid(self, library):
         params = {"library_name": library}
         data = self.get_from_api(f"/dictionaries/codelists", params=params)
@@ -365,6 +384,12 @@ def run_export():
         api.log.info(f"Export metadata for study uid: {uid}")
         study = api.get_from_api(f"/studies/{uid}?fields={fields}")
         api.save_formatted_json(study, OUTPUT_DIR, f"studies/{uid}.json")
+
+    # Study CDISC ODM XML Metadata
+    api.log.info("=== Export study CDISC ODM XML ===")
+    for uid in study_uids:
+        api.log.info(f"Export ODM XML for study uid: {uid}")
+        api.download_odm_xml(uid, filename=f"studies/{uid}.xml")
 
     # Study design
     api.log.info("=== Export study design ===")

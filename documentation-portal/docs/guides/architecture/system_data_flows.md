@@ -11,6 +11,16 @@ The system supports the following data flows.
 | Read Only User<br>(and all other users) | Dedicated Read Only Users and all other system users can browse data for all library elements and study definitions from the OpenStudyBuilder app. <br> They can also connect directly to the Clinical MDR graph database using SSO for browsing and exploring data via the defined NeoDash reports. <br> All users also have access to the user guides and system documentation via the documentation portal. |
 | Downstream Systems | Can connect to the Clinical MDR API using dedicated user accounts or system accounts and access all data. |
 
+
+### Strict Unidirectional System Boundary
+
+To prevent HIPAA/GDPR overhead and eliminate performance degradation (such as Neo4j write-locks during operational versioning), the OpenStudyBuilder architecture mandates a strict **unidirectional metadata boundary**:
+
+1.  **Downstream-Only Delivery:** Metadata (e.g., study specifications, CDISC ODM designs) flows exclusively *outward* from the MDR to downstream systems.
+2.  **Zero Inbound Transactional Data:** No downstream systems or actors may write clinical patient records, individual subject results, or execution-level clinical transaction parameters back into the Clinical MDR.
+3.  **Preventive Schema Filtering:** Static Pydantic schema validation at the MDR API boundary rejects any incoming POST/PUT/PATCH request payloads that attempt to submit subject, patient, or transactional execution parameters.
+
+
 > NOTES:
 > - Confidential study definition access is planned but not yet implemented.
 > - Integrations via Mulesoft API is planned but not yet implemented.
