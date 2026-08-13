@@ -228,10 +228,13 @@ class ODMBuilder:
         ]
 
     @cached_property
+    def _hydrated_data(self):
+        from clinical_mdr_api.domain_repositories.odms.form_repository import FormRepository
+        return FormRepository().get_hydrated_forms_by_study(self.study_uid)
+
+    @cached_property
     def odm_forms(self) -> list[OdmForm]:
-        # TODO: add filtering by StudyUID when it gets implemented in database schema
-        result = OdmFormService().get_all_odms()
-        return result.items
+        return self._hydrated_data["forms"]
 
     def get_odm_form_defs(self) -> list[ctrxml.FormDef]:
         return [
@@ -276,13 +279,7 @@ class ODMBuilder:
 
     @cached_property
     def odm_item_groups(self) -> list[OdmItemGroup]:
-        uids = [
-            item_group.uid for form in self.odm_forms for item_group in form.item_groups
-        ]
-        result = OdmItemGroupService().get_all_odms(
-            filter_by={"uid": {"v": uids, "op": "eq"}}
-        )
-        return result.items
+        return self._hydrated_data["item_groups"]
 
     def get_odm_item_group_defs(self) -> list[ctrxml.ItemGroupDef]:
         return [
@@ -335,13 +332,7 @@ class ODMBuilder:
 
     @cached_property
     def odm_items(self) -> list[OdmItem]:
-        uids = [
-            item.uid for item_group in self.odm_item_groups for item in item_group.items
-        ]
-        result = OdmItemService().get_all_odms(
-            filter_by={"uid": {"v": uids, "op": "eq"}}
-        )
-        return result.items
+        return self._hydrated_data["items"]
 
     def get_odm_item_defs(self) -> list[ctrxml.ItemDef]:
         return [
@@ -368,19 +359,7 @@ class ODMBuilder:
 
     @cached_property
     def ct_codelist_attributes(self) -> list[CTCodelistAttributes]:
-        uids = [item.codelist.uid for item in self.odm_items if item.codelist]
-        result = CTCodelistAttributesService().get_all_ct_codelists(
-            catalogue_name=None,
-            library=None,
-            package=None,
-            filter_by={
-                "codelist_uid": {
-                    "v": uids,
-                    "op": "eq",
-                }
-            },
-        )
-        return result.items
+        return self._hydrated_data["codelists"]
 
     def get_odm_codelists(self) -> list[ctrxml.CodeList]:
         return [

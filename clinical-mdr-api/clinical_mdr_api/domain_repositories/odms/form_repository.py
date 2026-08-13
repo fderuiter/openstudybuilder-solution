@@ -334,3 +334,412 @@ apoc.coll.toSet([vendor_element_attribute in vendor_element_attributes | vendor_
             """,
             {"root_uid": root.uid},
         )
+
+    @ensure_transaction(db)
+    def get_hydrated_forms_by_study(self, study_uid: str) -> dict[str, list[Any]]:
+        from datetime import datetime, timezone
+        from clinical_mdr_api.models.odms.form import OdmForm
+        from clinical_mdr_api.models.odms.common_models import (
+            OdmTranslatedTextModel,
+            OdmAliasModel,
+            OdmRefVendor,
+            OdmRefVendorAttributeModel,
+        )
+        from clinical_mdr_api.models.odms.item_group import (
+            OdmItemGroup,
+            OdmItemGroupRefModel,
+        )
+        from clinical_mdr_api.models.odms.item import (
+            OdmItem,
+            OdmItemRefModel,
+        )
+        from clinical_mdr_api.models.controlled_terminologies.ct_codelist_attributes import (
+            CTCodelistAttributes,
+            CTCodelistAttributesSimpleModel,
+        )
+        from common.utils import booltostr
+
+        query = """
+        MATCH (study_root:StudyRoot {uid: $study_uid})-[:LATEST|HAS_VERSION]->(study_value:StudyValue)-[:HAS_STUDY_VISIT]->(study_visit:StudyVisit)
+        MATCH (se_root:OdmStudyEventRoot {uid: study_visit.uid})-[:LATEST|HAS_VERSION]->(se_value:OdmStudyEventValue)-[:FORM_REF]->(form_value:OdmFormValue)
+        MATCH (form_root:OdmFormRoot)-[:LATEST|HAS_VERSION]->(form_value)
+
+        WITH DISTINCT form_root, form_value
+        OPTIONAL MATCH (library:Library)-[:CONTAINS_ODM]->(form_root)
+
+        CALL {
+            WITH form_root, form_value
+            MATCH (form_root)-[hv:HAS_VERSION]->(form_value)
+            WITH hv
+            ORDER BY
+                toInteger(split(hv.version, '.')[0]) ASC,
+                toInteger(split(hv.version, '.')[1]) ASC,
+                hv.end_date ASC,
+                hv.start_date ASC
+            RETURN hv AS form_version_rel
+        }
+
+        OPTIONAL MATCH (author:User) WHERE author.user_id = form_version_rel.author_id
+
+        WITH *,
+        [(form_value)-[:HAS_TRANSLATED_TEXT]->(tt:OdmTranslatedText) | {text_type: tt.text_type, language: tt.language, text: tt.text}] AS form_translated_texts,
+        [(form_value)-[:HAS_ALIAS]->(al:OdmAlias) | {name: al.name, context: al.context}] AS form_aliases
+
+        CALL {
+            WITH form_value
+            OPTIONAL MATCH (form_value)-[ig_ref:ITEM_GROUP_REF]->(ig_value:OdmItemGroupValue)<-[:LATEST|HAS_VERSION]-(ig_root:OdmItemGroupRoot)
+            WHERE ig_value IS NOT NULL
+            
+            CALL {
+                WITH ig_root, ig_value
+                MATCH (ig_root)-[ig_hv:HAS_VERSION]->(ig_value)
+                WITH ig_hv
+                ORDER BY
+                    toInteger(split(ig_hv.version, '.')[0]) ASC,
+                    toInteger(split(ig_hv.version, '.')[1]) ASC,
+                    ig_hv.end_date ASC,
+                    ig_hv.start_date ASC
+                RETURN ig_hv AS ig_version_rel
+            }
+            
+            WITH ig_root, ig_value, ig_ref, ig_version_rel,
+            [(ig_value)-[:HAS_TRANSLATED_TEXT]->(ig_tt:OdmTranslatedText) | {text_type: ig_tt.text_type, language: ig_tt.language, text: ig_tt.text}] AS ig_translated_texts,
+            [(ig_value)-[:HAS_ALIAS]->(ig_al:OdmAlias) | {name: ig_al.name, context: ig_al.context}] AS ig_aliases
+            
+            CALL {
+                WITH ig_value
+                OPTIONAL MATCH (ig_value)-[i_ref:ITEM_REF]->(i_value:OdmItemValue)<-[:LATEST|HAS_VERSION]-(i_root:OdmItemRoot)
+                WHERE i_value IS NOT NULL
+                
+                CALL {
+                    WITH i_root, i_value
+                    MATCH (i_root)-[i_hv:HAS_VERSION]->(i_value)
+                    WITH i_hv
+                    ORDER BY
+                        toInteger(split(i_hv.version, '.')[0]) ASC,
+                        toInteger(split(i_hv.version, '.')[1]) ASC,
+                        i_hv.end_date ASC,
+                        i_hv.start_date ASC
+                    RETURN i_hv AS i_version_rel
+                }
+                
+                WITH i_root, i_value, i_ref, i_version_rel,
+                [(i_value)-[:HAS_TRANSLATED_TEXT]->(i_tt:OdmTranslatedText) | {text_type: i_tt.text_type, language: i_tt.language, text: i_tt.text}] AS i_translated_texts,
+                [(i_value)-[:HAS_ALIAS]->(i_al:OdmAlias) | {name: i_al.name, context: i_al.context}] AS i_aliases
+                
+                OPTIONAL MATCH (i_value)-[:HAS_CODELIST]->(cl_root:CTCodelistRoot)-[:HAS_ATTRIBUTES_ROOT]->(cl_attr_root:CTCodelistAttributesRoot)-[:LATEST]->(cl_attr_value:CTCodelistAttributesValue)
+                
+                RETURN collect({
+                    uid: i_root.uid,
+                    oid: i_value.oid,
+                    name: i_value.name,
+                    datatype: i_value.datatype,
+                    length: i_value.length,
+                    significant_digits: i_value.significant_digits,
+                    sas_field_name: i_value.sas_field_name,
+                    sds_var_name: i_value.sds_var_name,
+                    origin: i_value.origin,
+                    comment: i_value.comment,
+                    prompt: i_value.prompt,
+                    order_number: toInteger(i_ref.order_number),
+                    mandatory: i_ref.mandatory,
+                    collection_exception_condition_oid: i_ref.collection_exception_condition_oid,
+                    method_oid: i_ref.method_oid,
+                    role: i_ref.role,
+                    version: i_version_rel.version,
+                    translated_texts: i_translated_texts,
+                    aliases: i_aliases,
+                    codelist: CASE WHEN cl_root IS NOT NULL THEN {
+                        uid: cl_root.uid,
+                        oid: cl_root.uid,
+                        codelist_uid: cl_root.uid,
+                        name: cl_attr_value.name,
+                        datatype: cl_attr_value.datatype,
+                        sas_format_name: cl_attr_value.sas_format_name,
+                        submission_value: cl_attr_value.submission_value,
+                        extensible: coalesce(cl_attr_value.extensible, false),
+                        preferred_term: cl_attr_value.preferred_term,
+                        synonyms: split(coalesce(cl_attr_value.synonyms, ""), "|"),
+                        is_ordinal: coalesce(cl_attr_value.is_ordinal, false),
+                        allows_multi_choice: cl_attr_value.allows_multi_choice
+                    } ELSE null END
+                }) AS items_list
+            }
+            
+            RETURN collect({
+                uid: ig_root.uid,
+                oid: ig_value.oid,
+                name: ig_value.name,
+                repeating: toString(ig_value.repeating),
+                is_reference_data: toString(ig_value.is_reference_data),
+                sas_dataset_name: ig_value.sas_dataset_name,
+                origin: ig_value.origin,
+                purpose: ig_value.purpose,
+                comment: ig_value.comment,
+                order_number: toInteger(ig_ref.order_number),
+                mandatory: ig_ref.mandatory,
+                collection_exception_condition_oid: ig_ref.collection_exception_condition_oid,
+                version: ig_version_rel.version,
+                translated_texts: ig_translated_texts,
+                aliases: ig_aliases,
+                items: items_list
+            }) AS item_groups_list
+        }
+
+        RETURN
+            form_root.uid AS uid,
+            form_value.oid AS oid,
+            form_value.name AS name,
+            toString(form_value.repeating) AS repeating,
+            form_value.sdtm_version AS sdtm_version,
+            coalesce(library.name, "Sponsor") AS library_name,
+            form_version_rel.start_date AS start_date,
+            form_version_rel.end_date AS end_date,
+            form_version_rel.status AS status,
+            form_version_rel.version AS version,
+            form_version_rel.change_description AS change_description,
+            coalesce(author.username, form_version_rel.author_id) AS author_username,
+            form_translated_texts AS translated_texts,
+            form_aliases AS aliases,
+            item_groups_list AS item_groups
+        """
+        results, _ = db.cypher_query(query, {"study_uid": study_uid})
+
+        forms_list = []
+        item_groups_dict = {}
+        items_dict = {}
+        codelists_dict = {}
+
+        for row in results:
+            form_uid = row[0]
+            form_oid = row[1]
+            form_name = row[2]
+            form_repeating_val = row[3]
+            form_sdtm_version = row[4]
+            form_library_name = row[5]
+            form_start_date = row[6] or datetime.now(timezone.utc)
+            form_end_date = row[7]
+            form_status = row[8] or "Draft"
+            form_version = row[9] or "0.1"
+            form_change_description = row[10] or "Created"
+            form_author_username = row[11] or "unknown"
+            form_translated_texts = row[12] or []
+            form_aliases = row[13] or []
+            form_item_groups = row[14] or []
+
+            tt_models = [
+                OdmTranslatedTextModel(
+                    text_type=tt["text_type"],
+                    language=tt["language"],
+                    text=tt["text"]
+                )
+                for tt in form_translated_texts
+            ]
+            alias_models = [
+                OdmAliasModel(
+                    name=al["name"],
+                    context=al["context"]
+                )
+                for al in form_aliases
+            ]
+
+            ig_ref_models = []
+            for ig in form_item_groups:
+                ig_uid = ig["uid"]
+                if not ig_uid:
+                    continue
+                
+                ig_ref_models.append(
+                    OdmItemGroupRefModel(
+                        uid=ig_uid,
+                        oid=ig["oid"],
+                        name=ig["name"],
+                        version=ig["version"],
+                        order_number=ig["order_number"],
+                        mandatory=booltostr(ig["mandatory"]),
+                        collection_exception_condition_oid=ig["collection_exception_condition_oid"],
+                        vendor=OdmRefVendor(attributes=[])
+                    )
+                )
+
+                if ig_uid not in item_groups_dict:
+                    ig_tt_models = [
+                        OdmTranslatedTextModel(
+                            text_type=tt["text_type"],
+                            language=tt["language"],
+                            text=tt["text"]
+                        )
+                        for tt in (ig["translated_texts"] or [])
+                    ]
+                    ig_alias_models = [
+                        OdmAliasModel(
+                            name=al["name"],
+                            context=al["context"]
+                        )
+                        for al in (ig["aliases"] or [])
+                    ]
+
+                    i_ref_models = []
+                    for item in (ig["items"] or []):
+                        item_uid = item["uid"]
+                        if not item_uid:
+                            continue
+                        
+                        i_ref_models.append(
+                            OdmItemRefModel(
+                                uid=item_uid,
+                                oid=item["oid"],
+                                name=item["name"],
+                                version=item["version"],
+                                order_number=item["order_number"],
+                                mandatory=booltostr(item["mandatory"]),
+                                collection_exception_condition_oid=item["collection_exception_condition_oid"],
+                                method_oid=item["method_oid"],
+                                role=item["role"],
+                                role_codelist_oid=None,
+                                vendor=OdmRefVendor(attributes=[])
+                            )
+                        )
+
+                        if item_uid not in items_dict:
+                            item_tt_models = [
+                                OdmTranslatedTextModel(
+                                    text_type=tt["text_type"],
+                                    language=tt["language"],
+                                    text=tt["text"]
+                                )
+                                for tt in (item["translated_texts"] or [])
+                            ]
+                            item_alias_models = [
+                                OdmAliasModel(
+                                    name=al["name"],
+                                    context=al["context"]
+                                )
+                                for al in (item["aliases"] or [])
+                            ]
+
+                            cl_simple_model = None
+                            if item["codelist"]:
+                                cl = item["codelist"]
+                                cl_simple_model = CTCodelistAttributesSimpleModel(
+                                    uid=cl["uid"],
+                                    name=cl["name"],
+                                    datatype=cl["datatype"],
+                                    sas_format_name=cl["sas_format_name"],
+                                    submission_value=cl["submission_value"],
+                                    extensible=cl["extensible"],
+                                    preferred_term=cl["preferred_term"],
+                                    synonyms=cl["synonyms"],
+                                    is_ordinal=cl["is_ordinal"],
+                                    allows_multi_choice=cl["allows_multi_choice"]
+                                )
+
+                                cl_uid = cl["uid"]
+                                if cl_uid not in codelists_dict:
+                                    codelists_dict[cl_uid] = CTCodelistAttributes(
+                                        codelist_uid=cl["uid"],
+                                        name=cl["name"] or "",
+                                        submission_value=cl["submission_value"] or "",
+                                        definition=cl["preferred_term"] or "",
+                                        extensible=cl["extensible"] or False,
+                                        is_ordinal=cl["is_ordinal"] or False,
+                                        catalogue_names=[],
+                                        child_codelist_uids=[],
+                                        library_name=form_library_name,
+                                        start_date=form_start_date,
+                                        end_date=form_end_date,
+                                        status=form_status,
+                                        version=form_version,
+                                        change_description=form_change_description,
+                                        author_username=form_author_username,
+                                        possible_actions=[]
+                                    )
+
+                            items_dict[item_uid] = OdmItem(
+                                uid=item_uid,
+                                oid=item["oid"],
+                                name=item["name"],
+                                datatype=item["datatype"],
+                                length=item["length"],
+                                significant_digits=item["significant_digits"],
+                                sas_field_name=item["sas_field_name"],
+                                sds_var_name=item["sds_var_name"],
+                                origin=item["origin"],
+                                comment=item["comment"],
+                                prompt=item["prompt"],
+                                library_name=form_library_name,
+                                start_date=form_start_date,
+                                end_date=form_end_date,
+                                status=form_status,
+                                version=item["version"],
+                                change_description=form_change_description,
+                                author_username=form_author_username,
+                                translated_texts=item_tt_models,
+                                aliases=item_alias_models,
+                                unit_definitions=[],
+                                codelist=cl_simple_model,
+                                terms=[],
+                                activity_instances=[],
+                                vendor_elements=[],
+                                vendor_attributes=[],
+                                vendor_element_attributes=[],
+                                possible_actions=[]
+                            )
+
+                    item_groups_dict[ig_uid] = OdmItemGroup(
+                        uid=ig_uid,
+                        oid=ig["oid"],
+                        name=ig["name"],
+                        repeating=booltostr(ig["repeating"]),
+                        is_reference_data=booltostr(ig["is_reference_data"]),
+                        sas_dataset_name=ig["sas_dataset_name"],
+                        origin=ig["origin"],
+                        purpose=ig["purpose"],
+                        comment=ig["comment"],
+                        library_name=form_library_name,
+                        start_date=form_start_date,
+                        end_date=form_end_date,
+                        status=form_status,
+                        version=ig["version"] or "0.1",
+                        change_description=form_change_description,
+                        author_username=form_author_username,
+                        translated_texts=ig_tt_models,
+                        aliases=ig_alias_models,
+                        sdtm_domains=[],
+                        items=i_ref_models,
+                        vendor_elements=[],
+                        vendor_attributes=[],
+                        vendor_element_attributes=[],
+                        possible_actions=[]
+                    )
+
+            form_model = OdmForm(
+                uid=form_uid,
+                oid=form_oid,
+                name=form_name,
+                repeating=booltostr(form_repeating_val),
+                sdtm_version=form_sdtm_version,
+                library_name=form_library_name,
+                start_date=form_start_date,
+                end_date=form_end_date,
+                status=form_status,
+                version=form_version,
+                change_description=form_change_description,
+                author_username=form_author_username,
+                translated_texts=tt_models,
+                aliases=alias_models,
+                item_groups=ig_ref_models,
+                vendor_elements=[],
+                vendor_attributes=[],
+                vendor_element_attributes=[],
+                possible_actions=[]
+            )
+            forms_list.append(form_model)
+
+        return {
+            "forms": forms_list,
+            "item_groups": list(item_groups_dict.values()),
+            "items": list(items_dict.values()),
+            "codelists": list(codelists_dict.values()),
+        }
+
