@@ -137,7 +137,40 @@ jobs:
             exit 1
           fi
 
-      - name: Run Backend Database Integration Tests
+      - name: Set up Python for Database Validation
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install Pipenv
+        run: |
+          python -m pip install --upgrade pip
+          pip install pipenv
+
+      - name: Run Database Initialization
+        env:
+          NEO4J_MDR_HOST: localhost
+          NEO4J_MDR_BOLT_PORT: 5002
+          NEO4J_MDR_AUTH_USER: neo4j
+          NEO4J_MDR_AUTH_PASSWORD: changeme1234
+          NEO4J_MDR_DATABASE: mdrdb
+          NEO4J_MDR_CLEAR_DATABASE: "false"
+        run: |
+          cd neo4j-mdr-db
+          pipenv sync
+          pipenv run python init_neo4j.py
+
+      - name: Run Sequential Database Migrations and Corrections
+        env:
+          DATABASE_URL: bolt://neo4j:changeme1234@localhost:5002
+          DATABASE_NAME: mdrdb
+          API_BASE_URL: http://localhost:5005/api
+        run: |
+          cd db-schema-migration
+          pipenv sync --dev
+          pipenv run python run_sequential.py
+
+      - name: Run Compliance Integration Tests
         run: |
           docker compose exec -T api pipenv run testint
 
