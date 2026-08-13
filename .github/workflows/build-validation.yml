@@ -37,6 +37,13 @@ jobs:
           pipenv --python 3.12
           pipenv install --dev
 
+      - name: Run Backend Unit Tests
+        env:
+          NEO4J_DSN: bolt://localhost:7687
+        run: |
+          cd clinical-mdr-api
+          pipenv run testunit
+
       - name: Verify Backend OpenAPI Schema Drift
         run: |
           cd clinical-mdr-api
@@ -130,19 +137,27 @@ jobs:
             exit 1
           fi
 
-      - name: Run Compliance Integration Tests
+      - name: Run Backend Database Integration Tests
         run: |
-          docker compose exec -T api pipenv run pytest clinical_mdr_api/tests/integration/system_subapp/
+          docker compose exec -T api pipenv run testint
+
+      - name: Run Backend Authorization Tests
+        run: |
+          docker compose exec -T api pipenv run testauth
+
+      - name: Run Backend Telemetry Tests
+        run: |
+          docker compose exec -T api pipenv run test-telemetry
 
       - name: Build Cypress Container
         run: |
           cd system-tests/ui-tests
           docker compose build cypress
 
-      - name: Run Accessibility Tests
+      - name: Run End-to-End Interface Tests
         run: |
           cd system-tests/ui-tests
-          docker compose run --rm -e CYPRESS_BASE_URL=http://localhost:5005 -e CYPRESS_API=http://localhost:5005/api cypress yarn run cypress run --spec cypress/e2e/features/accessibility_audit.feature --headless
+          docker compose run --rm -e CYPRESS_BASE_URL=http://localhost:5005 -e CYPRESS_API=http://localhost:5005/api cypress yarn run cypress run --headless
 
       - name: Upload Cypress Screenshots and Videos
         uses: actions/upload-artifact@v4
