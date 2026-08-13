@@ -152,7 +152,7 @@ class TestActivityGroup(unittest.TestCase):
         # then
         self.assertIsNone(activity_group_ar.item_metadata._end_date)
         self.assertIsNotNone(activity_group_ar.item_metadata._start_date)
-        self.assertEqual(activity_group_ar.item_metadata.version, "1.0")
+        self.assertEqual(activity_group_ar.item_metadata.version, "2.0")
         self.assertEqual(
             activity_group_ar.item_metadata.status, LibraryItemStatus.FINAL
         )
