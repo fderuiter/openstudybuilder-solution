@@ -214,10 +214,42 @@ class GenericSyntaxTemplateService(GenericSyntaxService[_AggregateRootType], abc
 
     @db.transaction
     def reactivate_retired(self, uid: str) -> BaseModel:
+        import datetime
+        from dataclasses import replace
+        from clinical_mdr_api.domains.versioned_object_aggregate import LibraryItemMetadataVO
+
         item = self.repository.find_by_uid(uid, for_update=True)
 
-        item.reactivate(author_id=self.author_id)
+        now = datetime.datetime.now(datetime.timezone.utc)
+        item._item_metadata = replace(item._item_metadata, _end_date=now)
         self.repository.save(item)
+
+        new_uid = self.repository.generate_uid_callback()
+        new_sequence_id = self.repository.next_available_sequence_id(
+            uid=new_uid, library=item.library
+        )
+        new_major_version = item.item_metadata.major_version + 1
+        new_minor_version = 0
+        new_metadata = LibraryItemMetadataVO.from_repository_values(
+            change_description="Reactivated version",
+            status=LibraryItemStatus.FINAL,
+            author_id=self.author_id,
+            author_username=None,
+            start_date=now,
+            end_date=None,
+            major_version=new_major_version,
+            minor_version=new_minor_version,
+        )
+        new_item = type(item).from_repository_values(
+            uid=new_uid,
+            sequence_id=new_sequence_id,
+            template=item.template_value,
+            library=item.library,
+            item_metadata=new_metadata,
+            study_count=0,
+            counts=None,
+        )
+        self.repository.save(new_item)
 
         if self.pre_instance_repository:
             related_pre_instance_uids = (
@@ -232,10 +264,43 @@ class GenericSyntaxTemplateService(GenericSyntaxService[_AggregateRootType], abc
                     and related_pre_instance._item_metadata.status
                     == LibraryItemStatus.RETIRED
                 ):
-                    related_pre_instance.reactivate(author_id=self.author_id)
+                    related_pre_instance._item_metadata = replace(
+                        related_pre_instance._item_metadata, _end_date=now
+                    )
                     self.pre_instance_repository.save(related_pre_instance)
 
-        return self._transform_aggregate_root_to_pydantic_model(item)
+                    new_pre_uid = self.pre_instance_repository.generate_uid_callback()
+                    new_pre_sequence_id = self.pre_instance_repository.next_available_sequence_id(
+                        uid=new_pre_uid, library=related_pre_instance.library
+                    )
+                    new_pre_major_version = related_pre_instance.item_metadata.major_version + 1
+                    new_pre_minor_version = 0
+                    new_pre_metadata = LibraryItemMetadataVO.from_repository_values(
+                        change_description="Reactivated version",
+                        status=LibraryItemStatus.FINAL,
+                        author_id=self.author_id,
+                        author_username=None,
+                        start_date=now,
+                        end_date=None,
+                        major_version=new_pre_major_version,
+                        minor_version=new_pre_minor_version,
+                    )
+                    new_template_vo = replace(
+                        related_pre_instance._template,
+                        template_uid=new_uid,
+                        template_sequence_id=new_sequence_id
+                    )
+                    new_pre_instance = type(related_pre_instance).from_repository_values(
+                        uid=new_pre_uid,
+                        sequence_id=new_pre_sequence_id,
+                        template=new_template_vo,
+                        library=related_pre_instance.library,
+                        item_metadata=new_pre_metadata,
+                        study_count=0,
+                    )
+                    self.pre_instance_repository.save(new_pre_instance)
+
+        return self._transform_aggregate_root_to_pydantic_model(new_item)
 
     @db.transaction
     def edit_draft(self, uid: str, template: BaseModel) -> BaseModel:

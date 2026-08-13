@@ -202,7 +202,7 @@ class TestTimeframeTemplateDomain(unittest.TestCase):
         # then
         self.assertIsNone(ar.item_metadata.end_date)
         self.assertIsNotNone(ar.item_metadata.start_date)
-        self.assertEqual(ar.item_metadata.version, "1.0")
+        self.assertEqual(ar.item_metadata.version, "2.0")
         self.assertEqual(ar.item_metadata.status, LibraryItemStatus.FINAL)
         self.assertEqual(ar.item_metadata.author_id, "Test")
         self.assertEqual(ar.template_value.name, self.default_template_name)
