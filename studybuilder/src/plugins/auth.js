@@ -16,14 +16,30 @@ function extractAndFlattenRoles(data) {
     }
   }
 
-  if (data && data.realm_access && Array.isArray(data.realm_access.roles)) {
+  if (
+    data &&
+    data.realm_access &&
+    typeof data.realm_access === 'object' &&
+    data.realm_access !== null &&
+    Array.isArray(data.realm_access.roles)
+  ) {
     data.realm_access.roles.forEach((r) => roles.add(String(r)))
   }
 
-  if (data && data.resource_access && typeof data.resource_access === 'object') {
+  if (
+    data &&
+    data.resource_access &&
+    typeof data.resource_access === 'object' &&
+    data.resource_access !== null
+  ) {
     for (const clientKey of Object.keys(data.resource_access)) {
       const clientConfig = data.resource_access[clientKey]
-      if (clientConfig && Array.isArray(clientConfig.roles)) {
+      if (
+        clientConfig &&
+        typeof clientConfig === 'object' &&
+        clientConfig !== null &&
+        Array.isArray(clientConfig.roles)
+      ) {
         clientConfig.roles.forEach((r) => roles.add(String(r)))
       }
     }
