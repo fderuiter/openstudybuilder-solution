@@ -96,7 +96,7 @@ class TestTimeframeTemplateCascade(unittest.TestCase):
         self.assertEqual(item_metadata._author_id, "Test new 1")
 
         self.assertEqual(item_metadata.status, LibraryItemStatus.FINAL)
-        self.assertEqual(item_metadata.version, "3.0")
+        self.assertEqual(item_metadata.version, "4.0")
         after = datetime.datetime.now(datetime.timezone.utc)
 
         self.assertGreaterEqual(item_metadata.start_date, start)
@@ -110,7 +110,7 @@ class TestTimeframeTemplateCascade(unittest.TestCase):
         self.assertEqual(item_metadata._author_id, "Test new")
 
         self.assertEqual(item_metadata.status, LibraryItemStatus.FINAL)
-        self.assertEqual(item_metadata.version, "4.0")
+        self.assertEqual(item_metadata.version, "5.0")
         after = datetime.datetime.now(datetime.timezone.utc)
 
         self.assertEqual(item_metadata.start_date, start)
@@ -121,7 +121,7 @@ class TestTimeframeTemplateCascade(unittest.TestCase):
         self.assertEqual(item_metadata._author_id, "Test new 1")
 
         self.assertEqual(item_metadata.status, LibraryItemStatus.DRAFT)
-        self.assertEqual(item_metadata.version, "4.1")
+        self.assertEqual(item_metadata.version, "5.1")
         after = datetime.datetime.now(datetime.timezone.utc)
 
         self.assertGreaterEqual(item_metadata.start_date, start)
@@ -135,7 +135,7 @@ class TestTimeframeTemplateCascade(unittest.TestCase):
         self.assertEqual(item_metadata._author_id, "Test new")
 
         self.assertEqual(item_metadata.status, LibraryItemStatus.DRAFT)
-        self.assertEqual(item_metadata.version, "4.2")
+        self.assertEqual(item_metadata.version, "5.2")
         after = datetime.datetime.now(datetime.timezone.utc)
 
         self.assertEqual(item_metadata.start_date, start)

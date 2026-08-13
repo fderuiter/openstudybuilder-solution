@@ -272,7 +272,7 @@ class TestActivityInstance(unittest.TestCase):
         # then
         self.assertIsNone(activity_instance_ar.item_metadata._end_date)
         self.assertIsNotNone(activity_instance_ar.item_metadata._start_date)
-        self.assertEqual(activity_instance_ar.item_metadata.version, "1.0")
+        self.assertEqual(activity_instance_ar.item_metadata.version, "2.0")
         self.assertEqual(
             activity_instance_ar.item_metadata.status, LibraryItemStatus.FINAL
         )
