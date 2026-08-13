@@ -37480,9 +37480,9 @@ export interface components {
             disease_milestone_type?: string | null;
             /**
              * Repetition Indicator
-             * @default false
+             * @description Whether the milestone is repeatable
              */
-            repetition_indicator: boolean;
+            repetition_indicator?: (boolean | null) | null;
         };
         /** StudyDiseaseMilestoneListing */
         StudyDiseaseMilestoneListing: {
