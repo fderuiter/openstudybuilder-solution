@@ -105,3 +105,47 @@ def test_input_model(
     assert obj.title == input_string.strip()
     assert obj.body == expected_sanitized_string
     assert obj.tags is None
+
+
+def test_input_model_blocks_transactional_data():
+    from pydantic import ValidationError
+
+    # Legit design-time fields should be allowed
+    try:
+        MockInput(
+            title="Valid title",
+            body="Valid body",
+            healthy_subject_indicator=True,
+            patient_burden=1.5,
+        )
+    except ValidationError:
+        pytest.fail("Legitimate design-time fields were incorrectly blocked")
+
+    # Patient/Subject/Clinical execution parameters should be blocked
+    with pytest.raises(ValidationError) as exc_info:
+        MockInput(title="Valid title", body="Valid body", patient_id="12345")
+    assert (
+        "Static API schemas reject all incoming requests that contain patient, subject, or clinical execution parameters"
+        in str(exc_info.value)
+    )
+
+    with pytest.raises(ValidationError) as exc_info:
+        MockInput(
+            title="Valid title", body="Valid body", subject_record={"id": "abc"}
+        )
+    assert (
+        "Static API schemas reject all incoming requests that contain patient, subject, or clinical execution parameters"
+        in str(exc_info.value)
+    )
+
+    with pytest.raises(ValidationError) as exc_info:
+        MockInput(
+            title="Valid title",
+            body="Valid body",
+            clinical_execution_data={"test": "abc"},
+        )
+    assert (
+        "Static API schemas reject all incoming requests that contain patient, subject, or clinical execution parameters"
+        in str(exc_info.value)
+    )
+

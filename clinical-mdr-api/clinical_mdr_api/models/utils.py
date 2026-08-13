@@ -8,7 +8,7 @@ from typing import Annotated, Any, Callable, Generic, Self, Sequence, TypeVar
 import nh3
 from annotated_types import MinLen
 from pydantic import BaseModel as PydanticBaseModel
-from pydantic import ConfigDict, Field, ValidationInfo, field_validator
+from pydantic import ConfigDict, Field, ValidationInfo, field_validator, model_validator
 from pydantic.fields import PydanticUndefined
 from starlette.responses import Response
 
@@ -248,6 +248,55 @@ class BaseModel(PydanticBaseModel):
 
 
 class InputModel(BaseModel):
+
+    @model_validator(mode="before")
+    @classmethod
+    def reject_transactional_data(cls, data: Any) -> Any:
+        def check_data(val: Any) -> None:
+            allowed_keys = {
+                "healthy_subject_indicator",
+                "healthy_subject_indicator_null_value_code",
+                "planned_minimum_age_of_subjects",
+                "planned_minimum_age_of_subjects_null_value_code",
+                "planned_maximum_age_of_subjects",
+                "planned_maximum_age_of_subjects_null_value_code",
+                "number_of_expected_subjects",
+                "number_of_expected_subjects_null_value_code",
+                "number_of_subjects",
+                "plan_no_subject",
+                "plan_no_subject_nf",
+                "no_subject",
+                "accepts_healthy_volunteers",
+                "patient_burden",
+                "patient_burdens",
+                "site_patient_burden",
+                "site_patient_burdens",
+            }
+            blocked_terms = [
+                "patient",
+                "subject",
+                "clinical_execution",
+                "clinical_trial_execution",
+                "transactional_data",
+                "operational_data",
+            ]
+            if isinstance(val, dict):
+                for k, v in val.items():
+                    if isinstance(k, str):
+                        k_lower = k.lower()
+                        if k not in allowed_keys:
+                            for term in blocked_terms:
+                                if term in k_lower:
+                                    raise ValueError(
+                                        "Static API schemas reject all incoming requests that contain patient, subject, or clinical execution parameters"
+                                    )
+                    check_data(v)
+            elif isinstance(val, list):
+                for item in val:
+                    check_data(item)
+
+        check_data(data)
+        return data
 
     @field_validator("*", mode="before")
     @classmethod

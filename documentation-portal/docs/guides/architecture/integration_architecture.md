@@ -12,4 +12,15 @@ The system will have the following integrations.
 | Word add-in <br> (Internal target data) | Scripting (?) programs within the Microsoft Word connecting to the internal OpenStudyBuilder MDR API | The NN Microsoft Word authoring tool is used for our Common Protocol Template (CPT), this NN CPT will include content controls and importing functionality from the Clinical MDR API populating the structured protocol content defined within the OpenStudyBuilder system. |
 
 
+## Design-Time Repository & Unidirectional Boundary Enforcements
+
+OpenStudyBuilder acts strictly as a **design-time clinical metadata repository**. To maintain database performance and prevent HIPAA/GDPR regulatory overhead, a strict unidirectional architectural boundary is enforced:
+
+*   **Design-Time Scope Only:** The repository is dedicated solely to storing and configuring clinical trial design specifications, standards, and metadata templates.
+*   **Prohibition of Clinical/Patient Records:** No actual transactional operational records, subject identifiers, individual patient data, or clinical trial execution results may be imported or stored in OpenStudyBuilder.
+*   **Preventive Boundary Validation:** The API integration layer uses static schema validations to programmatically block and reject any incoming request payloads containing patient, subject, or transactional execution parameters.
+*   **Downstream-Only Data Flow:** Metadata flows exclusively downstream from the Clinical MDR to external clinical trial execution and operational platforms (e.g., EDC, ClinSpark). Downstream systems must never feed operational patient-level transactional data back into OpenStudyBuilder.
+
+
+
 
