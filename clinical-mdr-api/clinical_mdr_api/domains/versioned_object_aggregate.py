@@ -172,6 +172,12 @@ class LibraryItemMetadataVO:
         ):
             v_major += 1
         elif (
+            self._status == LibraryItemStatus.RETIRED
+            and new_status == LibraryItemStatus.FINAL
+        ):
+            v_major = v_major + 1
+            v_minor = 0
+        elif (
             self._status == LibraryItemStatus.FINAL
             and new_status == LibraryItemStatus.FINAL
         ):

@@ -24,5 +24,8 @@ class UserInfoService:
 
     @classmethod
     def get_author_username_from_id(cls, user_id: str) -> str:
-        user = cls().repo.get_user(user_id)
-        return user.username if user and user.username else user_id
+        try:
+            user = cls().repo.get_user(user_id)
+            return user.username if user and user.username else user_id
+        except Exception:
+            return user_id
