@@ -146,6 +146,8 @@ def get_distinct_values_for_header(
         filter_by=filters,
         filter_operator=FilterOperator.from_str(operator),
         page_size=page_size,
+        study_uid=study_uid,
+        study_value_version=study_value_version,
     )
 
 

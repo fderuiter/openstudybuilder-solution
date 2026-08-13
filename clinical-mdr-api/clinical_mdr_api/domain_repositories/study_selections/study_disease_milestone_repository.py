@@ -300,6 +300,8 @@ class StudyDiseaseMilestoneRepository:
         filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator = FilterOperator.AND,
         page_size: int = 10,
+        study_uid: str | None = None,
+        study_value_version: str | None = None,
     ) -> list[Any]:
         """
         Method runs a cypher query to fetch possible values for a given field_name, with a limit of page_size.
@@ -317,8 +319,10 @@ class StudyDiseaseMilestoneRepository:
         filter_by = validate_filters_and_add_search_string(
             search_string, field_name, filter_by
         )
-        q_filters = transform_filters_into_neomodel(
-            filter_by=filter_by, model=StudyDiseaseMilestoneOGM
+        q_filters = self.create_query_filter_statement_neomodel(
+            study_uid=study_uid,
+            study_value_version=study_value_version,
+            filter_by=filter_by,
         )
         q_filters = merge_q_query_filters(q_filters, filter_operator=filter_operator)
         field = get_field(prop=field_name, model=StudyDiseaseMilestoneOGM)
