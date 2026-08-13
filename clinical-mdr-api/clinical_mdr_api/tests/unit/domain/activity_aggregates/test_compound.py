@@ -106,7 +106,7 @@ class TestCompound(unittest.TestCase):
         # then
         self.assertIsNone(compound_ar.item_metadata._end_date)
         self.assertIsNotNone(compound_ar.item_metadata._start_date)
-        self.assertEqual(compound_ar.item_metadata.version, "1.0")
+        self.assertEqual(compound_ar.item_metadata.version, "2.0")
         self.assertEqual(compound_ar.item_metadata.status, LibraryItemStatus.FINAL)
 
     def test__delete_draft__object_deleted(self):
