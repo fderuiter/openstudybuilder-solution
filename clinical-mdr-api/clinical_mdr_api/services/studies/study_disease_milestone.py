@@ -70,8 +70,10 @@ class StudyDiseaseMilestoneService:
         disease_milestone: StudyDiseaseMilestoneVO,
         study_value_version: str | None = None,
     ) -> StudyDiseaseMilestone:
-        if disease_milestone.uid is None:
-            raise ValidationException(msg="Study Disease Milestone UID is missing.")
+        if disease_milestone.uid is None or disease_milestone.uid == "":
+            raise ValidationException(msg="Study Disease Milestone UID is missing or corrupt.")
+        if disease_milestone.study_uid is None or disease_milestone.study_uid == "":
+            raise ValidationException(msg="Study UID is missing or corrupt.")
 
         return StudyDiseaseMilestone(
             uid=disease_milestone.uid,
@@ -185,7 +187,8 @@ class StudyDiseaseMilestoneService:
         study_disease_milestone: StudyDiseaseMilestoneVO,
     ):
         if (
-            disease_milestone_input.disease_milestone_type
+            disease_milestone_input.disease_milestone_type is not None
+            and disease_milestone_input.disease_milestone_type
             != study_disease_milestone.disease_milestone_type
         ):
             all_disease_milestones = self.repo.find_all_disease_milestones_by_study(
@@ -413,6 +416,8 @@ class StudyDiseaseMilestoneService:
         filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator = FilterOperator.AND,
         page_size: int = 10,
+        study_uid: str | None = None,
+        study_value_version: str | None = None,
         **kwargs,
     ):
         header_values = self.repo.get_distinct_headers(
@@ -421,6 +426,8 @@ class StudyDiseaseMilestoneService:
             filter_by=filter_by,
             filter_operator=filter_operator,
             page_size=page_size,
+            study_uid=study_uid,
+            study_value_version=study_value_version,
             **kwargs,
         )
         return header_values

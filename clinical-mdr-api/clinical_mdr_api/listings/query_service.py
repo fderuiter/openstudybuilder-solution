@@ -89,7 +89,7 @@ class QueryService:
         """Query to get the legacy dataset topic_cd_def."""
 
         match_clause = """
-            MATCH (r:ActivityInstanceRoot)-[l]->(n:ActivityInstanceValue) 
+            MATCH (r:ActivityInstanceRoot)-[l:HAS_VERSION|LATEST_FINAL]->(n:ActivityInstanceValue) 
             """
 
         if at_specific_date:

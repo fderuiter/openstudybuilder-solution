@@ -17,7 +17,13 @@ class StudyDiseaseMilestoneEditInput(PatchInputModel):
     disease_milestone_type: Annotated[
         str | None, Field(description="Study Disease Milestone Type uid")
     ] = None
-    repetition_indicator: Annotated[bool, Field()] = False
+    repetition_indicator: Annotated[
+        bool | None,
+        Field(
+            json_schema_extra={"nullable": True},
+            description="Whether the milestone is repeatable",
+        ),
+    ] = None
 
 
 class StudyDiseaseMilestoneCreateInput(PostInputModel):
