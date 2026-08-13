@@ -151,10 +151,10 @@ class StudyDiseaseMilestoneService:
         return study_disease_milestones
 
     @db.transaction
-    def find_by_uid(self, uid: str) -> StudyDiseaseMilestone:
+    def find_by_uid(self, uid: str, study_uid: str | None = None) -> StudyDiseaseMilestone:
         repos = self._repos
         try:
-            study_disease_milestone = self.repo.find_by_uid(uid=uid)
+            study_disease_milestone = self.repo.find_by_uid(uid=uid, study_uid=study_uid)
 
             return self._transform_all_to_response_model(study_disease_milestone)
         except ValueError as e:
@@ -306,8 +306,10 @@ class StudyDiseaseMilestoneService:
         study_disease_milestone_uid: str,
         study_disease_milestone_input: StudyDiseaseMilestoneEditInput,
     ):
+        study_disease_milestone = self.repo.find_by_uid(
+            uid=study_disease_milestone_uid, study_uid=study_uid
+        )
         acquire_write_lock_study_value(uid=study_uid)
-        study_disease_milestone = self.repo.find_by_uid(study_disease_milestone_uid)
         self._validate_update(study_disease_milestone_input, study_disease_milestone)
         fill_missing_values_in_base_model_from_reference_base_model(
             base_model_with_missing_values=study_disease_milestone_input,
@@ -326,9 +328,11 @@ class StudyDiseaseMilestoneService:
 
     @db.transaction
     def reorder(self, study_uid: str, study_disease_milestone_uid: str, new_order: int):
+        disease_milestone = self.repo.find_by_uid(
+            uid=study_disease_milestone_uid, study_uid=study_uid
+        )
         acquire_write_lock_study_value(uid=study_uid)
         new_order -= 1
-        disease_milestone = self.repo.find_by_uid(study_disease_milestone_uid)
         study_disease_milestones = self.repo.find_all_disease_milestones_by_study(
             disease_milestone.study_uid
         )
@@ -364,8 +368,10 @@ class StudyDiseaseMilestoneService:
 
     @db.transaction
     def delete(self, study_uid: str, study_disease_milestone_uid: str):
+        study_disease_milestone = self.repo.find_by_uid(
+            uid=study_disease_milestone_uid, study_uid=study_uid
+        )
         acquire_write_lock_study_value(uid=study_uid)
-        study_disease_milestone = self.repo.find_by_uid(study_disease_milestone_uid)
 
         self.repo.save(study_disease_milestone, delete_flag=True)
         all_disease_milestones_in_study = (
@@ -386,6 +392,7 @@ class StudyDiseaseMilestoneService:
         disease_milestone_uid: str,
         study_uid: str,
     ) -> list[StudyDiseaseMilestoneVersion]:
+        self.repo.find_by_uid(uid=disease_milestone_uid, study_uid=study_uid)
         all_versions = self.repo.get_all_versions(
             uid=disease_milestone_uid, study_uid=study_uid
         )
@@ -412,12 +419,12 @@ class StudyDiseaseMilestoneService:
     def get_distinct_values_for_header(
         self,
         field_name: str,
+        study_uid: str | None = None,
+        study_value_version: str | None = None,
         search_string: str = "",
         filter_by: dict[str, dict[str, Any]] | None = None,
         filter_operator: FilterOperator = FilterOperator.AND,
         page_size: int = 10,
-        study_uid: str | None = None,
-        study_value_version: str | None = None,
         **kwargs,
     ):
         header_values = self.repo.get_distinct_headers(

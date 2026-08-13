@@ -130,7 +130,7 @@ def get_all(
 # pylint: disable=unused-argument
 def get_distinct_values_for_header(
     field_name: _generic_descriptions.HEADER_FIELD_NAME_QUERY,
-    study_uid: Annotated[str, studyUID],  # TODO: Use this argument!
+    study_uid: Annotated[str, studyUID],
     study_value_version: Annotated[
         str | None, _generic_descriptions.STUDY_VALUE_VERSION_QUERY
     ] = None,
@@ -142,12 +142,12 @@ def get_distinct_values_for_header(
     service = StudyDiseaseMilestoneService()
     return service.get_distinct_values_for_header(
         field_name=field_name,
+        study_uid=study_uid,
+        study_value_version=study_value_version,
         search_string=search_string,
         filter_by=filters,
         filter_operator=FilterOperator.from_str(operator),
         page_size=page_size,
-        study_uid=study_uid,
-        study_value_version=study_value_version,
     )
 
 
@@ -227,7 +227,7 @@ def get_study_disease_milestone(
     ],
 ) -> study_disease_milestone.StudyDiseaseMilestone:
     service = StudyDiseaseMilestoneService()
-    return service.find_by_uid(study_disease_milestone_uid)
+    return service.find_by_uid(uid=study_disease_milestone_uid, study_uid=study_uid)
 
 
 @router.get(

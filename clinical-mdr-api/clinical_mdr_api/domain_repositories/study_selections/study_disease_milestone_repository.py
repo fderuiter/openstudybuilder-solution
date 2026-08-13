@@ -148,7 +148,15 @@ class StudyDiseaseMilestoneRepository:
         ]
         return all_disease_milestones
 
-    def find_by_uid(self, uid: str) -> StudyDiseaseMilestoneVO:
+    def find_by_uid(
+        self,
+        uid: str,
+        study_uid: str | None = None,
+    ) -> StudyDiseaseMilestoneVO:
+        filter_kwargs = {"uid": uid}
+        if study_uid:
+            filter_kwargs["study_value__latest_value__uid"] = study_uid
+
         disease_milestone_node = ListDistinct(
             StudyDiseaseMilestone.nodes.traverse(
                 "has_after__audit_trail",
@@ -156,7 +164,7 @@ class StudyDiseaseMilestoneRepository:
                 "has_disease_milestone_type__has_selected_term__has_name_root__latest_final",
                 "has_disease_milestone_type__has_selected_term__has_attributes_root__latest_final",
             )
-            .filter(uid=uid)
+            .filter(**filter_kwargs)
             .resolve_subgraph()
         ).distinct()
 
@@ -164,10 +172,13 @@ class StudyDiseaseMilestoneRepository:
             len(disease_milestone_node) > 1,
             msg=f"Found more than one StudyDiseaseMilestone node with UID '{uid}'.",
         )
-        ValidationException.raise_if(
-            len(disease_milestone_node) == 0,
-            msg=f"Study Disease Milestone with UID '{uid}' doesn't exist.",
-        )
+        if len(disease_milestone_node) == 0:
+            from common.exceptions import NotFoundException
+            raise NotFoundException(
+                resource_name="Study Disease Milestone",
+                field_value=uid,
+                field_name="UID",
+            )
 
         return StudyDiseaseMilestoneOGM.model_validate(disease_milestone_node[0])
 
