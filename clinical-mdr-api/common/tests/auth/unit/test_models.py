@@ -262,3 +262,14 @@ def test_access_token_claims_role_normalization():
     token_claims = AccessTokenClaims.model_validate(claims_empty)
     assert token_claims.roles == set()
 
+    # Case 6: Malformed/unexpected structures -> should not crash and should fall back safely
+    claims_malformed = {
+        **base_claims,
+        "roles": "not-a-list-but-a-string",
+        "realm_access": "malformed-realm-access-string",
+        "resource_access": ["malformed-resource-access-list"]
+    }
+    token_claims = AccessTokenClaims.model_validate(claims_malformed)
+    assert token_claims.roles == {"not-a-list-but-a-string"}
+
+

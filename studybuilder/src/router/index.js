@@ -1281,6 +1281,7 @@ router.beforeEach(async (to, from, next) => {
       const roles = authStore.userInfo?.roles || []
       if (!Array.isArray(roles) || !roles.includes(to.meta.requiredPermission)) {
         next(false)
+        return
       }
     }
   }
