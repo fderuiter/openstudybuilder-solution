@@ -79,6 +79,28 @@ class Settings(BaseSettings):
     allow_origin_regex: str | None = None
     allow_credentials: bool = True
 
+    @property
+    def allow_origins(self) -> list[str]:
+        if not self.allow_origin_regex:
+            return []
+        # Split by comma and strip whitespace
+        origins = [
+            orig.strip() for orig in self.allow_origin_regex.split(",") if orig.strip()
+        ]
+        validated_origins = []
+        for orig in origins:
+            if orig in ("*", ".*"):
+                continue
+            if self.allow_credentials:
+                # Utilizing wildcard pattern matches or permissive regex with credentials enabled is strictly prohibited
+                if any(
+                    c in orig
+                    for c in ("*", "?", "[", "]", "(", ")", "|", "\\", "^", "$")
+                ):
+                    continue
+            validated_origins.append(orig)
+        return validated_origins
+
     ENV_ALLOW_METHODS: str = Field(default="*", alias="ALLOW_METHODS")
 
     @property

@@ -29,6 +29,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware import Middleware
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
@@ -104,6 +105,17 @@ if settings.tracing_enabled:
 
     patch_neomodel_database()
 
+
+middlewares.append(
+    Middleware(
+        CORSMiddleware,
+        allow_origins=settings.allow_origins,
+        allow_credentials=settings.allow_credentials,
+        allow_methods=settings.allow_methods,
+        allow_headers=settings.allow_headers,
+        expose_headers=["traceresponse"],
+    )
+)
 
 # Convert all uncaught exceptions to response before returning to TracingMiddleware
 middlewares.append(Middleware(ExceptionTracebackMiddleware))

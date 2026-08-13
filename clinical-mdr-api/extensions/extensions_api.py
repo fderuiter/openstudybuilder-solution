@@ -106,7 +106,7 @@ if settings.tracing_enabled:
 middlewares.append(
     Middleware(
         CORSMiddleware,
-        allow_origin_regex=settings.allow_origin_regex,
+        allow_origins=settings.allow_origins,
         allow_credentials=settings.allow_credentials,
         allow_methods=settings.allow_methods,
         allow_headers=settings.allow_headers,
