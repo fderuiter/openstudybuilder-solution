@@ -2627,7 +2627,8 @@ td {
 td .actionButtons {
   display: none;
 }
-td:hover .actionButtons {
+td:hover .actionButtons,
+td:focus-within .actionButtons {
   display: flex;
 }
 input[type='checkbox'] {
