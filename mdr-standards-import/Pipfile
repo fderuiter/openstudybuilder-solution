@@ -8,6 +8,7 @@ requests = "~=2.27"
 neo4j = "~=5.26"
 pytest = "~=8.4.1"
 openpyxl = "~=3.1"
+pydantic = "*"
 
 [dev-packages]
 pylint = "~=3.3.1"

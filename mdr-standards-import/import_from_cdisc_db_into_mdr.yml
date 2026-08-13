@@ -11,11 +11,19 @@ parameters:
 - name: 'NEO4J_CDISC_IMPORT_BOLT_PORT'
   displayName: Bolt port of intermediate DB
   type: string
-  default: 7687
+  default: ''
 - name: 'NEO4J_CDISC_IMPORT_HOST'
   displayName: IP address of intermediate DB
   type: string
-  default: 10.78.43.90
+  default: ''
+- name: 'NEO4J_MDR_HOST'
+  displayName: IP address or hostname of the MDR DB
+  type: string
+  default: ''
+- name: 'NEO4J_MDR_BOLT_PORT'
+  displayName: Bolt port of the MDR DB
+  type: string
+  default: ''
 - name: REPO_REFERENCE
   type: string
   default: self  
@@ -86,15 +94,37 @@ jobs:
     - script: |
         source $(Build.SourcesDirectory)/venv/bin/activate
         export NEO4J_MDR_DATABASE=${{parameters.NEO4J_MDR_DATABASE}}
-        export NEO4J_MDR_BOLT_PORT=${{parameters.NEO4J_MDR_BOLT_PORT}}
-        export NEO4J_MDR_HOST=${{parameters.NEO4J_MDR_HOST}}
-        export NEO4J_MDR_AUTH_USER=$(NEO4J-USER)
-        export NEO4J_MDR_AUTH_PASSWORD=$(NEO4J-PASS)
-        export NEO4J_CDISC_IMPORT_DATABASE=${{parameters.NEO4J_CDISC_IMPORT_DATABASE}}
-        export NEO4J_CDISC_IMPORT_BOLT_PORT=${{parameters.NEO4J_CDISC_IMPORT_BOLT_PORT}}
-        export NEO4J_CDISC_IMPORT_HOST=${{parameters.NEO4J_CDISC_IMPORT_HOST}}
-        export NEO4J_CDISC_IMPORT_AUTH_USER=$(NEO4J-USER)
-        export NEO4J_CDISC_IMPORT_AUTH_PASSWORD=$(NEO4J-PASS)
 
-        python -m pipenv run import_from_cdisc_ct_db_into_mdr
+        if [ -n "${{parameters.NEO4J_MDR_HOST}}" ]; then
+          export NEO4J_MDR_HOST=${{parameters.NEO4J_MDR_HOST}}
+        else
+          export NEO4J_MDR_HOST=$(CLINICAL-MDR-NEO4J-${{parameters.ENV_REFERENCE}}${{parameters.ID_NUMBER}}-SERVER)
+        fi
+
+        if [ -n "${{parameters.NEO4J_MDR_BOLT_PORT}}" ]; then
+          export NEO4J_MDR_BOLT_PORT=${{parameters.NEO4J_MDR_BOLT_PORT}}
+        else
+          export NEO4J_MDR_BOLT_PORT=$(CLINICAL-MDR-NEO4J-${{parameters.ENV_REFERENCE}}${{parameters.ID_NUMBER}}-BOLTPORT)
+        fi
+
+        export NEO4J_MDR_AUTH_USER=$(CLINICAL-MDR-NEO4J-${{parameters.ENV_REFERENCE}}${{parameters.ID_NUMBER}}-DBUSER)
+        export NEO4J_MDR_AUTH_PASSWORD=$(CLINICAL-MDR-NEO4J-${{parameters.ENV_REFERENCE}}${{parameters.ID_NUMBER}}-DBPASS)
+        export NEO4J_CDISC_IMPORT_DATABASE=${{parameters.NEO4J_CDISC_IMPORT_DATABASE}}
+
+        if [ -n "${{parameters.NEO4J_CDISC_IMPORT_HOST}}" ]; then
+          export NEO4J_CDISC_IMPORT_HOST=${{parameters.NEO4J_CDISC_IMPORT_HOST}}
+        else
+          export NEO4J_CDISC_IMPORT_HOST=$(CLINICAL-MDR-NEO4J-${{parameters.ENV_REFERENCE}}${{parameters.ID_NUMBER}}-SERVER)
+        fi
+
+        if [ -n "${{parameters.NEO4J_CDISC_IMPORT_BOLT_PORT}}" ]; then
+          export NEO4J_CDISC_IMPORT_BOLT_PORT=${{parameters.NEO4J_CDISC_IMPORT_BOLT_PORT}}
+        else
+          export NEO4J_CDISC_IMPORT_BOLT_PORT=$(CLINICAL-MDR-NEO4J-${{parameters.ENV_REFERENCE}}${{parameters.ID_NUMBER}}-BOLTPORT)
+        fi
+
+        export NEO4J_CDISC_IMPORT_AUTH_USER=$(CLINICAL-MDR-NEO4J-${{parameters.ENV_REFERENCE}}${{parameters.ID_NUMBER}}-DBUSER)
+        export NEO4J_CDISC_IMPORT_AUTH_PASSWORD=$(CLINICAL-MDR-NEO4J-${{parameters.ENV_REFERENCE}}${{parameters.ID_NUMBER}}-DBPASS)
+
+        python -m pipenv run import_ct_from_cdisc_db_into_mdr
       displayName: Import from CDISC CT DB into MDR DB
