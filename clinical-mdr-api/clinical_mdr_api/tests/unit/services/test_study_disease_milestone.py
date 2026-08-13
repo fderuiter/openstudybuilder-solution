@@ -1,6 +1,12 @@
 import datetime
 import unittest
 from unittest.mock import MagicMock, patch
+import pytest
+
+# Mock neomodel transaction control methods so they don't attempt connection
+patch("neomodel.db.begin", MagicMock()).start()
+patch("neomodel.db.commit", MagicMock()).start()
+patch("neomodel.db.rollback", MagicMock()).start()
 
 from clinical_mdr_api.domains.study_definition_aggregates.study_metadata import (
     StudyStatus,
@@ -17,7 +23,8 @@ from clinical_mdr_api.models.study_selections.study_disease_milestone import (
 from clinical_mdr_api.services.studies.study_disease_milestone import (
     StudyDiseaseMilestoneService,
 )
-from common.exceptions import ValidationException
+from common.exceptions import ValidationException, NotFoundException
+from clinical_mdr_api.repositories._utils import FilterOperator
 
 
 class TestStudyDiseaseMilestoneServiceUnit(unittest.TestCase):
@@ -181,3 +188,164 @@ class TestStudyDiseaseMilestoneServiceUnit(unittest.TestCase):
         mock_repo.find_all_disease_milestones_by_study.assert_called_once_with(
             study_uid="Study_000001"
         )
+
+
+@patch("clinical_mdr_api.services.studies.study_disease_milestone.UserInfoService.get_author_username_from_id")
+@patch("clinical_mdr_api.services.studies.study_disease_milestone.user")
+@patch("clinical_mdr_api.services.studies.study_disease_milestone.MetaRepository")
+def test_find_by_uid_scopes_to_study(mock_meta_repo_cls, mock_user, mock_get_username):
+    # Setup mocks
+    mock_get_username.return_value = "author_username_1"
+    mock_user.return_value.id.return_value = "author_1"
+    mock_repo = MagicMock()
+    mock_meta_repo_cls.return_value.study_disease_milestone_repository = mock_repo
+    
+    mock_repo.create_ctlist_definition.return_value = {}
+    
+    service = StudyDiseaseMilestoneService()
+    
+    # Mock find_by_uid returning a dummy VO
+    mock_vo = MagicMock()
+    mock_vo.uid = "milestone_123"
+    mock_vo.study_uid = "study_abc"
+    mock_vo.order = 1
+    mock_vo.status.value = "DRAFT"
+    mock_vo.start_date = datetime.datetime.now()
+    mock_vo.author_id = "author_1"
+    mock_vo.disease_milestone_type = "dm_type_1"
+    mock_vo.disease_milestone_type_name = "DM Type 1"
+    mock_vo.disease_milestone_type_definition = "DM Type 1 Def"
+    mock_vo.repetition_indicator = False
+    
+    mock_repo.find_by_uid.return_value = mock_vo
+    
+    # Call service
+    service.find_by_uid("milestone_123", study_uid="study_abc")
+    
+    # Assert repository find_by_uid was called with study_uid
+    mock_repo.find_by_uid.assert_called_once_with(uid="milestone_123", study_uid="study_abc")
+
+
+@patch("clinical_mdr_api.services.studies.study_disease_milestone.user")
+@patch("clinical_mdr_api.services.studies.study_disease_milestone.MetaRepository")
+def test_find_by_uid_not_found_raises_not_found_exception(mock_meta_repo_cls, mock_user):
+    # Setup mocks
+    mock_user.return_value.id.return_value = "author_1"
+    mock_repo = MagicMock()
+    mock_meta_repo_cls.return_value.study_disease_milestone_repository = mock_repo
+    
+    mock_repo.create_ctlist_definition.return_value = {}
+    mock_repo.find_by_uid.side_effect = NotFoundException("Study Disease Milestone", "milestone_123")
+    
+    service = StudyDiseaseMilestoneService()
+    
+    # Expect NotFoundException (which maps to 404)
+    with pytest.raises(NotFoundException):
+        service.find_by_uid("milestone_123", study_uid="study_abc")
+
+
+@patch("clinical_mdr_api.services.studies.study_disease_milestone.user")
+@patch("clinical_mdr_api.services.studies.study_disease_milestone.MetaRepository")
+@patch("clinical_mdr_api.services.studies.study_disease_milestone.acquire_write_lock_study_value")
+def test_edit_validates_milestone_belongs_to_study_before_locking(
+    mock_acquire_lock, mock_meta_repo_cls, mock_user
+):
+    # Setup mocks
+    mock_user.return_value.id.return_value = "author_1"
+    mock_repo = MagicMock()
+    mock_meta_repo_cls.return_value.study_disease_milestone_repository = mock_repo
+    
+    mock_repo.create_ctlist_definition.return_value = {}
+    
+    # If the milestone doesn't belong to the study, repo find_by_uid raises NotFoundException
+    mock_repo.find_by_uid.side_effect = NotFoundException("Study Disease Milestone", "milestone_123")
+    
+    service = StudyDiseaseMilestoneService()
+    edit_input = StudyDiseaseMilestoneEditInput()
+    
+    # Expect NotFoundException
+    with pytest.raises(NotFoundException):
+        service.edit("study_abc", "milestone_123", edit_input)
+        
+    # Verify find_by_uid was called first, and acquire_write_lock_study_value was never called!
+    mock_repo.find_by_uid.assert_called_once_with(uid="milestone_123", study_uid="study_abc")
+    mock_acquire_lock.assert_not_called()
+
+
+@patch("clinical_mdr_api.services.studies.study_disease_milestone.user")
+@patch("clinical_mdr_api.services.studies.study_disease_milestone.MetaRepository")
+@patch("clinical_mdr_api.services.studies.study_disease_milestone.acquire_write_lock_study_value")
+def test_delete_validates_milestone_belongs_to_study_before_locking(
+    mock_acquire_lock, mock_meta_repo_cls, mock_user
+):
+    # Setup mocks
+    mock_user.return_value.id.return_value = "author_1"
+    mock_repo = MagicMock()
+    mock_meta_repo_cls.return_value.study_disease_milestone_repository = mock_repo
+    
+    mock_repo.create_ctlist_definition.return_value = {}
+    mock_repo.find_by_uid.side_effect = NotFoundException("Study Disease Milestone", "milestone_123")
+    
+    service = StudyDiseaseMilestoneService()
+    
+    with pytest.raises(NotFoundException):
+        service.delete("study_abc", "milestone_123")
+        
+    mock_repo.find_by_uid.assert_called_once_with(uid="milestone_123", study_uid="study_abc")
+    mock_acquire_lock.assert_not_called()
+
+
+@patch("clinical_mdr_api.services.studies.study_disease_milestone.user")
+@patch("clinical_mdr_api.services.studies.study_disease_milestone.MetaRepository")
+@patch("clinical_mdr_api.services.studies.study_disease_milestone.acquire_write_lock_study_value")
+def test_reorder_validates_milestone_belongs_to_study_before_locking(
+    mock_acquire_lock, mock_meta_repo_cls, mock_user
+):
+    # Setup mocks
+    mock_user.return_value.id.return_value = "author_1"
+    mock_repo = MagicMock()
+    mock_meta_repo_cls.return_value.study_disease_milestone_repository = mock_repo
+    
+    mock_repo.create_ctlist_definition.return_value = {}
+    mock_repo.find_by_uid.side_effect = NotFoundException("Study Disease Milestone", "milestone_123")
+    
+    service = StudyDiseaseMilestoneService()
+    
+    with pytest.raises(NotFoundException):
+        service.reorder("study_abc", "milestone_123", new_order=2)
+        
+    mock_repo.find_by_uid.assert_called_once_with(uid="milestone_123", study_uid="study_abc")
+    mock_acquire_lock.assert_not_called()
+
+
+@patch("clinical_mdr_api.services.studies.study_disease_milestone.user")
+@patch("clinical_mdr_api.services.studies.study_disease_milestone.MetaRepository")
+def test_distinct_headers_scopes_by_study(mock_meta_repo_cls, mock_user):
+    # Setup mocks
+    mock_user.return_value.id.return_value = "author_1"
+    mock_repo = MagicMock()
+    mock_meta_repo_cls.return_value.study_disease_milestone_repository = mock_repo
+    
+    mock_repo.create_ctlist_definition.return_value = {}
+    
+    service = StudyDiseaseMilestoneService()
+    
+    # Call get_distinct_values_for_header
+    service.get_distinct_values_for_header(
+        field_name="status",
+        study_uid="study_abc",
+        study_value_version="v1.0.0",
+        search_string="test",
+        filter_by=None,
+    )
+    
+    # Verify repo distinct headers is called with study parameters
+    mock_repo.get_distinct_headers.assert_called_once_with(
+        field_name="status",
+        study_uid="study_abc",
+        study_value_version="v1.0.0",
+        search_string="test",
+        filter_by=None,
+        filter_operator=FilterOperator.AND,
+        page_size=10,
+    )
