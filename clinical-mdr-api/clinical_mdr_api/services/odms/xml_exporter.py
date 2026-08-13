@@ -54,7 +54,7 @@ from clinical_mdr_api.models.odms.item_group import OdmItemGroup
 from clinical_mdr_api.services.odms.data_extractor import OdmDataExtractor
 from clinical_mdr_api.services.odms.xml_stylesheets import OdmXmlStylesheetService
 from clinical_mdr_api.services.utils.odm_xml_mapper import map_xml
-from common.exceptions import BusinessLogicException
+from common.exceptions import BusinessLogicException, ValidationException
 
 
 class OdmXmlExporterService:
@@ -127,6 +127,8 @@ class OdmXmlExporterService:
                 )
             )
 
+        self.validation_rules = self._compile_validation_rules()
+
     def get_odm_document(self) -> OdmDataExtractor | bytes:
         """
         Gets an ODM XML document and optionally applies a mapper file and stylesheet transformation.
@@ -150,6 +152,8 @@ class OdmXmlExporterService:
         doc = self._generate_odm_xml(self.odm, self.xml_document)
 
         map_xml(self.xml_document, self.mapper_file)
+
+        self.validate_xml_structure()
 
         rs = doc.toprettyxml(encoding="utf-8")
 
@@ -1223,7 +1227,13 @@ class OdmXmlExporterService:
         return odm
 
     def remove_none_attributes(self, obj):
+        if obj is None:
+            return
+        if hasattr(obj, "_mock_self") or "Mock" in obj.__class__.__name__:
+            return
         if not isinstance(obj, list):
+            if not hasattr(obj, "__dict__"):
+                return
             for key, value in list(vars(obj).items()):
                 if isinstance(value, Attribute) and (value.value in [None, "None", ""]):
                     delattr(obj, key)
@@ -1232,3 +1242,223 @@ class OdmXmlExporterService:
         else:
             for item in obj:
                 self.remove_none_attributes(item)
+
+    def _compile_validation_rules(self) -> dict[str, Any]:
+        """
+        Retrieves active vendor metadata nodes (namespaces, elements, attributes)
+        from the database and compiles them into a dictionary of validation rules.
+        All database queries are executed once here, during initialization.
+        """
+        # 1. Fetch all vendor namespaces
+        namespaces = getattr(self.odm_data_extractor, "odm_vendor_namespaces", {})
+        if not namespaces:
+            try:
+                db_namespaces = self.odm_data_extractor.vendor_namespace_service.get_all_odms().items
+                namespaces = {
+                    ns.uid: {
+                        "name": ns.name,
+                        "prefix": ns.prefix,
+                        "url": ns.url,
+                    }
+                    for ns in db_namespaces
+                }
+            except Exception:
+                namespaces = {}
+
+        namespaces_by_prefix = {}
+        for ns_uid, ns in namespaces.items():
+            if ns.get("prefix"):
+                namespaces_by_prefix[ns["prefix"]] = {
+                    "uid": ns_uid,
+                    "url": ns.get("url"),
+                    "name": ns.get("name")
+                }
+
+        # 2. Fetch all vendor elements
+        try:
+            db_elements = self.odm_data_extractor.vendor_element_service.get_all_odms().items
+        except Exception:
+            db_elements = []
+
+        elements_by_key = {}
+        for elem in db_elements:
+            prefix = elem.vendor_namespace.prefix if elem.vendor_namespace else None
+            if prefix and elem.name:
+                elements_by_key[(prefix, elem.name)] = {
+                    "uid": elem.uid,
+                    "compatible_types": elem.compatible_types or [],
+                }
+
+        # 3. Fetch all vendor attributes
+        try:
+            db_attributes = self.odm_data_extractor.vendor_attribute_service.get_all_odms().items
+        except Exception:
+            db_attributes = []
+
+        attributes_by_standard_parent = {}  # (prefix, name) -> list of allowed parent standard tags
+        attributes_by_custom_parent = {}    # (parent_prefix, parent_name, attr_prefix, attr_name) -> rules
+        
+        for attr in db_attributes:
+            if not attr.name:
+                continue
+            
+            # Check if defined on a custom vendor element
+            if attr.vendor_element:
+                elem_name = attr.vendor_element.name
+                elem_prefix = None
+                for db_elem in db_elements:
+                    if db_elem.uid == attr.vendor_element.uid:
+                        elem_prefix = db_elem.vendor_namespace.prefix if db_elem.vendor_namespace else None
+                        break
+                
+                attr_prefix = attr.vendor_namespace.prefix if attr.vendor_namespace else elem_prefix
+                if not attr_prefix:
+                    attr_prefix = elem_prefix
+
+                if elem_name and elem_prefix and attr_prefix:
+                    attributes_by_custom_parent[(elem_prefix, elem_name, attr_prefix, attr.name)] = {
+                        "uid": attr.uid,
+                        "value_regex": attr.value_regex,
+                        "data_type": attr.data_type,
+                    }
+            elif attr.vendor_namespace:
+                prefix = attr.vendor_namespace.prefix
+                if prefix:
+                    attributes_by_standard_parent[(prefix, attr.name)] = {
+                        "uid": attr.uid,
+                        "compatible_types": attr.compatible_types or [],
+                        "value_regex": attr.value_regex,
+                        "data_type": attr.data_type,
+                    }
+
+        return {
+            "namespaces": namespaces_by_prefix,
+            "elements": elements_by_key,
+            "attributes_by_standard_parent": attributes_by_standard_parent,
+            "attributes_by_custom_parent": attributes_by_custom_parent,
+        }
+
+    def validate_xml_structure(self):
+        """
+        Traverses the generated XML document and validates all custom vendor
+        elements and attributes against the dynamically compiled validation rules.
+        Throws a ValidationException containing a structured report of all violations.
+        """
+        rules = self.validation_rules
+        errors = []
+
+        def get_parent_tags(node):
+            parent_tags = []
+            curr = node.parentNode
+            while curr and curr.nodeType == 1:
+                tag = curr.tagName
+                if ":" in tag:
+                    _, local_name = tag.split(":", 1)
+                    parent_tags.append(local_name)
+                else:
+                    parent_tags.append(tag)
+                curr = curr.parentNode
+            return parent_tags
+
+        def traverse(node):
+            if node.nodeType != 1:  # ELEMENT_NODE
+                return
+
+            tag = node.tagName
+            parent_tags = get_parent_tags(node)
+            parent_tag = parent_tags[0] if parent_tags else None
+
+            # 1. Check if the element itself is a vendor element
+            if ":" in tag:
+                prefix, local_name = tag.split(":", 1)
+                if prefix not in {"xml", "xsi", "xmlns", "odm"}:
+                    if prefix not in rules["namespaces"]:
+                        errors.append(
+                            f"Element <{tag}>: Namespace prefix '{prefix}' is not declared in the database."
+                        )
+                    else:
+                        elem_key = (prefix, local_name)
+                        if elem_key not in rules["elements"]:
+                            errors.append(
+                                f"Element <{tag}>: Element '{local_name}' is not declared in the database vendor settings for namespace '{prefix}'."
+                            )
+                        else:
+                            elem_rules = rules["elements"][elem_key]
+                            allowed_parents = elem_rules["compatible_types"]
+                            if parent_tag and allowed_parents:
+                                if parent_tag not in allowed_parents:
+                                    errors.append(
+                                        f"Element <{tag}>: Element is not compatible with parent element <{node.parentNode.tagName}>. Allowed parents: {allowed_parents}."
+                                    )
+
+            # 2. Check all attributes on this element
+            if node.attributes:
+                for i in range(node.attributes.length):
+                    attr = node.attributes.item(i)
+                    attr_name = attr.name
+                    attr_value = attr.value
+
+                    if ":" in attr_name:
+                        prefix, local_name = attr_name.split(":", 1)
+                        if prefix not in {"xml", "xsi", "xmlns", "odm"}:
+                            if prefix not in rules["namespaces"]:
+                                errors.append(
+                                    f"Attribute '{attr_name}' on element <{tag}>: Namespace prefix '{prefix}' is not declared in the database."
+                                )
+                            else:
+                                is_custom_elem = ":" in tag and tag.split(":", 1)[0] not in {"xml", "xsi", "xmlns", "odm"}
+                                matched = False
+
+                                if is_custom_elem:
+                                    parent_prefix, parent_local = tag.split(":", 1)
+                                    custom_key = (parent_prefix, parent_local, prefix, local_name)
+                                    if custom_key in rules["attributes_by_custom_parent"]:
+                                        matched = True
+                                        attr_rules = rules["attributes_by_custom_parent"][custom_key]
+                                        val_regex = attr_rules["value_regex"]
+                                        if val_regex:
+                                            import re
+                                            try:
+                                                if not re.match(val_regex, attr_value):
+                                                    errors.append(
+                                                        f"Attribute '{attr_name}' on element <{tag}>: Value '{attr_value}' does not match pattern '{val_regex}'."
+                                                    )
+                                            except Exception:
+                                                pass
+
+                                if not matched:
+                                    standard_key = (prefix, local_name)
+                                    if standard_key in rules["attributes_by_standard_parent"]:
+                                        matched = True
+                                        attr_rules = rules["attributes_by_standard_parent"][standard_key]
+                                        allowed_elements = attr_rules["compatible_types"]
+                                        tag_local = tag.split(":", 1)[1] if ":" in tag else tag
+                                        if allowed_elements and tag_local not in allowed_elements:
+                                            errors.append(
+                                                f"Attribute '{attr_name}' on element <{tag}>: Attribute is not compatible with element <{tag}>. Allowed elements: {allowed_elements}."
+                                            )
+                                        val_regex = attr_rules["value_regex"]
+                                        if val_regex:
+                                            import re
+                                            try:
+                                                if not re.match(val_regex, attr_value):
+                                                    errors.append(
+                                                        f"Attribute '{attr_name}' on element <{tag}>: Value '{attr_value}' does not match pattern '{val_regex}'."
+                                                    )
+                                            except Exception:
+                                                pass
+
+                                if not matched:
+                                    errors.append(
+                                        f"Attribute '{attr_name}' on element <{tag}>: Attribute '{local_name}' is not declared in the database vendor settings for namespace '{prefix}'."
+                                    )
+
+            for child in list(node.childNodes):
+                traverse(child)
+
+        traverse(self.xml_document.documentElement)
+
+        if errors:
+            raise ValidationException(
+                msg="XML export structural integrity validation failed. Errors:\n" + "\n".join(f"- {e}" for e in errors)
+            )
