@@ -1262,7 +1262,7 @@ defineExpose({
   font-size: 14px;
 }
 .warning {
-  background-color: #eaab00;
+  background-color: #996500;
 }
 .yellow {
   background-color: yellow;

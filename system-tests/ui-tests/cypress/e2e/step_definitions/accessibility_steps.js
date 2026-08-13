@@ -70,3 +70,27 @@ Then('I run an accessibility audit for keyboard and contrast violations', () => 
     }
   }, handleA11yViolations);
 });
+
+When('I focus on the element {string}', (selector) => {
+  cy.get(selector).focus();
+});
+
+When('I hover over the element {string}', (selector) => {
+  cy.get(selector).trigger('mouseover');
+});
+
+When('I trigger mouseenter on the element {string}', (selector) => {
+  cy.get(selector).trigger('mouseenter');
+});
+
+When('I focus on a footnote-cell checkbox', () => {
+  cy.get('.footnote-cell input[type="checkbox"]').first().focus();
+});
+
+When('I focus on the action button in the active cell', () => {
+  cy.get('.footnote-cell :focus').closest('td').find('.actionButtons button').first().focus();
+});
+
+When('I simulate keyboard tab navigation', () => {
+  cy.focused().trigger('keydown', { keyCode: 9, which: 9 });
+});

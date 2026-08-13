@@ -222,7 +222,8 @@ thead.v-data-table-header {
 .v-select-list {
   .v-list-item {
     &-active {
-      background-color: rgb(var(--v-theme-nnLightBlue3));
+      background-color: rgb(var(--v-theme-nnLightBlue3)) !important;
+      color: rgb(var(--v-theme-nnTrueBlue)) !important;
       &::before {
         opacity: 0;
       }
@@ -485,4 +486,9 @@ input[type='datetime-local'] {
   max-width: 400px;
   opacity: 1;
   margin-left: 8px;
+}
+
+.v-counter {
+  color: rgb(var(--v-theme-nnTrueBlue)) !important;
+  opacity: 1 !important;
 }
