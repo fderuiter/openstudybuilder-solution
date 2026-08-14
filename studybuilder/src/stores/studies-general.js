@@ -4,6 +4,7 @@ import dictionaries from '@/api/dictionaries'
 import study from '@/api/study'
 import terms from '@/api/controlledTerminology/terms'
 import units from '@/api/units'
+import preferencesApi from '@/api/preferences'
 
 export const useStudiesGeneralStore = defineStore('studiesGeneral', {
   state: () => ({
@@ -114,6 +115,10 @@ export const useStudiesGeneralStore = defineStore('studiesGeneral', {
     unselectStudy() {
       this.selectedStudy = null
       sessionStorage.removeItem('selectedStudy')
+      // Update active study in backend user preferences
+      preferencesApi.updateUserPreferences({ active_study: "" }).catch((error) => {
+        console.error('Failed to clear active_study preference:', error)
+      })
     },
 
     async initialize() {
@@ -137,6 +142,14 @@ export const useStudiesGeneralStore = defineStore('studiesGeneral', {
           studyObj.current_metadata.version_metadata.version_number
       }
       sessionStorage.setItem('selectedStudy', JSON.stringify(studyObj))
+
+      // Update active study in backend user preferences
+      try {
+        await preferencesApi.updateUserPreferences({ active_study: studyObj.uid })
+      } catch (error) {
+        console.error('Failed to update active_study preference:', error)
+      }
+
       let resp
       resp = await study.getStudyPreferredTimeUnit(studyObj.uid)
       this.studyPreferredTimeUnit = resp.data

@@ -50,6 +50,13 @@ PREFERENCE_DEFINITIONS: tuple[PreferenceDefinition, ...] = (
         description="Automatically minimize the sidebar to rail mode",
         default=False,
     ),
+    PreferenceDefinition(
+        key="active_study",
+        preference_type="enum",
+        label="Active study",
+        description="Currently active study identifier",
+        default="",
+    ),
 )
 
 # Derived lookups (computed once at import time)

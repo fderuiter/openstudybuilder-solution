@@ -33,6 +33,7 @@ class PreferencesFields(PatchInputModel):
     rows_per_page: Annotated[int | None, Field(ge=5, le=100)] = None
     sidebar_visible: Annotated[bool | None, Field()] = None
     sidebar_auto_minimize: Annotated[bool | None, Field()] = None
+    active_study: Annotated[str | None, Field()] = None
 
 
 class GlobalPreferencesPatchInput(PreferencesFields):
