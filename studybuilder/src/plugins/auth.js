@@ -1,5 +1,9 @@
 import { eventBusEmit } from './eventBus'
-import { UserManager } from 'oidc-client-ts'
+import {
+  UserManager,
+  WebStorageStateStore,
+  InMemoryWebStorage,
+} from 'oidc-client-ts'
 import roles from '@/constants/roles'
 import { Buffer } from 'buffer'
 
@@ -89,6 +93,8 @@ const authInterface = {
     })
   },
   oauthLogout: async function () {
+    await manager.removeUser()
+    await manager.clearStaleState()
     return manager.signoutRedirect()
   },
 }
@@ -103,7 +109,8 @@ export default {
       response_type: 'code',
       response_mode: 'fragment',
       post_logout_redirect_uri: location.origin,
-      scope: `openid profile email offline_access api://${options.config.OAUTH_API_APP_ID}/API.call`,
+      userStore: new WebStorageStateStore({ store: new InMemoryWebStorage() }),
+      scope: `openid profile email api://${options.config.OAUTH_API_APP_ID}/API.call`,
     })
     app.config.globalProperties.$auth = authInterface
     app.config.globalProperties.$roles = roles
