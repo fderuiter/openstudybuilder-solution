@@ -8,6 +8,8 @@
       <NotificationPanel />
     </div>
 
+    <SessionExpirationModal />
+
     <TopBar
       :hide-app-bar-nav-icon="layoutTemplate === 'empty'"
       @back-to-root="navigateToRoot"
@@ -59,6 +61,7 @@ import { eventBus } from '@/plugins/eventBus'
 import notifications from '@/api/notifications'
 import NotificationPanel from './components/ui/notification/NotificationPanel.vue'
 import ScreenRecorder from './components/ui/ScreenRecorder.vue'
+import SessionExpirationModal from './components/ui/SessionExpirationModal.vue'
 
 const route = useRoute()
 const router = useRouter()

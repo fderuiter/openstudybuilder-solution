@@ -77,8 +77,8 @@ const responseInterceptors = {
           msg: error.message,
           type: 'error',
         })
-      } else if (error.response.status === 401) {
-        // Unauthorized: handled elsewhere either by login-redirect or token-refresh routine
+      } else if (error.response.status === 401 || error.response.status === 403) {
+        useErrorHandler(error)
       } else {
         // If status code is 422, display the validation error details from error.response.data.detail.
         // Otherwise, just display the error message contained in error.response.data.message.

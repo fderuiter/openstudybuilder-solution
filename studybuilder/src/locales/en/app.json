@@ -191,6 +191,7 @@
     },
     "_errors": {
         "general": "Something went wrong. Please try again later.",
+        "unauthorized": "Session expired or unauthorized request. Please log in again.",
         "exclusive_select": "Field and Null Flavor can't be selected at the same time.",
         "numeric": "This field must contains numbers only",
         "required": "This field is required",
@@ -203,6 +204,14 @@
         "no_parameter_values_selected": "No value(s) selected",
         "identical_name": "Sentence case name can only differ in case compared to name value",
         "uppercase_alphanumeric": "This field must contain only uppercase letters and digits, with no spaces or special characters"
+    },
+    "_session": {
+        "expired_title": "Session Expired",
+        "expired_message": "Your authentication session has expired or automatic renewal failed. You have unsaved changes on this page that may be lost if you leave without saving.",
+        "copy_unsaved_data": "Copy Unsaved Data",
+        "data_copied": "Unsaved data copied to clipboard!",
+        "reauthenticate": "Log In Again",
+        "copy_failed": "Failed to copy data to clipboard."
     },
     "_help": {
         "CRFCollections": {

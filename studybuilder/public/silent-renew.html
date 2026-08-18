@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Silent Renew Callback</title>
+</head>
+<body>
+    <script src="/oidc-client-ts.min.js"></script>
+    <script>
+        if (typeof oidc !== 'undefined' && oidc.UserManager) {
+            new oidc.UserManager({ response_mode: 'fragment' }).signinSilentCallback().catch(function(e) {
+                console.error('Silent renew callback error:', e);
+            });
+        } else {
+            var msg = {
+                source: 'oidc-client',
+                url: window.location.href,
+                keepOpen: false
+            };
+            if (window.parent) {
+                window.parent.postMessage(msg, window.location.origin);
+            }
+        }
+    </script>
+</body>
+</html>

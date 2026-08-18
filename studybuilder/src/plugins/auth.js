@@ -6,6 +6,7 @@ import {
 } from 'oidc-client-ts'
 import roles from '@/constants/roles'
 import { Buffer } from 'buffer'
+import { useFormStore } from '@/stores/form'
 
 let manager = null
 
@@ -53,21 +54,42 @@ function extractAndFlattenRoles(data) {
 }
 
 const authInterface = {
-  validateAccess: function (to) {
-    manager.getUser().then((user) => {
+  validateAccess: function (to, from, next) {
+    return manager.getUser().then((user) => {
       if (!user || user.expired) {
-        if (to.name !== 'Login') {
-          sessionStorage.setItem('next', to.name)
-          sessionStorage.setItem('nextParams', JSON.stringify(to.params))
+        const formStore = useFormStore()
+        if (formStore.isDirty) {
+          eventBusEmit('showSessionExpirationModal', { to })
+          if (typeof next === 'function') {
+            next(false)
+          }
+          return false
+        } else {
+          if (to && to.name && to.name !== 'Login') {
+            sessionStorage.setItem('next', to.name)
+            sessionStorage.setItem('nextParams', JSON.stringify(to.params || {}))
+          }
+          manager.signinRedirect()
+          if (typeof next === 'function') {
+            next(false)
+          }
+          return false
         }
-        manager.signinRedirect()
       }
+      return true
     })
   },
   oauthLoginCallback: function () {
     return manager.signinRedirectCallback().then(() => {
       eventBusEmit('userSignedIn')
     })
+  },
+  signinRedirect: function (to) {
+    if (to && to.name && to.name !== 'Login') {
+      sessionStorage.setItem('next', to.name)
+      sessionStorage.setItem('nextParams', JSON.stringify(to.params || {}))
+    }
+    return manager.signinRedirect()
   },
   clear: function () {
     manager.clearStaleState()
@@ -106,15 +128,35 @@ export default {
       authority: 'studybuilder-frontend',
       client_id: options.config.OAUTH_UI_APP_ID,
       redirect_uri: location.origin + '/oauth-callback',
+      silent_redirect_uri: location.origin + '/silent-renew.html',
+      automaticSilentRenew: true,
       response_type: 'code',
       response_mode: 'fragment',
       post_logout_redirect_uri: location.origin,
       userStore: new WebStorageStateStore({ store: new InMemoryWebStorage() }),
       scope: `openid profile email api://${options.config.OAUTH_API_APP_ID}/API.call`,
     })
+
+    manager.events.addSilentRenewError((error) => {
+      console.warn('Silent renew error:', error)
+      const formStore = useFormStore()
+      if (formStore.isDirty) {
+        eventBusEmit('showSessionExpirationModal')
+      }
+    })
+
+    manager.events.addAccessTokenExpired(() => {
+      console.warn('Access token expired')
+      const formStore = useFormStore()
+      if (formStore.isDirty) {
+        eventBusEmit('showSessionExpirationModal')
+      }
+    })
+
     app.config.globalProperties.$auth = authInterface
     app.config.globalProperties.$roles = roles
     app.provide('roles', roles)
+    app.provide('$auth', authInterface)
   },
 }
 
