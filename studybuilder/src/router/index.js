@@ -1275,7 +1275,10 @@ router.beforeEach(async (to, from, next) => {
   if ($config.OAUTH_ENABLED) {
     await authStore.initialize()
     if (to.matched.some((record) => record.meta.authRequired)) {
-      auth.validateAccess(to, from, next)
+      const allowed = await auth.validateAccess(to, from, next)
+      if (!allowed) {
+        return
+      }
     }
     if (to.matched.some((record) => record.meta.requiredPermission)) {
       const roles = authStore.userInfo?.roles || []

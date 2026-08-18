@@ -18,6 +18,7 @@ export const useFormStore = defineStore('form', {
     isEmpty: (state) => state.form === null,
     canUndo: (state) => state.history.length > 0,
     canRedo: (state) => state.future.length > 0,
+    isDirty: (state) => state.history.length > 0,
   },
   actions: {
     save(form) {

@@ -96,7 +96,7 @@ export function useErrorHandler(error) {
   }
 
   if (
-    Array.isArray(error.response.data.details) &&
+    Array.isArray(error.response?.data?.details) &&
     error.response.data.details.length > 0
   ) {
     for (const err of error.response.data.details) {
@@ -118,10 +118,15 @@ export function useErrorHandler(error) {
     return
   }
 
-  if (error.response.data.message) {
+  if (error.response?.data?.message) {
     addError(
       resolveErrorMessage(error.response.data.type, error.response.data.message)
     )
+    return
+  }
+
+  if (error.response?.status === 401 || error.response?.status === 403) {
+    addError(t('_errors.unauthorized'))
     return
   }
 
