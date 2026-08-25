@@ -38626,6 +38626,22 @@ export interface components {
              * @description Type of last change for the version
              */
             change_type?: (string | null) | null;
+            /**
+             * Is Conditional
+             * @description Boolean indicating whether activity is conditional based on instructions or footnotes
+             * @default false
+             */
+            is_conditional: boolean;
+            /**
+             * Activity Instruction Texts
+             * @description List of instruction texts connected to study activity
+             */
+            activity_instruction_texts?: string[];
+            /**
+             * Footnote Texts
+             * @description List of footnote texts connected to study activity
+             */
+            footnote_texts?: string[];
             /** @description Latest version of activity selected for study. */
             latest_activity?: (components["schemas"]["ActivityForStudyActivity"] | null) | null;
             /**
@@ -38766,6 +38782,22 @@ export interface components {
              * @description Type of last change for the version
              */
             change_type?: (string | null) | null;
+            /**
+             * Is Conditional
+             * @description Boolean indicating whether activity is conditional based on instructions or footnotes
+             * @default false
+             */
+            is_conditional: boolean;
+            /**
+             * Activity Instruction Texts
+             * @description List of instruction texts connected to study activity
+             */
+            activity_instruction_texts?: string[];
+            /**
+             * Footnote Texts
+             * @description List of footnote texts connected to study activity
+             */
+            footnote_texts?: string[];
         };
         /** StudySelectionActivityCreateInput */
         StudySelectionActivityCreateInput: {
