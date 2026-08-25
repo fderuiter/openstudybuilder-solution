@@ -83,8 +83,23 @@ def main():
             print(f"\n[ERROR] Data correction '{module_name}' failed with exit code {e.returncode}.", file=sys.stderr)
             sys.exit(1)
             
+    # 5. Execute single-pass deferred schema reconciliation
     print("\n==========================================")
-    print("All sequential migrations and data corrections executed successfully!")
+    print(">>> Executing deferred single-pass schema reconciliation...")
+    print("==========================================")
+    try:
+        from migrations.common import migrate_indexes_and_constraints
+        from migrations.utils.utils import get_db_connection, get_logger
+        logger = get_logger("SchemaReconciliation")
+        db_conn = get_db_connection()
+        migrate_indexes_and_constraints(db_conn, logger)
+        print("[SCHEMA RECONCILIATION] Successfully reconciled schema indexes and constraints")
+    except Exception as e:
+        print(f"\n[ERROR] Schema reconciliation failed: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    print("\n==========================================")
+    print("All sequential migrations, data corrections, and schema reconciliation executed successfully!")
     print("==========================================")
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ import os
 import re
 
 from mdr_standards_import.mdr_standards_import.scripts.utils import REPLACEMENTS
-from migrations.common import migrate_ct_config_values, migrate_indexes_and_constraints
+from migrations.common import migrate_ct_config_values
 from migrations.utils.utils import (
     REGEX_SNAKE_CASE_WITH_DOT,
     api_get,
@@ -29,7 +29,6 @@ def main():
     migrate_term_uids(DB_CONNECTION)
     create_requested_library()
     migrate_null_flavor_list(DB_CONNECTION)
-    migrate_indexes_and_constraints(DB_CONNECTION, logger)
     migrate_codelist_extensible_flag(DB_CONNECTION)
 
 

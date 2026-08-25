@@ -2,7 +2,7 @@
 
 import os
 
-from migrations.common import migrate_ct_config_values, migrate_indexes_and_constraints
+from migrations.common import migrate_ct_config_values
 from migrations.utils.utils import (
     get_db_connection,
     get_db_driver,
@@ -20,7 +20,6 @@ MIGRATION_DESC = "schema-migration-release-2.6"
 def main():
     logger.info("Running migration on DB '%s'", os.environ["DATABASE_NAME"])
     ### Common migrations
-    migrate_indexes_and_constraints(DB_CONNECTION, logger)
     migrate_ct_config_values(DB_CONNECTION, logger)
 
     ### Specific migrations

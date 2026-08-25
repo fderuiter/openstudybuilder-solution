@@ -4,7 +4,7 @@ import os
 
 from neo4j import SummaryCounters
 
-from migrations.common import migrate_ct_config_values, migrate_indexes_and_constraints
+from migrations.common import migrate_ct_config_values
 from migrations.utils.utils import (
     get_db_connection,
     get_db_driver,
@@ -31,7 +31,6 @@ def main():
     migrate_ct(DB_DRIVER, logger)
 
     ### Common migrations
-    migrate_indexes_and_constraints(DB_CONNECTION, logger)
     migrate_ct_config_values(DB_CONNECTION, logger)
 
 
