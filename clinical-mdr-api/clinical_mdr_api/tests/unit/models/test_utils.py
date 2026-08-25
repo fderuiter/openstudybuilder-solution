@@ -149,3 +149,89 @@ def test_input_model_blocks_transactional_data():
         in str(exc_info.value)
     )
 
+
+def test_input_model_casing_normalization():
+    from pydantic import ValidationError
+
+    # Allowed keys in alternate casing formats should pass
+    try:
+        MockInput(
+            title="Valid title",
+            body="Valid body",
+            Healthy_Subject_Indicator=True,
+            PATIENT_BURDEN=2.0,
+        )
+    except ValidationError:
+        pytest.fail("Case-normalized allowed keys were incorrectly blocked")
+
+    # Prohibited terms in alternate casing formats should be blocked
+    with pytest.raises(ValidationError):
+        MockInput(title="Valid title", body="Valid body", PATIENT="12345")
+
+    with pytest.raises(ValidationError):
+        MockInput(title="Valid title", body="Valid body", Subject="12345")
+
+    with pytest.raises(ValidationError):
+        MockInput(title="Valid title", body="Valid body", Patient_Id="12345")
+
+    with pytest.raises(ValidationError):
+        MockInput(title="Valid title", body="Valid body", patientId="12345")
+
+
+def test_input_model_compound_design_terms():
+    from pydantic import ValidationError
+
+    # Compound design terms should pass validation without 422 errors
+    try:
+        MockInput(
+            title="Valid title",
+            body="Valid body",
+            subject_selection={"criteria": "age >= 18"},
+            patient_cohort={"cohort_name": "Group A"},
+        )
+    except ValidationError:
+        pytest.fail("Compound design terms were incorrectly blocked")
+
+
+def test_input_model_metadata_context_flag():
+    from typing import ClassVar
+    from pydantic import ValidationError
+
+    class StudySpecInput(InputModel):
+        is_metadata_context: ClassVar[bool] = True
+        title: str
+        body: str
+
+    # Model configured with metadata context flag safely processes specification keys
+    try:
+        StudySpecInput(
+            title="Protocol A",
+            body="Study Description",
+            subject_selection={"criteria": "Inclusion"},
+            patient_cohort="Cohort 1",
+            patient_selection="Design criteria",
+        )
+    except ValidationError:
+        pytest.fail("Metadata context model rejected valid specification keys")
+
+    # Structural Pydantic validation is still enforced
+    with pytest.raises(ValidationError) as exc_info:
+        StudySpecInput(
+            body="Study Description",
+            patient_cohort="Cohort 1",
+        )
+    assert "title" in str(exc_info.value)
+
+
+def test_input_model_recursive_inspection():
+    from pydantic import ValidationError
+
+    # Prohibited terms inside nested lists or dictionaries should be blocked
+    with pytest.raises(ValidationError):
+        MockInput(
+            title="Valid title",
+            body="Valid body",
+            nested={"items": [{"patient_id": "123"}]},
+        )
+
+

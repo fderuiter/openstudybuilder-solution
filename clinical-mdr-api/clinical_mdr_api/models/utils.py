@@ -3,7 +3,61 @@ import json
 import re
 from copy import copy
 from types import NoneType, UnionType
-from typing import Annotated, Any, Callable, Generic, Self, Sequence, TypeVar
+from typing import Annotated, Any, Callable, ClassVar, Generic, Self, Sequence, TypeVar
+
+DEFAULT_ALLOWED_KEYS = {
+    "healthy_subject_indicator",
+    "healthy_subject_indicator_null_value_code",
+    "planned_minimum_age_of_subjects",
+    "planned_minimum_age_of_subjects_null_value_code",
+    "planned_maximum_age_of_subjects",
+    "planned_maximum_age_of_subjects_null_value_code",
+    "number_of_expected_subjects",
+    "number_of_expected_subjects_null_value_code",
+    "number_of_subjects",
+    "plan_no_subject",
+    "plan_no_subject_nf",
+    "no_subject",
+    "accepts_healthy_volunteers",
+    "patient_burden",
+    "patient_burdens",
+    "site_patient_burden",
+    "site_patient_burdens",
+}
+
+DEFAULT_BLOCKED_TERMS = [
+    "patient",
+    "subject",
+    "clinical_execution",
+    "clinical_trial_execution",
+    "transactional_data",
+    "operational_data",
+]
+
+DEFAULT_TRANSACTIONAL_KEYS = {
+    "patient_id",
+    "subject_id",
+    "subject_record",
+    "clinical_execution_data",
+}
+
+DEFAULT_DESIGNATED_SPECIFICATION_KEYS = {
+    "subject_selection",
+    "patient_cohort",
+    "patient_selection",
+    "subject_cohort",
+    "subject_specification",
+    "patient_group",
+    "patient_study_design",
+}
+
+
+def normalize_key(key: str) -> str:
+    if not isinstance(key, str):
+        return ""
+    s1 = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", key)
+    s2 = re.sub(r"(?<=[A-Z])(?=[A-Z][a-z])", " ", s1)
+    return s2.lower().strip()
 
 import nh3
 from annotated_types import MinLen
@@ -248,48 +302,130 @@ class BaseModel(PydanticBaseModel):
 
 
 class InputModel(BaseModel):
+    is_metadata_context: ClassVar[bool] = False
+    metadata_context: ClassVar[bool] = False
+    validation_context: ClassVar[str | None] = None
+    allowed_keys: ClassVar[set[str] | None] = None
+    blocked_terms: ClassVar[list[str] | set[str] | None] = None
+    transactional_keys: ClassVar[set[str] | None] = None
+    designated_specification_keys: ClassVar[set[str] | None] = None
 
     @model_validator(mode="before")
     @classmethod
-    def reject_transactional_data(cls, data: Any) -> Any:
+    def reject_transactional_data(
+        cls, data: Any, info: ValidationInfo | None = None
+    ) -> Any:
+        allowed = (
+            cls.allowed_keys
+            if cls.allowed_keys is not None
+            else DEFAULT_ALLOWED_KEYS
+        )
+        norm_allowed = {
+            normalize_key(k).replace(" ", "_").replace("-", "_") for k in allowed
+        }
+
+        blocked = (
+            cls.blocked_terms
+            if cls.blocked_terms is not None
+            else DEFAULT_BLOCKED_TERMS
+        )
+
+        trans_keys = (
+            cls.transactional_keys
+            if cls.transactional_keys is not None
+            else DEFAULT_TRANSACTIONAL_KEYS
+        )
+        norm_trans_keys = {
+            normalize_key(k).replace(" ", "_").replace("-", "_") for k in trans_keys
+        }
+
+        spec_keys = (
+            cls.designated_specification_keys
+            if cls.designated_specification_keys is not None
+            else DEFAULT_DESIGNATED_SPECIFICATION_KEYS
+        )
+        norm_spec_keys = {
+            normalize_key(k).replace(" ", "_").replace("-", "_") for k in spec_keys
+        }
+
+        is_meta = (
+            getattr(cls, "is_metadata_context", False)
+            or getattr(cls, "metadata_context", False)
+            or getattr(cls, "validation_context", None)
+            in ("metadata", "specification", "design")
+        )
+        if not is_meta and info and info.context and isinstance(info.context, dict):
+            is_meta = (
+                info.context.get("is_metadata_context", False)
+                or info.context.get("metadata_context", False)
+                or info.context.get("validation_context")
+                in ("metadata", "specification", "design")
+            )
+
         def check_data(val: Any) -> None:
-            allowed_keys = {
-                "healthy_subject_indicator",
-                "healthy_subject_indicator_null_value_code",
-                "planned_minimum_age_of_subjects",
-                "planned_minimum_age_of_subjects_null_value_code",
-                "planned_maximum_age_of_subjects",
-                "planned_maximum_age_of_subjects_null_value_code",
-                "number_of_expected_subjects",
-                "number_of_expected_subjects_null_value_code",
-                "number_of_subjects",
-                "plan_no_subject",
-                "plan_no_subject_nf",
-                "no_subject",
-                "accepts_healthy_volunteers",
-                "patient_burden",
-                "patient_burdens",
-                "site_patient_burden",
-                "site_patient_burdens",
-            }
-            blocked_terms = [
-                "patient",
-                "subject",
-                "clinical_execution",
-                "clinical_trial_execution",
-                "transactional_data",
-                "operational_data",
-            ]
             if isinstance(val, dict):
                 for k, v in val.items():
                     if isinstance(k, str):
-                        k_lower = k.lower()
-                        if k not in allowed_keys:
-                            for term in blocked_terms:
-                                if term in k_lower:
-                                    raise ValueError(
-                                        "Static API schemas reject all incoming requests that contain patient, subject, or clinical execution parameters"
+                        norm_k = normalize_key(k)
+                        k_snake = norm_k.replace(" ", "_").replace("-", "_")
+
+                        if k_snake not in norm_allowed:
+                            is_blocked = False
+
+                            if k_snake in norm_trans_keys:
+                                is_blocked = True
+                            else:
+                                for term in blocked:
+                                    term_norm = (
+                                        normalize_key(term)
+                                        .replace(" ", "_")
+                                        .replace("-", "_")
                                     )
+                                    if k_snake in norm_spec_keys:
+                                        break
+
+                                    if k_snake == term_norm:
+                                        is_blocked = True
+                                        break
+
+                                    pattern = r"\b" + re.escape(term_norm) + r"\b"
+                                    if re.search(pattern, norm_k) or re.search(
+                                        pattern, k_snake
+                                    ):
+                                        words = re.findall(r"[a-zA-Z0-9]+", norm_k)
+                                        if len(words) == 1 and words[0] == term_norm:
+                                            is_blocked = True
+                                            break
+                                        elif (
+                                            k_snake in norm_trans_keys
+                                            or term_norm
+                                            in (
+                                                "clinical_execution",
+                                                "clinical_trial_execution",
+                                                "transactional_data",
+                                                "operational_data",
+                                            )
+                                        ):
+                                            is_blocked = True
+                                            break
+                                        elif not is_meta and term_norm in words:
+                                            if (
+                                                k_snake in norm_trans_keys
+                                                or term_norm
+                                                in (
+                                                    "clinical_execution",
+                                                    "clinical_trial_execution",
+                                                    "transactional_data",
+                                                    "operational_data",
+                                                )
+                                            ):
+                                                is_blocked = True
+                                                break
+
+                            if is_blocked:
+                                raise ValueError(
+                                    "Static API schemas reject all incoming requests that contain patient, subject, or clinical execution parameters"
+                                )
                     check_data(v)
             elif isinstance(val, list):
                 for item in val:
