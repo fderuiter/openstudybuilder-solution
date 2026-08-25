@@ -16,7 +16,7 @@
     />
 
     <template v-if="layoutTemplate === 'empty'">
-      <v-main class="bg-primary text-white" style="background-color: #193074;">
+      <v-main class="bg-primary text-white" style="background-color: var(--v-theme-primary);">
         <SystemAnnouncement
           v-if="systemAnnouncement"
           :announcement="systemAnnouncement"

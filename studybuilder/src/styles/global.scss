@@ -1,6 +1,8 @@
+@use './tokens.scss';
+
 // main
 body {
-  background-color: #012169;
+  background-color: var(--color-bg-main, #012169);
   font-family: 'Open Sans', serif;
   font-size: 1rem;
   line-height: 1.5;
@@ -12,7 +14,7 @@ body {
 }
 
 .text-white {
-  color: #fff !important;
+  color: var(--color-text-white, #fff) !important;
 }
 
 .text-nn-blue {
@@ -24,7 +26,7 @@ body {
 }
 
 .bg-white {
-  background-color: #fff !important;
+  background-color: var(--color-bg-white, #fff) !important;
 }
 
 // Tabs
@@ -371,7 +373,7 @@ input[type='datetime-local'] {
 .fullscreen-bg {
   padding: 2rem;
   margin: 0;
-  color: #fff;
+  color: var(--color-text-white, #fff);
   background-size: cover;
   background-position-y: center;
   background-position-x: center;
@@ -393,7 +395,7 @@ input[type='datetime-local'] {
 }
 
 .confirmation-text-field {
-  background-color: #fff;
+  background-color: var(--color-bg-white, #fff);
   height: 60px;
   text-align: left;
   padding: 5px;

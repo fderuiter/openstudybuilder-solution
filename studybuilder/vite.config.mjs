@@ -1,8 +1,31 @@
 import { fileURLToPath, URL } from 'node:url'
+import { execSync } from 'node:child_process'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vuetify from 'vite-plugin-vuetify'
+
+function tokenCompilerPlugin() {
+  return {
+    name: 'token-compiler-plugin',
+    buildStart() {
+      try {
+        execSync('node scripts/compile-tokens.js', { stdio: 'inherit' })
+      } catch (err) {
+        console.error('Failed to compile tokens during build:', err)
+      }
+    },
+    handleHotUpdate({ file }) {
+      if (file.endsWith('design-tokens.json')) {
+        try {
+          execSync('node scripts/compile-tokens.js', { stdio: 'inherit' })
+        } catch (err) {
+          console.error('Failed to compile tokens on HMR:', err)
+        }
+      }
+    },
+  }
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -22,6 +45,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    tokenCompilerPlugin(),
     vue(),
     vuetify({ styles: { configFile: 'src/styles/settings.scss' } }),
     {

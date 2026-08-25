@@ -255,7 +255,7 @@
 
 /* StudyBuilder style config */
 .n-min-w-full {
-  background: #193074 !important;
+  background: var(--primary-color, #193074) !important;
   color: white !important;
 }
 
@@ -268,11 +268,11 @@
 }
 
 .ndl-side-navigation {
-  background: #193074 !important;
+  background: var(--primary-color, #193074) !important;
 }
 
 .n-text-palette-neutral-text-weak {
-  color: #193074 !important;
+  color: var(--primary-color, #193074) !important;
 }
 
 .ndl-btn.ndl-medium.ndl-outlined {

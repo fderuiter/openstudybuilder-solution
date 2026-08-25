@@ -340,7 +340,7 @@ watch(
 :deep(.activity-item-classes-styled) {
   /* Table header styling */
   thead tr {
-    background: #272e41 !important;
+    background: var(--v-theme-nnTrueBlue, #001965) !important;
   }
 
   thead th {
@@ -352,16 +352,16 @@ watch(
 
   /* Table row styling */
   tbody tr {
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--v-theme-tableGray, #e0e0e0);
   }
 
   tbody tr:hover {
-    background-color: #f5f5f5;
+    background-color: var(--v-theme-dfltBackground, #f5f5f5);
   }
 
   /* Status chip colors */
   .v-chip.bg-success {
-    background-color: #4caf50 !important;
+    background-color: var(--v-theme-success, #4caf50) !important;
   }
 }
 </style>

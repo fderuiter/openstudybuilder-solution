@@ -93,7 +93,7 @@
                 <template #headers />
                 <template #bottom />
                 <template #item="{ props }">
-                  <tr style="background-color: #d8eaf8">
+                  <tr style="background-color: var(--v-theme-dfltBackgroundLight2, #d8eaf8)">
                     <td width="25%">
                       <v-row>
                         <v-btn icon variant="text" class="hide" />
@@ -211,7 +211,7 @@
                 <template #headers />
                 <template #bottom />
                 <template #item="{ item }">
-                  <tr style="background-color: #d8eaf8">
+                  <tr style="background-color: var(--v-theme-dfltBackgroundLight2, #d8eaf8)">
                     <td width="25%">
                       <v-row>
                         <v-btn icon variant="text" class="hide" />
@@ -352,7 +352,7 @@ async function getAttributes(params) {
   visibility: collapse;
 }
 .elementBackground {
-  background-color: #b1d5f2;
+  background-color: var(--v-theme-dfltBackgroundLight1, #b1d5f2);
 }
 .hide {
   opacity: 0;
