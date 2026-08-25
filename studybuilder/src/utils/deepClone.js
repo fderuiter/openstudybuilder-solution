@@ -64,7 +64,7 @@ export function deepClone(value, seen = new WeakMap()) {
 
   // Preserve TypedArrays (Uint8Array, Float32Array, etc.)
   if (ArrayBuffer.isView(raw) && !(raw instanceof DataView)) {
-    return new raw.constructor(raw)
+    return new (/** @type {any} */ (raw.constructor))(raw)
   }
 
   // Preserve Array

@@ -110,4 +110,18 @@ describe('deepClone Utility', () => {
     assert.equal(cloned.name, 'Ref Form')
     assert.ok(cloned.created instanceof Date)
   })
+
+  test('preserves ArrayBuffer and TypedArrays', () => {
+    const buffer = new ArrayBuffer(8)
+    const clonedBuffer = deepClone(buffer)
+    assert.notEqual(clonedBuffer, buffer)
+    assert.ok(clonedBuffer instanceof ArrayBuffer)
+    assert.equal(clonedBuffer.byteLength, 8)
+
+    const uint8 = new Uint8Array([1, 2, 3, 4])
+    const clonedUint8 = deepClone(uint8)
+    assert.notEqual(clonedUint8, uint8)
+    assert.ok(clonedUint8 instanceof Uint8Array)
+    assert.deepEqual(Array.from(clonedUint8), [1, 2, 3, 4])
+  })
 })
