@@ -48,8 +48,8 @@ def load_env(key: str, default: Optional[str] = None):
     return default
 
 
-DATABASE_NAME = load_env("DATABASE_NAME")
-DATABASE_URL = load_env("DATABASE_URL")
+DATABASE_NAME = load_env("DATABASE_NAME", "mdrdb")
+DATABASE_URL = load_env("DATABASE_URL", "bolt://neo4j:changeme1234@localhost:7687")
 API_BASE_URL = load_env("API_BASE_URL", "http://localhost:8000")
 API_HEADERS = {"User-Agent": "Data-Migrator"}
 TOKEN_REFRESH_INTERVAL = 1200  # 20 minutes
@@ -120,7 +120,9 @@ def get_db_connection():
         scheme, rest = clean_url.split("://", 1)
         safe_db_url = f"{scheme}://{urllib.parse.quote(username)}:{urllib.parse.quote(password)}@{rest}"
     else:
-        safe_db_url = f"{urllib.parse.quote(username)}:{urllib.parse.quote(password)}@{clean_url}"
+        safe_db_url = (
+            f"{urllib.parse.quote(username)}:{urllib.parse.quote(password)}@{clean_url}"
+        )
 
     neoconfig.DATABASE_URL = safe_db_url
     db.set_connection(neoconfig.DATABASE_URL)

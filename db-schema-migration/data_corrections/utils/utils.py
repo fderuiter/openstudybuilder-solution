@@ -13,8 +13,8 @@ from migrations.utils.utils import get_logger, load_env, parse_db_url
 
 logger = get_logger(os.path.basename(__file__))
 
-DATABASE_NAME = load_env("DATABASE_NAME")
-DATABASE_URL = load_env("DATABASE_URL")
+DATABASE_NAME = load_env("DATABASE_NAME", "mdrdb")
+DATABASE_URL = load_env("DATABASE_URL", "bolt://neo4j:changeme1234@localhost:7687")
 CHANGE_LOG_DIR = load_env("CHANGE_LOG_DIR", default="correction_change_logs")
 SWITCH_LOG_ENRICHMENT = (
     load_env("SWITCH_LOG_ENRICHMENT", default="true").strip().lower() == "true"
