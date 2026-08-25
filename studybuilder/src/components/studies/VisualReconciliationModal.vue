@@ -9,7 +9,7 @@
       <v-card-title class="headline grey lighten-2">
         <v-icon left color="primary">mdi-source-branch</v-icon>
         Template Visual Reconciliation Tool
-        <v-spacer></v-dialog-spacer>
+        <v-spacer></v-spacer>
         <v-btn icon @click="close">
           <v-icon>mdi-close</v-icon>
         </v-btn>
@@ -221,6 +221,7 @@ export default {
       default: false,
     },
   },
+  emits: ['input', 'reconciled'],
   data() {
     return {
       activeTab: 0,
