@@ -62,13 +62,16 @@ export async function refetchActiveDomainStores(studyUid, router) {
     activeElem &&
     (activeElem.tagName === 'INPUT' ||
       activeElem.tagName === 'TEXTAREA' ||
-      activeElem.isContentEditable)
+      /** @type {HTMLElement} */ (activeElem).isContentEditable)
   ) {
+    const inputElem = /** @type {HTMLInputElement | HTMLTextAreaElement} */ (
+      activeElem
+    )
     activeInputInfo = {
-      elem: activeElem,
-      value: activeElem.value,
-      selectionStart: activeElem.selectionStart,
-      selectionEnd: activeElem.selectionEnd,
+      elem: inputElem,
+      value: inputElem.value,
+      selectionStart: inputElem.selectionStart,
+      selectionEnd: inputElem.selectionEnd,
     }
   }
 
@@ -186,12 +189,15 @@ export async function refetchActiveDomainStores(studyUid, router) {
     activeInputInfo.elem &&
     document.activeElement === activeInputInfo.elem
   ) {
-    if (activeInputInfo.elem.value !== activeInputInfo.value) {
-      activeInputInfo.elem.value = activeInputInfo.value
+    const inputElem = /** @type {HTMLInputElement | HTMLTextAreaElement} */ (
+      activeInputInfo.elem
+    )
+    if (inputElem.value !== activeInputInfo.value) {
+      inputElem.value = activeInputInfo.value
     }
     try {
       if (typeof activeInputInfo.selectionStart === 'number') {
-        activeInputInfo.elem.setSelectionRange(
+        inputElem.setSelectionRange(
           activeInputInfo.selectionStart,
           activeInputInfo.selectionEnd
         )

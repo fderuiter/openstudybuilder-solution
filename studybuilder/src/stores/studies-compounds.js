@@ -83,7 +83,7 @@ export const useStudiesCompoundsStore = defineStore('studiesCompounds', {
       })
     },
     fetchStudyCompoundDosings(studyUid, params) {
-      study.getStudyCompoundDosings(studyUid, params).then((resp) => {
+      return study.getStudyCompoundDosings(studyUid, params).then((resp) => {
         this.studyCompoundDosings = resp.data.items
         this.studyCompoundDosingTotal = resp.data.total
       })

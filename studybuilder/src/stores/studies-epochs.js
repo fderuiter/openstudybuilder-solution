@@ -65,7 +65,7 @@ export const useEpochsStore = defineStore('epochs', () => {
     await fetchStudyEpochs({ studyUid })
   }
 
-  function fetchStudyEpochs({ studyUid, data }) {
+  function fetchStudyEpochs({ studyUid, data = undefined }) {
     return studyEpochsApi.getStudyEpochs(studyUid, data).then((resp) => {
       studyEpochs.value = resp.data.items
     })
