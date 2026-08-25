@@ -3,6 +3,8 @@ import sys
 import re
 import subprocess
 
+from migrations.utils.alias_manager import DatabaseAliasManager
+
 def get_sort_key(filename):
     # Extract all digit sequences from the filename to form a sorting tuple.
     # For example:
@@ -46,8 +48,19 @@ def main():
     print(f"\nDiscovered {len(correction_files)} data corrections to run:")
     for f in correction_files:
         print(f"  - {f}")
+
+    # 3. Database snapshotting and logical alias configuration
+    alias_manager = DatabaseAliasManager()
+    try:
+        snapshot_db, staging_db = alias_manager.prepare_snapshot_and_staging()
+    except Exception as e:
+        print(f"\n[ERROR] Failed to prepare pre-migration snapshot and staging database: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    env = os.environ.copy()
+    env["DATABASE_NAME"] = staging_db
         
-    # 3. Execute migrations sequentially
+    # 4. Execute migrations sequentially
     print("\n==========================================")
     print(">>> Executing schema migrations sequentially...")
     print("==========================================")
@@ -58,14 +71,19 @@ def main():
             subprocess.run(
                 ["python", "-m", f"migrations.{module_name}"],
                 cwd=base_dir,
-                check=True
+                check=True,
+                env=env
             )
             print(f"[SCHEMA MIGRATION] Successfully executed migrations.{module_name}")
         except subprocess.CalledProcessError as e:
-            print(f"\n[ERROR] Migration '{module_name}' failed with exit code {e.returncode}.", file=sys.stderr)
+            print(f"\n[ERROR] Migration '{module_name}' failed with exit code {e.returncode}. Initiating automated alias rollback...", file=sys.stderr)
+            try:
+                alias_manager.rollback()
+            except Exception as rollback_err:
+                print(f"[ERROR] Alias rollback failed: {rollback_err}", file=sys.stderr)
             sys.exit(1)
             
-    # 4. Execute data corrections sequentially
+    # 5. Execute data corrections sequentially
     print("\n==========================================")
     print(">>> Executing data corrections sequentially...")
     print("==========================================")
@@ -76,13 +94,29 @@ def main():
             subprocess.run(
                 ["python", "-m", f"data_corrections.{module_name}"],
                 cwd=base_dir,
-                check=True
+                check=True,
+                env=env
             )
             print(f"[DATA CORRECTION] Successfully executed data_corrections.{module_name}")
         except subprocess.CalledProcessError as e:
-            print(f"\n[ERROR] Data correction '{module_name}' failed with exit code {e.returncode}.", file=sys.stderr)
+            print(f"\n[ERROR] Data correction '{module_name}' failed with exit code {e.returncode}. Initiating automated alias rollback...", file=sys.stderr)
+            try:
+                alias_manager.rollback()
+            except Exception as rollback_err:
+                print(f"[ERROR] Alias rollback failed: {rollback_err}", file=sys.stderr)
             sys.exit(1)
-            
+
+    # 6. Promote staging database to active alias upon successful completion
+    try:
+        alias_manager.promote_staging()
+    except Exception as promote_err:
+        print(f"\n[ERROR] Failed to promote staging database to active alias: {promote_err}. Initiating automated alias rollback...", file=sys.stderr)
+        try:
+            alias_manager.rollback()
+        except Exception as rollback_err:
+            print(f"[ERROR] Alias rollback failed: {rollback_err}", file=sys.stderr)
+        sys.exit(1)
+
     print("\n==========================================")
     print("All sequential migrations and data corrections executed successfully!")
     print("==========================================")
