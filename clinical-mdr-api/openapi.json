@@ -3,7 +3,7 @@
   "info": {
     "title": "OpenStudyBuilder API",
     "description": "\n## NOTICE\n\nThis license information is applicable to the swagger documentation of the clinical-mdr-api, that is the openapi.json.\n\n## License Terms (MIT)\n\nCopyright (C) 2025 Novo Nordisk A/S, Danish company registration no. 24256790\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n## Licenses and Acknowledgements for Incorporated Software\n\nThis component contains software licensed under different licenses when compiled, please refer to the third-party-licenses.md file for further information and full license texts.\n\n## Authentication\n\nSupports OAuth2 [Authorization Code Flow](https://datatracker.ietf.org/doc/html/rfc6749#section-4.1),\nat paths described in the OpenID Connect Discovery metadata document (whose URL is defined by the `OAUTH_METADATA_URL` environment variable).\n\nMicrosoft Identity Platform documentation can be read \n([here](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow)).\n\nAuthentication can be turned off with `OAUTH_ENABLED=false` environment variable. \n\nWhen authentication is turned on, all requests to protected API endpoints must provide a valid bearer (JWT) token inside the `Authorization` http header. \n",
-    "version": "3.0.662"
+    "version": "3.0.663"
   },
   "paths": {
     "/": {
@@ -75640,6 +75640,269 @@
         }
       }
     },
+    "/studies/{study_uid}/lineage": {
+      "get": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "Returns lineage details for a study definition",
+        "operationId": "get_study_lineage_studies__study_uid__lineage_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "study_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The UID of the study",
+              "title": "Study Uid"
+            },
+            "description": "The UID of the study"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LineageInfo"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Entity not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/studies/{study_uid}/reconciliation-diff": {
+      "get": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "Generates field-level diff between study draft and parent template",
+        "operationId": "get_reconciliation_diff_studies__study_uid__reconciliation_diff_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "study_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The UID of the study",
+              "title": "Study Uid"
+            },
+            "description": "The UID of the study"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReconciliationDiffResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Entity not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/studies/{study_uid}/reconcile": {
+      "post": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "Selectively merges parent template changes into active study draft",
+        "operationId": "reconcile_study_studies__study_uid__reconcile_post",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "study_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The UID of the study",
+              "title": "Study Uid"
+            },
+            "description": "The UID of the study"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReconciliationRequest",
+                "description": "Selected field merge decisions"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReconciliationDiffResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Entity not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/studies/{study_uid}/reconciliation-history": {
+      "get": {
+        "tags": [
+          "Studies"
+        ],
+        "summary": "Returns the audit history of reconciliation events for a study",
+        "operationId": "get_reconciliation_history_studies__study_uid__reconciliation_history_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          },
+          {
+            "BearerJwtAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "study_uid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The UID of the study",
+              "title": "Study Uid"
+            },
+            "description": "The UID of the study"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReconciliationAuditRecord"
+                  },
+                  "title": "Response Get Reconciliation History Studies  Study Uid  Reconciliation History Get"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Entity not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/studies/{study_uid}/protocol-title": {
       "get": {
         "tags": [
@@ -140789,6 +141052,58 @@
         "title": "DictionaryTermVersion",
         "description": "Class for storing DictionaryTerm and calculation of differences"
       },
+      "DiffItem": {
+        "properties": {
+          "field": {
+            "type": "string",
+            "title": "Field",
+            "description": "Field identifier/key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "Human-readable field label"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "description": "Category: Metadata, Design, Population, Selections",
+            "default": "Metadata"
+          },
+          "change_type": {
+            "type": "string",
+            "title": "Change Type",
+            "description": "Change type: ADDED, MODIFIED, REMOVED",
+            "default": "MODIFIED"
+          },
+          "current_value": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Value",
+            "nullable": true
+          },
+          "template_value": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Template Value",
+            "nullable": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "field",
+          "label"
+        ],
+        "title": "DiffItem"
+      },
       "DurationJsonModel": {
         "properties": {
           "duration_value": {
@@ -143001,6 +143316,46 @@
         },
         "type": "object",
         "title": "FeatureFlagPatchInput"
+      },
+      "FieldDecision": {
+        "properties": {
+          "field": {
+            "type": "string",
+            "title": "Field",
+            "description": "Field key"
+          },
+          "decision": {
+            "type": "string",
+            "title": "Decision",
+            "description": "ACCEPTED or REJECTED"
+          },
+          "old_value": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Old Value",
+            "nullable": true
+          },
+          "new_value": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "New Value",
+            "nullable": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "field",
+          "decision"
+        ],
+        "title": "FieldDecision"
       },
       "FlowchartMetadataAdamListing": {
         "properties": {
@@ -146586,6 +146941,48 @@
         ],
         "title": "LibraryItemStatus",
         "description": "Enumerator for library item statuses"
+      },
+      "LineageInfo": {
+        "properties": {
+          "parent_template_uid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Template Uid",
+            "nullable": true
+          },
+          "parent_template_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Template Version",
+            "nullable": true
+          },
+          "sync_status": {
+            "type": "string",
+            "title": "Sync Status",
+            "description": "Current sync status: IN_SYNC, NEEDS_REVIEW, RETIRED",
+            "default": "IN_SYNC"
+          },
+          "requires_review": {
+            "type": "boolean",
+            "title": "Requires Review",
+            "description": "Whether reconciliation review is needed",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "LineageInfo"
       },
       "LockReleaseInput": {
         "properties": {
@@ -154579,6 +154976,170 @@
           "clinical_programme_uid"
         ],
         "title": "ProjectEditInput"
+      },
+      "ReconciliationAuditRecord": {
+        "properties": {
+          "uid": {
+            "type": "string",
+            "title": "Uid",
+            "description": "Audit record UID"
+          },
+          "study_uid": {
+            "type": "string",
+            "title": "Study Uid",
+            "description": "Study UID"
+          },
+          "parent_template_uid": {
+            "type": "string",
+            "title": "Parent Template Uid",
+            "description": "Parent template UID"
+          },
+          "parent_template_version": {
+            "type": "string",
+            "title": "Parent Template Version",
+            "description": "Parent template version after reconciliation"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp",
+            "description": "Reconciliation timestamp"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "User ID who executed reconciliation"
+          },
+          "decisions": {
+            "items": {
+              "$ref": "#/components/schemas/FieldDecision"
+            },
+            "type": "array",
+            "title": "Decisions",
+            "description": "Field level decisions"
+          },
+          "comments": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comments",
+            "nullable": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "uid",
+          "study_uid",
+          "parent_template_uid",
+          "parent_template_version",
+          "timestamp",
+          "user_id"
+        ],
+        "title": "ReconciliationAuditRecord"
+      },
+      "ReconciliationDiffResponse": {
+        "properties": {
+          "study_uid": {
+            "type": "string",
+            "title": "Study Uid",
+            "description": "Study UID"
+          },
+          "parent_template_uid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Template Uid",
+            "nullable": true
+          },
+          "parent_template_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Template Version",
+            "nullable": true
+          },
+          "current_template_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Template Version",
+            "nullable": true
+          },
+          "sync_status": {
+            "type": "string",
+            "title": "Sync Status",
+            "description": "Current sync status",
+            "default": "IN_SYNC"
+          },
+          "diffs": {
+            "items": {
+              "$ref": "#/components/schemas/DiffItem"
+            },
+            "type": "array",
+            "title": "Diffs",
+            "description": "List of field diffs"
+          },
+          "total_diffs": {
+            "type": "integer",
+            "title": "Total Diffs",
+            "description": "Total count of diffs",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "study_uid"
+        ],
+        "title": "ReconciliationDiffResponse"
+      },
+      "ReconciliationRequest": {
+        "properties": {
+          "selected_fields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Selected Fields",
+            "description": "List of field keys selected to be merged"
+          },
+          "comments": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comments",
+            "nullable": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "selected_fields"
+        ],
+        "title": "ReconciliationRequest"
       },
       "Ref": {
         "properties": {
@@ -163212,6 +163773,42 @@
               }
             ],
             "title": "Description",
+            "nullable": true
+          },
+          "parent_template_uid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Template Uid",
+            "nullable": true
+          },
+          "parent_template_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Template Version",
+            "nullable": true
+          },
+          "sync_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sync Status",
             "nullable": true
           },
           "clinical_programme_name": {

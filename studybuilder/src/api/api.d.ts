@@ -15591,6 +15591,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/studies/{study_uid}/lineage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Returns lineage details for a study definition */
+        get: operations["get_study_lineage_studies__study_uid__lineage_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/studies/{study_uid}/reconciliation-diff": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Generates field-level diff between study draft and parent template */
+        get: operations["get_reconciliation_diff_studies__study_uid__reconciliation_diff_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/studies/{study_uid}/reconcile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Selectively merges parent template changes into active study draft */
+        post: operations["reconcile_study_studies__study_uid__reconcile_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/studies/{study_uid}/reconciliation-history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Returns the audit history of reconciliation events for a study */
+        get: operations["get_reconciliation_history_studies__study_uid__reconciliation_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/studies/{study_uid}/protocol-title": {
         parameters: {
             query?: never;
@@ -30825,6 +30893,35 @@ export interface components {
              */
             changes?: string[];
         };
+        /** DiffItem */
+        DiffItem: {
+            /**
+             * Field
+             * @description Field identifier/key
+             */
+            field: string;
+            /**
+             * Label
+             * @description Human-readable field label
+             */
+            label: string;
+            /**
+             * Category
+             * @description Category: Metadata, Design, Population, Selections
+             * @default Metadata
+             */
+            category: string;
+            /**
+             * Change Type
+             * @description Change type: ADDED, MODIFIED, REMOVED
+             * @default MODIFIED
+             */
+            change_type: string;
+            /** Current Value */
+            current_value?: (unknown | null) | null;
+            /** Template Value */
+            template_value?: (unknown | null) | null;
+        };
         /** Duration model to store ISO8601 duration */
         DurationJsonModel: {
             /** Duration Value */
@@ -31632,6 +31729,23 @@ export interface components {
             feature?: string | null;
             /** Enabled */
             enabled?: boolean | null;
+        };
+        /** FieldDecision */
+        FieldDecision: {
+            /**
+             * Field
+             * @description Field key
+             */
+            field: string;
+            /**
+             * Decision
+             * @description ACCEPTED or REJECTED
+             */
+            decision: string;
+            /** Old Value */
+            old_value?: (unknown | null) | null;
+            /** New Value */
+            new_value?: (unknown | null) | null;
         };
         /** FlowchartMetadataAdamListing */
         FlowchartMetadataAdamListing: {
@@ -32550,6 +32664,8 @@ export interface components {
             sidebar_visible?: boolean | null;
             /** Sidebar Auto Minimize */
             sidebar_auto_minimize?: boolean | null;
+            /** Active Study */
+            active_study?: string | null;
         };
         /** GraphUser */
         GraphUser: {
@@ -32832,6 +32948,25 @@ export interface components {
          * @enum {string}
          */
         LibraryItemStatus: "Final" | "Draft" | "Retired";
+        /** LineageInfo */
+        LineageInfo: {
+            /** Parent Template Uid */
+            parent_template_uid?: (string | null) | null;
+            /** Parent Template Version */
+            parent_template_version?: (string | null) | null;
+            /**
+             * Sync Status
+             * @description Current sync status: IN_SYNC, NEEDS_REVIEW, RETIRED
+             * @default IN_SYNC
+             */
+            sync_status: string;
+            /**
+             * Requires Review
+             * @description Whether reconciliation review is needed
+             * @default false
+             */
+            requires_review: boolean;
+        };
         /** LockReleaseInput */
         LockReleaseInput: {
             /** Reason For Change Uid */
@@ -35248,6 +35383,88 @@ export interface components {
             description: string;
             /** Clinical Programme Uid */
             clinical_programme_uid: string;
+        };
+        /** ReconciliationAuditRecord */
+        ReconciliationAuditRecord: {
+            /**
+             * Uid
+             * @description Audit record UID
+             */
+            uid: string;
+            /**
+             * Study Uid
+             * @description Study UID
+             */
+            study_uid: string;
+            /**
+             * Parent Template Uid
+             * @description Parent template UID
+             */
+            parent_template_uid: string;
+            /**
+             * Parent Template Version
+             * @description Parent template version after reconciliation
+             */
+            parent_template_version: string;
+            /**
+             * Timestamp
+             * Format: date-time
+             * @description Reconciliation timestamp
+             */
+            timestamp: string;
+            /**
+             * User Id
+             * @description User ID who executed reconciliation
+             */
+            user_id: string;
+            /**
+             * Decisions
+             * @description Field level decisions
+             */
+            decisions?: components["schemas"]["FieldDecision"][];
+            /** Comments */
+            comments?: (string | null) | null;
+        };
+        /** ReconciliationDiffResponse */
+        ReconciliationDiffResponse: {
+            /**
+             * Study Uid
+             * @description Study UID
+             */
+            study_uid: string;
+            /** Parent Template Uid */
+            parent_template_uid?: (string | null) | null;
+            /** Parent Template Version */
+            parent_template_version?: (string | null) | null;
+            /** Current Template Version */
+            current_template_version?: (string | null) | null;
+            /**
+             * Sync Status
+             * @description Current sync status
+             * @default IN_SYNC
+             */
+            sync_status: string;
+            /**
+             * Diffs
+             * @description List of field diffs
+             */
+            diffs?: components["schemas"]["DiffItem"][];
+            /**
+             * Total Diffs
+             * @description Total count of diffs
+             * @default 0
+             */
+            total_diffs: number;
+        };
+        /** ReconciliationRequest */
+        ReconciliationRequest: {
+            /**
+             * Selected Fields
+             * @description List of field keys selected to be merged
+             */
+            selected_fields: string[];
+            /** Comments */
+            comments?: (string | null) | null;
         };
         /** Ref */
         Ref: {
@@ -38171,6 +38388,12 @@ export interface components {
             project_name?: (string | null) | null;
             /** Description */
             description?: (string | null) | null;
+            /** Parent Template Uid */
+            parent_template_uid?: (string | null) | null;
+            /** Parent Template Version */
+            parent_template_version?: (string | null) | null;
+            /** Sync Status */
+            sync_status?: (string | null) | null;
             /** Clinical Programme Name */
             clinical_programme_name?: (string | null) | null;
             /** Study Id */
@@ -44118,6 +44341,8 @@ export interface components {
             sidebar_visible?: boolean | null;
             /** Sidebar Auto Minimize */
             sidebar_auto_minimize?: boolean | null;
+            /** Active Study */
+            active_study?: string | null;
         };
         /** UserPreferencesResponse */
         UserPreferencesResponse: {
@@ -100206,6 +100431,174 @@ export interface operations {
             };
             /** @description Forbidden */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_study_lineage_studies__study_uid__lineage_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The UID of the study */
+                study_uid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LineageInfo"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Entity not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_reconciliation_diff_studies__study_uid__reconciliation_diff_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The UID of the study */
+                study_uid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReconciliationDiffResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Entity not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    reconcile_study_studies__study_uid__reconcile_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The UID of the study */
+                study_uid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReconciliationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReconciliationDiffResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Entity not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_reconciliation_history_studies__study_uid__reconciliation_history_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The UID of the study */
+                study_uid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReconciliationAuditRecord"][];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Entity not found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
