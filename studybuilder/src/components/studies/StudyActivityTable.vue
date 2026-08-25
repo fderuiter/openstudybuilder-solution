@@ -214,6 +214,7 @@ import libConstants from '@/constants/libraries'
 import { useAccessGuard } from '@/composables/accessGuard'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { useStudyActivitiesStore } from '@/stores/studies-activities'
+import { eventBus } from '@/plugins/eventBus'
 import { computed, inject, ref, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { escapeHTML } from '@/utils/sanitize'
@@ -373,8 +374,21 @@ function onStatusTabChange() {
   }
 }
 
+watch(
+  () => eventBus.value.get('study-remote-updated'),
+  (data) => {
+    if (data && table.value) {
+      table.value.filterTable()
+    }
+  }
+)
+
 function checkIfFormOpen() {
-  if (localStorage.getItem('open-form')) {
+  const openFormBus = eventBus.value.get('open-form')
+  if (openFormBus && openFormBus[0]) {
+    showActivityForm.value = true
+    eventBus.value.delete('open-form')
+  } else if (localStorage.getItem('open-form')) {
     showActivityForm.value = true
     localStorage.removeItem('open-form')
   }

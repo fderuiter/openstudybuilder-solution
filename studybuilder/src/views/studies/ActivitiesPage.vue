@@ -51,7 +51,8 @@ import NavigationTabs from '@/components/tools/NavigationTabs.vue'
 import { useAccessGuard } from '@/composables/accessGuard'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { useSoaContentLoadingStore } from '@/stores/soa-content-loading'
-import { inject, computed, ref } from 'vue'
+import { eventBus } from '@/plugins/eventBus'
+import { inject, computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const studiesGeneralStore = useStudiesGeneralStore()
@@ -98,15 +99,35 @@ const lockSettings = computed(() => {
 })
 
 const onTabChanged = () => {
-  if (localStorage.getItem('open-form')) {
+  if (eventBus.value.get('open-form') || localStorage.getItem('open-form')) {
     updateActivitiesTable.value++
+    eventBus.value.delete('open-form')
+    localStorage.removeItem('open-form')
   }
   studiesGeneralStore.getSoaPreferences()
-  if (localStorage.getItem('refresh-activities')) {
-    activitiesTable.value.onStudyActivitiesUpdated()
+  if (
+    eventBus.value.get('refresh-activities') ||
+    localStorage.getItem('refresh-activities')
+  ) {
+    if (activitiesTable.value) {
+      activitiesTable.value.onStudyActivitiesUpdated()
+    }
+    eventBus.value.delete('refresh-activities')
     localStorage.removeItem('refresh-activities')
   }
 }
+
+watch(
+  () => eventBus.value.get('study-remote-updated'),
+  (data) => {
+    if (data) {
+      updateFlowchart.value++
+      if (activitiesTable.value) {
+        activitiesTable.value.onStudyActivitiesUpdated()
+      }
+    }
+  }
+)
 
 function openSoaSettings() {
   settingsFormKey.value++

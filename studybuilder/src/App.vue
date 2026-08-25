@@ -16,7 +16,7 @@
     />
 
     <template v-if="layoutTemplate === 'empty'">
-      <v-main class="bg-primary text-white" style="background-color: #193074;">
+      <v-main class="bg-primary text-white" style="background-color: #193074">
         <SystemAnnouncement
           v-if="systemAnnouncement"
           :announcement="systemAnnouncement"
@@ -62,6 +62,7 @@ import notifications from '@/api/notifications'
 import NotificationPanel from './components/ui/notification/NotificationPanel.vue'
 import ScreenRecorder from './components/ui/ScreenRecorder.vue'
 import SessionExpirationModal from './components/ui/SessionExpirationModal.vue'
+import { initBroadcastChannelListener } from '@/plugins/broadcastChannel'
 
 const route = useRoute()
 const router = useRouter()
@@ -101,6 +102,7 @@ watch(
 )
 
 onMounted(async () => {
+  initBroadcastChannelListener(router)
   appStore.initialize()
   theme.change('NNCustomLightTheme')
   authStore.initialize()

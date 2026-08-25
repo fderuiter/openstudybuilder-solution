@@ -5,7 +5,12 @@
         <v-empty-state>
           <template #media>
             <div>
-              <v-img :src="sbLogoUrl" style="scale: 2" class="mb-6 mt-12" alt="" />
+              <v-img
+                :src="sbLogoUrl"
+                style="scale: 2"
+                class="mb-6 mt-12"
+                alt=""
+              />
             </div>
           </template>
           <template #title>
@@ -46,6 +51,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
+import { eventBusEmit } from '@/plugins/eventBus'
 
 const router = useRouter()
 
@@ -75,7 +81,7 @@ function redirectToVisits() {
 }
 
 function redirectToActivities() {
-  localStorage.setItem('open-form', true)
+  eventBusEmit('open-form', true)
   router.push({
     name: 'StudyActivities',
     params: {
