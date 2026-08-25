@@ -1076,6 +1076,7 @@ import StudyComplexityScoreDetails from '@/components/studies/StudyComplexitySco
 import { escapeHTML, sanitizeHTML } from '@/utils/sanitize'
 import { useFeatureFlagsStore } from '@/stores/feature-flags'
 import dataFormating from '@/utils/dataFormating'
+import { eventBus, eventBusEmit } from '@/plugins/eventBus'
 
 const featureFlagsStore = useFeatureFlagsStore()
 const { t } = useI18n()
@@ -1526,6 +1527,14 @@ watch(
   }
 )
 watch(
+  () => eventBus.value.get('study-remote-updated'),
+  (data) => {
+    if (data) {
+      loadSoaContent(true)
+    }
+  }
+)
+watch(
   () => '$route.params.footnote',
   (value) => {
     if (value && !_isEmpty(value)) {
@@ -1615,7 +1624,7 @@ function getStudyVisits() {
 }
 
 async function removeActivity(item) {
-  localStorage.setItem('refresh-activities', true)
+  eventBusEmit('refresh-activities', true)
   highlightRow(item.row)
   const activity = item.row.cells[0].refs[0]
   const options = { type: 'warning' }
@@ -1641,7 +1650,7 @@ async function removeActivity(item) {
 }
 
 function addStudyActivity(item) {
-  localStorage.setItem('refresh-activities', true)
+  eventBusEmit('refresh-activities', true)
   item = item.row.cells[0].refs[0]
   scrollItemId.value = `row-scroll-${item?.uid}`
   study
@@ -1653,7 +1662,7 @@ function addStudyActivity(item) {
 }
 
 function exchangeStudyActivity(item) {
-  localStorage.setItem('refresh-activities', true)
+  eventBusEmit('refresh-activities', true)
   item = item.row.cells[0].refs[0]
   selectedStudyActivity.value = item.uid
   activityExchangeMode.value = true
@@ -1676,7 +1685,7 @@ function onActivityExchanged() {
 }
 
 function editStudyActivity(item) {
-  localStorage.setItem('refresh-activities', true)
+  eventBusEmit('refresh-activities', true)
   highlightRow(item.row)
   try {
     item = item.row.cells[0].refs[0]
@@ -2168,7 +2177,7 @@ function updateSchedule(value, studyActivityUid, studyVisitCell) {
 }
 
 async function openBatchEditForm() {
-  localStorage.setItem('refresh-activities', true)
+  eventBusEmit('refresh-activities', true)
   if (!studyActivitySelection.value.length) {
     notificationHub.add({
       type: 'warning',
@@ -2186,7 +2195,7 @@ function unselectItem(item) {
 }
 
 async function batchRemoveStudyActivities() {
-  localStorage.setItem('refresh-activities', true)
+  eventBusEmit('refresh-activities', true)
   if (!studyActivitySelection.value.length) {
     notificationHub.add({
       type: 'warning',

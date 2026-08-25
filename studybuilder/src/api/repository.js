@@ -6,6 +6,7 @@ import { useGlobalConfig } from '@/main'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { useErrorHandler } from '@/composables/errorHandler'
 import { useFormStore } from '@/stores/form'
+import { broadcastStudyUpdate } from '@/plugins/broadcastChannel'
 
 const _axios = axios.create()
 
@@ -65,7 +66,25 @@ const requestInterceptors = {
 
 const responseInterceptors = {
   onFulfilled: function (response) {
-    // Just return unchanged response data
+    const method = response.config?.method?.toLowerCase()
+    if (['post', 'patch', 'put', 'delete'].includes(method)) {
+      const url = response.config?.url || ''
+      let studyUid = null
+      const match = url.match(/studies\/([a-f0-9-]+)/i)
+      if (match && match[1] && match[1] !== 'list') {
+        studyUid = match[1]
+      } else {
+        try {
+          const studiesGeneralStore = useStudiesGeneralStore()
+          studyUid = studiesGeneralStore.selectedStudy?.uid
+        } catch (e) {
+          // Ignore store initialization error
+        }
+      }
+      if (studyUid) {
+        broadcastStudyUpdate(studyUid)
+      }
+    }
     return response
   },
   onRejected: function (error) {
@@ -77,7 +96,10 @@ const responseInterceptors = {
           msg: error.message,
           type: 'error',
         })
-      } else if (error.response.status === 401 || error.response.status === 403) {
+      } else if (
+        error.response.status === 401 ||
+        error.response.status === 403
+      ) {
         useErrorHandler(error)
       } else {
         // If status code is 422, display the validation error details from error.response.data.detail.
