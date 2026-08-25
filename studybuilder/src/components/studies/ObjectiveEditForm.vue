@@ -46,6 +46,7 @@ import constants from '@/constants/libraries'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { useStudiesObjectivesStore } from '@/stores/studies-objectives'
 import { computed } from 'vue'
+import { deepClone } from '@/utils/deepClone'
 
 export default {
   components: {
@@ -106,7 +107,7 @@ export default {
   methods: {
     initForm(form) {
       form.objective_level = this.editedObject.objective_level
-      this.originalForm = JSON.parse(JSON.stringify(form))
+      this.originalForm = deepClone(form)
     },
     async getStudyObjectiveNamePreview(parameters) {
       const objectiveData = {

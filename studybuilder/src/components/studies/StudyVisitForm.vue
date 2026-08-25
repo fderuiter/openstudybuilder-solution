@@ -507,6 +507,7 @@ import { useEpochsStore } from '@/stores/studies-epochs'
 import { inject, ref, watch, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { sanitizeHTML } from '@/utils/sanitize'
+import { deepClone } from '@/utils/deepClone'
 
 const notificationHub = inject('notificationHub')
 const formRules = inject('formRules')
@@ -938,7 +939,7 @@ async function submit() {
 }
 
 async function addObject() {
-  const data = JSON.parse(JSON.stringify(form.value))
+  const data = deepClone(form.value)
   data.time_unit_uid = data.time_unit.uid
   delete data.time_unit
   if (
@@ -968,7 +969,7 @@ async function addObject() {
   notificationHub.add({ msg: t('StudyVisitForm.add_success') })
 }
 async function updateObject() {
-  const data = JSON.parse(JSON.stringify(form.value))
+  const data = deepClone(form.value)
   if (data.time_unit) {
     data.time_unit_uid = data.time_unit.uid
   }

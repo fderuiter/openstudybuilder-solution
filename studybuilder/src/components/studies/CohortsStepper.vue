@@ -603,6 +603,7 @@ import BranchEditForm from './BranchEditForm.vue'
 import _isEmpty from 'lodash/isEmpty'
 import { useI18n } from 'vue-i18n'
 import cohortConstants from '@/constants/cohorts'
+import { deepClone } from '@/utils/deepClone'
 
 const { t } = useI18n()
 const formRules = inject('formRules')
@@ -674,7 +675,7 @@ const helpItems = ref([
 ])
 
 onMounted(async () => {
-  currentDesignClass.value = JSON.parse(JSON.stringify(props.designClass))
+  currentDesignClass.value = deepClone(props.designClass)
   cohortsApi
     .checkDesignClassEditable(studiesGeneralStore.selectedStudy.uid)
     .then((resp) => {

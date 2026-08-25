@@ -247,6 +247,7 @@ import filteringParameters from '@/utils/filteringParameters'
 import constants from '@/constants/libraries'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { useStudiesObjectivesStore } from '@/stores/studies-objectives'
+import { deepClone } from '@/utils/deepClone'
 import StudySelectorField from '@/components/studies/StudySelectorField.vue'
 
 const { t } = useI18n()
@@ -592,7 +593,7 @@ async function submit() {
       data
     )
   } else if (creationMode.value === 'scratch') {
-    const data = JSON.parse(JSON.stringify(form.value))
+    const data = deepClone(form.value)
     if (preInstanceMode.value && creationMode.value !== 'scratch') {
       data.objective_template.uid = data.objective_template.template_uid
     }

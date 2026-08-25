@@ -265,6 +265,7 @@ import activities from '@/api/activities'
 import libConstants from '@/constants/libraries'
 import SentenceCaseNameField from '@/components/tools/SentenceCaseNameField.vue'
 import RejectActivityRequestForm from '@/components/library/RejectActivityRequestForm.vue'
+import { deepClone } from '@/utils/deepClone'
 
 export default {
   components: {
@@ -348,7 +349,7 @@ export default {
     initForm(editedActivity) {
       if (editedActivity) {
         this.activity = editedActivity
-        this.form = JSON.parse(JSON.stringify(this.activity))
+        this.form = deepClone(this.activity)
         this.form.activity_groupings = []
         if (
           !_isEmpty(this.activity) &&

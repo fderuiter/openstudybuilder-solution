@@ -126,6 +126,7 @@ import terms from '@/api/controlledTerminology/terms'
 import dataSuppliers from '@/api/dataSuppliers'
 import { escapeHTML, sanitizeHTML } from '@/utils/sanitize'
 import instancesActions from '@/constants/instancesActions'
+import { deepClone } from '@/utils/deepClone'
 
 const notificationHub = inject('notificationHub')
 const { t } = useI18n()
@@ -331,18 +332,12 @@ async function getAvailableInstances() {
         }
       }
     })
-    selectedHolder.value = JSON.parse(JSON.stringify(selected.value))
-    importantMapHolder.value = JSON.parse(JSON.stringify(importantMap.value))
-    baselineVisitMapHolder.value = JSON.parse(
-      JSON.stringify(baselineVisitMap.value)
-    )
-    dataSupplierMapHolder.value = JSON.parse(
-      JSON.stringify(dataSupplierMap.value)
-    )
-    originTypeMapHolder.value = JSON.parse(JSON.stringify(originTypeMap.value))
-    originSourceMapHolder.value = JSON.parse(
-      JSON.stringify(originSourceMap.value)
-    )
+    selectedHolder.value = deepClone(selected.value)
+    importantMapHolder.value = deepClone(importantMap.value)
+    baselineVisitMapHolder.value = deepClone(baselineVisitMap.value)
+    dataSupplierMapHolder.value = deepClone(dataSupplierMap.value)
+    originTypeMapHolder.value = deepClone(originTypeMap.value)
+    originSourceMapHolder.value = deepClone(originSourceMap.value)
     if (instances.value.length > 1) {
       const par = {
         filters: {

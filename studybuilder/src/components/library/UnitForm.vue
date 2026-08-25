@@ -170,6 +170,7 @@ import SimpleFormDialog from '@/components/tools/SimpleFormDialog.vue'
 import StudybuilderUCUMField from '@/components/tools/StudybuilderUCUMField.vue'
 import { useUnitsStore } from '@/stores/units'
 import { useI18n } from 'vue-i18n'
+import { deepClone } from '@/utils/deepClone'
 
 const notificationHub = inject('notificationHub')
 const formRules = inject('formRules')
@@ -219,7 +220,7 @@ watch(
   (value) => {
     if (Object.keys(value).length !== 0) {
       units.getObject(value.uid).then((resp) => {
-        form.value = JSON.parse(JSON.stringify(resp.data))
+        form.value = deepClone(resp.data)
         form.value.ct_units = value.ct_units.map((el) => el.term_uid)
         form.value.unit_subsets = value.unit_subsets.map((el) => el.term_uid)
         value.ucum
@@ -245,7 +246,7 @@ onMounted(() => {
     libraries.value = resp.data
   })
   if (Object.keys(props.unit).length !== 0) {
-    form.value = JSON.parse(JSON.stringify(props.unit))
+    form.value = deepClone(props.unit)
     form.value.ct_units = props.unit.ct_units.map((el) => el.term_uid)
     form.value.unit_subsets = props.unit.unit_subsets.map((el) => el.term_uid)
     props.unit.ucum

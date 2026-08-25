@@ -215,6 +215,7 @@ import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { useStudiesManageStore } from '@/stores/studies-manage'
 import studyMetadataForms from '@/utils/studyMetadataForms'
 import study from '@/api/study'
+import { deepClone } from '@/utils/deepClone'
 
 export default {
   components: {
@@ -398,7 +399,7 @@ export default {
       }
     },
     prepareRequestPayload() {
-      const data = JSON.parse(JSON.stringify(this.form))
+      const data = deepClone(this.form)
       if (
         Object.keys(data.planned_minimum_age_of_subjects).length === 0 ||
         !data.planned_minimum_age_of_subjects.duration_value

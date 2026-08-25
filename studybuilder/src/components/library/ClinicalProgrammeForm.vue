@@ -33,6 +33,7 @@ import { useI18n } from 'vue-i18n'
 import { useFormStore } from '@/stores/form'
 import SimpleFormDialog from '@/components/tools/SimpleFormDialog.vue'
 import programmes from '@/api/clinicalProgrammes'
+import { deepClone } from '@/utils/deepClone'
 
 const { t } = useI18n()
 
@@ -102,7 +103,7 @@ function initForm() {
 async function addProgramme() {
   notificationHub.clearErrors()
 
-  const data = JSON.parse(JSON.stringify(form.value))
+  const data = deepClone(form.value)
   await programmes.create(data)
   notificationHub.add({
     msg: t('ClinicalProgrammes.add_success'),
@@ -112,7 +113,7 @@ async function addProgramme() {
 async function updateProgramme() {
   notificationHub.clearErrors()
 
-  const data = JSON.parse(JSON.stringify(form.value))
+  const data = deepClone(form.value)
   await programmes.patch(props.programmeUid, data)
   notificationHub.add({
     msg: t('ClinicalProgrammes.update_success'),

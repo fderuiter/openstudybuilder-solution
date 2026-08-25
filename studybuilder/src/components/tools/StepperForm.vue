@@ -114,6 +114,7 @@ import HelpButtonWithPanels from './HelpButtonWithPanels.vue'
 import ConfirmDialog from '@/components/tools/ConfirmDialog.vue'
 import _isEqual from 'lodash/isEqual'
 import { useFormStore } from '@/stores/form'
+import { deepClone } from '@/utils/deepClone'
 
 export default {
   components: {
@@ -174,15 +175,15 @@ export default {
         const parentForm = this.getParentForm()
         if (parentForm) {
           const rawForm = typeof parentForm.value !== 'undefined' ? parentForm.value : parentForm
-          if (newStoreForm && JSON.stringify(rawForm) !== JSON.stringify(newStoreForm)) {
+          if (newStoreForm && !_isEqual(rawForm, newStoreForm)) {
             this.isUpdatingFromStore = true
             if (typeof parentForm.value !== 'undefined') {
-              parentForm.value = JSON.parse(JSON.stringify(newStoreForm))
+              parentForm.value = deepClone(newStoreForm)
             } else {
               for (const key in parentForm) {
                 delete parentForm[key]
               }
-              Object.assign(parentForm, JSON.parse(JSON.stringify(newStoreForm)))
+              Object.assign(parentForm, deepClone(newStoreForm))
             }
             setTimeout(() => {
               this.isUpdatingFromStore = false
@@ -202,14 +203,15 @@ export default {
       this.$watch(
         () => {
           const raw = typeof formObj.value !== 'undefined' ? formObj.value : formObj
-          return JSON.stringify(raw)
+          return deepClone(raw)
         },
-        (newValStr) => {
+        (newVal) => {
           if (this.isUpdatingFromStore) return
-          if (newValStr) {
-            this.formStore.pushState(JSON.parse(newValStr))
+          if (newVal) {
+            this.formStore.pushState(deepClone(newVal))
           }
-        }
+        },
+        { deep: true }
       );
     }
 
@@ -238,12 +240,12 @@ export default {
         const formObj = this.getParentForm()
         if (formObj) {
           if (typeof formObj.value !== 'undefined') {
-            formObj.value = JSON.parse(JSON.stringify(reverted))
+            formObj.value = deepClone(reverted)
           } else {
             for (const key in formObj) {
               delete formObj[key]
             }
-            Object.assign(formObj, JSON.parse(JSON.stringify(reverted)))
+            Object.assign(formObj, deepClone(reverted))
           }
         }
         setTimeout(() => {
@@ -258,12 +260,12 @@ export default {
         const formObj = this.getParentForm()
         if (formObj) {
           if (typeof formObj.value !== 'undefined') {
-            formObj.value = JSON.parse(JSON.stringify(reverted))
+            formObj.value = deepClone(reverted)
           } else {
             for (const key in formObj) {
               delete formObj[key]
             }
-            Object.assign(formObj, JSON.parse(JSON.stringify(reverted)))
+            Object.assign(formObj, deepClone(reverted))
           }
         }
         setTimeout(() => {

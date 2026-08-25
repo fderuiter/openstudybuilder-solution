@@ -151,6 +151,7 @@ import HorizontalStepperForm from '@/components/tools/HorizontalStepperForm.vue'
 import StudyStructureCopyForm from '@/components/studies/StudyStructureCopyForm.vue'
 import studyApi from '@/api/study'
 import studyTemplateApi from '@/api/studyTemplate'
+import { deepClone } from '@/utils/deepClone'
 
 const notificationHub = inject('notificationHub')
 const formRules = inject('formRules')
@@ -241,7 +242,7 @@ async function submit() {
   notificationHub.clearErrors()
 
   if (createMode.value === 'scratch') {
-    const data = JSON.parse(JSON.stringify(studyForm.value))
+    const data = deepClone(studyForm.value)
     data.project_number = project.value.project_number
     try {
       const resp = await studiesManageStore.addStudy(data)

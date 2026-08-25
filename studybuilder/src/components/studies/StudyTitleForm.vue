@@ -125,6 +125,7 @@ import _isEqual from 'lodash/isEqual'
 import ConfirmDialog from '@/components/tools/ConfirmDialog.vue'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { useI18n } from 'vue-i18n'
+import { deepClone } from '@/utils/deepClone'
 
 const props = defineProps({
   description: {
@@ -150,7 +151,7 @@ const studies = ref([])
 const working = ref(false)
 
 function cloneDescription(description) {
-  return description ? JSON.parse(JSON.stringify(description)) : {}
+  return description ? deepClone(description) : {}
 }
 
 const headers = computed(() => [

@@ -259,6 +259,7 @@ import filteringParameters from '@/utils/filteringParameters'
 import constants from '@/constants/libraries'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { useFootnotesStore } from '@/stores/studies-footnotes'
+import { deepClone } from '@/utils/deepClone'
 
 export default {
   components: {
@@ -689,7 +690,7 @@ export default {
         }
         await study.batchCreateStudyFootnotes(this.selectedStudy.uid, data)
       } else if (this.creationMode === 'scratch') {
-        const data = JSON.parse(JSON.stringify(this.form))
+        const data = deepClone(this.form)
         if (this.preInstanceMode && this.creationMode !== 'scratch') {
           data.footnote_template.uid = data.footnote_template.template_uid
         }

@@ -307,6 +307,7 @@ import { useStudiesCompoundsStore } from '@/stores/studies-compounds'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import medicinalProductsApi from '@/api/concepts/medicinalProducts'
 import pharmaceuticalProducts from '@/api/concepts/pharmaceuticalProducts'
+import { deepClone } from '@/utils/deepClone'
 
 const notificationHub = inject('notificationHub')
 const formRules = inject('formRules')
@@ -639,7 +640,7 @@ function getPclassLabel(activeSubstance) {
 async function submit() {
   notificationHub.clearErrors()
 
-  const data = JSON.parse(JSON.stringify(form.value))
+  const data = deepClone(form.value)
   data.type_of_treatment_uid = data.type_of_treatment.term_uid
   delete data.type_of_treatment
   delete data.compound

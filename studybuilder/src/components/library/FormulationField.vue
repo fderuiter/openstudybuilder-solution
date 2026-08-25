@@ -114,6 +114,7 @@ import { inject, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFormulationsStore } from '@/stores/library-formulations'
 import NumericValueWithUnitField from '@/components/tools/NumericValueWithUnitField.vue'
+import { deepClone } from '@/utils/deepClone'
 
 const { t } = useI18n()
 
@@ -135,7 +136,7 @@ watch(
   () => props.modelValue,
   (value) => {
     if (value) {
-      form.value = JSON.parse(JSON.stringify(value))
+      form.value = deepClone(value)
     } else {
       form.value = {
         lag_times: [],

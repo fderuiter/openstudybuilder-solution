@@ -130,6 +130,7 @@ import templateParameterTypes from '@/api/templateParameterTypes'
 import templates from '@/api/templates'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import instances from '@/utils/instances'
+import { deepClone } from '@/utils/deepClone'
 
 export default {
   components: {
@@ -377,7 +378,7 @@ export default {
                     (el) => el.name === param.name
                   )
                   const foundParam = found
-                    ? JSON.parse(JSON.stringify(found))
+                    ? deepClone(found)
                     : null
                   if (foundParam) {
                     resp.data[index] = foundParam

@@ -418,6 +418,7 @@ import filteringParameters from '@/utils/filteringParameters'
 import constants from '@/constants/libraries'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { useStudiesEndpointsStore } from '@/stores/studies-endpoints'
+import { deepClone } from '@/utils/deepClone'
 import { computed } from 'vue'
 import StudySelectorField from '@/components/studies/StudySelectorField.vue'
 
@@ -849,7 +850,7 @@ export default {
         }
         await study.batchCreateStudyEndpoints(this.selectedStudy.uid, data)
       } else if (this.creationMode === 'scratch') {
-        const data = JSON.parse(JSON.stringify(this.form))
+        const data = deepClone(this.form)
         if (data.timeframe_template) {
           data.timeframe_template.library.name = constants.LIBRARY_USER_DEFINED
         }

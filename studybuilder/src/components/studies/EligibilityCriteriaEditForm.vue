@@ -35,6 +35,7 @@ import study from '@/api/study'
 import StudySelectionEditForm from './StudySelectionEditForm.vue'
 import YesNoField from '@/components/tools/YesNoField.vue'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
+import { deepClone } from '@/utils/deepClone'
 
 export default {
   components: {
@@ -93,7 +94,7 @@ export default {
   methods: {
     initForm(form) {
       form.key_criteria = this.editedObject.key_criteria
-      this.originalForm = JSON.parse(JSON.stringify(form))
+      this.originalForm = deepClone(form)
     },
     prepareTemplatePayload(data) {
       data.type_uid = this.editedObject.criteria_type.term_uid

@@ -147,6 +147,7 @@ import { useFormStore } from '@/stores/form'
 import studyMetadataForms from '@/utils/studyMetadataForms'
 import study from '@/api/study'
 import _isEmpty from 'lodash/isEmpty'
+import { deepClone } from '@/utils/deepClone'
 
 export default {
   components: {
@@ -269,7 +270,7 @@ export default {
       }
     },
     prepareRequestPayload() {
-      const data = JSON.parse(JSON.stringify(this.form))
+      const data = deepClone(this.form)
       const durationValue = data.planned_study_length.duration_value
       if (durationValue === undefined || durationValue === '') {
         data.planned_study_length = null

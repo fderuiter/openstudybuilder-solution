@@ -418,6 +418,7 @@ import CrfNewVersionSummaryConfirmDialog from '@/components/library/crfs/CrfNewV
 import CrfApprovalSummaryConfirmDialog from '@/components/library/crfs/CrfApprovalSummaryConfirmDialog.vue'
 import CrfActivityInstanceManagement from '@/components/library/crfs/CrfActivityInstanceManagement.vue'
 import ConfirmDialog from '@/components/tools/ConfirmDialog.vue'
+import { deepClone } from '@/utils/deepClone'
 import { useUnitsStore } from '@/stores/units'
 import filteringParameters from '@/utils/filteringParameters'
 import _isEmpty from 'lodash/isEmpty'
@@ -1170,7 +1171,7 @@ function setUnit(index) {
 
 async function initForm(item) {
   loading.value = true
-  originalForm.value = JSON.parse(JSON.stringify(item))
+  originalForm.value = deepClone(item)
 
   form.value = item
   form.value.aliases = item.aliases

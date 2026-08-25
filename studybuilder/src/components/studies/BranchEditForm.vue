@@ -38,6 +38,7 @@
 <script setup>
 import { inject, onMounted, ref, watch } from 'vue'
 import SimpleFormDialog from '@/components/tools/SimpleFormDialog.vue'
+import { deepClone } from '@/utils/deepClone'
 
 const formRules = inject('formRules')
 const emit = defineEmits(['close', 'save'])
@@ -56,14 +57,14 @@ watch(
   () => props.branch,
   (value) => {
     if (value) {
-      form.value = JSON.parse(JSON.stringify(value))
+      form.value = deepClone(value)
     }
   },
   { immediate: true }
 )
 
 onMounted(() => {
-  form.value = JSON.parse(JSON.stringify(props.branch))
+  form.value = deepClone(props.branch)
 })
 
 function submit() {

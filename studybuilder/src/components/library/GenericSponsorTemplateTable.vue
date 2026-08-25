@@ -159,6 +159,7 @@ import statuses from '@/constants/statuses'
 import filteringParameters from '@/utils/filteringParameters'
 import { useAccessGuard } from '@/composables/accessGuard'
 import { i18n } from '@/plugins/i18n'
+import { deepClone } from '@/utils/deepClone'
 
 const { t } = useI18n()
 const notificationHub = inject('notificationHub')
@@ -364,7 +365,7 @@ const confirm = ref()
 const tableRef = ref()
 
 const updatedHeaders = computed(() => {
-  const result = JSON.parse(JSON.stringify(props.headers))
+  const result = deepClone(props.headers)
   if (props.preInstanceMode) {
     const index = result.findIndex((header) => header.value === 'name')
     if (index !== -1) {

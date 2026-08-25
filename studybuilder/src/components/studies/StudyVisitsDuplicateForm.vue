@@ -39,6 +39,7 @@ import epochs from '@/api/studyEpochs'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { useEpochsStore } from '@/stores/studies-epochs'
 import visitConstants from '@/constants/visits'
+import { deepClone } from '@/utils/deepClone'
 
 const { t } = useI18n()
 const notificationHub = inject('notificationHub')
@@ -80,7 +81,7 @@ async function submit() {
     formRef.value.working = true
     // FIXME: Replaced structuredClone as a quickfix because it never returns for some reason...
     // const newVisit = structuredClone(props.studyVisit)
-    const newVisit = JSON.parse(JSON.stringify(props.studyVisit))
+    const newVisit = deepClone(props.studyVisit)
     newVisit.time_value = form.value.timing
     newVisit.time_unit_uid = form.value.time_unit_uid
     if (newVisit.visit_class !== visitConstants.CLASS_MANUALLY_DEFINED_VISIT) {

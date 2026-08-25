@@ -47,6 +47,7 @@ import { useStudiesManageStore } from '@/stores/studies-manage'
 import studyConstants from '@/constants/study'
 import { i18n } from '@/plugins/i18n'
 import study from '@/api/study'
+import { deepClone } from '@/utils/deepClone'
 
 const props = defineProps({
   identifiers: {
@@ -119,7 +120,7 @@ function nullValueSet(identifier) {
 function close() {
   emit('close')
   notificationHub.clearErrors()
-  form.value = JSON.parse(JSON.stringify(props.identifiers))
+  form.value = deepClone(props.identifiers)
   observer.value.resetValidation()
 }
 
