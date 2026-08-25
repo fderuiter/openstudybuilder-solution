@@ -70,3 +70,11 @@ class Edit(StudyAction):
 
 class UpdateSoASnapshot(StudyAction):
     object_type = StringProperty()
+
+
+class ReconciliationAudit(StudyAction):
+    parent_template_uid = StringProperty()
+    parent_template_version = StringProperty()
+    decisions_json = StringProperty()
+    comments = StringProperty()
+

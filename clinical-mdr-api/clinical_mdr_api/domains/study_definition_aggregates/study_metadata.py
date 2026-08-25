@@ -78,6 +78,9 @@ class StudyIdentificationMetadataVO:
     study_id_prefix: str | None
     description: str | None
     registry_identifiers: RegistryIdentifiersVO
+    parent_template_uid: str | None = None
+    parent_template_version: str | None = None
+    sync_status: str | None = None
 
     def __init__(
         self,
@@ -89,6 +92,9 @@ class StudyIdentificationMetadataVO:
         registry_identifiers: RegistryIdentifiersVO | None,
         study_subpart_acronym: str | None = None,
         _study_id_prefix: str | None = None,
+        parent_template_uid: str | None = None,
+        parent_template_version: str | None = None,
+        sync_status: str | None = None,
         # we denote this param with underscore, for "internal" use
         # (i.e.) use with caution and where You know what You are doing (setting an arbitrary value here)
     ):
@@ -106,6 +112,9 @@ class StudyIdentificationMetadataVO:
             study_id_prefix=normalize_string(_study_id_prefix),
             description=normalize_string(description),
             registry_identifiers=registry_identifiers,
+            parent_template_uid=normalize_string(parent_template_uid),
+            parent_template_version=normalize_string(parent_template_version),
+            sync_status=normalize_string(sync_status),
         )
 
     @classmethod
@@ -265,6 +274,9 @@ class StudyIdentificationMetadataVO:
         study_id_prefix: str | None = FIX_SOME_VALUE_DEFAULT,
         description: str | None = FIX_SOME_VALUE_DEFAULT,
         registry_identifiers: RegistryIdentifiersVO | None = FIX_SOME_VALUE_DEFAULT,  # type: ignore[assignment]
+        parent_template_uid: str | None = FIX_SOME_VALUE_DEFAULT,
+        parent_template_version: str | None = FIX_SOME_VALUE_DEFAULT,
+        sync_status: str | None = FIX_SOME_VALUE_DEFAULT,
     ) -> Self:
         """
         Helper function to produce a new object with some of values different from self.
@@ -289,6 +301,9 @@ class StudyIdentificationMetadataVO:
                 registry_identifiers, self.registry_identifiers
             ),
             _study_id_prefix=helper(study_id_prefix, self.study_id_prefix),
+            parent_template_uid=helper(parent_template_uid, self.parent_template_uid),
+            parent_template_version=helper(parent_template_version, self.parent_template_version),
+            sync_status=helper(sync_status, self.sync_status),
         )
 
 

@@ -52,6 +52,18 @@ export default {
   cloneStudy(studyUid, data) {
     return repository.post(`${resource}/${studyUid}/clone`, data)
   },
+  getLineage(studyUid) {
+    return repository.get(`${resource}/${studyUid}/lineage`)
+  },
+  getReconciliationDiff(studyUid) {
+    return repository.get(`${resource}/${studyUid}/reconciliation-diff`)
+  },
+  reconcile(studyUid, data) {
+    return repository.post(`${resource}/${studyUid}/reconcile`, data)
+  },
+  getReconciliationHistory(studyUid) {
+    return repository.get(`${resource}/${studyUid}/reconciliation-history`)
+  },
   deleteStudy(studyUid) {
     return repository.delete(`${resource}/${studyUid}`)
   },
