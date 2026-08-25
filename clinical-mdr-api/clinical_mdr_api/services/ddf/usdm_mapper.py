@@ -34,6 +34,7 @@ from usdm_model import StudyIdentifier as USDMStudyIdentifier
 from usdm_model import StudyIntervention as USDMStudyIntervention
 from usdm_model import StudyTitle as USDMStudyTitle
 from usdm_model import StudyVersion as USDMStudyVersion
+from usdm_model import Condition as USDMCondition
 from usdm_model import Timing as USDMTiming
 from usdm_model import TransitionRule as USDMTransitionRule
 
@@ -404,6 +405,9 @@ class USDMMapper:
             intervention.id for intervention in usdm_version.studyInterventions
         ]
 
+        # Set activity conditions
+        usdm_version.conditions = self._get_study_conditions(study)
+
         # Set DDF study versions
         usdm_study.versions = [usdm_version]
 
@@ -553,36 +557,74 @@ class USDMMapper:
     @trace_calls
     def _get_study_activities(self, study: OSBStudy):
         osb_study_activities = self._get_osb_study_activities(study.uid).items
-        return [
-            USDMActivity(
-                id=self._id_manager.get_id(USDMActivity.__name__, a.study_activity_uid),
-                name=(
-                    a.study_activity_subgroup.activity_subgroup_name
-                    if a.study_activity_subgroup
-                    and getattr(
-                        a.study_activity_subgroup, "activity_subgroup_name", None
-                    )
-                    else " "
-                ),
-                isConditional=False,  # TODO hardcoded
-                definedProcedures=(
-                    [
-                        USDMProcedure(
-                            id=self._id_manager.get_id(
-                                USDMProcedure.__name__, a.activity.uid
-                            ),
-                            name=a.activity.name,
-                            procedureType="",
-                            code=self.get_void_usdm_code(),
-                            isConditional=False,  # TODO hardcoded
-                        )
-                    ]
-                    if a.activity is not None and a.activity.name is not None
-                    else []
-                ),
+        activities = []
+        for a in osb_study_activities:
+            is_conditional = getattr(a, "is_conditional", False) or bool(
+                getattr(a, "activity_instruction_texts", None)
+                or getattr(a, "footnote_texts", None)
             )
-            for a in osb_study_activities
-        ]
+            activities.append(
+                USDMActivity(
+                    id=self._id_manager.get_id(
+                        USDMActivity.__name__, a.study_activity_uid
+                    ),
+                    name=(
+                        a.study_activity_subgroup.activity_subgroup_name
+                        if a.study_activity_subgroup
+                        and getattr(
+                            a.study_activity_subgroup,
+                            "activity_subgroup_name",
+                            None,
+                        )
+                        else " "
+                    ),
+                    isConditional=is_conditional,
+                    definedProcedures=(
+                        [
+                            USDMProcedure(
+                                id=self._id_manager.get_id(
+                                    USDMProcedure.__name__, a.activity.uid
+                                ),
+                                name=a.activity.name,
+                                procedureType="",
+                                code=self.get_void_usdm_code(),
+                                isConditional=is_conditional,
+                            )
+                        ]
+                        if a.activity is not None and a.activity.name is not None
+                        else []
+                    ),
+                )
+            )
+        return activities
+
+    @trace_calls
+    def _get_study_conditions(self, study: OSBStudy) -> list[USDMCondition]:
+        osb_study_activities = self._get_osb_study_activities(study.uid).items
+        conditions = []
+        for a in osb_study_activities:
+            is_conditional = getattr(a, "is_conditional", False) or bool(
+                getattr(a, "activity_instruction_texts", None)
+                or getattr(a, "footnote_texts", None)
+            )
+            if is_conditional:
+                instruction_texts = (
+                    getattr(a, "activity_instruction_texts", []) or []
+                ) + (getattr(a, "footnote_texts", []) or [])
+                activity_id = self._id_manager.get_id(
+                    USDMActivity.__name__, a.study_activity_uid
+                )
+                for text in instruction_texts:
+                    if text:
+                        conditions.append(
+                            USDMCondition(
+                                id=self._id_manager.get_id(USDMCondition.__name__),
+                                name="Activity Condition Rule",
+                                text=text,
+                                appliesToIds=[activity_id],
+                            )
+                        )
+        return conditions
 
     @trace_calls
     def _get_study_elements(self, study: OSBStudy):
