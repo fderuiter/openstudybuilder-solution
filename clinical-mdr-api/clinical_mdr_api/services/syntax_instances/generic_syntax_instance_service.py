@@ -30,6 +30,7 @@ from clinical_mdr_api.models.syntax_templates.template_parameter_multi_select_in
 from clinical_mdr_api.services._utils import is_library_editable, process_parameters
 from clinical_mdr_api.services.generic_syntax_service import GenericSyntaxService
 from clinical_mdr_api.services.studies.study import StudyService
+from common.database import retry_on_transient_lock
 from common.exceptions import (
     AlreadyExistsException,
     NotFoundException,
@@ -123,6 +124,7 @@ class GenericSyntaxInstanceService(GenericSyntaxService[_AggregateRootType], abc
         )
         return item
 
+    @retry_on_transient_lock()
     def create(
         self, template: BaseModel, preview=False, template_uid: str | None = None
     ) -> BaseModel:
@@ -167,6 +169,7 @@ class GenericSyntaxInstanceService(GenericSyntaxService[_AggregateRootType], abc
         item = self.repository.find_by(name=name)
         return self._transform_aggregate_root_to_pydantic_model(item)
 
+    @retry_on_transient_lock()
     @db.transaction
     def edit_draft(self, uid, template: BaseModel):
         """

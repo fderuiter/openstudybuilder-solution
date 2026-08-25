@@ -23,6 +23,7 @@ from clinical_mdr_api.services._utils import (
     process_parameters,
 )
 from clinical_mdr_api.services.generic_syntax_service import GenericSyntaxService
+from common.database import retry_on_transient_lock
 from common.exceptions import AlreadyExistsException, NotFoundException
 
 _AggregateRootType = TypeVar("_AggregateRootType")
@@ -56,6 +57,7 @@ class GenericSyntaxTemplateService(GenericSyntaxService[_AggregateRootType], abc
 
         return item
 
+    @retry_on_transient_lock()
     def create(self, template: BaseModel) -> BaseModel:
         # This function is not decorated with db.transaction as internal transactions
         # are handled manually by "with" statement.
@@ -112,6 +114,7 @@ class GenericSyntaxTemplateService(GenericSyntaxService[_AggregateRootType], abc
 
         return template_vo, library_vo
 
+    @retry_on_transient_lock()
     @db.transaction
     def create_new_version(self, uid: str, template: BaseModel) -> BaseModel:
         item = self.repository.find_by_uid(uid=uid, for_update=True)
@@ -136,6 +139,7 @@ class GenericSyntaxTemplateService(GenericSyntaxService[_AggregateRootType], abc
         self.repository.save(item)
         return self._transform_aggregate_root_to_pydantic_model(item)
 
+    @retry_on_transient_lock()
     @db.transaction
     def approve_cascade(self, uid: str) -> BaseModel:
         item = self.repository.find_by_uid(uid, for_update=True)
@@ -178,6 +182,7 @@ class GenericSyntaxTemplateService(GenericSyntaxService[_AggregateRootType], abc
 
         return self._transform_aggregate_root_to_pydantic_model(item)
 
+    @retry_on_transient_lock()
     @db.transaction
     def inactivate_final(self, uid: str) -> BaseModel:
         item = self.repository.find_by_uid(uid, for_update=True)
@@ -212,6 +217,7 @@ class GenericSyntaxTemplateService(GenericSyntaxService[_AggregateRootType], abc
 
         return self._transform_aggregate_root_to_pydantic_model(item)
 
+    @retry_on_transient_lock()
     @db.transaction
     def reactivate_retired(self, uid: str) -> BaseModel:
         import datetime
@@ -302,6 +308,7 @@ class GenericSyntaxTemplateService(GenericSyntaxService[_AggregateRootType], abc
 
         return self._transform_aggregate_root_to_pydantic_model(new_item)
 
+    @retry_on_transient_lock()
     @db.transaction
     def edit_draft(self, uid: str, template: BaseModel) -> BaseModel:
         template_vo = TemplateVO.from_input_values_2(

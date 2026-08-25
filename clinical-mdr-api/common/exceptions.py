@@ -43,7 +43,7 @@ class InternalServerError(MDRApiBaseException):
         super().__init__(msg or "Something went wrong on our end.")
 
 
-class BusinessLogicException(MDRApiBaseException):
+class BusinessLogicException(MDRApiBaseException, ValueError):
     """
     An exception raised when a request could not be completed because it did not pass a business rule check.
 
