@@ -13,6 +13,12 @@ from clinical_mdr_api.domains.study_definition_aggregates.study_metadata import 
     StudyStatus,
 )
 from clinical_mdr_api.models.complexity_score import ComplexityScoreDetails
+from clinical_mdr_api.models.reconciliation import (
+    LineageInfo,
+    ReconciliationAuditRecord,
+    ReconciliationDiffResponse,
+    ReconciliationRequest,
+)
 from clinical_mdr_api.models.study_selections.study import (
     CompactStudy,
     LockReleaseInput,
@@ -1153,6 +1159,66 @@ def clone_study(
         study_clone_input=clone_input,
     )
     return new_study
+
+
+@router.get(
+    "/{study_uid}/lineage",
+    dependencies=[security, rbac.STUDY_READ],
+    summary="Returns lineage details for a study definition",
+    status_code=200,
+    responses={404: _generic_descriptions.ERROR_404},
+)
+def get_study_lineage(
+    study_uid: Annotated[str, Path(description="The UID of the study")],
+) -> LineageInfo:
+    return StudyService().get_study_lineage(study_uid=study_uid)
+
+
+@router.get(
+    "/{study_uid}/reconciliation-diff",
+    dependencies=[security, rbac.STUDY_READ],
+    summary="Generates field-level diff between study draft and parent template",
+    status_code=200,
+    responses={404: _generic_descriptions.ERROR_404},
+)
+def get_reconciliation_diff(
+    study_uid: Annotated[str, Path(description="The UID of the study")],
+) -> ReconciliationDiffResponse:
+    return StudyService().get_reconciliation_diff(study_uid=study_uid)
+
+
+@router.post(
+    "/{study_uid}/reconcile",
+    dependencies=[security, rbac.STUDY_WRITE],
+    summary="Selectively merges parent template changes into active study draft",
+    status_code=200,
+    responses={
+        400: _generic_descriptions.ERROR_400,
+        404: _generic_descriptions.ERROR_404,
+    },
+)
+def reconcile_study(
+    study_uid: Annotated[str, Path(description="The UID of the study")],
+    reconciliation_request: Annotated[
+        ReconciliationRequest, Body(description="Selected field merge decisions")
+    ],
+) -> ReconciliationDiffResponse:
+    return StudyService().reconcile_study(
+        study_uid=study_uid, req=reconciliation_request
+    )
+
+
+@router.get(
+    "/{study_uid}/reconciliation-history",
+    dependencies=[security, rbac.STUDY_READ],
+    summary="Returns the audit history of reconciliation events for a study",
+    status_code=200,
+    responses={404: _generic_descriptions.ERROR_404},
+)
+def get_reconciliation_history(
+    study_uid: Annotated[str, Path(description="The UID of the study")],
+) -> list[ReconciliationAuditRecord]:
+    return StudyService().get_reconciliation_history(study_uid=study_uid)
 
 
 @router.get(

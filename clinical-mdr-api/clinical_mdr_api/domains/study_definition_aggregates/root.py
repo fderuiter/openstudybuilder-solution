@@ -51,6 +51,9 @@ class StudyDefinitionSnapshot:
         study_subpart_acronym: str | None = None
         study_id_prefix: str | None = None
         description: str | None = None
+        parent_template_uid: str | None = None
+        parent_template_version: str | None = None
+        sync_status: str | None = None
         ct_gov_id: str | None = None
         ct_gov_id_null_value_code: str | None = None
         eudract_id: str | None = None
@@ -921,6 +924,9 @@ class StudyDefinitionAR:
                         study_subpart_acronym=study_metadata_snapshot.study_subpart_acronym,
                         description=study_metadata_snapshot.description,
                         _study_id_prefix=study_metadata_snapshot.study_id_prefix,
+                        parent_template_uid=study_metadata_snapshot.parent_template_uid,
+                        parent_template_version=study_metadata_snapshot.parent_template_version,
+                        sync_status=study_metadata_snapshot.sync_status,
                         registry_identifiers=RegistryIdentifiersVO(
                             ct_gov_id=study_metadata_snapshot.ct_gov_id,
                             ct_gov_id_null_value_code=study_metadata_snapshot.ct_gov_id_null_value_code,

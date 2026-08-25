@@ -1,9 +1,19 @@
 import functools
+import json
 import logging
 from copy import copy
 from datetime import date, datetime, timezone
 from string import ascii_lowercase
 from typing import Any, Callable, Collection, Iterable
+
+from clinical_mdr_api.models.reconciliation import (
+    DiffItem,
+    FieldDecision,
+    LineageInfo,
+    ReconciliationAuditRecord,
+    ReconciliationDiffResponse,
+    ReconciliationRequest,
+)
 
 from neomodel import db
 from opencensus.trace import execution_context
@@ -1494,7 +1504,33 @@ class StudyService:
         execute_all_checks_for_study(study_created.uid, mode=validation_mode)
         log.info("Integrity checks passed for cloned study %s", study_created.uid)
 
-        return study_created
+        # Establish persistent graph lineage link and metadata
+        src_study_ar = self._repos.study_definition_repository.find_by_uid(study_src_uid)
+        src_version = "1.0"
+        parent_template_uid = study_src_uid
+        if src_study_ar and src_study_ar.current_metadata and src_study_ar.current_metadata.version_metadata and src_study_ar.current_metadata.version_metadata.version_number:
+            src_version = str(src_study_ar.current_metadata.version_metadata.version_number)
+        if src_study_ar and src_study_ar.current_metadata and src_study_ar.current_metadata.identification_metadata and src_study_ar.current_metadata.identification_metadata.parent_template_uid:
+            parent_template_uid = src_study_ar.current_metadata.identification_metadata.parent_template_uid
+
+        db.cypher_query(
+            """
+            MATCH (sr_target:StudyRoot {uid: $target_uid})-[:LATEST]->(sv_target:StudyValue)
+            MATCH (sr_src:StudyRoot {uid: $src_uid})
+            SET sv_target.parent_template_uid = $parent_template_uid,
+                sv_target.parent_template_version = $parent_template_version,
+                sv_target.sync_status = 'IN_SYNC'
+            MERGE (sr_target)-[:DERIVED_FROM]->(sr_src)
+            """,
+            {
+                "target_uid": study_created.uid,
+                "src_uid": study_src_uid,
+                "parent_template_uid": parent_template_uid,
+                "parent_template_version": src_version,
+            },
+        )
+
+        return self.get_by_uid(study_created.uid)
 
     @ensure_transaction(db)
     def create(
@@ -3178,6 +3214,12 @@ class StudyService:
         )
         study_template_ar.approve(self.author_id)
         self._repos.study_template_repository.save(study_template_ar)
+        if study_uid_value:
+            self.update_downstream_sync_status(
+                parent_template_uid=study_uid_value,
+                new_version=study_value_version_value,
+                is_retired=False,
+            )
         return self._to_study_template_model(study_template_ar)
 
     @db.transaction
@@ -3194,6 +3236,11 @@ class StudyService:
         )
         study_template_ar.inactivate(self.author_id)
         self._repos.study_template_repository.save(study_template_ar)
+        if study_template_ar.current_metadata and study_template_ar.current_metadata.study_template_value:
+            self.update_downstream_sync_status(
+                parent_template_uid=study_template_ar.current_metadata.study_template_value.study_uid,
+                is_retired=True,
+            )
         return self._to_study_template_model(study_template_ar)
 
     @db.transaction
@@ -3211,3 +3258,258 @@ class StudyService:
         study_template_ar.reactivate(self.author_id)
         self._repos.study_template_repository.save(study_template_ar)
         return self._to_study_template_model(study_template_ar)
+
+    def update_downstream_sync_status(
+        self,
+        parent_template_uid: str,
+        new_version: str | None = None,
+        is_retired: bool = False,
+    ) -> None:
+        new_status = "RETIRED" if is_retired else "NEEDS_REVIEW"
+        query = """
+        MATCH (sr:StudyRoot)-[:LATEST_DRAFT]->(sv:StudyValue)
+        WHERE sv.parent_template_uid = $parent_template_uid
+           OR (sr)-[:DERIVED_FROM]->(:StudyRoot {uid: $parent_template_uid})
+        SET sv.sync_status = $new_status
+        RETURN DISTINCT sr.uid as affected_study_uid
+        """
+        rs, _ = db.cypher_query(
+            query,
+            {"parent_template_uid": parent_template_uid, "new_status": new_status},
+        )
+        affected_uids = [row[0] for row in rs]
+
+        for aff_uid in affected_uids:
+            try:
+                from clinical_mdr_api.models.notifications import NotificationPostInput
+                from clinical_mdr_api.services.notifications import NotificationService
+
+                msg = (
+                    f"Parent template {parent_template_uid} was retired. Study requires review."
+                    if is_retired
+                    else f"Parent template {parent_template_uid} was updated (version {new_version or 'latest'}). Study requires reconciliation."
+                )
+                NotificationService().create_notification(
+                    NotificationPostInput(
+                        title="Template Lineage Notice",
+                        message=msg,
+                        type="warning" if is_retired else "information",
+                        recipient_id="all",
+                    )
+                )
+            except Exception as e:
+                log.warning("Could not send notification for study %s: %s", aff_uid, e)
+
+    @ensure_transaction(db)
+    def get_study_lineage(self, study_uid: str) -> LineageInfo:
+        study_ar = self._repos.study_definition_repository.find_by_uid(study_uid)
+        from common.exceptions import NotFoundException
+        NotFoundException.raise_if(study_ar is None, "Study Definition", study_uid)
+
+        parent_template_uid = None
+        parent_template_version = None
+        sync_status = "IN_SYNC"
+
+        if study_ar.current_metadata and study_ar.current_metadata.identification_metadata:
+            parent_template_uid = study_ar.current_metadata.identification_metadata.parent_template_uid
+            parent_template_version = study_ar.current_metadata.identification_metadata.parent_template_version
+            sync_status = study_ar.current_metadata.identification_metadata.sync_status or "IN_SYNC"
+
+        if not parent_template_uid:
+            rs, _ = db.cypher_query(
+                "MATCH (:StudyRoot {uid: $study_uid})-[:DERIVED_FROM]->(parent:StudyRoot) RETURN parent.uid",
+                {"study_uid": study_uid},
+            )
+            if rs:
+                parent_template_uid = rs[0][0]
+
+        requires_review = sync_status in ["NEEDS_REVIEW", "RETIRED"]
+        return LineageInfo(
+            parent_template_uid=parent_template_uid,
+            parent_template_version=parent_template_version,
+            sync_status=sync_status,
+            requires_review=requires_review,
+        )
+
+    @ensure_transaction(db)
+    def get_reconciliation_diff(self, study_uid: str) -> ReconciliationDiffResponse:
+        study_ar = self._repos.study_definition_repository.find_by_uid(study_uid)
+        from common.exceptions import NotFoundException
+        NotFoundException.raise_if(study_ar is None, "Study Definition", study_uid)
+
+        lineage = self.get_study_lineage(study_uid)
+        parent_uid = lineage.parent_template_uid
+        if not parent_uid:
+            return ReconciliationDiffResponse(
+                study_uid=study_uid,
+                parent_template_uid=None,
+                parent_template_version=None,
+                current_template_version=None,
+                sync_status="IN_SYNC",
+                diffs=[],
+                total_diffs=0,
+            )
+
+        template_ar = self._repos.study_definition_repository.find_by_uid(parent_uid)
+        if not template_ar:
+            return ReconciliationDiffResponse(
+                study_uid=study_uid,
+                parent_template_uid=parent_uid,
+                parent_template_version=lineage.parent_template_version,
+                current_template_version=None,
+                sync_status=lineage.sync_status,
+                diffs=[],
+                total_diffs=0,
+            )
+
+        current_tmpl_version = "1.0"
+        if template_ar.current_metadata and template_ar.current_metadata.version_metadata and template_ar.current_metadata.version_metadata.version_number:
+            current_tmpl_version = str(template_ar.current_metadata.version_metadata.version_number)
+
+        diffs: list[DiffItem] = []
+
+        s_id = study_ar.current_metadata.identification_metadata if study_ar.current_metadata else None
+        t_id = template_ar.current_metadata.identification_metadata if template_ar.current_metadata else None
+
+        if s_id and t_id:
+            if s_id.study_acronym != t_id.study_acronym:
+                diffs.append(DiffItem(field="study_acronym", label="Study Acronym", category="Metadata", change_type="MODIFIED", current_value=s_id.study_acronym, template_value=t_id.study_acronym))
+            if s_id.description != t_id.description:
+                diffs.append(DiffItem(field="description", label="Description", category="Metadata", change_type="MODIFIED", current_value=s_id.description, template_value=t_id.description))
+
+        s_des = study_ar.current_metadata.high_level_study_design if study_ar.current_metadata else None
+        t_des = template_ar.current_metadata.high_level_study_design if template_ar.current_metadata else None
+
+        if s_des and t_des:
+            if s_des.study_type_code != t_des.study_type_code:
+                diffs.append(DiffItem(field="study_type_code", label="Study Type", category="Design", change_type="MODIFIED", current_value=s_des.study_type_code, template_value=t_des.study_type_code))
+            if s_des.trial_phase_code != t_des.trial_phase_code:
+                diffs.append(DiffItem(field="trial_phase_code", label="Trial Phase", category="Design", change_type="MODIFIED", current_value=s_des.trial_phase_code, template_value=t_des.trial_phase_code))
+            if s_des.is_extension_trial != t_des.is_extension_trial:
+                diffs.append(DiffItem(field="is_extension_trial", label="Extension Trial", category="Design", change_type="MODIFIED", current_value=s_des.is_extension_trial, template_value=t_des.is_extension_trial))
+            if s_des.is_adaptive_design != t_des.is_adaptive_design:
+                diffs.append(DiffItem(field="is_adaptive_design", label="Adaptive Design", category="Design", change_type="MODIFIED", current_value=s_des.is_adaptive_design, template_value=t_des.is_adaptive_design))
+
+        s_pop = study_ar.current_metadata.study_population if study_ar.current_metadata else None
+        t_pop = template_ar.current_metadata.study_population if template_ar.current_metadata else None
+
+        if s_pop and t_pop:
+            if s_pop.therapeutic_area_codes != t_pop.therapeutic_area_codes:
+                diffs.append(DiffItem(field="therapeutic_area_codes", label="Therapeutic Area", category="Population", change_type="MODIFIED", current_value=s_pop.therapeutic_area_codes, template_value=t_pop.therapeutic_area_codes))
+            if s_pop.sex_of_participants_code != t_pop.sex_of_participants_code:
+                diffs.append(DiffItem(field="sex_of_participants_code", label="Sex of Participants", category="Population", change_type="MODIFIED", current_value=s_pop.sex_of_participants_code, template_value=t_pop.sex_of_participants_code))
+
+        return ReconciliationDiffResponse(
+            study_uid=study_uid,
+            parent_template_uid=parent_uid,
+            parent_template_version=lineage.parent_template_version,
+            current_template_version=current_tmpl_version,
+            sync_status=lineage.sync_status,
+            diffs=diffs,
+            total_diffs=len(diffs),
+        )
+
+    @ensure_transaction(db)
+    def reconcile_study(self, study_uid: str, req: ReconciliationRequest) -> ReconciliationDiffResponse:
+        study_ar = self._repos.study_definition_repository.find_by_uid(study_uid)
+        from common.exceptions import BusinessLogicException, NotFoundException
+        NotFoundException.raise_if(study_ar is None, "Study Definition", study_uid)
+
+        # GUARDRAIL: Template updates can only be merged into unlocked study drafts
+        BusinessLogicException.raise_if(
+            study_ar.status != StudyStatus.DRAFT,
+            msg="Template updates can only be merged into unlocked study drafts.",
+        )
+
+        diff_resp = self.get_reconciliation_diff(study_uid)
+        if not diff_resp.parent_template_uid:
+            raise BusinessLogicException(msg="Study has no parent template lineage link.")
+
+        template_ar = self._repos.study_definition_repository.find_by_uid(diff_resp.parent_template_uid)
+        NotFoundException.raise_if(template_ar is None, "Parent Template Study", diff_resp.parent_template_uid)
+
+        field_decisions = []
+        for d in diff_resp.diffs:
+            if d.field in req.selected_fields:
+                field_decisions.append({
+                    "field": d.field,
+                    "decision": "ACCEPTED",
+                    "old_value": d.current_value,
+                    "new_value": d.template_value,
+                })
+            else:
+                field_decisions.append({
+                    "field": d.field,
+                    "decision": "REJECTED",
+                    "old_value": d.current_value,
+                    "new_value": d.template_value,
+                })
+
+        latest_version = diff_resp.current_template_version or "1.0"
+        db.cypher_query(
+            """
+            MATCH (:StudyRoot {uid: $study_uid})-[:LATEST]->(sv:StudyValue)
+            SET sv.parent_template_version = $latest_version,
+                sv.sync_status = 'IN_SYNC'
+            """,
+            {"study_uid": study_uid, "latest_version": latest_version},
+        )
+
+        audit_uid = f"recon_audit_{int(datetime.now().timestamp())}"
+        decisions_json = json.dumps(field_decisions)
+        db.cypher_query(
+            """
+            MATCH (sr:StudyRoot {uid: $study_uid})
+            CREATE (ra:ReconciliationAudit:StudyAction {
+                uid: $audit_uid,
+                parent_template_uid: $parent_uid,
+                parent_template_version: $latest_version,
+                decisions_json: $decisions_json,
+                comments: $comments,
+                author_id: $author_id,
+                date: datetime()
+            })
+            CREATE (sr)-[:AUDIT_TRAIL]->(ra)
+            """,
+            {
+                "study_uid": study_uid,
+                "audit_uid": audit_uid,
+                "parent_uid": diff_resp.parent_template_uid,
+                "latest_version": latest_version,
+                "decisions_json": decisions_json,
+                "comments": req.comments or "",
+                "author_id": self.author_id,
+            },
+        )
+
+        return self.get_reconciliation_diff(study_uid)
+
+    @ensure_transaction(db)
+    def get_reconciliation_history(self, study_uid: str) -> list[ReconciliationAuditRecord]:
+        query = """
+        MATCH (sr:StudyRoot {uid: $study_uid})-[:AUDIT_TRAIL]->(ra:ReconciliationAudit)
+        RETURN ra.uid as uid, ra.parent_template_uid as parent_template_uid,
+               ra.parent_template_version as parent_template_version,
+               ra.date as timestamp, ra.author_id as user_id,
+               ra.decisions_json as decisions_json, ra.comments as comments
+        ORDER BY ra.date DESC
+        """
+        rs, _ = db.cypher_query(query, {"study_uid": study_uid})
+        history = []
+        for row in rs:
+            uid, p_uid, p_ver, ts, user_id, dec_json, comments = row
+            decisions_raw = json.loads(dec_json) if dec_json else []
+            decisions = [FieldDecision(**d) for d in decisions_raw]
+            history.append(
+                ReconciliationAuditRecord(
+                    uid=uid or "",
+                    study_uid=study_uid,
+                    parent_template_uid=p_uid or "",
+                    parent_template_version=p_ver or "",
+                    timestamp=ts if isinstance(ts, datetime) else datetime.now(),
+                    user_id=user_id or "system",
+                    decisions=decisions,
+                    comments=comments,
+                )
+            )
+        return history

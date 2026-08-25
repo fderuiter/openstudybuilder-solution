@@ -448,6 +448,15 @@ class StudyIdentificationMetadataJsonModel(BaseModel):
     description: Annotated[str | None, Field(json_schema_extra={"nullable": True})] = (
         None
     )
+    parent_template_uid: Annotated[
+        str | None, Field(json_schema_extra={"nullable": True})
+    ] = None
+    parent_template_version: Annotated[
+        str | None, Field(json_schema_extra={"nullable": True})
+    ] = None
+    sync_status: Annotated[
+        str | None, Field(json_schema_extra={"nullable": True})
+    ] = None
     clinical_programme_name: Annotated[
         str | None, Field(json_schema_extra={"nullable": True})
     ] = None
@@ -502,6 +511,9 @@ class StudyIdentificationMetadataJsonModel(BaseModel):
             project_number=study_identification_o.project_number,
             project_name=project_ar.name,
             description=study_identification_o.description,
+            parent_template_uid=study_identification_o.parent_template_uid,
+            parent_template_version=study_identification_o.parent_template_version,
+            sync_status=study_identification_o.sync_status,
             clinical_programme_name=find_clinical_programme_by_uid(
                 project_ar.clinical_programme_uid
             ).name,

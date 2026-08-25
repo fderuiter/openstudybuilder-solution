@@ -10,6 +10,23 @@
   >
     <template #topActions>
       <v-btn
+        v-if="identification.parent_template_uid"
+        size="small"
+        color="primary"
+        variant="outlined"
+        class="mr-2"
+        @click.stop="showReconciliation = true"
+      >
+        <v-icon left>mdi-source-branch</v-icon>
+        Template Reconciliation
+        <v-badge
+          v-if="identification.sync_status === 'NEEDS_REVIEW'"
+          color="warning"
+          content="!"
+          inline
+        ></v-badge>
+      </v-btn>
+      <v-btn
         v-if="canDeleteSelectedStudy()"
         icon
         size="small"
@@ -33,6 +50,13 @@
       />
     </template>
   </StudyMetadataSummary>
+  <VisualReconciliationModal
+    v-if="studiesGeneralStore.selectedStudy"
+    v-model="showReconciliation"
+    :study-uid="studiesGeneralStore.selectedStudy.uid"
+    :is-locked="studiesGeneralStore.studyStatus === 'LOCKED' || studiesGeneralStore.studyStatus === 'APPROVED'"
+    @reconciled="refreshStudy"
+  />
   <ConfirmDialog ref="confirm" :text-cols="6" :action-cols="5" />
 </template>
 
@@ -44,6 +68,7 @@ import ConfirmDialog from '@/components/tools/ConfirmDialog.vue'
 import api from '@/api/study'
 import StudyForm from './StudyForm.vue'
 import StudyMetadataSummary from './StudyMetadataSummary.vue'
+import VisualReconciliationModal from './VisualReconciliationModal.vue'
 import { useAccessGuard } from '@/composables/accessGuard'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 
@@ -54,6 +79,7 @@ const studiesGeneralStore = useStudiesGeneralStore()
 const accessGuard = useAccessGuard()
 
 const identification = ref({})
+const showReconciliation = ref(false)
 
 const params = [
   {
@@ -79,6 +105,14 @@ const params = [
   {
     label: t('Study.study_acronym'),
     name: 'study_acronym',
+  },
+  {
+    label: 'Parent Template UID',
+    name: 'parent_template_uid',
+  },
+  {
+    label: 'Sync Status',
+    name: 'sync_status',
   },
 ]
 const study = ref(null)
@@ -121,5 +155,11 @@ function close(closeHandler) {
 function onIdentificationUpdated(data) {
   study.value = data
   identification.value = data.current_metadata.identification_metadata
+}
+function refreshStudy() {
+  api.getStudy(studiesGeneralStore.selectedStudy.uid).then((resp) => {
+    study.value = resp.data
+    identification.value = resp.data.current_metadata.identification_metadata
+  })
 }
 </script>
