@@ -45,6 +45,7 @@ from clinical_mdr_api.repositories._utils import (
 from clinical_mdr_api.services.user_info import UserInfoService
 from clinical_mdr_api.utils import convert_to_plain, validate_dict
 from common.config import settings
+from common.database import retry_on_transient_lock
 from common.exceptions import (
     BusinessLogicException,
     NotFoundException,
@@ -1152,6 +1153,7 @@ class LibraryItemRepositoryImplBase(
         )
 
     @sb_clear_cache(caches=["cache_store_item_by_uid"])
+    @retry_on_transient_lock()
     def save(self, item: _AggregateRootType) -> None:
         if item.repository_closure_data is RETRIEVED_READ_ONLY_MARK:
             raise NotImplementedError(

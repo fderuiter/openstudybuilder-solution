@@ -202,25 +202,16 @@ class ObjectiveRepositoryConcurrencyTest(unittest.TestCase):
         self.validate_concurrency_check_for_template_instantiation()
 
     def validate_concurrency_check_for_template_instantiation(self):
-        # TODO - Neo4j 4.3 produces a transient error in this case.
-        # This is a known bug, which will be resolved in 4.4. We should revisit this when we upgrade to 4.4.
-        with self.assertRaises(Exception) as message:
+        with self.assertRaises(ValueError) as message:
             OptimisticLockingValidator().assert_optimistic_locking_ensures_execution_order(
                 main_operation_before=self.get_and_inactivate_template,
                 concurrent_operation=self.create_object_from_template,
                 main_operation_after=self.save_inactivated_template,
             )
-        self.assertEqual("TransientError", str(message.exception.__class__.__name__))
-
-        # with self.assertRaises(ValueError) as message:
-        #     OptimisticLockingValidator().assert_optimistic_locking_ensures_execution_order(
-        #         main_operation_before=self.get_and_inactivate_template,
-        #         concurrent_operation=self.create_object_from_template,
-        #         main_operation_after=self.save_inactivated_template
-        #     )
-        # self.assertEqual(
-        #     self.object_uid + " cannot be added to " + self.template_uid + ", as it is retired.",
-        #     str(message.exception))
+        self.assertEqual(
+            self.object_uid + " cannot be added to " + self.template_uid + ", as it is retired.",
+            str(message.exception),
+        )
 
     def get_and_inactivate_template(self):
         template_ar = self.template_repository.find_by_uid(
