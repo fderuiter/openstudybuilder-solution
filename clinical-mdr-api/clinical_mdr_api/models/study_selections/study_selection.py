@@ -2105,6 +2105,26 @@ class StudySelectionActivityCore(StudySelection):
     end_date: Annotated[datetime | None, END_DATE_FIELD] = None
     status: Annotated[str | None, STATUS_FIELD] = None
     change_type: Annotated[str | None, CHANGE_TYPE_FIELD] = None
+    is_conditional: Annotated[
+        bool,
+        Field(
+            description="Boolean indicating whether activity is conditional based on instructions or footnotes",
+        ),
+    ] = False
+    activity_instruction_texts: Annotated[
+        list[str],
+        Field(
+            description="List of instruction texts connected to study activity",
+            default_factory=list,
+        ),
+    ]
+    footnote_texts: Annotated[
+        list[str],
+        Field(
+            description="List of footnote texts connected to study activity",
+            default_factory=list,
+        ),
+    ]
 
     @classmethod
     def from_study_selection_history(
@@ -2219,7 +2239,15 @@ class StudySelectionActivity(StudySelectionActivityCore):
         activity_versions_by_uid: (
             Mapping[str, Iterable[ActivityForStudyActivity]] | None
         ) = None,
+        activity_instruction_texts: list[str] | None = None,
+        footnote_texts: list[str] | None = None,
+        is_conditional: bool | None = None,
     ) -> Self:
+        act_instructions = activity_instruction_texts or []
+        fn_texts = footnote_texts or []
+        if is_conditional is None:
+            is_conditional = bool(act_instructions or fn_texts)
+
         if (
             not (soa_group_term_name := study_selection.soa_group_term_name)
             and study_selection.soa_group_term_uid
@@ -2309,6 +2337,9 @@ class StudySelectionActivity(StudySelectionActivityCore):
             ),
             start_date=study_selection.start_date,
             author_username=study_selection.author_username,
+            is_conditional=is_conditional,
+            activity_instruction_texts=act_instructions,
+            footnote_texts=fn_texts,
         )
 
 

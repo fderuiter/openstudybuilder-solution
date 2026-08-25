@@ -142,6 +142,8 @@ class StudyActivitySelectionService(
         activity_versions_by_uid: (
             Mapping[str, Sequence[ActivityForStudyActivity]] | None
         ) = None,
+        activity_instruction_texts: list[str] | None = None,
+        footnote_texts: list[str] | None = None,
     ) -> StudySelectionActivity:
         return StudySelectionActivity.from_study_selection_activity_vo_and_order(
             study_uid=study_uid,
@@ -153,6 +155,8 @@ class StudyActivitySelectionService(
             terms_at_specific_datetime=terms_at_specific_datetime,
             study_value_version=study_value_version,
             activity_versions_by_uid=activity_versions_by_uid,
+            activity_instruction_texts=activity_instruction_texts,
+            footnote_texts=footnote_texts,
         )
 
     @staticmethod
@@ -786,6 +790,72 @@ class StudyActivitySelectionService(
                 )
             )
 
+        instructions_by_activity_uid: dict[str, list[str]] = defaultdict(list)
+        footnotes_by_activity_uid: dict[str, list[str]] = defaultdict(list)
+
+        study_uid = (
+            getattr(study_selection, "study_uid", None)
+            or (
+                study_selection.study_objects_selection[0].study_uid
+                if study_selection.study_objects_selection
+                else None
+            )
+        )
+
+        if study_uid:
+            try:
+                from clinical_mdr_api.domains.study_selections.study_selection_base import (
+                    SoAItemType,
+                )
+                from clinical_mdr_api.services.studies.study_activity_instruction import (
+                    StudyActivityInstructionService,
+                )
+                from clinical_mdr_api.services.studies.study_soa_footnote import (
+                    StudySoAFootnoteService,
+                )
+
+                study_instructions = (
+                    StudyActivityInstructionService().get_all_instructions(
+                        study_uid=study_uid, study_value_version=study_value_version
+                    )
+                )
+                for inst in study_instructions:
+                    if inst.study_activity_uid and inst.activity_instruction_name:
+                        instructions_by_activity_uid[inst.study_activity_uid].append(
+                            inst.activity_instruction_name
+                        )
+
+                study_footnotes = StudySoAFootnoteService().get_all_by_study_uid(
+                    study_uid=study_uid, study_value_version=study_value_version
+                )
+                for footnote in study_footnotes:
+                    fn_text = (
+                        footnote.footnote_name_plain
+                        or footnote.footnote_name
+                        or footnote.footnote_template_name_plain
+                        or footnote.footnote_template_name
+                    )
+                    if fn_text and footnote.referenced_items:
+                        for ref_item in footnote.referenced_items:
+                            item_type_val = (
+                                ref_item.item_type.value
+                                if hasattr(ref_item.item_type, "value")
+                                else ref_item.item_type
+                            )
+                            if (
+                                item_type_val
+                                in (
+                                    SoAItemType.STUDY_ACTIVITY.value,
+                                    "StudyActivity",
+                                )
+                                and ref_item.item_uid
+                            ):
+                                footnotes_by_activity_uid[ref_item.item_uid].append(
+                                    fn_text
+                                )
+            except Exception:
+                pass
+
         return [
             self._transform_from_vo_to_response_model(
                 study_uid=selection.study_uid,
@@ -793,6 +863,12 @@ class StudyActivitySelectionService(
                 accepted_version=selection.accepted_version,
                 study_value_version=study_value_version,
                 activity_versions_by_uid=activity_versions_by_uid,
+                activity_instruction_texts=instructions_by_activity_uid.get(
+                    selection.study_selection_uid, []
+                ),
+                footnote_texts=footnotes_by_activity_uid.get(
+                    selection.study_selection_uid, []
+                ),
             )
             for selection in study_selection.study_objects_selection
         ]
