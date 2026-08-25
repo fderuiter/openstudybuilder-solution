@@ -117,6 +117,7 @@ import libConstants from '@/constants/libraries'
 import SentenceCaseNameField from '@/components/tools/SentenceCaseNameField.vue'
 import { useFormStore } from '@/stores/form'
 import { useLibraryActivitiesStore } from '@/stores/library-activities'
+import { deepClone } from '@/utils/deepClone'
 
 export default {
   components: {
@@ -191,7 +192,7 @@ export default {
   },
   methods: {
     initForm(value) {
-      this.form = JSON.parse(JSON.stringify(value))
+      this.form = deepClone(value)
       this.formStore.save(this.form)
     },
     async cancel() {

@@ -144,6 +144,7 @@ import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { useEpochsStore } from '@/stores/studies-epochs'
 import { useI18n } from 'vue-i18n'
 import { computed, inject, onMounted, ref, watch } from 'vue'
+import { deepClone } from '@/utils/deepClone'
 
 const notificationHub = inject('notificationHub')
 const formRules = inject('formRules')
@@ -340,7 +341,7 @@ async function submit() {
 }
 
 function addObject() {
-  const data = JSON.parse(JSON.stringify(form.value))
+  const data = deepClone(form.value)
   if (colorHash.value) {
     data.color_hash = colorHash.value
   } else {
@@ -361,7 +362,7 @@ function addObject() {
 }
 
 function updateObject() {
-  const data = JSON.parse(JSON.stringify(form.value))
+  const data = deepClone(form.value)
   if (colorHash.value) {
     data.color_hash =
       colorHash.value.hexa !== undefined

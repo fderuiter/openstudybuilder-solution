@@ -61,6 +61,7 @@ import instances from '@/utils/instances'
 import ParameterValueSelector from '@/components/tools/ParameterValueSelector.vue'
 import templatesApi from '@/api/templates'
 import templatePreInstancesApi from '@/api/templatePreInstances'
+import { deepClone } from '@/utils/deepClone'
 
 const notificationHub = inject('notificationHub')
 const formRules = inject('formRules')
@@ -140,7 +141,7 @@ watch(
     if (value) {
       form.value = { ...value }
       form.value.change_description = t('_global.work_in_progress')
-      originalForm = JSON.parse(JSON.stringify(form.value))
+      originalForm = deepClone(form.value)
       steps.value.push({
         name: 'change',
         title: t('GenericTemplateForm.step4_title'),
@@ -170,7 +171,7 @@ onMounted(() => {
         props.preInstance.parameter_terms,
         parameters.value
       )
-      originalParameters.value = JSON.parse(JSON.stringify(parameters.value))
+      originalParameters.value = deepClone(parameters.value)
     })
   }
 })

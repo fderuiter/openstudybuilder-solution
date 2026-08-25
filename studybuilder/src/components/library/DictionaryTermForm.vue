@@ -82,6 +82,7 @@ import dictionaries from '@/api/dictionaries'
 import SimpleFormDialog from '@/components/tools/SimpleFormDialog.vue'
 import { useFormStore } from '@/stores/form'
 import _isEmpty from 'lodash/isEmpty'
+import { deepClone } from '@/utils/deepClone'
 
 export default {
   components: {
@@ -187,7 +188,7 @@ export default {
     edit() {
       this.notificationHub.clearErrors()
 
-      const data = JSON.parse(JSON.stringify(this.form))
+      const data = deepClone(this.form)
       dictionaries.edit(this.editedTerm.term_uid, data).then(
         () => {
           this.notificationHub.add({
@@ -206,7 +207,7 @@ export default {
 
       this.form.library_name = this.dictionaryName
       this.form.codelist_uid = this.editedTermCategory
-      const data = JSON.parse(JSON.stringify(this.form))
+      const data = deepClone(this.form)
       dictionaries.create(data).then(
         () => {
           this.notificationHub.add({

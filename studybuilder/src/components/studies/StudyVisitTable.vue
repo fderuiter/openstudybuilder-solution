@@ -563,6 +563,7 @@ import studyEpochsApi from '@/api/studyEpochs'
 import dataFormating from '@/utils/dataFormating'
 import HistoryTable from '@/components/tools/HistoryTable.vue'
 import { useAccessGuard } from '@/composables/accessGuard'
+import { deepClone } from '@/utils/deepClone'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { useEpochsStore } from '@/stores/studies-epochs'
 import { inject, ref, watch, computed, onMounted } from 'vue'
@@ -1150,7 +1151,7 @@ function cancelVisitEditing() {
 
 async function openDuplicateForm(item) {
   if (item.visit_class === visitConstants.CLASS_SPECIAL_VISIT) {
-    const newVisit = JSON.parse(JSON.stringify(item))
+    const newVisit = deepClone(item)
     delete newVisit.visit_number
     delete newVisit.unique_visit_number
     delete newVisit.visit_short_name

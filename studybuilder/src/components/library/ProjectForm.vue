@@ -72,6 +72,7 @@ import { useFormStore } from '@/stores/form'
 import SimpleFormDialog from '@/components/tools/SimpleFormDialog.vue'
 import programmesApi from '@/api/clinicalProgrammes'
 import projects from '@/api/projects'
+import { deepClone } from '@/utils/deepClone'
 
 const { t } = useI18n()
 const formStore = useFormStore()
@@ -147,7 +148,7 @@ function initForm() {
 }
 
 async function addProject() {
-  const data = JSON.parse(JSON.stringify(form.value))
+  const data = deepClone(form.value)
   await projects.create(data)
   notificationHub.add({
     msg: t('Projects.add_success'),
@@ -155,7 +156,7 @@ async function addProject() {
 }
 
 async function updateProject() {
-  const data = JSON.parse(JSON.stringify(form.value))
+  const data = deepClone(form.value)
   await projects.patch(props.projectUid, data)
   notificationHub.add({
     msg: t('Projects.update_success'),

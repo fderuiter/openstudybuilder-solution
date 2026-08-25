@@ -80,6 +80,7 @@ import ActionsMenu from '@/components/tools/ActionsMenu.vue'
 import CompoundForm from './CompoundForm.vue'
 import ConfirmDialog from '@/components/tools/ConfirmDialog.vue'
 import dataFormating from '@/utils/dataFormating'
+import { deepClone } from '@/utils/deepClone'
 import HistoryTable from '@/components/tools/HistoryTable.vue'
 import filteringParameters from '@/utils/filteringParameters'
 import NNTable from '@/components/tools/NNTable.vue'
@@ -172,7 +173,7 @@ const studyCompoundHistoryTitle = computed(() => {
 })
 const formatedStudyCompounds = computed(() => {
   // clone objects to avoid mutating the store state
-  const items = JSON.parse(JSON.stringify(studiesCompoundsStore.studyCompounds))
+  const items = deepClone(studiesCompoundsStore.studyCompounds)
   return transformItems(items)
 })
 
@@ -245,7 +246,7 @@ function closeForm() {
 function transformItems(items) {
   const result = []
   for (const item of items) {
-    const newItem = JSON.parse(JSON.stringify(item))
+    const newItem = deepClone(item)
     if (newItem.compound) {
       newItem.compound.is_sponsor_compound = dataFormating.yesno(
         newItem.compound.is_sponsor_compound

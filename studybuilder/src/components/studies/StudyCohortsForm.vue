@@ -121,6 +121,7 @@ import arms from '@/api/arms'
 import SimpleFormDialog from '@/components/tools/SimpleFormDialog.vue'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { useFormStore } from '@/stores/form'
+import { deepClone } from '@/utils/deepClone'
 
 export default {
   components: {
@@ -170,7 +171,7 @@ export default {
         arms
           .getStudyCohort(this.selectedStudy.uid, value.cohort_uid)
           .then((resp) => {
-            this.form = JSON.parse(JSON.stringify(resp.data))
+            this.form = deepClone(resp.data)
             this.form.arm_uids = resp.data.arm_roots
               ? resp.data.arm_roots.map((el) => el.arm_uid)
               : null
@@ -184,7 +185,7 @@ export default {
   },
   mounted() {
     if (Object.keys(this.editedCohort).length !== 0) {
-      this.form = JSON.parse(JSON.stringify(this.editedCohort))
+      this.form = deepClone(this.editedCohort)
       this.form.arm_uids = this.editedCohort.arm_roots
         ? this.editedCohort.arm_roots.map((el) => el.arm_uid)
         : null

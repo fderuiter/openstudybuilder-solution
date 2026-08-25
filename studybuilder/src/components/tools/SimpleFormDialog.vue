@@ -105,7 +105,9 @@
 <script setup>
 import { computed, getCurrentInstance, ref, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import _isEqual from 'lodash/isEqual'
 import { useFormStore } from '@/stores/form'
+import { deepClone } from '@/utils/deepClone'
 import ConfirmDialog from '@/components/tools/ConfirmDialog.vue'
 import HelpButtonWithPanels from '@/components/tools/HelpButtonWithPanels.vue'
 
@@ -227,15 +229,15 @@ watch(
     const parentForm = getParentForm()
     if (parentForm) {
       const rawForm = typeof parentForm.value !== 'undefined' ? parentForm.value : parentForm
-      if (newStoreForm && JSON.stringify(rawForm) !== JSON.stringify(newStoreForm)) {
+      if (newStoreForm && !_isEqual(rawForm, newStoreForm)) {
         isUpdatingFromStore = true
         if (typeof parentForm.value !== 'undefined') {
-          parentForm.value = JSON.parse(JSON.stringify(newStoreForm))
+          parentForm.value = deepClone(newStoreForm)
         } else {
           for (const key in parentForm) {
             delete parentForm[key]
           }
-          Object.assign(parentForm, JSON.parse(JSON.stringify(newStoreForm)))
+          Object.assign(parentForm, deepClone(newStoreForm))
         }
         setTimeout(() => {
           isUpdatingFromStore = false
@@ -263,12 +265,12 @@ function undo() {
     const formObj = getParentForm()
     if (formObj) {
       if (typeof formObj.value !== 'undefined') {
-        formObj.value = JSON.parse(JSON.stringify(reverted))
+        formObj.value = deepClone(reverted)
       } else {
         for (const key in formObj) {
           delete formObj[key]
         }
-        Object.assign(formObj, JSON.parse(JSON.stringify(reverted)))
+        Object.assign(formObj, deepClone(reverted))
       }
     }
     setTimeout(() => {
@@ -284,12 +286,12 @@ function redo() {
     const formObj = getParentForm()
     if (formObj) {
       if (typeof formObj.value !== 'undefined') {
-        formObj.value = JSON.parse(JSON.stringify(reverted))
+        formObj.value = deepClone(reverted)
       } else {
         for (const key in formObj) {
           delete formObj[key]
         }
-        Object.assign(formObj, JSON.parse(JSON.stringify(reverted)))
+        Object.assign(formObj, deepClone(reverted))
       }
     }
     setTimeout(() => {

@@ -141,6 +141,7 @@ import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { useStudiesEndpointsStore } from '@/stores/studies-endpoints'
 import { inject, ref, watch, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { deepClone } from '@/utils/deepClone'
 
 const props = defineProps({
   studyEndpoint: {
@@ -252,7 +253,7 @@ function initForm(form) {
   if (editedObject.value.study_objective) {
     form.study_objective = editedObject.value.study_objective
   }
-  originalForm.value = JSON.parse(JSON.stringify(form))
+  originalForm.value = deepClone(form)
 }
 
 async function getStudyEndpointNamePreview(parameters) {

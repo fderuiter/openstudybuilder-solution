@@ -1,10 +1,6 @@
 import { defineStore } from 'pinia'
 import _isEqual from 'lodash/isEqual'
-
-function deepClone(obj) {
-  if (obj === null || obj === undefined) return obj
-  return JSON.parse(JSON.stringify(obj))
-}
+import { deepClone } from '@/utils/deepClone'
 
 export const useFormStore = defineStore('form', {
   state: () => ({

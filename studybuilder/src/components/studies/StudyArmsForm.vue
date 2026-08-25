@@ -122,6 +122,7 @@ import _isEqual from 'lodash/isEqual'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { useFormStore } from '@/stores/form'
 import { useI18n } from 'vue-i18n'
+import { deepClone } from '@/utils/deepClone'
 
 const formRules = inject('formRules')
 const notificationHub = inject('notificationHub')
@@ -170,7 +171,7 @@ watch(
   (value) => {
     if (Object.keys(value).length !== 0) {
       arms.getStudyArm(selectedStudy.value.uid, value.arm_uid).then((resp) => {
-        form.value = JSON.parse(JSON.stringify(resp.data))
+        form.value = deepClone(resp.data)
         if (form.value.arm_connected_branch_arms) {
           branches.value = form.value.arm_connected_branch_arms.map(
             (el) => el.name
@@ -189,7 +190,7 @@ onMounted(() => {
     armTypes.value = resp.data.items
   })
   if (Object.keys(props.editedArm).length !== 0) {
-    form.value = JSON.parse(JSON.stringify(props.editedArm))
+    form.value = deepClone(props.editedArm)
     if (form.value.arm_connected_branch_arms) {
       branches.value = form.value.arm_connected_branch_arms.map((el) => el.name)
       delete form.value.arm_connected_branch_arms

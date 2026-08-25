@@ -1,4 +1,5 @@
 import _isEqual from 'lodash/isEqual'
+import { deepClone } from './deepClone'
 
 /*
  ** Compute differences between 2 forms, first form being considered as
@@ -22,6 +23,10 @@ function getDifferences(form1, form2) {
   return result
 }
 
+export { deepClone, getDifferences }
+
 export default {
   getDifferences,
+  deepClone,
 }
+

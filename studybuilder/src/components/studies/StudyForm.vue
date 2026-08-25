@@ -112,6 +112,7 @@ import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { useStudiesManageStore } from '@/stores/studies-manage'
 import studyApi from '@/api/study'
 import { useFormStore } from '@/stores/form'
+import { deepClone } from '@/utils/deepClone'
 
 const props = defineProps({
   editedStudy: {
@@ -205,7 +206,7 @@ function updateProject(value) {
 }
 
 async function addStudy() {
-  const data = JSON.parse(JSON.stringify(form.value))
+  const data = deepClone(form.value)
   data.project_number = project.value.project_number
   const resp = await studiesManageStore.addStudy(data)
   notificationHub.add({ msg: t('StudyForm.add_success') })
@@ -217,7 +218,7 @@ function updateStudy() {
     notificationHub.add({ msg: t('_global.no_changes'), type: 'info' })
     return
   }
-  const data = JSON.parse(JSON.stringify(form.value))
+  const data = deepClone(form.value)
   data.project_number = form.value.project_number
   return studiesManageStore
     .editStudyIdentification(props.editedStudy.uid, data)

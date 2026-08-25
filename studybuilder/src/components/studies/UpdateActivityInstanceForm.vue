@@ -171,6 +171,7 @@ import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { inject, ref } from 'vue'
 import study from '@/api/study'
 import statuses from '@/constants/statuses.js'
+import { deepClone } from '@/utils/deepClone'
 
 const studiesGeneralStore = useStudiesGeneralStore()
 const emit = defineEmits(['close'])
@@ -214,7 +215,7 @@ function close() {
 
 async function declineAndKeep() {
   loading.value = true
-  const payload = JSON.parse(JSON.stringify(props.activity))
+  const payload = deepClone(props.activity)
   payload.keep_old_version = true
   payload.is_reviewed = true
   study

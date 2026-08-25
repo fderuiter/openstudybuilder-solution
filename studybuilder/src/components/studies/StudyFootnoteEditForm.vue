@@ -77,6 +77,7 @@ import terms from '@/api/controlledTerminology/terms'
 import footnoteConstants from '@/constants/footnotes'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { useFootnotesStore } from '@/stores/studies-footnotes'
+import { deepClone } from '@/utils/deepClone'
 
 export default {
   components: {
@@ -151,7 +152,7 @@ export default {
   },
   methods: {
     initForm(form) {
-      this.originalForm = JSON.parse(JSON.stringify(form))
+      this.originalForm = deepClone(form)
       this.referencedActivities = []
       this.referencedEpochsAndVisits = []
       this.studyFootnote.referenced_items.forEach((item) => {

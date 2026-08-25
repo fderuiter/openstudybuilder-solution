@@ -273,6 +273,7 @@ import controlledTerminology from '@/api/controlledTerminology'
 import pairedCodelistsApi from '@/api/controlledTerminology/pairedCodelists'
 import StepperForm from '@/components/tools/StepperForm.vue'
 import ConfirmDialog from '@/components/tools/ConfirmDialog.vue'
+import { deepClone } from '@/utils/deepClone'
 
 const emit = defineEmits(['close', 'created'])
 
@@ -376,7 +377,7 @@ function getObserver(step) {
 
 async function submit() {
   form.value.terms = []
-  const data = JSON.parse(JSON.stringify(form.value))
+  const data = deepClone(form.value)
   try {
     let resp
     if (codelistCreationType.value === 'regular') {

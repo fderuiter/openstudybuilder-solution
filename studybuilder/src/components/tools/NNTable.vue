@@ -452,6 +452,7 @@ import { computed, onMounted, onUpdated, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { useTablesLayoutStore } from '@/stores/library-tableslayout'
+import { deepClone } from '@/utils/deepClone'
 import ConfirmDialog from '@/components/tools/ConfirmDialog.vue'
 import DataTableExportButton from '@/components/tools/DataTableExportButton.vue'
 import FilterAutocomplete from '../tools/FilterAutocomplete.vue'
@@ -891,7 +892,7 @@ function updateColumns() {
     if (props.defaultHeaders && props.defaultHeaders.length !== 0) {
       shownColumns.value = props.defaultHeaders
     } else {
-      shownColumns.value = JSON.parse(JSON.stringify(props.headers))
+      shownColumns.value = deepClone(props.headers)
     }
     return
   }
@@ -902,7 +903,7 @@ function updateColumns() {
     if (props.defaultHeaders && props.defaultHeaders.length !== 0) {
       shownColumns.value = props.defaultHeaders
     } else {
-      shownColumns.value = JSON.parse(JSON.stringify(props.headers))
+      shownColumns.value = deepClone(props.headers)
     }
   } else {
     shownColumns.value = tablesLayoutStore.columns[window.location.pathname]

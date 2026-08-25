@@ -113,6 +113,7 @@ import SimpleFormDialog from '@/components/tools/SimpleFormDialog.vue'
 import _isEqual from 'lodash/isEqual'
 import { useStudiesGeneralStore } from '@/stores/studies-general'
 import { useFormStore } from '@/stores/form'
+import { deepClone } from '@/utils/deepClone'
 
 export default {
   components: {
@@ -162,7 +163,7 @@ export default {
         arms
           .getStudyBranchArm(this.selectedStudy.uid, value.branch_arm_uid)
           .then((resp) => {
-            this.form = JSON.parse(JSON.stringify(resp.data))
+            this.form = deepClone(resp.data)
             this.form.arm_uid = resp.data.arm_root.arm_uid
             this.formStore.save(this.form)
           })
@@ -171,7 +172,7 @@ export default {
   },
   mounted() {
     if (Object.keys(this.editedBranchArm).length !== 0) {
-      this.form = JSON.parse(JSON.stringify(this.editedBranchArm))
+      this.form = deepClone(this.editedBranchArm)
       this.form.arm_uid = this.editedBranchArm.arm_root.arm_uid
       this.formStore.save(this.form)
     }
