@@ -32550,6 +32550,8 @@ export interface components {
             sidebar_visible?: boolean | null;
             /** Sidebar Auto Minimize */
             sidebar_auto_minimize?: boolean | null;
+            /** Active Study */
+            active_study?: string | null;
         };
         /** GraphUser */
         GraphUser: {
@@ -44118,6 +44120,8 @@ export interface components {
             sidebar_visible?: boolean | null;
             /** Sidebar Auto Minimize */
             sidebar_auto_minimize?: boolean | null;
+            /** Active Study */
+            active_study?: string | null;
         };
         /** UserPreferencesResponse */
         UserPreferencesResponse: {
