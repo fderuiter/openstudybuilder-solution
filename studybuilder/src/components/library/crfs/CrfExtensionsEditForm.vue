@@ -431,6 +431,6 @@ async function getNamespaceData() {
   visibility: collapse;
 }
 .elementBackground {
-  background-color: #b1d5f2;
+  background-color: var(--v-theme-dfltBackgroundLight1, #b1d5f2);
 }
 </style>

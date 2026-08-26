@@ -90,10 +90,10 @@ p {
   margin: 20px;
 }
 .item-content {
-  background: #6675a3;
+  background: var(--v-theme-nnLightBlue2, #6675a3);
 }
 .item-description {
-  background: #fff;
+  background: var(--color-bg-white, #fff);
   padding: 5px;
 }
 </style>

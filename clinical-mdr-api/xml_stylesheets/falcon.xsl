@@ -343,7 +343,7 @@
           </xsl:when>
         </xsl:choose>
       </xsl:variable>
-      <tr style="background: #193074 !important; color: #ffffff;">
+      <tr style="background: var(--primary-color, #193074) !important; color: #ffffff;">
         <th colspan="3" style="text-align: left;">
           <h4>
             <xsl:value-of disable-output-escaping="yes" select="@Name" />

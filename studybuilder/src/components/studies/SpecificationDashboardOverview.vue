@@ -1124,6 +1124,7 @@ href="#"
 <script>
 import BarChart from '@/components/tools/BarChart'
 import DoughnutChart from '@/components/tools/DoughnutChart'
+import { themeColors } from '@/plugins/theme.generated.js'
 
 export default {
   components: {
@@ -1209,7 +1210,7 @@ export default {
         datasets: [
           {
             data: [3, 1, 4, 0],
-            backgroundColor: ['#193074', '#193074', '#193074', '#193074'],
+            backgroundColor: [themeColors.primary, themeColors.primary, themeColors.primary, themeColors.primary],
             label: this.$t('SpecificationDashboard.demography'),
           },
           {

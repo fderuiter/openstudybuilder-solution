@@ -382,7 +382,7 @@ watch(
 }
 
 .activity-item-class-overview-container :deep(.v-data-table__th) {
-  background-color: #272e41 !important;
+  background-color: var(--v-theme-nnTrueBlue, #001965) !important;
 }
 
 .activity-item-class-overview-container :deep(.v-data-table__tbody tr) {

@@ -125,6 +125,7 @@ import controlledTerminology from '@/api/controlledTerminology'
 import BarChart from '@/components/tools/BarChart.vue'
 import StatusChip from '@/components/tools/StatusChip.vue'
 import HelpButton from '@/components/tools/HelpButton.vue'
+import { themeColors } from '@/plugins/theme.generated.js'
 
 const { t } = useI18n()
 
@@ -220,17 +221,17 @@ function computeEvolutionData(property) {
     added: {
       label: t('CTDashboardView.added'),
       data: [],
-      backgroundColor: '#193074',
+      backgroundColor: themeColors.primary,
     },
     updated: {
       label: t('CTDashboardView.updated'),
       data: [],
-      backgroundColor: '#3f9c35',
+      backgroundColor: themeColors.green,
     },
     deleted: {
       label: t('CTDashboardView.deleted'),
       data: [],
-      backgroundColor: '#e6553f',
+      backgroundColor: themeColors.red,
     },
   }
 
