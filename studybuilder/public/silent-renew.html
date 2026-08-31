@@ -7,20 +7,59 @@
 <body>
     <script src="/oidc-client-ts.min.js"></script>
     <script>
-        if (typeof oidc !== 'undefined' && oidc.UserManager) {
-            new oidc.UserManager({ response_mode: 'fragment' }).signinSilentCallback().catch(function(e) {
-                console.error('Silent renew callback error:', e);
-            });
-        } else {
-            var msg = {
-                source: 'oidc-client',
-                url: window.location.href,
-                keepOpen: false
-            };
-            if (window.parent) {
-                window.parent.postMessage(msg, window.location.origin);
+        (function() {
+            function isOriginAllowed(origin) {
+                if (!origin) return false;
+                if (origin === window.location.origin) return true;
+                var configured = window.EQUIPOSE_ALLOWED_ORIGINS ||
+                                 (window.EquiposeConfig && (window.EquiposeConfig.ALLOWED_ORIGINS || window.EquiposeConfig.allowedOrigins)) ||
+                                 window.ALLOWED_ORIGINS ||
+                                 window.allowedOrigins;
+                if (!configured) return false;
+                var allowedList = Array.isArray(configured)
+                    ? configured
+                    : String(configured).split(',').map(function(s) { return s.trim(); });
+                return allowedList.indexOf(origin) !== -1;
             }
-        }
+
+            var parentOrigin = null;
+            try {
+                if (window.parent && window.parent !== window) {
+                    if (window.location.ancestorOrigins && window.location.ancestorOrigins.length > 0) {
+                        parentOrigin = window.location.ancestorOrigins[0];
+                    } else if (document.referrer) {
+                        parentOrigin = new URL(document.referrer).origin;
+                    }
+                }
+            } catch (e) {
+                // Ignore cross-origin access restrictions
+            }
+
+            if (parentOrigin && !isOriginAllowed(parentOrigin)) {
+                console.error('Silent renew rejected: parent origin not allowed', parentOrigin);
+                return;
+            }
+
+            var targetOrigin = parentOrigin && isOriginAllowed(parentOrigin) ? parentOrigin : window.location.origin;
+
+            if (typeof oidc !== 'undefined' && oidc.UserManager) {
+                new oidc.UserManager({
+                    response_mode: 'fragment',
+                    iframeNotifyParentOrigin: targetOrigin
+                }).signinSilentCallback().catch(function(e) {
+                    console.error('Silent renew callback error:', e);
+                });
+            } else {
+                var msg = {
+                    source: 'oidc-client',
+                    url: window.location.href,
+                    keepOpen: false
+                };
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage(msg, targetOrigin);
+                }
+            }
+        })();
     </script>
 </body>
 </html>

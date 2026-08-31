@@ -133,6 +133,7 @@ export default {
       response_type: 'code',
       response_mode: 'fragment',
       post_logout_redirect_uri: location.origin,
+      iframeNotifyParentOrigin: options.config?.ALLOWED_ORIGINS || location.origin,
       userStore: new WebStorageStateStore({ store: new InMemoryWebStorage() }),
       scope: `openid profile email api://${options.config.OAUTH_API_APP_ID}/API.call`,
     })
