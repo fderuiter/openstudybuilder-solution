@@ -45,6 +45,29 @@ export function broadcastStudyUpdate(studyUid) {
 }
 
 /**
+ * Broadcasts a study selection change event across browser tabs.
+ * @param {string} studyUid - The identifier of the study that was selected or changed.
+ */
+export function broadcastStudySelectionChange(studyUid) {
+  if (!studyUid) return
+
+  const payload = {
+    type: 'STUDY_SELECTION_CHANGED',
+    studyUid: String(studyUid),
+    senderTabId: TAB_ID,
+    timestamp: Date.now(),
+  }
+
+  if (channel) {
+    try {
+      channel.postMessage(payload)
+    } catch (e) {
+      console.error('Failed to broadcast study selection change:', e)
+    }
+  }
+}
+
+/**
  * Refetches active domain stores asynchronously in the background.
  * Preserves active route and uncommitted text input state.
  * @param {string} studyUid
@@ -217,7 +240,11 @@ export function initBroadcastChannelListener(router) {
 
   channel.onmessage = (event) => {
     const data = event.data
-    if (!data || data.type !== 'STUDY_UPDATED') return
+    if (
+      !data ||
+      (data.type !== 'STUDY_UPDATED' && data.type !== 'STUDY_SELECTION_CHANGED')
+    )
+      return
 
     // Requirement 5: Ignore event if sent from this tab instance
     if (data.senderTabId === TAB_ID) return
@@ -236,8 +263,8 @@ export function initBroadcastChannelListener(router) {
     if (!activeStudyUid && !activeStudyId) return
 
     if (
-      activeStudyUid !== incomingStudyUid &&
-      activeStudyId !== incomingStudyUid
+      String(activeStudyUid) !== String(incomingStudyUid) &&
+      String(activeStudyId) !== String(incomingStudyUid)
     ) {
       return
     }
@@ -249,6 +276,7 @@ export function initBroadcastChannelListener(router) {
 
 export default {
   broadcastStudyUpdate,
+  broadcastStudySelectionChange,
   initBroadcastChannelListener,
   refetchActiveDomainStores,
   TAB_ID,

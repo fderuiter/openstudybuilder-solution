@@ -10,7 +10,10 @@ function extractStudyUidFromUrl(path) {
 }
 
 function extractStudyUidFromSessionStorage() {
-  const selectedStudy = JSON.parse(sessionStorage.getItem('selectedStudy'))
+  const selectedStudy = JSON.parse(
+    sessionStorage.getItem('studybuilder:selectedStudy') ||
+      sessionStorage.getItem('selectedStudy')
+  )
   if (selectedStudy) {
     return selectedStudy.uid
   } else {

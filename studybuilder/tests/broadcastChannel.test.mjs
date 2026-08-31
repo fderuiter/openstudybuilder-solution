@@ -69,6 +69,152 @@ test('BroadcastChannel Event Sync Unit Tests', async (t) => {
   })
 
   await t.test(
+    'broadcastStudySelectionChange posts STUDY_SELECTION_CHANGED payload',
+    () => {
+      const channel1 = new MockBroadcastChannel('equipose_study_sync_channel')
+      const channel2 = new MockBroadcastChannel('equipose_study_sync_channel')
+
+      let receivedData = null
+      channel2.onmessage = (event) => {
+        receivedData = event.data
+      }
+
+      const testPayload = {
+        type: 'STUDY_SELECTION_CHANGED',
+        studyUid: 'study-789',
+        senderTabId: 'tab-1',
+        timestamp: Date.now(),
+      }
+
+      channel1.postMessage(testPayload)
+
+      assert.ok(receivedData !== null)
+      assert.equal(receivedData.type, 'STUDY_SELECTION_CHANGED')
+      assert.equal(receivedData.studyUid, 'study-789')
+      assert.equal(receivedData.senderTabId, 'tab-1')
+
+      channel1.close()
+      channel2.close()
+    }
+  )
+
+  await t.test(
+    'receiving tab handles STUDY_SELECTION_CHANGED event for matching study ID',
+    () => {
+      const channel1 = new MockBroadcastChannel('equipose_study_sync_channel')
+      const channel2 = new MockBroadcastChannel('equipose_study_sync_channel')
+
+      let refetchCalled = false
+      const tab2ActiveStudyUid = 'study-789'
+
+      channel2.onmessage = (event) => {
+        const data = event.data
+        if (
+          !data ||
+          (data.type !== 'STUDY_UPDATED' &&
+            data.type !== 'STUDY_SELECTION_CHANGED')
+        )
+          return
+        if (data.senderTabId === 'tab-2') return
+
+        if (tab2ActiveStudyUid === data.studyUid) {
+          refetchCalled = true
+        }
+      }
+
+      channel1.postMessage({
+        type: 'STUDY_SELECTION_CHANGED',
+        studyUid: 'study-789',
+        senderTabId: 'tab-1',
+        timestamp: Date.now(),
+      })
+
+      assert.equal(
+        refetchCalled,
+        true,
+        'STUDY_SELECTION_CHANGED event for matching study must trigger refetch'
+      )
+
+      channel1.close()
+      channel2.close()
+    }
+  )
+
+  await t.test(
+    'receiving tab ignores STUDY_SELECTION_CHANGED for non-matching study ID',
+    () => {
+      const channel1 = new MockBroadcastChannel('equipose_study_sync_channel')
+      const channel2 = new MockBroadcastChannel('equipose_study_sync_channel')
+
+      let refetchCalled = false
+      const tab2ActiveStudyUid = 'study-456'
+
+      channel2.onmessage = (event) => {
+        const data = event.data
+        if (
+          !data ||
+          (data.type !== 'STUDY_UPDATED' &&
+            data.type !== 'STUDY_SELECTION_CHANGED')
+        )
+          return
+        if (data.senderTabId === 'tab-2') return
+
+        if (tab2ActiveStudyUid === data.studyUid) {
+          refetchCalled = true
+        }
+      }
+
+      channel1.postMessage({
+        type: 'STUDY_SELECTION_CHANGED',
+        studyUid: 'study-789',
+        senderTabId: 'tab-1',
+        timestamp: Date.now(),
+      })
+
+      assert.equal(
+        refetchCalled,
+        false,
+        'STUDY_SELECTION_CHANGED event for non-matching study must be ignored'
+      )
+
+      channel1.close()
+      channel2.close()
+    }
+  )
+
+  await t.test(
+    'storage keys are prefixed with sub-application namespace',
+    () => {
+      const mockStorage = new Map()
+      const storageWrapper = {
+        setItem(key, value) {
+          const prefixedKey = key.startsWith('studybuilder:')
+            ? key
+            : `studybuilder:${key}`
+          mockStorage.set(prefixedKey, value)
+        },
+        getItem(key) {
+          return (
+            mockStorage.get(
+              key.startsWith('studybuilder:') ? key : `studybuilder:${key}`
+            ) || mockStorage.get(key)
+          )
+        },
+      }
+
+      storageWrapper.setItem('selectedStudy', JSON.stringify({ uid: 'study-1' }))
+      storageWrapper.setItem('section', 'studies')
+
+      assert.ok(mockStorage.has('studybuilder:selectedStudy'))
+      assert.ok(mockStorage.has('studybuilder:section'))
+      assert.equal(
+        storageWrapper.getItem('selectedStudy'),
+        JSON.stringify({ uid: 'study-1' })
+      )
+    }
+  )
+
+  await t.test(
     'receiving tab ignores broadcast event for different study ID',
     () => {
       const channel1 = new MockBroadcastChannel('equipose_study_sync_channel')

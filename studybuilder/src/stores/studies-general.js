@@ -5,6 +5,10 @@ import study from '@/api/study'
 import terms from '@/api/controlledTerminology/terms'
 import units from '@/api/units'
 import preferencesApi from '@/api/preferences'
+import {
+  broadcastStudySelectionChange,
+  broadcastStudyUpdate,
+} from '@/plugins/broadcastChannel'
 
 export const useStudiesGeneralStore = defineStore('studiesGeneral', {
   state: () => ({
@@ -113,25 +117,56 @@ export const useStudiesGeneralStore = defineStore('studiesGeneral', {
 
   actions: {
     unselectStudy() {
+      const currentStudyUid = this.studyUid
       this.selectedStudy = null
+      sessionStorage.removeItem('studybuilder:selectedStudy')
       sessionStorage.removeItem('selectedStudy')
       // Update active study in backend user preferences
-      preferencesApi.updateUserPreferences({ active_study: "" }).catch((error) => {
+      preferencesApi.updateUserPreferences({ active_study: '' }).catch((error) => {
         console.error('Failed to clear active_study preference:', error)
       })
+      if (currentStudyUid) {
+        broadcastStudySelectionChange(currentStudyUid)
+      }
     },
 
     async initialize() {
-      const selectedStudy = sessionStorage.getItem('selectedStudy')
+      const selectedStudy =
+        sessionStorage.getItem('studybuilder:selectedStudy') ||
+        sessionStorage.getItem('selectedStudy')
       if (selectedStudy) {
         const parsedStudy = JSON.parse(selectedStudy)
         await this.selectStudy(parsedStudy)
         try {
-          await study.getStudy(parsedStudy.uid, true)
+          await this.getStudy(parsedStudy.uid, true)
         } catch (error) {
           this.unselectStudy()
         }
       }
+    },
+    async getStudy(studyUid, forceReload = false) {
+      if (!studyUid) return null
+      const resp = await study.getStudy(studyUid, forceReload)
+      if (
+        resp &&
+        resp.data &&
+        this.selectedStudy &&
+        (String(this.selectedStudy.uid) === String(studyUid) ||
+          String(this.selectedStudy.id) === String(studyUid))
+      ) {
+        this.selectedStudy = resp.data
+        if (!resp.data.current_metadata) {
+          this.selectedStudyVersion = resp.data.version_number
+        } else {
+          this.selectedStudyVersion =
+            resp.data.current_metadata.version_metadata.version_number
+        }
+        sessionStorage.setItem(
+          'studybuilder:selectedStudy',
+          JSON.stringify(resp.data)
+        )
+      }
+      return resp
     },
     async selectStudy(studyObj, forceReload) {
       this.selectedStudy = studyObj
@@ -141,7 +176,10 @@ export const useStudiesGeneralStore = defineStore('studiesGeneral', {
         this.selectedStudyVersion =
           studyObj.current_metadata.version_metadata.version_number
       }
-      sessionStorage.setItem('selectedStudy', JSON.stringify(studyObj))
+      sessionStorage.setItem(
+        'studybuilder:selectedStudy',
+        JSON.stringify(studyObj)
+      )
 
       // Update active study in backend user preferences
       try {
@@ -157,6 +195,9 @@ export const useStudiesGeneralStore = defineStore('studiesGeneral', {
       this.soaPreferredTimeUnit = resp.data
       resp = await study.getSoAPreferences(studyObj.uid)
       this.soaPreferences = resp.data
+
+      broadcastStudySelectionChange(studyObj.uid)
+
       if (forceReload) {
         document.location.reload()
       }
@@ -169,6 +210,9 @@ export const useStudiesGeneralStore = defineStore('studiesGeneral', {
           protocolSoa
             ? (this.soaPreferredTimeUnit = resp.data)
             : (this.studyPreferredTimeUnit = resp.data)
+          if (this.selectedStudy?.uid) {
+            broadcastStudyUpdate(this.selectedStudy.uid)
+          }
         })
     },
     getSoaPreferences() {
@@ -190,6 +234,9 @@ export const useStudiesGeneralStore = defineStore('studiesGeneral', {
         .updateSoaPreferences(this.selectedStudy.uid, payload)
         .then((resp) => {
           this.soaPreferences = resp.data
+          if (this.selectedStudy?.uid) {
+            broadcastStudyUpdate(this.selectedStudy.uid)
+          }
         })
     },
     fetchUnits() {
