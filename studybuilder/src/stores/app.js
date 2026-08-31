@@ -20,7 +20,8 @@ function getStudyUid() {
     return studyUidFromUrl
   }
   const selectedStudyFromSessionStorage = JSON.parse(
-    sessionStorage.getItem('selectedStudy')
+    sessionStorage.getItem('studybuilder:selectedStudy') ||
+      sessionStorage.getItem('selectedStudy')
   )
   if (selectedStudyFromSessionStorage) {
     return selectedStudyFromSessionStorage.uid
@@ -728,7 +729,7 @@ export const useAppStore = defineStore('app', {
     },
     setSection(section) {
       this.section = section
-      localStorage.setItem('section', section)
+      localStorage.setItem('studybuilder:section', section)
       if (section) {
         this.breadcrumbs = [
           {
@@ -744,8 +745,12 @@ export const useAppStore = defineStore('app', {
     },
     async initialize() {
       const studiesGeneralStore = useStudiesGeneralStore()
-      const section = localStorage.getItem('section')
-      const breadcrumbs = localStorage.getItem('breadcrumbs')
+      const section =
+        localStorage.getItem('studybuilder:section') ||
+        localStorage.getItem('section')
+      const breadcrumbs =
+        localStorage.getItem('studybuilder:breadcrumbs') ||
+        localStorage.getItem('breadcrumbs')
 
       // Load extension menu items
       this.loadExtensionMenuItems()
@@ -806,15 +811,23 @@ export const useAppStore = defineStore('app', {
       } else {
         this.appendToBreadcrumbs(item)
       }
-      localStorage.setItem('breadcrumbs', JSON.stringify(this.breadcrumbs))
+      localStorage.setItem(
+        'studybuilder:breadcrumbs',
+        JSON.stringify(this.breadcrumbs)
+      )
     },
     truncateBreadcrumbsFromLevel(pos) {
       this.breadcrumbs = this.breadcrumbs.slice(0, pos)
-      localStorage.setItem('breadcrumbs', JSON.stringify(this.breadcrumbs))
+      localStorage.setItem(
+        'studybuilder:breadcrumbs',
+        JSON.stringify(this.breadcrumbs)
+      )
     },
     resetBreadcrumbs() {
       this.breadcrumbs = []
+      localStorage.removeItem('studybuilder:section')
       localStorage.removeItem('section')
+      localStorage.removeItem('studybuilder:breadcrumbs')
       localStorage.removeItem('breadcrumbs')
     },
     applyPreferences(preferences) {

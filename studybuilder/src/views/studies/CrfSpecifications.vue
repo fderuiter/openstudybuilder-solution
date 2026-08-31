@@ -45,7 +45,7 @@ export default {
   },
   watch: {
     activeTab(value) {
-      localStorage.setItem('templatesTab', value)
+      localStorage.setItem('studybuilder:templatesTab', value)
       const tabName = value
         ? this.tabs.find((el) => el.tab.substring(1) === value).name
         : this.tabs[0].name
@@ -57,7 +57,10 @@ export default {
     },
   },
   mounted() {
-    this.activeTab = localStorage.getItem('templatesTab') || 'tab-0'
+    this.activeTab =
+      localStorage.getItem('studybuilder:templatesTab') ||
+      localStorage.getItem('templatesTab') ||
+      'tab-0'
     const tabName = this.activeTab
       ? this.tabs.find((el) => el.tab.substring(1) === this.activeTab).name
       : this.tabs[0].name

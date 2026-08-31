@@ -66,8 +66,11 @@ const authInterface = {
           return false
         } else {
           if (to && to.name && to.name !== 'Login') {
-            sessionStorage.setItem('next', to.name)
-            sessionStorage.setItem('nextParams', JSON.stringify(to.params || {}))
+            sessionStorage.setItem('studybuilder:next', to.name)
+            sessionStorage.setItem(
+              'studybuilder:nextParams',
+              JSON.stringify(to.params || {})
+            )
           }
           manager.signinRedirect()
           if (typeof next === 'function') {
@@ -86,8 +89,11 @@ const authInterface = {
   },
   signinRedirect: function (to) {
     if (to && to.name && to.name !== 'Login') {
-      sessionStorage.setItem('next', to.name)
-      sessionStorage.setItem('nextParams', JSON.stringify(to.params || {}))
+      sessionStorage.setItem('studybuilder:next', to.name)
+      sessionStorage.setItem(
+        'studybuilder:nextParams',
+        JSON.stringify(to.params || {})
+      )
     }
     return manager.signinRedirect()
   },

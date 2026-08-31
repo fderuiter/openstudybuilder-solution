@@ -99,21 +99,16 @@ const lockSettings = computed(() => {
 })
 
 const onTabChanged = () => {
-  if (eventBus.value.get('open-form') || localStorage.getItem('open-form')) {
+  if (eventBus.value.get('open-form')) {
     updateActivitiesTable.value++
     eventBus.value.delete('open-form')
-    localStorage.removeItem('open-form')
   }
   studiesGeneralStore.getSoaPreferences()
-  if (
-    eventBus.value.get('refresh-activities') ||
-    localStorage.getItem('refresh-activities')
-  ) {
+  if (eventBus.value.get('refresh-activities')) {
     if (activitiesTable.value) {
       activitiesTable.value.onStudyActivitiesUpdated()
     }
     eventBus.value.delete('refresh-activities')
-    localStorage.removeItem('refresh-activities')
   }
 }
 

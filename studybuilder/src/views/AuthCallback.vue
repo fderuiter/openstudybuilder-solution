@@ -21,10 +21,17 @@ export default {
     this.$auth
       .oauthLoginCallback()
       .then(() => {
-        const next = sessionStorage.getItem('next')
+        const next =
+          sessionStorage.getItem('studybuilder:next') ||
+          sessionStorage.getItem('next')
         if (next) {
-          const params = JSON.parse(sessionStorage.getItem('nextParams'))
+          const params = JSON.parse(
+            sessionStorage.getItem('studybuilder:nextParams') ||
+              sessionStorage.getItem('nextParams')
+          )
+          sessionStorage.removeItem('studybuilder:next')
           sessionStorage.removeItem('next')
+          sessionStorage.removeItem('studybuilder:nextParams')
           sessionStorage.removeItem('nextParams')
           this.$router.push({ name: next, params })
         } else {

@@ -127,7 +127,7 @@ function onMenuItemClick(event, item, subitem) {
 function toggleMenu() {
   mini.value = !mini.value
   refreshNeeded.value = true
-  localStorage.setItem('narrowMenu', JSON.stringify(mini.value))
+  localStorage.setItem('studybuilder:narrowMenu', JSON.stringify(mini.value))
 }
 function transitionEnd() {
   if (refreshNeeded.value) {

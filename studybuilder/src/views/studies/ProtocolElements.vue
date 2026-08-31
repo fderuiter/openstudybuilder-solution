@@ -178,7 +178,7 @@ export default {
         3,
         true
       )
-      localStorage.setItem('templatesTab', value)
+      localStorage.setItem('studybuilder:templatesTab', value)
       switch (value) {
         case 'tab-1':
           this.updateFlowchart++
@@ -197,7 +197,10 @@ export default {
     },
   },
   mounted() {
-    this.tab = localStorage.getItem('templatesTab') || 'tab-0'
+    this.tab =
+      localStorage.getItem('studybuilder:templatesTab') ||
+      localStorage.getItem('templatesTab') ||
+      'tab-0'
     const tabName = this.tab
       ? this.tabs.find((el) => el.tab === this.tab).name
       : this.tabs[0].name

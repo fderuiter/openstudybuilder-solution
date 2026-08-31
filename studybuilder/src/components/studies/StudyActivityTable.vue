@@ -388,9 +388,6 @@ function checkIfFormOpen() {
   if (openFormBus && openFormBus[0]) {
     showActivityForm.value = true
     eventBus.value.delete('open-form')
-  } else if (localStorage.getItem('open-form')) {
-    showActivityForm.value = true
-    localStorage.removeItem('open-form')
   }
 }
 
